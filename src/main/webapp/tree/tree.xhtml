@@ -1,0 +1,23 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:h="http://java.sun.com/jsf/html"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui">
+
+    <h:panelGroup class="tree-container">
+        <p:tree value="#{treeBean.root}"
+                dynamic="true"
+                var="nodetree"
+                selectionMode="single"
+                selection="#{treeBean.selectedNode}"
+                style="width: auto; border: none; overflow-y: auto; overflow-x: hidden; font-size: 12px; height: 100%;"
+                widgetVar="treeWidget">
+
+            <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>
+            <p:ajax event="select" listener="#{treeBean.onNodeSelect}"/>
+
+            <p:treeNode>
+                <h:outputText value="#{nodetree}" style="font-size:12px"/>
+            </p:treeNode>
+        </p:tree>
+    </h:panelGroup>
+</ui:fragment>

@@ -1,0 +1,87 @@
+<ui:composition template="commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="mainContent">
+
+        <!-- Barre de recherche -->
+        <section class="app-search">
+            <ui:include src="search/search.xhtml"/>
+        </section>
+
+        <!-- Contenu principal avec 3 panneaux -->
+        <section class="app-content">
+
+            <!-- Conteneur central -->
+            <h:panelGroup rendered="#{treeBean.root != null}">
+                <!-- Tree -->
+                <div class="left-tree" id="leftTreePanel">
+                    <!-- Menu d’onglets -->
+                    <h:form>
+                        <p:menuitem icon="pi pi-sitemap"
+                                    title="Concept"
+                                    outcome="/theso_tree/tree.xhtml?faces-redirect=true"/>
+                    </h:form>
+
+                    <!-- Affichage dynamique de l’arbre -->
+                    <ui:fragment>
+                        <ui:include src="tree/treeActions.xhtml"/>
+                        <ui:include src="tree/tree.xhtml"/>
+                    </ui:fragment>
+                </div>
+
+                <!-- no concept selected, show theso_home
+                <h:panelGroup rendered="#{treeBean.selectedNode == null}" >
+                    <p:outputPanel >
+                        <ui:include src="theso_home/home.xhtml"/>
+                    </p:outputPanel>
+                </h:panelGroup>-->
+
+            </h:panelGroup>
+
+            <div class="center-content">
+                <!--<div class="cards-wrapper">
+                    <h:form>
+                        <p:panelGrid columns="3" layout="flex" styleClass="cards-grid">
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
+                                <span>Titre 1</span>
+                            </p:commandLink>
+
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
+                                <span>Titre 2</span>
+                            </p:commandLink>
+
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
+                                <span>Titre 3</span>
+                            </p:commandLink>
+                        </p:panelGrid>
+                    </h:form>
+                </div>-->
+
+                <!-- Concept selected rendered="#{treeBean.selectedNode != null}"-->
+                <h:panelGroup  >
+                    <div class="info-concept">
+                        <ui:include src="details/referentiel.xhtml"/>
+                    </div>
+                </h:panelGroup>
+            </div>
+
+            <!-- Panneau droit masqué -->
+            <h:panelGroup rendered="true" >
+                <div id="panelRight" class="search-result" style="display: none;">
+                    <ui:include src="search/searchResult.xhtml"/>
+                </div>
+            </h:panelGroup>
+        </section>
+
+        <!-- JS toggle résultat -->
+        <h:outputScript target="body">
+            function toggleRightPanel() {
+                const panel = document.getElementById('panelRight');
+                panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+            }
+        </h:outputScript>
+    </ui:define>
+</ui:composition>

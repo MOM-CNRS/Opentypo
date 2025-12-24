@@ -1,0 +1,1191 @@
+/*  🎨 Palette de couleurs utilisée */
+:root {
+    /* Actions */
+    --color-action-main: #47624D;      /* ✅ Vert forêt foncé */
+    --color-action-secondary: #6C757D; /* ⚠️ Gris-bleu foncé */
+    --color-danger: #B84A3C;           /* ❌ Rouge brique */
+    --color-link-discreet: #516D75;   /* ✏️ Lien discret */
+    --color-link: #0A58CA;            /* 🔗 Lien classique */
+    --color-surface-secondary: #f0f2f5; /* légèrement bleuté (style PrimeFaces moderne) */
+
+    /* Fonds */
+    --color-bg-global: #EEEFE0;       /* Fond global */
+    --color-bg-secondary: #D1D8BE;    /* Fond secondaire */
+    --color-hover: #A7C1A8;           /* Hover/survol */
+
+    /* Texte / icône secondaire */
+    --color-text-secondary: #819A91;
+    --color-text-primary: #333;
+}
+
+
+/* 1. Base */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: var(--color-text-primary, #333);
+
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden; /* permet le scroll vertical */
+}
+
+/* 2. Structure App */
+.app-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/*  3. Header & Footer */
+.app-header {
+    height: 50px;
+    background-color: var(--color-action-main);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+
+/* Regroupe burger + logo */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Logo réduit si besoin */
+.header-logo {
+    height: 25px;
+    max-width: 120px;
+}
+
+/* Titre central ou adaptatif */
+.header-title {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Par défaut : afficher le logo desktop, cacher le mobile */
+.logo-desktop {
+    display: inline-block;
+}
+
+.logo-mobile {
+    display: none;
+}
+
+
+
+/**** Footer dynamique ****/
+.app-footer {
+    background-color: var(--color-surface-secondary);
+    text-align: center;
+    padding: 1rem 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    height: auto;
+    width: 100%;
+    font-size: 1rem;
+}
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.infos-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.infos-footer a:hover {
+    text-decoration: underline;
+    color: var(--color-link);
+}
+
+.ods-front-footer__ods-logo-img {
+    height: 35px;
+    max-width: 100%;
+}
+
+.footer-logo {
+    margin-top: 0.5rem;
+    height: 30px;
+}
+
+
+
+
+
+
+
+
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon {
+    color: white;
+    font-size: 1.2rem;
+    border: none;
+    background: transparent;
+}
+
+.mobile-burger-button {
+    background-color: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-size: 1.4rem;
+    margin-right: 10px;
+    display: none !important;
+    box-shadow: none;
+}
+
+
+
+/* === SIDEBAR MODERNE === */
+.app-sidebar {
+    width: 280px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+    transition: width 0.3s ease;
+    position: relative;
+    z-index: 100;
+    border-right: 1px solid #e5e7eb;
+}
+
+.sidebar-content {
+    padding: 1.5rem 0.75rem;
+    width: 100%;
+}
+
+/* === Header du menu === */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 0.5rem 1.25rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.sidebar-header-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3e 100%);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.25);
+}
+
+.sidebar-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.sidebar-header-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #333);
+    letter-spacing: -0.01em;
+}
+
+.sidebar-header-subtitle {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary, #819A91);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* === Menu PrimeFaces dans Sidebar === */
+.sidebar-menu {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+}
+
+.sidebar-menu .ui-menu-list {
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-menu .ui-menu-list .ui-menuitem {
+    margin: 0 !important;
+    width: 100%;
+    border: none !important;
+    padding: 0;
+}
+
+/* === Items du menu - Design moderne avec cartes === */
+.sidebar-menu .ui-menuitem-link {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem !important;
+    border-radius: 12px;
+    background-color: transparent;
+    color: var(--color-text-primary, #333) !important;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    width: 100%;
+    min-height: 52px;
+    border: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+}
+
+/* Effet de vague au clic */
+.sidebar-menu .ui-menuitem-link:active {
+    transform: translateX(2px) scale(0.98);
+}
+
+.sidebar-menu .ui-menuitem-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-action-main, #47624D);
+    border-radius: 0 3px 3px 0;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.sidebar-menu .ui-menuitem-link:hover {
+    background: linear-gradient(90deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+    color: var(--color-action-main, #47624D) !important;
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.1);
+}
+
+.sidebar-menu .ui-menuitem-link:hover::before {
+    opacity: 1;
+}
+
+.sidebar-menu .ui-menuitem-link.ui-state-active,
+.sidebar-menu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link {
+    background: linear-gradient(90deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(71, 98, 77, 0.15);
+}
+
+.sidebar-menu .ui-menuitem-link.ui-state-active::before,
+.sidebar-menu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link::before {
+    opacity: 1;
+}
+
+/* === Icônes du menu - Design avec cercles colorés === */
+.sidebar-menu .ui-menuitem-icon,
+.sidebar-menu .ui-icon {
+    font-size: 1.1rem !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+.sidebar-menu .ui-menuitem-link:hover .ui-menuitem-icon,
+.sidebar-menu .ui-menuitem-link:hover .ui-icon {
+    color: var(--color-action-main, #47624D) !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.1) 100%);
+    border-color: rgba(71, 98, 77, 0.2);
+    transform: scale(1.05);
+}
+
+.sidebar-menu .ui-menuitem-link.ui-state-active .ui-menuitem-icon,
+.sidebar-menu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-icon {
+    color: var(--color-action-main, #47624D) !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.2) 0%, rgba(71, 98, 77, 0.15) 100%);
+    border-color: rgba(71, 98, 77, 0.3);
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.2);
+}
+
+/* === Texte du menu === */
+.sidebar-menu .ui-menuitem-text {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: inherit;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+}
+
+.sidebar-menu .ui-menuitem-link:hover .ui-menuitem-text {
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+}
+
+.sidebar-menu .ui-menuitem-link.ui-state-active .ui-menuitem-text,
+.sidebar-menu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-text {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+}
+
+/* === Séparateur dans le menu === */
+.sidebar-menu .menu-separator,
+.sidebar-menu .ui-menu-separator {
+    margin: 1rem 1rem 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    height: 1px;
+    background: none;
+    border-bottom: none;
+}
+
+/* === Responsive Sidebar === */
+@media (max-width: 768px) {
+    .app-sidebar {
+        position: fixed !important;
+        left: -280px;
+        height: calc(100vh - 50px);
+        top: 50px;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        border-right: none;
+    }
+
+    body.menu-open .app-sidebar {
+        left: 0 !important;
+    }
+
+    /* Overlay pour fermer le menu en cliquant à côté */
+    body.menu-open::before {
+        content: '';
+        position: fixed;
+        top: 50px;
+        left: 0;
+        width: 100vw;
+        height: calc(100vh - 50px);
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+        animation: fadeIn 0.3s ease;
+        backdrop-filter: blur(2px);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
+
+@media (min-width: 769px) {
+    .app-sidebar {
+        position: relative;
+        display: flex !important;
+    }
+}
+
+/* Scrollbar personnalisée pour le sidebar */
+.app-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* === PrimeFaces Menu Global (surcharge pour sidebar) === */
+body .ui-menu {
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+body .ui-menu .ui-menu-list .ui-menuitem {
+    margin: 0;
+    width: 100%;
+    border: none;
+    float: none;
+}
+
+
+
+
+/**** tabMenu ***/
+body .ui-tabmenu {
+    padding: 0;
+    position: static;
+    /*margin-bottom: -10px;*/
+}
+body .ui-tabmenu .ui-tabmenu-nav {
+    /*position: static;*/
+}
+
+body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem a {
+    padding: .5em 1em;
+}
+body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem.ui-state-active a {
+    color: var( --color-action-main);/*#47624D;*/
+    background-color: var(--color-bg-secondary);/*#D1D8BE;*/
+}
+body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem.ui-state-active {
+    background: #fff;
+    border-color: var(--color-action-main);
+}
+
+/* CheckBox */
+body .ui-chkbox .ui-chkbox-box {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--color-action-secondary);
+    border-radius: 0.25rem;
+    background-color: var(--color-bg-secondary);
+    transition: all 0.2s ease;
+    position: relative;
+}
+body .ui-chkbox .ui-chkbox-box:hover {
+    border-color: var(--color-action-main);
+    background-color: var(--color-hover);
+}
+body .ui-chkbox .ui-chkbox-box.ui-state-active {
+    background-color: var(--color-action-main);
+    border-color: var(--color-action-main);
+}
+body .ui-chkbox .ui-chkbox-box.ui-state-active.ui-state-hover {
+    background-color: var(--color-hover);
+    border-color: var(--color-action-main);
+}
+body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
+    font-family: "primeicons" !important;
+    font-style: normal;
+    font-weight: normal;
+    display: inline-block;
+    color: white; /* coche en blanc pour contraste */
+    background: none;
+    overflow: visible;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-40%, -50%);
+    font-size: 1rem; /* ajustable selon besoin */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* 5. Contenu central */
+
+/* Zone de recherche */
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.app-search {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+    background-color: #f5f5f5;
+    flex-wrap: wrap;
+    position: relative;
+}
+.search-controls {
+    display: flex;
+    gap: 10px;
+}
+/* Colonne gauche : selects */
+.search-selects {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    width: 40%; /* Les deux selects prennent 40% de la largeur totale */
+}
+
+.search-select {
+    flex: 1; /* Chaque select occupe la moitié de la largeur de .search-selects */
+}
+
+.search-select .ui-selectonemenu {
+    min-width: 140px;
+}
+/* Zone centrale : recherche centrée */
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-grow: 1;
+    width: 60%; /* La zone de recherche prend 60% */
+    min-width: 0; /* Permet la réduction sur petits écrans */
+}
+/* Input de recherche */
+.search-input {
+    width: 100%; /* Prend tout l'espace disponible */
+    padding: 0.5rem;
+}
+/* Bouton loupe */
+.search-button {
+    margin-left: 5px;
+}
+/* Bouton "toggle result" */
+.toggle-result {
+    flex-shrink: 0;
+}
+
+.search-burger-button {
+    display: none; /* caché par défaut */
+    background-color: transparent !important;
+    border: none;
+    font-size: 1.3rem;
+    color: #4C5C5A; /* ton action secondaire */
+}
+
+/** Recherche avancée **/
+.advanced-search-toggle {
+    margin-left: 5px;
+    font-size: 1.2rem;
+    color: #4C5C5A;
+}
+
+.advanced-search-section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    margin-top: 5px;
+    display: none;
+}
+.advanced-filters {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: nowrap; /* tout sur une ligne */
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    min-width: 120px; /* tu peux ajuster */
+}
+
+.filter-item label {
+    margin-bottom: 3px;
+    color: #555;
+}
+
+.compact-select {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 3px 6px !important; /* réduction du padding */
+}
+
+
+
+
+.app-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    gap: 5px; /* Espacement entre les blocs */
+    padding: 5px;
+    background-color: var(--color-bg-global);
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+}
+
+body .ui-tree {
+    padding: 0rem;
+}
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+   width: 1rem;
+}
+
+/** CSS pour le Tree **/
+.left-tree {
+    flex: 0 0 25%;
+    background-color: var(--color-surface-secondary);
+    border-right: 1px solid #ccc; /* séparation droite */
+    border-radius: 8px;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
+    max-height: 85vh;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    max-width: 25%;
+}
+
+/** taille des icones du Tree **/
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-e{
+    font-size: 0.9rem;
+}
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-s{
+    font-size: 0.9rem;
+}
+/** marge des icones de l'arbre **/
+body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-leaf-icon {
+    margin: 0 0 0 0rem;
+}
+
+/* Le bouton toggle caché sur desktop */
+.tree-toggle-button {
+    display: none;
+}
+
+/* partie de concept centrale */
+.info-concept {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08); /* effet "carte" */
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+/* resultat de la recherche */
+.search-result {
+    flex: 0 0 15%;
+    background-color: var(--color-surface-secondary);
+    border-left: 1px solid #ccc; /* séparation gauche */
+    border-radius: 8px;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    max-width: 15%;
+}
+
+#treeMobileHeader button i {
+    font-size: 1.2em;
+}
+
+/* Masquer le bouton burger sur les écrans plus larges que 992px */
+@media (min-width: 769px) {
+    .burger-button {
+        display: none !important;
+    }
+    .burger-search-control {
+        display: none !important; /* caché sur desktop */
+    }
+    .burger-tree-return {
+        display: none !important; /* caché sur desktop */
+    }
+    #treeMobileHeader {
+        display: none !important;
+    }
+}
+
+/* 📱 6. Responsive */
+@media (max-width: 768px) {
+    /* Le sidebar est maintenant géré par les styles ci-dessus avec toggle */
+
+    /* Cache l'arbre sur mobile */
+    .left-tree {
+        display: none;
+        position: fixed; /* quand visible, il sera positionné */
+        top: 60px;       /* laisse la place pour le menu + barre recherche */
+        left: 0;
+        width: 100vw;
+        height: calc(100vh - 60px); /* prend toute la hauteur moins barre */
+        background-color: #e8f5e9;
+        z-index: 9999;
+        /*overflow-y: auto;*/
+        padding: 10px;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+    }
+    /* Affiche le bouton toggle sous la barre */
+    .tree-toggle-button {
+        display: flex;
+        justify-content: center;
+        margin: 0px 0;
+        width: 100%;
+    }
+    .tree-toggle-button p\.commandButton {
+        margin: 0 auto;
+    }
+    body .ui-button.rounded-button.ui-button-icon-only {
+        border-radius: 50%;
+        height: 1rem;
+    }
+
+    /* Sur smartphone : on inverse */
+    .logo-desktop {
+        display: none;
+    }
+
+    .logo-mobile {
+        display: inline-block;
+    }
+
+
+
+
+
+    /* partie pour la barre de recherche */
+    .search-selects {
+        display: none;
+    }
+    .burger-search-control {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex-grow: 1;
+        width: 60%; /* La zone de recherche prend 60% */
+        min-width: 0; /* Permet la réduction sur petits écrans */
+    }
+    .search-input {
+        width: 100%; /* Prend tout l'espace disponible */
+        padding: 0.5rem;
+    }
+    .toggle-result {
+        flex-shrink: 0;
+    }
+
+
+
+
+    .burger-button {
+        display: inline-block;
+    }
+
+    body.menu-open .app-sidebar {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        width: 40px;
+        height: calc(100vh - 50px);
+        background-color: var(--color-action-secondary);
+        z-index: 999;
+        overflow-y: auto;
+    }
+
+    .app-main {
+        margin-left: 0 !important;
+    }
+
+    body.menu-open .app-main {
+        margin-left: 40px !important;
+    }
+
+    .ui-splitter-panel {
+        flex-grow: 1 !important;
+        max-width: 100% !important;
+    }
+}
+
+/* 7. Composants UI (PrimeFaces) */
+body .ui-panel .ui-panel-titlebar {
+    background-color: var(--color-bg-global);
+    border: none;
+    padding: .5em 1em .3em;
+    color: var(--color-action-main);
+    font-size: 15px;
+    font-style: italic;
+    font-weight: normal !important;
+}
+
+/** panel private pour le fil d'ariane **/
+.breadcrumb-panel .ui-panel-titlebar {
+    background-color: var(--color-bg-global) !important;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+body .ui-breadcrumb {
+    border: 0px solid #FFFFFF;
+    border-radius: 0px;
+    padding: 0rem;
+}
+
+body .ui-panel .ui-panel-content {
+    padding: 0rem 1rem 1rem 1rem;
+    border: none;
+}
+
+.ui-outputlabel, .ui-outputtext,
+.ui-icon {
+    font-size: 14px;
+}
+
+/* Boutons de base PrimeFaces stylés comme Bootstrap */
+.ui-button {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px !important;
+    padding: 0.75rem 1.1rem 0.75rem 2.0rem !important;
+    line-height: 1.5 !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem; /* espace entre icône et texte */
+    box-shadow: none !important;
+    margin-right: 4px !important;
+}
+
+
+
+/* 8. Boutons personnalisés */
+.btn-main {
+    background-color: var(--color-action-main) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+.btn-main:hover,
+.btn-secondary:hover {
+    filter: brightness(0.9) !important;
+}
+.btn-danger:hover {
+    filter: brightness(0.85) !important;
+}
+.btn-secondary {
+    background-color: var(--color-action-secondary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+.btn-danger {
+    background-color: var(--color-danger) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+
+.btn-link {
+    background-color: transparent !important;
+    color: var(--color-link) !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+.btn-link-discreet {
+    background-color: transparent !important;
+    color: var(--color-link-discreet) !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+.btn-help {
+    background-color: var(--color-link-discreet) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btn-help:hover {
+    background-color: var(--color-hover) !important;
+}
+.btn-help .icon {
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+/* ajustement des boutons pour ressembler à BootStrap */
+/* Bouton principal PrimeFaces style Bootstrap */
+.ui-button.btn-main,
+.ui-button.btn-secondary,
+.ui-button.btn-danger {
+  /*  padding: 0.75rem 1.1rem 0.75rem 2.0rem !important; /* ⬅️ comme Bootstrap */
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    border-radius: 0.25rem !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Supprime les paddings internes du texte dans le bouton */
+.ui-button-text-only .ui-button-text,
+.ui-button-text-icon-left .ui-button-text,
+.ui-button-text-icon-right .ui-button-text {
+    padding: 0 !important;
+}
+
+body .ui-button.ui-button-text-icon-right .ui-button-text {
+    padding: 0rem 1rem 0rem 0rem !important;
+}
+body .ui-button.ui-button-text-icon-left .ui-button-text {
+    padding: 0rem 0rem 0rem 1rem !important;
+}
+
+/* design du bouton icon */
+/* Boutons icon-only PrimeFaces avec design rond, centré, moderne */
+body .ui-button.ui-button-icon-only {
+    width: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    color: #47624D; /* couleur d’icône primaire */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: background-color 0.3s ease;
+    box-shadow: none;
+    padding: 0;
+}
+
+body .ui-button.ui-button-icon-only .ui-icon {
+    font-size: 1.2rem;
+    color: inherit;
+    position: relative; /* plus besoin de `absolute` si on centre via flex */
+    margin: 0;
+}
+
+/* Effet hover pour les boutons */
+body .ui-button.ui-button-icon-only:hover {
+    background-color: #A7C1A8; /* Hover vert clair */
+    color: white;
+}
+
+body .ui-button.ui-button-icon-only:hover .ui-icon {
+    color: white;
+}
+
+
+/* 9. Fonds */
+.bg-global {
+    background-color: var(--color-bg-global);
+}
+
+.bg-secondary {
+    background-color: var(--color-bg-secondary);
+}
+
+.bg-hover {
+    background-color: var(--color-hover);
+}
+
+/* 10. Textes */
+.text-main {
+    color: var(--color-action-main);
+}
+
+.text-secondary {
+    color: var(--color-text-secondary);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-discreet {
+    color: var(--color-link-discreet);
+}
+
+.text-link {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Centre les cartes dans app-content */
+.cards-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* horizontal */
+    align-items: center;     /* vertical */
+    overflow-y: auto;
+}
+
+/* Désactive le comportement col-12 uniquement pour les cartes */
+.cards-wrapper .col-12 {
+    flex: unset !important;
+}
+
+/* Layout horizontal des cartes */
+.cards-grid > .ui-panelgrid-content {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.ui-commandlink {
+    font-size: 20px;
+    color: #000000 !important;;
+    background-color: #F5F5F5 !important;
+}
+
+body .ui-panelgrid .ui-panelgrid-cell {
+    background-color: transparent;
+}
+
+.clickable-card {
+    width: 20rem;
+    height: 10rem;
+
+    border: 5px solid #000;
+    border-radius: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+    color: inherit;
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: #FFFFFF !important;;
+    background-color: #47624d !important;
+    font-weight: bold;
+    text-decoration: none !important;
+    border: 5px solid #47624d;
+}
+
+/* CONTENU CENTRAL = prend TOUT le reste */
+.center-content {
+    flex: 1 1 auto;
+    min-width: 0; /* 🔥 TRÈS IMPORTANT */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
+.image-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* centrage horizontal */
+    margin: 2rem 0;            /* respiration verticale */
+}
+
+.research-image {
+    width: 80%;
+    max-width: 900px;          /* limite sur grands écrans */
+    height: auto;
+
+    border-radius: 4px;        /* très léger, non décoratif */
+    border: 1px solid #d0d0d0; /* style institutionnel */
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* discret */
+}

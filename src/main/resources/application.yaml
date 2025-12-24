@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+joinfaces:
+  faces:
+    servlet:
+      mapping: "*.xhtml"
+      load-on-startup: 1
+      welcome-files:
+        - "index.xhtml"
+logging:
+  level:
+    jakarta.faces: info
+    org.joinfaces: info
+spring:
+  application:
+    name: OpenTypo
+  datasource:
+    url: jdbc:postgresql://localhost:5432/opentheso2
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  main:
+    allow-bean-definition-overriding: true
+
+

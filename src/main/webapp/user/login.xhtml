@@ -1,0 +1,292 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="loginDialog"
+              widgetVar="loginDialog"
+              header="Authentification"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              styleClass="login-dialog"
+              width="480"
+              height="auto"
+              showEffect="fade"
+              hideEffect="fade">
+
+        <f:facet name="header">
+            <div class="login-dialog-header">
+                <i class="pi pi-lock login-header-icon"></i>
+                <span class="login-header-title">Authentification</span>
+            </div>
+        </f:facet>
+
+        <h:form id="loginForm">
+            <div class="login-container">
+                <div class="login-intro">
+                    <p class="login-intro-text">Veuillez vous connecter pour accéder à votre espace de recherche.</p>
+                </div>
+
+                <p:messages id="loginMessages"
+                            for="loginForm"
+                            showDetail="true"
+                            closable="true"
+                            styleClass="login-messages" />
+
+                <div class="login-field">
+                    <p:outputLabel for="username" value="Nom d'utilisateur" />
+                    <span class="login-input-wrapper">
+                        <i class="pi pi-user login-input-icon"></i>
+                        <p:inputText id="username"
+                                     value="#{loginBean.username}"
+                                     placeholder="Entrez votre nom d'utilisateur"
+                                     styleClass="login-input"
+                                     required="true"
+                                     requiredMessage="Le nom d'utilisateur est requis"
+                                     autocomplete="username" />
+                    </span>
+                </div>
+
+                <div class="login-field">
+                    <p:outputLabel for="password" value="Mot de passe" />
+                    <span class="login-input-wrapper">
+                        <i class="pi pi-lock login-input-icon"></i>
+                        <p:password id="password"
+                                    value="#{loginBean.password}"
+                                    placeholder="Entrez votre mot de passe"
+                                    styleClass="login-input"
+                                    required="true"
+                                    requiredMessage="Le mot de passe est requis"
+                                    feedback="false"
+                                    autocomplete="current-password" />
+                    </span>
+                </div>
+
+                <div class="login-actions">
+                    <p:commandButton value="Se connecter"
+                                     icon="pi pi-sign-in"
+                                     action="#{loginBean.login()}"
+                                     update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm"
+                                     styleClass="login-button p-button-primary"
+                                     process="@this username password"
+                                     oncomplete="if(!args.validationFailed) {PF('loginDialog').hide();}" />
+
+                    <p:commandButton value="Annuler"
+                                     icon="pi pi-times"
+                                     onclick="PF('loginDialog').hide(); return false;"
+                                     type="button"
+                                     styleClass="login-button-cancel p-button-secondary" />
+                </div>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <style>
+        /* Dialog d'authentification - Charte couleur du site */
+        .login-dialog .ui-dialog {
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--color-action-main, #47624D);
+        }
+
+        .login-dialog .ui-dialog-titlebar {
+            background-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .login-dialog .ui-dialog-titlebar-close {
+            color: white !important;
+        }
+
+        .login-dialog .ui-dialog-content {
+            padding: 2rem;
+            background-color: var(--color-bg-global, #EEEFE0);
+        }
+
+        .login-dialog-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .login-header-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: white;
+        }
+
+        .login-header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .login-intro {
+            margin-bottom: 0.5rem;
+        }
+
+        .login-intro-text {
+            color: var(--color-text-secondary, #819A91);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+            text-align: center;
+        }
+
+        .login-messages {
+            margin-bottom: 0.5rem;
+        }
+
+        .login-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .login-field label {
+            font-weight: 600;
+            color: var(--color-text-primary, #333);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--color-text-secondary, #819A91);
+            font-size: 1rem;
+            z-index: 1;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 1.5px solid var(--color-action-secondary, #6C757D);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: var(--color-text-primary, #333);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .login-input:focus {
+            border-color: var(--color-action-main, #47624D);
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15);
+        }
+
+        .login-input::placeholder {
+            color: var(--color-text-secondary, #819A91);
+        }
+
+        .login-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-action-secondary, #6C757D);
+        }
+
+        .login-button {
+            min-width: 140px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 6px;
+            background-color: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+        }
+
+        .login-button:hover {
+            background-color: var(--color-hover, #A7C1A8) !important;
+            border-color: var(--color-hover, #A7C1A8) !important;
+        }
+
+        .login-button-cancel {
+            min-width: 120px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 6px;
+            background-color: var(--color-action-secondary, #6C757D) !important;
+            border-color: var(--color-action-secondary, #6C757D) !important;
+            color: white !important;
+        }
+
+        .login-button-cancel:hover {
+            background-color: var(--color-text-secondary, #819A91) !important;
+            border-color: var(--color-text-secondary, #819A91) !important;
+        }
+
+        /* Indicateur utilisateur connecté */
+        .authenticated-user {
+            background-color: rgba(71, 98, 77, 0.15) !important;
+        }
+
+        .authenticated-user:hover {
+            background-color: rgba(71, 98, 77, 0.25) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-dialog .ui-dialog {
+                width: 95vw !important;
+                max-width: 95vw !important;
+                margin: 1rem auto !important;
+            }
+
+            .login-dialog .ui-dialog-content {
+                padding: 1.5rem;
+            }
+
+            .login-header-icon {
+                font-size: 1.25rem;
+            }
+
+            .login-header-title {
+                font-size: 1.1rem;
+            }
+
+            .login-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .login-button,
+            .login-button-cancel {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-dialog .ui-dialog-content {
+                padding: 1.25rem;
+            }
+
+            .login-container {
+                gap: 1.25rem;
+            }
+
+            .login-intro-text {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</ui:fragment>

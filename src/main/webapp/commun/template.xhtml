@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Mon Application</title>
+
+    <link rel="icon" type="image/png" href="#{resource['img:o.png']}"/>
+
+    <!-- FontAwsome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/all.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/v4-shims.css"/>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"/>
+
+    <h:outputStylesheet library="css" name="theso_style.css?v=1.0.4"/>
+    <h:outputScript library="js" name="theso_responsiveMenu.js" target="body"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+</h:head>
+
+<h:body styleClass="app-body">
+
+    <!-- Bandeau en haut de page, il faut activer l'affichage à la demande et intégrer le contenu dans la BDD -->
+    <h:panelGroup rendered="false" layout="block" style="width:100%; padding:10px; background-color:#f5f5f5; border-bottom:1px solid #ccc; position:fixed; top:0; left:0; z-index:1000;">
+        <div style="display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto;">
+            <span class="footer-top">Logo et nom de l'institution</span>
+            <div>
+                <a href="http://www.culture.gouv.fr/Mentions-legales" target="_blank">Mentions légales</a> |
+                <a href="/pages/credits" target="_blank">Crédits</a> |
+                <a href="/pages/accessibilite" target="_blank">Accessibilité : non conforme</a> |
+                <a href="/pages/contact/" target="_blank">Nous contacter</a> |
+                <a href="https://www.data.gouv.fr/fr/" target="_blank">data.gouv.fr</a>
+            </div>
+        </div>
+    </h:panelGroup >
+    <!-- Pour que le contenu ne soit pas caché par la barre fixe -->
+    <h:panelGroup rendered="false" style="height:50px;"></h:panelGroup>
+
+    <!-- HEADER -->
+    <header class="app-header">
+
+        <div class="header-left">
+            <div class="burger-button">
+                <!-- Barre mobile avec bouton burger -->
+                <p:commandButton icon="pi pi-bars text-white"
+                                 styleClass="mobile-burger-button"
+                                 onclick="toggleSidebar()"
+                                 type="button"
+                                 title="Menu" />
+            </div>
+
+            <!-- Logos : un pour desktop, un pour mobile -->
+            <h:graphicImage library="img" name="opentheso_blanc.png" styleClass="logo-desktop header-logo"/>
+
+            <h:graphicImage library="img" name="o_blanc.png" styleClass="logo-mobile header-logo"/>
+        </div>
+        <div class="header-title">
+            Thesaurus Pactols
+        </div>
+        <div class="header-right">
+            <h:form id="headerForm">
+                <!-- Icône d'alertes -->
+                <p:commandButton icon="pi pi-bell text-white"
+                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                 title="Alertes"
+                                 action="#{notificationBean.showAlerts}" />
+
+                <!-- Bouton de connexion/déconnexion -->
+                <h:panelGroup rendered="#{!loginBean.authenticated}">
+                    <p:commandButton icon="pi pi-user text-white"
+                                     styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                     title="Se connecter"
+                                     onclick="PF('loginDialog').show(); return false;"
+                                     type="button" />
+                </h:panelGroup>
+                <h:panelGroup rendered="#{loginBean.authenticated}" id="header">
+                    <p:menuButton value="#{loginBean.userDisplayName}"
+                                 icon="pi pi-user-check text-white"
+                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon authenticated-user">
+                        <p:menuitem value="Mon profil"
+                                   icon="pi pi-user"
+                                   url="#" />
+                        <p:separator />
+                        <p:menuitem value="Déconnexion"
+                                   icon="pi pi-sign-out"
+                                   onclick="PF('confirmLogoutDialog').show(); return false;"
+                                   type="button" />
+                    </p:menuButton>
+                </h:panelGroup>
+            </h:form>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- MENU LATERAL -->
+        <aside id="sidebar" class="app-sidebar">
+            <h:form id="sidebarForm">
+                <div class="sidebar-content">
+                    <!-- Header du menu -->
+                    <div class="sidebar-header">
+                        <div class="sidebar-header-icon">
+                            <i class="pi pi-th-large"></i>
+                        </div>
+                        <div class="sidebar-header-text">
+                            <span class="sidebar-header-title">Menu</span>
+                            <span class="sidebar-header-subtitle">Navigation</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Menu items -->
+                    <p:menu styleClass="sidebar-menu" model="#{menuBean.model}" />
+                </div>
+            </h:form>
+        </aside>
+
+        <!-- CONTENU CENTRAL -->
+        <main class="app-main">
+            <ui:insert name="mainContent"/>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <span class="footer-version">Application v1.0 — © 2025</span>
+
+            <div class="infos-footer">
+                <a href="http://www.culture.gouv.fr/Mentions-legales" target="_blank">Mentions légales</a> |
+                <a href="/pages/credits" target="_blank">Crédits</a> |
+                <a href="/pages/accessibilite" target="_blank">Accessibilité : non conforme</a> |
+                <a href="/pages/contact/" target="_blank">Nous contacter</a> |
+                <a href="https://www.data.gouv.fr/fr/" target="_blank">data.gouv.fr</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Messages de notification -->
+    <p:growl id="growl" showDetail="true" life="5000" position="top-right" />
+
+    <!-- Dialog de confirmation de déconnexion -->
+    <p:dialog id="confirmLogoutDialog"
+              widgetVar="confirmLogoutDialog"
+              header="Confirmation de déconnexion"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="420"
+              height="auto"
+              styleClass="logout-confirm-dialog">
+        
+        <f:facet name="header">
+            <div class="logout-dialog-header">
+                <i class="pi pi-exclamation-triangle logout-header-icon"></i>
+                <span class="logout-header-title">Confirmation de déconnexion</span>
+            </div>
+        </f:facet>
+        
+        <h:form id="logoutConfirmForm">
+            <div class="logout-message-container">
+                <p class="logout-message-text">
+                    Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à votre espace.
+                </p>
+            </div>
+            
+            <div class="logout-actions">
+                <p:commandButton value="Oui, me déconnecter"
+                               icon="pi pi-sign-out"
+                               action="#{loginBean.logout()}"
+                               update=":growl, :headerForm, :sidebarForm"
+                               styleClass="logout-button-confirm"
+                               oncomplete="PF('confirmLogoutDialog').hide();" />
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               onclick="PF('confirmLogoutDialog').hide(); return false;"
+                               type="button"
+                               styleClass="logout-button-cancel" />
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <style>
+        /* Dialog de confirmation de déconnexion - Charte couleur du site */
+        .logout-confirm-dialog .ui-dialog {
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--color-danger, #B84A3C);
+        }
+
+        .logout-confirm-dialog .ui-dialog-titlebar {
+            background-color: var(--color-danger, #B84A3C) !important;
+            color: white !important;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .logout-confirm-dialog .ui-dialog-titlebar-close {
+            color: white !important;
+        }
+
+        .logout-confirm-dialog .ui-dialog-content {
+            padding: 2rem;
+            background-color: var(--color-bg-global, #EEEFE0);
+        }
+
+        .logout-dialog-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logout-header-icon {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .logout-header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .logout-message-container {
+            padding: 1rem 0;
+        }
+
+        .logout-message-text {
+            margin: 0;
+            color: var(--color-text-primary, #333);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .logout-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-action-secondary, #6C757D);
+        }
+
+        .logout-button-confirm {
+            background-color: var(--color-danger, #B84A3C) !important;
+            border-color: var(--color-danger, #B84A3C) !important;
+            color: white !important;
+            min-width: 160px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        .logout-button-confirm:hover {
+            background-color: #9a3d32 !important;
+            border-color: #9a3d32 !important;
+        }
+
+        .logout-button-cancel {
+            background-color: var(--color-action-secondary, #6C757D) !important;
+            border-color: var(--color-action-secondary, #6C757D) !important;
+            color: white !important;
+            min-width: 120px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        .logout-button-cancel:hover {
+            background-color: var(--color-text-secondary, #819A91) !important;
+            border-color: var(--color-text-secondary, #819A91) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logout-confirm-dialog .ui-dialog {
+                width: 95vw !important;
+                max-width: 95vw !important;
+                margin: 1rem auto !important;
+            }
+
+            .logout-confirm-dialog .ui-dialog-content {
+                padding: 1.5rem;
+            }
+
+            .logout-header-icon {
+                font-size: 1.25rem;
+            }
+
+            .logout-header-title {
+                font-size: 1rem;
+            }
+
+            .logout-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .logout-button-confirm,
+            .logout-button-cancel {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logout-confirm-dialog .ui-dialog-content {
+                padding: 1.25rem;
+            }
+
+            .logout-message-container {
+                padding: 0.75rem 0;
+            }
+
+            .logout-message-text {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+
+    <ui:include src="../user/login.xhtml" />
+</h:body>
+</html>
