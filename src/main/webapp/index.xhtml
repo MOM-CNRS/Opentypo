@@ -42,21 +42,45 @@
             </h:panelGroup>
 
             <div class="center-content">
-                <div class="cards-wrapper">
+                <div class="modern-cards-container">
                     <h:form>
-                        <p:panelGrid columns="3" layout="flex" styleClass="cards-grid">
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
-                                <span>Titre 1</span>
+                        <div class="modern-cards-grid">
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
+                                <div class="modern-card-content">
+                                    <div class="modern-card-header">
+                                        <div class="modern-card-icon">
+                                            <i class="pi pi-folder"></i>
+                                        </div>
+                                        <h3 class="modern-card-title">Titre 1</h3>
+                                    </div>
+                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
+                                </div>
                             </p:commandLink>
 
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
-                                <span>Titre 2</span>
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
+                                <div class="modern-card-content">
+                                    <div class="modern-card-header">
+                                        <div class="modern-card-icon">
+                                            <i class="pi pi-book"></i>
+                                        </div>
+                                        <h3 class="modern-card-title">Titre 2</h3>
+                                    </div>
+                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
+                                </div>
                             </p:commandLink>
 
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="clickable-card">
-                                <span>Titre 3</span>
+                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
+                                <div class="modern-card-content">
+                                    <div class="modern-card-header">
+                                        <div class="modern-card-icon">
+                                            <i class="pi pi-file"></i>
+                                        </div>
+                                        <h3 class="modern-card-title">Titre 3</h3>
+                                    </div>
+                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
+                                </div>
                             </p:commandLink>
-                        </p:panelGrid>
+                        </div>
                     </h:form>
                 </div>
 

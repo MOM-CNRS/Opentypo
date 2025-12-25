@@ -5,6 +5,10 @@ server:
     session:
       cookie:
         http-only: true
+  # Headers pour désactiver le cache des ressources statiques
+  compression:
+    enabled: true
+    mime-types: text/css,application/javascript,text/html,application/json
 
 joinfaces:
   faces:
