@@ -1,5 +1,10 @@
 server:
   port: 8080
+  # Configuration pour désactiver le cache des ressources statiques
+  servlet:
+    session:
+      cookie:
+        http-only: true
 
 joinfaces:
   faces:

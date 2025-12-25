@@ -5,8 +5,8 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <h:form id="searchForm">
-        <!-- Conteneur principal -->
-        <div class="search-wrapper">
+        <!-- Conteneur principal avec design formel - Layout horizontal -->
+        <div class="search-container-formal">
             <!-- Burger pour options (mobile) -->
             <div class="burger-search-control">
                 <p:commandButton icon="pi pi-sliders-h"
@@ -16,73 +16,104 @@
                                  process="@this" update="@none"/>
             </div>
 
-            <!-- Colonne gauche : Select Référentiel / Langue-->
-            <div class="search-selects">
-                <p:selectOneMenu value="#{searchBean.typeSelected}" styleClass="search-select" style="max-width: 20%">
-                    <f:selectItem itemLabel="Tout" itemValue="" noSelectionOption="true"/>
-                    <f:selectItem itemLabel="Céramique" itemValue="" noSelectionOption="true"/>
-                    <f:selectItem itemLabel="Instrumentum" itemValue="" noSelectionOption="true"/>
-                    <f:selectItem itemLabel="Monnaie" itemValue="" noSelectionOption="true"/>
+            <!-- Référentiel -->
+            <div class="search-field-inline">
+                <p:outputLabel for="referentielSelect" value="Référentiel" styleClass="search-inline-label"/>
+                <p:selectOneMenu id="referentielSelect" 
+                                 value="#{searchBean.typeSelected}" 
+                                 styleClass="search-select-inline">
+                    <f:selectItem itemLabel="Tous" itemValue="" noSelectionOption="true"/>
+                    <f:selectItem itemLabel="Céramique" itemValue="ceramique"/>
+                    <f:selectItem itemLabel="Instrumentum" itemValue="instrumentum"/>
+                    <f:selectItem itemLabel="Monnaie" itemValue="monnaie"/>
                     <f:selectItems value="#{currentUser.userPermissions.listThesaurus}" var="theso"
                                    itemLabel="#{theso.value} (#{theso.id})" itemValue="#{theso.id}" />
                 </p:selectOneMenu>
+            </div>
 
-                <p:selectOneMenu value="#{searchBean.langSelected}"
-                                 class="form-control"
-                                 title="#{langueBean.getMsg('search.change_thesaurus_language')}" >
-
-                    <f:selectItems value="#{applicationBean.languages}" var="lang" itemLabel="#{lang.value}" itemValue="#{lang.code}"/>
+            <!-- Langue -->
+            <div class="search-field-inline">
+                <p:outputLabel for="langueSelect" value="Langue" styleClass="search-inline-label"/>
+                <p:selectOneMenu id="langueSelect"
+                                 value="#{searchBean.langSelected}"
+                                 styleClass="search-select-inline"
+                                 title="#{langueBean.getMsg('search.change_thesaurus_language')}">
+                    <f:selectItems value="#{applicationBean.languages}" var="lang" 
+                                   itemLabel="#{lang.value}" itemValue="#{lang.code}"/>
                     <f:selectItem itemLabel="#{langueBean.getMsg('search.any_language')}" itemValue="all"/>
                 </p:selectOneMenu>
             </div>
 
-            <!-- Colonne centre : zone de recherche -->
-            <div class="search-bar" >
-                <p:inputText placeholder="Recherche..." styleClass="search-input"/>
-                <p:commandButton icon="pi pi-search"
-                                 styleClass="search-button"
-                                 actionListener="#{searchBean.applySearch()}"
-                                 process="@form" update="@none"/>
-
-                <!-- Bouton pour afficher les filtres -->
-                <p:commandButton icon="pi pi-sliders-h"
-                                 title="Recherche avancée"
-                                 onclick="toggleAdvancedSearch(); return false;"
-                                 styleClass="p-button-rounded p-button-text advanced-search-toggle"
-                                 process="@this" update="@none"/>
+            <!-- Zone de recherche principale -->
+            <div class="search-field-inline search-input-field">
+                <p:outputLabel for="searchInput" value="Recherche" styleClass="search-inline-label"/>
+                <div class="search-input-group">
+                    <p:inputText id="searchInput" 
+                                 placeholder="Saisissez votre recherche..." 
+                                 styleClass="search-input-inline"
+                                 autocomplete="off"/>
+                    <p:commandButton icon="pi pi-search"
+                                     styleClass="search-button-inline"
+                                     actionListener="#{searchBean.applySearch()}"
+                                     process="@form" 
+                                     update="@none"
+                                     title="Lancer la recherche"/>
+                </div>
             </div>
 
-            <!-- 4. Bouton afficher/cacher les résultats -->
-            <div class="toggle-result">
+            <!-- Bouton recherche avancée -->
+            <div class="search-field-inline search-advanced-field">
+                <p:commandButton icon="pi pi-sliders-h"
+                                 value="Avancée"
+                                 title="Afficher les options de recherche avancée"
+                                 onclick="toggleAdvancedSearch(); return false;"
+                                 styleClass="advanced-search-button-inline"
+                                 process="@this" 
+                                 update="@none"/>
+            </div>
+
+            <!-- Bouton afficher/cacher les résultats -->
+            <div class="search-field-inline toggle-result">
                 <p:commandButton icon="pi pi-arrow-right"
                                  onclick="toggleRightPanel(); return false;"
-                                 styleClass="p-button-sm p-button-rounded p-button-secondary"
-                                 title="Afficher/cacher résultats"
-                                 process="@this" update="@none"/>
+                                 styleClass="toggle-result-button"
+                                 title="Afficher/cacher les résultats"
+                                 process="@this" 
+                                 update="@none"/>
             </div>
         </div>
     </h:form>
 
-    <!-- aficher la recherche avancée -->
-    <div id="advanced-search-options" class="advanced-search-section" style="display: none;">
-        <div class="advanced-filters">
-            <div class="filter-item">
-                <p:selectOneMenu id="type"  styleClass="compact-select">
-                    <f:selectItem itemLabel="Tous" itemValue=""/>
+    <!-- Section recherche avancée avec design formel -->
+    <div id="advanced-search-options" class="advanced-search-section-formal" style="display: none;">
+        <div class="advanced-search-header">
+            <h:outputText value="Options de recherche avancée" styleClass="advanced-search-title"/>
+            <p:commandButton icon="pi pi-times"
+                             onclick="toggleAdvancedSearch(); return false;"
+                             styleClass="close-advanced-search"
+                             title="Fermer"
+                             type="button"/>
+        </div>
+        <div class="advanced-filters-formal">
+            <div class="filter-group-formal">
+                <p:outputLabel for="typeFilter" value="Type" styleClass="filter-label-formal"/>
+                <p:selectOneMenu id="typeFilter" styleClass="filter-select-formal">
+                    <f:selectItem itemLabel="Tous les types" itemValue=""/>
                     <f:selectItem itemLabel="Concept" itemValue="concept"/>
                     <f:selectItem itemLabel="Collection" itemValue="collection"/>
                 </p:selectOneMenu>
             </div>
 
-            <div class="filter-item">
-                <p:selectOneMenu id="status" value="#{searchBean.searchSelected}" styleClass="compact-select">
-                    <f:selectItem itemLabel="Tous" itemValue=""/>
+            <div class="filter-group-formal">
+                <p:outputLabel for="statusFilter" value="Statut" styleClass="filter-label-formal"/>
+                <p:selectOneMenu id="statusFilter" 
+                                 value="#{searchBean.searchSelected}" 
+                                 styleClass="filter-select-formal">
+                    <f:selectItem itemLabel="Tous les statuts" itemValue=""/>
                     <f:selectItem itemLabel="Actif" itemValue="active"/>
                     <f:selectItem itemLabel="Inactif" itemValue="inactive"/>
                 </p:selectOneMenu>
             </div>
-
-            <!-- Ajoute ici d'autres filtres si besoin -->
         </div>
     </div>
 
