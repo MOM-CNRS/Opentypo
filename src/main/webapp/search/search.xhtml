@@ -25,8 +25,6 @@
                 <f:selectItem itemLabel="Céramique" itemValue="ceramique"/>
                 <f:selectItem itemLabel="Instrumentum" itemValue="instrumentum"/>
                 <f:selectItem itemLabel="Monnaie" itemValue="monnaie"/>
-                <f:selectItems value="#{currentUser.userPermissions.listThesaurus}" var="theso"
-                               itemLabel="#{theso.value} (#{theso.id})" itemValue="#{theso.id}" />
             </p:selectOneMenu>
 
             <!-- Langue - Compact sans label -->
@@ -37,7 +35,6 @@
                 <f:selectItem itemLabel="Langue" itemValue="" noSelectionOption="true"/>
                 <f:selectItems value="#{applicationBean.languages}" var="lang" 
                                itemLabel="#{lang.value}" itemValue="#{lang.code}"/>
-                <f:selectItem itemLabel="#{langueBean.getMsg('search.any_language')}" itemValue="all"/>
             </p:selectOneMenu>
 
             <!-- Zone de recherche principale - Compacte -->
@@ -57,7 +54,6 @@
             <!-- Bouton recherche avancée - Compact -->
             <p:commandButton icon="pi pi-sliders-h"
                              styleClass="search-advanced-compact"
-                             title="Recherche avancée"
                              onclick="toggleAdvancedSearch(); return false;"
                              process="@this" 
                              update="@none"/>
@@ -66,7 +62,6 @@
             <p:commandButton icon="pi pi-arrow-right"
                              onclick="toggleRightPanel(); return false;"
                              styleClass="search-toggle-compact"
-                             title="Afficher/cacher résultats"
                              process="@this" 
                              update="@none"/>
         </div>
