@@ -3,21 +3,22 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:p="http://primefaces.org/ui">
 
-    <h:panelGroup class="tree-container">
+    <div class="modern-tree-container">
         <p:tree value="#{treeBean.root}"
                 dynamic="true"
                 var="nodetree"
+                style="padding= none !important"
                 selectionMode="single"
                 selection="#{treeBean.selectedNode}"
-                style="width: auto; border: none; overflow-y: auto; overflow-x: hidden; font-size: 12px; height: 100%;"
+                styleClass="modern-tree"
                 widgetVar="treeWidget">
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>
             <p:ajax event="select" listener="#{treeBean.onNodeSelect}"/>
 
             <p:treeNode>
-                <h:outputText value="#{nodetree}" style="font-size:12px"/>
+                <span class="modern-tree-node-label">#{nodetree}</span>
             </p:treeNode>
         </p:tree>
-    </h:panelGroup>
+    </div>
 </ui:fragment>

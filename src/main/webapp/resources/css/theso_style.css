@@ -1566,36 +1566,184 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
     position: relative;
 }
 
-body .ui-tree {
-    padding: 0rem;
-}
-body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
-   width: 1rem;
+/* ============================================
+   TREE MODERNE - ERGONOMIQUE ET FORMEL
+   ============================================ */
+
+/* Conteneur du tree */
+.modern-tree-container {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-/** CSS pour le Tree **/
+/* Tree moderne */
+.modern-tree {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: 'Roboto', 'Segoe UI', sans-serif !important;
+}
+
+/* Container du tree */
+body .modern-tree .ui-tree-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+}
+
+/* Contenu du node */
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    min-height: 36px !important;
+}
+
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
+    background-color: rgba(71, 98, 77, 0.08) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+/* Node sélectionné */
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 600 !important;
+    border-left: 3px solid var(--color-action-main, #47624D) !important;
+}
+
+/* Toggler (flèche d'expansion) */
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    font-size: 0.875rem !important;
+    flex-shrink: 0 !important;
+}
+
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler:hover {
+    background-color: rgba(71, 98, 77, 0.1) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-e {
+    font-size: 0.75rem !important;
+}
+
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-s {
+    font-size: 0.75rem !important;
+}
+
+/* Icône de feuille */
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-leaf-icon {
+    color: var(--color-text-secondary, #819A91) !important;
+    font-size: 0.875rem !important;
+    flex-shrink: 0 !important;
+}
+
+/* Label du node */
+.modern-tree-node-label {
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    line-height: 1.5 !important;
+    flex: 1 !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .modern-tree-node-label {
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 600 !important;
+}
+
+/* Indentation pour les niveaux */
+body .modern-tree .ui-tree-container .ui-treenode-children {
+    border-left: 1px solid #e5e7eb !important;
+}
+
+/* CSS pour le Tree - Ancien style conservé pour compatibilité */
 .left-tree {
     flex: 0 0 25%;
-    background-color: var(--color-surface-secondary);
-    border-right: 1px solid #ccc; /* séparation droite */
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
     border-radius: 8px;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     max-height: 85vh;
     overflow-y: auto;
     transition: all 0.3s ease;
     max-width: 25%;
+    padding: 0.75rem;
+    box-sizing: border-box;
 }
 
-/** taille des icones du Tree **/
-body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-e{
-    font-size: 0.9rem;
+/* Scrollbar moderne pour le tree */
+body .modern-tree .ui-tree-container::-webkit-scrollbar {
+    width: 8px;
 }
-body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler.ui-icon-triangle-1-s{
-    font-size: 0.9rem;
+
+body .modern-tree .ui-tree-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
 }
-/** marge des icones de l'arbre **/
-body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-leaf-icon {
-    margin: 0 0 0 0rem;
+
+body .modern-tree .ui-tree-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+body .modern-tree .ui-tree-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-action-main, #47624D);
+}
+
+/* Responsive pour le tree */
+@media (max-width: 992px) {
+    .left-tree {
+        flex: 0 0 30%;
+        max-width: 30%;
+    }
+    
+    body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+        min-height: 20px !important;
+    }
+    
+    .modern-tree-node-label {
+        font-size: 0.875rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-tree {
+        flex: 0 0 100%;
+        max-width: 100%;
+        max-height: 70vh;
+        padding: 0.5rem;
+    }
+    
+    body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+        min-height: 20px !important;
+    }
+    
+    body .modern-tree .ui-tree-container .ui-treenode-children {
+        margin-left: 1rem !important;
+    }
+    
+    .modern-tree-node-label {
+        font-size: 0.875rem !important;
+    }
 }
 
 /* Le bouton toggle caché sur desktop */
