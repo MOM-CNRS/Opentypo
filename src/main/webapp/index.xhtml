@@ -108,6 +108,13 @@
                         <ui:include src="details/serie.xhtml"/>
                     </div>
                 </h:panelGroup>
+
+                <!-- Panneau série -->
+                <h:panelGroup rendered="#{applicationBean.showTypePanel}">
+                    <div class="info-concept">
+                        <ui:include src="details/type.xhtml"/>
+                    </div>
+                </h:panelGroup>
             </h:panelGroup>
 
             <!-- Panneau droit masqué -->

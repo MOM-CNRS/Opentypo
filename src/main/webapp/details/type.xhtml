@@ -6,7 +6,7 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <!-- Contenu dynamique -->
-    <h:panelGroup id="contentGroupePanels" layout="block">
+    <h:panelGroup id="contentTypePanels" layout="block">
 
         <ui:include src="breadCrumb.xhtml"/>
 
@@ -17,12 +17,12 @@
                     <div class="concept-info-header">
                         <div class="concept-info-title-section">
                             <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png" 
-                                               styleClass="language-flag"
-                                               alt="Français"
-                                               title="Français"/>
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">Label du Groupe</h2>
+                            <h2 class="concept-info-title">Label de la série</h2>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -40,9 +40,9 @@
                         <div class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
                                 <i class="pi pi-book concept-info-icon"></i>
-                                <span>Groupe</span>
+                                <span>Type</span>
                             </div>
-                            <div class="concept-info-value">Groupe CODE</div>
+                            <div class="concept-info-value">Type Code</div>
                         </div>
 
                         <div class="concept-info-item">
@@ -71,28 +71,18 @@
 
                         <div class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
-                                <i class="pi pi-file-edit concept-info-icon"></i>
-                                <span>Alignement externe</span>
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Commentaire datation</span>
                             </div>
-                            <div class="concept-info-value">http://localhost:8080</div>
+                            <div class="concept-info-value">Commentaire</div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file-edit concept-info-icon"></i>
-                                <span>Description</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description">
-                                Déscription total
-                            </div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon"></i>
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value">Firas GABSI</div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            XXXXXXX
                         </div>
                     </div>
                 </div>
@@ -103,92 +93,35 @@
                             <!-- En-tête avec titre et actions -->
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title" style="font-size: 1rem;">Série de XXXXX</h2>
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Relations</h2>
                                 </div>
                             </div>
 
                             <!-- Grille d'informations -->
                             <div class="concept-info-grid">
-                                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                                    <div class="referentiel-cards-container">
-                                        <h:form>
-                                            <div class="referentiel-cards-grid">
-                                                <p:commandLink action="#{applicationBean.showSerie()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag"></i>
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre Série</h3>
-                                                                <span class="referentiel-card-code">Code Série</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-                                            </div>
-                                        </h:form>
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Alignement opentypo, appartient à</span>
                                     </div>
-                                </p:panel>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" style="margin-top: 20px">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title" style="font-size: 1rem;">Liste des types du groupe XXXXX</h2>
+                                    <div class="concept-info-value">AAAAAAAA</div>
                                 </div>
-                            </div>
 
-                            <!-- Grille de typologies -->
-                            <div class="typologie-cards-container">
-                                <h:form>
-                                    <div class="typologie-cards-grid">
-                                        <p:commandLink action="#{applicationBean.showType()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                                <div class="typologie-card-overlay"></div>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
-
-                                        <p:commandLink action="#{applicationBean.showType()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                                <div class="typologie-card-overlay"></div>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Alignement opentypo, associé à</span>
                                     </div>
-                                </h:form>
+                                    <div class="concept-info-value">AAAAAAAA</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Alignement externe</span>
+                                    </div>
+                                    <div class="concept-info-value">AAAAAAAA</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -206,6 +139,22 @@
 
                             <!-- Grille d'informations -->
                             <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Appellation usuelle</span>
+                                    </div>
+                                    <div class="concept-info-value">Appellation détail</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Description</span>
+                                    </div>
+                                    <div class="concept-info-value">Description détail</div>
+                                </div>
+
                                 <div class="concept-info-item concept-info-item-full">
                                     <div class="concept-info-label">
                                         <i class="pi pi-book concept-info-icon"></i>
@@ -228,38 +177,6 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">Détails d'aire de circulation</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row" style="margin-top: 20px">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title" style="font-size: 1rem;">Déscription</h2>
-                                </div>
-                            </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon"></i>
-                                        <span>Décors</span>
-                                    </div>
-                                    <div class="concept-info-value">Détails décors</div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon"></i>
-                                        <span>Marques/estampilles</span>
-                                    </div>
-                                    <div class="concept-info-value">Détails marques</div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -337,10 +254,74 @@
                             <div class="concept-info-grid">
                                 <div class="concept-info-item concept-info-item-full">
                                     <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon"></i>
-                                        <span>Commentaire</span>
+                                        <i class="pi pi-file-edit concept-info-icon"></i>
+                                        <span>Attestations</span>
                                     </div>
-                                    <div class="concept-info-value">Text du commentaire</div>
+                                    <div class="concept-info-value concept-info-description">
+                                        - Attestation 1
+                                        - Attestation 2
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-file-edit concept-info-icon"></i>
+                                        <span>Sites archéologiques</span>
+                                    </div>
+                                    <div class="concept-info-value concept-info-description">
+                                        - Site archéologique 1
+                                        - ite archéologique 2
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Référentiel</span>
+                                    </div>
+                                    <div class="concept-info-value">Référentiel 111</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Typologique scientifique</span>
+                                    </div>
+                                    <div class="concept-info-value">Valeur typologique scientifique</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Identifiant pérenne</span>
+                                    </div>
+                                    <div class="concept-info-value">Valeur identifiant pérenne</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Ancienne version</span>
+                                    </div>
+                                    <div class="concept-info-value">Valeur ancienne version</div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
