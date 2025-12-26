@@ -4,65 +4,100 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <p:outputPanel >
-
-        <!-- Bloc Groups Collections -->
-        <div class="row" >
-            <div class="col-md-12">
-                <p:panel toggleable="true" closable="false"
-                         toggleSpeed="500"
-                         closeSpeed="500"
-                         styleClass="breadcrumb-panel"
-                         collapsed="true"
-                         style="font-family: 'Roboto', sans-serif; font-size: 14px;">
-
-                    <f:facet name="header">
-                        <h:panelGroup >
-                            <!-- Icône FontAwesome ou PrimeIcons -->
-                            <i class="fas fa-sitemap" aria-hidden="true"></i>
-                            <!-- Le texte du titre -->
-                            <h:outputText value="Fil d’ariane" />
-                        </h:panelGroup>
-                    </f:facet>
-
-                    <div class="row mb-0">
-                        <div class="col-12 ">
-                            <p:breadCrumb style="font-size: 0.9rem;">
-                                <p:menuitem value="Electronics"/>
-                                <p:menuitem value="Computer"/>
-                                <p:menuitem value="Notebook"/>
-                                <p:menuitem value="Accessories"/>
-                                <p:menuitem value="Backpacks"/>
-                                <p:menuitem value="Item"/>
-                            </p:breadCrumb>
-                        </div>
-                    </div>
-
-                    <h:outputScript target="body">
-                        $(document).ready(function () {
-                            $(".breadcrumb-panel .ui-panel-titlebar").on("click", function (e) {
-                                if ($(e.target).closest(".ui-panel-titlebar-icon, .ui-panel-titlebar-options, .ui-menuitem").length === 0) {
-                                    var $panel = $(this).closest(".ui-panel");
-                                    var panelId = $panel.attr("id");
-                                    if (panelId) {
-                                        var widget = PrimeFaces.getWidgetById(panelId);
-                                        if (widget &amp;&amp; typeof widget.toggle === 'function') {
-                                            widget.toggle();
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                    </h:outputScript>
-                </p:panel>
+    <div class="modern-breadcrumb-container">
+        <!-- En-tête du breadcrumb -->
+        <div class="modern-breadcrumb-header" onclick="toggleBreadcrumb()">
+            <div class="breadcrumb-header-content">
+                <div class="breadcrumb-header-icon">
+                    <i class="pi pi-sitemap"></i>
+                </div>
+                <h3 class="breadcrumb-header-title">Fil d'Ariane</h3>
+            </div>
+            <div class="breadcrumb-toggle-icon" id="breadcrumbToggleIcon">
+                <i class="pi pi-chevron-down"></i>
             </div>
         </div>
 
-    </p:outputPanel>
+        <!-- Contenu du breadcrumb -->
+        <div class="modern-breadcrumb-content" id="breadcrumbContent">
+            <nav class="modern-breadcrumb-nav" aria-label="Breadcrumb">
+                <ol class="modern-breadcrumb-list">
+                    <li class="modern-breadcrumb-item">
+                        <a href="#" class="modern-breadcrumb-link">
+                            <i class="pi pi-home"></i>
+                            <span>Accueil</span>
+                        </a>
+                    </li>
+                    <li class="modern-breadcrumb-separator">
+                        <i class="pi pi-angle-right"></i>
+                    </li>
+                    <li class="modern-breadcrumb-item">
+                        <a href="#" class="modern-breadcrumb-link">
+                            <span>Electronics</span>
+                        </a>
+                    </li>
+                    <li class="modern-breadcrumb-separator">
+                        <i class="pi pi-angle-right"></i>
+                    </li>
+                    <li class="modern-breadcrumb-item">
+                        <a href="#" class="modern-breadcrumb-link">
+                            <span>Computer</span>
+                        </a>
+                    </li>
+                    <li class="modern-breadcrumb-separator">
+                        <i class="pi pi-angle-right"></i>
+                    </li>
+                    <li class="modern-breadcrumb-item">
+                        <a href="#" class="modern-breadcrumb-link">
+                            <span>Notebook</span>
+                        </a>
+                    </li>
+                    <li class="modern-breadcrumb-separator">
+                        <i class="pi pi-angle-right"></i>
+                    </li>
+                    <li class="modern-breadcrumb-item">
+                        <a href="#" class="modern-breadcrumb-link">
+                            <span>Accessories</span>
+                        </a>
+                    </li>
+                    <li class="modern-breadcrumb-separator">
+                        <i class="pi pi-angle-right"></i>
+                    </li>
+                    <li class="modern-breadcrumb-item modern-breadcrumb-item-active">
+                        <span class="modern-breadcrumb-current">Backpacks</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-    <p:spacer height="10" style="height: 5px; color: var(--color-action-secondary)"></p:spacer>
+    <h:outputScript target="body">
+        function toggleBreadcrumb() {
+            const content = document.getElementById('breadcrumbContent');
+            const icon = document.getElementById('breadcrumbToggleIcon');
+            
+            if (content &amp;&amp; icon) {
+                const isExpanded = content.classList.contains('breadcrumb-expanded');
+                
+                if (isExpanded) {
+                    content.classList.remove('breadcrumb-expanded');
+                    icon.querySelector('i').classList.remove('pi-chevron-up');
+                    icon.querySelector('i').classList.add('pi-chevron-down');
+                } else {
+                    content.classList.add('breadcrumb-expanded');
+                    icon.querySelector('i').classList.remove('pi-chevron-down');
+                    icon.querySelector('i').classList.add('pi-chevron-up');
+                }
+            }
+        }
 
-
-
+        // Initialiser l'état (fermé par défaut)
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.getElementById('breadcrumbContent');
+            if (content) {
+                content.classList.remove('breadcrumb-expanded');
+            }
+        });
+    </h:outputScript>
 
 </ui:composition>
