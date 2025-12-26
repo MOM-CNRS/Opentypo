@@ -91,7 +91,14 @@
                  <!-- Panneau catégorie -->
                  <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
                     <div class="info-concept">
-                        <ui:include src="details/categorie.xhtml"/>
+                        <ui:include src="details/category.xhtml"/>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Panneau groupe -->
+                <h:panelGroup rendered="#{applicationBean.showGroupePanel}">
+                    <div class="info-concept">
+                        <ui:include src="details/groupe.xhtml"/>
                     </div>
                 </h:panelGroup>
             </h:panelGroup>

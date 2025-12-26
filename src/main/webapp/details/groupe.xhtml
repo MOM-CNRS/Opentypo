@@ -1,0 +1,253 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <h:form>
+        <!-- Menu de configuration moderne -->
+        <div class="concept-config-toolbar">
+            <p:commandButton id="panelButton"
+                             title="Configuration des panneaux"
+                             icon="pi pi-cog"
+                             styleClass="concept-config-button"
+                             type="button" />
+
+            <p:overlayPanel id="panelOverlay"
+                            for="panelButton"
+                            widgetVar="panelOverlay"
+                            dismissable="true"
+                            showEvent="click"
+                            hideEvent="outsideClick"
+                            styleClass="concept-config-overlay">
+
+                <div class="concept-config-header">
+                    <h3 class="concept-config-title">
+                        <i class="pi pi-sliders-h"></i>
+                        Configuration des panneaux
+                    </h3>
+                    <p class="concept-config-subtitle">Sélectionnez les panneaux à afficher</p>
+                </div>
+
+                <div class="concept-config-content">
+                    <p:selectManyCheckbox value="#{conceptPanelsView.selectedPanels}" 
+                                         layout="grid" 
+                                         columns="1"
+                                         styleClass="concept-config-checkboxes">
+                        <f:selectItems value="#{conceptPanelsView.panelOptions}" var="p"
+                                       itemLabel="#{p.label}" itemValue="#{p.key}" />
+                        <p:ajax listener="#{conceptPanelsView.updatePanels}" 
+                                update="contentGroupePanels" />
+                    </p:selectManyCheckbox>
+                </div>
+
+                <div class="concept-config-footer">
+                    <p:commandButton value="Fermer" 
+                                   icon="pi pi-times" 
+                                   styleClass="concept-config-close-button"
+                                   onclick="PF('panelOverlay').hide(); return false;"
+                                   type="button"/>
+                </div>
+            </p:overlayPanel>
+        </div>
+    </h:form>
+
+    <!-- Contenu dynamique -->
+    <h:panelGroup id="contentGroupePanels" layout="block">
+
+        <ui:include src="breadCrumb.xhtml"/>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="concept-info-panel">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png" 
+                                               styleClass="language-flag"
+                                               alt="Français"
+                                               title="Français"/>
+                            </div>
+                            <h2 class="concept-info-title">Label du Groupe</h2>
+                        </div>
+                        <div class="concept-info-actions">
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-gear"></i>
+                                <p:tooltip value="Paramètres" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-flag-checkered"></i>
+                            </p:commandLink>
+                        </div>
+                    </div>
+
+                    <!-- Grille d'informations -->
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Groupe</span>
+                            </div>
+                            <div class="concept-info-value">Groupe CODE</div>
+                        </div>
+
+                        <div class="concept-info-item">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Période</span>
+                            </div>
+                            <div class="concept-info-value">Période Valeur</div>
+                        </div>
+
+                        <div class="concept-info-item">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>TPQ</span>
+                            </div>
+                            <div class="concept-info-value">99</div>
+                        </div>
+
+                        <div class="concept-info-item">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>TAQ</span>
+                            </div>
+                            <div class="concept-info-value">99</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file-edit concept-info-icon"></i>
+                                <span>Alignement externe</span>
+                            </div>
+                            <div class="concept-info-value">http://localhost:8080</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file-edit concept-info-icon"></i>
+                                <span>Description</span>
+                            </div>
+                            <div class="concept-info-value concept-info-description">
+                                Déscription total
+                            </div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon"></i>
+                                <span>Auteur(s)</span>
+                            </div>
+                            <div class="concept-info-value">Firas GABSI</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- En-tête avec titre et actions -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title">Série de XXXXX</h2>
+                                </div>
+                            </div>
+
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
+                                    <div class="referentiel-cards-container">
+                                        <h:form>
+                                            <div class="referentiel-cards-grid">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
+                                                    <div class="referentiel-card-content">
+                                                        <div class="referentiel-card-header">
+                                                            <div class="referentiel-card-icon">
+                                                                <i class="pi pi-tag"></i>
+                                                            </div>
+                                                            <div class="referentiel-card-title-wrapper">
+                                                                <h3 class="referentiel-card-title">Titre Série</h3>
+                                                                <span class="referentiel-card-code">Code Série</span>
+                                                            </div>
+                                                        </div>
+                                                        <p class="referentiel-card-description">
+                                                            Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée.
+                                                        </p>
+                                                    </div>
+                                                </p:commandLink>
+                                            </div>
+                                        </h:form>
+                                    </div>
+                                </p:panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- En-tête avec titre et actions -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title">Liste des types du groupe XXXXX</h2>
+                                </div>
+                            </div>
+
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
+                                    <div class="referentiel-cards-container">
+                                        <h:form>
+                                            <div class="referentiel-cards-grid">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
+                                                    <div class="referentiel-card-content">
+                                                        <div class="referentiel-card-header">
+                                                            <p:graphicImage
+                                                                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                                                    styleClass="research-image"
+                                                                    alt="Vue de la rive gauche de Paris"/>
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Label du Typo</h3>
+                                                        </div>
+                                                    </div>
+                                                </p:commandLink>
+
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
+                                                    <div class="referentiel-card-content">
+                                                        <div class="referentiel-card-header">
+                                                            <p:graphicImage
+                                                                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                                                    styleClass="research-image"
+                                                                    alt="Vue de la rive gauche de Paris"/>
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Label du Typo</h3>
+                                                        </div>
+                                                    </div>
+                                                </p:commandLink>
+                                            </div>
+                                        </h:form>
+                                    </div>
+                                </p:panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+</ui:composition>

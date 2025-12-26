@@ -254,13 +254,6 @@ body .ui-messages > div {
     padding: 1rem;
 }
 
-body .ui-panel .ui-panel-content {
-    background: transparent;
-    /*   color: transparent;*/
-    padding: 0rem;
-    border: none;
-}
-
 
 /**********************************************************************/
 /** Menu **/

@@ -1782,8 +1782,9 @@ body .ui-breadcrumb {
 }
 
 body .ui-panel .ui-panel-content {
-    padding: 0rem 1rem 1rem 1rem;
+    padding: 0rem 0.75rem 0rem 0.75rem;
     border: none;
+    background: transparent;
 }
 
 .ui-outputlabel, .ui-outputtext,

@@ -22,6 +22,7 @@ public class ApplicationBean implements Serializable {
     private boolean showCards = true;
     private boolean showReferentielPanel = false;
     private boolean showCategoryPanel = false;
+    private boolean showGroupePanel = false;
 
     @PostConstruct
     public void initialization() {
@@ -37,6 +38,7 @@ public class ApplicationBean implements Serializable {
         showCards = true;
         showReferentielPanel = false;
         showCategoryPanel = false;
+        showGroupePanel = false;
     }
     
     public void showReferentiel() {
@@ -44,6 +46,7 @@ public class ApplicationBean implements Serializable {
         showCards = false;
         showReferentielPanel = true;
         showCategoryPanel = false;
+        showGroupePanel = false;
     }
 
     public void showCategory() {
@@ -51,6 +54,15 @@ public class ApplicationBean implements Serializable {
         showCards = false;
         showCategoryPanel = true;
         showReferentielPanel = false;
+        showGroupePanel = false;
+    }
+
+    public void showGroupe() {
+
+        showCards = false;
+        showCategoryPanel = false;
+        showReferentielPanel = false;
+        showGroupePanel = true;
     }
 }
 
