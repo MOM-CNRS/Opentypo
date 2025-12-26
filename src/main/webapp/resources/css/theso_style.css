@@ -2073,20 +2073,32 @@ body .ui-panelgrid .ui-panelgrid-cell {
 .modern-cards-container {
     flex: 1;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     padding: 2rem 1.5rem;
     overflow-y: auto;
     min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.modern-cards-container form {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .modern-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
-    max-width: 1200px;
     width: 100%;
+    max-width: 100%;
     padding: 0;
+    box-sizing: border-box;
+    align-items: stretch;
+    justify-items: stretch;
 }
 
 /* Carte moderne */
@@ -2096,7 +2108,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 0;
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -2123,7 +2135,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     transform: translateY(-6px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
     border-color: var(--color-action-main, #47624D);
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
 }
 
@@ -2137,6 +2149,8 @@ body .ui-panelgrid .ui-panelgrid-cell {
     flex-direction: column;
     gap: 1rem;
     height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* En-tête de la carte avec icône et titre côte à côte */
@@ -2174,12 +2188,15 @@ body .ui-panelgrid .ui-panelgrid-cell {
     color: var(--color-text-primary, #333);
     margin: 0;
     line-height: 1.4;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, font-weight 0.3s ease;
     flex: 1;
+    text-decoration: none !important;
 }
 
 .modern-card:hover .modern-card-title {
     color: var(--color-action-main, #47624D);
+    font-weight: 700;
+    text-decoration: none !important;
 }
 
 /* Description de la carte */
@@ -2189,22 +2206,29 @@ body .ui-panelgrid .ui-panelgrid-cell {
     margin: 0;
     line-height: 1.6;
     flex: 1;
+    min-height: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.3s ease;
+    text-decoration: none !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-height: calc(1.6em * 3); /* Limite à 3 lignes basée sur line-height */
 }
 
 .modern-card:hover .modern-card-description {
     color: var(--color-text-primary, #333);
+    text-decoration: none !important;
 }
 
 /* Responsive pour les cartes modernes */
 @media (max-width: 992px) {
     .modern-cards-grid {
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 1.25rem;
     }
     
@@ -2215,9 +2239,8 @@ body .ui-panelgrid .ui-panelgrid-cell {
 
 @media (max-width: 768px) {
     .modern-cards-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 1rem;
-        max-width: 100%;
     }
     
     .modern-cards-container {
@@ -2245,7 +2268,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
 
 @media (min-width: 1200px) {
     .modern-cards-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
 }
 
