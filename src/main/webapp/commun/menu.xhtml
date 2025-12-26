@@ -1,0 +1,67 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <aside id="sidebar" class="app-sidebar sidebar-collapsed sidebar-always-collapsed">
+        <h:form id="sidebarForm">
+            <div class="sidebar-content">
+                <!-- Header du menu -->
+                <div class="sidebar-menu-header">
+                    <div class="sidebar-header-icon">
+                        <i class="pi pi-th-large" />
+                    </div>
+                </div>
+
+                <!-- Menu items dynamiques -->
+                <nav class="sidebar-nav">
+                    <!-- Accueil item -->
+                    <p:commandLink
+                            action="/index.xhtml?faces-redirect=true"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                        <div class="sidebar-menu-item-content">
+                            <div class="sidebar-menu-item-icon">
+                                <i class="pi pi-home" />
+                            </div>
+                            <span class="sidebar-menu-item-text">Accueil</span>
+                            <span class="sidebar-menu-item-tooltip">Accueil</span>
+                        </div>
+                    </p:commandLink>
+
+                    <!-- Candidats item -->
+                    <p:commandLink
+                            action="#"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                        <div class="sidebar-menu-item-content">
+                            <div class="sidebar-menu-item-icon">
+                                <i class="pi pi-users"/>
+                            </div>
+                            <span class="sidebar-menu-item-text">Candidats</span>
+                            <span class="sidebar-menu-item-tooltip">Candidats</span>
+                        </div>
+                    </p:commandLink>
+
+                    <!-- Gestion des utilisateurs item -->
+                    <p:commandLink
+                            action="#"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                        <div class="sidebar-menu-item-content">
+                            <div class="sidebar-menu-item-icon">
+                                <i class="pi pi-user-edit" />
+                            </div>
+                            <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
+                            <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
+                        </div>
+                    </p:commandLink>
+                </nav>
+
+            </div>
+        </h:form>
+    </aside>
+</ui:fragment>

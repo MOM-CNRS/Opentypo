@@ -95,39 +95,281 @@ body, html {
 
 
 
-/**** Footer dynamique ****/
+/* ============================================
+   FOOTER MODERNE - DESIGN PROFESSIONNEL
+   Responsive, Formel, Adapté à la recherche
+   ============================================ */
+
 .app-footer {
-    background-color: var(--color-surface-secondary);
-    text-align: center;
-    padding: 1rem 0.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    height: auto;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    border-top: 1px solid rgba(71, 98, 77, 0.12);
     width: 100%;
-    font-size: 1rem;
+    margin-top: auto;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
 }
-.footer-content {
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Section principale du footer */
+.footer-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.08);
+}
+
+/* Sections du footer */
+.footer-section {
     display: flex;
     flex-direction: column;
+}
+
+.footer-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-action-main, #47624D);
+    margin: 0 0 1.25rem 0;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.footer-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--color-action-main, #47624D);
+    border-radius: 2px;
+}
+
+/* Liste de liens */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.footer-links li {
+    margin: 0;
+    padding: 0;
+}
+
+.footer-link {
+    color: var(--color-text-primary, #333);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    transition: all 0.25s ease;
+    display: inline-block;
+    position: relative;
+    padding-left: 0;
+}
+
+.footer-link::before {
+    content: '→';
+    position: absolute;
+    left: -1.25rem;
+    opacity: 0;
+    transition: all 0.25s ease;
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+}
+
+.footer-link:hover {
+    color: var(--color-action-main, #47624D);
+    padding-left: 1.25rem;
+    font-weight: 500;
+}
+
+.footer-link:hover::before {
+    opacity: 1;
+    left: 0;
+}
+
+/* Description dans la section "À propos" */
+.footer-description {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary, #819A91);
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Version et copyright */
+.footer-version {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.footer-version-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
+    font-weight: 500;
+}
+
+.footer-copyright {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary, #819A91);
+}
+
+/* Section basse du footer */
+.footer-bottom {
+    background: rgba(71, 98, 77, 0.03);
+    padding: 1.25rem 2rem;
+    border-top: 1px solid rgba(71, 98, 77, 0.08);
+}
+
+.footer-bottom-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-copyright-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.footer-copyright-text {
+    font-size: 0.875rem;
+    color: var(--color-text-primary, #333);
+    font-weight: 500;
+}
+
+.footer-rights {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
+}
+
+.footer-separator {
+    color: var(--color-text-secondary, #819A91);
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+}
+
+.footer-quick-links {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    width: 100%;
-}
-
-.infos-footer {
-    display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
 }
 
-.infos-footer a:hover {
+.footer-quick-link {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
+    text-decoration: none;
+    transition: color 0.25s ease;
+    font-weight: 400;
+}
+
+.footer-quick-link:hover {
+    color: var(--color-action-main, #47624D);
     text-decoration: underline;
-    color: var(--color-link);
 }
 
+/* Responsive Footer */
+@media (max-width: 992px) {
+    .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem;
+        padding: 2.5rem 1.5rem 1.5rem;
+    }
+    
+    .footer-section:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem 1.25rem 1.5rem;
+    }
+    
+    .footer-section {
+        text-align: center;
+    }
+    
+    .footer-section-title::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .footer-links {
+        align-items: center;
+    }
+    
+    .footer-link::before {
+        display: none;
+    }
+    
+    .footer-link:hover {
+        padding-left: 0;
+    }
+    
+    .footer-bottom-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .footer-copyright-main {
+        justify-content: center;
+    }
+    
+    .footer-quick-links {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-main {
+        padding: 1.5rem 1rem 1.25rem;
+        gap: 1.5rem;
+    }
+    
+    .footer-bottom {
+        padding: 1rem 1rem;
+    }
+    
+    .footer-section-title {
+        font-size: 0.8125rem;
+        margin-bottom: 1rem;
+    }
+    
+    .footer-link {
+        font-size: 0.875rem;
+    }
+    
+    .footer-copyright-text,
+    .footer-rights,
+    .footer-quick-link {
+        font-size: 0.8125rem;
+    }
+}
+
+/* Anciens styles conservés pour compatibilité */
 .ods-front-footer__ods-logo-img {
     height: 35px;
     max-width: 100%;

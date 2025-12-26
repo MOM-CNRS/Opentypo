@@ -1,0 +1,58 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <header class="app-header">
+        <div class="header-left">
+            <div class="burger-button">
+                <!-- Barre mobile avec bouton burger -->
+                <p:commandButton icon="pi pi-bars text-white"
+                                 styleClass="mobile-burger-button"
+                                 onclick="toggleSidebar()"
+                                 type="button"
+                                 title="Menu" />
+            </div>
+
+            <!-- Logos : un pour desktop, un pour mobile -->
+            <h:graphicImage library="img" name="opentheso_blanc.png" styleClass="logo-desktop header-logo"/>
+
+            <h:graphicImage library="img" name="o_blanc.png" styleClass="logo-mobile header-logo"/>
+        </div>
+        <div class="header-title">
+            Thesaurus Pactols
+        </div>
+        <div class="header-right">
+            <h:form id="headerForm">
+                <!-- Icône d'alertes -->
+                <p:commandButton icon="pi pi-bell text-white"
+                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                 title="Alertes"
+                                 action="#{notificationBean.showAlerts}" />
+
+                <!-- Bouton de connexion/déconnexion -->
+                <h:panelGroup rendered="#{!loginBean.authenticated}">
+                    <p:commandButton icon="pi pi-user text-white"
+                                     styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                     title="Se connecter"
+                                     onclick="PF('loginDialog').show(); return false;"
+                                     type="button" />
+                </h:panelGroup>
+                <h:panelGroup rendered="#{loginBean.authenticated}" id="header">
+                    <p:menuButton value="#{loginBean.userDisplayName}"
+                                  icon="pi pi-user-check text-white"
+                                  styleClass="p-button-rounded p-button-text p-button-secondary header-icon authenticated-user">
+                        <p:menuitem value="Mon profil"
+                                    icon="pi pi-user"
+                                    url="#" />
+                        <p:separator />
+                        <p:menuitem value="Déconnexion"
+                                    icon="pi pi-sign-out"
+                                    onclick="PF('confirmLogoutDialog').show(); return false;"
+                                    type="button" />
+                    </p:menuButton>
+                </h:panelGroup>
+            </h:form>
+        </div>
+    </header>
+</ui:fragment>

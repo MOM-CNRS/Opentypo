@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
@@ -96,126 +95,14 @@
         </div>
     </h:panelGroup >
     <!-- Pour que le contenu ne soit pas caché par la barre fixe -->
-    <h:panelGroup rendered="false" style="height:50px;"></h:panelGroup>
+    <h:panelGroup rendered="false" style="height:50px;" />
 
     <!-- HEADER -->
-    <header class="app-header">
-
-        <div class="header-left">
-            <div class="burger-button">
-                <!-- Barre mobile avec bouton burger -->
-                <p:commandButton icon="pi pi-bars text-white"
-                                 styleClass="mobile-burger-button"
-                                 onclick="toggleSidebar()"
-                                 type="button"
-                                 title="Menu" />
-            </div>
-
-            <!-- Logos : un pour desktop, un pour mobile -->
-            <h:graphicImage library="img" name="opentheso_blanc.png" styleClass="logo-desktop header-logo"/>
-
-            <h:graphicImage library="img" name="o_blanc.png" styleClass="logo-mobile header-logo"/>
-        </div>
-        <div class="header-title">
-            Thesaurus Pactols
-        </div>
-        <div class="header-right">
-            <h:form id="headerForm">
-                <!-- Icône d'alertes -->
-                <p:commandButton icon="pi pi-bell text-white"
-                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
-                                 title="Alertes"
-                                 action="#{notificationBean.showAlerts}" />
-
-                <!-- Bouton de connexion/déconnexion -->
-                <h:panelGroup rendered="#{!loginBean.authenticated}">
-                    <p:commandButton icon="pi pi-user text-white"
-                                     styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
-                                     title="Se connecter"
-                                     onclick="PF('loginDialog').show(); return false;"
-                                     type="button" />
-                </h:panelGroup>
-                <h:panelGroup rendered="#{loginBean.authenticated}" id="header">
-                    <p:menuButton value="#{loginBean.userDisplayName}"
-                                 icon="pi pi-user-check text-white"
-                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon authenticated-user">
-                        <p:menuitem value="Mon profil"
-                                   icon="pi pi-user"
-                                   url="#" />
-                        <p:separator />
-                        <p:menuitem value="Déconnexion"
-                                   icon="pi pi-sign-out"
-                                   onclick="PF('confirmLogoutDialog').show(); return false;"
-                                   type="button" />
-                    </p:menuButton>
-                </h:panelGroup>
-            </h:form>
-        </div>
-    </header>
+    <ui:include src="header.xhtml" />
 
     <div class="app-container">
         <!-- MENU LATERAL -->
-        <aside id="sidebar" class="app-sidebar sidebar-collapsed sidebar-always-collapsed">
-            <h:form id="sidebarForm">
-                <div class="sidebar-content">
-                    <!-- Header du menu -->
-                    <div class="sidebar-menu-header">
-                        <div class="sidebar-header-icon">
-                            <i class="pi pi-th-large"></i>
-                        </div>
-                    </div>
-
-                    <!-- Menu items dynamiques -->
-                    <nav class="sidebar-nav">
-                        <!-- Accueil item -->
-                        <p:commandLink 
-                            action="/index.xhtml?faces-redirect=true"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none">
-                            <div class="sidebar-menu-item-content">
-                                <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-home"></i>
-                                </div>
-                                <span class="sidebar-menu-item-text">Accueil</span>
-                                <span class="sidebar-menu-item-tooltip">Accueil</span>
-                            </div>
-                        </p:commandLink>
-
-                        <!-- Candidats item -->
-                        <p:commandLink 
-                            action="#"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none">
-                            <div class="sidebar-menu-item-content">
-                                <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-users"></i>
-                                </div>
-                                <span class="sidebar-menu-item-text">Candidats</span>
-                                <span class="sidebar-menu-item-tooltip">Candidats</span>
-                            </div>
-                        </p:commandLink>
-
-                        <!-- Gestion des utilisateurs item -->
-                        <p:commandLink 
-                            action="#"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none">
-                            <div class="sidebar-menu-item-content">
-                                <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-user-edit"></i>
-                                </div>
-                                <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
-                                <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
-                            </div>
-                        </p:commandLink>
-                    </nav>
-
-                </div>
-            </h:form>
-        </aside>
+        <ui:include src="menu.xhtml" />
 
         <!-- CONTENU CENTRAL -->
         <main class="app-main">
@@ -224,25 +111,12 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="app-footer">
-        <div class="footer-content">
-            <span class="footer-version">Application v1.0 — © 2025</span>
-
-            <div class="infos-footer">
-                <a href="http://www.culture.gouv.fr/Mentions-legales" target="_blank">Mentions légales</a> |
-                <a href="/pages/credits" target="_blank">Crédits</a> |
-                <a href="/pages/accessibilite" target="_blank">Accessibilité : non conforme</a> |
-                <a href="/pages/contact/" target="_blank">Nous contacter</a> |
-                <a href="https://www.data.gouv.fr/fr/" target="_blank">data.gouv.fr</a>
-            </div>
-        </div>
-    </footer>
+    <ui:include src="footer.xhtml" />
 
     <!-- Messages de notification -->
     <p:growl id="growl" showDetail="true" life="5000" position="top-right" />
 
     <ui:include src="../user/login.xhtml" />
-
     <ui:include src="../user/logout.xhtml" />
 </h:body>
 </html>
