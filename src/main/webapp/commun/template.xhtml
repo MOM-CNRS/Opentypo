@@ -17,12 +17,11 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"/>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-    <!-- Cache busting pour forcer le rechargement des ressources -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Cache busting pour forcer le rechargement -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
-    
     <!-- CSS principal -->
     <h:outputStylesheet library="css" name="theso_style.css"/>
 </h:head>
@@ -30,6 +29,58 @@
 <h:body styleClass="app-body">
     <!-- Charger le script JavaScript en premier pour garantir la disponibilité des fonctions -->
     <h:outputScript library="js" name="theso_responsiveMenu.js"/>
+    
+    <!-- Script pour gérer le menu dynamique -->
+    <h:outputScript target="body">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Détecter l'item actif basé sur l'URL
+            const currentPath = window.location.pathname;
+            const menuItems = document.querySelectorAll('.sidebar-menu-item');
+            
+            menuItems.forEach(function(item) {
+                const link = item.querySelector('a') || item;
+                const href = link.getAttribute('href') || link.getAttribute('action') || '';
+                
+                // Vérifier si l'URL correspond à l'item
+                if (href &amp;&amp; (currentPath.includes(href.split('?')[0]) || 
+                    (currentPath === '/' &amp;&amp; href.includes('index.xhtml')) ||
+                    (currentPath.endsWith('/') &amp;&amp; href.includes('index.xhtml')))) {
+                    item.classList.add('active');
+                }
+                
+                // Gérer les clics pour ajouter la classe active
+                link.addEventListener('click', function() {
+                    // Retirer active de tous les items
+                    menuItems.forEach(function(menuItem) {
+                        menuItem.classList.remove('active');
+                    });
+                    // Ajouter active à l'item cliqué
+                    item.classList.add('active');
+                });
+            });
+            
+            // Setup tooltips pour les items du menu
+            setupSidebarMenuTooltips();
+        });
+        
+        function setupSidebarMenuTooltips() {
+            const menuItems = document.querySelectorAll('.sidebar-menu-item');
+            menuItems.forEach(function(item) {
+                const tooltip = item.querySelector('.sidebar-menu-item-tooltip');
+                const textElement = item.querySelector('.sidebar-menu-item-text');
+                
+                if (!tooltip &amp;&amp; textElement) {
+                    const tooltipText = textElement.textContent.trim();
+                    if (tooltipText) {
+                        const tooltipSpan = document.createElement('span');
+                        tooltipSpan.className = 'sidebar-menu-item-tooltip';
+                        tooltipSpan.textContent = tooltipText;
+                        item.querySelector('.sidebar-menu-item-content').appendChild(tooltipSpan);
+                    }
+                }
+            });
+        }
+    </h:outputScript>
 
     <!-- Bandeau en haut de page, il faut activer l'affichage à la demande et intégrer le contenu dans la BDD -->
     <h:panelGroup rendered="false" layout="block" style="width:100%; padding:10px; background-color:#f5f5f5; border-bottom:1px solid #ccc; position:fixed; top:0; left:0; z-index:1000;">
@@ -104,33 +155,64 @@
 
     <div class="app-container">
         <!-- MENU LATERAL -->
-        <aside id="sidebar" class="app-sidebar sidebar-collapsed">
+        <aside id="sidebar" class="app-sidebar sidebar-collapsed sidebar-always-collapsed">
             <h:form id="sidebarForm">
-                <!-- Bouton toggle pour réduire/étendre le menu -->
-                <div class="sidebar-toggle-container">
-                    <p:commandButton icon="pi pi-angle-right"
-                                     styleClass="sidebar-toggle-button"
-                                     onclick="toggleSidebarCollapse(); return false;"
-                                     title="Agrandir/Réduire le menu"
-                                     type="button"
-                                     process="@this" 
-                                     update="@none"/>
-                </div>
-                
                 <div class="sidebar-content">
                     <!-- Header du menu -->
-                    <div class="sidebar-header">
+                    <div class="sidebar-menu-header">
                         <div class="sidebar-header-icon">
                             <i class="pi pi-th-large"></i>
                         </div>
-                        <div class="sidebar-header-text">
-                            <span class="sidebar-header-title">Menu</span>
-                            <span class="sidebar-header-subtitle">Navigation</span>
-                        </div>
                     </div>
-                    
-                    <!-- Menu items -->
-                    <p:menu styleClass="sidebar-menu" model="#{menuBean.model}" />
+
+                    <!-- Menu items dynamiques -->
+                    <nav class="sidebar-nav">
+                        <!-- Accueil item -->
+                        <p:commandLink 
+                            action="/index.xhtml?faces-redirect=true"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-home"></i>
+                                </div>
+                                <span class="sidebar-menu-item-text">Accueil</span>
+                                <span class="sidebar-menu-item-tooltip">Accueil</span>
+                            </div>
+                        </p:commandLink>
+
+                        <!-- Candidats item -->
+                        <p:commandLink 
+                            action="#"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-users"></i>
+                                </div>
+                                <span class="sidebar-menu-item-text">Candidats</span>
+                                <span class="sidebar-menu-item-tooltip">Candidats</span>
+                            </div>
+                        </p:commandLink>
+
+                        <!-- Gestion des utilisateurs item -->
+                        <p:commandLink 
+                            action="#"
+                            styleClass="sidebar-menu-item"
+                            process="@this"
+                            update="@none">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-user-edit"></i>
+                                </div>
+                                <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
+                                <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
+                            </div>
+                        </p:commandLink>
+                    </nav>
+
                 </div>
             </h:form>
         </aside>
