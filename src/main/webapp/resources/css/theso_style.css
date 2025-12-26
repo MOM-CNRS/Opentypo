@@ -775,17 +775,17 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .app-search {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 0.75rem 1rem 0.5rem 1rem;
-    background-color: var(--color-bg-global, #EEEFE0);
-    flex-wrap: nowrap;
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 0;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0.75rem 1rem 0.5rem 1rem !important;
+    background-color: var(--color-bg-global, #EEEFE0) !important;
+    flex-wrap: nowrap !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
 }
 .search-controls {
     display: flex;
@@ -894,21 +894,21 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 
 /* Conteneur principal de la barre de recherche compacte */
 .search-bar-compact {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 100%;
-    padding: 0.625rem 1rem;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin: 0;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.625rem 1rem !important;
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    margin: 0 !important;
+    margin-bottom: 0 !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    box-sizing: border-box !important;
 }
 
 /* S'assurer que le formulaire parent prend toute la largeur */
@@ -2248,6 +2248,219 @@ body .ui-panelgrid .ui-panelgrid-cell {
     }
 }
 
+/* Style pour le panneau référentiel */
+.info-concept {
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* ============================================
+   CARTES RÉFÉRENTIEL - STYLE MODERNE ET UNIFORME
+   ============================================ */
+
+/* Conteneur des cartes référentiel */
+.referentiel-cards-container {
+    width: 100%;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+}
+
+/* Grille des cartes référentiel - Prend toute la largeur disponible */
+.referentiel-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Carte référentiel moderne */
+.referentiel-card {
+    display: block;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    position: relative;
+}
+
+.referentiel-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.6) 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.referentiel-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--color-action-main, #47624D);
+    text-decoration: none;
+    color: inherit;
+}
+
+.referentiel-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Contenu de la carte référentiel */
+.referentiel-card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+}
+
+/* En-tête de la carte référentiel */
+.referentiel-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+/* Icône de la carte référentiel */
+.referentiel-card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    border-radius: 10px;
+    color: var(--color-action-main, #47624D);
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.referentiel-card:hover .referentiel-card-icon {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%);
+    color: #ffffff;
+    transform: none;
+    box-shadow: none;
+    animation: none;
+}
+
+/* Wrapper pour titre et code */
+.referentiel-card-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Titre de la carte référentiel */
+.referentiel-card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #333);
+    margin: 0;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+}
+
+.referentiel-card:hover .referentiel-card-title {
+    color: var(--color-action-main, #47624D);
+}
+
+/* Code de la carte référentiel */
+.referentiel-card-code {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary, #819A91);
+    margin: 0;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.referentiel-card:hover .referentiel-card-code {
+    color: var(--color-action-main, #47624D);
+}
+
+/* Description de la carte référentiel */
+.referentiel-card-description {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary, #819A91);
+    margin: 0;
+    line-height: 1.6;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+}
+
+.referentiel-card:hover .referentiel-card-description {
+    color: var(--color-text-primary, #333);
+}
+
+/* Responsive pour les cartes référentiel */
+@media (max-width: 992px) {
+    .referentiel-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .referentiel-cards-container {
+        padding: 1.25rem 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .referentiel-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .referentiel-cards-container {
+        padding: 1rem 0;
+    }
+    
+    .referentiel-card {
+        min-height: 140px;
+    }
+    
+    .referentiel-card-content {
+        padding: 1.25rem;
+    }
+    
+    .referentiel-card-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.375rem;
+    }
+    
+    .referentiel-card-title {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .referentiel-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 /* CONTENU CENTRAL = prend TOUT le reste */
 .center-content {
     flex: 1 1 auto;
@@ -2266,14 +2479,14 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 .research-image {
-    width: 80%;
-    max-width: 900px;          /* limite sur grands écrans */
-    height: auto;
+    width: 80% !important;
+    max-width: 900px !important;          /* limite sur grands écrans */
+    height: auto !important;
 
-    border-radius: 4px;        /* très léger, non décoratif */
-    border: 1px solid #d0d0d0; /* style institutionnel */
+    border-radius: 4px !important;        /* très léger, non décoratif */
+    border: 1px solid #d0d0d0 !important; /* style institutionnel */
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* discret */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important; /* discret */
 }
 
 .clickable-sub-card {

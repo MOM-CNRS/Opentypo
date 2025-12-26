@@ -41,92 +41,53 @@
 
             </h:panelGroup>
 
-            <div class="center-content">
-                <div class="modern-cards-container">
-                    <h:form>
-                        <div class="modern-cards-grid">
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-folder"></i>
+            <h:panelGroup id="centerContent" styleClass="center-content">
+                <!-- Conteneur des cartes -->
+                <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCards}">
+                    <div class="modern-cards-container">
+                        <h:form>
+                            <div class="modern-cards-grid">
+                                <p:commandLink action="#{applicationBean.showReferentiel()}" 
+                                             styleClass="modern-card"
+                                             process="@this" 
+                                             update=":centerContent">
+                                    <div class="modern-card-content">
+                                        <div class="modern-card-header">
+                                            <div class="modern-card-icon">
+                                                <i class="pi pi-folder"></i>
+                                            </div>
+                                            <h3 class="modern-card-title">Titre 1</h3>
                                         </div>
-                                        <h3 class="modern-card-title">Titre 1</h3>
+                                        <p class="modern-card-description">Description courte du contenu ou contexte</p>
                                     </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
+                                </p:commandLink>
 
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-book"></i>
+                                <p:commandLink action="#{applicationBean.showReferentiel()}" 
+                                             styleClass="modern-card"
+                                             process="@this" 
+                                             update=":centerContent">
+                                    <div class="modern-card-content">
+                                        <div class="modern-card-header">
+                                            <div class="modern-card-icon">
+                                                <i class="pi pi-book"></i>
+                                            </div>
+                                            <h3 class="modern-card-title">Titre 2</h3>
                                         </div>
-                                        <h3 class="modern-card-title">Titre 2</h3>
+                                        <p class="modern-card-description">Description courte du contenu ou contexte</p>
                                     </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
+                                </p:commandLink>
+                            </div>
+                        </h:form>
+                    </div>
+                </h:panelGroup>
 
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-file"></i>
-                                        </div>
-                                        <h3 class="modern-card-title">Titre 3</h3>
-                                    </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
-
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-folder"></i>
-                                        </div>
-                                        <h3 class="modern-card-title">Titre 1</h3>
-                                    </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
-
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-book"></i>
-                                        </div>
-                                        <h3 class="modern-card-title">Titre 2</h3>
-                                    </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
-
-                            <p:commandLink outcome="/detail.xhtml?faces-redirect=true" styleClass="modern-card">
-                                <div class="modern-card-content">
-                                    <div class="modern-card-header">
-                                        <div class="modern-card-icon">
-                                            <i class="pi pi-file"></i>
-                                        </div>
-                                        <h3 class="modern-card-title">Titre 3</h3>
-                                    </div>
-                                    <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                </div>
-                            </p:commandLink>
-                        </div>
-                    </h:form>
-                </div>
-
-                <!-- Concept selected rendered="#{treeBean.selectedNode != null}"-->
-                <!--<h:panelGroup  >
+                <!-- Panneau référentiel -->
+                <h:panelGroup id="referentielPanel" rendered="#{applicationBean.showReferentielPanel}">
                     <div class="info-concept">
                         <ui:include src="details/referentiel.xhtml"/>
                     </div>
-                </h:panelGroup>-->
-            </div>
+                </h:panelGroup>
+            </h:panelGroup>
 
             <!-- Panneau droit masqué -->
             <h:panelGroup rendered="true" >
