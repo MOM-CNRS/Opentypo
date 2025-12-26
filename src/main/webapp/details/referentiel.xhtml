@@ -6,52 +6,51 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <h:form id="conceptForm">
-        <!-- Menu de configuration -->
-        <h:panelGroup style="display: flex; justify-content: flex-end; align-items: center;">
-            <p:menuButton id="menuButton" title="Afficher / Masquer les panels" icon="pi pi-cog"
-                          buttonStyleClass="ui-button-outlined" buttonStyle="border-radius: 0 1rem">
-
-                <c:forEach var="panel" items="#{conceptPanelsView.panelsVisibility.entrySet()}">
-                    <p:menuitem
-                            value="#{conceptPanelsView.getLabel(panel.key)}"
-                            icon="#{panel.value ? 'pi pi-check' : 'pi pi-times'}"
-                            ajax="true"
-                            process="@this"
-                            update="conceptForm menuButton contentPanels"
-                            actionListener="#{conceptPanelsView.togglePanel(panel.key)}" />
-                </c:forEach>
-            </p:menuButton>
-
+        <!-- Menu de configuration moderne -->
+        <div class="concept-config-toolbar">
             <p:commandButton id="panelButton"
-                             title="Afficher / Masquer les panels"
+                             title="Configuration des panneaux"
                              icon="pi pi-cog"
-                             styleClass="ui-button-outlined"
-                             style="border-radius: 0 1rem"
+                             styleClass="concept-config-button"
                              type="button" />
 
             <p:overlayPanel id="panelOverlay"
                             for="panelButton"
                             widgetVar="panelOverlay"
-                            dismissable="false"
+                            dismissable="true"
                             showEvent="click"
-                            hideEvent="none">
+                            hideEvent="outsideClick"
+                            styleClass="concept-config-overlay">
 
-                <p:outputLabel value="Choisir les panels à afficher :" />
-                <p:selectManyCheckbox value="#{conceptPanelsView.selectedPanels}" layout="grid" columns="1">
-                    <f:selectItems value="#{conceptPanelsView.panelOptions}" var="p"
-                                   itemLabel="#{p.label}" itemValue="#{p.key}" />
-                    <p:ajax listener="#{conceptPanelsView.updatePanels}" update="contentPanels" />
-                </p:selectManyCheckbox>
+                <div class="concept-config-header">
+                    <h3 class="concept-config-title">
+                        <i class="pi pi-sliders-h"></i>
+                        Configuration des panneaux
+                    </h3>
+                    <p class="concept-config-subtitle">Sélectionnez les panneaux à afficher</p>
+                </div>
 
-                <p:separator />
+                <div class="concept-config-content">
+                    <p:selectManyCheckbox value="#{conceptPanelsView.selectedPanels}" 
+                                         layout="grid" 
+                                         columns="1"
+                                         styleClass="concept-config-checkboxes">
+                        <f:selectItems value="#{conceptPanelsView.panelOptions}" var="p"
+                                       itemLabel="#{p.label}" itemValue="#{p.key}" />
+                        <p:ajax listener="#{conceptPanelsView.updatePanels}" 
+                                update="contentPanels" />
+                    </p:selectManyCheckbox>
+                </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                    <p:commandButton value="Fermer" icon="fa-solid fa-rotate-left" styleClass="btn-secondary"
-                                     onclick="PF('panelOverlay').hide()"/>
+                <div class="concept-config-footer">
+                    <p:commandButton value="Fermer" 
+                                   icon="pi pi-times" 
+                                   styleClass="concept-config-close-button"
+                                   onclick="PF('panelOverlay').hide(); return false;"
+                                   type="button"/>
                 </div>
             </p:overlayPanel>
-
-        </h:panelGroup>
+        </div>
     </h:form>
 
     <!-- Contenu dynamique -->
@@ -131,12 +130,10 @@
 
                         <div class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
-                                <i class="pi pi-bookmark concept-info-icon"></i>
-                                <h:outputText value="Catégories du référentiel" style="font-size: 14px; font-weight: bold"/>
+                                <i class="pi pi-tags concept-info-icon"></i>
+                                <span>Catégories du référentiel</span>
                             </div>
-                            <div class="concept-info-value">
-                                <h:outputText value="cortège funéraires" style="font-size: 14px; font-weight: bold"/>
-                            </div>
+                            <div class="concept-info-value">cortège funéraires</div>
                         </div>
                     </div>
                 </div>
