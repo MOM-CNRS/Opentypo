@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <h:form id="conceptForm">
+    <h:form>
         <!-- Menu de configuration -->
         <h:panelGroup style="display: flex; justify-content: flex-end; align-items: center;">
             <p:menuButton id="menuButton" title="Afficher / Masquer les panels" icon="pi pi-cog"
@@ -17,7 +17,7 @@
                             icon="#{panel.value ? 'pi pi-check' : 'pi pi-times'}"
                             ajax="true"
                             process="@this"
-                            update="conceptForm menuButton contentPanels"
+                            update="conceptForm menuButton contentCategoriesPanels"
                             actionListener="#{conceptPanelsView.togglePanel(panel.key)}" />
                 </c:forEach>
             </p:menuButton>
@@ -40,7 +40,7 @@
                 <p:selectManyCheckbox value="#{conceptPanelsView.selectedPanels}" layout="grid" columns="1">
                     <f:selectItems value="#{conceptPanelsView.panelOptions}" var="p"
                                    itemLabel="#{p.label}" itemValue="#{p.key}" />
-                    <p:ajax listener="#{conceptPanelsView.updatePanels}" update="contentPanels" />
+                    <p:ajax listener="#{conceptPanelsView.updatePanels}" update="contentCategoriesPanels" />
                 </p:selectManyCheckbox>
 
                 <p:separator />
@@ -55,31 +55,115 @@
     </h:form>
 
     <!-- Contenu dynamique -->
-    <h:panelGroup id="contentPanels" layout="block">
+    <h:panelGroup layout="block">
+
         <ui:include src="breadCrumb.xhtml"/>
 
         <div class="row">
             <div class="col-md-12">
-                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                    <div class="row mb-0">
-                        <div class="col-4 border p-1 d-flex justify-content-between align-items-center">
-                            <h:outputText value="Nom" style="font-size: 14px; font-weight: bold"/>
+                <div class="concept-info-panel">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
+                            </div>
+                            <h2 class="concept-info-title">cortège funéraires</h2>
                         </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="cortège funéraires" style="font-size: 14px; font-weight: bold"/>
-                            <h:outputText value=" (fr)" style="font-size: 14px;"/>
+                        <div class="concept-info-actions">
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-gear"></i>
+                                <p:tooltip value="Paramètres" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-flag-checkered"></i>
+                            </p:commandLink>
                         </div>
                     </div>
 
-                    <div class="row mb-0" style="font-size: 14px; font-style: italic">
-                        <div class="col-4 border p-1 d-flex justify-content-between align-items-center">
-                            <h:outputText value="Catégorie"/>
+                    <!-- Grille d'informations -->
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Catégorie</span>
+                            </div>
+                            <div class="concept-info-value">convoi funèbre</div>
                         </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="Catégorie valeur"/>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file-edit concept-info-icon"></i>
+                                <span>Description</span>
+                            </div>
+                            <div class="concept-info-value concept-info-description">
+                                Déscription total
+                            </div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon"></i>
+                                <span>Groupes de - </span>
+                            </div>
+                            <div class="concept-info-value">XXXXXXX</div>
                         </div>
                     </div>
+                </div>
+
+                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
+                    <div class="referentiel-cards-container">
+                        <h:form>
+                            <div class="referentiel-cards-grid">
+                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                               styleClass="referentiel-card"
+                                               process="@this"
+                                               update=":centerContent">
+                                    <div class="referentiel-card-content">
+                                        <div class="referentiel-card-header">
+                                            <div class="referentiel-card-icon">
+                                                <i class="pi pi-tag"></i>
+                                            </div>
+                                            <div class="referentiel-card-title-wrapper">
+                                                <h3 class="referentiel-card-title">Titre GROUPE</h3>
+                                                <span class="referentiel-card-code">Code GROUPE</span>
+                                                <span class="referentiel-card-code">Période GROUPE</span>
+                                            </div>
+                                        </div>
+                                        <p class="referentiel-card-description">
+                                            Description courte du contenu, contexte scientifique,
+                                            résumé ou métadonnée.
+                                        </p>
+                                    </div>
+                                </p:commandLink>
+                            </div>
+                        </h:form>
+                    </div>
                 </p:panel>
+
+                <div class="concept-info-panel">
+                    <!-- Grille d'informations -->
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Commentaire</span>
+                            </div>
+                            <div class="concept-info-value">Text du commentaire</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon"></i>
+                                <span>Bibliographie</span>
+                            </div>
+                            <div class="concept-info-value">XXXXXXX</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </h:panelGroup>

@@ -9,9 +9,9 @@
         <!-- Bloc Groups Collections -->
         <div class="row" >
             <div class="col-md-12">
-                <p:panel id="groupsPanelBreadCrumb" toggleable="true" closable="false"
+                <p:panel toggleable="true" closable="false"
                          toggleSpeed="500"
-                         closeSpeed="500" widgetVar="breadCrumb"
+                         closeSpeed="500"
                          styleClass="breadcrumb-panel"
                          collapsed="true"
                          style="font-family: 'Roboto', sans-serif; font-size: 14px;">
@@ -40,11 +40,16 @@
 
                     <h:outputScript target="body">
                         $(document).ready(function () {
-                            $("#groupsPanelBreadCrumb_header").on("click", function (e) {
-                                if (
-                                        $(e.target).closest(".ui-panel-titlebar-icon, .ui-panel-titlebar-options, .ui-menuitem").length === 0
-                                ) {
-                                    PF('breadCrumb').toggle();
+                            $(".breadcrumb-panel .ui-panel-titlebar").on("click", function (e) {
+                                if ($(e.target).closest(".ui-panel-titlebar-icon, .ui-panel-titlebar-options, .ui-menuitem").length === 0) {
+                                    var $panel = $(this).closest(".ui-panel");
+                                    var panelId = $panel.attr("id");
+                                    if (panelId) {
+                                        var widget = PrimeFaces.getWidgetById(panelId);
+                                        if (widget &amp;&amp; typeof widget.toggle === 'function') {
+                                            widget.toggle();
+                                        }
+                                    }
                                 }
                             });
                         });

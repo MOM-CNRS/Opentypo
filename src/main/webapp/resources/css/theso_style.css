@@ -2510,6 +2510,28 @@ body .ui-panelgrid .ui-panelgrid-cell {
     color: var(--color-text-secondary, #819A91);
 }
 
+/* Conteneur du drapeau de langue */
+.concept-info-language-flag {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5rem;
+}
+
+.language-flag {
+    width: 32px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.language-flag:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
 /* Actions du header */
 .concept-info-actions {
     display: flex;

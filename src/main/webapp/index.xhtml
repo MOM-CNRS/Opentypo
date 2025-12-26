@@ -82,9 +82,16 @@
                 </h:panelGroup>
 
                 <!-- Panneau référentiel -->
-                <h:panelGroup id="referentielPanel" rendered="#{applicationBean.showReferentielPanel}">
+                <h:panelGroup rendered="#{applicationBean.showReferentielPanel}">
                     <div class="info-concept">
                         <ui:include src="details/referentiel.xhtml"/>
+                    </div>
+                </h:panelGroup>
+
+                 <!-- Panneau catégorie -->
+                 <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
+                    <div class="info-concept">
+                        <ui:include src="details/categorie.xhtml"/>
                     </div>
                 </h:panelGroup>
             </h:panelGroup>
