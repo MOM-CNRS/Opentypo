@@ -151,7 +151,7 @@
                             <!-- En-tête avec titre et actions -->
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title">Série de XXXXX</h2>
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Série de XXXXX</h2>
                                 </div>
                             </div>
 
@@ -196,53 +196,208 @@
                             <!-- En-tête avec titre et actions -->
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title">Liste des types du groupe XXXXX</h2>
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Liste des types du groupe XXXXX</h2>
+                                </div>
+                            </div>
+
+                            <!-- Grille de typologies -->
+                            <div class="typologie-cards-container">
+                                <h:form>
+                                    <div class="typologie-cards-grid">
+                                        <p:commandLink action="#{applicationBean.showCategory()}"
+                                                       styleClass="typologie-card"
+                                                       process="@this"
+                                                       update=":centerContent">
+                                            <div class="typologie-card-image-wrapper">
+                                                <p:graphicImage
+                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                                        styleClass="typologie-card-image"
+                                                        alt="Typologie"/>
+                                                <div class="typologie-card-overlay"></div>
+                                            </div>
+                                            <div class="typologie-card-content">
+                                                <h3 class="typologie-card-title">Label du Typo</h3>
+                                            </div>
+                                        </p:commandLink>
+
+                                        <p:commandLink action="#{applicationBean.showCategory()}"
+                                                       styleClass="typologie-card"
+                                                       process="@this"
+                                                       update=":centerContent">
+                                            <div class="typologie-card-image-wrapper">
+                                                <p:graphicImage
+                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                                        styleClass="typologie-card-image"
+                                                        alt="Typologie"/>
+                                                <div class="typologie-card-overlay"></div>
+                                            </div>
+                                            <div class="typologie-card-content">
+                                                <h3 class="typologie-card-title">Label du Typo</h3>
+                                            </div>
+                                        </p:commandLink>
+                                    </div>
+                                </h:form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- En-tête avec titre et actions -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Détails</h2>
                                 </div>
                             </div>
 
                             <!-- Grille d'informations -->
                             <div class="concept-info-grid">
-                                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                                    <div class="referentiel-cards-container">
-                                        <h:form>
-                                            <div class="referentiel-cards-grid">
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <p:graphicImage
-                                                                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                                    styleClass="research-image"
-                                                                    alt="Vue de la rive gauche de Paris"/>
-                                                        </div>
-                                                        <div class="referentiel-card-title-wrapper">
-                                                            <h3 class="referentiel-card-title">Label du Typo</h3>
-                                                        </div>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <p:graphicImage
-                                                                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                                    styleClass="research-image"
-                                                                    alt="Vue de la rive gauche de Paris"/>
-                                                        </div>
-                                                        <div class="referentiel-card-title-wrapper">
-                                                            <h3 class="referentiel-card-title">Label du Typo</h3>
-                                                        </div>
-                                                    </div>
-                                                </p:commandLink>
-                                            </div>
-                                        </h:form>
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Production</span>
                                     </div>
-                                </p:panel>
+                                    <div class="concept-info-value">Production détail</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Atelier(s)</span>
+                                    </div>
+                                    <div class="concept-info-value">Liste des ateliers</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Aire de circulation</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails d'aire de circulation</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- En-tête avec titre et actions -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Déscription</h2>
+                                </div>
+                            </div>
+
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Décors</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails décors</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Marques/estampilles</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails marques</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Catégorie fonctionnelle</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails de la catégorie fonctionnelle</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- En-tête avec titre et actions -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Caractéristiques physique</h2>
+                                </div>
+                            </div>
+
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Matériaux</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails matériaux</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Forme</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails forme</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Dimensions</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails de dimension</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Technique</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails de technique</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Fabrication</span>
+                                    </div>
+                                    <div class="concept-info-value">Détails de fabrication</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px">
+                    <div class="col-md-12">
+                        <div class="concept-info-panel">
+                            <!-- Grille d'informations -->
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon"></i>
+                                        <span>Commentaire</span>
+                                    </div>
+                                    <div class="concept-info-value">Text du commentaire</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-user concept-info-icon"></i>
+                                        <span>Bibliographie</span>
+                                    </div>
+                                    <div class="concept-info-value">XXXXXXX</div>
+                                </div>
                             </div>
                         </div>
                     </div>
