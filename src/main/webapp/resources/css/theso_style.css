@@ -627,13 +627,7 @@ body, html {
     background: #2d3748;
 }
 
-/* Hover sur l'item - Effets modernes */
-.sidebar-menu-item:hover .sidebar-menu-item-content {
-    background: rgba(71, 98, 77, 0.06);
-}
-
 .sidebar-menu-item:hover .sidebar-menu-item-icon {
-    background: rgba(71, 98, 77, 0.15);
     color: var(--color-action-main, #47624D);
     box-shadow: 0 4px 12px rgba(71, 98, 77, 0.2);
     transform: scale(1.08);
@@ -688,13 +682,33 @@ body, html {
 
 .sidebar-menu-item {
     animation: menuItemSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    background-color: transparent !important;
 }
 
-.sidebar-menu-item:nth-child(1) { animation-delay: 0.05s; }
-.sidebar-menu-item:nth-child(2) { animation-delay: 0.1s; }
-.sidebar-menu-item:nth-child(3) { animation-delay: 0.15s; }
-.sidebar-menu-item:nth-child(4) { animation-delay: 0.2s; }
-.sidebar-menu-item:nth-child(5) { animation-delay: 0.25s; }
+.sidebar-menu-item:nth-child(1) {
+    animation-delay: 0.05s;
+    background-color: transparent !important;
+}
+
+.sidebar-menu-item:nth-child(2) {
+    animation-delay: 0.1s;
+    background-color: transparent !important;
+}
+
+.sidebar-menu-item:nth-child(3) {
+    animation-delay: 0.15s;
+    background-color: transparent !important;
+}
+
+.sidebar-menu-item:nth-child(4) {
+    animation-delay: 0.2s;
+    background-color: transparent !important;
+}
+
+.sidebar-menu-item:nth-child(5) {
+    animation-delay: 0.25s;
+    background-color: transparent !important;
+}
 
 /* Responsive pour les items du menu */
 @media (max-width: 768px) {
