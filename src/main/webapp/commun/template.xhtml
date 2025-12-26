@@ -30,6 +30,7 @@
             // Détecter l'item actif basé sur l'URL
             const currentPath = window.location.pathname;
             const menuItems = document.querySelectorAll('.sidebar-menu-item');
+            let hasActiveItem = false;
             
             menuItems.forEach(function(item) {
                 const link = item.querySelector('a') || item;
@@ -40,6 +41,7 @@
                     (currentPath === '/' &amp;&amp; href.includes('index.xhtml')) ||
                     (currentPath.endsWith('/') &amp;&amp; href.includes('index.xhtml')))) {
                     item.classList.add('active');
+                    hasActiveItem = true;
                 }
                 
                 // Gérer les clics pour ajouter la classe active
@@ -52,6 +54,11 @@
                     item.classList.add('active');
                 });
             });
+            
+            // Si aucun item n'est actif, sélectionner le premier par défaut
+            if (!hasActiveItem &amp;&amp; menuItems.length > 0) {
+                menuItems[0].classList.add('active');
+            }
             
             // Setup tooltips pour les items du menu
             setupSidebarMenuTooltips();

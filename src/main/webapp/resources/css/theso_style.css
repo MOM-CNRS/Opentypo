@@ -546,6 +546,7 @@ body, html {
     align-items: center;
     justify-content: center;
     gap: 0;
+    padding: 0.875rem 0;
     border-radius: 14px;
     position: relative;
     min-height: 56px;
@@ -572,8 +573,8 @@ body, html {
 
 /* Icône de l'item - Design moderne et épuré */
 .sidebar-menu-item-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -594,23 +595,23 @@ body, html {
     display: none !important;
 }
 
-/* Tooltip moderne pour mode réduit */
+/* Tooltip moderne pour mode réduit - Respect de la charte de couleurs */
 .sidebar-menu-item-tooltip {
     position: absolute;
     left: calc(100% + 18px);
     top: 50%;
     transform: translateY(-50%) translateX(-10px);
-    background: #2d3748;
+    background: var(--color-action-main, #47624D);
     color: #ffffff;
-    padding: 0.5rem 0.875rem;
+    padding: 0.625rem 1rem;
     border-radius: 8px;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(71, 98, 77, 0.3);
     z-index: 1000;
     font-family: 'Roboto', 'Segoe UI', sans-serif;
     letter-spacing: 0.01em;
@@ -619,42 +620,51 @@ body, html {
 .sidebar-menu-item-tooltip::before {
     content: '';
     position: absolute;
-    left: -5px;
+    left: -6px;
     top: 50%;
     transform: translateY(-50%) rotate(45deg);
-    width: 10px;
-    height: 10px;
-    background: #2d3748;
+    width: 12px;
+    height: 12px;
+    background: var(--color-action-main, #47624D);
+}
+
+/* Hover - Vert intermédiaire selon la charte (#A7C1A8) */
+.sidebar-menu-item:hover .sidebar-menu-item-content {
+    background: rgba(167, 193, 168, 0.2);
 }
 
 .sidebar-menu-item:hover .sidebar-menu-item-icon {
-    color: var(--color-action-main, #47624D);
-    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.2);
+    background: var(--color-hover, #A7C1A8) !important;
+    color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 4px 12px rgba(167, 193, 168, 0.4) !important;
     transform: scale(1.08);
 }
 
 .sidebar-menu-item:hover .sidebar-menu-item-tooltip {
     opacity: 1;
-    transform: translateY(-50%) translateX(6px);
+    transform: translateY(-50%) translateX(8px);
+    pointer-events: auto;
 }
 
-/* Item actif/sélectionné - Design moderne */
+/* Item actif/sélectionné - Vert foncé selon la charte (#47624D) */
 .sidebar-menu-item.active .sidebar-menu-item-content,
 .sidebar-menu-item.ui-state-active .sidebar-menu-item-content {
-    background: rgba(71, 98, 77, 0.1);
+    background: transparent !important;
 }
 
 .sidebar-menu-item.active .sidebar-menu-item-content::after,
 .sidebar-menu-item.ui-state-active .sidebar-menu-item-content::after {
+    margin-left: -2px;
     height: 60%;
     opacity: 1;
+    background: var(--color-action-main, #47624D);
 }
 
 .sidebar-menu-item.active .sidebar-menu-item-icon,
 .sidebar-menu-item.ui-state-active .sidebar-menu-item-icon {
-    background: var(--color-action-main, #47624D);
-    color: #ffffff;
-    box-shadow: 0 6px 16px rgba(71, 98, 77, 0.35);
+    background: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 16px rgba(71, 98, 77, 0.45) !important;
     transform: scale(1.05);
 }
 
