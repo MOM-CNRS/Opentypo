@@ -67,81 +67,81 @@
 
         <div class="row">
             <div class="col-md-12">
-                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                    <div class="row mb-0">
-                        <div class="col-4 border p-1 d-flex justify-content-between align-items-center">
-                            <h:outputText value="Nom" style="font-size: 14px; font-weight: bold"/>
-                            <!-- Groupe d'icônes à droite -->
-                            <div class="d-flex gap-2">
-                                <p:commandLink action="#" process="@this" update="@none">
-                                    <i class="fa-solid fa-gear fa-fw" style="color: #47624D;"></i>
-                                    <p:tooltip value="Paramètres" position="top"/>
-                                </p:commandLink>
-                                <p:commandLink action="#" process="@this" update="@none">
-                                    <i class="fa-solid fa-flag-checkered fa-fw" style="color: #47624D;"></i>
-                                </p:commandLink>
+                <div class="concept-info-panel">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <h2 class="concept-info-title">cortège funéraires</h2>
+                            <span class="concept-info-language">(fr)</span>
+                        </div>
+                        <div class="concept-info-actions">
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-gear"></i>
+                                <p:tooltip value="Paramètres" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="fa-solid fa-flag-checkered"></i>
+                            </p:commandLink>
+                        </div>
+                    </div>
+
+                    <!-- Grille d'informations -->
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon"></i>
+                                <span>Référentiel</span>
+                            </div>
+                            <div class="concept-info-value">convoi funèbre</div>
+                        </div>
+
+                        <div class="concept-info-item">
+                            <div class="concept-info-label">
+                                <i class="pi pi-calendar concept-info-icon"></i>
+                                <span>Période</span>
+                            </div>
+                            <div class="concept-info-value">convoies funéraires</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file-edit concept-info-icon"></i>
+                                <span>Description</span>
+                            </div>
+                            <div class="concept-info-value concept-info-description">
+                                Déscription total
                             </div>
                         </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="cortège funéraires" style="font-size: 14px; font-weight: bold"/>
-                            <h:outputText value=" (fr)" style="font-size: 14px;"/>
-                        </div>
-                    </div>
 
-                    <div class="row mb-0" style="font-size: 14px; font-style: italic">
-                        <div class="col-4 border p-1 d-flex justify-content-between align-items-center">
-                            <h:outputText value="Référentiel"/>
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon"></i>
+                                <span>Auteur(s)</span>
+                            </div>
+                            <div class="concept-info-value">Firas GABSI</div>
                         </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="convoi funèbre"/>
-                        </div>
-                    </div>
 
-                    <div class="row mb-0" style="font-size: 14px; font-style: italic">
-                        <div class="col-4 border p-1">
-                            <h:outputText value="Période"/>
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-bookmark concept-info-icon"></i>
+                                <span>Référence bibliographique</span>
+                            </div>
+                            <div class="concept-info-value">Test Test</div>
                         </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="convoies funéraires"/>
-                        </div>
-                    </div>
 
-                    <div class="row mb-0" style="font-size: 14px;">
-                        <div class="col-12 border p-1">
-                            <h:outputText value="Déscription"/> <br/>
-                            <h:outputText value="Déscription total"/>
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-bookmark concept-info-icon"></i>
+                                <h:outputText value="Catégories du référentiel" style="font-size: 14px; font-weight: bold"/>
+                            </div>
+                            <div class="concept-info-value">
+                                <h:outputText value="cortège funéraires" style="font-size: 14px; font-weight: bold"/>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="row mb-0" style="font-size: 14px; font-style: italic">
-                        <div class="col-4 border p-1">
-                            <h:outputText value="Auteur(s)"/>
-                        </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="Firas GABSI"/>
-                        </div>
-                    </div>
-
-                    <div class="row mb-0" style="font-size: 14px; font-style: italic">
-                        <div class="col-4 border p-1">
-                            <h:outputText value="Référence bibliographique"/>
-                        </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="Test Test"/>
-                        </div>
-                    </div>
-                </p:panel>
+                </div>
 
                 <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                    <div class="row mb-0">
-                        <div class="col-4 border p-1 d-flex justify-content-between align-items-center">
-                            <h:outputText value="Catégories du référentiel" style="font-size: 14px; font-weight: bold"/>
-                        </div>
-                        <div class="col-8 border p-1">
-                            <h:outputText value="cortège funéraires" style="font-size: 14px; font-weight: bold"/>
-                        </div>
-                    </div>
-
                     <div class="referentiel-cards-container">
                         <h:form>
                             <div class="referentiel-cards-grid">
