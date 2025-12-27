@@ -1,0 +1,29 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="mainContent">
+        <div class="candidats-container">
+            <div class="candidats-header">
+                <h1 class="candidats-title">
+                    <i class="pi pi-users candidats-title-icon"></i>
+                    Gestion des Candidats
+                </h1>
+                <p class="candidats-subtitle">Gérez et suivez les candidatures</p>
+            </div>
+
+            <div class="candidats-content">
+                <p:panel header="Liste des candidats" styleClass="candidats-panel">
+                    <div class="candidats-placeholder">
+                        <i class="pi pi-inbox candidats-placeholder-icon"></i>
+                        <p class="candidats-placeholder-text">Aucun candidat pour le moment</p>
+                        <p class="candidats-placeholder-hint">Les candidats apparaîtront ici une fois qu'ils auront soumis leur candidature.</p>
+                    </div>
+                </p:panel>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+

@@ -17,7 +17,7 @@
                 <nav class="sidebar-nav">
                     <!-- Accueil item -->
                     <p:commandLink
-                            action="/index.xhtml?faces-redirect=true"
+                            outcome="/index.xhtml"
                             styleClass="sidebar-menu-item"
                             process="@this"
                             update="@none">
@@ -30,27 +30,26 @@
                         </div>
                     </p:commandLink>
 
-                    <!-- Candidats item -->
-                    <p:commandLink
-                            action="#"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none">
-                        <div class="sidebar-menu-item-content">
-                            <div class="sidebar-menu-item-icon">
-                                <i class="pi pi-users"/>
+                    <!-- Candidats item - Visible uniquement si connecté -->
+                    <h:panelGroup rendered="#{loginBean.authenticated}">
+                        <h:link outcome="/candidats/candidats.xhtml" styleClass="sidebar-menu-item">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-users"/>
+                                </div>
+                                <span class="sidebar-menu-item-text">Candidats</span>
+                                <span class="sidebar-menu-item-tooltip">Candidats</span>
                             </div>
-                            <span class="sidebar-menu-item-text">Candidats</span>
-                            <span class="sidebar-menu-item-tooltip">Candidats</span>
-                        </div>
-                    </p:commandLink>
+                        </h:link>
+                    </h:panelGroup>
 
-                    <!-- Gestion des utilisateurs item -->
+                    <!-- Gestion des utilisateurs item - Visible uniquement si connecté -->
                     <p:commandLink
                             action="#"
                             styleClass="sidebar-menu-item"
                             process="@this"
-                            update="@none">
+                            update="@none"
+                            rendered="#{loginBean.authenticated}">
                         <div class="sidebar-menu-item-content">
                             <div class="sidebar-menu-item-icon">
                                 <i class="pi pi-user-edit" />

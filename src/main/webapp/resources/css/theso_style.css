@@ -685,7 +685,8 @@ body, html {
 }
 
 /* === Items du menu - Nouveau design moderne === */
-.sidebar-menu-item {
+.sidebar-menu-item,
+a.sidebar-menu-item {
     display: block !important;
     width: 100% !important;
     text-decoration: none !important;
@@ -696,6 +697,8 @@ body, html {
     box-shadow: none !important;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative;
+    color: inherit !important;
+    cursor: pointer;
 }
 
 .sidebar-menu-item-content {
