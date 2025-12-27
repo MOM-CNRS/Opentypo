@@ -1,0 +1,230 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <f:event listener="#{candidatBean.initNouveauCandidat}" type="preRenderView"/>
+        <div class="candidats-container">
+            <div class="candidats-header">
+                <h1 class="candidats-title">
+                    <i class="pi pi-plus-circle candidats-title-icon"></i>
+                    Créer un nouveau candidat
+                </h1>
+                <p class="candidats-subtitle">Proposez un nouveau type</p>
+            </div>
+
+            <div class="candidats-content">
+                <h:form id="createCandidatForm">
+                    <p:panel header="Informations du type" styleClass="candidats-form-panel">
+                        <div class="candidats-form-grid">
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="typeCode" value="Code du type *" />
+                                <p:inputText id="typeCode" 
+                                           value="#{candidatBean.nouveauCandidat.typeCode}"
+                                           required="true"
+                                           requiredMessage="Le code du type est requis"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="label" value="Label *" />
+                                <p:inputText id="label" 
+                                           value="#{candidatBean.nouveauCandidat.label}"
+                                           required="true"
+                                           requiredMessage="Le label est requis"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="langue" value="Langue" />
+                                <p:selectOneMenu id="langue" 
+                                               value="#{candidatBean.nouveauCandidat.langue}"
+                                               styleClass="candidats-select">
+                                    <f:selectItem itemLabel="Français" itemValue="fr"/>
+                                    <f:selectItem itemLabel="Anglais" itemValue="en"/>
+                                    <f:selectItem itemLabel="Espagnol" itemValue="es"/>
+                                    <f:selectItem itemLabel="Allemand" itemValue="de"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="periode" value="Période" />
+                                <p:inputText id="periode" 
+                                           value="#{candidatBean.nouveauCandidat.periode}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="tpq" value="TPQ" />
+                                <p:inputNumber id="tpq" 
+                                             value="#{candidatBean.nouveauCandidat.tpq}"
+                                             styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="taq" value="TAQ" />
+                                <p:inputNumber id="taq" 
+                                             value="#{candidatBean.nouveauCandidat.taq}"
+                                             styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group candidats-form-group-full">
+                                <p:outputLabel for="commentaireDatation" value="Commentaire datation" />
+                                <p:inputTextarea id="commentaireDatation" 
+                                               value="#{candidatBean.nouveauCandidat.commentaireDatation}"
+                                               rows="3"
+                                               styleClass="candidats-textarea"/>
+                            </div>
+                        </div>
+                    </p:panel>
+
+                    <p:panel header="Détails" styleClass="candidats-form-panel">
+                        <div class="candidats-form-grid">
+                            <div class="candidats-form-group candidats-form-group-full">
+                                <p:outputLabel for="appellationUsuelle" value="Appellation usuelle" />
+                                <p:inputText id="appellationUsuelle" 
+                                           value="#{candidatBean.nouveauCandidat.appellationUsuelle}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group candidats-form-group-full">
+                                <p:outputLabel for="description" value="Description" />
+                                <p:inputTextarea id="description" 
+                                               value="#{candidatBean.nouveauCandidat.description}"
+                                               rows="5"
+                                               styleClass="candidats-textarea"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="production" value="Production" />
+                                <p:inputText id="production" 
+                                           value="#{candidatBean.nouveauCandidat.production}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="ateliers" value="Atelier(s)" />
+                                <p:inputText id="ateliers" 
+                                           value="#{candidatBean.nouveauCandidat.ateliers}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="aireCirculation" value="Aire de circulation" />
+                                <p:inputText id="aireCirculation" 
+                                           value="#{candidatBean.nouveauCandidat.aireCirculation}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="categorieFonctionnelle" value="Catégorie fonctionnelle" />
+                                <p:inputText id="categorieFonctionnelle" 
+                                           value="#{candidatBean.nouveauCandidat.categorieFonctionnelle}"
+                                           styleClass="candidats-input"/>
+                            </div>
+                        </div>
+                    </p:panel>
+
+                    <p:panel header="Caractéristiques physiques" styleClass="candidats-form-panel">
+                        <div class="candidats-form-grid">
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="materiaux" value="Matériaux" />
+                                <p:inputText id="materiaux" 
+                                           value="#{candidatBean.nouveauCandidat.materiaux}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="forme" value="Forme" />
+                                <p:inputText id="forme" 
+                                           value="#{candidatBean.nouveauCandidat.forme}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="dimensions" value="Dimensions" />
+                                <p:inputText id="dimensions" 
+                                           value="#{candidatBean.nouveauCandidat.dimensions}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="technique" value="Technique" />
+                                <p:inputText id="technique" 
+                                           value="#{candidatBean.nouveauCandidat.technique}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="fabrication" value="Fabrication" />
+                                <p:inputText id="fabrication" 
+                                           value="#{candidatBean.nouveauCandidat.fabrication}"
+                                           styleClass="candidats-input"/>
+                            </div>
+                        </div>
+                    </p:panel>
+
+                    <p:panel header="Informations complémentaires" styleClass="candidats-form-panel">
+                        <div class="candidats-form-grid">
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="referentiel" value="Référentiel" />
+                                <p:inputText id="referentiel" 
+                                           value="#{candidatBean.nouveauCandidat.referentiel}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="typologiqueScientifique" value="Typologique scientifique" />
+                                <p:inputText id="typologiqueScientifique" 
+                                           value="#{candidatBean.nouveauCandidat.typologiqueScientifique}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="identifiantPerenne" value="Identifiant pérenne" />
+                                <p:inputText id="identifiantPerenne" 
+                                           value="#{candidatBean.nouveauCandidat.identifiantPerenne}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group">
+                                <p:outputLabel for="ancienneVersion" value="Ancienne version" />
+                                <p:inputText id="ancienneVersion" 
+                                           value="#{candidatBean.nouveauCandidat.ancienneVersion}"
+                                           styleClass="candidats-input"/>
+                            </div>
+
+                            <div class="candidats-form-group candidats-form-group-full">
+                                <p:outputLabel for="bibliographie" value="Bibliographie" />
+                                <p:inputTextarea id="bibliographie" 
+                                               value="#{candidatBean.nouveauCandidat.bibliographie}"
+                                               rows="3"
+                                               styleClass="candidats-textarea"/>
+                            </div>
+                        </div>
+                    </p:panel>
+
+                    <div class="candidats-form-actions">
+                        <p:commandButton value="Annuler" 
+                                       icon="pi pi-times"
+                                       styleClass="candidats-btn candidats-btn-cancel"
+                                       action="/candidats/candidats.xhtml?faces-redirect=true"
+                                       process="@this"
+                                       update="@none"/>
+                        <p:commandButton value="Sauvegarder" 
+                                       icon="pi pi-check"
+                                       styleClass="candidats-btn candidats-btn-save"
+                                       action="#{candidatBean.sauvegarderCandidat}"
+                                       process="@form"
+                                       update="@form :growl"/>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+

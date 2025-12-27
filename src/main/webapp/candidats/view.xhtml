@@ -1,0 +1,306 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <div class="candidats-container">
+            <div class="candidats-header">
+                <div class="candidats-header-content">
+                    <div>
+                        <h1 class="candidats-title">
+                            <i class="pi pi-eye candidats-title-icon"></i>
+                            Visualisation du candidat
+                        </h1>
+                        <p class="candidats-subtitle">Détails de la proposition de type</p>
+                    </div>
+                    <h:form>
+                        <p:commandButton value="Retour à la liste" 
+                                       icon="pi pi-arrow-left"
+                                       styleClass="candidats-create-button"
+                                       action="/candidats/candidats.xhtml?faces-redirect=true"
+                                       process="@this"
+                                       update="@none"/>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="candidats-content">
+                <h:form id="viewCandidatForm">
+                    <ui:fragment rendered="#{candidatBean.candidatSelectionne != null}">
+                        <!-- Badge de statut -->
+                        <div class="candidat-status-badge">
+                            <p:badge value="#{candidatBean.candidatSelectionne.statut}" 
+                                   severity="#{candidatBean.candidatSelectionne.statut == 'EN_COURS' ? 'warning' : (candidatBean.candidatSelectionne.statut == 'VALIDE' ? 'success' : 'danger')}"/>
+                        </div>
+
+                        <!-- Informations principales -->
+                        <div class="concept-info-panel">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <div class="concept-info-language-flag">
+                                        <h:graphicImage library="img" name="flag/#{candidatBean.candidatSelectionne.langue}.png"
+                                                        styleClass="language-flag"
+                                                        alt="#{candidatBean.candidatSelectionne.langue}"
+                                                        title="#{candidatBean.candidatSelectionne.langue}"/>
+                                    </div>
+                                    <h2 class="concept-info-title">#{candidatBean.candidatSelectionne.label}</h2>
+                                </div>
+                            </div>
+
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-tag concept-info-icon" />
+                                        <span>Code du type</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.typeCode}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar concept-info-icon" />
+                                        <span>Période</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.periode}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar-minus concept-info-icon" />
+                                        <span>TPQ</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.tpq}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar-plus concept-info-icon" />
+                                        <span>TAQ</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.taq}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-comment concept-info-icon" />
+                                        <span>Commentaire datation</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.commentaireDatation}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Détails -->
+                        <div class="concept-info-panel" style="margin-top: 20px;">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Détails</h2>
+                                </div>
+                            </div>
+
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-tag concept-info-icon" />
+                                        <span>Appellation usuelle</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.appellationUsuelle}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-file concept-info-icon" />
+                                        <span>Description</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.description}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-industry concept-info-icon" />
+                                        <span>Production</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.production}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-building concept-info-icon" />
+                                        <span>Atelier(s)</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.ateliers}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-map concept-info-icon" />
+                                        <span>Aire de circulation</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.aireCirculation}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-tags concept-info-icon" />
+                                        <span>Catégorie fonctionnelle</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.categorieFonctionnelle}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caractéristiques physiques -->
+                        <div class="concept-info-panel" style="margin-top: 20px;">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Caractéristiques physiques</h2>
+                                </div>
+                            </div>
+
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-box concept-info-icon" />
+                                        <span>Matériaux</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.materiaux}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-circle concept-info-icon" />
+                                        <span>Forme</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.forme}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-arrows-alt concept-info-icon" />
+                                        <span>Dimensions</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.dimensions}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-wrench concept-info-icon" />
+                                        <span>Technique</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.technique}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-cog concept-info-icon" />
+                                        <span>Fabrication</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.fabrication}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations complémentaires -->
+                        <div class="concept-info-panel" style="margin-top: 20px;">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Informations complémentaires</h2>
+                                </div>
+                            </div>
+
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-database concept-info-icon" />
+                                        <span>Référentiel</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.referentiel}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon" />
+                                        <span>Typologique scientifique</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.typologiqueScientifique}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-id-card concept-info-icon" />
+                                        <span>Identifiant pérenne</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.identifiantPerenne}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-history concept-info-icon" />
+                                        <span>Ancienne version</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.ancienneVersion}</div>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon" />
+                                        <span>Bibliographie</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.bibliographie}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Métadonnées -->
+                        <div class="concept-info-panel" style="margin-top: 20px;">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">Métadonnées</h2>
+                                </div>
+                            </div>
+
+                            <div class="concept-info-grid">
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-user concept-info-icon" />
+                                        <span>Créateur</span>
+                                    </div>
+                                    <div class="concept-info-value">#{candidatBean.candidatSelectionne.createur}</div>
+                                </div>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar concept-info-icon" />
+                                        <span>Date de création</span>
+                                    </div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{candidatBean.candidatSelectionne.dateCreation}">
+                                            <f:converter converterId="localDateTimeConverter"/>
+                                        </h:outputText>
+                                    </div>
+                                </div>
+
+                                <div class="concept-info-item" rendered="#{candidatBean.candidatSelectionne.dateModification != null}">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar-check concept-info-icon" />
+                                        <span>Date de modification</span>
+                                    </div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{candidatBean.candidatSelectionne.dateModification}">
+                                            <f:converter converterId="localDateTimeConverter"/>
+                                        </h:outputText>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:fragment>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
