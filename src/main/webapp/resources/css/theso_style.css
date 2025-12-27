@@ -4223,8 +4223,34 @@ body .referentiel-card a {
     transform: translateY(-6px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
     border-color: var(--color-action-main, #47624D);
-    text-decoration: none;
+    text-decoration: none !important;
     color: inherit;
+}
+
+/* Empêcher le soulignement du texte au survol */
+.typologie-card:hover * {
+    text-decoration: none !important;
+}
+
+.typologie-card:hover .typologie-card-title {
+    text-decoration: none !important;
+}
+
+.typologie-card:hover .typologie-card-content {
+    text-decoration: none !important;
+}
+
+/* Override PrimeFaces default */
+.ui-commandlink.typologie-card:hover {
+    text-decoration: none !important;
+}
+
+.typologie-card-title {
+    text-decoration: none !important;
+}
+
+.typologie-card-content {
+    text-decoration: none !important;
 }
 
 .typologie-card:hover::before {
@@ -4279,7 +4305,7 @@ body .referentiel-card a {
 /* Titre de la carte */
 .typologie-card-title {
     text-align: center;
-    font-size: 1.125rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--color-text-primary, #333);
     margin: 0;
@@ -4326,7 +4352,7 @@ body .referentiel-card a {
     }
     
     .typologie-card-title {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 }
 

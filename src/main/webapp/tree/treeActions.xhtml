@@ -5,12 +5,12 @@
     <p:outputPanel style="background-color: var(--color-bg-secondary);">
 
         <div style="text-align: right;">
-            <p:commandButton id="conceptMenuButton" type="button" icon="pi pi-align-justify"
+            <p:commandButton id="conceptMenuButton" type="button" icon="pi pi-ellipsis-v"
                              style="height: 1.5rem; margin-bottom: 2px; margin-top: 2px; color: var(--color-action-main);"/>
 
             <p:menu overlay="true" trigger="conceptMenuButton" my="left top" at="left bottom" >
                 <p:menuitem value="#{langueBean.getMsg('rightbody.concept.addTopTerm')}"
-                                actionListener="#{newConcept.reset()}" icon="fas fa-folder-plus"
+                                actionListener="#{newConcept.reset()}" icon="pi pi-plus-circle"
                                 oncomplete="PF('addTopConcept').show();"
                                 process="@this"/>
 
@@ -18,12 +18,12 @@
 
                 <p:menuitem id="viewThesoGraph"
                             value="#{langueBean.getMsg('conceptsview.view_theso_as_graph')}"
-                            icon="fa-solid fa-diagram-project" url="#{request.contextPath}/graph2/index.xhtml"
+                            icon="pi pi-sitemap" url="#{request.contextPath}/graph2/index.xhtml"
                             target="_blank"/>
 
                 <p:menuitem id="viewBranchGraph"
                             value="#{langueBean.getMsg('conceptsview.view_branch_as_graph')}"
-                            icon="fa-solid fa-folder-tree" url="#{request.contextPath}/graph2/index.xhtml"
+                            icon="pi pi-share-alt" url="#{request.contextPath}/graph2/index.xhtml"
                             target="_blank"
                             disabled="#{tree.isGraphNotVisible()}" />
             </p:menu>
