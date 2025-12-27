@@ -479,10 +479,6 @@ select:hover {
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
 }
 
-.footer-container {
-    max-width: 1200px;
-}
-
 /* Section principale du footer */
 .footer-main {
     display: grid;
@@ -499,7 +495,6 @@ select:hover {
 }
 
 .footer-section-title {
-    font-size: 1rem;
     font-weight: 700;
     color: var(--color-action-main, #47624D);
     margin: 0 0 1.25rem 0;
@@ -4799,7 +4794,6 @@ body .referentiel-card a {
 
 /* Carte typologie moderne */
 .typologie-card {
-    display: block;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;

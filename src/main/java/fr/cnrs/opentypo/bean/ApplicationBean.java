@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 public class ApplicationBean implements Serializable {
 
-    public List<Language> languages;
+    private List<Language> languages;
 
     private boolean showCards = true;
     private boolean showReferentielPanel = false;
@@ -38,7 +38,7 @@ public class ApplicationBean implements Serializable {
     public void initialization() {
         showCards();
 
-        languages = new ArrayList<Language>();
+        languages = new ArrayList<>();
         languages.add(new Language(1, "fr", "Français", "fr"));
         languages.add(new Language(2, "an", "Anglais", "an"));
     }

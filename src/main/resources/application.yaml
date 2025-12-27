@@ -1,11 +1,9 @@
 server:
   port: 8080
-  # Configuration pour désactiver le cache des ressources statiques
   servlet:
     session:
       cookie:
         http-only: true
-  # Headers pour désactiver le cache des ressources statiques
   compression:
     enabled: true
     mime-types: text/css,application/javascript,text/html,application/json
