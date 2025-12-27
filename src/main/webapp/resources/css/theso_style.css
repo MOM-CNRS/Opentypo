@@ -3651,7 +3651,7 @@ body .referentiel-card a {
 
 .concept-info-title-section {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.5rem;
     flex: 1;
     min-width: 0;
@@ -3675,7 +3675,9 @@ body .referentiel-card a {
 .concept-info-language-flag {
     display: flex;
     align-items: center;
-    margin-left: 0.5rem;
+    justify-content: center;
+    margin-left: 0;
+    flex-shrink: 0;
 }
 
 .language-flag {

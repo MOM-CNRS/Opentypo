@@ -270,7 +270,7 @@ function toggleTreePanel() {
                         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                         cursor: pointer;
                     ">
-                <i class="pi pi-arrow-left"></i>
+                <i class="pi pi-arrow-left" />
                 Retour
             </button>
         `;
