@@ -90,10 +90,12 @@
                             </div>
 
                             <div class="users-form-group users-form-group-full">
-                                <p:selectBooleanCheckbox id="active" 
-                                                       value="#{userManagementBean.newUser.active}"
-                                                       styleClass="users-checkbox"/>
-                                <p:outputLabel for="active" value="Utilisateur actif" />
+                                <div class="users-checkbox-wrapper">
+                                    <p:selectBooleanCheckbox id="active" 
+                                                           value="#{userManagementBean.newUser.active}"
+                                                           styleClass="users-checkbox"/>
+                                    <p:outputLabel for="active" value="Utilisateur actif" />
+                                </div>
                             </div>
                         </div>
                     </p:panel>
