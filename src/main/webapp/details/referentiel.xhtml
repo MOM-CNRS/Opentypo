@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentPanels" layout="block">
@@ -101,6 +102,14 @@
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
                                     <h2 class="concept-info-title" style="font-size: 1rem;">Catégories du référentiel - XXXXX</h2>
+                                </div>
+                                <div class="concept-info-actions">
+                                    <p:commandButton value="Créer une catégorie"
+                                                   icon="pi pi-plus"
+                                                   styleClass="category-create-button"
+                                                   onclick="PF('createCategoryDialog').show(); return false;"
+                                                   process="@this"
+                                                   update="@none"/>
                                 </div>
                             </div>
 
@@ -270,4 +279,199 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <!-- Dialog pour créer une nouvelle catégorie -->
+    <p:dialog id="createCategoryDialog" 
+              widgetVar="createCategoryDialog"
+              header="Créer une nouvelle catégorie"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="category-dialog"
+              width="600"
+              height="auto"
+              closable="true">
+        
+        <h:form id="categoryForm">
+            <f:event listener="#{applicationBean.resetCategoryForm}" type="preRenderView"/>
+            <div class="category-form-content">
+                <div class="category-form-group">
+                    <p:outputLabel for="categoryCode" value="Code de la catégorie *" />
+                    <p:inputText id="categoryCode" 
+                               value="#{applicationBean.categoryCode}"
+                               required="true"
+                               requiredMessage="Le code de la catégorie est requis"
+                               styleClass="category-input"
+                               placeholder="Ex: CAT001"/>
+                </div>
+
+                <div class="category-form-group">
+                    <p:outputLabel for="categoryLabel" value="Label *" />
+                    <p:inputText id="categoryLabel" 
+                               value="#{applicationBean.categoryLabel}"
+                               required="true"
+                               requiredMessage="Le label est requis"
+                               styleClass="category-input"
+                               placeholder="Nom de la catégorie"/>
+                </div>
+
+                <div class="category-form-group">
+                    <p:outputLabel for="categoryDescription" value="Description" />
+                    <p:inputTextarea id="categoryDescription" 
+                                    value="#{applicationBean.categoryDescription}"
+                                    rows="4"
+                                    styleClass="category-textarea"
+                                    placeholder="Description de la catégorie"/>
+                </div>
+            </div>
+
+            <div class="category-form-actions">
+                <p:commandButton value="Annuler" 
+                               icon="pi pi-times"
+                               styleClass="category-btn category-btn-cancel"
+                               onclick="PF('createCategoryDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Valider" 
+                               icon="pi pi-check"
+                               styleClass="category-btn category-btn-validate"
+                               action="#{applicationBean.creerCategorie}"
+                               process="@form"
+                               update="@form :growl"
+                               oncomplete="if(!args.validationFailed) {PF('createCategoryDialog').hide();}"/>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <style>
+        /* Bouton de création de catégorie */
+        .category-create-button {
+            background-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .category-create-button:hover {
+            background-color: #3a4f3f !important;
+        }
+
+        .category-create-button .ui-button-text {
+            padding: 0 !important;
+        }
+
+        /* Styles pour le dialog de création de catégorie */
+        .category-dialog .ui-dialog-content {
+            padding: 1.5rem !important;
+        }
+
+        .category-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .category-form-group label {
+            font-weight: 500;
+            color: var(--color-text-primary, #333);
+            font-size: 0.9rem;
+        }
+
+        .category-input,
+        .category-textarea {
+            width: 100% !important;
+            padding: 0.625rem 0.75rem !important;
+            border: 1px solid rgba(71, 98, 77, 0.3) !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .category-input:focus,
+        .category-textarea:focus {
+            border-color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+            outline: none !important;
+        }
+
+        .category-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .category-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(71, 98, 77, 0.15);
+        }
+
+        .category-btn {
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .category-btn-cancel {
+            background-color: var(--color-action-secondary, #6C757D) !important;
+            color: white !important;
+        }
+
+        .category-btn-cancel:hover {
+            background-color: #5a6268 !important;
+        }
+
+        .category-btn-validate {
+            background-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+        }
+
+        .category-btn-validate:hover {
+            background-color: #3a4f3f !important;
+        }
+
+        /* Responsive pour le dialog */
+        @media (max-width: 768px) {
+            .category-dialog {
+                width: 90% !important;
+                max-width: 500px !important;
+            }
+
+            .category-form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .category-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .category-create-button {
+                font-size: 0.75rem !important;
+                padding: 0.4rem 0.75rem !important;
+            }
+        }
+    </style>
 </ui:composition>

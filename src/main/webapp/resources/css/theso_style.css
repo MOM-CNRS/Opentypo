@@ -4913,6 +4913,8 @@ body .referentiel-card a {
     text-align: center;
     font-size: 0.9rem;
     font-weight: 700;
+    padding-bottom: 5px;
+    padding-top: 5px;
     color: var(--color-text-primary, #333);
     margin: 0;
     line-height: 1.4;
