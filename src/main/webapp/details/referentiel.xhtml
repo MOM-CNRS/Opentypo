@@ -125,12 +125,18 @@
                                                         </div>
                                                         <p class="referentiel-card-description">
                                                             Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
                                                             résumé ou métadonnée.
                                                         </p>
                                                     </div>
                                                 </p:commandLink>
 
-                                                <p:commandLink outcome="/categorie.xhtml?faces-redirect=true" styleClass="referentiel-card">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
                                                     <div class="referentiel-card-content">
                                                         <div class="referentiel-card-header">
                                                             <div class="referentiel-card-icon">
@@ -148,7 +154,10 @@
                                                     </div>
                                                 </p:commandLink>
 
-                                                <p:commandLink outcome="/categorie.xhtml?faces-redirect=true" styleClass="referentiel-card">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
                                                     <div class="referentiel-card-content">
                                                         <div class="referentiel-card-header">
                                                             <div class="referentiel-card-icon">
@@ -166,7 +175,10 @@
                                                     </div>
                                                 </p:commandLink>
 
-                                                <p:commandLink outcome="/categorie.xhtml?faces-redirect=true" styleClass="referentiel-card">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
                                                     <div class="referentiel-card-content">
                                                         <div class="referentiel-card-header">
                                                             <div class="referentiel-card-icon">
@@ -184,7 +196,52 @@
                                                     </div>
                                                 </p:commandLink>
 
-                                                <p:commandLink outcome="/categorie.xhtml?faces-redirect=true" styleClass="referentiel-card">
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
+                                                    <div class="referentiel-card-content">
+                                                        <div class="referentiel-card-header">
+                                                            <div class="referentiel-card-icon">
+                                                                <i class="pi pi-tag"></i>
+                                                            </div>
+                                                            <div class="referentiel-card-title-wrapper">
+                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                                <span class="referentiel-card-code">Code CAT</span>
+                                                            </div>
+                                                        </div>
+                                                        <p class="referentiel-card-description">
+                                                            Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée.
+                                                        </p>
+                                                    </div>
+                                                </p:commandLink>
+
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
+                                                    <div class="referentiel-card-content">
+                                                        <div class="referentiel-card-header">
+                                                            <div class="referentiel-card-icon">
+                                                                <i class="pi pi-tag"></i>
+                                                            </div>
+                                                            <div class="referentiel-card-title-wrapper">
+                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                                <span class="referentiel-card-code">Code CAT</span>
+                                                            </div>
+                                                        </div>
+                                                        <p class="referentiel-card-description">
+                                                            Description courte du contenu, contexte scientifique,
+                                                            résumé ou métadonnée.
+                                                        </p>
+                                                    </div>
+                                                </p:commandLink>
+
+                                                <p:commandLink action="#{applicationBean.showCategory()}"
+                                                               styleClass="referentiel-card"
+                                                               process="@this"
+                                                               update=":centerContent">
                                                     <div class="referentiel-card-content">
                                                         <div class="referentiel-card-header">
                                                             <div class="referentiel-card-icon">
