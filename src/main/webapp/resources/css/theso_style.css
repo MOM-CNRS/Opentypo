@@ -32,6 +32,218 @@ body, html {
     overflow-x: hidden; /* permet le scroll vertical */
 }
 
+/* ============================================
+   STYLES GLOBAUX POUR LES CHAMPS DE FORMULAIRE
+   Respect de la charte couleur au focus
+   ============================================ */
+
+/* Inputs PrimeFaces - Focus avec couleur de la charte */
+.ui-inputtext:focus,
+.ui-inputtext.ui-state-focus,
+.ui-inputtextarea:focus,
+.ui-inputtextarea.ui-state-focus,
+.ui-inputnumber:focus,
+.ui-inputnumber.ui-state-focus,
+.ui-password:focus,
+.ui-password.ui-state-focus,
+.ui-calendar:focus,
+.ui-calendar.ui-state-focus,
+.ui-spinner:focus,
+.ui-spinner.ui-state-focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* Selects PrimeFaces - Focus avec couleur de la charte */
+.ui-selectonemenu:focus,
+.ui-selectonemenu.ui-state-focus,
+.ui-selectonemenu-trigger.ui-state-focus,
+.ui-selectcheckboxmenu:focus,
+.ui-selectcheckboxmenu.ui-state-focus,
+.ui-selectmanycheckbox:focus,
+.ui-selectmanycheckbox.ui-state-focus,
+.ui-selectoneradio:focus,
+.ui-selectoneradio.ui-state-focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* Champs HTML natifs - Focus avec couleur de la charte */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* Champs PrimeFaces dans les panneaux et formulaires */
+.ui-panel input:focus,
+.ui-panel textarea:focus,
+.ui-panel select:focus,
+.ui-dialog input:focus,
+.ui-dialog textarea:focus,
+.ui-dialog select:focus,
+.ui-overlaypanel input:focus,
+.ui-overlaypanel textarea:focus,
+.ui-overlaypanel select:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* AutoComplete et autres composants PrimeFaces */
+.ui-autocomplete:focus,
+.ui-autocomplete.ui-state-focus,
+.ui-autocomplete-input:focus,
+.ui-autocomplete-input.ui-state-focus,
+.ui-chips:focus,
+.ui-chips.ui-state-focus,
+.ui-chips-input-token input:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* MultiSelect et autres composants de sélection */
+.ui-multiselect:focus,
+.ui-multiselect.ui-state-focus,
+.ui-selectlistbox:focus,
+.ui-selectlistbox.ui-state-focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+/* Slider et autres composants */
+.ui-slider:focus,
+.ui-slider.ui-state-focus,
+.ui-rating:focus,
+.ui-rating.ui-state-focus {
+    outline: 2px solid var(--color-action-main, #47624D) !important;
+    outline-offset: 2px !important;
+}
+
+/* Override des styles bleus par défaut de PrimeFaces */
+.ui-state-focus {
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+/* ============================================
+   STYLES HOVER POUR LES CHAMPS DE FORMULAIRE
+   Respect de la charte couleur au survol
+   ============================================ */
+
+/* Inputs PrimeFaces - Hover avec couleur de la charte */
+.ui-inputtext:hover,
+.ui-inputtext.ui-state-hover,
+.ui-inputtextarea:hover,
+.ui-inputtextarea.ui-state-hover,
+.ui-inputnumber:hover,
+.ui-inputnumber.ui-state-hover,
+.ui-password:hover,
+.ui-password.ui-state-hover,
+.ui-calendar:hover,
+.ui-calendar.ui-state-hover,
+.ui-spinner:hover,
+.ui-spinner.ui-state-hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* Selects PrimeFaces - Hover avec couleur de la charte */
+.ui-selectonemenu:hover,
+.ui-selectonemenu.ui-state-hover,
+.ui-selectonemenu-trigger:hover,
+.ui-selectonemenu-trigger.ui-state-hover,
+.ui-selectcheckboxmenu:hover,
+.ui-selectcheckboxmenu.ui-state-hover,
+.ui-selectmanycheckbox:hover,
+.ui-selectmanycheckbox.ui-state-hover,
+.ui-selectoneradio:hover,
+.ui-selectoneradio.ui-state-hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* Champs HTML natifs - Hover avec couleur de la charte */
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+input[type="time"]:hover,
+input[type="datetime-local"]:hover,
+input[type="search"]:hover,
+input[type="tel"]:hover,
+input[type="url"]:hover,
+textarea:hover,
+select:hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* Champs PrimeFaces dans les panneaux et formulaires - Hover */
+.ui-panel input:hover,
+.ui-panel textarea:hover,
+.ui-panel select:hover,
+.ui-dialog input:hover,
+.ui-dialog textarea:hover,
+.ui-dialog select:hover,
+.ui-overlaypanel input:hover,
+.ui-overlaypanel textarea:hover,
+.ui-overlaypanel select:hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* AutoComplete et autres composants PrimeFaces - Hover */
+.ui-autocomplete:hover,
+.ui-autocomplete.ui-state-hover,
+.ui-autocomplete-input:hover,
+.ui-autocomplete-input.ui-state-hover,
+.ui-chips:hover,
+.ui-chips.ui-state-hover,
+.ui-chips-input-token input:hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* MultiSelect et autres composants de sélection - Hover */
+.ui-multiselect:hover,
+.ui-multiselect.ui-state-hover,
+.ui-selectlistbox:hover,
+.ui-selectlistbox.ui-state-hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
+}
+
+/* Override des styles hover par défaut de PrimeFaces */
+.ui-state-hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+}
+
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover {
+    border-color: var(--color-hover, #A7C1A8) !important;
+}
+
 /* 2. Structure App */
 .app-body {
     display: flex;
@@ -1678,13 +1890,14 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .search-compact-select .ui-selectonemenu:hover {
-    border-color: var(--color-action-main, #47624D);
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .search-compact-select .ui-selectonemenu.ui-state-focus {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 2px rgba(71, 98, 77, 0.1);
-    outline: none;
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
 }
 
 /* Zone de recherche compacte */
@@ -1711,7 +1924,8 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .search-input-compact:hover {
-    border-color: #b0b0b0;
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .search-input-compact:focus {
@@ -1873,14 +2087,14 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .search-select-inline .ui-selectonemenu:hover {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 2px rgba(71, 98, 77, 0.1);
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .search-select-inline .ui-selectonemenu.ui-state-focus {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15);
-    outline: none;
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
 }
 
 /* Zone de recherche principale - prend plus d'espace */
@@ -1912,7 +2126,8 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .search-input-inline:hover {
-    border-color: #b0b0b0;
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .search-input-inline:focus {
@@ -2069,13 +2284,14 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .filter-select-compact .ui-selectonemenu:hover {
-    border-color: var(--color-action-main, #47624D);
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .filter-select-compact .ui-selectonemenu.ui-state-focus {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 2px rgba(71, 98, 77, 0.1);
-    outline: none;
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
 }
 
 /* Responsive pour la barre de recherche avancée */
@@ -2179,14 +2395,14 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 }
 
 .filter-select-formal .ui-selectonemenu:hover {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 2px rgba(71, 98, 77, 0.1);
+    border-color: var(--color-hover, #A7C1A8) !important;
+    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
 }
 
 .filter-select-formal .ui-selectonemenu.ui-state-focus {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15);
-    outline: none;
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
 }
 
 /* Responsive pour le formulaire formel */
