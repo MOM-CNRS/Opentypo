@@ -434,11 +434,11 @@ body .ui-button {
 
 /*  DATATABLE */
 body .ui-datatable .ui-datatable-data > tr > td {
-    padding: 5px 5px;
+    padding: 0.5px;
 }
 
 body .ui-datatable.ui-datatable-sm .ui-datatable-data > tr > td {
-    padding: 5px 5px;
+    padding: 0.5px;
 }
 
 body .ui-datatable thead th {
