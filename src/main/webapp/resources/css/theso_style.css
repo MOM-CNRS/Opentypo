@@ -3533,6 +3533,248 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 /* ============================================
+   ZONE DE PRÉSENTATION DU SITE
+   Design moderne, formel et adapté à la recherche
+   ============================================ */
+
+.site-presentation-container {
+    width: 100%;
+    margin-bottom: 1.25rem;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+}
+
+.site-presentation-content {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 1px solid rgba(71, 98, 77, 0.15);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.site-presentation-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.6) 100%);
+}
+
+.site-presentation-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+.site-presentation-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1.25rem;
+    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.2);
+    flex-shrink: 0;
+}
+
+.site-presentation-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #333);
+    margin: 0;
+    letter-spacing: 0.01em;
+}
+
+.site-presentation-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.site-presentation-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-primary, #333);
+    margin: 0;
+    text-align: justify;
+}
+
+.site-presentation-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 0.25rem;
+}
+
+.site-presentation-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.site-presentation-feature::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-action-main, #47624D);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-presentation-feature:hover {
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.12);
+    border-color: var(--color-action-main, #47624D);
+}
+
+.site-presentation-feature:hover::before {
+    transform: scaleY(1);
+}
+
+.site-presentation-feature-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(71, 98, 77, 0.1);
+    border-radius: 8px;
+    color: var(--color-action-main, #47624D);
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-presentation-feature:hover .site-presentation-feature-icon {
+    background: var(--color-action-main, #47624D);
+    color: #ffffff;
+    transform: scale(1.1) rotate(5deg);
+}
+
+.site-presentation-feature-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.site-presentation-feature-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    margin: 0;
+}
+
+.site-presentation-feature-text {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary, #666);
+    margin: 0;
+}
+
+/* Responsive pour la zone de présentation */
+@media (max-width: 768px) {
+    .site-presentation-container {
+        padding: 0 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .site-presentation-content {
+        padding: 1rem;
+    }
+
+    .site-presentation-header {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.625rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .site-presentation-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.125rem;
+    }
+
+    .site-presentation-title {
+        font-size: 1.25rem;
+    }
+
+    .site-presentation-body {
+        gap: 1rem;
+    }
+
+    .site-presentation-text {
+        font-size: 0.875rem;
+        text-align: left;
+    }
+
+    .site-presentation-features {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .site-presentation-feature {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-presentation-container {
+        padding: 0 0.75rem;
+        margin-bottom: 0.875rem;
+    }
+
+    .site-presentation-content {
+        padding: 0.875rem;
+    }
+
+    .site-presentation-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .site-presentation-title {
+        font-size: 1.125rem;
+    }
+
+    .site-presentation-text {
+        font-size: 0.8125rem;
+    }
+
+    .site-presentation-feature-title {
+        font-size: 0.875rem;
+    }
+
+    .site-presentation-feature-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================
    CARTES MODERNES - DESIGN ERGONOMIQUE ET RESPONSIVE
    ============================================ */
 
