@@ -83,7 +83,53 @@
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
-                            XXXXXXX
+                            <!-- En-tête avec titre -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <h2 class="concept-info-title" style="font-size: 1rem;">
+                                        <i class="pi pi-images" style="margin-right: 0.5rem; color: var(--color-action-main, #47624D);"></i>
+                                        Galerie de photos
+                                    </h2>
+                                </div>
+                            </div>
+                            
+                            <!-- Galerie de photos avec PrimeFaces Galleria -->
+                            <div class="galleria-container">
+                                <p:galleria 
+                                    value="#{galleriaView.photos}" 
+                                    var="photo" 
+                                    numVisible="5" 
+                                    styleClass="modern-galleria"
+                                    containerStyle="max-width: 100%; margin: 0 auto;"
+                                    showItemNavigators="true"
+                                    showThumbnails="true"
+                                    showIndicators="true"
+                                    showIndicatorsOnItem="true"
+                                    circular="true"
+                                    autoPlay="false"
+                                    transitionInterval="0"
+                                    panelWidth="800"
+                                    panelHeight="600"
+                                    thumbnailsPosition="bottom">
+                                    <p:graphicImage 
+                                        value="#{photo.itemImageSrc}" 
+                                        alt="#{photo.alt}" 
+                                        styleClass="galleria-main-image"
+                                        title="#{photo.title}"/>
+                                    <f:facet name="thumbnail">
+                                        <p:graphicImage 
+                                            value="#{photo.thumbnailImageSrc}" 
+                                            alt="#{photo.alt}"
+                                            styleClass="galleria-thumbnail-image" />
+                                    </f:facet>
+                                    <f:facet name="caption">
+                                        <div class="galleria-caption">
+                                            <h4>#{photo.title}</h4>
+                                            <p>#{photo.alt}</p>
+                                        </div>
+                                    </f:facet>
+                                </p:galleria>
+                            </div>
                         </div>
                     </div>
                 </div>
