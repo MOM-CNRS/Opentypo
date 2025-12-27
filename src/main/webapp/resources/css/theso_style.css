@@ -4295,11 +4295,7 @@ body .referentiel-card a {
 
 /* Contenu de la carte */
 .typologie-card-content {
-    padding: 0.75rem;
-    display: flex;
-    flex-direction: column;
     gap: 0.5rem;
-    flex: 1;
 }
 
 /* Titre de la carte */
@@ -4424,6 +4420,90 @@ body .referentiel-card a {
     width: 100%;
     padding: 1.5rem;
     box-sizing: border-box;
+}
+
+/* Wrapper avec images latérales */
+.galleria-wrapper-with-images {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+    position: relative;
+}
+
+/* Wrapper principal du Galleria */
+.galleria-main-wrapper {
+    flex: 1;
+    max-width: 100%;
+    min-width: 0;
+}
+
+/* Cartes typologie latérales */
+.galleria-side-card {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 150px;
+}
+
+/* Adaptation des cartes typologie pour les côtés */
+.galleria-side-card .typologie-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+.galleria-side-card .typologie-card-image-wrapper {
+    flex: 1;
+    min-height: 0;
+    height: 70%;
+    width: 100%;
+}
+
+.galleria-side-card .typologie-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.galleria-side-card .typologie-card-content {
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.galleria-side-card .typologie-card-title {
+    font-size: 0.75rem;
+    text-align: center;
+    margin: 0;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Carte gauche */
+.galleria-side-card-left {
+    order: 1;
+}
+
+/* Carte droite */
+.galleria-side-card-right {
+    order: 3;
+}
+
+/* Galleria au centre */
+.galleria-main-wrapper {
+    order: 2;
 }
 
 /* Styles pour le conteneur principal du Galleria */
@@ -4617,9 +4697,33 @@ body .referentiel-card a {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .galleria-side-card {
+        width: 150px;
+        height: 240px;
+    }
+    
+    .galleria-wrapper-with-images {
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 992px) {
     .galleria-container {
         padding: 1.25rem;
+    }
+    
+    .galleria-side-card {
+        width: 130px;
+        height: 200px;
+    }
+    
+    .galleria-side-card .typologie-card-title {
+        font-size: 0.6875rem;
+    }
+    
+    .galleria-wrapper-with-images {
+        gap: 0.75rem;
     }
     
     .modern-galleria .ui-galleria-nav-prev,
@@ -4644,6 +4748,15 @@ body .referentiel-card a {
 @media (max-width: 768px) {
     .galleria-container {
         padding: 1rem;
+    }
+    
+    /* Cacher les cartes latérales sur tablette et mobile */
+    .galleria-side-card {
+        display: none;
+    }
+    
+    .galleria-wrapper-with-images {
+        gap: 0;
     }
     
     .modern-galleria .ui-galleria-thumbnail-container {
