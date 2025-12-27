@@ -2,10 +2,12 @@ package fr.cnrs.opentypo.bean;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.view.ViewScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
+import org.primefaces.PrimeFaces;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import org.primefaces.event.NodeSelectEvent;
@@ -22,6 +24,11 @@ public class TreeBean implements Serializable {
 
     private TreeNode selectedNode;
     private TreeNode root;
+    
+    // Propriétés pour le formulaire de création de référentiel
+    private String referentielCode;
+    private String referentielLabel;
+    private String referentielDescription;
 
     @PostConstruct
     public void init() {
@@ -55,5 +62,48 @@ public class TreeBean implements Serializable {
 
     public void onNodeExpand(NodeExpandEvent event) {
         // hook for future lazy loading; no-op for now
+    }
+    
+    public void resetReferentielForm() {
+        referentielCode = null;
+        referentielLabel = null;
+        referentielDescription = null;
+    }
+    
+    public void creerReferentiel() {
+        if (referentielCode == null || referentielCode.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Le code du référentiel est requis."));
+            PrimeFaces.current().ajax().update(":growl, :referentielForm");
+            return;
+        }
+        
+        if (referentielLabel == null || referentielLabel.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Le label du référentiel est requis."));
+            PrimeFaces.current().ajax().update(":growl, :referentielForm");
+            return;
+        }
+        
+        // Créer un nouveau nœud référentiel dans l'arbre
+        if (root != null) {
+            @SuppressWarnings("unchecked")
+            TreeNode nouveauReferentiel = new DefaultTreeNode(referentielLabel, root);
+            // Le nouveau référentiel est ajouté à l'arbre
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le référentiel '" + referentielLabel + "' a été créé avec succès."));
+            
+            // Réinitialiser le formulaire
+            resetReferentielForm();
+            
+            PrimeFaces.current().ajax().update(":growl, :referentielForm, :treeWidget");
+        }
     }
 }
