@@ -16,11 +16,7 @@
                 <!-- Menu items dynamiques -->
                 <nav class="sidebar-nav">
                     <!-- Accueil item -->
-                    <p:commandLink
-                            outcome="/index.xhtml"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none">
+                    <h:link outcome="/index.xhtml" styleClass="sidebar-menu-item">
                         <div class="sidebar-menu-item-content">
                             <div class="sidebar-menu-item-icon">
                                 <i class="pi pi-home" />
@@ -28,7 +24,7 @@
                             <span class="sidebar-menu-item-text">Accueil</span>
                             <span class="sidebar-menu-item-tooltip">Accueil</span>
                         </div>
-                    </p:commandLink>
+                    </h:link>
 
                     <!-- Candidats item - Visible uniquement si connecté -->
                     <h:panelGroup rendered="#{loginBean.authenticated}">
@@ -44,20 +40,17 @@
                     </h:panelGroup>
 
                     <!-- Gestion des utilisateurs item - Visible uniquement si connecté -->
-                    <p:commandLink
-                            action="#"
-                            styleClass="sidebar-menu-item"
-                            process="@this"
-                            update="@none"
-                            rendered="#{loginBean.authenticated}">
-                        <div class="sidebar-menu-item-content">
-                            <div class="sidebar-menu-item-icon">
-                                <i class="pi pi-user-edit" />
+                    <h:panelGroup rendered="#{loginBean.authenticated}">
+                        <h:link outcome="/users/users.xhtml" styleClass="sidebar-menu-item">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-user-edit" />
+                                </div>
+                                <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
+                                <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
                             </div>
-                            <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
-                            <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
-                        </div>
-                    </p:commandLink>
+                        </h:link>
+                    </h:panelGroup>
                 </nav>
 
             </div>

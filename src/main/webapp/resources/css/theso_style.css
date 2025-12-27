@@ -5194,6 +5194,333 @@ body .referentiel-card a {
 }
 
 /* ============================================
+   GESTION DES UTILISATEURS - DESIGN MODERNE
+   ============================================ */
+
+.users-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.users-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(71, 98, 77, 0.15);
+}
+
+.users-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.users-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #333);
+    margin: 0 0 0.5rem 0;
+}
+
+.users-title-icon {
+    font-size: 2rem;
+    color: var(--color-action-main, #47624D);
+    background: rgba(71, 98, 77, 0.1);
+    padding: 0.75rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.15);
+}
+
+.users-subtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary, #666);
+    margin: 0;
+    font-weight: 400;
+}
+
+.users-content {
+    width: 100%;
+}
+
+.users-create-button {
+    background: var(--color-action-main, #47624D) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.users-create-button:hover {
+    background: #3a4f3e !important;
+    border-color: #3a4f3e !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+}
+
+/* Tableaux utilisateurs */
+.users-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.users-datatable {
+    width: 100%;
+    border: none;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(71, 98, 77, 0.1);
+    overflow: hidden;
+}
+
+.users-datatable .ui-datatable-header {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%);
+    border: none;
+    padding: 1.25rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+}
+
+.users-datatable .ui-datatable-thead > tr > th {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%);
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+    padding: 1rem;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+    border-bottom: 2px solid var(--color-action-main, #47624D);
+}
+
+.users-datatable .ui-datatable-data > tr {
+    transition: all 0.2s ease;
+}
+
+.users-datatable .ui-datatable-data > tr:hover {
+    background: rgba(71, 98, 77, 0.05);
+}
+
+.users-datatable .ui-datatable-data > tr > td {
+    padding: 1rem;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+/* Actions utilisateurs */
+.users-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.users-action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.users-edit-btn,
+a.users-edit-btn {
+    background: rgba(71, 98, 77, 0.1) !important;
+    color: var(--color-action-main, #47624D) !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.users-edit-btn:hover,
+a.users-edit-btn:hover {
+    background: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    transform: scale(1.1);
+}
+
+.users-toggle-btn {
+    background: rgba(255, 193, 7, 0.1) !important;
+    color: #ffc107 !important;
+    border: 1px solid rgba(255, 193, 7, 0.2) !important;
+}
+
+.users-toggle-btn:hover {
+    background: #ffc107 !important;
+    color: #ffffff !important;
+    transform: scale(1.1);
+}
+
+.users-delete-btn {
+    background: rgba(220, 53, 69, 0.1) !important;
+    color: #dc3545 !important;
+    border: 1px solid rgba(220, 53, 69, 0.2) !important;
+}
+
+.users-delete-btn:hover {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    transform: scale(1.1);
+}
+
+/* Formulaires utilisateurs */
+.users-form-panel {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(71, 98, 77, 0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.users-form-panel .ui-panel-titlebar {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%);
+    border-bottom: 2px solid rgba(71, 98, 77, 0.15);
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+}
+
+.users-form-panel .ui-panel-content {
+    padding: 1.5rem;
+}
+
+.users-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.users-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.users-form-group-full {
+    grid-column: 1 / -1;
+}
+
+.users-form-group label {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+}
+
+.users-input,
+.users-select,
+.users-textarea {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 8px !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.users-input:focus,
+.users-select:focus,
+.users-textarea:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.1) !important;
+    outline: none !important;
+}
+
+.users-checkbox {
+    margin-right: 0.5rem;
+}
+
+.users-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(71, 98, 77, 0.15);
+}
+
+.users-btn {
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    min-width: 120px !important;
+}
+
+.users-btn-cancel {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.users-btn-cancel:hover {
+    background: #5a6268 !important;
+    border-color: #5a6268 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+}
+
+.users-btn-save {
+    background: var(--color-action-main, #47624D) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+}
+
+.users-btn-save:hover {
+    background: #3a4f3e !important;
+    border-color: #3a4f3e !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+}
+
+/* Responsive pour les utilisateurs */
+@media (max-width: 768px) {
+    .users-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .users-header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .users-title {
+        font-size: 1.5rem;
+    }
+
+    .users-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .users-actions {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .users-form-actions {
+        flex-direction: column;
+    }
+
+    .users-btn {
+        width: 100% !important;
+    }
+}
+
+/* ============================================
    CANDIDATS - COMPOSANTS AVANCÉS
    Onglets, Tableaux, Formulaires
    ============================================ */

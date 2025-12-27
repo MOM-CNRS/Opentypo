@@ -1,0 +1,101 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <div class="users-container">
+            <div class="users-header">
+                <div class="users-header-content">
+                    <div>
+                        <h1 class="users-title">
+                            <i class="pi pi-user-edit users-title-icon"></i>
+                            Gestion des utilisateurs
+                        </h1>
+                        <p class="users-subtitle">Gérez les utilisateurs de l'application</p>
+                    </div>
+                    <h:form>
+                        <p:commandButton value="Nouvel utilisateur" 
+                                       icon="pi pi-plus"
+                                       styleClass="users-create-button"
+                                       action="/users/create.xhtml?faces-redirect=true"
+                                       process="@this"
+                                       update="@none"/>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="users-content">
+                <h:form id="usersForm">
+                    <div class="users-table-container">
+                        <p:dataTable id="usersTable"
+                                   value="#{userManagementBean.users}"
+                                   var="user"
+                                   styleClass="users-datatable"
+                                   emptyMessage="Aucun utilisateur"
+                                   paginator="true"
+                                   rows="10"
+                                   rowsPerPageTemplate="10,20,50"
+                                   paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                   sortMode="multiple">
+                            
+                            <p:column headerText="Nom d'utilisateur" sortBy="#{user.username}" styleClass="users-col-username">
+                                <h:outputText value="#{user.username}"/>
+                            </p:column>
+                            
+                            <p:column headerText="Email" sortBy="#{user.email}" styleClass="users-col-email">
+                                <h:outputText value="#{user.email}"/>
+                            </p:column>
+                            
+                            <p:column headerText="Nom complet" styleClass="users-col-name">
+                                <h:outputText value="#{user.firstName} #{user.lastName}"/>
+                            </p:column>
+                            
+                            <p:column headerText="Rôle" sortBy="#{user.role}" styleClass="users-col-role">
+                                <p:badge value="#{userManagementBean.getRoleLabel(user.role)}" 
+                                       severity="#{user.role == 'ADMIN' ? 'danger' : (user.role == 'EDITOR' ? 'warning' : 'info')}"/>
+                            </p:column>
+                            
+                            <p:column headerText="Statut" sortBy="#{user.active}" styleClass="users-col-status">
+                                <p:badge value="#{user.active ? 'Actif' : 'Inactif'}" 
+                                       severity="#{user.active ? 'success' : 'secondary'}"/>
+                            </p:column>
+                            
+                            <p:column headerText="Date création" sortBy="#{user.dateCreation}" styleClass="users-col-date">
+                                <h:outputText value="#{user.dateCreation}">
+                                    <f:converter converterId="localDateTimeConverter"/>
+                                </h:outputText>
+                            </p:column>
+                            
+                            <p:column headerText="Actions" styleClass="users-col-actions">
+                                <div class="users-actions">
+                                    <h:link outcome="/users/create.xhtml" styleClass="users-action-btn users-edit-btn" title="Modifier">
+                                        <f:param name="userId" value="#{user.id}"/>
+                                        <i class="pi pi-pencil"/>
+                                    </h:link>
+                                    <p:commandButton icon="pi pi-power-off"
+                                                   styleClass="users-action-btn users-toggle-btn"
+                                                   title="#{user.active ? 'Désactiver' : 'Activer'}"
+                                                   action="#{userManagementBean.toggleUserActive(user)}"
+                                                   process="@this"
+                                                   update=":usersForm"/>
+                                    <p:commandButton icon="pi pi-trash"
+                                                   styleClass="users-action-btn users-delete-btn"
+                                                   title="Supprimer"
+                                                   action="#{userManagementBean.supprimerUser(user)}"
+                                                   process="@this"
+                                                   update=":usersForm"
+                                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');"/>
+                                </div>
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+

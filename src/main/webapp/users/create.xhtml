@@ -1,0 +1,121 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <f:event listener="#{userManagementBean.initNouveauUser}" type="preRenderView"/>
+        <div class="users-container">
+            <div class="users-header">
+                <div class="users-header-content">
+                    <div>
+                        <h1 class="users-title">
+                            <i class="pi pi-#{userManagementBean.editMode ? 'pencil' : 'plus-circle'} users-title-icon"></i>
+                            #{userManagementBean.editMode ? 'Modifier' : 'Créer'} un utilisateur
+                        </h1>
+                        <p class="users-subtitle">#{userManagementBean.editMode ? 'Modifiez les informations de l\'utilisateur' : 'Ajoutez un nouvel utilisateur à l\'application'}</p>
+                    </div>
+                    <h:form>
+                        <p:commandButton value="Retour à la liste" 
+                                       icon="pi pi-arrow-left"
+                                       styleClass="users-create-button"
+                                       action="/users/users.xhtml?faces-redirect=true"
+                                       process="@this"
+                                       update="@none"/>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="users-content">
+                <h:form id="userForm">
+                    <p:panel header="Informations de l'utilisateur" styleClass="users-form-panel">
+                        <div class="users-form-grid">
+                            <div class="users-form-group users-form-group-full">
+                                <p:outputLabel for="username" value="Nom d'utilisateur *" />
+                                <p:inputText id="username" 
+                                           value="#{userManagementBean.newUser.username}"
+                                           required="true"
+                                           requiredMessage="Le nom d'utilisateur est requis"
+                                           disabled="#{userManagementBean.editMode}"
+                                           styleClass="users-input"/>
+                            </div>
+
+                            <div class="users-form-group users-form-group-full">
+                                <p:outputLabel for="email" value="Email *" />
+                                <p:inputText id="email" 
+                                           value="#{userManagementBean.newUser.email}"
+                                           required="true"
+                                           requiredMessage="L'email est requis"
+                                           styleClass="users-input"/>
+                            </div>
+
+                            <div class="users-form-group">
+                                <p:outputLabel for="firstName" value="Prénom" />
+                                <p:inputText id="firstName" 
+                                           value="#{userManagementBean.newUser.firstName}"
+                                           styleClass="users-input"/>
+                            </div>
+
+                            <div class="users-form-group">
+                                <p:outputLabel for="lastName" value="Nom" />
+                                <p:inputText id="lastName" 
+                                           value="#{userManagementBean.newUser.lastName}"
+                                           styleClass="users-input"/>
+                            </div>
+
+                            <div class="users-form-group">
+                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'}" />
+                                <p:password id="password" 
+                                         value="#{userManagementBean.newUser.password}"
+                                         required="#{!userManagementBean.editMode}"
+                                         requiredMessage="Le mot de passe est requis"
+                                         feedback="false"
+                                         styleClass="users-input"/>
+                            </div>
+
+                            <div class="users-form-group">
+                                <p:outputLabel for="role" value="Rôle *" />
+                                <p:selectOneMenu id="role" 
+                                               value="#{userManagementBean.newUser.role}"
+                                               required="true"
+                                               requiredMessage="Le rôle est requis"
+                                               styleClass="users-select">
+                                    <f:selectItem itemLabel="Sélectionner un rôle" itemValue=""/>
+                                    <f:selectItem itemLabel="Administrateur" itemValue="ADMIN"/>
+                                    <f:selectItem itemLabel="Éditeur" itemValue="EDITOR"/>
+                                    <f:selectItem itemLabel="Lecteur" itemValue="VIEWER"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="users-form-group users-form-group-full">
+                                <p:selectBooleanCheckbox id="active" 
+                                                       value="#{userManagementBean.newUser.active}"
+                                                       styleClass="users-checkbox"/>
+                                <p:outputLabel for="active" value="Utilisateur actif" />
+                            </div>
+                        </div>
+                    </p:panel>
+
+                    <div class="users-form-actions">
+                        <p:commandButton value="Annuler" 
+                                       icon="pi pi-times"
+                                       styleClass="users-btn users-btn-cancel"
+                                       action="/users/users.xhtml?faces-redirect=true"
+                                       process="@this"
+                                       update="@none"/>
+                        <p:commandButton value="Sauvegarder" 
+                                       icon="pi pi-check"
+                                       styleClass="users-btn users-btn-save"
+                                       action="#{userManagementBean.sauvegarderUser}"
+                                       process="@form"
+                                       update="@form :growl"/>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
