@@ -1419,6 +1419,180 @@
                 padding: 0.75rem 0.75rem 0.75rem 0.875rem !important;
             }
         }
+
+        /* ============================================
+           MENU UTILISATEUR DANS LE HEADER - DESIGN MODERNE
+           Respectant la charte couleur et responsive
+           ============================================ */
+        /* Bouton menu utilisateur dans le header - Version simple et élégante */
+        .header-icon.authenticated-user,
+        .header-icon.authenticated-user .ui-button {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 8px !important;
+            color: white !important;
+            padding: 0.5rem 0.75rem !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.625rem !important;
+            min-height: 36px !important;
+            box-shadow: none !important;
+        }
+
+        .header-icon.authenticated-user:hover,
+        .header-icon.authenticated-user .ui-button:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .header-icon.authenticated-user:active,
+        .header-icon.authenticated-user .ui-button:active {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .header-icon.authenticated-user .ui-button-icon-left,
+        .header-icon.authenticated-user .ui-button-icon {
+            color: white !important;
+            font-size: 1.125rem !important;
+            margin-right: 0 !important;
+        }
+
+        .header-icon.authenticated-user .ui-button-text {
+            color: white !important;
+            font-weight: 500 !important;
+        }
+
+        /* Menu déroulant du menuButton */
+        .header-icon.authenticated-user .ui-menu,
+        body .ui-menu.ui-menu-dynamic {
+            min-width: 220px !important;
+            background: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            padding: 0.5rem 0 !important;
+            margin-top: 0.5rem !important;
+        }
+
+        /* Items du menu déroulant */
+        .header-icon.authenticated-user .ui-menu .ui-menuitem,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem {
+            margin: 0 !important;
+            border: none !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menuitem-link,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem-link {
+            padding: 0.875rem 1.25rem !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.9375rem !important;
+            font-weight: 500 !important;
+            border-radius: 0 !important;
+            transition: all 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            text-decoration: none !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menuitem-link:hover,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem-link:hover {
+            background: linear-gradient(90deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            color: var(--color-action-main, #47624D) !important;
+            padding-left: 1.5rem !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menuitem-link .ui-menuitem-icon,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem-link .ui-menuitem-icon {
+            color: var(--color-action-main, #47624D) !important;
+            font-size: 1rem !important;
+            width: 20px !important;
+            text-align: center !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menuitem-link:hover .ui-menuitem-icon,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem-link:hover .ui-menuitem-icon {
+            color: var(--color-action-main, #47624D) !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* Séparateur dans le menu */
+        .header-icon.authenticated-user .ui-menu .ui-menu-separator,
+        body .ui-menu.ui-menu-dynamic .ui-menu-separator {
+            border-top: 1px solid rgba(71, 98, 77, 0.15) !important;
+            margin: 0.5rem 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Item "Déconnexion" avec style spécial - ciblage par texte ou icône */
+        .header-icon.authenticated-user .ui-menu .ui-menuitem-link .ui-menuitem-icon.pi-sign-out,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem-link .ui-menuitem-icon.pi-sign-out {
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        /* Style pour l'item contenant l'icône de déconnexion */
+        .header-icon.authenticated-user .ui-menu .ui-menuitem:has(.pi-sign-out) .ui-menuitem-link,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem:has(.pi-sign-out) .ui-menuitem-link {
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menuitem:has(.pi-sign-out) .ui-menuitem-link:hover,
+        body .ui-menu.ui-menu-dynamic .ui-menuitem:has(.pi-sign-out) .ui-menuitem-link:hover {
+            background: linear-gradient(90deg, rgba(184, 74, 60, 0.1) 0%, rgba(184, 74, 60, 0.05) 100%) !important;
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        /* Alternative si :has() n'est pas supporté - cibler par position (dernier item après séparateur) */
+        .header-icon.authenticated-user .ui-menu .ui-menu-separator + .ui-menuitem .ui-menuitem-link,
+        body .ui-menu.ui-menu-dynamic .ui-menu-separator + .ui-menuitem .ui-menuitem-link {
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menu-separator + .ui-menuitem .ui-menuitem-link:hover,
+        body .ui-menu.ui-menu-dynamic .ui-menu-separator + .ui-menuitem .ui-menuitem-link:hover {
+            background: linear-gradient(90deg, rgba(184, 74, 60, 0.1) 0%, rgba(184, 74, 60, 0.05) 100%) !important;
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        .header-icon.authenticated-user .ui-menu .ui-menu-separator + .ui-menuitem .ui-menuitem-icon,
+        body .ui-menu.ui-menu-dynamic .ui-menu-separator + .ui-menuitem .ui-menuitem-icon {
+            color: var(--color-danger, #B84A3C) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-icon.authenticated-user,
+            .header-icon.authenticated-user .ui-button {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.8125rem !important;
+                min-height: 34px !important;
+            }
+
+            .header-icon.authenticated-user .ui-button-text {
+                display: none !important;
+            }
+
+            .header-icon.authenticated-user .ui-button-icon-left,
+            .header-icon.authenticated-user .ui-button-icon {
+                margin: 0 !important;
+            }
+
+            .header-icon.authenticated-user .ui-menu,
+            body .ui-menu.ui-menu-dynamic {
+                min-width: 200px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-icon.authenticated-user,
+            .header-icon.authenticated-user .ui-button {
+                padding: 0.5rem !important;
+                min-width: 36px !important;
+                width: 36px !important;
+            }
+        }
     </style>
 </h:head>
 
