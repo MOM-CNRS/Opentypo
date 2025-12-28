@@ -5,280 +5,276 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Contenu dynamique -->
-    <h:panelGroup id="contentPanels" layout="block">
-        <ui:include src="breadCrumb.xhtml"/>
+    <div class="image-container">
+        <p:graphicImage
+                value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                styleClass="research-image"
+                alt="Vue de la rive gauche de Paris"/>
+    </div>
 
-        <div class="image-container">
-            <p:graphicImage
-                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                    styleClass="research-image"
-                    alt="Vue de la rive gauche de Paris"/>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel">
-                    <!-- En-tête avec titre et actions -->
-                    <div class="concept-info-header">
-                        <div class="concept-info-title-section">
-                            <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png" 
-                                               styleClass="language-flag"
-                                               alt="Français"
-                                               title="Français"/>
-                            </div>
-                            <h2 class="concept-info-title">cortège funéraires</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <!-- En-tête avec titre et actions -->
+                <div class="concept-info-header">
+                    <div class="concept-info-title-section">
+                        <div class="concept-info-language-flag">
+                            <h:graphicImage library="img" name="flag/fr.png"
+                                            styleClass="language-flag"
+                                            alt="Français"
+                                            title="Français"/>
                         </div>
-                        <div class="concept-info-actions">
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-cog" />
-                                <p:tooltip value="Paramètres" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-flag" />
-                                <p:tooltip value="Marquer" position="top"/>
-                            </p:commandLink>
-                        </div>
+                        <h2 class="concept-info-title">cortège funéraires</h2>
                     </div>
-
-                    <!-- Grille d'informations -->
-                    <div class="concept-info-grid">
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-database concept-info-icon" />
-                                <span>Référentiel</span>
-                            </div>
-                            <div class="concept-info-value">convoi funèbre</div>
-                        </div>
-
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-calendar concept-info-icon" />
-                                <span>Période</span>
-                            </div>
-                            <div class="concept-info-value">convoies funéraires</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description">
-                                Déscription total
-                            </div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value">Firas GABSI</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-book concept-info-icon" />
-                                <span>Référence bibliographique</span>
-                            </div>
-                            <div class="concept-info-value">Test Test</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tags concept-info-icon" />
-                                <span>Catégories du référentiel</span>
-                            </div>
-                            <div class="concept-info-value">cortège funéraires</div>
-                        </div>
+                    <div class="concept-info-actions">
+                        <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                            <i class="pi pi-cog" />
+                            <p:tooltip value="Paramètres" position="top"/>
+                        </p:commandLink>
+                        <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                            <i class="pi pi-flag" />
+                            <p:tooltip value="Marquer" position="top"/>
+                        </p:commandLink>
                     </div>
                 </div>
 
-                <div class="row" style="margin-top: 20px">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title" style="font-size: 1rem;">Catégories du référentiel - XXXXX</h2>
-                                </div>
-                                <div class="concept-info-actions">
-                                    <p:commandButton value="Créer une catégorie"
-                                                   icon="pi pi-plus"
-                                                   styleClass="category-create-button"
-                                                   onclick="PF('createCategoryDialog').show(); return false;"
-                                                   process="@this"
-                                                   update="@none"/>
-                                </div>
+                <!-- Grille d'informations -->
+                <div class="concept-info-grid">
+                    <div class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-database concept-info-icon" />
+                            <span>Référentiel</span>
+                        </div>
+                        <div class="concept-info-value">convoi funèbre</div>
+                    </div>
+
+                    <div class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-calendar concept-info-icon" />
+                            <span>Période</span>
+                        </div>
+                        <div class="concept-info-value">convoies funéraires</div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-file concept-info-icon" />
+                            <span>Description</span>
+                        </div>
+                        <div class="concept-info-value concept-info-description">
+                            Déscription total
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-user concept-info-icon" />
+                            <span>Auteur(s)</span>
+                        </div>
+                        <div class="concept-info-value">Firas GABSI</div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-book concept-info-icon" />
+                            <span>Référence bibliographique</span>
+                        </div>
+                        <div class="concept-info-value">Test Test</div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-tags concept-info-icon" />
+                            <span>Catégories du référentiel</span>
+                        </div>
+                        <div class="concept-info-value">cortège funéraires</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 20px">
+                <div class="col-md-12">
+                    <div class="concept-info-panel">
+                        <!-- En-tête avec titre et actions -->
+                        <div class="concept-info-header">
+                            <div class="concept-info-title-section">
+                                <h2 class="concept-info-title" style="font-size: 1rem;">Catégories du référentiel - XXXXX</h2>
                             </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
-                                    <div class="referentiel-cards-container">
-                                        <h:form>
-                                            <div class="referentiel-cards-grid">
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-
-                                                <p:commandLink action="#{applicationBean.showCategory()}"
-                                                               styleClass="referentiel-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="referentiel-card-content">
-                                                        <div class="referentiel-card-header">
-                                                            <div class="referentiel-card-icon">
-                                                                <i class="pi pi-tag" />
-                                                            </div>
-                                                            <div class="referentiel-card-title-wrapper">
-                                                                <h3 class="referentiel-card-title">Titre CAT</h3>
-                                                                <span class="referentiel-card-code">Code CAT</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="referentiel-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
-                                            </div>
-                                        </h:form>
-                                    </div>
-                                </p:panel>
+                            <div class="concept-info-actions">
+                                <p:commandButton value="Créer une catégorie"
+                                                 icon="pi pi-plus"
+                                                 styleClass="category-create-button"
+                                                 onclick="PF('createCategoryDialog').show(); return false;"
+                                                 process="@this"
+                                                 update="@none"/>
                             </div>
+                        </div>
+
+                        <!-- Grille d'informations -->
+                        <div class="concept-info-grid">
+                            <p:panel style="font-family: 'Roboto', sans-serif; font-size: 14px; color: #1E201E; font-weight: normal">
+                                <div class="referentiel-cards-container">
+                                    <h:form>
+                                        <div class="referentiel-cards-grid">
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+
+                                            <p:commandLink action="#{applicationBean.showCategory()}"
+                                                           styleClass="referentiel-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="referentiel-card-content">
+                                                    <div class="referentiel-card-header">
+                                                        <div class="referentiel-card-icon">
+                                                            <i class="pi pi-tag" />
+                                                        </div>
+                                                        <div class="referentiel-card-title-wrapper">
+                                                            <h3 class="referentiel-card-title">Titre CAT</h3>
+                                                            <span class="referentiel-card-code">Code CAT</span>
+                                                        </div>
+                                                    </div>
+                                                    <p class="referentiel-card-description">
+                                                        Description courte du contenu, contexte scientifique,
+                                                        résumé ou métadonnée.
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+                                        </div>
+                                    </h:form>
+                                </div>
+                            </p:panel>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </h:panelGroup>
+    </div>
 
     <!-- Dialog pour créer une nouvelle catégorie -->
     <p:dialog id="createCategoryDialog" 
@@ -335,7 +331,7 @@
                 <p:commandButton value="Valider" 
                                icon="pi pi-check"
                                styleClass="category-btn category-btn-validate"
-                               action="#{applicationBean.creerCategorie}"
+                               action="#{applicationBean.createCategory}"
                                process="@form"
                                update="@form :growl"
                                oncomplete="if(!args.validationFailed) {PF('createCategoryDialog').hide();}"/>

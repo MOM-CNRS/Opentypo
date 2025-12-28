@@ -43,6 +43,10 @@ public class ApplicationBean implements Serializable {
         languages.add(new Language(2, "an", "Anglais", "an"));
     }
 
+    public boolean isShowDetail() {
+        return showReferentielPanel || showCategoryPanel || showGroupePanel || showSeriePanel || showTypePanel;
+    }
+
     public void showCards() {
 
         showCards = true;
@@ -109,7 +113,7 @@ public class ApplicationBean implements Serializable {
         categoryDescription = null;
     }
     
-    public void creerCategorie() {
+    public void createCategory() {
         if (categoryCode == null || categoryCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
