@@ -11,66 +11,67 @@
               closable="true"
               resizable="false"
               draggable="false"
-              styleClass="login-dialog"
+              styleClass="modern-login-dialog"
               width="480"
               height="auto"
               showEffect="fade"
               hideEffect="fade">
 
         <f:facet name="header">
-            <div class="login-dialog-header">
-                <i class="pi pi-lock login-header-icon" />
-                <span class="login-header-title">Authentification</span>
+            <div class="modern-login-header">
+                <div class="modern-login-header-icon-wrapper">
+                    <i class="pi pi-lock modern-login-header-icon" />
+                </div>
+                <div class="modern-login-header-content">
+                    <h3 class="modern-login-header-title">Connexion</h3>
+                    <p class="modern-login-header-subtitle">Accédez à votre espace Opentypo</p>
+                </div>
             </div>
         </f:facet>
 
         <h:form id="loginForm">
-            <div class="login-container">
-                <div class="login-intro">
-                    <p class="login-intro-text">Veuillez vous connecter pour accéder à votre espace de recherche.</p>
-                </div>
-
+            <div class="modern-login-container">
                 <p:messages id="loginMessages"
                             for="loginForm"
                             showDetail="true"
                             closable="true"
-                            styleClass="login-messages" />
+                            styleClass="modern-login-messages" />
 
-                <div class="login-field">
+                <div class="modern-login-field">
                     <p:outputLabel for="username" value="Nom d'utilisateur" />
-                    <span class="login-input-wrapper">
-                        <i class="pi pi-user login-input-icon" />
+                    <div class="modern-login-input-wrapper">
+                        <i class="pi pi-user modern-login-input-icon" />
                         <p:inputText id="username"
                                      value="#{loginBean.username}"
                                      placeholder="Entrez votre nom d'utilisateur"
-                                     styleClass="login-input"
+                                     styleClass="modern-login-input"
                                      required="true"
                                      requiredMessage="Le nom d'utilisateur est requis"
                                      autocomplete="username" />
-                    </span>
+                    </div>
                 </div>
 
-                <div class="login-field">
+                <div class="modern-login-field">
                     <p:outputLabel for="password" value="Mot de passe" />
-                    <span class="login-input-wrapper">
-                        <i class="pi pi-lock login-input-icon" />
+                    <div class="modern-login-input-wrapper">
+                        <i class="pi pi-lock modern-login-input-icon" />
                         <p:password id="password"
                                     value="#{loginBean.password}"
                                     placeholder="Entrez votre mot de passe"
-                                    styleClass="login-input"
+                                    styleClass="modern-login-input"
                                     required="true"
                                     requiredMessage="Le mot de passe est requis"
                                     feedback="false"
                                     autocomplete="current-password" />
-                    </span>
+                    </div>
                 </div>
 
-                <div class="login-actions">
+                <div class="modern-login-actions">
                     <p:commandButton value="Se connecter"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login()}"
                                      update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm"
-                                     styleClass="login-button p-button-primary"
+                                     styleClass="modern-login-button modern-login-button-primary"
                                      process="@this username password"
                                      oncomplete="if(!args.validationFailed) {PF('loginDialog').hide();}" />
 
@@ -78,214 +79,297 @@
                                      icon="pi pi-times"
                                      onclick="PF('loginDialog').hide(); return false;"
                                      type="button"
-                                     styleClass="login-button-cancel p-button-secondary" />
+                                     styleClass="modern-login-button modern-login-button-secondary" />
                 </div>
             </div>
         </h:form>
     </p:dialog>
 
     <style>
-        /* Dialog d'authentification - Charte couleur du site */
-        .login-dialog .ui-dialog {
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            border: 1px solid var(--color-action-main, #47624D);
+        /* ============================================
+           FENÊTRE DE CONNEXION - DESIGN MODERNE ET ERGONOMIQUE
+           Respectant la charte couleur et responsive
+           ============================================ */
+        
+        /* Dialog principal */
+        .modern-login-dialog .ui-dialog {
+            border-radius: 16px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+            overflow: hidden !important;
         }
 
-        .login-dialog .ui-dialog-titlebar {
-            background-color: var(--color-action-main, #47624D) !important;
+        .modern-login-dialog .ui-dialog-titlebar {
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
             color: white !important;
-            border-radius: 8px 8px 0 0;
+            border: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
         }
 
-        .login-dialog .ui-dialog-titlebar-close {
+        .modern-login-dialog .ui-dialog-titlebar-close {
+            color: white !important;
+            opacity: 0.9 !important;
+            transition: all 0.2s ease !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .modern-login-dialog .ui-dialog-titlebar-close:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+            opacity: 1 !important;
+            transform: scale(1.1) !important;
+        }
+
+        .modern-login-dialog .ui-dialog-content {
+            padding: 2.5rem !important;
+            background: #ffffff !important;
+        }
+
+        /* Header personnalisé */
+        .modern-login-header {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1.25rem !important;
+            padding: 1rem !important;
+            width: 100% !important;
+        }
+
+        .modern-login-header-icon-wrapper {
+            width: 56px !important;
+            height: 56px !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            backdrop-filter: blur(10px) !important;
+        }
+
+        .modern-login-header-icon {
+            font-size: 1.75rem !important;
             color: white !important;
         }
 
-        .login-dialog .ui-dialog-content {
-            padding: 2rem;
-            background-color: var(--color-bg-global, #EEEFE0);
+        .modern-login-header-content {
+            flex: 1 !important;
         }
 
-        .login-dialog-header {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 0;
+        .modern-login-header-title {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: white !important;
+            margin: 0 0 0.25rem 0 !important;
+            line-height: 1.3 !important;
         }
 
-        .login-header-icon {
-            font-size: 1.5rem;
-            margin-right: 0.75rem;
-            color: white;
+        .modern-login-header-subtitle {
+            font-size: 0.9375rem !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            margin: 0 !important;
+            font-weight: 400 !important;
         }
 
-        .login-header-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: white;
+        /* Conteneur principal */
+        .modern-login-container {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1.75rem !important;
         }
 
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        /* Messages */
+        .modern-login-messages {
+            margin-bottom: 0 !important;
         }
 
-        .login-intro {
-            margin-bottom: 0.5rem;
+        /* Champs de formulaire */
+        .modern-login-field {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.625rem !important;
         }
 
-        .login-intro-text {
-            color: var(--color-text-secondary, #819A91);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin: 0;
-            text-align: center;
+        .modern-login-field label {
+            font-weight: 600 !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.9375rem !important;
+            margin-bottom: 0 !important;
         }
 
-        .login-messages {
-            margin-bottom: 0.5rem;
+        .modern-login-input-wrapper {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
         }
 
-        .login-field {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+        .modern-login-input-icon {
+            position: absolute !important;
+            left: 1.125rem !important;
+            color: var(--color-text-secondary, #819A91) !important;
+            font-size: 1.125rem !important;
+            z-index: 2 !important;
+            pointer-events: none !important;
+            transition: color 0.2s ease !important;
         }
 
-        .login-field label {
-            font-weight: 600;
-            color: var(--color-text-primary, #333);
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
+        .modern-login-input {
+            width: 100% !important;
+            padding: 1rem 1.125rem 1rem 3rem !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 10px !important;
+            font-size: 0.9375rem !important;
+            color: var(--color-text-primary, #333) !important;
+            background-color: #ffffff !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
         }
 
-        .login-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .login-input-icon {
-            position: absolute;
-            left: 1rem;
-            color: var(--color-text-secondary, #819A91);
-            font-size: 1rem;
-            z-index: 1;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 0.875rem 1rem 0.875rem 2.75rem;
-            border: 1.5px solid var(--color-action-secondary, #6C757D);
-            border-radius: 6px;
-            font-size: 0.95rem;
-            color: var(--color-text-primary, #333);
-            background-color: #ffffff;
-            transition: all 0.2s ease;
-        }
-
-        .login-input:focus {
-            border-color: var(--color-action-main, #47624D);
-            outline: 0;
-            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15);
-        }
-
-        .login-input::placeholder {
-            color: var(--color-text-secondary, #819A91);
-        }
-
-        .login-actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-action-secondary, #6C757D);
-        }
-
-        .login-button {
-            min-width: 140px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            border-radius: 6px;
-            background-color: var(--color-action-main, #47624D) !important;
+        .modern-login-input:focus {
             border-color: var(--color-action-main, #47624D) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.1), 0 2px 8px rgba(71, 98, 77, 0.15) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .modern-login-input:focus + .modern-login-input-icon,
+        .modern-login-input-wrapper:focus-within .modern-login-input-icon {
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .modern-login-input::placeholder {
+            color: var(--color-text-secondary, #819A91) !important;
+            opacity: 0.7 !important;
+        }
+
+        /* Actions */
+        .modern-login-actions {
+            display: flex !important;
+            gap: 0.875rem !important;
+            justify-content: flex-end !important;
+            margin-top: 0.5rem !important;
+            padding-top: 1.5rem !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+
+        .modern-login-button {
+            min-width: 140px !important;
+            padding: 0.875rem 1.75rem !important;
+            font-weight: 600 !important;
+            font-size: 0.9375rem !important;
+            border-radius: 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            border: none !important;
+            cursor: pointer !important;
+        }
+
+        .modern-login-button-primary {
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
             color: white !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
         }
 
-        .login-button:hover {
-            background-color: var(--color-hover, #A7C1A8) !important;
-            border-color: var(--color-hover, #A7C1A8) !important;
+        .modern-login-button-primary:hover {
+            background: linear-gradient(135deg, #3a4f3e 0%, var(--color-action-main, #47624D) 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(71, 98, 77, 0.4) !important;
         }
 
-        .login-button-cancel {
-            min-width: 120px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            border-radius: 6px;
-            background-color: var(--color-action-secondary, #6C757D) !important;
-            border-color: var(--color-action-secondary, #6C757D) !important;
-            color: white !important;
+        .modern-login-button-primary:active {
+            transform: translateY(0) !important;
         }
 
-        .login-button-cancel:hover {
-            background-color: var(--color-text-secondary, #819A91) !important;
-            border-color: var(--color-text-secondary, #819A91) !important;
+        .modern-login-button-secondary {
+            background: #f3f4f6 !important;
+            color: var(--color-text-primary, #333) !important;
+            border: 2px solid #e5e7eb !important;
         }
 
-        /* Indicateur utilisateur connecté */
-        .authenticated-user {
-            background-color: rgba(71, 98, 77, 0.15) !important;
-        }
-
-        .authenticated-user:hover {
-            background-color: rgba(71, 98, 77, 0.25) !important;
+        .modern-login-button-secondary:hover {
+            background: #e5e7eb !important;
+            border-color: #d1d5db !important;
+            transform: translateY(-1px) !important;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .login-dialog .ui-dialog {
+            .modern-login-dialog .ui-dialog {
                 width: 95vw !important;
                 max-width: 95vw !important;
                 margin: 1rem auto !important;
             }
 
-            .login-dialog .ui-dialog-content {
-                padding: 1.5rem;
+            .modern-login-dialog .ui-dialog-content {
+                padding: 2rem 1.5rem !important;
             }
 
-            .login-header-icon {
-                font-size: 1.25rem;
+            .modern-login-header {
+                padding: 0.75rem !important;
+                gap: 1rem !important;
             }
 
-            .login-header-title {
-                font-size: 1.1rem;
+            .modern-login-header-icon-wrapper {
+                width: 48px !important;
+                height: 48px !important;
             }
 
-            .login-actions {
-                flex-direction: column;
-                gap: 0.5rem;
+            .modern-login-header-icon {
+                font-size: 1.5rem !important;
             }
 
-            .login-button,
-            .login-button-cancel {
-                width: 100%;
-                min-width: unset;
+            .modern-login-header-title {
+                font-size: 1.25rem !important;
+            }
+
+            .modern-login-header-subtitle {
+                font-size: 0.875rem !important;
+            }
+
+            .modern-login-container {
+                gap: 1.5rem !important;
+            }
+
+            .modern-login-actions {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            .modern-login-button {
+                width: 100% !important;
+                min-width: unset !important;
             }
         }
 
         @media (max-width: 480px) {
-            .login-dialog .ui-dialog-content {
-                padding: 1.25rem;
+            .modern-login-dialog .ui-dialog-content {
+                padding: 1.5rem 1.25rem !important;
             }
 
-            .login-container {
-                gap: 1.25rem;
+            .modern-login-header {
+                padding: 0.5rem !important;
+                flex-direction: column !important;
+                text-align: center !important;
             }
 
-            .login-intro-text {
-                font-size: 0.85rem;
+            .modern-login-header-icon-wrapper {
+                width: 44px !important;
+                height: 44px !important;
+            }
+
+            .modern-login-container {
+                gap: 1.25rem !important;
+            }
+
+            .modern-login-input {
+                padding: 0.875rem 1rem 0.875rem 2.75rem !important;
             }
         }
     </style>
