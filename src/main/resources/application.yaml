@@ -23,7 +23,7 @@ spring:
   application:
     name: OpenTypo
   datasource:
-    url: jdbc:postgresql://localhost:5432/opentheso2
+    url: jdbc:postgresql://localhost:5432/opentypo
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -33,6 +33,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # Configuration Hibernate Envers pour l'audit
+        envers:
+          audit_table_suffix: _aud
+          revision_field_name: rev
+          revision_type_field_name: revtype
+          store_data_at_delete: true
+          default_schema: public
+        # Configuration pour les relations lazy
+        enable_lazy_load_no_trans: true
   main:
     allow-bean-definition-overriding: true
 
