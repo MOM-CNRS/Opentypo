@@ -77,6 +77,12 @@
             <artifactId>hibernate-envers</artifactId>
         </dependency>
 
+        <!-- Liquibase pour la gestion des migrations de base de données -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

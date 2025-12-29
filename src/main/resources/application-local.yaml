@@ -4,9 +4,13 @@ spring:
     url: jdbc:postgresql://localhost:5432/opentypo
     username: postgres
     password: postgres
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: false
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
