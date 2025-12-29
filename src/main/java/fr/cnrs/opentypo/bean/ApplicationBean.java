@@ -36,7 +36,21 @@ public class ApplicationBean implements Serializable {
 
     @PostConstruct
     public void initialization() {
-        showCards();
+        // Vérifier si la session a expiré ou si la vue a expiré (via paramètre URL)
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            String sessionExpired = facesContext.getExternalContext()
+                .getRequestParameterMap().get("sessionExpired");
+            String viewExpired = facesContext.getExternalContext()
+                .getRequestParameterMap().get("viewExpired");
+            
+            if ("true".equals(sessionExpired) || "true".equals(viewExpired)) {
+                // Réinitialiser l'affichage pour montrer uniquement cardsContainer
+                showCards();
+            }
+        } else {
+            showCards();
+        }
 
         languages = new ArrayList<>();
         languages.add(new Language(1, "fr", "Français", "fr"));

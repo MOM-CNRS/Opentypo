@@ -39,6 +39,9 @@ public class SecurityConfig {
                 // Permettre l'accès à la racine et index.xhtml pour tous
                 .requestMatchers("/", "/index.xhtml").permitAll()
                 
+                // Permettre l'accès à l'endpoint de vérification de session
+                .requestMatchers("/session-check").permitAll()
+                
                 // Permettre l'accès aux ressources statiques (CSS, JS, images, etc.)
                 .requestMatchers(
                     "/resources/**",
