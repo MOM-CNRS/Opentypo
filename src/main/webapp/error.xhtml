@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+    <title>Erreur technique - Opentypo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Ressources PrimeFaces pour les icônes -->
+    <h:outputStylesheet library="primefaces" name="theme.css" />
+    <h:outputStylesheet library="primeicons" name="primeicons.css" />
+    
+    <!-- Styles inline pour garantir le chargement -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .error-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 3rem;
+            text-align: center;
+        }
+        
+        .error-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #B84A3C 0%, #d9534f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(184, 74, 60, 0.3);
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            color: var(--color-danger, #B84A3C);
+        }
+        
+        .error-message {
+            font-size: 1.125rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .error-details {
+            background: #f8f9fa;
+            border-left: 4px solid var(--color-danger, #B84A3C);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .error-details-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 0.9375rem;
+        }
+        
+        .error-details-text {
+            font-size: 0.875rem;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            word-break: break-word;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .error-button {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .error-button-primary {
+            background: var(--color-action-main, #47624D);
+            color: #ffffff;
+        }
+        
+        .error-button-primary:hover {
+            background: #3a4f3e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3);
+        }
+        
+        .error-button-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+        
+        .error-button-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .error-icon {
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .error-message {
+                font-size: 1rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+            }
+            
+            .error-button {
+                width: 100%;
+            }
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="error-container">
+        <div class="error-icon">
+            <span class="pi pi-exclamation-triangle" style="font-size: 4rem;"/>
+        </div>
+        
+        <h1 class="error-title">Erreur technique</h1>
+        
+        <p class="error-message">
+            Une erreur technique s'est produite lors du traitement de votre demande. 
+            Notre équipe a été informée et travaille à résoudre le problème.
+        </p>
+        
+        <div class="error-details" id="errorDetails" style="display: none;">
+            <div class="error-details-title">Détails techniques :</div>
+            <div class="error-details-text" id="errorDetailsText"></div>
+        </div>
+        
+        <div class="error-actions">
+            <h:link outcome="/index.xhtml" styleClass="error-button error-button-primary">
+                <span class="pi pi-home" style="margin-right: 0.5rem;"></span>
+                Retour à l'accueil
+            </h:link>
+            
+            <a href="javascript:void(0)" class="error-button error-button-secondary" onclick="showErrorDetails()">
+                <span class="pi pi-info-circle" style="margin-right: 0.5rem;"></span>
+                Afficher les détails
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Récupérer les détails de l'erreur depuis l'URL ou les paramètres
+        function showErrorDetails() {
+            const detailsDiv = document.getElementById('errorDetails');
+            const detailsText = document.getElementById('errorDetailsText');
+            
+            // Récupérer l'erreur depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorMessage = urlParams.get('message') || 
+                                urlParams.get('error') || 
+                                'Aucun détail disponible';
+            
+            detailsText.textContent = decodeURIComponent(errorMessage);
+            detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Afficher automatiquement les détails si un message d'erreur est présent
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('message') || urlParams.get('error')) {
+                showErrorDetails();
+            }
+        });
+    </script>
+</h:body>
+</html>
+

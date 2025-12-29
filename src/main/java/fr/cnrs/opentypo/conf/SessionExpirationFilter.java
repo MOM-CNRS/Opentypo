@@ -36,10 +36,11 @@ public class SessionExpirationFilter implements Filter {
         String requestURI = httpRequest.getRequestURI();
         String contextPath = httpRequest.getContextPath();
         
-        // Ignorer les ressources statiques et l'endpoint de vérification de session
+        // Ignorer les ressources statiques, l'endpoint de vérification de session et la page d'erreur
         if (requestURI.contains("/resources/") || 
             requestURI.contains("/javax.faces.resource/") ||
-            requestURI.contains("/session-check")) {
+            requestURI.contains("/session-check") ||
+            requestURI.endsWith("/error.xhtml")) {
             chain.doFilter(request, response);
             return;
         }
