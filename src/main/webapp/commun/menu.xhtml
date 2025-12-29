@@ -16,7 +16,7 @@
                 <!-- Menu items dynamiques -->
                 <nav class="sidebar-nav">
                     <!-- Accueil item -->
-                    <h:link outcome="/index.xhtml" styleClass="sidebar-menu-item">
+                    <h:link outcome="/index.xhtml" styleClass="sidebar-menu-item" data-menu-item="accueil">
                         <div class="sidebar-menu-item-content">
                             <div class="sidebar-menu-item-icon">
                                 <i class="pi pi-home" />
@@ -28,7 +28,7 @@
 
                     <!-- Candidats item - Visible uniquement si connecté -->
                     <h:panelGroup rendered="#{loginBean.authenticated}">
-                        <h:link outcome="/candidats/candidats.xhtml" styleClass="sidebar-menu-item">
+                        <h:link outcome="/candidats/candidats.xhtml" styleClass="sidebar-menu-item" data-menu-item="candidats">
                             <div class="sidebar-menu-item-content">
                                 <div class="sidebar-menu-item-icon">
                                     <i class="pi pi-users"/>
@@ -41,7 +41,7 @@
 
                     <!-- Gestion des utilisateurs item - Visible uniquement si connecté -->
                     <h:panelGroup rendered="#{loginBean.authenticated}">
-                        <h:link outcome="/users/users.xhtml" styleClass="sidebar-menu-item">
+                        <h:link outcome="/users/users.xhtml" styleClass="sidebar-menu-item" data-menu-item="users">
                             <div class="sidebar-menu-item-content">
                                 <div class="sidebar-menu-item-icon">
                                     <i class="pi pi-user-edit" />

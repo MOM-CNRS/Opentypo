@@ -1602,26 +1602,96 @@
     
     <!-- Script pour gérer le menu dynamique -->
     <h:outputScript target="body">
-        document.addEventListener('DOMContentLoaded', function() {
-            // Détecter l'item actif basé sur l'URL
+        // Fonction pour mettre à jour l'item actif du menu
+        function updateActiveMenuItem() {
             const currentPath = window.location.pathname;
             const menuItems = document.querySelectorAll('.sidebar-menu-item');
             let hasActiveItem = false;
             
+            // Retirer la classe active de tous les items
+            menuItems.forEach(function(menuItem) {
+                menuItem.classList.remove('active');
+            });
+            
             menuItems.forEach(function(item) {
                 const link = item.querySelector('a') || item;
                 const href = link.getAttribute('href') || link.getAttribute('action') || '';
+                const menuItemType = item.getAttribute('data-menu-item') || '';
+                const itemText = item.querySelector('.sidebar-menu-item-text')?.textContent?.trim() || '';
                 
-                // Vérifier si l'URL correspond à l'item
-                if (href &amp;&amp; (currentPath.includes(href.split('?')[0]) || 
-                    (currentPath === '/' &amp;&amp; href.includes('index.xhtml')) ||
-                    (currentPath.endsWith('/') &amp;&amp; href.includes('index.xhtml')))) {
+                let shouldBeActive = false;
+                
+                // Utiliser l'attribut data-menu-item pour une détection plus précise
+                if (menuItemType === 'accueil') {
+                    if (currentPath === '/' || 
+                        currentPath === '/index.xhtml' || 
+                        currentPath.endsWith('/index.xhtml') ||
+                        currentPath === '' ||
+                        (currentPath === '/index.xhtml' &amp;&amp; !currentPath.includes('/users/') &amp;&amp; !currentPath.includes('/candidats/'))) {
+                        shouldBeActive = true;
+                    }
+                }
+                else if (menuItemType === 'candidats') {
+                    // Actif pour toutes les pages sous /candidats/
+                    if (currentPath.includes('/candidats/') || 
+                        currentPath.includes('/candidats') ||
+                        href.includes('/candidats/')) {
+                        shouldBeActive = true;
+                    }
+                }
+                else if (menuItemType === 'users') {
+                    // Actif pour toutes les pages sous /users/
+                    if (currentPath.includes('/users/') || 
+                        currentPath.includes('/users') ||
+                        href.includes('/users/')) {
+                        shouldBeActive = true;
+                    }
+                }
+                // Fallback : détection basée sur le texte si data-menu-item n'est pas disponible
+                else {
+                    if (itemText === 'Accueil' || itemText.includes('Accueil')) {
+                        if (currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml')) {
+                            shouldBeActive = true;
+                        }
+                    }
+                    else if (itemText === 'Candidats' || itemText.includes('Candidats')) {
+                        if (currentPath.includes('/candidats/') || currentPath.includes('/candidats')) {
+                            shouldBeActive = true;
+                        }
+                    }
+                    else if (itemText.includes('utilisateurs') || itemText.includes('utilisateur')) {
+                        if (currentPath.includes('/users/') || currentPath.includes('/users')) {
+                            shouldBeActive = true;
+                        }
+                    }
+                }
+                
+                if (shouldBeActive) {
                     item.classList.add('active');
                     hasActiveItem = true;
                 }
+            });
+            
+            // Si aucun item n'est actif et qu'on est sur la page d'accueil, sélectionner Accueil
+            if (!hasActiveItem &amp;&amp; (currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml'))) {
+                const accueilItem = document.querySelector('[data-menu-item="accueil"]');
+                if (accueilItem) {
+                    accueilItem.classList.add('active');
+                }
+            }
+        }
+        
+        // Fonction pour gérer les clics sur les items du menu
+        function setupMenuClickHandlers() {
+            const menuItems = document.querySelectorAll('.sidebar-menu-item');
+            menuItems.forEach(function(item) {
+                const link = item.querySelector('a') || item;
+                // Retirer les anciens listeners pour éviter les doublons
+                const newLink = link.cloneNode(true);
+                link.parentNode.replaceChild(newLink, link);
                 
-                // Gérer les clics pour ajouter la classe active
-                link.addEventListener('click', function() {
+                // Ajouter le nouveau listener
+                newLink.addEventListener('click', function() {
                     // Retirer active de tous les items
                     menuItems.forEach(function(menuItem) {
                         menuItem.classList.remove('active');
@@ -1630,15 +1700,51 @@
                     item.classList.add('active');
                 });
             });
-            
-            // Si aucun item n'est actif, sélectionner le premier par défaut
-            if (!hasActiveItem &amp;&amp; menuItems.length > 0) {
-                menuItems[0].classList.add('active');
-            }
-            
-            // Setup tooltips pour les items du menu
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateActiveMenuItem();
+            setupMenuClickHandlers();
             setupSidebarMenuTooltips();
         });
+        
+        // Mettre à jour après les mises à jour AJAX
+        if (typeof PrimeFaces !== 'undefined') {
+            PrimeFaces.ajax.addOnUpdate(function(data) {
+                setTimeout(function() {
+                    updateActiveMenuItem();
+                }, 100);
+            });
+            
+            // Écouter aussi les événements de navigation JSF
+            PrimeFaces.ajax.addOnComplete(function(xhr, status, args) {
+                setTimeout(function() {
+                    updateActiveMenuItem();
+                }, 150);
+            });
+        }
+        
+        // Mettre à jour lors des changements d'URL (navigation)
+        window.addEventListener('popstate', function() {
+            setTimeout(function() {
+                updateActiveMenuItem();
+            }, 100);
+        });
+        
+        // Observer les changements dans l'URL (pour JSF navigation)
+        let lastUrl = window.location.href;
+        setInterval(function() {
+            const currentUrl = window.location.href;
+            if (currentUrl !== lastUrl) {
+                lastUrl = currentUrl;
+                setTimeout(function() {
+                    updateActiveMenuItem();
+                }, 100);
+            }
+        }, 500);
+        
+        // Exposer la fonction globalement pour pouvoir l'appeler manuellement si nécessaire
+        window.updateActiveMenuItem = updateActiveMenuItem;
         
         function setupSidebarMenuTooltips() {
             const menuItems = document.querySelectorAll('.sidebar-menu-item');

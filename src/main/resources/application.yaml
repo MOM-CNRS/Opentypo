@@ -4,6 +4,8 @@ server:
     session:
       cookie:
         http-only: true
+        secure: ${COOKIE_SECURE:false}  # true en production avec HTTPS
+        same-site: strict
   compression:
     enabled: true
     mime-types: text/css,application/javascript,text/html,application/json

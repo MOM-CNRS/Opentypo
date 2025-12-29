@@ -1,4 +1,12 @@
 spring:
+  # Configuration CORS pour le développement local
+  web:
+    cors:
+      allowed-origins: http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/opentypo
