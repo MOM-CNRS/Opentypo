@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:opentypo}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        # Configuration Hibernate Envers pour l'audit
+        envers:
+          audit_table_suffix: _aud
+          revision_field_name: rev
+          revision_type_field_name: revtype
+          store_data_at_delete: true
+          default_schema: public
+        # Configuration pour les relations lazy
+        enable_lazy_load_no_trans: false
+
+logging:
+  level:
+    root: INFO
+    fr.cnrs.opentypo: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    jakarta.faces: INFO
+    org.joinfaces: INFO
+    org.primefaces: WARN
+  file:
+    path: ${LOG_PATH:/var/log/opentypo}
+    name: ${LOG_PATH:/var/log/opentypo}/opentypo.log
+

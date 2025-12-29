@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/opentypo
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        # Configuration Hibernate Envers pour l'audit
+        envers:
+          audit_table_suffix: _aud
+          revision_field_name: rev
+          revision_type_field_name: revtype
+          store_data_at_delete: true
+          default_schema: public
+        # Configuration pour les relations lazy
+        enable_lazy_load_no_trans: true
+
+logging:
+  level:
+    root: INFO
+    fr.cnrs.opentypo: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    jakarta.faces: INFO
+    org.joinfaces: INFO
+    org.primefaces: WARN
+
