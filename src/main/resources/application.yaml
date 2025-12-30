@@ -23,6 +23,9 @@ logging:
   level:
     jakarta.faces: info
     org.joinfaces: info
+    org.flywaydb: DEBUG
+    org.springframework.boot.autoconfigure.flyway: DEBUG
+    fr.cnrs.opentypo.conf.FlywayDiagnostic: ERROR
 spring:
   application:
     name: OpenTypo
@@ -33,15 +36,12 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
-    enabled: true
-    drop-first: false
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         # Configuration Hibernate Envers pour l'audit
         envers:
@@ -52,6 +52,15 @@ spring:
           default_schema: public
         # Configuration pour les relations lazy
         enable_lazy_load_no_trans: true
+  flyway:
+    enabled: false  # Désactivé pour être géré manuellement après Hibernate
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    schemas: public
+    validate-on-migrate: true
+    clean-disabled: true
+    out-of-order: false
   main:
     allow-bean-definition-overriding: true
 

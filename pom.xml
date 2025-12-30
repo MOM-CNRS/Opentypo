@@ -83,10 +83,14 @@
             <artifactId>hibernate-envers</artifactId>
         </dependency>
 
-        <!-- Liquibase pour la gestion des migrations de base de données -->
+        <!-- Flyway pour la gestion des migrations de base de données -->
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
         <dependency>
