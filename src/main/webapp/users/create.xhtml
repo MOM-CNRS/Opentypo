@@ -12,7 +12,7 @@
                 <div class="users-header-content">
                     <div>
                         <h1 class="users-title">
-                            <i class="pi pi-#{userManagementBean.editMode ? 'pencil' : 'plus-circle'} users-title-icon"></i>
+                            <i class="pi pi-#{userManagementBean.editMode ? 'pencil' : 'plus-circle'} users-title-icon" />
                             #{userManagementBean.editMode ? 'Modifier' : 'Créer'} un utilisateur
                         </h1>
                         <p class="users-subtitle">#{userManagementBean.editMode ? 'Modifiez les informations de l\'utilisateur' : 'Ajoutez un nouvel utilisateur à l\'application'}</p>
@@ -33,46 +33,45 @@
                     <p:panel header="Informations de l'utilisateur" styleClass="users-form-panel">
                         <div class="users-form-grid">
                             <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="username" value="Nom d'utilisateur *" />
-                                <p:inputText id="username" 
-                                           value="#{userManagementBean.newUser.username}"
-                                           required="true"
-                                           requiredMessage="Le nom d'utilisateur est requis"
-                                           disabled="#{userManagementBean.editMode}"
-                                           styleClass="users-input"/>
-                            </div>
-
-                            <div class="users-form-group users-form-group-full">
                                 <p:outputLabel for="email" value="Email *" />
                                 <p:inputText id="email" 
                                            value="#{userManagementBean.newUser.email}"
                                            required="true"
                                            requiredMessage="L'email est requis"
+                                           disabled="#{userManagementBean.editMode}"
                                            styleClass="users-input"/>
+                                <p:message for="email" />
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="firstName" value="Prénom" />
+                                <p:outputLabel for="firstName" value="Prénom *" />
                                 <p:inputText id="firstName" 
                                            value="#{userManagementBean.newUser.firstName}"
+                                           required="true"
+                                           requiredMessage="Le prénom est requis"
                                            styleClass="users-input"/>
+                                <p:message for="firstName" />
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="lastName" value="Nom" />
+                                <p:outputLabel for="lastName" value="Nom *" />
                                 <p:inputText id="lastName" 
                                            value="#{userManagementBean.newUser.lastName}"
+                                           required="true"
+                                           requiredMessage="Le nom est requis"
                                            styleClass="users-input"/>
+                                <p:message for="lastName" />
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'}" />
+                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'} " />
                                 <p:password id="password" 
                                          value="#{userManagementBean.newUser.password}"
                                          required="#{!userManagementBean.editMode}"
                                          requiredMessage="Le mot de passe est requis"
                                          feedback="false"
                                          styleClass="users-input"/>
+                                <p:message for="password" />
                             </div>
 
                             <div class="users-form-group">
@@ -87,15 +86,7 @@
                                     <f:selectItem itemLabel="Éditeur" itemValue="EDITOR"/>
                                     <f:selectItem itemLabel="Lecteur" itemValue="VIEWER"/>
                                 </p:selectOneMenu>
-                            </div>
-
-                            <div class="users-form-group users-form-group-full">
-                                <div class="users-checkbox-wrapper">
-                                    <p:selectBooleanCheckbox id="active" 
-                                                           value="#{userManagementBean.newUser.active}"
-                                                           styleClass="users-checkbox"/>
-                                    <p:outputLabel for="active" value="Utilisateur actif" />
-                                </div>
+                                <p:message for="role" />
                             </div>
                         </div>
                     </p:panel>

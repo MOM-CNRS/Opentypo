@@ -22,7 +22,7 @@ SELECT
     'Administrateur' as nom,
     'Système' as prenom,
     'admin' as email,
-    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy' as password_hash,
+    '$2a$10$hd6imws1NiYhSIe6JVeyqu8qS6Uz/gbsvKB0OOuQaN02mObbli1H.' as password_hash,
     g.id as groupe_id,
     CURRENT_TIMESTAMP as create_date,
     'SYSTEM' as create_by

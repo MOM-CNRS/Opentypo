@@ -1,13 +1,16 @@
 package fr.cnrs.opentypo.bean;
 
+import fr.cnrs.opentypo.entity.Utilisateur;
+import fr.cnrs.opentypo.service.UtilisateurService;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.PrimeFaces;
+
+import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +20,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 
 @Named("loginBean")
 @SessionScoped
@@ -28,9 +34,17 @@ public class LoginBean implements Serializable {
     @Inject
     private UserBean userBean;
 
-    private String username;
+    @Inject
+    private UtilisateurService utilisateurService;
+    
+    @Inject
+    private NotificationBean notificationBean;
+
+    private String username; // Email de l'utilisateur
     private String password;
     private boolean authenticated = false;
+    private Utilisateur currentUser; // Utilisateur actuellement connecté
+
 
     public void openLoginDialog() {
         PrimeFaces.current().executeScript("PF('loginDialog').show();");
@@ -39,33 +53,52 @@ public class LoginBean implements Serializable {
     public void login() {
         // Validation des champs
         if (username == null || username.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage("loginForm:username",
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Champ requis",
-                    "Veuillez saisir votre nom d'utilisateur."));
-            PrimeFaces.current().ajax().update(":loginForm:loginMessages");
+            notificationBean.showErrorWithUpdate("Champ requis",
+                "Veuillez saisir votre email.",
+                ":loginForm:loginMessages");
             return;
         }
         
         if (password == null || password.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage("loginForm:password",
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Champ requis",
-                    "Veuillez saisir votre mot de passe."));
-            PrimeFaces.current().ajax().update(":loginForm:loginMessages");
+            notificationBean.showErrorWithUpdate("Champ requis",
+                "Veuillez saisir votre mot de passe.",
+                ":loginForm:loginMessages");
             return;
         }
         
-        // Authentification
-        if ("admin".equals(username.trim()) && "admin".equals(password)) {
+        // Authentification via le service
+        Optional<Utilisateur> utilisateurOpt = utilisateurService.authenticate(username.trim(), password);
+        
+        if (utilisateurOpt.isPresent()) {
+            Utilisateur utilisateur = utilisateurOpt.get();
+            currentUser = utilisateur;
             authenticated = true;
-            userBean.setUsername(username.trim());
+            
+            // Définir le nom d'utilisateur pour l'affichage (nom complet)
+            String displayName = utilisateur.getPrenom() + " " + utilisateur.getNom();
+            userBean.setUsername(displayName);
+            
+            // Construire les rôles basés sur le groupe de l'utilisateur
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            
+            // Ajouter un rôle spécifique basé sur le groupe
+            if (utilisateur.getGroupe() != null) {
+                String groupeNom = utilisateur.getGroupe().getNom();
+                if ("Administrateur".equalsIgnoreCase(groupeNom)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                } else if ("Éditeur".equalsIgnoreCase(groupeNom)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
+                } else if ("Lecteur".equalsIgnoreCase(groupeNom)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_READER"));
+                }
+            }
             
             // Créer une authentification Spring Security
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                username.trim(),
+                utilisateur.getEmail(),
                 null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                authorities
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
@@ -76,21 +109,17 @@ public class LoginBean implements Serializable {
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
             
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Connexion réussie",
-                    "Bienvenue dans votre espace de recherche, " + username.trim() + "."));
-            
-            PrimeFaces.current().ajax().update(":growl, :headerForm, :sidebarForm");
+            notificationBean.showSuccessWithUpdate("Connexion réussie",
+                "Bienvenue dans votre espace de recherche, " + displayName + ".",
+                ":growl, :headerForm, :sidebarForm");
             
             // Réinitialiser les champs
             username = null;
             password = null;
         } else {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Échec de l'authentification",
-                    "Les identifiants saisis sont incorrects. Veuillez réessayer."));
+            notificationBean.showErrorWithUpdate("Échec de l'authentification",
+                "Les identifiants saisis sont incorrects. Veuillez réessayer.",
+                ":loginForm:loginMessages");
             
             // Réinitialiser le mot de passe pour sécurité
             password = null;
@@ -98,34 +127,89 @@ public class LoginBean implements Serializable {
         }
     }
 
-    public void logout() {
+    public String logout() {
         String previousUser = userBean.getUsername();
         authenticated = false;
+        currentUser = null;
         userBean.setUsername(null);
         
         // Nettoyer l'authentification Spring Security
         SecurityContextHolder.clearContext();
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-            .getExternalContext().getRequest();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+            session.invalidate();
         }
         
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Déconnexion",
-                previousUser != null 
-                    ? "Au revoir, " + previousUser + ". Vous avez été déconnecté avec succès."
-                    : "Vous avez été déconnecté avec succès."));
+        // Vérifier si on est déjà sur index.xhtml
+        String viewId = facesContext.getViewRoot().getViewId();
+        boolean isOnIndexPage = viewId != null && viewId.contains("/index.xhtml");
         
+        // Afficher le message de déconnexion
+        notificationBean.showInfo("Déconnexion",
+            previousUser != null 
+                ? "Au revoir, " + previousUser + ". Vous avez été déconnecté avec succès."
+                : "Vous avez été déconnecté avec succès.");
+        
+        // Si on n'est pas déjà sur index.xhtml, rediriger
+        if (!isOnIndexPage) {
+            try {
+                // Rediriger vers index.xhtml
+                String redirectUrl = request.getContextPath() + "/index.xhtml?logout=true";
+                facesContext.getExternalContext().redirect(redirectUrl);
+                facesContext.responseComplete();
+            } catch (IOException e) {
+                // En cas d'erreur, retourner la navigation JSF
+                return "index?faces-redirect=true&logout=true";
+            }
+        }
+        
+        // Si on est déjà sur index.xhtml, juste mettre à jour les composants
         PrimeFaces.current().ajax().update(":growl, :headerForm, :sidebarForm");
+        
+        return null; // Rester sur la page actuelle si déjà sur index.xhtml
     }
 
     public String getUserDisplayName() {
+        if (authenticated && currentUser != null) {
+            return currentUser.getPrenom() + " " + currentUser.getNom();
+        }
         return authenticated && userBean.getUsername() != null 
             ? userBean.getUsername() 
             : "Non connecté";
+    }
+
+    /**
+     * Retourne l'utilisateur actuellement connecté
+     * 
+     * @return L'utilisateur connecté ou null
+     */
+    public Utilisateur getCurrentUser() {
+        return currentUser;
+    }
+
+    /**
+     * Vérifie si l'utilisateur actuel est un administrateur
+     * 
+     * @return true si l'utilisateur est administrateur, false sinon
+     */
+    public boolean isAdmin() {
+        return currentUser != null 
+            && currentUser.getGroupe() != null 
+            && "Administrateur".equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    /**
+     * Vérifie si l'utilisateur actuel est un éditeur
+     * 
+     * @return true si l'utilisateur est éditeur, false sinon
+     */
+    public boolean isEditor() {
+        return currentUser != null 
+            && currentUser.getGroupe() != null 
+            && "Éditeur".equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 }
 

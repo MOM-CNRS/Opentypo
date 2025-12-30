@@ -5762,7 +5762,6 @@ body .referentiel-card a {
 .users-datatable .ui-datatable-data > tr > td {
     padding: 0.5rem 0.5rem;
     border: none;
-    border-right: 1px solid #f0f0f0;
     vertical-align: middle;
     font-size: 0.9375rem;
     color: var(--color-text-primary, #333);

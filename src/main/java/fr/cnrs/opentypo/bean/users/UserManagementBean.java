@@ -1,9 +1,13 @@
 package fr.cnrs.opentypo.bean.users;
 
+import fr.cnrs.opentypo.bean.NotificationBean;
+import fr.cnrs.opentypo.entity.Groupe;
+import fr.cnrs.opentypo.entity.Utilisateur;
+import fr.cnrs.opentypo.repository.GroupeRepository;
+import fr.cnrs.opentypo.repository.UtilisateurRepository;
+import fr.cnrs.opentypo.service.UtilisateurService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
@@ -14,6 +18,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Named("userManagementBean")
 @SessionScoped
@@ -23,6 +29,18 @@ public class UserManagementBean implements Serializable {
 
     @Inject
     private fr.cnrs.opentypo.bean.UserBean currentUserBean;
+
+    @Inject
+    private UtilisateurRepository utilisateurRepository;
+
+    @Inject
+    private GroupeRepository groupeRepository;
+
+    @Inject
+    private UtilisateurService utilisateurService;
+
+    @Inject
+    private NotificationBean notificationBean;
 
     private List<User> users = new ArrayList<>();
     private User selectedUser;
@@ -35,16 +53,14 @@ public class UserManagementBean implements Serializable {
     }
 
     public void chargerUsers() {
-        // Données d'exemple - à remplacer par un service réel
-        if (users.isEmpty()) {
-            users.add(new User(1L, "admin", "admin@example.com", "admin", "Admin", "User", 
-                User.Role.ADMIN, true, LocalDateTime.now().minusDays(30), null, "system"));
-            
-            users.add(new User(2L, "editor1", "editor1@example.com", "editor", "Editor", "One", 
-                User.Role.EDITOR, true, LocalDateTime.now().minusDays(15), null, "admin"));
-            
-            users.add(new User(3L, "viewer1", "viewer1@example.com", "viewer", "Viewer", "One", 
-                User.Role.VIEWER, true, LocalDateTime.now().minusDays(7), null, "admin"));
+        try {
+            List<Utilisateur> utilisateurs = utilisateurRepository.findAll();
+            users = utilisateurs.stream()
+                .map(this::convertToUser)
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            users = new ArrayList<>();
+            notificationBean.showError("Erreur", "Erreur lors du chargement des utilisateurs : " + e.getMessage());
         }
     }
 
@@ -55,12 +71,9 @@ public class UserManagementBean implements Serializable {
             if (userIdParam != null && !userIdParam.isEmpty()) {
                 try {
                     Long userId = Long.parseLong(userIdParam);
-                    User userToEdit = users.stream()
-                        .filter(u -> u.getId().equals(userId))
-                        .findFirst()
-                        .orElse(null);
-                    if (userToEdit != null) {
-                        initEditUser(userToEdit);
+                    Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(userId);
+                    if (utilisateurOpt.isPresent()) {
+                        initEditUser(convertToUser(utilisateurOpt.get()));
                         return;
                     }
                 } catch (NumberFormatException e) {
@@ -69,7 +82,7 @@ public class UserManagementBean implements Serializable {
             }
         }
         newUser = new User();
-        newUser.setCreatedBy(currentUserBean.getUsername());
+        newUser.setCreatedBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
         newUser.setActive(true);
         newUser.setRole(User.Role.VIEWER);
         isEditMode = false;
@@ -80,7 +93,7 @@ public class UserManagementBean implements Serializable {
         newUser.setId(user.getId());
         newUser.setUsername(user.getUsername());
         newUser.setEmail(user.getEmail());
-        newUser.setPassword(user.getPassword());
+        newUser.setPassword(""); // Ne pas afficher le mot de passe
         newUser.setFirstName(user.getFirstName());
         newUser.setLastName(user.getLastName());
         newUser.setRole(user.getRole());
@@ -91,94 +104,172 @@ public class UserManagementBean implements Serializable {
     }
 
     public void sauvegarderUser() {
-        if (newUser.getUsername() == null || newUser.getUsername().trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Le nom d'utilisateur est requis."));
-            PrimeFaces.current().ajax().update(":growl, :userForm");
-            return;
-        }
-
+        // Validation
         if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "L'email est requis."));
-            PrimeFaces.current().ajax().update(":growl, :userForm");
+            notificationBean.showErrorWithUpdate("Erreur", "L'email est requis.", ":growl, :userForm");
             return;
         }
 
-        if (!isEditMode) {
-            // Vérifier si l'utilisateur existe déjà
-            boolean exists = users.stream()
-                .anyMatch(u -> u.getUsername().equals(newUser.getUsername()));
+        if (newUser.getFirstName() == null || newUser.getFirstName().trim().isEmpty()) {
+            notificationBean.showErrorWithUpdate("Erreur", "Le prénom est requis.", ":growl, :userForm");
+            return;
+        }
+
+        if (newUser.getLastName() == null || newUser.getLastName().trim().isEmpty()) {
+            notificationBean.showErrorWithUpdate("Erreur", "Le nom est requis.", ":growl, :userForm");
+            return;
+        }
+
+        if (newUser.getRole() == null) {
+            notificationBean.showErrorWithUpdate("Erreur", "Le rôle est requis.", ":growl, :userForm");
+            return;
+        }
+
+        try {
+            // Récupérer le groupe correspondant au rôle
+            String groupeNom = getGroupeNomFromRole(newUser.getRole());
+            Optional<Groupe> groupeOpt = groupeRepository.findByNom(groupeNom);
             
-            if (exists) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Un utilisateur avec ce nom existe déjà."));
-                PrimeFaces.current().ajax().update(":growl, :userForm");
+            if (groupeOpt.isEmpty()) {
+                notificationBean.showErrorWithUpdate("Erreur", 
+                    "Le groupe '" + groupeNom + "' n'existe pas dans la base de données.", 
+                    ":growl, :userForm");
                 return;
             }
 
-            // Nouveau user
-            Long nouveauId = users.stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0L) + 1;
-            newUser.setId(nouveauId);
-            newUser.setDateCreation(LocalDateTime.now());
-            users.add(newUser);
-            
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "L'utilisateur a été créé avec succès."));
-        } else {
-            // Modification
-            User existingUser = users.stream()
-                .filter(u -> u.getId().equals(newUser.getId()))
-                .findFirst()
-                .orElse(null);
-            
-            if (existingUser != null) {
-                existingUser.setEmail(newUser.getEmail());
-                existingUser.setPassword(newUser.getPassword());
-                existingUser.setFirstName(newUser.getFirstName());
-                existingUser.setLastName(newUser.getLastName());
-                existingUser.setRole(newUser.getRole());
-                existingUser.setActive(newUser.isActive());
-                existingUser.setDateModification(LocalDateTime.now());
+            Groupe groupe = groupeOpt.get();
+
+            if (!isEditMode) {
+                // Création d'un nouvel utilisateur
+                if (utilisateurRepository.existsByEmail(newUser.getEmail().trim())) {
+                    notificationBean.showErrorWithUpdate("Erreur", 
+                        "Un utilisateur avec cet email existe déjà.", 
+                        ":growl, :userForm");
+                    return;
+                }
+
+                if (newUser.getPassword() == null || newUser.getPassword().trim().isEmpty()) {
+                    notificationBean.showErrorWithUpdate("Erreur", 
+                        "Le mot de passe est requis pour un nouvel utilisateur.", 
+                        ":growl, :userForm");
+                    return;
+                }
+
+                // Créer l'entité Utilisateur
+                Utilisateur utilisateur = new Utilisateur();
+                utilisateur.setNom(newUser.getLastName().trim());
+                utilisateur.setPrenom(newUser.getFirstName().trim());
+                utilisateur.setEmail(newUser.getEmail().trim());
+                utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPassword()));
+                utilisateur.setGroupe(groupe);
+                utilisateur.setCreateBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
+                utilisateur.setCreateDate(LocalDateTime.now());
+
+                utilisateurRepository.save(utilisateur);
+                notificationBean.showSuccessWithUpdate("Succès", 
+                    "L'utilisateur a été créé avec succès.", 
+                    ":growl, :userForm");
+            } else {
+                // Modification d'un utilisateur existant
+                Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(newUser.getId());
+                
+                if (utilisateurOpt.isEmpty()) {
+                    notificationBean.showErrorWithUpdate("Erreur", 
+                        "L'utilisateur à modifier n'existe pas.", 
+                        ":growl, :userForm");
+                    return;
+                }
+
+                Utilisateur utilisateur = utilisateurOpt.get();
+
+                // Vérifier si l'email est unique (sauf pour l'utilisateur actuel)
+                if (!utilisateur.getEmail().equals(newUser.getEmail().trim())) {
+                    if (utilisateurRepository.existsByEmail(newUser.getEmail().trim())) {
+                        notificationBean.showErrorWithUpdate("Erreur", 
+                            "Un utilisateur avec cet email existe déjà.", 
+                            ":growl, :userForm");
+                        return;
+                    }
+                }
+
+                // Mettre à jour les champs
+                utilisateur.setNom(newUser.getLastName().trim());
+                utilisateur.setPrenom(newUser.getFirstName().trim());
+                utilisateur.setEmail(newUser.getEmail().trim());
+                utilisateur.setGroupe(groupe);
+
+                // Mettre à jour le mot de passe seulement si un nouveau mot de passe est fourni
+                if (newUser.getPassword() != null && !newUser.getPassword().trim().isEmpty()) {
+                    utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPassword()));
+                }
+
+                utilisateurRepository.save(utilisateur);
+                notificationBean.showSuccessWithUpdate("Succès", 
+                    "L'utilisateur a été modifié avec succès.", 
+                    ":growl, :userForm");
             }
-            
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "L'utilisateur a été modifié avec succès."));
+
+            // Recharger la liste des utilisateurs
+            chargerUsers();
+
+            // Rediriger vers la liste après un court délai pour permettre l'affichage du message
+            PrimeFaces.current().executeScript("setTimeout(function() { window.location.href='/users/users.xhtml'; }, 1500);");
+
+        } catch (Exception e) {
+            notificationBean.showErrorWithUpdate("Erreur", 
+                "Une erreur s'est produite lors de la sauvegarde : " + e.getMessage(), 
+                ":growl, :userForm");
         }
-        
-        PrimeFaces.current().ajax().update(":growl, :usersForm");
-        PrimeFaces.current().executeScript("window.location.href='/users/users.xhtml';");
     }
 
     public void supprimerUser(User user) {
-        users.remove(user);
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "L'utilisateur a été supprimé."));
+        if (user == null || user.getId() == null) {
+            notificationBean.showErrorWithUpdate("Erreur", "Aucun utilisateur sélectionné pour la suppression.", ":growl, :usersForm");
+            return;
+        }
+
+        try {
+            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(user.getId());
+            if (utilisateurOpt.isPresent()) {
+                Utilisateur utilisateur = utilisateurOpt.get();
+                
+                // Vérifier si l'utilisateur n'est pas l'utilisateur actuellement connecté
+                if (currentUserBean.getUsername() != null && 
+                    utilisateur.getEmail().equals(currentUserBean.getUsername())) {
+                    notificationBean.showErrorWithUpdate("Erreur", 
+                        "Vous ne pouvez pas supprimer votre propre compte.", 
+                        ":growl, :usersForm");
+                    return;
+                }
+
+                utilisateurRepository.delete(utilisateur);
+                notificationBean.showSuccessWithUpdate("Succès", 
+                    "L'utilisateur " + utilisateur.getPrenom() + " " + utilisateur.getNom() + " a été supprimé avec succès.", 
+                    ":growl, :usersForm");
+                
+                // Recharger la liste des utilisateurs
+                chargerUsers();
+            } else {
+                notificationBean.showErrorWithUpdate("Erreur", 
+                    "L'utilisateur à supprimer n'existe pas.", 
+                    ":growl, :usersForm");
+            }
+        } catch (Exception e) {
+            notificationBean.showErrorWithUpdate("Erreur", 
+                "Erreur lors de la suppression : " + e.getMessage(), 
+                ":growl, :usersForm");
+        }
         PrimeFaces.current().ajax().update(":growl, :usersForm");
     }
 
     public void toggleUserActive(User user) {
-        user.setActive(!user.isActive());
-        user.setDateModification(LocalDateTime.now());
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "Le statut de l'utilisateur a été modifié."));
+        // Note: L'entité Utilisateur n'a pas de champ "active" pour l'instant
+        // Cette fonctionnalité peut être ajoutée plus tard si nécessaire
+        // Pour l'instant, on peut désactiver un utilisateur en le supprimant ou en changeant son groupe
+        notificationBean.showInfoWithUpdate("Information", 
+            "La fonctionnalité d'activation/désactivation n'est pas encore implémentée. " +
+            "Vous pouvez modifier le rôle de l'utilisateur ou le supprimer si nécessaire.", 
+            ":growl, :usersForm");
         PrimeFaces.current().ajax().update(":growl, :usersForm");
     }
 
@@ -191,5 +282,58 @@ public class UserManagementBean implements Serializable {
             default: return role.toString();
         }
     }
-}
 
+    /**
+     * Convertit une entité Utilisateur en DTO User
+     */
+    private User convertToUser(Utilisateur utilisateur) {
+        if (utilisateur == null) {
+            return null;
+        }
+        User user = new User();
+        user.setId(utilisateur.getId());
+        user.setEmail(utilisateur.getEmail() != null ? utilisateur.getEmail() : "");
+        user.setUsername(utilisateur.getEmail() != null ? utilisateur.getEmail() : ""); // Utiliser l'email comme username
+        user.setFirstName(utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
+        user.setLastName(utilisateur.getNom() != null ? utilisateur.getNom() : "");
+        user.setPassword(""); // Ne pas exposer le mot de passe
+        user.setRole(getRoleFromGroupe(utilisateur.getGroupe()));
+        user.setActive(true); // Par défaut, tous les utilisateurs sont actifs (pas de champ dans l'entité)
+        user.setDateCreation(utilisateur.getCreateDate());
+        user.setCreatedBy(utilisateur.getCreateBy() != null ? utilisateur.getCreateBy() : "SYSTEM");
+        return user;
+    }
+
+    /**
+     * Convertit un rôle User.Role en nom de groupe
+     */
+    private String getGroupeNomFromRole(User.Role role) {
+        if (role == null) return "Lecteur";
+        switch (role) {
+            case ADMIN: return "Administrateur";
+            case EDITOR: return "Éditeur";
+            case VIEWER: return "Lecteur";
+            default: return "Lecteur";
+        }
+    }
+
+    /**
+     * Convertit un groupe en rôle User.Role
+     */
+    private User.Role getRoleFromGroupe(Groupe groupe) {
+        if (groupe == null || groupe.getNom() == null) return User.Role.VIEWER;
+        String nom = groupe.getNom();
+        if ("Administrateur".equalsIgnoreCase(nom)) {
+            return User.Role.ADMIN;
+        } else if ("Éditeur".equalsIgnoreCase(nom)) {
+            return User.Role.EDITOR;
+        } else {
+            return User.Role.VIEWER;
+        }
+    }
+
+    // Getter pour editMode (pour compatibilité avec la vue)
+    public boolean isEditMode() {
+        return isEditMode;
+    }
+}
