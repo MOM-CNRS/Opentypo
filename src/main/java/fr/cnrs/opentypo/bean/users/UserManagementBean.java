@@ -6,6 +6,7 @@ import fr.cnrs.opentypo.entity.Utilisateur;
 import fr.cnrs.opentypo.repository.GroupeRepository;
 import fr.cnrs.opentypo.repository.UtilisateurRepository;
 import fr.cnrs.opentypo.service.UtilisateurService;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -31,6 +32,9 @@ public class UserManagementBean implements Serializable {
     private fr.cnrs.opentypo.bean.UserBean currentUserBean;
 
     @Inject
+    private fr.cnrs.opentypo.bean.LoginBean loginBean;
+
+    @Inject
     private UtilisateurRepository utilisateurRepository;
 
     @Inject
@@ -46,10 +50,37 @@ public class UserManagementBean implements Serializable {
     private User selectedUser;
     private User newUser;
     private boolean isEditMode = false;
+    private List<Groupe> availableGroups = new ArrayList<>(); // Liste des groupes disponibles depuis la base
+    private Long selectedGroupeId; // ID du groupe sélectionné dans le formulaire
 
     @PostConstruct
     public void init() {
         chargerUsers();
+        chargerGroupes();
+    }
+
+    /**
+     * Charge la liste des groupes disponibles depuis la base de données
+     */
+    public void chargerGroupes() {
+        try {
+            availableGroups = groupeRepository.findAll();
+        } catch (Exception e) {
+            availableGroups = new ArrayList<>();
+            notificationBean.showError("Erreur", "Erreur lors du chargement des groupes : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Retourne la liste des groupes disponibles
+     * 
+     * @return Liste des groupes
+     */
+    public List<Groupe> getAvailableGroups() {
+        if (availableGroups.isEmpty()) {
+            chargerGroupes();
+        }
+        return availableGroups;
     }
 
     public void chargerUsers() {
@@ -85,7 +116,12 @@ public class UserManagementBean implements Serializable {
         newUser.setCreatedBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
         newUser.setActive(true);
         newUser.setRole(User.Role.VIEWER);
+        selectedGroupeId = null; // Réinitialiser la sélection du groupe
         isEditMode = false;
+        // S'assurer que les groupes sont chargés
+        if (availableGroups.isEmpty()) {
+            chargerGroupes();
+        }
     }
 
     public void initEditUser(User user) {
@@ -101,6 +137,21 @@ public class UserManagementBean implements Serializable {
         newUser.setDateCreation(user.getDateCreation());
         newUser.setCreatedBy(user.getCreatedBy());
         isEditMode = true;
+        // S'assurer que les groupes sont chargés
+        if (availableGroups.isEmpty()) {
+            chargerGroupes();
+        }
+        // Charger le groupe actuel de l'utilisateur pour la modification
+        try {
+            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(user.getId());
+            if (utilisateurOpt.isPresent() && utilisateurOpt.get().getGroupe() != null) {
+                selectedGroupeId = utilisateurOpt.get().getGroupe().getId();
+            } else {
+                selectedGroupeId = null;
+            }
+        } catch (Exception e) {
+            selectedGroupeId = null;
+        }
     }
 
     public void sauvegarderUser() {
@@ -120,19 +171,18 @@ public class UserManagementBean implements Serializable {
             return;
         }
 
-        if (newUser.getRole() == null) {
-            notificationBean.showErrorWithUpdate("Erreur", "Le rôle est requis.", ":growl, :userForm");
+        if (selectedGroupeId == null) {
+            notificationBean.showErrorWithUpdate("Erreur", "Le groupe est requis.", ":growl, :userForm");
             return;
         }
 
         try {
-            // Récupérer le groupe correspondant au rôle
-            String groupeNom = getGroupeNomFromRole(newUser.getRole());
-            Optional<Groupe> groupeOpt = groupeRepository.findByNom(groupeNom);
+            // Récupérer le groupe sélectionné depuis la base de données
+            Optional<Groupe> groupeOpt = groupeRepository.findById(selectedGroupeId);
             
             if (groupeOpt.isEmpty()) {
                 notificationBean.showErrorWithUpdate("Erreur", 
-                    "Le groupe '" + groupeNom + "' n'existe pas dans la base de données.", 
+                    "Le groupe sélectionné n'existe pas dans la base de données.", 
                     ":growl, :userForm");
                 return;
             }

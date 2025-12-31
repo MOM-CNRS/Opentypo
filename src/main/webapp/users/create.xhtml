@@ -75,18 +75,19 @@
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="role" value="Rôle *" />
-                                <p:selectOneMenu id="role" 
-                                               value="#{userManagementBean.newUser.role}"
+                                <p:outputLabel for="groupe" value="Groupe *" />
+                                <p:selectOneMenu id="groupe" 
+                                               value="#{userManagementBean.selectedGroupeId}"
                                                required="true"
-                                               requiredMessage="Le rôle est requis"
+                                               requiredMessage="Le groupe est requis"
                                                styleClass="users-select">
-                                    <f:selectItem itemLabel="Sélectionner un rôle" itemValue=""/>
-                                    <f:selectItem itemLabel="Administrateur" itemValue="ADMIN"/>
-                                    <f:selectItem itemLabel="Éditeur" itemValue="EDITOR"/>
-                                    <f:selectItem itemLabel="Lecteur" itemValue="VIEWER"/>
+                                    <f:selectItem itemLabel="Sélectionner un groupe" itemValue=""/>
+                                    <f:selectItems value="#{userManagementBean.availableGroups}" 
+                                                 var="groupe" 
+                                                 itemLabel="#{groupe.nom}" 
+                                                 itemValue="#{groupe.id}"/>
                                 </p:selectOneMenu>
-                                <p:message for="role" />
+                                <p:message for="groupe" />
                             </div>
                         </div>
                     </p:panel>
