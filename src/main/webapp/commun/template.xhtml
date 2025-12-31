@@ -396,7 +396,7 @@
         }
 
         .candidats-datatable .ui-datatable-data > tr > td {
-            padding: 1rem !important;
+            padding: 0.5rem !important;
             border: 1px solid rgba(71, 98, 77, 0.1) !important;
         }
 
@@ -887,114 +887,416 @@
             box-shadow: 0 6px 16px rgba(71, 98, 77, 0.35) !important;
         }
 
-        .users-table-container {
+        /* Tableau moderne */
+        .users-table-wrapper {
             width: 100% !important;
-            overflow-x: auto !important;
             background: #ffffff !important;
-            border-radius: 12px !important;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-            border: 1px solid #e5e7eb !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+            border: 1px solid rgba(71, 98, 77, 0.1) !important;
             overflow: hidden !important;
         }
 
-        .users-datatable {
+        .modern-users-table {
             width: 100% !important;
             border: none !important;
             background: transparent !important;
         }
 
-        .users-datatable .ui-datatable-header {
-            background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
-            border: none !important;
-            border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+        .modern-users-table .ui-datatable-header {
+            display: none !important;
+        }
+
+        .modern-users-table .ui-datatable-thead > tr > th {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%) !important;
+            color: var(--color-action-main, #47624D) !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
             padding: 1.25rem 1.5rem !important;
-            font-size: 1.25rem !important;
-            font-weight: 700 !important;
-            color: var(--color-action-main, #47624D) !important;
-        }
-
-        .users-datatable .ui-datatable-thead > tr > th {
-            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
-            color: var(--color-action-main, #47624D) !important;
-            font-weight: 700 !important;
-            font-size: 0.9375rem !important;
-            padding: 1rem 1.25rem !important;
             border: none !important;
-            border-bottom: 2px solid var(--color-action-main, #47624D) !important;
-            border-right: 1px solid rgba(71, 98, 77, 0.1) !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.12) !important;
+            text-transform: none !important;
+            letter-spacing: 0.3px !important;
         }
 
-        .users-datatable .ui-datatable-data > tr {
-            transition: all 0.2s ease !important;
-            border-bottom: 1px solid #f0f0f0 !important;
+        .modern-users-table .ui-datatable-thead > tr > th:first-child {
+            padding-left: 2rem !important;
         }
 
-        .users-datatable .ui-datatable-data > tr:hover {
-            background: linear-gradient(90deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
-            transform: translateX(2px) !important;
+        .modern-users-table .ui-datatable-thead > tr > th:last-child {
+            padding-right: 2rem !important;
+            text-align: center !important;
         }
 
-        .users-datatable .ui-datatable-data > tr > td {
-            padding: 0.5rem 0.5rem !important;
+        .modern-users-table .ui-datatable-data > tr {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .modern-users-table .ui-datatable-data > tr:last-child {
+            border-bottom: none !important;
+        }
+
+        .modern-users-table .ui-datatable-data > tr:hover {
+            background: linear-gradient(90deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%) !important;
+        }
+
+        .modern-users-table .ui-datatable-data > tr > td {
             border: none !important;
             vertical-align: middle !important;
             font-size: 0.9375rem !important;
             color: var(--color-text-primary, #333) !important;
         }
 
-        .users-actions {
+        .modern-users-table .ui-datatable-data > tr > td:first-child {
+            padding-left: 1rem !important;
+        }
+
+        .modern-users-table .ui-datatable-data > tr > td:last-child {
+            padding-right: 1rem !important;
+        }
+
+        /* Cellule utilisateur */
+        .user-info-cell {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+        }
+
+        .user-avatar {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #ffffff !important;
+            font-size: 1.25rem !important;
+            flex-shrink: 0 !important;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.2) !important;
+        }
+
+        .user-details {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.25rem !important;
+            min-width: 0 !important;
+        }
+
+        .user-name {
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            color: var(--color-text-primary, #333) !important;
+            line-height: 1.4 !important;
+        }
+
+        .user-email {
+            font-size: 0.875rem !important;
+            color: var(--color-text-secondary, #819A91) !important;
+            line-height: 1.4 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        /* Badges */
+        .role-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 20px !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.3px !important;
+            text-transform: uppercase !important;
+        }
+
+        .role-badge-admin {
+            background: linear-gradient(135deg, rgba(184, 74, 60, 0.15) 0%, rgba(184, 74, 60, 0.1) 100%) !important;
+            color: var(--color-danger, #B84A3C) !important;
+            border: 1px solid rgba(184, 74, 60, 0.2) !important;
+        }
+
+        .role-badge-editor {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%) !important;
+            color: #d68910 !important;
+            border: 1px solid rgba(255, 193, 7, 0.2) !important;
+        }
+
+        .role-badge-viewer {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.1) 100%) !important;
+            color: var(--color-action-main, #47624D) !important;
+            border: 1px solid rgba(71, 98, 77, 0.2) !important;
+        }
+
+        .status-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 20px !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.3px !important;
+        }
+
+        .status-badge i {
+            font-size: 0.875rem !important;
+        }
+
+        .status-badge-active {
+            background: linear-gradient(135deg, rgba(28, 200, 138, 0.15) 0%, rgba(28, 200, 138, 0.1) 100%) !important;
+            color: #1cc88a !important;
+            border: 1px solid rgba(28, 200, 138, 0.2) !important;
+        }
+
+        .status-badge-inactive {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.1) 100%) !important;
+            color: #6c757d !important;
+            border: 1px solid rgba(108, 117, 125, 0.2) !important;
+        }
+
+        .date-cell {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            color: var(--color-text-secondary, #819A91) !important;
+            font-size: 0.875rem !important;
+        }
+
+        .date-cell i {
+            font-size: 0.875rem !important;
+            color: var(--color-action-main, #47624D) !important;
+            opacity: 0.6 !important;
+        }
+
+        /* Actions */
+        .users-actions-modern {
             display: flex !important;
             gap: 0.5rem !important;
             align-items: center !important;
             justify-content: center !important;
-            flex-wrap: wrap !important;
         }
 
-        .users-action-btn {
+        .action-btn {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            padding: 0 !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 1.5px solid transparent !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            background: transparent !important;
+        }
+
+        .action-btn i {
+            font-size: 1rem !important;
+        }
+
+        .action-edit {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+            color: var(--color-action-main, #47624D) !important;
+            border-color: rgba(71, 98, 77, 0.2) !important;
+        }
+
+        .action-edit:hover {
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+            color: #ffffff !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+        }
+
+        .action-delete {
+            background: linear-gradient(135deg, rgba(184, 74, 60, 0.1) 0%, rgba(184, 74, 60, 0.06) 100%) !important;
+            color: var(--color-danger, #B84A3C) !important;
+            border-color: rgba(184, 74, 60, 0.2) !important;
+        }
+
+        .action-delete:hover {
+            background: linear-gradient(135deg, var(--color-danger, #B84A3C) 0%, rgba(184, 74, 60, 0.9) 100%) !important;
+            color: #ffffff !important;
+            border-color: var(--color-danger, #B84A3C) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(184, 74, 60, 0.3) !important;
+        }
+
+        /* ============================================
+           PAGINATION FORMEL, SIMPLE ET ERGONOMIQUE
+           Design épuré et professionnel
+           ============================================ */
+        .modern-users-table .ui-paginator-top {
+            display: none !important;
+        }
+
+        .modern-users-table .ui-paginator {
+            background: #ffffff !important;
+            border: none !important;
+            border-top: 1px solid #e5e7eb !important;
+            padding: 1.25rem 2rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+            gap: 1.5rem !important;
+            font-family: 'Roboto', 'Segoe UI', sans-serif !important;
+        }
+
+        /* Dropdown lignes par page - Style minimaliste */
+        .modern-users-table .ui-paginator .ui-paginator-rpp-options {
+            padding: 0.625rem 1.25rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            background: #ffffff !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.875rem !important;
+            font-weight: 400 !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            min-width: 80px !important;
+        }
+
+        .modern-users-table .ui-paginator .ui-paginator-rpp-options:hover {
+            border-color: var(--color-action-main, #47624D) !important;
+            background: #fafafa !important;
+        }
+
+        .modern-users-table .ui-paginator .ui-paginator-rpp-options:focus {
+            border-color: var(--color-action-main, #47624D) !important;
+            outline: 2px solid rgba(71, 98, 77, 0.2) !important;
+            outline-offset: 2px !important;
+        }
+
+        /* Boutons de navigation - Style sobre */
+        .modern-users-table .ui-paginator .ui-paginator-prev,
+        .modern-users-table .ui-paginator .ui-paginator-next,
+        .modern-users-table .ui-paginator .ui-paginator-first,
+        .modern-users-table .ui-paginator .ui-paginator-last {
             width: 36px !important;
             height: 36px !important;
             min-width: 36px !important;
             padding: 0 !important;
-            border-radius: 8px !important;
+            border-radius: 6px !important;
+            border: 1px solid #d1d5db !important;
+            background: #ffffff !important;
+            color: #6b7280 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border: 1.5px solid transparent !important;
+            transition: all 0.2s ease !important;
             cursor: pointer !important;
+            font-size: 0.8125rem !important;
         }
 
-        .users-edit-btn,
-        a.users-edit-btn {
-            background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
-            color: var(--color-action-main, #47624D) !important;
-            border-color: rgba(71, 98, 77, 0.25) !important;
-            text-decoration: none !important;
-        }
-
-        .users-edit-btn:hover,
-        a.users-edit-btn:hover {
-            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+        .modern-users-table .ui-paginator .ui-paginator-prev:hover,
+        .modern-users-table .ui-paginator .ui-paginator-next:hover,
+        .modern-users-table .ui-paginator .ui-paginator-first:hover,
+        .modern-users-table .ui-paginator .ui-paginator-last:hover {
+            background: var(--color-action-main, #47624D) !important;
             color: #ffffff !important;
             border-color: var(--color-action-main, #47624D) !important;
-            transform: translateY(-2px) scale(1.05) !important;
-            box-shadow: 0 4px 10px rgba(71, 98, 77, 0.3) !important;
         }
 
-        .users-toggle-btn {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%) !important;
-            color: #f57c00 !important;
-            border-color: rgba(255, 193, 7, 0.3) !important;
+        .modern-users-table .ui-paginator .ui-paginator-prev.ui-state-disabled,
+        .modern-users-table .ui-paginator .ui-paginator-next.ui-state-disabled,
+        .modern-users-table .ui-paginator .ui-paginator-first.ui-state-disabled,
+        .modern-users-table .ui-paginator .ui-paginator-last.ui-state-disabled {
+            opacity: 0.35 !important;
+            cursor: not-allowed !important;
+            background: #f9fafb !important;
+            color: #d1d5db !important;
+            border-color: #e5e7eb !important;
         }
 
-        .users-toggle-btn:hover {
-            background: linear-gradient(135deg, #ffc107 0%, #f57c00 100%) !important;
+        .modern-users-table .ui-paginator .ui-paginator-prev.ui-state-disabled:hover,
+        .modern-users-table .ui-paginator .ui-paginator-next.ui-state-disabled:hover,
+        .modern-users-table .ui-paginator .ui-paginator-first.ui-state-disabled:hover,
+        .modern-users-table .ui-paginator .ui-paginator-last.ui-state-disabled:hover {
+            background: #f9fafb !important;
+            color: #d1d5db !important;
+            border-color: #e5e7eb !important;
+        }
+
+        /* Pages numérotées - Design épuré */
+        .modern-users-table .ui-paginator .ui-paginator-page {
+            min-width: 36px !important;
+            height: 36px !important;
+            padding: 0 0.75rem !important;
+            border-radius: 6px !important;
+            border: 1px solid transparent !important;
+            background: transparent !important;
+            color: #4b5563 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            font-weight: 400 !important;
+            margin: 0 0.125rem !important;
+        }
+
+        .modern-users-table .ui-paginator .ui-paginator-page:hover {
+            background: #f3f4f6 !important;
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .modern-users-table .ui-paginator .ui-paginator-page.ui-state-active {
+            background: var(--color-action-main, #47624D) !important;
             color: #ffffff !important;
-            border-color: #ffc107 !important;
-            transform: translateY(-2px) scale(1.05) !important;
-            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            font-weight: 500 !important;
+        }
+
+        /* Rapport de page - Style discret */
+        .modern-users-table .ui-paginator .ui-paginator-current {
+            color: #6b7280 !important;
+            font-size: 0.875rem !important;
+            font-weight: 400 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* Espacement et organisation */
+        .modern-users-table .ui-paginator .ui-paginator-pages {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+        }
+
+        /* Groupe de navigation */
+        .modern-users-table .ui-paginator .ui-paginator-prev,
+        .modern-users-table .ui-paginator .ui-paginator-next {
+            margin: 0 0.5rem !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modern-users-table .ui-paginator {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+            }
+
+            .modern-users-table .ui-paginator .ui-paginator-pages {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+            }
+        }
+
+        /* Message vide */
+        .modern-users-table .ui-datatable-empty-message {
+            padding: 3rem 2rem !important;
+            text-align: center !important;
+            color: var(--color-text-secondary, #819A91) !important;
+            font-size: 1rem !important;
         }
 
         .users-delete-btn {

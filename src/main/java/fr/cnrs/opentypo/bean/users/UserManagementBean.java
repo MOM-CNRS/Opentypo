@@ -55,8 +55,40 @@ public class UserManagementBean implements Serializable {
 
     @PostConstruct
     public void init() {
+        // Vérifier que l'utilisateur est administrateur
+        if (!isAdmin()) {
+            redirectToUnauthorized();
+            return;
+        }
         chargerUsers();
         chargerGroupes();
+    }
+
+    /**
+     * Vérifie si l'utilisateur actuel est un administrateur
+     * 
+     * @return true si l'utilisateur est administrateur, false sinon
+     */
+    private boolean isAdmin() {
+        return loginBean != null && loginBean.isAdmin();
+    }
+
+    /**
+     * Redirige vers la page d'accueil avec un message d'erreur si l'utilisateur n'est pas autorisé
+     */
+    private void redirectToUnauthorized() {
+        try {
+            jakarta.faces.context.FacesContext facesContext = jakarta.faces.context.FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                notificationBean.showError("Accès refusé", 
+                    "Seuls les administrateurs peuvent accéder à la gestion des utilisateurs.");
+                String redirectUrl = facesContext.getExternalContext().getRequestContextPath() + "/index.xhtml?unauthorized=true";
+                facesContext.getExternalContext().redirect(redirectUrl);
+                facesContext.responseComplete();
+            }
+        } catch (Exception e) {
+            // Ignorer les erreurs de redirection
+        }
     }
 
     /**
@@ -84,6 +116,10 @@ public class UserManagementBean implements Serializable {
     }
 
     public void chargerUsers() {
+        if (!isAdmin()) {
+            redirectToUnauthorized();
+            return;
+        }
         try {
             List<Utilisateur> utilisateurs = utilisateurRepository.findAll();
             users = utilisateurs.stream()
@@ -96,6 +132,10 @@ public class UserManagementBean implements Serializable {
     }
 
     public void initNouveauUser() {
+        if (!isAdmin()) {
+            redirectToUnauthorized();
+            return;
+        }
         jakarta.faces.context.FacesContext facesContext = jakarta.faces.context.FacesContext.getCurrentInstance();
         if (facesContext != null) {
             String userIdParam = facesContext.getExternalContext().getRequestParameterMap().get("userId");
@@ -155,6 +195,14 @@ public class UserManagementBean implements Serializable {
     }
 
     public void sauvegarderUser() {
+        // Vérifier que l'utilisateur est administrateur
+        if (!isAdmin()) {
+            notificationBean.showErrorWithUpdate("Accès refusé", 
+                "Seuls les administrateurs peuvent gérer les utilisateurs.", 
+                ":growl, :userForm");
+            return;
+        }
+
         // Validation
         if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty()) {
             notificationBean.showErrorWithUpdate("Erreur", "L'email est requis.", ":growl, :userForm");
@@ -273,6 +321,14 @@ public class UserManagementBean implements Serializable {
     }
 
     public void supprimerUser(User user) {
+        // Vérifier que l'utilisateur est administrateur
+        if (!isAdmin()) {
+            notificationBean.showErrorWithUpdate("Accès refusé", 
+                "Seuls les administrateurs peuvent supprimer des utilisateurs.", 
+                ":growl, :usersForm");
+            return;
+        }
+
         if (user == null || user.getId() == null) {
             notificationBean.showErrorWithUpdate("Erreur", "Aucun utilisateur sélectionné pour la suppression.", ":growl, :usersForm");
             return;
@@ -313,6 +369,15 @@ public class UserManagementBean implements Serializable {
     }
 
     public void toggleUserActive(User user) {
+        // Vérifier que l'utilisateur est administrateur
+        if (!isAdmin()) {
+            notificationBean.showErrorWithUpdate("Accès refusé", 
+                "Seuls les administrateurs peuvent modifier le statut des utilisateurs.", 
+                ":growl, :usersForm");
+            PrimeFaces.current().ajax().update(":growl, :usersForm");
+            return;
+        }
+
         // Note: L'entité Utilisateur n'a pas de champ "active" pour l'instant
         // Cette fonctionnalité peut être ajoutée plus tard si nécessaire
         // Pour l'instant, on peut désactiver un utilisateur en le supprimant ou en changeant son groupe

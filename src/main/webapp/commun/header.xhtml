@@ -28,9 +28,9 @@
                 </span>
             </div>
         </div>
-        <div class="header-title">
+        <h:panelGroup styleClass="header-title" rendered="#{facesContext.viewRoot.viewId != null and facesContext.viewRoot.viewId.contains('/index.xhtml')}">
             Label de l'élément sélectionné
-        </div>
+        </h:panelGroup>
         <div class="header-right">
             <h:form id="headerForm">
                 <!-- Icône d'alertes -->

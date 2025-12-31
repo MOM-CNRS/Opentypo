@@ -29,60 +29,64 @@
 
             <div class="users-content">
                 <h:form id="usersForm">
-                    <div class="users-table-container">
+                    <div class="users-table-wrapper">
                         <p:dataTable id="usersTable"
                                    value="#{userManagementBean.users}"
                                    var="user"
-                                   styleClass="users-datatable"
-                                   emptyMessage="Aucun utilisateur"
+                                   styleClass="modern-users-table"
+                                   emptyMessage="Aucun utilisateur trouvé"
                                    paginator="true"
                                    rows="10"
                                    rowsPerPageTemplate="10,20,50"
                                    paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                   sortMode="multiple">
+                                   paginatorPosition="bottom"
+                                   sortMode="multiple"
+                                   rowStyleClass="modern-users-row">
                             
-                            <p:column headerText="Nom" sortBy="#{user.username}" styleClass="users-col-username">
-                                <h:outputText value="#{user.username}"/>
-                            </p:column>
-                            
-                            <p:column headerText="Email" sortBy="#{user.email}" styleClass="users-col-email">
-                                <h:outputText value="#{user.email}"/>
-                            </p:column>
-                            
-                            <p:column headerText="Nom complet" styleClass="users-col-name">
-                                <h:outputText value="#{user.firstName} #{user.lastName}"/>
+                            <p:column headerText="Utilisateur" sortBy="#{user.lastName}" styleClass="users-col-user">
+                                <div class="user-info-cell">
+                                    <div class="user-avatar">
+                                        <i class="pi pi-user"/>
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name">#{user.firstName} #{user.lastName}</div>
+                                        <div class="user-email">#{user.email}</div>
+                                    </div>
+                                </div>
                             </p:column>
                             
                             <p:column headerText="Rôle" sortBy="#{user.role}" styleClass="users-col-role">
-                                <p:badge value="#{userManagementBean.getRoleLabel(user.role)}" 
-                                       severity="#{user.role == 'ADMIN' ? 'danger' : (user.role == 'EDITOR' ? 'warning' : 'info')}"/>
+                                <span class="role-badge role-badge-#{user.role.toString().toLowerCase()}">
+                                    #{userManagementBean.getRoleLabel(user.role)}
+                                </span>
                             </p:column>
                             
                             <p:column headerText="Statut" sortBy="#{user.active}" styleClass="users-col-status">
-                                <p:badge value="#{user.active ? 'Actif' : 'Inactif'}" 
-                                       severity="#{user.active ? 'success' : 'secondary'}"/>
+                                <span class="status-badge status-badge-#{user.active ? 'active' : 'inactive'}">
+                                    <i class="pi #{user.active ? 'pi-check-circle' : 'pi-times-circle'}"/>
+                                    #{user.active ? 'Actif' : 'Inactif'}
+                                </span>
                             </p:column>
                             
                             <p:column headerText="Date création" sortBy="#{user.dateCreation}" styleClass="users-col-date">
-                                <h:outputText value="#{user.dateCreation}">
-                                    <f:converter converterId="localDateTimeConverter"/>
-                                </h:outputText>
+                                <div class="date-cell">
+                                    <i class="pi pi-calendar"/>
+                                    <h:outputText value="#{user.dateCreation}">
+                                        <f:converter converterId="localDateTimeConverter"/>
+                                    </h:outputText>
+                                </div>
                             </p:column>
                             
                             <p:column headerText="Actions" styleClass="users-col-actions">
-                                <div class="users-actions">
-                                    <h:link outcome="/users/create.xhtml" styleClass="users-action-btn users-edit-btn" title="Modifier">
+                                <div class="users-actions-modern">
+                                    <h:link outcome="/users/create.xhtml" 
+                                           styleClass="action-btn action-edit" 
+                                           title="Modifier">
                                         <f:param name="userId" value="#{user.id}"/>
                                         <i class="pi pi-pencil"/>
                                     </h:link>
-                                    <p:commandButton icon="pi pi-power-off"
-                                                   styleClass="users-action-btn users-toggle-btn"
-                                                   title="#{user.active ? 'Désactiver' : 'Activer'}"
-                                                   action="#{userManagementBean.toggleUserActive(user)}"
-                                                   process="@this"
-                                                   update=":usersForm"/>
                                     <p:commandButton icon="pi pi-trash"
-                                                   styleClass="users-action-btn users-delete-btn"
+                                                   styleClass="action-btn action-delete"
                                                    title="Supprimer"
                                                    action="#{userManagementBean.supprimerUser(user)}"
                                                    process="@this"

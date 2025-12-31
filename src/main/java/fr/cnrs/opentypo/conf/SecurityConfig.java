@@ -62,6 +62,9 @@ public class SecurityConfig {
                     "/*.svg"
                 ).permitAll()
                 
+                // Les pages de gestion des utilisateurs nécessitent le rôle ADMIN
+                .requestMatchers("/users/**").hasRole("ADMIN")
+                
                 // Toutes les autres pages nécessitent une authentification
                 .anyRequest().authenticated()
             )
@@ -72,6 +75,10 @@ public class SecurityConfig {
                 .authenticationEntryPoint((request, response, authException) -> {
                     // Rediriger vers index.xhtml au lieu de /login
                     response.sendRedirect(request.getContextPath() + "/index.xhtml");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    // Rediriger vers index.xhtml avec un message d'erreur si accès refusé
+                    response.sendRedirect(request.getContextPath() + "/index.xhtml?accessDenied=true");
                 })
             )
             
