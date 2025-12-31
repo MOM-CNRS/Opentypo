@@ -17,7 +17,7 @@ SELECT 'Lecteur'
 WHERE NOT EXISTS (SELECT 1 FROM groupe WHERE nom = 'Lecteur');
 
 -- Création de l'utilisateur administrateur par défaut (login: admin, password: admin)
-INSERT INTO utilisateur (nom, prenom, email, password_hash, groupe_id, create_date, create_by)
+INSERT INTO utilisateur (nom, prenom, email, password_hash, groupe_id, create_date, create_by, active)
 SELECT 
     'Administrateur' as nom,
     'Système' as prenom,
@@ -25,7 +25,8 @@ SELECT
     '$2a$10$hd6imws1NiYhSIe6JVeyqu8qS6Uz/gbsvKB0OOuQaN02mObbli1H.' as password_hash,
     g.id as groupe_id,
     CURRENT_TIMESTAMP as create_date,
-    'SYSTEM' as create_by
+    'SYSTEM' as create_by,
+    true as active
 FROM groupe g
 WHERE g.nom = 'Administrateur'
 AND NOT EXISTS (SELECT 1 FROM utilisateur u WHERE u.email = 'admin');

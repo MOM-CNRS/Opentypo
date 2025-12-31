@@ -260,6 +260,7 @@ public class UserManagementBean implements Serializable {
                 utilisateur.setEmail(newUser.getEmail().trim());
                 utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPassword()));
                 utilisateur.setGroupe(groupe);
+                utilisateur.setActive(newUser.isActive());
                 utilisateur.setCreateBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
                 utilisateur.setCreateDate(LocalDateTime.now());
 
@@ -295,6 +296,7 @@ public class UserManagementBean implements Serializable {
                 utilisateur.setPrenom(newUser.getFirstName().trim());
                 utilisateur.setEmail(newUser.getEmail().trim());
                 utilisateur.setGroupe(groupe);
+                utilisateur.setActive(newUser.isActive());
 
                 // Mettre à jour le mot de passe seulement si un nouveau mot de passe est fourni
                 if (newUser.getPassword() != null && !newUser.getPassword().trim().isEmpty()) {
@@ -378,14 +380,41 @@ public class UserManagementBean implements Serializable {
             return;
         }
 
-        // Note: L'entité Utilisateur n'a pas de champ "active" pour l'instant
-        // Cette fonctionnalité peut être ajoutée plus tard si nécessaire
-        // Pour l'instant, on peut désactiver un utilisateur en le supprimant ou en changeant son groupe
-        notificationBean.showInfoWithUpdate("Information", 
-            "La fonctionnalité d'activation/désactivation n'est pas encore implémentée. " +
-            "Vous pouvez modifier le rôle de l'utilisateur ou le supprimer si nécessaire.", 
-            ":growl, :usersForm");
-        PrimeFaces.current().ajax().update(":growl, :usersForm");
+        if (user == null || user.getId() == null) {
+            notificationBean.showErrorWithUpdate("Erreur", 
+                "Aucun utilisateur sélectionné.", 
+                ":growl, :usersForm");
+            PrimeFaces.current().ajax().update(":growl, :usersForm");
+            return;
+        }
+
+        try {
+            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(user.getId());
+            if (utilisateurOpt.isEmpty()) {
+                notificationBean.showErrorWithUpdate("Erreur", 
+                    "L'utilisateur n'existe pas.", 
+                    ":growl, :usersForm");
+                PrimeFaces.current().ajax().update(":growl, :usersForm");
+                return;
+            }
+
+            Utilisateur utilisateur = utilisateurOpt.get();
+            boolean newActiveState = !(utilisateur.getActive() != null && utilisateur.getActive());
+            utilisateur.setActive(newActiveState);
+            utilisateurRepository.save(utilisateur);
+
+            notificationBean.showSuccessWithUpdate("Succès", 
+                "Le statut de l'utilisateur a été " + (newActiveState ? "activé" : "désactivé") + " avec succès.", 
+                ":growl, :usersForm");
+            
+            chargerUsers(); // Recharger la liste
+            PrimeFaces.current().ajax().update(":growl, :usersForm");
+        } catch (Exception e) {
+            notificationBean.showErrorWithUpdate("Erreur", 
+                "Erreur lors de la modification du statut : " + e.getMessage(), 
+                ":growl, :usersForm");
+            PrimeFaces.current().ajax().update(":growl, :usersForm");
+        }
     }
 
     public String getRoleLabel(User.Role role) {
@@ -413,7 +442,7 @@ public class UserManagementBean implements Serializable {
         user.setLastName(utilisateur.getNom() != null ? utilisateur.getNom() : "");
         user.setPassword(""); // Ne pas exposer le mot de passe
         user.setRole(getRoleFromGroupe(utilisateur.getGroupe()));
-        user.setActive(true); // Par défaut, tous les utilisateurs sont actifs (pas de champ dans l'entité)
+        user.setActive(utilisateur.getActive() != null ? utilisateur.getActive() : true); // Utiliser le champ actif de l'entité
         user.setDateCreation(utilisateur.getCreateDate());
         user.setCreatedBy(utilisateur.getCreateBy() != null ? utilisateur.getCreateBy() : "SYSTEM");
         return user;

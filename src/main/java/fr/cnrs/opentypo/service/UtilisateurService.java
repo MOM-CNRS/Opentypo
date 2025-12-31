@@ -46,6 +46,12 @@ public class UtilisateurService implements Serializable {
 
         Utilisateur utilisateur = utilisateurOpt.get();
         
+        // Vérifier si le compte est actif
+        if (utilisateur.getActive() == null || !utilisateur.getActive()) {
+            log.warn("Tentative de connexion avec un compte désactivé: {}", email);
+            return Optional.empty();
+        }
+        
         // Vérifier le mot de passe avec BCrypt
         if (passwordEncoder.matches(password, utilisateur.getPasswordHash())) {
             log.info("Authentification réussie pour l'utilisateur: {}", email);

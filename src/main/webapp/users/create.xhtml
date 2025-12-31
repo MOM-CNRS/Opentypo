@@ -64,7 +64,7 @@
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'} " />
+                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : ''} " />
                                 <p:password id="password" 
                                          value="#{userManagementBean.newUser.password}"
                                          required="#{!userManagementBean.editMode}"
@@ -88,6 +88,16 @@
                                                  itemValue="#{groupe.id}"/>
                                 </p:selectOneMenu>
                                 <p:message for="groupe" />
+                            </div>
+
+                            <div class="users-form-group users-form-group-full">
+                                <div class="users-checkbox-wrapper">
+                                    <p:selectBooleanCheckbox id="active" 
+                                                           value="#{userManagementBean.newUser.active}"
+                                                           styleClass="users-checkbox"/>
+                                    <p:outputLabel for="active" value="Compte actif" />
+                                </div>
+                                <p:message for="active" />
                             </div>
                         </div>
                     </p:panel>

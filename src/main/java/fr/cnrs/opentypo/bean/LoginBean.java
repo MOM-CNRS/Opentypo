@@ -66,8 +66,25 @@ public class LoginBean implements Serializable {
             return;
         }
         
-        // Authentification via le service
-        Optional<Utilisateur> utilisateurOpt = utilisateurService.authenticate(username.trim(), password);
+        // Vérifier d'abord si l'utilisateur existe et s'il est actif
+        Optional<Utilisateur> utilisateurOpt = utilisateurService.findByEmail(username.trim());
+        
+        if (utilisateurOpt.isPresent()) {
+            Utilisateur utilisateur = utilisateurOpt.get();
+            
+            // Vérifier si le compte est actif AVANT de vérifier le mot de passe
+            if (utilisateur.getActive() == null || !utilisateur.getActive()) {
+                notificationBean.showErrorWithUpdate("Compte désactivé",
+                    "Votre compte a été désactivé. Veuillez contacter un administrateur pour plus d'informations.",
+                    ":loginForm:loginMessages");
+                password = null;
+                PrimeFaces.current().ajax().update(":loginForm:loginMessages, :loginForm:password");
+                return;
+            }
+        }
+        
+        // Authentification via le service (vérifie le mot de passe)
+        utilisateurOpt = utilisateurService.authenticate(username.trim(), password);
         
         if (utilisateurOpt.isPresent()) {
             Utilisateur utilisateur = utilisateurOpt.get();

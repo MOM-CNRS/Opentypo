@@ -56,6 +56,9 @@ public class Utilisateur implements Serializable {
     @JoinColumn(name = "groupe_id", nullable = false)
     private Groupe groupe;
 
+    @Column(name = "active")
+    private Boolean active = true;
+
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPermission> userPermissions = new ArrayList<>();
 
