@@ -40,7 +40,6 @@
                                            requiredMessage="L'email est requis"
                                            disabled="#{userManagementBean.editMode}"
                                            styleClass="users-input"/>
-                                <p:message for="email" />
                             </div>
 
                             <div class="users-form-group">
@@ -50,7 +49,6 @@
                                            required="true"
                                            requiredMessage="Le prénom est requis"
                                            styleClass="users-input"/>
-                                <p:message for="firstName" />
                             </div>
 
                             <div class="users-form-group">
@@ -60,7 +58,6 @@
                                            required="true"
                                            requiredMessage="Le nom est requis"
                                            styleClass="users-input"/>
-                                <p:message for="lastName" />
                             </div>
 
                             <div class="users-form-group">
@@ -71,7 +68,6 @@
                                          requiredMessage="Le mot de passe est requis"
                                          feedback="false"
                                          styleClass="users-input"/>
-                                <p:message for="password" />
                             </div>
 
                             <div class="users-form-group">
@@ -82,12 +78,9 @@
                                                requiredMessage="Le groupe est requis"
                                                styleClass="users-select">
                                     <f:selectItem itemLabel="Sélectionner un groupe" itemValue=""/>
-                                    <f:selectItems value="#{userManagementBean.availableGroups}" 
-                                                 var="groupe" 
-                                                 itemLabel="#{groupe.nom}" 
-                                                 itemValue="#{groupe.id}"/>
+                                    <f:selectItems value="#{userManagementBean.availableGroups}"
+                                                   var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
                                 </p:selectOneMenu>
-                                <p:message for="groupe" />
                             </div>
 
                             <div class="users-form-group users-form-group-full">
@@ -97,8 +90,21 @@
                                                            styleClass="users-checkbox"/>
                                     <p:outputLabel for="active" value="Compte actif" />
                                 </div>
-                                <p:message for="active" />
                             </div>
+                        </div>
+                    </p:panel>
+
+                    <p:panel header="Référentiels autorisés" styleClass="users-form-panel">
+                        <div class="users-form-group users-form-group-full">
+                            <p:pickList id="referentielsPickList"
+                                       value="#{userManagementBean.pickListModel}"
+                                       var="item"
+                                       itemLabel="#{item}"
+                                       itemValue="#{item}"
+                                       sourceLabel="Disponibles"
+                                       targetLabel="Sélectionnés"
+                                       styleClass="users-picklist">
+                            </p:pickList>
                         </div>
                     </p:panel>
 

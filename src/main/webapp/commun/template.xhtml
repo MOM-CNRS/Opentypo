@@ -1408,6 +1408,83 @@
             cursor: pointer !important;
         }
 
+        /* Styles pour le PickList */
+        .users-picklist {
+            width: 100% !important;
+        }
+
+        .users-picklist .ui-picklist {
+            display: flex !important;
+            gap: 1rem !important;
+            align-items: stretch !important;
+        }
+
+        .users-picklist .ui-picklist-list-container {
+            flex: 1 !important;
+            border: 1.5px solid #e5e7eb !important;
+            border-radius: 10px !important;
+            background: #ffffff !important;
+            overflow: hidden !important;
+        }
+
+        .users-picklist .ui-picklist-list {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .users-picklist .ui-picklist-list li {
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid #f3f4f6 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .users-picklist .ui-picklist-list li:hover {
+            background: rgba(71, 98, 77, 0.08) !important;
+        }
+
+        .users-picklist .ui-picklist-list li.ui-state-highlight {
+            background: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+        }
+
+        .users-picklist .ui-picklist-caption {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.2) !important;
+            padding: 0.875rem 1rem !important;
+            font-weight: 700 !important;
+            color: var(--color-action-main, #47624D) !important;
+            font-size: 0.9375rem !important;
+        }
+
+        .users-picklist .ui-picklist-buttons {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            padding: 0 0.5rem !important;
+        }
+
+        .users-picklist .ui-picklist-buttons button {
+            min-width: 40px !important;
+            height: 40px !important;
+            border-radius: 8px !important;
+            border: 1.5px solid var(--color-action-main, #47624D) !important;
+            background: #ffffff !important;
+            color: var(--color-action-main, #47624D) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .users-picklist .ui-picklist-buttons button:hover {
+            background: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+            transform: scale(1.05) !important;
+        }
+
+        .users-picklist .ui-picklist-buttons button:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+        }
+
         .users-checkbox-wrapper:hover {
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
             border-color: rgba(71, 98, 77, 0.3) !important;
