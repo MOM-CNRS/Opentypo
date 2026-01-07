@@ -41,6 +41,24 @@ public class SecurityConfig {
                 // IMPORTANT: Les ressources doivent être autorisées EN PREMIER
                 // Permettre l'accès aux ressources JSF/PrimeFaces (doit être avant anyRequest)
                 .requestMatchers("/javax.faces.resource/**").permitAll()
+                
+                // Permettre l'accès aux ressources JSF avec paramètres de requête (ex: ?ln=primefaces&v=...)
+                .requestMatchers(request -> {
+                    String path = request.getRequestURI();
+                    String query = request.getQueryString();
+                    // Autoriser les fichiers JSF avec paramètres de ressources
+                    if (query != null && (query.contains("ln=") || query.contains("v=") || query.contains("e="))) {
+                        return true;
+                    }
+                    // Autoriser les fichiers statiques même avec paramètres
+                    if (path != null && (path.endsWith(".js") || path.endsWith(".css") || 
+                        path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".gif") ||
+                        path.endsWith(".ico") || path.endsWith(".woff") || path.endsWith(".woff2") ||
+                        path.endsWith(".ttf") || path.endsWith(".eot") || path.endsWith(".svg"))) {
+                        return true;
+                    }
+                    return false;
+                }).permitAll()
 
                 // Permettre l'accès aux ressources statiques (CSS, JS, images, etc.)
                 .requestMatchers(
@@ -144,7 +162,7 @@ public class SecurityConfig {
                         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://use.fontawesome.com; " +
                         "font-src 'self' https://use.fontawesome.com data:; " +
                         "img-src 'self' data: https:; " +
-                        "connect-src 'self'; " +
+                        "connect-src 'self' https://cdn.jsdelivr.net; " +
                         "frame-ancestors 'self';"
                     )
                 )

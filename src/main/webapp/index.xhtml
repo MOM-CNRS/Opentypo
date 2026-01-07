@@ -165,51 +165,5 @@
                 </div>
             </h:panelGroup>
         </section>
-
-        <!-- JS toggle résultat -->
-        <h:outputScript target="body">
-            function toggleRightPanel() {
-                const panel = document.getElementById('panelRight');
-                panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
-            }
-            
-            // Fonction pour afficher uniquement cardsContainer et masquer le reste (mais garder l'arbre visible)
-            function showOnlyCardsContainer() {
-                // NE PAS masquer le panneau de l'arbre - il doit rester visible
-                // L'arbre reste toujours visible
-
-                // Masquer les panneaux de détails
-                const contentPanels = document.getElementById('contentPanels');
-                if (contentPanels) {
-                    contentPanels.style.display = 'none';
-                }
-
-                // Afficher uniquement cardsContainer
-                const cardsContainer = document.getElementById('cardsContainer');
-                if (cardsContainer) {
-                    cardsContainer.style.display = 'block';
-                    // S'assurer que le parent centerContent est visible
-                    const centerContent = document.getElementById('centerContent');
-                    if (centerContent) {
-                        centerContent.style.display = 'flex';
-                    }
-                }
-            }
-
-            // Rendre la fonction accessible globalement
-            window.showOnlyCardsContainer = showOnlyCardsContainer;
-            
-            // S'assurer que les styles sont appliqués après chaque mise à jour AJAX
-            if (window.PrimeFaces) {
-                PrimeFaces.ajax.addOnUpdate(function(data) {
-                    // Vérifier si le conteneur de présentation existe et réappliquer les styles si nécessaire
-                    var presentationContainer = document.querySelector('.site-presentation-container');
-                    if (presentationContainer) {
-                        // Les styles inline garantissent la persistance
-                        // Cette fonction peut être étendue pour d'autres vérifications
-                    }
-                });
-            }
-        </h:outputScript>
     </ui:define>
 </ui:composition>

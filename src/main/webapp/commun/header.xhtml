@@ -44,7 +44,7 @@
                     <p:commandButton icon="pi pi-user text-white"
                                      styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
                                      title="Se connecter"
-                                     onclick="PF('loginDialog').show(); return false;"
+                                     onclick="showLoginDialog(); return false;"
                                      type="button" />
                 </h:panelGroup>
                 <h:panelGroup rendered="#{loginBean.authenticated}" id="header">

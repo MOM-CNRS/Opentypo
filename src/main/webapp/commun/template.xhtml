@@ -2493,6 +2493,30 @@
         }
     </h:outputScript>
 
+    <!-- Fonction pour afficher le dialog de login avec vérification -->
+    <h:outputScript target="body">
+        // Fonction pour afficher le dialog de login
+        // avec vérification que le widget est disponible
+        function showLoginDialog() {
+            var attempts = 0;
+            var maxAttempts = 30;
+            
+            var checkDialog = function() {
+                var dialog = PF('loginDialog');
+                if (dialog) {
+                    dialog.show();
+                } else if (attempts &lt; maxAttempts) {
+                    attempts++;
+                    setTimeout(checkDialog, 100);
+                } else {
+                    console.warn('Dialog loginDialog not found. Make sure the login dialog is included in the template.');
+                }
+            };
+            
+            checkDialog();
+        }
+    </h:outputScript>
+
     <!-- Bandeau en haut de page, il faut activer l'affichage à la demande et intégrer le contenu dans la BDD -->
     <h:panelGroup rendered="false" layout="block" style="width:100%; padding:10px; background-color:#f5f5f5; border-bottom:1px solid #ccc; position:fixed; top:0; left:0; z-index:1000;">
         <div style="display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto;">
