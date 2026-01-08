@@ -166,7 +166,7 @@
 <h:body>
     <div class="error-container">
         <div class="error-icon">
-            <span class="pi pi-exclamation-triangle" style="font-size: 4rem;"/>
+            <span class="pi pi-exclamation-triangle error-icon-large"/>
         </div>
         
         <h1 class="error-title">Erreur technique</h1>
@@ -176,19 +176,19 @@
             Notre équipe a été informée et travaille à résoudre le problème.
         </p>
         
-        <div class="error-details" id="errorDetails" style="display: none;">
+        <div class="error-details error-details-hidden" id="errorDetails">
             <div class="error-details-title">Détails techniques :</div>
             <div class="error-details-text" id="errorDetailsText"></div>
         </div>
         
         <div class="error-actions">
             <h:link outcome="/index.xhtml" styleClass="error-button error-button-primary">
-                <span class="pi pi-home" style="margin-right: 0.5rem;"></span>
+                <span class="pi pi-home error-btn-icon"></span>
                 Retour à l'accueil
             </h:link>
             
             <a href="javascript:void(0)" class="error-button error-button-secondary" onclick="showErrorDetails()">
-                <span class="pi pi-info-circle" style="margin-right: 0.5rem;"></span>
+                <span class="pi pi-info-circle error-btn-icon"></span>
                 Afficher les détails
             </a>
         </div>

@@ -6,10 +6,9 @@
         <p:tree value="#{treeBean.root}"
                 dynamic="true"
                 var="nodetree"
-                style="padding= none !important"
+                styleClass="modern-tree tree-padding-none"
                 selectionMode="single"
                 selection="#{treeBean.selectedNode}"
-                styleClass="modern-tree"
                 widgetVar="treeWidget">
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>

@@ -67,7 +67,7 @@
                     </div>
 
                     <!-- Section d'action pour créer un référentiel -->
-                    <div style="padding-top: 1rem; padding-right: 1.5rem; text-align: right">
+                    <div class="create-referentiel-section">
                         <p:commandButton value="Créer un nouveau référentiel"
                                          icon="pi pi-arrow-right"
                                          styleClass="referentiel-btn referentiel-btn-validate"
@@ -155,7 +155,7 @@
 
             <!-- Panneau droit masqué -->
             <h:panelGroup rendered="true" >
-                <div id="panelRight" class="search-result" style="display: none;">
+                <div id="panelRight" class="search-result hidden">
                     <ui:include src="search/searchResult.xhtml"/>
                 </div>
             </h:panelGroup>

@@ -17,9 +17,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"/>
 
     <!-- CSS principal -->
-    <h:outputStylesheet library="css" name="theso_style.css"/>
-    
+    <h:outputStylesheet library="css" name="openTypo_style.css"/>
+
     <!-- Styles critiques pour la zone de présentation - garantis pour persister -->
+    <!-- NOTE: Les styles ont été déplacés dans openTypo-style.css -->
+    <!-- Cette balise style est conservée temporairement pour compatibilité -->
     <style>
         /* Styles pour site-presentation - garantis pour persister même si le CSS externe n'est pas chargé */
         .site-presentation-container {
@@ -1975,8 +1977,8 @@
 
 <h:body styleClass="app-body">
     <!-- Charger le script JavaScript en premier pour garantir la disponibilité des fonctions -->
-    <h:outputScript library="js" name="theso_responsiveMenu.js"/>
-    
+    <h:outputScript library="js" name="theso_responsiveMenu_optimized.js"/>
+
     <!-- Script pour gérer le menu dynamique -->
     <h:outputScript target="body">
         // Fonction pour mettre à jour l'item actif du menu
@@ -1984,24 +1986,24 @@
             const currentPath = window.location.pathname;
             const menuItems = document.querySelectorAll('.sidebar-menu-item');
             let hasActiveItem = false;
-            
+
             // Retirer la classe active de tous les items
             menuItems.forEach(function(menuItem) {
                 menuItem.classList.remove('active');
             });
-            
+
             menuItems.forEach(function(item) {
                 const link = item.querySelector('a') || item;
                 const href = link.getAttribute('href') || link.getAttribute('action') || '';
                 const menuItemType = item.getAttribute('data-menu-item') || '';
                 const itemText = item.querySelector('.sidebar-menu-item-text')?.textContent?.trim() || '';
-                
+
                 let shouldBeActive = false;
-                
+
                 // Utiliser l'attribut data-menu-item pour une détection plus précise
                 if (menuItemType === 'accueil') {
-                    if (currentPath === '/' || 
-                        currentPath === '/index.xhtml' || 
+                    if (currentPath === '/' ||
+                        currentPath === '/index.xhtml' ||
                         currentPath.endsWith('/index.xhtml') ||
                         currentPath === '' ||
                         (currentPath === '/index.xhtml' &amp;&amp; !currentPath.includes('/users/') &amp;&amp; !currentPath.includes('/candidats/'))) {
@@ -2010,7 +2012,7 @@
                 }
                 else if (menuItemType === 'candidats') {
                     // Actif pour toutes les pages sous /candidats/
-                    if (currentPath.includes('/candidats/') || 
+                    if (currentPath.includes('/candidats/') ||
                         currentPath.includes('/candidats') ||
                         href.includes('/candidats/')) {
                         shouldBeActive = true;
@@ -2018,7 +2020,7 @@
                 }
                 else if (menuItemType === 'users') {
                     // Actif pour toutes les pages sous /users/
-                    if (currentPath.includes('/users/') || 
+                    if (currentPath.includes('/users/') ||
                         currentPath.includes('/users') ||
                         href.includes('/users/')) {
                         shouldBeActive = true;
@@ -2042,13 +2044,13 @@
                         }
                     }
                 }
-                
+
                 if (shouldBeActive) {
                     item.classList.add('active');
                     hasActiveItem = true;
                 }
             });
-            
+
             // Si aucun item n'est actif et qu'on est sur la page d'accueil, sélectionner Accueil
             if (!hasActiveItem &amp;&amp; (currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml'))) {
                 const accueilItem = document.querySelector('[data-menu-item="accueil"]');
@@ -2057,7 +2059,7 @@
                 }
             }
         }
-        
+
         // Fonction pour gérer les clics sur les items du menu
         function setupMenuClickHandlers() {
             const menuItems = document.querySelectorAll('.sidebar-menu-item');
@@ -2066,7 +2068,7 @@
                 // Retirer les anciens listeners pour éviter les doublons
                 const newLink = link.cloneNode(true);
                 link.parentNode.replaceChild(newLink, link);
-                
+
                 // Ajouter le nouveau listener
                 newLink.addEventListener('click', function() {
                     // Retirer active de tous les items
@@ -2078,13 +2080,13 @@
                 });
             });
         }
-        
+
         document.addEventListener('DOMContentLoaded', function() {
             updateActiveMenuItem();
             setupMenuClickHandlers();
             setupSidebarMenuTooltips();
         });
-        
+
         // Mettre à jour après les mises à jour AJAX
         if (typeof PrimeFaces !== 'undefined') {
             PrimeFaces.ajax.addOnUpdate(function(data) {
@@ -2092,7 +2094,7 @@
                     updateActiveMenuItem();
                 }, 100);
             });
-            
+
             // Écouter aussi les événements de navigation JSF
             PrimeFaces.ajax.addOnComplete(function(xhr, status, args) {
                 setTimeout(function() {
@@ -2100,14 +2102,14 @@
                 }, 150);
             });
         }
-        
+
         // Mettre à jour lors des changements d'URL (navigation)
         window.addEventListener('popstate', function() {
             setTimeout(function() {
                 updateActiveMenuItem();
             }, 100);
         });
-        
+
         // Observer les changements dans l'URL (pour JSF navigation)
         let lastUrl = window.location.href;
         setInterval(function() {
@@ -2119,30 +2121,30 @@
                 }, 100);
             }
         }, 500);
-        
+
         // Exposer la fonction globalement pour pouvoir l'appeler manuellement si nécessaire
         window.updateActiveMenuItem = updateActiveMenuItem;
-        
+
         // Gestion globale de l'expiration de session
         (function() {
             let sessionCheckInterval = null;
             let sessionExpiredShown = false;
             let isChecking = false;
-            
+
             // Fonction pour rediriger vers index.xhtml
             function redirectToIndex(reason) {
                 if (sessionExpiredShown) {
                     return; // Éviter les redirections multiples
                 }
-                
+
                 sessionExpiredShown = true;
-                
+
                 // Arrêter le polling
                 if (sessionCheckInterval) {
                     clearInterval(sessionCheckInterval);
                     sessionCheckInterval = null;
                 }
-                
+
                 // Afficher le message d'expiration via growl
                 if (typeof PrimeFaces !== 'undefined') {
                     PrimeFaces.showMessage({
@@ -2152,30 +2154,30 @@
                         life: 8000 // Afficher le message pendant 8 secondes
                     });
                 }
-                
+
                 // Rediriger vers index.xhtml immédiatement (utiliser replace pour éviter de revenir en arrière)
-                const redirectUrl = window.location.pathname.includes('/index.xhtml') 
+                const redirectUrl = window.location.pathname.includes('/index.xhtml')
                     ? window.location.pathname + '?sessionExpired=true'
                     : '/index.xhtml?sessionExpired=true';
-                
+
                 // Utiliser replace pour forcer la navigation
                 window.location.replace(redirectUrl);
             }
-            
+
             // Fonction pour vérifier l'état de la session via polling
             function checkSessionStatus() {
                 // Éviter les vérifications multiples simultanées
                 if (isChecking) {
                     return;
                 }
-                
+
                 // Ne pas vérifier si on est déjà en train de rediriger
                 if (sessionExpiredShown) {
                     return;
                 }
-                
+
                 isChecking = true;
-                
+
                 fetch('/session-check', {
                     method: 'GET',
                     credentials: 'include',
@@ -2193,7 +2195,7 @@
                 })
                 .then(function(data) {
                     isChecking = false;
-                    
+
                     // Si la session n'est plus valide ou l'utilisateur n'est plus authentifié
                     if (!data || !data.valid || !data.authenticated) {
                         redirectToIndex('sessionExpired');
@@ -2201,7 +2203,7 @@
                 })
                 .catch(function(error) {
                     isChecking = false;
-                    
+
                     // En cas d'erreur (y compris 403, 401, etc.), considérer que la session est expirée
                     // Ne rediriger que si on n'est pas déjà sur index.xhtml
                     const currentPath = window.location.pathname;
@@ -2214,16 +2216,16 @@
                     }
                 });
             }
-            
+
             // Démarrer le polling dès que le DOM est prêt
             function startSessionMonitoring() {
                 // Vérifier immédiatement au chargement
                 checkSessionStatus();
-                
+
                 // Vérifier l'état de la session toutes les 3 secondes pour une détection rapide
                 sessionCheckInterval = setInterval(checkSessionStatus, 3000);
             }
-            
+
             // Démarrer le monitoring dès que possible
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', startSessionMonitoring);
@@ -2231,7 +2233,7 @@
                 // Le DOM est déjà chargé
                 startSessionMonitoring();
             }
-            
+
             // Vérifier aussi lors des événements utilisateur (pour détection immédiate)
             let userActivityTimeout = null;
             ['mousedown', 'keypress', 'click', 'touchstart', 'scroll'].forEach(function(event) {
@@ -2240,7 +2242,7 @@
                     if (userActivityTimeout) {
                         clearTimeout(userActivityTimeout);
                     }
-                    
+
                     // Vérifier la session après une courte pause pour éviter trop de requêtes
                     userActivityTimeout = setTimeout(function() {
                         if (!sessionExpiredShown) {
@@ -2250,27 +2252,27 @@
                 }, true);
             });
         })();
-            
+
             // Vérifier si la session a expiré ou si la vue a expiré (paramètre dans l'URL)
             (function() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const sessionExpired = urlParams.get('sessionExpired') === 'true';
                 const viewExpired = urlParams.get('viewExpired') === 'true';
-                
+
                 if (sessionExpired || viewExpired) {
                     // Fonction pour afficher le message de déconnexion via growl
                     function showDisconnectionMessage() {
                         // Vérifier que PrimeFaces et le growl sont disponibles
                         if (typeof PrimeFaces !== 'undefined') {
-                            const message = viewExpired 
+                            const message = viewExpired
                                 ? 'Votre session a expiré. Vous avez été déconnecté et redirigé vers la page d\'accueil. Veuillez vous reconnecter pour continuer.'
                                 : 'Votre session a expiré après 1 heure d\'inactivité. Vous avez été déconnecté automatiquement. Veuillez vous reconnecter pour continuer.';
-                            
+
                             // Fonction pour afficher le message dans le growl
                             function showMessageInGrowl() {
                                 // Chercher le growl de différentes manières
                                 let growlElement = document.getElementById('growl');
-                                
+
                                 if (!growlElement) {
                                     // Chercher par classe
                                     const growls = document.querySelectorAll('.ui-growl');
@@ -2278,11 +2280,11 @@
                                         growlElement = growls[0];
                                     }
                                 }
-                                
+
                                 if (!growlElement) {
                                     return false;
                                 }
-                                
+
                                 // Trouver le conteneur .ui-growl (peut être l'élément lui-même ou un enfant)
                                 let container = growlElement;
                                 if (!growlElement.classList.contains('ui-growl')) {
@@ -2291,27 +2293,27 @@
                                         container = growlElement;
                                     }
                                 }
-                                
+
                                 // Créer le message
                                 const msgContainer = document.createElement('div');
                                 msgContainer.className = 'ui-growl-item-container ui-growl-warn';
-                                
+
                                 const msgItem = document.createElement('div');
                                 msgItem.className = 'ui-growl-item ui-growl-message-warn';
-                                
+
                                 const icon = document.createElement('span');
                                 icon.className = 'ui-growl-icon ui-growl-icon-warn pi pi-exclamation-triangle';
-                                
+
                                 const msgContent = document.createElement('div');
                                 msgContent.className = 'ui-growl-message';
-                                
+
                                 const title = document.createElement('span');
                                 title.className = 'ui-growl-title';
                                 title.textContent = 'Déconnexion automatique';
-                                
+
                                 const detail = document.createElement('p');
                                 detail.textContent = message;
-                                
+
                                 const closeBtn = document.createElement('span');
                                 closeBtn.className = 'ui-growl-close pi pi-times';
                                 closeBtn.style.cursor = 'pointer';
@@ -2323,21 +2325,21 @@
                                         }
                                     }, 300);
                                 };
-                                
+
                                 msgContent.appendChild(title);
                                 msgContent.appendChild(detail);
                                 msgItem.appendChild(icon);
                                 msgItem.appendChild(msgContent);
                                 msgItem.appendChild(closeBtn);
                                 msgContainer.appendChild(msgItem);
-                                
+
                                 container.appendChild(msgContainer);
-                                
+
                                 // Animation
                                 setTimeout(function() {
                                     msgContainer.style.opacity = '1';
                                 }, 10);
-                                
+
                                 // Auto-suppression après 10 secondes
                                 setTimeout(function() {
                                     if (msgContainer.parentNode) {
@@ -2349,21 +2351,21 @@
                                         }, 300);
                                     }
                                 }, 10000);
-                                
+
                                 return true;
                             }
-                            
+
                             // Essayer d'afficher le message
                             let msgAttempts = 0;
                             const maxMsgAttempts = 50;
-                            
+
                             function tryShowMessage() {
                                 msgAttempts++;
-                                
+
                                 if (showMessageInGrowl()) {
                                     return;
                                 }
-                                
+
                                 if (msgAttempts &lt; maxMsgAttempts) {
                                     setTimeout(tryShowMessage, 200);
                                 } else {
@@ -2373,26 +2375,26 @@
                                         'background:#fff;border-left:4px solid #ffc107;border-radius:8px;' +
                                         'box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:1rem 1.25rem;' +
                                         'max-width:380px;font-family:Roboto,sans-serif;';
-                                    
+
                                     // Créer la structure HTML du message
                                     const notifContent = document.createElement('div');
                                     notifContent.style.cssText = 'display:flex;align-items:flex-start;gap:0.875rem;';
-                                    
+
                                     const notifIcon = document.createElement('span');
                                     notifIcon.className = 'pi pi-exclamation-triangle';
                                     notifIcon.style.cssText = 'color:#ffc107;font-size:1.125rem;margin-top:0.125rem;';
-                                    
+
                                     const notifText = document.createElement('div');
                                     notifText.style.cssText = 'flex:1;';
-                                    
+
                                     const notifTitle = document.createElement('div');
                                     notifTitle.style.cssText = 'font-weight:600;font-size:0.9375rem;color:#333;margin-bottom:0.25rem;';
                                     notifTitle.textContent = 'Déconnexion automatique';
-                                    
+
                                     const notifDetail = document.createElement('div');
                                     notifDetail.style.cssText = 'font-size:0.875rem;color:#666;line-height:1.5;';
                                     notifDetail.textContent = message;
-                                    
+
                                     const notifClose = document.createElement('span');
                                     notifClose.className = 'pi pi-times';
                                     notifClose.style.cssText = 'position:absolute;top:0.5rem;right:0.5rem;cursor:pointer;color:#819A91;font-size:0.875rem;';
@@ -2404,16 +2406,16 @@
                                             }
                                         }, 300);
                                     };
-                                    
+
                                     notifText.appendChild(notifTitle);
                                     notifText.appendChild(notifDetail);
                                     notifContent.appendChild(notifIcon);
                                     notifContent.appendChild(notifText);
                                     notification.appendChild(notifContent);
                                     notification.appendChild(notifClose);
-                                    
+
                                     document.body.appendChild(notification);
-                                    
+
                                     setTimeout(function() {
                                         if (notification.parentNode) {
                                             notification.style.opacity = '0';
@@ -2427,10 +2429,10 @@
                                     }, 10000);
                                 }
                             }
-                            
+
                             // Démarrer après un délai
                             setTimeout(tryShowMessage, 1000);
-                            
+
                             // Nettoyer l'URL après un court délai
                             setTimeout(function() {
                                 window.history.replaceState({}, document.title, window.location.pathname);
@@ -2440,7 +2442,7 @@
                             setTimeout(showDisconnectionMessage, 200);
                         }
                     }
-                    
+
                     // Afficher le message dès que possible
                     function initDisconnectionMessage() {
                         // Attendre que le DOM et PrimeFaces soient complètement chargés
@@ -2453,10 +2455,10 @@
                             setTimeout(showDisconnectionMessage, 500);
                         }
                     }
-                    
+
                     // Initialiser l'affichage du message
                     initDisconnectionMessage();
-                    
+
                     // Appeler showOnlyCardsContainer si elle existe (avec délai pour s'assurer qu'elle est chargée)
                     setTimeout(function() {
                         if (typeof window.showOnlyCardsContainer === 'function') {
@@ -2473,13 +2475,13 @@
                 }
             })();
         })();
-        
+
         function setupSidebarMenuTooltips() {
             const menuItems = document.querySelectorAll('.sidebar-menu-item');
             menuItems.forEach(function(item) {
                 const tooltip = item.querySelector('.sidebar-menu-item-tooltip');
                 const textElement = item.querySelector('.sidebar-menu-item-text');
-                
+
                 if (!tooltip &amp;&amp; textElement) {
                     const tooltipText = textElement.textContent.trim();
                     if (tooltipText) {

@@ -22,15 +22,14 @@
             <nav class="modern-breadcrumb-nav" aria-label="Breadcrumb">
                 <ol class="modern-breadcrumb-list">
                     <li class="modern-breadcrumb-item">
-                        <h:form id="breadcrumbForm" style="display: inline;">
-                            <p:commandLink styleClass="modern-breadcrumb-link"
+                        <h:form id="breadcrumbForm" styleClass="form-inline">
+                            <p:commandLink styleClass="modern-breadcrumb-link breadcrumb-link"
                                          action="#{applicationBean.showCards()}"
                                          process="@this"
                                          update=":centerContent"
-                                         oncomplete="showOnlyCardsContainer();"
-                                         style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                                         oncomplete="showOnlyCardsContainer();">
                                 <i class="pi pi-home" />
-                                <span style="font-size: 0.8125rem;">Accueil</span>
+                                <span class="breadcrumb-text">Accueil</span>
                             </p:commandLink>
                         </h:form>
                     </li>

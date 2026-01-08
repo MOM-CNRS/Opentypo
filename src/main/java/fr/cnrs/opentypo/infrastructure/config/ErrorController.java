@@ -2,8 +2,7 @@ package fr.cnrs.opentypo.infrastructure.config;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * et rediriger vers la page d'erreur dédiée
  */
 @Controller
+@Slf4j
 public class ErrorController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ErrorController.class);
 
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request) {
@@ -28,9 +26,9 @@ public class ErrorController {
             
             // Logger l'erreur
             if (exception != null) {
-                logger.error("Erreur HTTP {} : {}", statusCode, exception);
+                log.error("Erreur HTTP {} : {}", statusCode, exception);
             } else {
-                logger.error("Erreur HTTP {} : {}", statusCode, message != null ? message : "Aucun message");
+                log.error("Erreur HTTP {} : {}", statusCode, message != null ? message : "Aucun message");
             }
             
             // Pour les erreurs 404, on peut rediriger vers index.xhtml
@@ -52,7 +50,7 @@ public class ErrorController {
             String encodedMessage = java.net.URLEncoder.encode(errorMessage, "UTF-8");
             return "redirect:/error.xhtml?message=" + encodedMessage;
         } catch (Exception e) {
-            logger.error("Erreur lors de l'encodage du message d'erreur", e);
+            log.error("Erreur lors de l'encodage du message d'erreur", e);
             return "redirect:/error.xhtml";
         }
     }

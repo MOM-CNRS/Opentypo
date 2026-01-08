@@ -1,9 +1,8 @@
 package fr.cnrs.opentypo.infrastructure.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.exception.FlywayValidateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -18,9 +17,8 @@ import javax.sql.DataSource;
  * S'exécute après Hibernate pour garantir que les tables sont créées avant l'insertion des données
  */
 @Component
+@Slf4j
 public class FlywayInitializer {
-
-    private static final Logger logger = LoggerFactory.getLogger(FlywayInitializer.class);
 
     @Autowired(required = false)
     private DataSource dataSource;
@@ -43,37 +41,37 @@ public class FlywayInitializer {
     @EventListener
     @Order(1000) // S'exécute après le démarrage complet de l'application
     public void initializeFlyway(ContextRefreshedEvent event) {
-        logger.info("Initialisation manuelle de Flyway après Hibernate...");
+        log.info("Initialisation manuelle de Flyway après Hibernate...");
 
         if (flyway != null) {
             // Flyway est déjà configuré par Spring Boot, on vérifie juste l'état
             try {
                 int pending = flyway.info().pending().length;
                 int applied = flyway.info().applied().length;
-                logger.info("Flyway - Migrations appliquées: {}, en attente: {}", applied, pending);
+                log.info("Flyway - Migrations appliquées: {}, en attente: {}", applied, pending);
                 
                 if (pending > 0) {
-                    logger.info("Exécution des migrations Flyway en attente...");
+                    log.info("Exécution des migrations Flyway en attente...");
                     try {
                         flyway.migrate();
-                        logger.info("✓ Migrations Flyway exécutées avec succès");
+                        log.info("✓ Migrations Flyway exécutées avec succès");
                     } catch (FlywayValidateException e) {
-                        logger.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
-                        logger.info("Tentative de réparation automatique des checksums...");
+                        log.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
+                        log.info("Tentative de réparation automatique des checksums...");
                         flyway.repair();
-                        logger.info("Réparation terminée, nouvelle tentative de migration...");
+                        log.info("Réparation terminée, nouvelle tentative de migration...");
                         flyway.migrate();
-                        logger.info("✓ Migrations Flyway exécutées avec succès après réparation");
+                        log.info("✓ Migrations Flyway exécutées avec succès après réparation");
                     }
                 } else {
-                    logger.info("Aucune migration en attente");
+                    log.info("Aucune migration en attente");
                 }
             } catch (Exception e) {
-                logger.error("Erreur lors de l'exécution de Flyway: {}", e.getMessage(), e);
+                log.error("Erreur lors de l'exécution de Flyway: {}", e.getMessage(), e);
             }
         } else if (dataSource != null) {
             // Flyway n'est pas configuré, on le configure manuellement
-            logger.warn("Flyway bean non disponible, initialisation manuelle...");
+            log.warn("Flyway bean non disponible, initialisation manuelle...");
             try {
                 Flyway manualFlyway = Flyway.configure()
                     .dataSource(dataSource)
@@ -87,27 +85,27 @@ public class FlywayInitializer {
 
                 int pending = manualFlyway.info().pending().length;
                 int applied = manualFlyway.info().applied().length;
-                logger.info("Flyway manuel - Migrations appliquées: {}, en attente: {}", applied, pending);
+                log.info("Flyway manuel - Migrations appliquées: {}, en attente: {}", applied, pending);
 
                 if (pending > 0) {
-                    logger.info("Exécution des migrations Flyway...");
+                    log.info("Exécution des migrations Flyway...");
                     try {
                         manualFlyway.migrate();
-                        logger.info("✓ Migrations Flyway exécutées avec succès");
+                        log.info("✓ Migrations Flyway exécutées avec succès");
                     } catch (FlywayValidateException e) {
-                        logger.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
-                        logger.info("Tentative de réparation automatique des checksums...");
+                        log.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
+                        log.info("Tentative de réparation automatique des checksums...");
                         manualFlyway.repair();
-                        logger.info("Réparation terminée, nouvelle tentative de migration...");
+                        log.info("Réparation terminée, nouvelle tentative de migration...");
                         manualFlyway.migrate();
-                        logger.info("✓ Migrations Flyway exécutées avec succès après réparation");
+                        log.info("✓ Migrations Flyway exécutées avec succès après réparation");
                     }
                 }
             } catch (Exception e) {
-                logger.error("Erreur lors de l'initialisation manuelle de Flyway: {}", e.getMessage(), e);
+                log.error("Erreur lors de l'initialisation manuelle de Flyway: {}", e.getMessage(), e);
             }
         } else {
-            logger.warn("DataSource non disponible, impossible d'initialiser Flyway");
+            log.warn("DataSource non disponible, impossible d'initialiser Flyway");
         }
     }
 }

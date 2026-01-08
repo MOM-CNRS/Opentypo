@@ -1,10 +1,13 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -13,6 +16,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 @SessionScoped
 @Getter
 @Setter
+@Slf4j
 public class ApplicationBean implements Serializable {
 
     @Inject
@@ -32,42 +37,57 @@ public class ApplicationBean implements Serializable {
     @Inject
     private EntityRepository entityRepository;
 
+    private final PanelStateManager panelState = new PanelStateManager();
+
     private List<Language> languages;
     
     private List<Entity> referentiels;
-
-    private boolean showCards = true;
-    private boolean showReferentielPanel = false;
-    private boolean showCategoryPanel = false;
-    private boolean showGroupePanel = false;
-    private boolean showSeriePanel = false;
-    private boolean showTypePanel = false;
-    private boolean showTreePanel = false;
     
     // Propriétés pour le formulaire de création de catégorie
     private String categoryCode;
     private String categoryLabel;
     private String categoryDescription;
 
+    // Getters pour compatibilité avec XHTML
+    public boolean isShowCards() { return panelState.isShowCards(); }
+    public boolean isShowReferentielPanel() { return panelState.isShowReferentielPanel(); }
+    public boolean isShowCategoryPanel() { return panelState.isShowCategoryPanel(); }
+    public boolean isShowGroupePanel() { return panelState.isShowGroupePanel(); }
+    public boolean isShowSeriePanel() { return panelState.isShowSeriePanel(); }
+    public boolean isShowTypePanel() { return panelState.isShowTypePanel(); }
+    public boolean isShowTreePanel() { return panelState.isShowTreePanel(); }
+
     @PostConstruct
     public void initialization() {
-        // Vérifier si la session a expiré ou si la vue a expiré (via paramètre URL)
+        checkSessionExpiration();
+        loadLanguages();
+        loadReferentiels();
+    }
+
+    /**
+     * Vérifie si la session ou la vue a expiré
+     */
+    private void checkSessionExpiration() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         if (facesContext != null) {
             String sessionExpired = facesContext.getExternalContext()
-                .getRequestParameterMap().get("sessionExpired");
+                .getRequestParameterMap().get(ViewConstants.PARAM_SESSION_EXPIRED);
             String viewExpired = facesContext.getExternalContext()
-                .getRequestParameterMap().get("viewExpired");
+                .getRequestParameterMap().get(ViewConstants.PARAM_VIEW_EXPIRED);
             
-            if ("true".equals(sessionExpired) || "true".equals(viewExpired)) {
-                // Réinitialiser l'affichage pour montrer uniquement cardsContainer
-                showCards();
+            if (ViewConstants.PARAM_TRUE.equals(sessionExpired) 
+                || ViewConstants.PARAM_TRUE.equals(viewExpired)) {
+                panelState.showCards();
             }
         } else {
-            showCards();
+            panelState.showCards();
         }
+    }
 
-        // Charger les langues depuis la base de données
+    /**
+     * Charge les langues depuis la base de données
+     */
+    private void loadLanguages() {
         languages = new ArrayList<>();
         try {
             List<Langue> languesFromDb = langueRepository.findAllByOrderByNomAsc();
@@ -77,19 +97,15 @@ public class ApplicationBean implements Serializable {
                     id++,
                     langue.getCode(),
                     langue.getNom(),
-                    langue.getCode() // Utiliser le code comme codeFlag
+                    langue.getCode()
                 ));
             }
         } catch (Exception e) {
-            // En cas d'erreur, utiliser les valeurs par défaut
+            log.error("Erreur lors du chargement des langues depuis la base de données", e);
+            // Valeurs par défaut en cas d'erreur
             languages.add(new Language(1, "fr", "Français", "fr"));
             languages.add(new Language(2, "en", "Anglais", "en"));
-            // Logger l'erreur si nécessaire
-            System.err.println("Erreur lors du chargement des langues depuis la base de données: " + e.getMessage());
         }
-        
-        // Charger les référentiels depuis la base de données
-        loadReferentiels();
     }
     
     /**
@@ -98,85 +114,42 @@ public class ApplicationBean implements Serializable {
     public void loadReferentiels() {
         referentiels = new ArrayList<>();
         try {
-            referentiels = entityRepository.findByEntityTypeCode("REFERENTIEL");
-            // Filtrer uniquement les référentiels publics si nécessaire
+            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENTIEL);
             referentiels = referentiels.stream()
                 .filter(r -> r.getPublique() != null && r.getPublique())
                 .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des référentiels depuis la base de données: " + e.getMessage());
+            log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
             referentiels = new ArrayList<>();
         }
     }
 
     public boolean isShowDetail() {
-        return showReferentielPanel || showCategoryPanel || showGroupePanel || showSeriePanel || showTypePanel;
+        return panelState.isShowDetail();
     }
 
     public void showCards() {
-
-        showCards = true;
-        showReferentielPanel = false;
-        showCategoryPanel = false;
-        showGroupePanel = false;
-        showSeriePanel = false;
-        showTypePanel = false;
-        showTreePanel = false;
+        panelState.showCards();
     }
     
     public void showReferentiel() {
-
-        showCards = false;
-        showReferentielPanel = true;
-        showCategoryPanel = false;
-        showGroupePanel = false;
-        showSeriePanel = false;
-        showTypePanel = false;
-        showTreePanel = true;
+        panelState.showReferentiel();
     }
 
     public void showCategory() {
-
-        showCards = false;
-        showCategoryPanel = true;
-        showReferentielPanel = false;
-        showGroupePanel = false;
-        showSeriePanel = false;
-        showTypePanel = false;
-        showTreePanel = true;
+        panelState.showCategory();
     }
 
     public void showGroupe() {
-
-        showCards = false;
-        showCategoryPanel = false;
-        showReferentielPanel = false;
-        showGroupePanel = true;
-        showSeriePanel = false;
-        showTypePanel = false;
-        showTreePanel = true;
+        panelState.showGroupe();
     }
 
     public void showSerie() {
-
-        showCards = false;
-        showCategoryPanel = false;
-        showReferentielPanel = false;
-        showGroupePanel = false;
-        showSeriePanel = true;
-        showTypePanel = false;
-        showTreePanel = true;
+        panelState.showSerie();
     }
 
     public void showType() {
-
-        showCards = false;
-        showCategoryPanel = false;
-        showReferentielPanel = false;
-        showGroupePanel = false;
-        showSeriePanel = false;
-        showTypePanel = true;
-        showTreePanel = true;
+        panelState.showType();
     }
     
     public void resetCategoryForm() {
@@ -186,35 +159,24 @@ public class ApplicationBean implements Serializable {
     }
     
     public void createCategory() {
-        if (categoryCode == null || categoryCode.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Le code de la catégorie est requis."));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
+                categoryCode, entityRepository, ":categoryForm")) {
             return;
         }
         
-        if (categoryLabel == null || categoryLabel.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Le label de la catégorie est requis."));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
+                categoryLabel, ":categoryForm")) {
             return;
         }
         
-        // Ici, vous pouvez ajouter la logique pour sauvegarder la catégorie
-        // Par exemple, l'ajouter à une liste ou à une base de données
+        // TODO: Implémenter la logique de sauvegarde de la catégorie
         
         FacesContext.getCurrentInstance().addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_INFO,
                 "Succès",
                 "La catégorie '" + categoryLabel + "' a été créée avec succès."));
         
-        // Réinitialiser le formulaire
         resetCategoryForm();
-        
         PrimeFaces.current().ajax().update(":growl, :categoryForm, :contentPanels");
     }
 }
