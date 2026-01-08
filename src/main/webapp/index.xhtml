@@ -12,26 +12,18 @@
         </section>
 
         <!-- Contenu principal avec 3 panneaux -->
-        <section class="app-content">
+        <h:panelGroup id="centerContent" class="app-content">
 
             <!-- Conteneur central -->
-            <h:panelGroup rendered="#{treeBean.root != null}">
+            <h:panelGroup id="leftTreePanel" class="left-tree" rendered="#{applicationBean.showTreePanel}">
                 <!-- Tree -->
-                <div class="left-tree" id="leftTreePanel">
-                    <!-- Menu d’onglets -->
-                    <h:form>
-                        <p:menuitem icon="pi pi-sitemap" title="Concept" outcome="/theso_tree/tree.xhtml"/>
-                    </h:form>
-
-                    <!-- Affichage dynamique de l’arbre -->
-                    <ui:fragment>
-                        <ui:include src="tree/treeActions.xhtml"/>
-                        <ui:include src="tree/tree.xhtml"/>
-                    </ui:fragment>
-                </div>
+                <ui:fragment>
+                    <ui:include src="tree/treeActions.xhtml"/>
+                    <ui:include src="tree/tree.xhtml"/>
+                </ui:fragment>
             </h:panelGroup>
 
-            <h:panelGroup id="centerContent" styleClass="center-content">
+            <h:panelGroup styleClass="center-content">
                 <!-- Conteneur des cartes -->
                 <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCards}">
                     <!-- Zone de présentation du site -->
@@ -164,6 +156,6 @@
                     <ui:include src="search/searchResult.xhtml"/>
                 </div>
             </h:panelGroup>
-        </section>
+        </h:panelGroup>
     </ui:define>
 </ui:composition>

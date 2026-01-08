@@ -2515,6 +2515,28 @@
             
             checkDialog();
         }
+
+        // Fonction pour afficher uniquement le conteneur des cartes
+        // et masquer les panneaux de contenu, tout en gardant le tree panel visible
+        window.showOnlyCardsContainer = function() {
+            // Masquer les panneaux de contenu
+            var contentPanels = document.getElementById('contentPanels');
+            if (contentPanels) {
+                contentPanels.style.display = 'none';
+            }
+
+            // Afficher le conteneur des cartes
+            var cardsContainer = document.getElementById('cardsContainer');
+            if (cardsContainer) {
+                cardsContainer.style.display = 'block';
+            }
+
+            // S'assurer que le tree panel reste visible
+            var leftTreePanel = document.getElementById('leftTreePanel');
+            if (leftTreePanel) {
+                leftTreePanel.style.display = 'block';
+            }
+        };
     </h:outputScript>
 
     <!-- Bandeau en haut de page, il faut activer l'affichage à la demande et intégrer le contenu dans la BDD -->

@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.infrastructure.config;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,17 @@ public class FlywayInitializer {
                 
                 if (pending > 0) {
                     logger.info("Exécution des migrations Flyway en attente...");
-                    flyway.migrate();
-                    logger.info("✓ Migrations Flyway exécutées avec succès");
+                    try {
+                        flyway.migrate();
+                        logger.info("✓ Migrations Flyway exécutées avec succès");
+                    } catch (FlywayValidateException e) {
+                        logger.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
+                        logger.info("Tentative de réparation automatique des checksums...");
+                        flyway.repair();
+                        logger.info("Réparation terminée, nouvelle tentative de migration...");
+                        flyway.migrate();
+                        logger.info("✓ Migrations Flyway exécutées avec succès après réparation");
+                    }
                 } else {
                     logger.info("Aucune migration en attente");
                 }
@@ -81,8 +91,17 @@ public class FlywayInitializer {
 
                 if (pending > 0) {
                     logger.info("Exécution des migrations Flyway...");
-                    manualFlyway.migrate();
-                    logger.info("✓ Migrations Flyway exécutées avec succès");
+                    try {
+                        manualFlyway.migrate();
+                        logger.info("✓ Migrations Flyway exécutées avec succès");
+                    } catch (FlywayValidateException e) {
+                        logger.warn("Erreur de validation Flyway détectée: {}", e.getMessage());
+                        logger.info("Tentative de réparation automatique des checksums...");
+                        manualFlyway.repair();
+                        logger.info("Réparation terminée, nouvelle tentative de migration...");
+                        manualFlyway.migrate();
+                        logger.info("✓ Migrations Flyway exécutées avec succès après réparation");
+                    }
                 }
             } catch (Exception e) {
                 logger.error("Erreur lors de l'initialisation manuelle de Flyway: {}", e.getMessage(), e);
