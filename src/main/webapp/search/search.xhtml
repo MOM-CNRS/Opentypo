@@ -20,11 +20,14 @@
             <p:selectOneMenu id="referentielSelect" 
                              value="#{searchBean.typeSelected}" 
                              styleClass="search-compact-select"
-                             placeholder="Référentiel">
+                             placeholder="Référentiel"
+                             filter="true"
+                             filterMatchMode="contains">
                 <f:selectItem itemLabel="Référentiel" itemValue="" noSelectionOption="true"/>
-                <f:selectItem itemLabel="Céramique" itemValue="ceramique"/>
-                <f:selectItem itemLabel="Instrumentum" itemValue="instrumentum"/>
-                <f:selectItem itemLabel="Monnaie" itemValue="monnaie"/>
+                <f:selectItems value="#{searchBean.referentiels}" 
+                              var="referentiel"
+                              itemLabel="#{referentiel.nom}"
+                              itemValue="#{referentiel.code}"/>
             </p:selectOneMenu>
 
             <!-- Langue - Compact sans label -->

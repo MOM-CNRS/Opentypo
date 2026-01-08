@@ -79,50 +79,42 @@
                     <div class="modern-cards-container">
                         <h:form>
                             <div class="modern-cards-grid">
-                                <p:commandLink action="#{applicationBean.showReferentiel()}"
-                                             styleClass="modern-card"
-                                             process="@this"
-                                             update=":centerContent">
-                                    <div class="modern-card-content">
-                                        <div class="modern-card-header">
-                                            <div class="modern-card-icon">
-                                                <i class="pi pi-database" />
+                                <ui:repeat value="#{applicationBean.referentiels}" var="referentiel">
+                                    <p:commandLink action="#{applicationBean.showReferentiel()}"
+                                                 styleClass="modern-card"
+                                                 process="@this"
+                                                 update=":centerContent">
+                                        <div class="modern-card-content">
+                                            <div class="modern-card-header">
+                                                <div class="modern-card-icon">
+                                                    <i class="pi pi-database" />
+                                                </div>
+                                                <h3 class="modern-card-title">#{referentiel.nom}</h3>
                                             </div>
-                                            <h3 class="modern-card-title">CERAMIQUE</h3>
+                                            <p class="modern-card-description">
+                                                #{empty referentiel.commentaire ? 'Aucune description disponible' : referentiel.commentaire}
+                                            </p>
                                         </div>
-                                        <p class="modern-card-description">Description courte du contenu ou contexte. Description courte du contenu ou contexte. Description courte du contenu ou contexte.Description courte du contenu ou contexte Description courte du contenu ou contexte.Description courte du contenu ou contexteDescription courte du contenu ou contexteDescription courte du contenu ou contexteDescription courte du contenu ou contexte</p>
-                                    </div>
-                                </p:commandLink>
-
-                                <p:commandLink action="#{applicationBean.showReferentiel()}"
-                                             styleClass="modern-card"
-                                             process="@this"
-                                             update=":centerContent">
-                                    <div class="modern-card-content">
-                                        <div class="modern-card-header">
-                                            <div class="modern-card-icon">
-                                                <i class="pi pi-database" />
+                                    </p:commandLink>
+                                </ui:repeat>
+                                
+                                <!-- Message si aucun référentiel n'est disponible -->
+                                <h:panelGroup rendered="#{empty applicationBean.referentiels}" styleClass="no-referentiels-message">
+                                    <div class="modern-card">
+                                        <div class="modern-card-content">
+                                            <div class="modern-card-header">
+                                                <div class="modern-card-icon">
+                                                    <i class="pi pi-info-circle" />
+                                                </div>
+                                                <h3 class="modern-card-title">Aucun référentiel disponible</h3>
                                             </div>
-                                            <h3 class="modern-card-title">INSTRUMENTUM</h3>
+                                            <p class="modern-card-description">
+                                                Il n'y a actuellement aucun référentiel dans la base de données. 
+                                                Utilisez le bouton "Créer un nouveau référentiel" pour en ajouter un.
+                                            </p>
                                         </div>
-                                        <p class="modern-card-description">Description courte du contenu ou contexte</p>
                                     </div>
-                                </p:commandLink>
-
-                                <p:commandLink action="#{applicationBean.showReferentiel()}"
-                                               styleClass="modern-card"
-                                               process="@this"
-                                               update=":centerContent">
-                                    <div class="modern-card-content">
-                                        <div class="modern-card-header">
-                                            <div class="modern-card-icon">
-                                                <i class="pi pi-database" />
-                                            </div>
-                                            <h3 class="modern-card-title">MONNAIE</h3>
-                                        </div>
-                                        <p class="modern-card-description">Description courte du contenu ou contexte</p>
-                                    </div>
-                                </p:commandLink>
+                                </h:panelGroup>
                             </div>
                         </h:form>
                     </div>

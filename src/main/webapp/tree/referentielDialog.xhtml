@@ -89,7 +89,7 @@
                                styleClass="referentiel-btn referentiel-btn-validate"
                                action="#{referentielBean.creerReferentiel}"
                                process="@form"
-                               update="@form :growl :treeWidget"
+                               update="@form :growl :treeWidget :cardsContainer :searchForm"
                                oncomplete="if(!args.validationFailed) {PF('addReferentielDialog').hide();}"/>
             </div>
         </h:form>

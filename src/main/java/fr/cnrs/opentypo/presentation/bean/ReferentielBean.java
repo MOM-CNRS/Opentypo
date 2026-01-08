@@ -48,6 +48,12 @@ public class ReferentielBean implements Serializable {
 
     @Inject
     private TreeBean treeBean;
+    
+    @Inject
+    private ApplicationBean applicationBean;
+    
+    @Inject
+    private SearchBean searchBean;
 
     
     // Propriétés pour le formulaire de création de référentiel
@@ -92,6 +98,14 @@ public class ReferentielBean implements Serializable {
         
         // Vérifier la validité du code (unicité)
         String codeTrimmed = referentielCode.trim();
+        if (entityRepository.existsByCode(codeTrimmed)) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Un référentiel avec ce code existe déjà."));
+            PrimeFaces.current().ajax().update(":growl, :referentielForm");
+            return;
+        }
 
         // Vérifier la validité du label (longueur)
         String labelTrimmed = referentielLabel.trim();
@@ -146,12 +160,20 @@ public class ReferentielBean implements Serializable {
             // Sauvegarder en base de données
             entityRepository.save(nouveauReferentiel);
             
+            // Recharger la liste des référentiels dans ApplicationBean et SearchBean
+            if (applicationBean != null) {
+                applicationBean.loadReferentiels();
+            }
+            if (searchBean != null) {
+                searchBean.loadReferentiels();
+            }
+            
             // Gérer les catégories du référentiel si fournies
             // Note: Les catégories seront liées via EntityRelation dans une étape ultérieure
             // Pour l'instant, on les stocke dans une liste pour traitement ultérieur
             
             // Créer un nouveau nœud référentiel dans l'arbre
-            if (treeBean.getRoot() != null) {
+            if (treeBean != null && treeBean.getRoot() != null) {
                 new DefaultTreeNode(labelTrimmed, treeBean.getRoot());
             }
             
@@ -164,7 +186,7 @@ public class ReferentielBean implements Serializable {
             // Réinitialiser le formulaire
             resetReferentielForm();
             
-            PrimeFaces.current().ajax().update(":growl, :referentielForm, :treeWidget");
+            PrimeFaces.current().ajax().update(":growl, :referentielForm, :treeWidget, :cardsContainer");
             
         } catch (IllegalStateException e) {
             facesContext.addMessage(null,

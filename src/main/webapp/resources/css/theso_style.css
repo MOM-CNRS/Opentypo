@@ -3794,6 +3794,32 @@ body .ui-panelgrid .ui-panelgrid-cell {
     justify-items: stretch;
 }
 
+/* Message quand aucun référentiel n'est disponible */
+.no-referentiels-message {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.no-referentiels-message .modern-card {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.3);
+    border-left: 4px solid var(--color-action-main, #47624D);
+}
+
+.no-referentiels-message .modern-card-icon {
+    background: rgba(71, 98, 77, 0.1);
+    color: var(--color-action-main, #47624D);
+}
+
+.no-referentiels-message .modern-card-title {
+    color: var(--color-text-secondary, #819A91);
+}
+
+.no-referentiels-message .modern-card-description {
+    color: var(--color-text-secondary, #819A91);
+    font-style: italic;
+}
+
 /* Carte moderne */
 .modern-card {
     display: block;

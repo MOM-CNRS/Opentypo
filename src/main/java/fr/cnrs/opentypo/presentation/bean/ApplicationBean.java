@@ -1,7 +1,9 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.models.Language;
+import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -27,7 +29,12 @@ public class ApplicationBean implements Serializable {
     @Inject
     private LangueRepository langueRepository;
 
+    @Inject
+    private EntityRepository entityRepository;
+
     private List<Language> languages;
+    
+    private List<Entity> referentiels;
 
     private boolean showCards = true;
     private boolean showReferentielPanel = false;
@@ -79,6 +86,26 @@ public class ApplicationBean implements Serializable {
             languages.add(new Language(2, "en", "Anglais", "en"));
             // Logger l'erreur si nécessaire
             System.err.println("Erreur lors du chargement des langues depuis la base de données: " + e.getMessage());
+        }
+        
+        // Charger les référentiels depuis la base de données
+        loadReferentiels();
+    }
+    
+    /**
+     * Charge les référentiels depuis la base de données
+     */
+    public void loadReferentiels() {
+        referentiels = new ArrayList<>();
+        try {
+            referentiels = entityRepository.findByEntityTypeCode("REFERENTIEL");
+            // Filtrer uniquement les référentiels publics si nécessaire
+            referentiels = referentiels.stream()
+                .filter(r -> r.getPublique() != null && r.getPublique())
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des référentiels depuis la base de données: " + e.getMessage());
+            referentiels = new ArrayList<>();
         }
     }
 
