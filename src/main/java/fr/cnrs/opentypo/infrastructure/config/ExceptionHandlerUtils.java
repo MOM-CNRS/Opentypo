@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Utilitaires pour les gestionnaires d'exceptions JSF
  */
@@ -70,12 +72,7 @@ public final class ExceptionHandlerUtils {
             ? message.substring(0, maxLength) + "..." 
             : message;
 
-        try {
-            return java.net.URLEncoder.encode(truncatedMessage, "UTF-8");
-        } catch (java.io.UnsupportedEncodingException e) {
-            // UTF-8 est toujours supporté, mais on gère l'exception au cas où
-            return truncatedMessage.replaceAll("[^a-zA-Z0-9\\s]", "");
-        }
+        return java.net.URLEncoder.encode(truncatedMessage, StandardCharsets.UTF_8);
     }
 }
 

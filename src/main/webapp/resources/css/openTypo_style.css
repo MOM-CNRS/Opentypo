@@ -3734,9 +3734,9 @@ body .ui-panelgrid .ui-panelgrid-cell {
     }
 }
 
-/* Section de création de référentiel */
-#cardsContainer .create-referentiel-section,
-.create-referentiel-section {
+/* Section de création de collection */
+#cardsContainer .create-collection-section,
+.create-collection-section {
     width: 100% !important;
     padding-top: 10px !important;
     padding-right: 20px !important;
@@ -3751,8 +3751,8 @@ body .ui-panelgrid .ui-panelgrid-cell {
 
 /* Responsive pour la section de création */
 @media (max-width: 768px) {
-    #cardsContainer .create-referentiel-section,
-    .create-referentiel-section {
+    #cardsContainer .create-collection-section,
+    .create-collection-section {
         padding-right: 0.75rem !important;
         padding-left: 0.75rem !important;
         text-align: center !important;

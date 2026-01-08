@@ -1,0 +1,160 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer une nouvelle collection -->
+    <p:dialog id="addCollectionDialog"
+              widgetVar="addCollectionDialog"
+              header="Créer une nouvelle collection"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="collection-dialog"
+              width="600"
+              height="auto"
+              closable="true"
+              responsive="true"
+              position="center">
+        
+        <h:form id="collectionForm">
+            <f:event listener="#{collectionBean.resetCollectionForm}" type="preRenderView"/>
+            <div class="collection-form-content">
+                <div class="collection-form-group">
+                    <p:outputLabel for="collectionNom" value="Nom de la collection *" />
+                    <p:inputText id="collectionNom" 
+                               value="#{collectionBean.collectionNom}"
+                               required="true"
+                               requiredMessage="Le nom de la collection est requis"
+                               styleClass="collection-input"
+                               placeholder="Ex: Collection de céramiques"/>
+                </div>
+
+                <div class="collection-form-group">
+                    <p:outputLabel for="collectionDescription" value="Description" />
+                    <p:inputTextarea id="collectionDescription" 
+                                    value="#{collectionBean.collectionDescription}"
+                                    rows="4"
+                                    styleClass="collection-textarea"
+                                    placeholder="Description de la collection"/>
+                </div>
+            </div>
+
+            <div class="collection-form-actions">
+                <p:commandButton value="Annuler" 
+                               icon="pi pi-times"
+                               styleClass="collection-btn collection-btn-cancel"
+                               onclick="PF('addCollectionDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Valider" 
+                               icon="pi pi-check"
+                               styleClass="collection-btn collection-btn-validate"
+                               action="#{collectionBean.creerCollection}"
+                               process="@form"
+                               update="@form :growl :cardsContainer :searchForm"
+                               oncomplete="if(!args.validationFailed) {PF('addCollectionDialog').hide();}"/>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <style>
+        .collection-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .collection-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .collection-form-group label {
+            font-weight: 500;
+            color: var(--color-text-primary, #333);
+            font-size: 0.9rem;
+        }
+
+        .collection-input,
+        .collection-textarea {
+            width: 100% !important;
+            padding: 0.625rem 0.75rem !important;
+            border: 1px solid rgba(71, 98, 77, 0.3) !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .collection-input:focus,
+        .collection-textarea:focus {
+            border-color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+            outline: none !important;
+        }
+
+        .collection-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .collection-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(71, 98, 77, 0.15);
+        }
+
+        .collection-btn {
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .collection-btn-cancel {
+            background-color: var(--color-action-secondary, #6C757D) !important;
+            color: white !important;
+        }
+
+        .collection-btn-cancel:hover {
+            background-color: #5a6268 !important;
+        }
+
+        .collection-btn-validate {
+            background-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+        }
+
+        .collection-btn-validate:hover {
+            background-color: #3a4f3f !important;
+        }
+
+        /* Responsive pour le dialog */
+        @media (max-width: 768px) {
+            .collection-dialog {
+                width: 90% !important;
+                max-width: 500px !important;
+            }
+
+            .collection-form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .collection-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</ui:fragment>

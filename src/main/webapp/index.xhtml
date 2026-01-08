@@ -66,12 +66,12 @@
                         </div>
                     </div>
 
-                    <!-- Section d'action pour créer un référentiel -->
-                    <div class="create-referentiel-section">
-                        <p:commandButton value="Créer un nouveau référentiel"
+                    <!-- Section d'action pour créer une collection -->
+                    <div class="create-collection-section">
+                        <p:commandButton value="Créer une nouvelle collection"
                                          icon="pi pi-arrow-right"
                                          styleClass="referentiel-btn referentiel-btn-validate"
-                                         onclick="PF('addReferentielDialog').show(); return false;"
+                                         onclick="PF('addCollectionDialog').show(); return false;"
                                          process="@this"
                                          update="@none"/>
                     </div>
@@ -79,7 +79,7 @@
                     <div class="modern-cards-container">
                         <h:form>
                             <div class="modern-cards-grid">
-                                <ui:repeat value="#{applicationBean.referentiels}" var="referentiel">
+                                <ui:repeat value="#{applicationBean.collections}" var="collection">
                                     <p:commandLink action="#{applicationBean.showReferentiel()}"
                                                  styleClass="modern-card"
                                                  process="@this"
@@ -87,30 +87,30 @@
                                         <div class="modern-card-content">
                                             <div class="modern-card-header">
                                                 <div class="modern-card-icon">
-                                                    <i class="pi pi-database" />
+                                                    <i class="pi pi-folder" />
                                                 </div>
-                                                <h3 class="modern-card-title">#{referentiel.nom}</h3>
+                                                <h3 class="modern-card-title">#{collection.nom}</h3>
                                             </div>
                                             <p class="modern-card-description">
-                                                #{empty referentiel.commentaire ? 'Aucune description disponible' : referentiel.commentaire}
+                                                #{empty collection.commentaire ? 'Aucune description disponible' : collection.commentaire}
                                             </p>
                                         </div>
                                     </p:commandLink>
                                 </ui:repeat>
                                 
-                                <!-- Message si aucun référentiel n'est disponible -->
-                                <h:panelGroup rendered="#{empty applicationBean.referentiels}" styleClass="no-referentiels-message">
+                                <!-- Message si aucune collection n'est disponible -->
+                                <h:panelGroup rendered="#{empty applicationBean.collections}" styleClass="no-collections-message">
                                     <div class="modern-card">
                                         <div class="modern-card-content">
                                             <div class="modern-card-header">
                                                 <div class="modern-card-icon">
                                                     <i class="pi pi-info-circle" />
                                                 </div>
-                                                <h3 class="modern-card-title">Aucun référentiel disponible</h3>
+                                                <h3 class="modern-card-title">Aucune collection disponible</h3>
                                             </div>
                                             <p class="modern-card-description">
-                                                Il n'y a actuellement aucun référentiel dans la base de données. 
-                                                Utilisez le bouton "Créer un nouveau référentiel" pour en ajouter un.
+                                                Il n'y a actuellement aucune collection dans la base de données. 
+                                                Utilisez le bouton "Créer une nouvelle collection" pour en ajouter une.
                                             </p>
                                         </div>
                                     </div>
@@ -119,8 +119,8 @@
                         </h:form>
                     </div>
                     
-                    <!-- Inclusion du dialogue de création de référentiel -->
-                    <ui:include src="tree/referentielDialog.xhtml"/>
+                    <!-- Inclusion du dialogue de création de collection -->
+                    <ui:include src="tree/collectionDialog.xhtml"/>
                 </h:panelGroup>
 
                 <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">

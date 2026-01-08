@@ -16,18 +16,18 @@
                                  process="@this" update="@none"/>
             </div>
 
-            <!-- Référentiel - Compact sans label -->
-            <p:selectOneMenu id="referentielSelect" 
+            <!-- Collection - Compact sans label -->
+            <p:selectOneMenu id="collectionSelect" 
                              value="#{searchBean.typeSelected}" 
                              styleClass="search-compact-select"
-                             placeholder="Référentiel"
+                             placeholder="Collection"
                              filter="true"
                              filterMatchMode="contains">
-                <f:selectItem itemLabel="Référentiel" itemValue="" noSelectionOption="true"/>
-                <f:selectItems value="#{searchBean.referentiels}" 
-                              var="referentiel"
-                              itemLabel="#{referentiel.nom}"
-                              itemValue="#{referentiel.code}"/>
+                <f:selectItem itemLabel="Collection" itemValue="" noSelectionOption="true"/>
+                <f:selectItems value="#{searchBean.collections}" 
+                              var="collection"
+                              itemLabel="#{collection.nom}"
+                              itemValue="#{collection.code}"/>
             </p:selectOneMenu>
 
             <!-- Langue - Compact sans label -->
