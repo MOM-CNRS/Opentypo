@@ -3734,6 +3734,31 @@ body .ui-panelgrid .ui-panelgrid-cell {
     }
 }
 
+/* Section de création de référentiel */
+#cardsContainer .create-referentiel-section,
+.create-referentiel-section {
+    width: 100% !important;
+    padding-top: 10px !important;
+    padding-right: 20px !important;
+    padding-bottom: 1rem !important;
+    padding-left: 1.5rem !important;
+    text-align: right !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    margin: 0 !important;
+    clear: both !important;
+}
+
+/* Responsive pour la section de création */
+@media (max-width: 768px) {
+    #cardsContainer .create-referentiel-section,
+    .create-referentiel-section {
+        padding-right: 0.75rem !important;
+        padding-left: 0.75rem !important;
+        text-align: center !important;
+    }
+}
+
 /* ============================================
    CARTES MODERNES - DESIGN ERGONOMIQUE ET RESPONSIVE
    ============================================ */
@@ -3743,7 +3768,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 2rem 1.5rem;
+    padding: 1.2rem 1.5rem !important;
     overflow-y: auto;
     min-height: 0;
     width: 100%;
@@ -3901,7 +3926,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     }
     
     .modern-cards-container {
-        padding: 1.5rem 1rem;
+        padding: 1rem 1rem;
     }
 }
 

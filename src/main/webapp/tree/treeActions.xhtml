@@ -22,69 +22,6 @@
         </p:menu>
     </div>
 
-    <!-- Dialog pour créer un nouveau référentiel -->
-    <p:dialog id="addTopConceptDialog" 
-              widgetVar="addTopConceptDialog"
-              header="Créer un nouveau référentiel"
-              modal="true"
-              draggable="false"
-              resizable="false"
-              styleClass="referentiel-dialog"
-              width="600"
-              height="auto"
-              closable="true">
-        
-        <h:form id="referentielForm">
-            <f:event listener="#{treeBean.resetReferentielForm}" type="preRenderView"/>
-            <div class="referentiel-form-content">
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielCode" value="Code du référentiel *" />
-                    <p:inputText id="referentielCode" 
-                               value="#{treeBean.referentielCode}"
-                               required="true"
-                               requiredMessage="Le code du référentiel est requis"
-                               styleClass="referentiel-input"
-                               placeholder="Ex: REF001"/>
-                </div>
-
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielLabel" value="Label *" />
-                    <p:inputText id="referentielLabel" 
-                               value="#{treeBean.referentielLabel}"
-                               required="true"
-                               requiredMessage="Le label est requis"
-                               styleClass="referentiel-input"
-                               placeholder="Nom du référentiel"/>
-                </div>
-
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielDescription" value="Description" />
-                    <p:inputTextarea id="referentielDescription" 
-                                    value="#{treeBean.referentielDescription}"
-                                    rows="4"
-                                    styleClass="referentiel-textarea"
-                                    placeholder="Description du référentiel"/>
-                </div>
-            </div>
-
-            <div class="referentiel-form-actions">
-                <p:commandButton value="Annuler" 
-                               icon="pi pi-times"
-                               styleClass="referentiel-btn referentiel-btn-cancel"
-                               onclick="PF('addTopConceptDialog').hide(); return false;"
-                               process="@this"
-                               update="@none"/>
-                <p:commandButton value="Valider" 
-                               icon="pi pi-check"
-                               styleClass="referentiel-btn referentiel-btn-validate"
-                               action="#{treeBean.creerReferentiel}"
-                               process="@form"
-                               update="@form :growl"
-                               oncomplete="if(!args.validationFailed) {PF('addTopConceptDialog').hide();}"/>
-            </div>
-        </h:form>
-    </p:dialog>
-
     <style>
         /* Container du menu d'actions */
         .tree-actions-container {

@@ -1,0 +1,218 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer un nouveau référentiel -->
+    <p:dialog id="addReferentielDialog"
+              widgetVar="addReferentielDialog"
+              header="Créer un nouveau référentiel"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="referentiel-dialog"
+              width="700"
+              height="auto"
+              closable="true"
+              responsive="true"
+              position="center">
+        
+        <h:form id="referentielForm">
+            <f:event listener="#{referentielBean.resetReferentielForm}" type="preRenderView"/>
+            <div class="referentiel-form-content">
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="referentielCode" value="Code du référentiel" />
+                    <p:inputText id="referentielCode" 
+                               value="#{referentielBean.referentielCode}"
+                               required="true"
+                               requiredMessage="Le code du référentiel est requis"
+                               styleClass="referentiel-input"
+                               placeholder="Ex: REF001"/>
+                </div>
+
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="referentielLabel" value="Label" />
+                    <p:inputText id="referentielLabel" 
+                               value="#{referentielBean.referentielLabel}"
+                               required="true"
+                               requiredMessage="Le label est requis"
+                               styleClass="referentiel-input"
+                               placeholder="Nom du référentiel"/>
+                </div>
+
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="referentielDescription" value="Description" />
+                    <p:inputTextarea id="referentielDescription" 
+                                    value="#{referentielBean.referentielDescription}"
+                                    rows="4"
+                                    styleClass="referentiel-textarea"
+                                    placeholder="Description du référentiel"/>
+                </div>
+
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="periode" value="Période" />
+                    <p:inputText id="periode"
+                                 value="#{referentielBean.periodeId}"
+                                 styleClass="referentiel-input"
+                                 placeholder="Nom du référentiel"/>
+                </div>
+
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="referenceBibliographique" value="Référence bibliographique" />
+                    <p:inputTextarea id="referenceBibliographique" 
+                                    value="#{referentielBean.referenceBibliographique}"
+                                    rows="3"
+                                    styleClass="referentiel-textarea"
+                                    placeholder="Référence bibliographique"/>
+                </div>
+
+                <div class="referentiel-form-group">
+                    <p:outputLabel for="categories" value="Catégories du référentiel" />
+                    <p:inputText id="categories"
+                                 value="#{referentielBean.categorieIds}"
+                                 requiredMessage="La catégorie est requis"
+                                 styleClass="referentiel-input"
+                                 placeholder="Nom du référentiel"/>
+                </div>
+            </div>
+
+            <div class="referentiel-form-actions">
+                <p:commandButton value="Annuler" 
+                               icon="pi pi-times"
+                               styleClass="referentiel-btn referentiel-btn-cancel"
+                               onclick="PF('addReferentielDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Valider" 
+                               icon="pi pi-check"
+                               styleClass="referentiel-btn referentiel-btn-validate"
+                               action="#{referentielBean.creerReferentiel}"
+                               process="@form"
+                               update="@form :growl :treeWidget"
+                               oncomplete="if(!args.validationFailed) {PF('addReferentielDialog').hide();}"/>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <style>
+        .tree-actions-button .ui-icon {
+            font-size: 1.1rem;
+        }
+
+        .tree-menu-item .ui-menuitem-text {
+            color: var(--color-text-primary, #333) !important;
+        }
+
+        .tree-menu-item:hover .ui-menuitem-text {
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .tree-menu-item .ui-icon {
+            color: var(--color-action-main, #47624D) !important;
+            font-size: 1rem;
+        }
+
+        .tree-menu-item:hover .ui-icon {
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .referentiel-form-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .referentiel-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .referentiel-form-group label {
+            font-weight: 500;
+            color: var(--color-text-primary, #333);
+            font-size: 0.9rem;
+        }
+
+        .referentiel-input,
+        .referentiel-textarea {
+            width: 100% !important;
+            padding: 0.625rem 0.75rem !important;
+            border: 1px solid rgba(71, 98, 77, 0.3) !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .referentiel-input:focus,
+        .referentiel-textarea:focus {
+            border-color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+            outline: none !important;
+        }
+
+        .referentiel-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .referentiel-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(71, 98, 77, 0.15);
+        }
+
+        .referentiel-btn {
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 0.25rem !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+
+        .referentiel-btn-cancel {
+            background-color: var(--color-action-secondary, #6C757D) !important;
+            color: white !important;
+        }
+
+        .referentiel-btn-cancel:hover {
+            background-color: #5a6268 !important;
+        }
+
+        .referentiel-btn-validate {
+            background-color: var(--color-action-main, #47624D) !important;
+            color: white !important;
+        }
+
+        .referentiel-btn-validate:hover {
+            background-color: #3a4f3f !important;
+        }
+
+        /* Responsive pour le dialog */
+        @media (max-width: 768px) {
+            .referentiel-dialog {
+                width: 90% !important;
+                max-width: 500px !important;
+            }
+
+            .referentiel-form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .referentiel-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</ui:fragment>
+

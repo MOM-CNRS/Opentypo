@@ -14,11 +14,9 @@
         <!-- Contenu principal avec 3 panneaux -->
         <h:panelGroup id="centerContent" class="app-content">
 
-            <!-- Conteneur central -->
+            <!-- Tree -->
             <h:panelGroup id="leftTreePanel" class="left-tree" rendered="#{applicationBean.showTreePanel}">
-                <!-- Tree -->
                 <ui:fragment>
-                    <ui:include src="tree/treeActions.xhtml"/>
                     <ui:include src="tree/tree.xhtml"/>
                 </ui:fragment>
             </h:panelGroup>
@@ -68,12 +66,22 @@
                         </div>
                     </div>
 
+                    <!-- Section d'action pour créer un référentiel -->
+                    <div style="padding-top: 1rem; padding-right: 1.5rem; text-align: right">
+                        <p:commandButton value="Créer un nouveau référentiel"
+                                         icon="pi pi-arrow-right"
+                                         styleClass="referentiel-btn referentiel-btn-validate"
+                                         onclick="PF('addReferentielDialog').show(); return false;"
+                                         process="@this"
+                                         update="@none"/>
+                    </div>
+
                     <div class="modern-cards-container">
                         <h:form>
                             <div class="modern-cards-grid">
-                                <p:commandLink action="#{applicationBean.showReferentiel()}" 
+                                <p:commandLink action="#{applicationBean.showReferentiel()}"
                                              styleClass="modern-card"
-                                             process="@this" 
+                                             process="@this"
                                              update=":centerContent">
                                     <div class="modern-card-content">
                                         <div class="modern-card-header">
@@ -118,6 +126,9 @@
                             </div>
                         </h:form>
                     </div>
+                    
+                    <!-- Inclusion du dialogue de création de référentiel -->
+                    <ui:include src="tree/referentielDialog.xhtml"/>
                 </h:panelGroup>
 
                 <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
