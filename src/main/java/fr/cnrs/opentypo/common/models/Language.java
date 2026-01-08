@@ -26,4 +26,12 @@ public class Language {
         return value.substring(0, 1).toUpperCase() + value.substring(1);
     }
 
+    /**
+     * Retourne le chemin du drapeau pour cette langue
+     */
+    public String getFlagPath() {
+        String flagCode = codeFlag != null ? codeFlag : code;
+        return "/resources/img/flag/" + flagCode + ".png";
+    }
+
 }
