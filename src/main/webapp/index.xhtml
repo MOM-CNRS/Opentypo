@@ -23,7 +23,7 @@
 
             <h:panelGroup styleClass="center-content">
                 <!-- Conteneur des cartes -->
-                <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCollections}">
+                <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCollectionsPanel}">
                     <!-- Zone de présentation du site -->
                     <div class="site-presentation-container">
                         <div class="site-presentation-content">
@@ -124,7 +124,10 @@
                 </h:panelGroup>
 
                 <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
-                    <ui:include src="details/breadCrumb.xhtml"/>
+
+                    <h:panelGroup rendered="#{applicationBean.showBreadCrumbPanel}">
+                        <ui:include src="details/breadCrumb.xhtml"/>
+                    </h:panelGroup>
 
                     <!-- Panneau référentiel -->
                     <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">

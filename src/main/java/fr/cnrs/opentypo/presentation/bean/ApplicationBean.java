@@ -50,7 +50,8 @@ public class ApplicationBean implements Serializable {
     private String categoryDescription;
 
     // Getters pour compatibilité avec XHTML
-    public boolean isShowCollections() { return panelState.isShowCollections(); }
+    public boolean isShowBreadCrumbPanel() { return panelState.isShowBreadCrumb(); }
+    public boolean isShowCollectionsPanel() { return panelState.isShowCollections(); }
     public boolean isShowReferencesPanel() { return panelState.isShowReferencesPanel(); }
     public boolean isShowReferencePanel() { return panelState.isShowReferencePanel(); }
     public boolean isShowCategoryPanel() { return panelState.isShowCategoryPanel(); }

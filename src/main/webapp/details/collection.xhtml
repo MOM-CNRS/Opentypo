@@ -4,78 +4,375 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div id="element">
-        <div class="image-container">
-            <p:graphicImage
-                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                    styleClass="research-image"
-                    alt="Vue de la rive gauche de Paris"/>
+    <div style="width: 100%">
+        <div style="width: 50%">
+            Liste des référentiels pour XXXX
+        </div>
+        <div style="width: 50%">
+            <p:commandButton value="Créer une nouvelle référence"
+                             icon="pi pi-arrow-right"
+                             styleClass="referentiel-btn referentiel-btn-validate"
+                             onclick="PF('addCollectionDialog').show(); return false;"
+                             process="@this"
+                             update="@none"/>
+        </div>
+    </div>
+    <!-- Panel de collection compact et ergonomique -->
+    <div class="collection-panel">
+        <!-- En-tête compacte -->
+        <div class="collection-panel-header">
+            <div class="collection-panel-title-section">
+                <div class="collection-panel-icon">
+                    <i class="pi pi-folder" />
+                </div>
+                <div class="collection-panel-title-wrapper">
+                    <h3 class="collection-panel-title">cortège funéraires</h3>
+                    <span class="collection-panel-subtitle">Collection</span>
+                </div>
+            </div>
+            <div class="collection-panel-actions">
+                <p:commandLink action="#" process="@this" update="@none" 
+                             styleClass="collection-action-btn" 
+                             title="Paramètres">
+                    <i class="pi pi-cog" />
+                </p:commandLink>
+                <p:commandLink action="#" process="@this" update="@none" 
+                             styleClass="collection-action-btn" 
+                             title="Marquer">
+                    <i class="pi pi-flag" />
+                </p:commandLink>
+            </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel">
-                    <!-- En-tête avec titre et actions -->
-                    <div class="concept-info-header">
-                        <div class="concept-info-title-section">
-                            <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png"
-                                                styleClass="language-flag"
-                                                alt="Français"
-                                                title="Français"/>
-                            </div>
-                            <h2 class="concept-info-title">cortège funéraires</h2>
-                        </div>
-                        <div class="concept-info-actions">
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-cog" />
-                                <p:tooltip value="Paramètres" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-flag" />
-                                <p:tooltip value="Marquer" position="top"/>
-                            </p:commandLink>
-                        </div>
+        <!-- Contenu compact -->
+        <div class="collection-panel-content">
+            <!-- Image compacte (optionnelle) -->
+            <div class="collection-panel-image">
+                <p:graphicImage
+                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                    styleClass="collection-image"
+                    alt="Image de la collection"/>
+            </div>
+
+            <!-- Informations en grille compacte -->
+            <div class="collection-info-grid">
+                <div class="collection-info-item">
+                    <div class="collection-info-label">
+                        <i class="pi pi-database collection-info-icon" />
+                        <span>Référentiel</span>
                     </div>
+                    <div class="collection-info-value">convoi funèbre</div>
+                </div>
 
-                    <!-- Grille d'informations -->
-                    <div class="concept-info-grid">
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-database concept-info-icon" />
-                                <span>Référentiel</span>
-                            </div>
-                            <div class="concept-info-value">convoi funèbre</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description">
-                                Déscription total
-                            </div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value">Firas GABSI</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-book concept-info-icon" />
-                                <span>Référence bibliographique</span>
-                            </div>
-                            <div class="concept-info-value">Test Test</div>
-                        </div>
+                <div class="collection-info-item collection-info-item-full">
+                    <div class="collection-info-label">
+                        <i class="pi pi-file collection-info-icon" />
+                        <span>Description</span>
                     </div>
+                    <div class="collection-info-value collection-info-description">
+                        Déscription total
+                    </div>
+                </div>
+
+                <div class="collection-info-item">
+                    <div class="collection-info-label">
+                        <i class="pi pi-user collection-info-icon" />
+                        <span>Auteur(s)</span>
+                    </div>
+                    <div class="collection-info-value">Firas GABSI</div>
+                </div>
+
+                <div class="collection-info-item">
+                    <div class="collection-info-label">
+                        <i class="pi pi-book collection-info-icon" />
+                        <span>Bibliographie</span>
+                    </div>
+                    <div class="collection-info-value">Test Test</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        /* Panel de collection - Design ultra-compact */
+        .collection-panel {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(71, 98, 77, 0.1);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .collection-panel:hover {
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.12);
+            transform: translateY(-1px);
+        }
+
+        /* En-tête ultra-compacte */
+        .collection-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0.875rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+            border-bottom: 1px solid rgba(71, 98, 77, 0.1);
+            flex-shrink: 0;
+        }
+
+        .collection-panel-title-section {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .collection-panel-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 0.9375rem;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(71, 98, 77, 0.15);
+        }
+
+        .collection-panel-title-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .collection-panel-title {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: var(--color-text-primary, #333);
+            margin: 0;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .collection-panel-subtitle {
+            font-size: 0.6875rem;
+            color: var(--color-text-secondary, #819A91);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-weight: 600;
+        }
+
+        .collection-panel-actions {
+            display: flex;
+            gap: 0.375rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .collection-action-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--color-text-secondary, #819A91);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+
+        .collection-action-btn:hover {
+            background: rgba(71, 98, 77, 0.1);
+            color: var(--color-action-main, #47624D);
+            border-color: rgba(71, 98, 77, 0.2);
+        }
+
+        .collection-action-btn i {
+            font-size: 0.8125rem;
+        }
+
+        /* Contenu ultra-compact */
+        .collection-panel-content {
+            padding: 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        /* Image compacte */
+        .collection-panel-image {
+            width: 100%;
+            height: 120px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .collection-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Grille d'informations ultra-compacte */
+        .collection-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .collection-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+            padding: 0.5rem;
+            background: rgba(71, 98, 77, 0.02);
+            border-radius: 4px;
+            border: 1px solid rgba(71, 98, 77, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .collection-info-item:hover {
+            background: rgba(71, 98, 77, 0.05);
+            border-color: rgba(71, 98, 77, 0.15);
+        }
+
+        .collection-info-item-full {
+            grid-column: 1 / -1;
+        }
+
+        .collection-info-label {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--color-text-secondary, #819A91);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .collection-info-icon {
+            font-size: 0.75rem;
+            color: var(--color-action-main, #47624D);
+            width: 14px;
+            text-align: center;
+        }
+
+        .collection-info-value {
+            font-size: 0.8125rem;
+            font-weight: 400;
+            color: var(--color-text-primary, #333);
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .collection-info-description {
+            max-height: 80px;
+            overflow-y: auto;
+            padding-right: 0.375rem;
+        }
+
+        .collection-info-description::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .collection-info-description::-webkit-scrollbar-track {
+            background: rgba(71, 98, 77, 0.05);
+            border-radius: 2px;
+        }
+
+        .collection-info-description::-webkit-scrollbar-thumb {
+            background: rgba(71, 98, 77, 0.2);
+            border-radius: 2px;
+        }
+
+        .collection-info-description::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 98, 77, 0.3);
+        }
+
+        /* Responsive pour plusieurs panels côte à côte */
+        @media (max-width: 768px) {
+            .collection-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .collection-panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .collection-panel-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .collection-panel-image {
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .collection-panel-content {
+                padding: 0.625rem;
+            }
+
+            .collection-panel-header {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .collection-panel-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.875rem;
+            }
+
+            .collection-panel-title {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Grille pour afficher plusieurs panels côte à côte - Ultra-compacte */
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.875rem;
+            padding: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .collections-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .collections-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .collections-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
 </ui:composition>
