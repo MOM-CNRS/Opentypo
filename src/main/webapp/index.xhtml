@@ -80,7 +80,7 @@
                         <h:form>
                             <div class="modern-cards-grid">
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
-                                    <p:commandLink action="#{applicationBean.showCollectionDetail()}"
+                                    <p:commandLink action="#{applicationBean.showCollectionDetail(collection)}"
                                                  styleClass="modern-card"
                                                  process="@this"
                                                  update=":centerContent">

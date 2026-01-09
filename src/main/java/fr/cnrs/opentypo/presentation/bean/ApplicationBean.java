@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
@@ -14,6 +15,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,12 +39,27 @@ public class ApplicationBean implements Serializable {
     @Inject
     private EntityRepository entityRepository;
 
+    @Inject
+    private EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private Provider<TreeBean> treeBeanProvider;
+
     private final PanelStateManager panelState = new PanelStateManager();
 
     private List<Language> languages;
     
     private List<Entity> referentiels;
     private List<Entity> collections;
+    
+    // Collection actuellement sélectionnée
+    private Entity selectedCollection;
+    
+    // Référentiel actuellement sélectionné
+    private Entity selectedReference;
+    
+    // Référentiels de la collection sélectionnée
+    private List<Entity> collectionReferences;
     
     // Propriétés pour le formulaire de création de catégorie
     private String categoryCode;
@@ -153,6 +170,47 @@ public class ApplicationBean implements Serializable {
     
     public void showCollectionDetail() {
         panelState.showCollectionDetail();
+    }
+    
+    /**
+     * Affiche les détails d'une collection spécifique
+     */
+    public void showCollectionDetail(Entity collection) {
+        this.selectedCollection = collection;
+        loadCollectionReferences();
+        panelState.showCollectionDetail();
+        
+        // Initialiser l'arbre avec les référentiels de la collection
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.initializeTreeWithCollection();
+        }
+    }
+    
+    /**
+     * Charge les référentiels rattachés à la collection sélectionnée
+     */
+    public void loadCollectionReferences() {
+        collectionReferences = new ArrayList<>();
+        if (selectedCollection != null) {
+            try {
+                collectionReferences = entityRelationRepository.findChildrenByParentAndType(
+                    selectedCollection, 
+                    EntityConstants.ENTITY_TYPE_REFERENTIEL
+                );
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des référentiels de la collection", e);
+                collectionReferences = new ArrayList<>();
+            }
+        }
+    }
+
+    /**
+     * Affiche les détails d'un référentiel spécifique
+     */
+    public void showReferenceDetail(Entity reference) {
+        this.selectedReference = reference;
+        panelState.showReference();
     }
 
     public void showCategory() {

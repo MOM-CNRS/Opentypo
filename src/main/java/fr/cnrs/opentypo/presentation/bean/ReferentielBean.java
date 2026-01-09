@@ -5,11 +5,15 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.domain.entity.Image;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferentielOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.infrastructure.service.ImageService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import org.primefaces.model.file.UploadedFile;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -19,7 +23,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
-import org.primefaces.model.DefaultTreeNode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -60,6 +63,12 @@ public class ReferentielBean implements Serializable {
     @Inject
     private SearchBean searchBean;
 
+    @Inject
+    private EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private ImageService imageService;
+
     
     // Propriétés pour le formulaire de création de référentiel
     private String referentielCode;
@@ -68,6 +77,7 @@ public class ReferentielBean implements Serializable {
     private String periodeId; // ID de la période (ReferentielOpentheso)
     private String referenceBibliographique;
     private String categorieIds; // IDs des catégories (Entity de type Catégorie)
+    private UploadedFile uploadedImage; // Fichier image uploadé
 
     
     public void resetReferentielForm() {
@@ -77,6 +87,7 @@ public class ReferentielBean implements Serializable {
         periodeId = null;
         referenceBibliographique = null;
         categorieIds = null;
+        uploadedImage = null;
     }
     
     public void creerReferentiel() {
@@ -102,8 +113,19 @@ public class ReferentielBean implements Serializable {
             Entity nouveauReferentiel = createNewReferentiel(codeTrimmed, labelTrimmed, referentielType);
             entityRepository.save(nouveauReferentiel);
             
+            // Rattacher le référentiel à la collection courante si une collection est sélectionnée
+            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+                attachReferentielToCollection(nouveauReferentiel, applicationBean.getSelectedCollection());
+            }
+            
             refreshReferentielsList();
-            updateTree(labelTrimmed);
+            
+            // Recharger les référentiels de la collection
+            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+                applicationBean.loadCollectionReferences();
+            }
+            
+            updateTree(nouveauReferentiel);
             
             facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -111,9 +133,14 @@ public class ReferentielBean implements Serializable {
                     "Le référentiel '" + labelTrimmed + "' a été créé avec succès."));
             
             resetReferentielForm();
+            
+            // Fermer le dialog
+            PrimeFaces.current().executeScript("PF('addReferentielDialog').hide();");
+            
+            // Mettre à jour les composants
             PrimeFaces.current().ajax().update(
                 ViewConstants.COMPONENT_GROWL + ", " + REFERENTIEL_FORM + ", " 
-                + ViewConstants.COMPONENT_TREE_WIDGET + ", " + ViewConstants.COMPONENT_CARDS_CONTAINER);
+                + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
             
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du référentiel", e);
@@ -136,6 +163,14 @@ public class ReferentielBean implements Serializable {
         nouveauReferentiel.setEntityType(type);
         nouveauReferentiel.setPublique(true);
         nouveauReferentiel.setCreateDate(LocalDateTime.now());
+
+        // Gérer l'upload d'image si un fichier a été fourni
+        if (uploadedImage != null && imageService != null) {
+            Image image = imageService.saveUploadedImage(uploadedImage);
+            if (image != null) {
+                nouveauReferentiel.setImage(image);
+            }
+        }
 
         Utilisateur currentUser = loginBean.getCurrentUser();
         if (currentUser != null) {
@@ -161,11 +196,29 @@ public class ReferentielBean implements Serializable {
     }
 
     /**
+     * Rattache un référentiel à une collection
+     */
+    private void attachReferentielToCollection(Entity referentiel, Entity collection) {
+        try {
+            // Vérifier si la relation existe déjà
+            if (!entityRelationRepository.existsByParentAndChild(collection.getId(), referentiel.getId())) {
+                fr.cnrs.opentypo.domain.entity.EntityRelation relation = 
+                    new fr.cnrs.opentypo.domain.entity.EntityRelation();
+                relation.setParent(collection);
+                relation.setChild(referentiel);
+                entityRelationRepository.save(relation);
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors du rattachement du référentiel à la collection", e);
+        }
+    }
+
+    /**
      * Met à jour l'arbre avec le nouveau référentiel
      */
-    private void updateTree(String label) {
-        if (treeBean != null && treeBean.getRoot() != null) {
-            new DefaultTreeNode(label, treeBean.getRoot());
+    private void updateTree(Entity referentiel) {
+        if (treeBean != null) {
+            treeBean.addReferentielToTree(referentiel);
         }
     }
 

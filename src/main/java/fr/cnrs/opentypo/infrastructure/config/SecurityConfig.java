@@ -63,6 +63,7 @@ public class SecurityConfig {
                 // Permettre l'accès aux ressources statiques (CSS, JS, images, etc.)
                 .requestMatchers(
                     "/resources/**",
+                    "/uploads/**",
                     "/*.css",
                     "/*.js",
                     "/*.png",
@@ -104,6 +105,7 @@ public class SecurityConfig {
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
                         requestPath.startsWith("/resources/") ||
+                        requestPath.startsWith("/uploads/") ||
                         requestPath.endsWith(".css") ||
                         requestPath.endsWith(".js") ||
                         requestPath.endsWith(".png") ||
@@ -129,6 +131,7 @@ public class SecurityConfig {
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
                         requestPath.startsWith("/resources/") ||
+                        requestPath.startsWith("/uploads/") ||
                         requestPath.endsWith(".css") ||
                         requestPath.endsWith(".js") ||
                         requestPath.endsWith(".png") ||

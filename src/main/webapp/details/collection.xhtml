@@ -12,7 +12,9 @@
             </div>
             <div class="collection-referentiels-title-wrapper">
                 <h3 class="collection-referentiels-title">Liste des référentiels</h3>
-                <span class="collection-referentiels-subtitle">pour XXXX</span>
+                <span class="collection-referentiels-subtitle">
+                    pour #{not empty applicationBean.selectedCollection ? applicationBean.selectedCollection.nom : 'Collection'}
+                </span>
             </div>
         </div>
         <div class="collection-referentiels-actions">
@@ -24,81 +26,83 @@
                              update="@none"/>
         </div>
     </div>
-    <!-- Panel de collection compact et ergonomique -->
-    <div class="collection-panel">
-        <!-- En-tête compacte -->
-        <div class="collection-panel-header">
-            <div class="collection-panel-title-section">
-                <div class="collection-panel-icon">
-                    <i class="pi pi-folder" />
+    <!-- Liste des référentiels de la collection -->
+    <h:panelGroup id="collectionReferencesContainer" class="collections-grid">
+        <ui:repeat value="#{applicationBean.collectionReferences}" var="referentiel">
+            <!-- Panel de référentiel compact et ergonomique -->
+            <div class="collection-panel">
+                <!-- En-tête compacte -->
+                <div class="collection-panel-header">
+                    <div class="collection-panel-title-section">
+                        <div class="collection-panel-icon">
+                            <i class="pi pi-database" />
+                        </div>
+                        <div class="collection-panel-title-wrapper">
+                            <p:commandLink action="#{applicationBean.showReferenceDetail(referentiel)}"
+                                         process="@this"
+                                         update=":centerContent"
+                                         styleClass="collection-panel-title-link">
+                                <h3 class="collection-panel-title">#{referentiel.nom}</h3>
+                            </p:commandLink>
+                            <span class="collection-panel-subtitle">Référentiel</span>
+                        </div>
+                    </div>
+                    <div class="collection-panel-actions">
+                        <p:commandLink action="#" process="@this" update="@none" 
+                                     styleClass="collection-action-btn" 
+                                     title="Marquer">
+                            <i class="pi pi-flag" />
+                        </p:commandLink>
+                    </div>
                 </div>
-                <div class="collection-panel-title-wrapper">
-                    <h3 class="collection-panel-title">cortège funéraires</h3>
-                    <span class="collection-panel-subtitle">Collection</span>
+
+                <!-- Contenu compact -->
+                <div class="collection-panel-content">
+                    <!-- Image compacte (toujours affichée avec image par défaut si nécessaire) -->
+                    <div class="collection-panel-image">
+                        <p:graphicImage
+                            value="#{imageService.getImageUrlOrDefault(referentiel.image)}"
+                            styleClass="collection-image"
+                            alt="Image du référentiel"
+                            onerror="this.src='/resources/img/o.png'; this.onerror=null;"/>
+                    </div>
+
+                    <!-- Informations en grille compacte -->
+                    <div class="collection-info-grid">
+                        <div class="collection-info-item collection-info-item-full" rendered="#{not empty referentiel.commentaire}">
+                            <div class="collection-info-label">
+                                <i class="pi pi-file collection-info-icon" />
+                                <span>Description</span>
+                            </div>
+                            <div class="collection-info-value collection-info-description">
+                                #{referentiel.commentaire}
+                            </div>
+                        </div>
+
+                        <div class="collection-info-item" rendered="#{not empty referentiel.auteurs}">
+                            <div class="collection-info-label">
+                                <i class="pi pi-user collection-info-icon" />
+                                <span>Auteur(s)</span>
+                            </div>
+                            <div class="collection-info-value">
+                                <ui:repeat value="#{referentiel.auteurs}" var="auteur" varStatus="status">
+                                    #{auteur.prenom} #{auteur.nom}#{status.last ? '' : ', '}
+                                </ui:repeat>
+                            </div>
+                        </div>
+
+                        <div class="collection-info-item" rendered="#{not empty referentiel.bibliographie}">
+                            <div class="collection-info-label">
+                                <i class="pi pi-book collection-info-icon" />
+                                <span>Bibliographie</span>
+                            </div>
+                            <div class="collection-info-value">#{referentiel.bibliographie}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="collection-panel-actions">
-                <p:commandLink action="#" process="@this" update="@none" 
-                             styleClass="collection-action-btn" 
-                             title="Paramètres">
-                    <i class="pi pi-cog" />
-                </p:commandLink>
-                <p:commandLink action="#" process="@this" update="@none" 
-                             styleClass="collection-action-btn" 
-                             title="Marquer">
-                    <i class="pi pi-flag" />
-                </p:commandLink>
-            </div>
-        </div>
-
-        <!-- Contenu compact -->
-        <div class="collection-panel-content">
-            <!-- Image compacte (optionnelle) -->
-            <div class="collection-panel-image">
-                <p:graphicImage
-                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                    styleClass="collection-image"
-                    alt="Image de la collection"/>
-            </div>
-
-            <!-- Informations en grille compacte -->
-            <div class="collection-info-grid">
-                <div class="collection-info-item collection-info-item-full">
-                    <div class="collection-info-label">
-                        <i class="pi pi-database collection-info-icon" />
-                        <span>Référentiel</span>
-                    </div>
-                    <div class="collection-info-value">convoi funèbre</div>
-                </div>
-
-                <div class="collection-info-item collection-info-item-full">
-                    <div class="collection-info-label">
-                        <i class="pi pi-file collection-info-icon" />
-                        <span>Description</span>
-                    </div>
-                    <div class="collection-info-value collection-info-description">
-                        Déscription total
-                    </div>
-                </div>
-
-                <div class="collection-info-item">
-                    <div class="collection-info-label">
-                        <i class="pi pi-user collection-info-icon" />
-                        <span>Auteur(s)</span>
-                    </div>
-                    <div class="collection-info-value">Firas GABSI</div>
-                </div>
-
-                <div class="collection-info-item">
-                    <div class="collection-info-label">
-                        <i class="pi pi-book collection-info-icon" />
-                        <span>Bibliographie</span>
-                    </div>
-                    <div class="collection-info-value">Test Test</div>
-                </div>
-            </div>
-        </div>
-    </div>
+        </ui:repeat>
+    </h:panelGroup>
 
     <style>
         /* Panel de collection - Design ultra-compact */
@@ -159,6 +163,17 @@
             flex: 1;
         }
 
+        .collection-panel-title-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+        }
+
+        .collection-panel-title-link:hover .collection-panel-title {
+            color: var(--color-action-main, #47624D);
+        }
+
         .collection-panel-title {
             font-size: 0.9375rem;
             font-weight: 700;
@@ -168,6 +183,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            cursor: pointer;
+            transition: color 0.2s ease;
         }
 
         .collection-panel-subtitle {

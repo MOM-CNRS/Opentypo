@@ -73,6 +73,15 @@ public class PanelStateManager {
     }
 
     /**
+     * Affiche le panneau référentiel (détail d'un référentiel)
+     */
+    public void showReference() {
+        resetAll();
+        this.showReferencePanel = true;
+        this.showTreePanel = true;
+    }
+
+    /**
      * Vérifie si un panneau de détail est affiché
      */
     public boolean isShowDetail() {
