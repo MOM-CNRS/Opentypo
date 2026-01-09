@@ -9,9 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PanelStateManager {
-    
-    private boolean showCards = true;
-    private boolean showReferentielPanel = false;
+
+    private boolean showCollections = true;
+    private boolean showReferencesPanel = false;
+    private boolean showReferencePanel = false;
     private boolean showCategoryPanel = false;
     private boolean showGroupePanel = false;
     private boolean showSeriePanel = false;
@@ -21,17 +22,17 @@ public class PanelStateManager {
     /**
      * Affiche uniquement les cartes
      */
-    public void showCards() {
+    public void showCollections() {
         resetAll();
-        this.showCards = true;
+        this.showCollections = true;
     }
 
     /**
      * Affiche le panneau référentiel
      */
-    public void showReferentiel() {
+    public void showCollectionDetail() {
         resetAll();
-        this.showReferentielPanel = true;
+        this.showReferencesPanel = true;
         this.showTreePanel = true;
     }
 
@@ -75,16 +76,16 @@ public class PanelStateManager {
      * Vérifie si un panneau de détail est affiché
      */
     public boolean isShowDetail() {
-        return showReferentielPanel || showCategoryPanel || showGroupePanel 
-            || showSeriePanel || showTypePanel;
+        return showReferencesPanel || showReferencePanel || showCategoryPanel || showGroupePanel || showSeriePanel || showTypePanel;
     }
 
     /**
      * Réinitialise tous les panneaux
      */
     private void resetAll() {
-        this.showCards = false;
-        this.showReferentielPanel = false;
+        this.showCollections = false;
+        this.showReferencesPanel = false;
+        this.showReferencePanel = false;
         this.showCategoryPanel = false;
         this.showGroupePanel = false;
         this.showSeriePanel = false;

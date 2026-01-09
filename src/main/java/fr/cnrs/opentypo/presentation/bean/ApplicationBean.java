@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Named("applicationBean")
-@SessionScoped
+@Slf4j
 @Getter
 @Setter
-@Slf4j
+@SessionScoped
+@Named("applicationBean")
 public class ApplicationBean implements Serializable {
 
     @Inject
@@ -50,8 +50,9 @@ public class ApplicationBean implements Serializable {
     private String categoryDescription;
 
     // Getters pour compatibilité avec XHTML
-    public boolean isShowCards() { return panelState.isShowCards(); }
-    public boolean isShowReferentielPanel() { return panelState.isShowReferentielPanel(); }
+    public boolean isShowCollections() { return panelState.isShowCollections(); }
+    public boolean isShowReferencesPanel() { return panelState.isShowReferencesPanel(); }
+    public boolean isShowReferencePanel() { return panelState.isShowReferencePanel(); }
     public boolean isShowCategoryPanel() { return panelState.isShowCategoryPanel(); }
     public boolean isShowGroupePanel() { return panelState.isShowGroupePanel(); }
     public boolean isShowSeriePanel() { return panelState.isShowSeriePanel(); }
@@ -62,7 +63,6 @@ public class ApplicationBean implements Serializable {
     public void initialization() {
         checkSessionExpiration();
         loadLanguages();
-        loadReferentiels();
         loadCollections();
     }
 
@@ -79,10 +79,10 @@ public class ApplicationBean implements Serializable {
             
             if (ViewConstants.PARAM_TRUE.equals(sessionExpired) 
                 || ViewConstants.PARAM_TRUE.equals(viewExpired)) {
-                panelState.showCards();
+                panelState.showCollections();
             }
         } else {
-            panelState.showCards();
+            panelState.showCollections();
         }
     }
 
@@ -146,12 +146,12 @@ public class ApplicationBean implements Serializable {
         return panelState.isShowDetail();
     }
 
-    public void showCards() {
-        panelState.showCards();
+    public void showCollections() {
+        panelState.showCollections();
     }
     
-    public void showReferentiel() {
-        panelState.showReferentiel();
+    public void showCollectionDetail() {
+        panelState.showCollectionDetail();
     }
 
     public void showCategory() {

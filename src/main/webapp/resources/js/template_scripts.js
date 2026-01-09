@@ -491,7 +491,6 @@ window.updateActiveMenuItem = updateActiveMenuItem;
             }, 200);
         }
     })();
-})();
 
 function setupSidebarMenuTooltips() {
     const menuItems = document.querySelectorAll('.sidebar-menu-item');
@@ -512,7 +511,7 @@ function setupSidebarMenuTooltips() {
 }
 // Fonction pour afficher le dialog de login
 // avec vérification que le widget est disponible
-function showLoginDialog() {
+window.showLoginDialog = function() {
     var attempts = 0;
     var maxAttempts = 30;
     
@@ -529,7 +528,7 @@ function showLoginDialog() {
     };
     
     checkDialog();
-}
+};
 
 // Fonction pour afficher uniquement le conteneur des cartes
 // et masquer les panneaux de contenu, tout en gardant le tree panel visible

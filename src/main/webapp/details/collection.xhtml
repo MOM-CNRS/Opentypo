@@ -1,0 +1,81 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div id="element">
+        <div class="image-container">
+            <p:graphicImage
+                    value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                    styleClass="research-image"
+                    alt="Vue de la rive gauche de Paris"/>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="concept-info-panel">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
+                            </div>
+                            <h2 class="concept-info-title">cortège funéraires</h2>
+                        </div>
+                        <div class="concept-info-actions">
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="pi pi-cog" />
+                                <p:tooltip value="Paramètres" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                                <i class="pi pi-flag" />
+                                <p:tooltip value="Marquer" position="top"/>
+                            </p:commandLink>
+                        </div>
+                    </div>
+
+                    <!-- Grille d'informations -->
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-database concept-info-icon" />
+                                <span>Référentiel</span>
+                            </div>
+                            <div class="concept-info-value">convoi funèbre</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file concept-info-icon" />
+                                <span>Description</span>
+                            </div>
+                            <div class="concept-info-value concept-info-description">
+                                Déscription total
+                            </div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon" />
+                                <span>Auteur(s)</span>
+                            </div>
+                            <div class="concept-info-value">Firas GABSI</div>
+                        </div>
+
+                        <div class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book concept-info-icon" />
+                                <span>Référence bibliographique</span>
+                            </div>
+                            <div class="concept-info-value">Test Test</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

@@ -25,6 +25,9 @@
 </h:head>
 
 <h:body styleClass="app-body">
+    <!-- Charger les constantes JavaScript en premier -->
+    <h:outputScript library="js" name="constants.js"/>
+    
     <!-- Charger le script JavaScript en premier pour garantir la disponibilité des fonctions -->
     <h:outputScript library="js" name="theso_responsiveMenu_optimized.js"/>
 

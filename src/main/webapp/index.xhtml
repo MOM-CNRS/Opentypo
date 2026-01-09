@@ -23,7 +23,7 @@
 
             <h:panelGroup styleClass="center-content">
                 <!-- Conteneur des cartes -->
-                <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCards}">
+                <h:panelGroup id="cardsContainer" rendered="#{applicationBean.showCollections}">
                     <!-- Zone de présentation du site -->
                     <div class="site-presentation-container">
                         <div class="site-presentation-content">
@@ -80,7 +80,7 @@
                         <h:form>
                             <div class="modern-cards-grid">
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
-                                    <p:commandLink action="#{applicationBean.showReferentiel()}"
+                                    <p:commandLink action="#{applicationBean.showCollectionDetail()}"
                                                  styleClass="modern-card"
                                                  process="@this"
                                                  update=":centerContent">
@@ -127,7 +127,12 @@
                     <ui:include src="details/breadCrumb.xhtml"/>
 
                     <!-- Panneau référentiel -->
-                    <h:panelGroup rendered="#{applicationBean.showReferentielPanel}">
+                    <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
+                        <ui:include src="details/collection.xhtml"/>
+                    </h:panelGroup>
+
+                    <!-- Panneau référentiel -->
+                    <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
                         <ui:include src="details/referentiel.xhtml"/>
                     </h:panelGroup>
 
