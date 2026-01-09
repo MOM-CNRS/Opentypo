@@ -23,11 +23,11 @@
                              placeholder="Collection"
                              filter="true"
                              filterMatchMode="contains">
-                <f:selectItem itemLabel="Collection" itemValue="" noSelectionOption="true"/>
-                <f:selectItems value="#{searchBean.collections}" 
-                              var="collection"
-                              itemLabel="#{collection.nom}"
-                              itemValue="#{collection.code}"/>
+                <f:selectItem itemLabel="Toutes les collections" itemValue="" noSelectionOption="true"/>
+                <f:selectItems value="#{searchBean.collections}" var="collection"
+                               itemLabel="#{collection.nom}" itemValue="#{collection.code}"/>
+                <p:ajax event="change" listener="#{searchBean.onCollectionChange()}" 
+                        update=":centerContent" process="@this"/>
             </p:selectOneMenu>
 
             <!-- Langue - Compact sans label -->
@@ -35,7 +35,6 @@
                              value="#{searchBean.langSelected}"
                              styleClass="search-compact-select"
                              title="#{langueBean.getMsg('search.change_thesaurus_language')}">
-                <f:selectItem itemLabel="Langue" itemValue="" noSelectionOption="true"/>
                 <f:selectItems value="#{applicationBean.languages}" var="lang" 
                                itemLabel="#{lang.value}" itemValue="#{lang.code}"/>
             </p:selectOneMenu>

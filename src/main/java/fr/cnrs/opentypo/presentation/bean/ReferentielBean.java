@@ -98,9 +98,9 @@ public class ReferentielBean implements Serializable {
         String labelTrimmed = referentielLabel.trim();
         
         try {
-            EntityType referentielType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENTIEL)
+            EntityType referentielType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
                 .orElseThrow(() -> new IllegalStateException(
-                    "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENTIEL + "' n'existe pas dans la base de données."));
+                    "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
             
             Entity nouveauReferentiel = createNewReferentiel(codeTrimmed, labelTrimmed, referentielType);
             entityRepository.save(nouveauReferentiel);

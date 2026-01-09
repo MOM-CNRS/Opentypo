@@ -60,6 +60,9 @@ public class ApplicationBean implements Serializable {
     
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
+
+    // Titre de l'écran
+    private String selectedEntityLabel;
     
     // Propriétés pour le formulaire de création de catégorie
     private String categoryCode;
@@ -79,6 +82,7 @@ public class ApplicationBean implements Serializable {
 
     @PostConstruct
     public void initialization() {
+        this.selectedEntityLabel = "";
         checkSessionExpiration();
         loadLanguages();
         loadCollections();
@@ -134,7 +138,7 @@ public class ApplicationBean implements Serializable {
     public void loadReferentiels() {
         referentiels = new ArrayList<>();
         try {
-            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENTIEL);
+            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
             referentiels = referentiels.stream()
                 .filter(r -> r.getPublique() != null && r.getPublique())
                 .collect(Collectors.toList());
@@ -165,6 +169,8 @@ public class ApplicationBean implements Serializable {
     }
 
     public void showCollections() {
+        this.selectedEntityLabel = "";
+        this.selectedCollection = null; // Réinitialiser la collection sélectionnée
         panelState.showCollections();
     }
     
@@ -177,6 +183,7 @@ public class ApplicationBean implements Serializable {
      */
     public void showCollectionDetail(Entity collection) {
         this.selectedCollection = collection;
+        this.selectedEntityLabel = selectedCollection.getNom();
         loadCollectionReferences();
         panelState.showCollectionDetail();
         
@@ -196,7 +203,7 @@ public class ApplicationBean implements Serializable {
             try {
                 collectionReferences = entityRelationRepository.findChildrenByParentAndType(
                     selectedCollection, 
-                    EntityConstants.ENTITY_TYPE_REFERENTIEL
+                    EntityConstants.ENTITY_TYPE_REFERENCE
                 );
             } catch (Exception e) {
                 log.error("Erreur lors du chargement des référentiels de la collection", e);

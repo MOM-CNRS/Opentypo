@@ -26,9 +26,12 @@ public class SearchBean implements Serializable {
     @Inject
     private EntityRepository entityRepository;
 
+    @Inject
+    private ApplicationBean applicationBean;
+
     private String searchSelected;
     private String typeSelected;
-    private String langSelected;
+    private String langSelected = "fr"; // Français sélectionné par défaut
     
     private List<Entity> referentiels;
     private List<Entity> collections;
@@ -40,12 +43,32 @@ public class SearchBean implements Serializable {
     }
     
     /**
+     * Gère le changement de sélection de collection
+     */
+    public void onCollectionChange() {
+        if (typeSelected == null || typeSelected.isEmpty()) {
+            // "Toutes les collections" est sélectionné - afficher le panel des collections
+            applicationBean.showCollections();
+        } else {
+            // Une collection spécifique est sélectionnée - afficher ses détails
+            Entity selectedCollection = collections.stream()
+                .filter(c -> c.getCode().equals(typeSelected))
+                .findFirst()
+                .orElse(null);
+            
+            if (selectedCollection != null) {
+                applicationBean.showCollectionDetail(selectedCollection);
+            }
+        }
+    }
+    
+    /**
      * Charge les référentiels depuis la base de données
      */
     public void loadReferentiels() {
         referentiels = new ArrayList<>();
         try {
-            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENTIEL);
+            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
             referentiels = referentiels.stream()
                 .filter(r -> r.getPublique() != null && r.getPublique())
                 .collect(Collectors.toList());

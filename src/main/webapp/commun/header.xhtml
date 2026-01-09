@@ -28,8 +28,8 @@
                 </span>
             </div>
         </div>
-        <h:panelGroup styleClass="header-title" rendered="#{facesContext.viewRoot.viewId != null and facesContext.viewRoot.viewId.contains('/index.xhtml')}">
-            Label de l'élément sélectionné
+        <h:panelGroup id="selectedEntityLabel" styleClass="header-title" rendered="#{facesContext.viewRoot.viewId != null and facesContext.viewRoot.viewId.contains('/index.xhtml')}">
+            <h:outputText value="#{applicationBean.selectedEntityLabel}"/>
         </h:panelGroup>
         <div class="header-right">
             <h:form id="headerForm">

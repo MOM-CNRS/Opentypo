@@ -98,7 +98,7 @@ public class TreeBean implements Serializable {
 
                 // Vérifier si c'est un référentiel
                 if (entity.getEntityType() != null &&
-                    EntityConstants.ENTITY_TYPE_REFERENTIEL.equals(entity.getEntityType().getCode())) {
+                    EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
                     // Afficher la page référentiel
                     if (applicationBean != null) {
                         applicationBean.showReferenceDetail(entity);

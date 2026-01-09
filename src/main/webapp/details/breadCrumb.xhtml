@@ -26,7 +26,7 @@
                             <p:commandLink styleClass="modern-breadcrumb-link breadcrumb-link"
                                          action="#{applicationBean.showCollections()}"
                                          process="@this"
-                                         update=":centerContent"
+                                         update=":centerContent :selectedEntityLabel"
                                          oncomplete="showOnlyCardsContainer();">
                                 <i class="pi pi-home" />
                                 <span class="breadcrumb-text">Accueil</span>
