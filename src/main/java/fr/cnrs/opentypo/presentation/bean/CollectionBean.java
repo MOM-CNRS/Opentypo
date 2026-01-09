@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -101,6 +102,23 @@ public class CollectionBean implements Serializable {
             log.error("Erreur inattendue lors de la création de la collection", e);
             addErrorMessage("Une erreur est survenue lors de la création de la collection : " + e.getMessage());
         }
+    }
+
+    public String getImageUrlOrDefault(Image image) {
+        if (image != null && image.getUrl() != null && !image.getUrl().trim().isEmpty()) {
+            return image.getUrl();
+        }
+        // Utiliser le ResourceHandler JSF pour obtenir l'URL correcte de la ressource
+        jakarta.faces.context.FacesContext facesContext = jakarta.faces.context.FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            jakarta.faces.application.ResourceHandler resourceHandler = facesContext.getApplication().getResourceHandler();
+            jakarta.faces.application.Resource resource = resourceHandler.createResource("openTypo-defaut.svg", "img");
+            if (resource != null) {
+                return resource.getRequestPath();
+            }
+        }
+        // Fallback : chemin direct (fonctionne si contextPath est vide)
+        return "/resources/img/openTypo-defaut.svg";
     }
 
     /**

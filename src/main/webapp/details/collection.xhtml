@@ -48,10 +48,16 @@
                         </div>
                     </div>
                     <div class="collection-panel-actions">
+                        <p:commandLink action="#" process="@this" update="@none"
+                                       styleClass="collection-action-btn"
+                                       title="Marquer">
+                            <i class="pi pi-file-edit" />
+                        </p:commandLink>
+
                         <p:commandLink action="#" process="@this" update="@none" 
                                      styleClass="collection-action-btn" 
                                      title="Marquer">
-                            <i class="pi pi-flag" />
+                            <i class="pi pi-trash" />
                         </p:commandLink>
                     </div>
                 </div>
@@ -61,10 +67,10 @@
                     <!-- Image compacte (toujours affichée avec image par défaut si nécessaire) -->
                     <div class="collection-panel-image">
                         <p:graphicImage
-                            value="#{imageService.getImageUrlOrDefault(referentiel.image)}"
+                            value="#{collectionBean.getImageUrlOrDefault(referentiel.image)}"
                             styleClass="collection-image"
                             alt="Image du référentiel"
-                            onerror="this.src='/resources/img/o.png'; this.onerror=null;"/>
+                            onerror="this.src='/resources/img/openTypo-defaut.svg'; this.onerror=null;"/>
                     </div>
 
                     <!-- Informations en grille compacte -->
