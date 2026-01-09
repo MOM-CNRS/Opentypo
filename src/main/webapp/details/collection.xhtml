@@ -108,18 +108,38 @@
         /* Panel de collection - Design ultra-compact */
         .collection-panel {
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-            border: 1px solid rgba(71, 98, 77, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
             overflow: hidden;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        .collection-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.6) 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
         }
 
         .collection-panel:hover {
-            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.12);
-            transform: translateY(-1px);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+            border-color: var(--color-action-main, #47624D);
+        }
+
+        .collection-panel:hover::before {
+            transform: scaleX(1);
         }
 
         /* En-tête ultra-compacte */
@@ -147,12 +167,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
             border-radius: 6px;
-            color: #ffffff;
+            color: var(--color-action-main, #47624D);
             font-size: 0.9375rem;
             flex-shrink: 0;
-            box-shadow: 0 1px 4px rgba(71, 98, 77, 0.15);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .collection-panel:hover .collection-panel-icon {
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%);
+            color: #ffffff;
         }
 
         .collection-panel-title-wrapper {
@@ -170,13 +195,9 @@
             width: 100%;
         }
 
-        .collection-panel-title-link:hover .collection-panel-title {
-            color: var(--color-action-main, #47624D);
-        }
-
         .collection-panel-title {
             font-size: 0.9375rem;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--color-text-primary, #333);
             margin: 0;
             line-height: 1.2;
@@ -184,7 +205,13 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: color 0.3s ease, font-weight 0.3s ease;
+            background-color: transparent;
+        }
+
+        .collection-panel:hover .collection-panel-title {
+            color: var(--color-action-main, #47624D);
+            font-weight: 700;
         }
 
         .collection-panel-subtitle {
@@ -523,17 +550,18 @@
             }
         }
 
+        /* Sur les grands écrans : maximum 2 éléments par ligne, toute la largeur utilisée */
         @media (min-width: 1200px) {
             .collections-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
         }
 
-        @media (min-width: 1600px) {
-            .collections-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
+        .ui-commandlink {
+            background-color: transparent !important;
         }
+
     </style>
 
     <!-- Inclusion du dialog de création de référentiel -->

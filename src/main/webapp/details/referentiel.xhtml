@@ -5,14 +5,15 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Contenu dynamique -->
-    <div class="image-container">
+    <h:panelGroup class="image-container">
         <p:graphicImage
-                value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                value="#{not empty applicationBean.selectedReference.image and not empty applicationBean.selectedReference.image.url ? applicationBean.selectedReference.image.url : '/resources/img/o.png'}"
                 styleClass="research-image"
-                alt="Vue de la rive gauche de Paris"/>
-    </div>
+                alt="Image du référentiel"
+                onerror="this.src='/resources/img/o.png'; this.onerror=null;"/>
+    </h:panelGroup>
 
-    <div class="row">
+    <h:panelGroup class="row">
         <div class="col-md-12">
             <div class="concept-info-panel">
                 <!-- En-tête avec titre et actions -->
@@ -24,7 +25,7 @@
                                             alt="Français"
                                             title="Français"/>
                         </div>
-                        <h2 class="concept-info-title">cortège funéraires</h2>
+                        <h2 class="concept-info-title">#{applicationBean.selectedReference.nom}</h2>
                     </div>
                     <div class="concept-info-actions">
                         <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -40,55 +41,43 @@
 
                 <!-- Grille d'informations -->
                 <div class="concept-info-grid">
-                    <div class="concept-info-item">
+                    <h:panelGroup class="concept-info-item">
                         <div class="concept-info-label">
                             <i class="pi pi-database concept-info-icon" />
-                            <span>Référentiel</span>
+                            <span>Code</span>
                         </div>
-                        <div class="concept-info-value">convoi funèbre</div>
-                    </div>
+                        <div class="concept-info-value">#{applicationBean.selectedReference.code}</div>
+                    </h:panelGroup>
 
-                    <div class="concept-info-item">
-                        <div class="concept-info-label">
-                            <i class="pi pi-calendar concept-info-icon" />
-                            <span>Période</span>
-                        </div>
-                        <div class="concept-info-value">convoies funéraires</div>
-                    </div>
-
-                    <div class="concept-info-item concept-info-item-full">
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
                         <div class="concept-info-label">
                             <i class="pi pi-file concept-info-icon" />
                             <span>Description</span>
                         </div>
                         <div class="concept-info-value concept-info-description">
-                            Déscription total
+                            #{applicationBean.selectedReference.commentaire}
                         </div>
-                    </div>
+                    </h:panelGroup>
 
-                    <div class="concept-info-item concept-info-item-full">
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
                         <div class="concept-info-label">
                             <i class="pi pi-user concept-info-icon" />
                             <span>Auteur(s)</span>
                         </div>
-                        <div class="concept-info-value">Firas GABSI</div>
-                    </div>
+                        <div class="concept-info-value">
+                            <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
+                                #{auteur.prenom} #{auteur.nom}#{status.last ? '' : ', '}
+                            </ui:repeat>
+                        </div>
+                    </h:panelGroup>
 
-                    <div class="concept-info-item concept-info-item-full">
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
                         <div class="concept-info-label">
                             <i class="pi pi-book concept-info-icon" />
                             <span>Référence bibliographique</span>
                         </div>
-                        <div class="concept-info-value">Test Test</div>
-                    </div>
-
-                    <div class="concept-info-item concept-info-item-full">
-                        <div class="concept-info-label">
-                            <i class="pi pi-tags concept-info-icon" />
-                            <span>Catégories du référentiel</span>
-                        </div>
-                        <div class="concept-info-value">cortège funéraires</div>
-                    </div>
+                        <div class="concept-info-value">#{applicationBean.selectedReference.bibliographie}</div>
+                    </h:panelGroup>
                 </div>
             </div>
 
@@ -98,7 +87,7 @@
                         <!-- En-tête avec titre et actions -->
                         <div class="concept-info-header">
                             <div class="concept-info-title-section">
-                                <h2 class="concept-info-title fs-1rem">Catégories du référentiel - XXXXX</h2>
+                                <h2 class="concept-info-title fs-1rem">Catégories du référentiel - #{applicationBean.selectedReference.nom}</h2>
                             </div>
                             <div class="concept-info-actions">
                                 <p:commandButton value="Créer une catégorie"
@@ -274,7 +263,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </h:panelGroup>
 
     <!-- Dialog pour créer une nouvelle catégorie -->
     <p:dialog id="createCategoryDialog" 
