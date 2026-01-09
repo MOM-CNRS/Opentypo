@@ -5,15 +5,12 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
-import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferentielOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.infrastructure.service.ImageService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
-import org.primefaces.model.file.UploadedFile;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -66,10 +63,7 @@ public class ReferentielBean implements Serializable {
     @Inject
     private EntityRelationRepository entityRelationRepository;
 
-    @Inject
-    private ImageService imageService;
 
-    
     // Propriétés pour le formulaire de création de référentiel
     private String referentielCode;
     private String referentielLabel;
@@ -77,7 +71,6 @@ public class ReferentielBean implements Serializable {
     private String periodeId; // ID de la période (ReferentielOpentheso)
     private String referenceBibliographique;
     private String categorieIds; // IDs des catégories (Entity de type Catégorie)
-    private UploadedFile uploadedImage; // Fichier image uploadé
 
     
     public void resetReferentielForm() {
@@ -87,7 +80,6 @@ public class ReferentielBean implements Serializable {
         periodeId = null;
         referenceBibliographique = null;
         categorieIds = null;
-        uploadedImage = null;
     }
     
     public void creerReferentiel() {
@@ -124,7 +116,7 @@ public class ReferentielBean implements Serializable {
             if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
                 applicationBean.loadCollectionReferences();
             }
-            
+
             updateTree(nouveauReferentiel);
             
             facesContext.addMessage(null,
@@ -163,14 +155,6 @@ public class ReferentielBean implements Serializable {
         nouveauReferentiel.setEntityType(type);
         nouveauReferentiel.setPublique(true);
         nouveauReferentiel.setCreateDate(LocalDateTime.now());
-
-        // Gérer l'upload d'image si un fichier a été fourni
-        if (uploadedImage != null && imageService != null) {
-            Image image = imageService.saveUploadedImage(uploadedImage);
-            if (image != null) {
-                nouveauReferentiel.setImage(image);
-            }
-        }
 
         Utilisateur currentUser = loginBean.getCurrentUser();
         if (currentUser != null) {

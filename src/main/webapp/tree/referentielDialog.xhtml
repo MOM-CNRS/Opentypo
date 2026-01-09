@@ -18,7 +18,7 @@
               responsive="true"
               position="center">
         
-        <h:form id="referentielForm" enctype="multipart/form-data">
+        <h:form id="referentielForm">
             <f:event listener="#{referentielBean.resetReferentielForm}" type="preRenderView"/>
             <div class="referentiel-form-content">
                 <div class="referentiel-form-group">
@@ -75,27 +75,6 @@
                                  styleClass="referentiel-input"
                                  placeholder="Nom du référentiel"/>
                 </div>
-
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielImage" value="Image" />
-                    <p:fileUpload id="referentielImage"
-                                  value="#{referentielBean.uploadedImage}"
-                                  mode="advanced"
-                                  dragDropSupport="true"
-                                  multiple="false"
-                                  accept="image/*"
-                                  fileLimit="1"
-                                  sizeLimit="5242880"
-                                  allowTypes="/(\.|\/)(gif|jpe?g|png)$/i"
-                                  label="Choisir une image"
-                                  uploadLabel="Télécharger"
-                                  cancelLabel="Annuler"
-                                  styleClass="referentiel-fileupload"
-                                  update="@form"
-                                  auto="false"
-                                  skinSimple="true"/>
-                    <small class="referentiel-help-text">Formats acceptés : JPG, PNG, GIF (max 5MB)</small>
-                </div>
             </div>
 
             <div class="referentiel-form-actions">
@@ -110,7 +89,7 @@
                                styleClass="referentiel-btn referentiel-btn-validate"
                                action="#{referentielBean.creerReferentiel}"
                                process="@form"
-                               update="@form :growl :treeWidget :collectionReferencesContainer :searchForm"
+                               update="@form :growl :treeWidget :cardsContainer :searchForm"
                                oncomplete="if(!args.validationFailed) {PF('addReferentielDialog').hide();}"/>
             </div>
         </h:form>
@@ -179,16 +158,6 @@
             min-height: 100px;
         }
 
-        .referentiel-fileupload {
-            width: 100% !important;
-        }
-
-        .referentiel-help-text {
-            font-size: 0.75rem;
-            color: var(--color-text-secondary, #819A91);
-            margin-top: 0.25rem;
-        }
-
         .referentiel-form-actions {
             display: flex;
             justify-content: flex-end;
@@ -231,88 +200,17 @@
         /* Responsive pour le dialog */
         @media (max-width: 768px) {
             .referentiel-dialog {
-                width: 95% !important;
-                max-width: none !important;
-                margin: 1rem !important;
-            }
-
-            .referentiel-dialog .ui-dialog-content {
-                padding: 1rem !important;
-            }
-
-            .referentiel-form-content {
-                gap: 1rem !important;
-                margin-bottom: 1rem !important;
-            }
-
-            .referentiel-form-group {
-                gap: 0.375rem !important;
-            }
-
-            .referentiel-form-group label {
-                font-size: 0.85rem !important;
-            }
-
-            .referentiel-input,
-            .referentiel-textarea {
-                padding: 0.5rem 0.625rem !important;
-                font-size: 0.85rem !important;
-            }
-
-            .referentiel-textarea {
-                min-height: 80px !important;
+                width: 90% !important;
+                max-width: 500px !important;
             }
 
             .referentiel-form-actions {
                 flex-direction: column-reverse;
-                gap: 0.5rem !important;
-                padding-top: 0.75rem !important;
             }
 
             .referentiel-btn {
-                width: 100% !important;
-                justify-content: center !important;
-                padding: 0.75rem 1rem !important;
-                font-size: 0.875rem !important;
-            }
-
-            .referentiel-help-text {
-                font-size: 0.7rem !important;
-            }
-
-            .referentiel-fileupload {
-                font-size: 0.85rem !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .referentiel-dialog {
-                width: 100% !important;
-                margin: 0 !important;
-                height: 100vh !important;
-                top: 0 !important;
-                left: 0 !important;
-            }
-
-            .referentiel-dialog .ui-dialog-titlebar {
-                padding: 0.75rem 1rem !important;
-                font-size: 0.9rem !important;
-            }
-
-            .referentiel-dialog .ui-dialog-content {
-                padding: 0.75rem !important;
-                max-height: calc(100vh - 120px) !important;
-                overflow-y: auto !important;
-            }
-
-            .referentiel-form-content {
-                gap: 0.875rem !important;
-            }
-
-            .referentiel-input,
-            .referentiel-textarea {
-                padding: 0.5rem !important;
-                font-size: 0.875rem !important;
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>

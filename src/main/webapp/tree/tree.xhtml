@@ -12,7 +12,7 @@
                 widgetVar="treeWidget">
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>
-            <p:ajax event="select" listener="#{treeBean.onNodeSelect}" update=":centerContent"/>
+            <p:ajax event="select" listener="#{treeBean.onNodeSelect}"/>
 
             <p:treeNode>
                 <span class="modern-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
