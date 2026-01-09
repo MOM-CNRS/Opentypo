@@ -22,6 +22,9 @@
     <!-- Styles critiques pour la zone de présentation - garantis pour persister -->
     <!-- NOTE: Les styles ont été déplacés dans template_styles.css -->
     <h:outputStylesheet library="css" name="template_styles.css"/>
+    
+    <!-- Définir showLoginDialog dans le head pour qu'il soit disponible immédiatement -->
+    <h:outputScript library="js" name="showLoginDialog.js" target="head"/>
 </h:head>
 
 <h:body styleClass="app-body">
