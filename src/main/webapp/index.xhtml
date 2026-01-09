@@ -67,14 +67,16 @@
                     </div>
 
                     <!-- Section d'action pour créer une collection -->
-                    <div class="create-collection-section">
+                    <h:panelGroup id="create-collection-section" class="create-collection-section"
+                         style="width: 100%; text-align: right; padding-top: 20px; padding-right: 20px"
+                         rendered="#{loginBean.canCreateOrEdit()}">
                         <p:commandButton value="Créer une nouvelle collection"
-                                         icon="pi pi-arrow-right"
-                                         styleClass="referentiel-btn referentiel-btn-validate"
+                                         icon="pi pi-plus"
+                                         styleClass="collection-btn collection-btn-validate"
                                          onclick="PF('addCollectionDialog').show(); return false;"
                                          process="@this"
                                          update="@none"/>
-                    </div>
+                    </h:panelGroup>
 
                     <div class="modern-cards-container">
                         <h:form>
@@ -82,8 +84,8 @@
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
                                     <p:commandLink action="#{applicationBean.showCollectionDetail(collection)}"
                                                  styleClass="modern-card"
-                                                 process="@this"
-                                                 update=":centerContent :selectedEntityLabel">
+                                                 process="@this" ajax="true"
+                                                 update=":centerContent :selectedEntityLabel :searchForm">
                                         <div class="modern-card-content">
                                             <div class="modern-card-header">
                                                 <div class="modern-card-icon">
@@ -169,4 +171,81 @@
             </h:panelGroup>
         </h:panelGroup>
     </ui:define>
+
+    <style>
+        /* Section de création de collection - Design moderne et responsive */
+        .create-collection-section {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        /* Bouton de création de collection - Style moderne avec gradient */
+        .create-collection-btn {
+            padding: 0.625rem 1.25rem !important;
+            font-size: 0.9375rem !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.625rem !important;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.25) !important;
+            cursor: pointer !important;
+        }
+
+        .create-collection-btn:hover {
+            background: linear-gradient(135deg, #3a4f3e 0%, var(--color-action-main, #47624D) 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+        }
+
+        .create-collection-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 6px rgba(71, 98, 77, 0.3) !important;
+        }
+
+        .create-collection-btn .ui-button-icon-left,
+        .create-collection-btn .ui-button-icon {
+            font-size: 1rem !important;
+        }
+
+        .create-collection-btn .ui-button-text {
+            padding: 0 !important;
+        }
+
+        /* Responsive pour la section de création */
+        @media (max-width: 768px) {
+            .create-collection-section {
+                justify-content: center;
+                padding: 1rem 0.75rem;
+            }
+
+            .create-collection-btn {
+                width: 100%;
+                max-width: 400px;
+                justify-content: center;
+                font-size: 0.875rem !important;
+                padding: 0.75rem 1rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .create-collection-section {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .create-collection-btn {
+                font-size: 0.8125rem !important;
+                padding: 0.625rem 0.875rem !important;
+            }
+        }
+    </style>
 </ui:composition>

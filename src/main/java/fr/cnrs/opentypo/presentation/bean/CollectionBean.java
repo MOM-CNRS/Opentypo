@@ -14,6 +14,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +47,10 @@ public class CollectionBean implements Serializable {
     private LoginBean loginBean;
 
     @Inject
-    private ApplicationBean applicationBean;
+    private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
-    private SearchBean searchBean;
+    private Provider<SearchBean> searchBeanProvider;
 
     // Propriétés pour le formulaire de création de collection
     private String collectionNom;
@@ -169,11 +170,13 @@ public class CollectionBean implements Serializable {
      * Recharge les listes de collections dans les beans concernés
      */
     private void refreshCollectionsList() {
-        if (applicationBean != null) {
-            applicationBean.loadCollections();
+        ApplicationBean appBean = applicationBeanProvider.get();
+        if (appBean != null) {
+            appBean.loadCollections();
         }
-        if (searchBean != null) {
-            searchBean.loadCollections();
+        SearchBean sb = searchBeanProvider.get();
+        if (sb != null) {
+            sb.loadCollections();
         }
     }
 

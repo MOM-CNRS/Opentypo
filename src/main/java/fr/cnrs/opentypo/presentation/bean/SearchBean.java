@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,10 @@ public class SearchBean implements Serializable {
     private EntityRepository entityRepository;
 
     @Inject
-    private ApplicationBean applicationBean;
+    private Provider<ApplicationBean> applicationBeanProvider;
 
     private String searchSelected;
-    private String typeSelected;
+    private String collectionSelected;
     private String langSelected = "fr"; // Français sélectionné par défaut
     
     private List<Entity> referentiels;
@@ -46,18 +47,23 @@ public class SearchBean implements Serializable {
      * Gère le changement de sélection de collection
      */
     public void onCollectionChange() {
-        if (typeSelected == null || typeSelected.isEmpty()) {
+        ApplicationBean appBean = applicationBeanProvider.get();
+        if (appBean == null) {
+            return;
+        }
+        
+        if (collectionSelected == null || collectionSelected.isEmpty()) {
             // "Toutes les collections" est sélectionné - afficher le panel des collections
-            applicationBean.showCollections();
+            appBean.showCollections();
         } else {
             // Une collection spécifique est sélectionnée - afficher ses détails
             Entity selectedCollection = collections.stream()
-                .filter(c -> c.getCode().equals(typeSelected))
+                .filter(c -> c.getCode().equals(collectionSelected))
                 .findFirst()
                 .orElse(null);
             
             if (selectedCollection != null) {
-                applicationBean.showCollectionDetail(selectedCollection);
+                appBean.showCollectionDetail(selectedCollection);
             }
         }
     }

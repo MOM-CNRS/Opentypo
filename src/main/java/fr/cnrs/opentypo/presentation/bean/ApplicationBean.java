@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 public class ApplicationBean implements Serializable {
 
     @Inject
+    private Provider<SearchBean> searchBeanProvider;
+
+    @Inject
     private LangueRepository langueRepository;
 
     @Inject
@@ -186,6 +189,10 @@ public class ApplicationBean implements Serializable {
         this.selectedEntityLabel = selectedCollection.getNom();
         loadCollectionReferences();
         panelState.showCollectionDetail();
+        SearchBean searchBean = searchBeanProvider.get();
+        if (searchBean != null) {
+            searchBean.setCollectionSelected(collection.getCode());
+        }
         
         // Initialiser l'arbre avec les référentiels de la collection
         TreeBean treeBean = treeBeanProvider.get();

@@ -43,6 +43,8 @@
                     <p:commandButton value="Oui, me déconnecter"
                                      icon="pi pi-sign-out"
                                      action="#{loginBean.logout()}"
+                                     process="@this" ajax="true"
+                                     update=":growl, :headerForm, :sidebarForm :cardsContainer :contentPanels"
                                      styleClass="modern-logout-button modern-logout-button-confirm"
                                      oncomplete="PF('confirmLogoutDialog').hide();" />
                     <p:commandButton value="Annuler"

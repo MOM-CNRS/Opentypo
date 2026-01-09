@@ -244,6 +244,32 @@ select:hover {
     border-color: var(--color-hover, #A7C1A8) !important;
 }
 
+/* ============================================
+   STYLES POUR LES ITEMS DES SELECTONEMENU
+   Hover en vert clair, sélectionné en vert foncé
+   ============================================ */
+
+/* Items des selectOneMenu - Hover (vert clair) */
+.ui-selectonemenu-item:hover,
+.ui-selectonemenu-item.ui-state-hover {
+    background-color: var(--color-hover, #A7C1A8) !important;
+    color: var(--color-text-primary, #333) !important;
+}
+
+/* Items des selectOneMenu - Sélectionné (vert foncé) */
+.ui-selectonemenu-item.ui-state-highlight {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+}
+
+/* Items des selectOneMenu - Hover sur item sélectionné */
+.ui-selectonemenu-item.ui-state-highlight:hover,
+.ui-selectonemenu-item.ui-state-highlight.ui-state-hover {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    opacity: 0.95;
+}
+
 /* 2. Structure App */
 .app-body {
     display: flex;

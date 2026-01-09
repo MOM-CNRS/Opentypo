@@ -128,7 +128,7 @@ public class LoginBean implements Serializable {
             
             notificationBean.showSuccessWithUpdate("Connexion réussie",
                 "Bienvenue dans votre espace de recherche, " + displayName + ".",
-                ":growl, :headerForm, :sidebarForm");
+                ":growl, :headerForm, :sidebarForm, :create-collection-section, :centerContent");
             
             // Réinitialiser les champs
             username = null;
@@ -183,9 +183,6 @@ public class LoginBean implements Serializable {
             }
         }
         
-        // Si on est déjà sur index.xhtml, juste mettre à jour les composants
-        PrimeFaces.current().ajax().update(":growl, :headerForm, :sidebarForm");
-        
         return null; // Rester sur la page actuelle si déjà sur index.xhtml
     }
 
@@ -227,6 +224,15 @@ public class LoginBean implements Serializable {
         return currentUser != null 
             && currentUser.getGroupe() != null 
             && "Éditeur".equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    /**
+     * Vérifie si l'utilisateur est connecté et a les droits d'administration ou d'édition
+     * 
+     * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
+     */
+    public boolean canCreateOrEdit() {
+        return authenticated && currentUser != null && (isAdmin() || isEditor());
     }
 }
 
