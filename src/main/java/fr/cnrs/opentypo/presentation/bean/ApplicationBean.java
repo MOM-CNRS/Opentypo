@@ -57,7 +57,7 @@ public class ApplicationBean implements Serializable {
 
     private List<Entity> beadCrumbElements;
     
-    private List<Entity> referentiels;
+    private List<Entity> references;
     private List<Entity> collections;
     
     // Collection actuellement sélectionnée
@@ -144,16 +144,16 @@ public class ApplicationBean implements Serializable {
     /**
      * Charge les référentiels depuis la base de données
      */
-    public void loadReferentiels() {
-        referentiels = new ArrayList<>();
+    public void loadreferences() {
+        references = new ArrayList<>();
         try {
-            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
-            referentiels = referentiels.stream()
+            references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
+            references = references.stream()
                 .filter(r -> r.getPublique() != null && r.getPublique())
                 .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
-            referentiels = new ArrayList<>();
+            references = new ArrayList<>();
         }
     }
 

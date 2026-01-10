@@ -5,139 +5,118 @@
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Dialog pour créer un nouveau référentiel -->
-    <p:dialog id="addReferentielDialog"
-              widgetVar="addReferentielDialog"
+    <p:dialog id="addreferenceDialog"
+              widgetVar="addreferenceDialog"
               header="Créer un nouveau référentiel"
               modal="true"
               draggable="false"
               resizable="false"
-              styleClass="referentiel-dialog"
+              styleClass="reference-dialog"
               width="700"
               height="auto"
               closable="true"
               responsive="true"
               position="center">
         
-        <h:form id="referentielForm">
-            <f:event listener="#{referentielBean.resetReferentielForm}" type="preRenderView"/>
-            <div class="referentiel-form-content">
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielCode" value="Code du référentiel" />
-                    <p:inputText id="referentielCode" 
-                               value="#{referentielBean.referentielCode}"
+        <h:form id="referenceForm">
+            <f:event listener="#{referenceBean.resetReferenceForm}" type="preRenderView"/>
+            <div class="reference-form-content">
+                <div class="reference-form-group">
+                    <p:outputLabel for="referenceCode" value="Code du référentiel" />
+                    <p:inputText id="referenceCode"
+                               value="#{referenceBean.referenceCode}"
                                required="true"
                                requiredMessage="Le code du référentiel est requis"
-                               styleClass="referentiel-input"
+                               styleClass="reference-input"
                                placeholder="Ex: REF001"/>
                 </div>
 
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielLabel" value="Label" />
-                    <p:inputText id="referentielLabel" 
-                               value="#{referentielBean.referentielLabel}"
+                <div class="reference-form-group">
+                    <p:outputLabel for="referenceLabel" value="Label" />
+                    <p:inputText id="referenceLabel"
+                               value="#{referenceBean.referenceLabel}"
                                required="true"
                                requiredMessage="Le label est requis"
-                               styleClass="referentiel-input"
+                               styleClass="reference-input"
                                placeholder="Nom du référentiel"/>
                 </div>
 
-                <div class="referentiel-form-group">
-                    <p:outputLabel for="referentielDescription" value="Description" />
-                    <p:inputTextarea id="referentielDescription" 
-                                    value="#{referentielBean.referentielDescription}"
+                <div class="reference-form-group">
+                    <p:outputLabel for="referenceDescription" value="Description" />
+                    <p:inputTextarea id="referenceDescription"
+                                    value="#{referenceBean.referenceDescription}"
                                     rows="4"
-                                    styleClass="referentiel-textarea"
+                                    styleClass="reference-textarea"
                                     placeholder="Description du référentiel"/>
                 </div>
 
-                <div class="referentiel-form-group">
+                <div class="reference-form-group">
                     <p:outputLabel for="periode" value="Période" />
                     <p:inputText id="periode"
-                                 value="#{referentielBean.periodeId}"
-                                 styleClass="referentiel-input"
+                                 value="#{referenceBean.periodeId}"
+                                 styleClass="reference-input"
                                  placeholder="Nom du référentiel"/>
                 </div>
 
-                <div class="referentiel-form-group">
+                <div class="reference-form-group">
                     <p:outputLabel for="referenceBibliographique" value="Référence bibliographique" />
                     <p:inputTextarea id="referenceBibliographique" 
-                                    value="#{referentielBean.referenceBibliographique}"
+                                    value="#{referenceBean.referenceBibliographique}"
                                     rows="3"
-                                    styleClass="referentiel-textarea"
+                                    styleClass="reference-textarea"
                                     placeholder="Référence bibliographique"/>
                 </div>
 
-                <div class="referentiel-form-group">
+                <div class="reference-form-group">
                     <p:outputLabel for="categories" value="Catégories du référentiel" />
                     <p:inputText id="categories"
-                                 value="#{referentielBean.categorieIds}"
+                                 value="#{referenceBean.categorieIds}"
                                  requiredMessage="La catégorie est requis"
-                                 styleClass="referentiel-input"
+                                 styleClass="reference-input"
                                  placeholder="Nom du référentiel"/>
                 </div>
             </div>
 
-            <div class="referentiel-form-actions">
+            <div class="reference-form-actions">
                 <p:commandButton value="Annuler" 
                                icon="pi pi-times"
-                               styleClass="referentiel-btn referentiel-btn-cancel"
-                               onclick="PF('addReferentielDialog').hide(); return false;"
+                               styleClass="reference-btn reference-btn-cancel"
+                               onclick="PF('addreferenceDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
                 <p:commandButton value="Valider" 
                                icon="pi pi-check"
-                               styleClass="referentiel-btn referentiel-btn-validate"
-                               action="#{referentielBean.creerReferentiel}"
+                               styleClass="reference-btn reference-btn-validate"
+                               action="#{referenceBean.createReference}"
                                process="@form"
                                update="@form :growl :treeWidget :cardsContainer :searchForm"
-                               oncomplete="if(!args.validationFailed) {PF('addReferentielDialog').hide();}"/>
+                               oncomplete="if(!args.validationFailed) {PF('addreferenceDialog').hide();}"/>
             </div>
         </h:form>
     </p:dialog>
 
     <style>
-        .tree-actions-button .ui-icon {
-            font-size: 1.1rem;
-        }
-
-        .tree-menu-item .ui-menuitem-text {
-            color: var(--color-text-primary, #333) !important;
-        }
-
-        .tree-menu-item:hover .ui-menuitem-text {
-            color: var(--color-action-main, #47624D) !important;
-        }
-
-        .tree-menu-item .ui-icon {
-            color: var(--color-action-main, #47624D) !important;
-            font-size: 1rem;
-        }
-
-        .tree-menu-item:hover .ui-icon {
-            color: var(--color-action-main, #47624D) !important;
-        }
-
-        .referentiel-form-content {
+        .reference-form-content {
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
             margin-bottom: 1.5rem;
         }
 
-        .referentiel-form-group {
+        .reference-form-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
 
-        .referentiel-form-group label {
+        .reference-form-group label {
             font-weight: 500;
             color: var(--color-text-primary, #333);
             font-size: 0.9rem;
         }
 
-        .referentiel-input,
-        .referentiel-textarea {
+        .reference-input,
+        .reference-textarea {
             width: 100% !important;
             padding: 0.625rem 0.75rem !important;
             border: 1px solid rgba(71, 98, 77, 0.3) !important;
@@ -146,19 +125,19 @@
             transition: all 0.2s ease !important;
         }
 
-        .referentiel-input:focus,
-        .referentiel-textarea:focus {
+        .reference-input:focus,
+        .reference-textarea:focus {
             border-color: var(--color-action-main, #47624D) !important;
             box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
             outline: none !important;
         }
 
-        .referentiel-textarea {
+        .reference-textarea {
             resize: vertical;
             min-height: 100px;
         }
 
-        .referentiel-form-actions {
+        .reference-form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
@@ -166,7 +145,7 @@
             border-top: 1px solid rgba(71, 98, 77, 0.15);
         }
 
-        .referentiel-btn {
+        .reference-btn {
             padding: 0.625rem 1.25rem !important;
             border-radius: 0.25rem !important;
             font-size: 0.9rem !important;
@@ -179,36 +158,36 @@
             gap: 0.5rem !important;
         }
 
-        .referentiel-btn-cancel {
+        .reference-btn-cancel {
             background-color: var(--color-action-secondary, #6C757D) !important;
             color: white !important;
         }
 
-        .referentiel-btn-cancel:hover {
+        .reference-btn-cancel:hover {
             background-color: #5a6268 !important;
         }
 
-        .referentiel-btn-validate {
+        .reference-btn-validate {
             background-color: var(--color-action-main, #47624D) !important;
             color: white !important;
         }
 
-        .referentiel-btn-validate:hover {
+        .reference-btn-validate:hover {
             background-color: #3a4f3f !important;
         }
 
         /* Responsive pour le dialog */
         @media (max-width: 768px) {
-            .referentiel-dialog {
+            .reference-dialog {
                 width: 90% !important;
                 max-width: 500px !important;
             }
 
-            .referentiel-form-actions {
+            .reference-form-actions {
                 flex-direction: column-reverse;
             }
 
-            .referentiel-btn {
+            .reference-btn {
                 width: 100%;
                 justify-content: center;
             }

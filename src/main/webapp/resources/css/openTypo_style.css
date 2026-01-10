@@ -3510,10 +3510,10 @@ body .ui-button.ui-button-icon-only:hover .ui-icon {
 }
 
 /* Empêcher le soulignement sur les commandLink référentiel */
-body .referentiel-card.ui-commandlink,
-body .referentiel-card.ui-commandlink:hover,
-body .referentiel-card.ui-commandlink a,
-body .referentiel-card.ui-commandlink:hover a {
+body .reference-card.ui-commandlink,
+body .reference-card.ui-commandlink:hover,
+body .reference-card.ui-commandlink a,
+body .reference-card.ui-commandlink:hover a {
     text-decoration: none !important;
 }
 
@@ -3821,27 +3821,27 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 /* Message quand aucun référentiel n'est disponible */
-.no-referentiels-message {
+.no-references-message {
     grid-column: 1 / -1;
     width: 100%;
 }
 
-.no-referentiels-message .modern-card {
+.no-references-message .modern-card {
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%);
     border: 2px dashed rgba(71, 98, 77, 0.3);
     border-left: 4px solid var(--color-action-main, #47624D);
 }
 
-.no-referentiels-message .modern-card-icon {
+.no-references-message .modern-card-icon {
     background: rgba(71, 98, 77, 0.1);
     color: var(--color-action-main, #47624D);
 }
 
-.no-referentiels-message .modern-card-title {
+.no-references-message .modern-card-title {
     color: var(--color-text-secondary, #819A91);
 }
 
-.no-referentiels-message .modern-card-description {
+.no-references-message .modern-card-description {
     color: var(--color-text-secondary, #819A91);
     font-style: italic;
 }
@@ -4029,7 +4029,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
    ============================================ */
 
 /* Conteneur des cartes référentiel */
-.referentiel-cards-container {
+.reference-cards-container {
     width: 100%;
     padding-top: 0.75rem;
     padding-left: 0.25rem;
@@ -4039,7 +4039,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 /* Grille des cartes référentiel - Responsive, occupe toute la largeur disponible */
-.referentiel-cards-grid {
+.reference-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.25rem;
@@ -4051,7 +4051,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 /* Carte référentiel moderne */
-.referentiel-card {
+.reference-card {
     display: block;
     background: #ffffff;
     border: 1px solid #e5e7eb;
@@ -4069,13 +4069,13 @@ body .ui-panelgrid .ui-panelgrid-cell {
 }
 
 /* Empêcher le soulignement par défaut sur les commandLink PrimeFaces */
-body .referentiel-card,
-body .referentiel-card.ui-commandlink,
-body .referentiel-card a {
+body .reference-card,
+body .reference-card.ui-commandlink,
+body .reference-card a {
     text-decoration: none !important;
 }
 
-.referentiel-card::before {
+.reference-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -4088,7 +4088,7 @@ body .referentiel-card a {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.referentiel-card:hover {
+.reference-card:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     border-color: var(--color-action-main, #47624D);
     text-decoration: none !important;
@@ -4097,24 +4097,24 @@ body .referentiel-card a {
 }
 
 /* Empêcher le soulignement sur tous les éléments de texte au hover */
-.referentiel-card:hover * {
+.reference-card:hover * {
     text-decoration: none !important;
 }
 
-.referentiel-card:hover a,
-.referentiel-card:hover span,
-.referentiel-card:hover p,
-.referentiel-card:hover h3,
-.referentiel-card:hover div {
+.reference-card:hover a,
+.reference-card:hover span,
+.reference-card:hover p,
+.reference-card:hover h3,
+.reference-card:hover div {
     text-decoration: none !important;
 }
 
-.referentiel-card:hover::before {
+.reference-card:hover::before {
     transform: scaleX(1);
 }
 
 /* Contenu de la carte référentiel */
-.referentiel-card-content {
+.reference-card-content {
     padding: 0.75rem;
     display: flex;
     flex-direction: column;
@@ -4126,7 +4126,7 @@ body .referentiel-card a {
 }
 
 /* En-tête de la carte référentiel */
-.referentiel-card-header {
+.reference-card-header {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
@@ -4136,7 +4136,7 @@ body .referentiel-card a {
 }
 
 /* Icône de la carte référentiel */
-.referentiel-card-icon {
+.reference-card-icon {
     width: 48px;
     height: 48px;
     display: flex;
@@ -4150,7 +4150,7 @@ body .referentiel-card a {
     flex-shrink: 0;
 }
 
-.referentiel-card:hover .referentiel-card-icon {
+.reference-card:hover .reference-card-icon {
     background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%);
     color: #ffffff;
     transform: none;
@@ -4159,7 +4159,7 @@ body .referentiel-card a {
 }
 
 /* Wrapper pour titre et code */
-.referentiel-card-title-wrapper {
+.reference-card-title-wrapper {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -4168,7 +4168,7 @@ body .referentiel-card a {
 }
 
 /* Titre de la carte référentiel */
-.referentiel-card-title {
+.reference-card-title {
     font-size: 1.125rem;
     font-weight: 700;
     color: var(--color-text-primary, #333);
@@ -4180,14 +4180,14 @@ body .referentiel-card a {
     display: block;
 }
 
-.referentiel-card:hover .referentiel-card-title {
+.reference-card:hover .reference-card-title {
     color: var(--color-action-main, #47624D);
     text-decoration: none !important;
     /* Pas de transform pour éviter le décalage */
 }
 
 /* Code de la carte référentiel */
-.referentiel-card-code {
+.reference-card-code {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-text-secondary, #819A91);
@@ -4199,14 +4199,14 @@ body .referentiel-card a {
     display: block;
 }
 
-.referentiel-card:hover .referentiel-card-code {
+.reference-card:hover .reference-card-code {
     color: var(--color-action-main, #47624D);
     text-decoration: none !important;
     /* Pas de transform pour éviter le décalage */
 }
 
 /* Description de la carte référentiel */
-.referentiel-card-description {
+.reference-card-description {
     font-size: 0.9375rem;
     color: var(--color-text-secondary, #819A91);
     margin: 0;
@@ -4223,7 +4223,7 @@ body .referentiel-card a {
     position: relative;
 }
 
-.referentiel-card:hover .referentiel-card-description {
+.reference-card:hover .reference-card-description {
     color: var(--color-text-primary, #333);
     text-decoration: none !important;
     /* Pas de transform pour éviter le décalage */
@@ -4231,19 +4231,19 @@ body .referentiel-card a {
 
 /* Responsive pour les cartes référentiel - Amélioré */
 @media (max-width: 1200px) {
-    .referentiel-cards-grid {
+    .reference-cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 1.125rem;
     }
 }
 
 @media (max-width: 992px) {
-    .referentiel-cards-grid {
+    .reference-cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 1rem;
     }
     
-    .referentiel-cards-container {
+    .reference-cards-container {
         padding-top: 0.5rem;
         padding-left: 0rem;
         padding-right: 0rem;
@@ -4252,51 +4252,51 @@ body .referentiel-card a {
 }
 
 @media (max-width: 768px) {
-    .referentiel-cards-grid {
+    .reference-cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 0.875rem;
     }
     
-    .referentiel-cards-container {
+    .reference-cards-container {
         padding-top: 0.25rem;
         padding-left: 0.25rem;
         padding-right: 0.25rem;
         padding-bottom: 0.25rem;
     }
     
-    .referentiel-card {
+    .reference-card {
         min-height: 140px;
     }
     
-    .referentiel-card-content {
+    .reference-card-content {
         padding: 0.75rem;
     }
     
-    .referentiel-card-icon {
+    .reference-card-icon {
         width: 44px;
         height: 44px;
         font-size: 1.375rem;
     }
     
-    .referentiel-card-title {
+    .reference-card-title {
         font-size: 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .referentiel-cards-grid {
+    .reference-cards-grid {
         grid-template-columns: 1fr;
         gap: 0.75rem;
     }
     
-    .referentiel-card-content {
+    .reference-card-content {
         padding: 0.5rem;
     }
 }
 
 /* Sur très grands écrans, limite le nombre de colonnes pour une meilleure lisibilité */
 @media (min-width: 1600px) {
-    .referentiel-cards-grid {
+    .reference-cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         max-width: 100%;
     }

@@ -64,8 +64,8 @@ public class Entity implements Serializable {
     @Column(name = "alignement_externe", columnDefinition = "TEXT")
     private String alignementExterne;
 
-    @Column(name = "referentiel", length = 255)
-    private String referentiel;
+    @Column(name = "reference", length = 255)
+    private String reference;
 
     @Column(name = "typologie_scientifique", length = 255)
     private String typologieScientifique;
@@ -104,19 +104,19 @@ public class Entity implements Serializable {
     // Relations auto-référencées
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "periode_id")
-    private ReferentielOpentheso periode;
+    private ReferenceOpentheso periode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "production_id")
-    private ReferentielOpentheso production;
+    private ReferenceOpentheso production;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aire_circulation")
-    private ReferentielOpentheso aireCirculation;
+    private ReferenceOpentheso aireCirculation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_fonctionnelle")
-    private ReferentielOpentheso categorieFonctionnelle;
+    private ReferenceOpentheso categorieFonctionnelle;
 
     // Relations avec DescriptionDetail
     @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)

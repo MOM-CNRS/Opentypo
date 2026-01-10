@@ -41,7 +41,7 @@ public class Candidat implements Serializable {
     private String fabrication;
     private List<String> attestations = new ArrayList<>();
     private List<String> sitesArcheologiques = new ArrayList<>();
-    private String referentiel;
+    private String reference;
     private String typologiqueScientifique;
     private String identifiantPerenne;
     private String ancienneVersion;

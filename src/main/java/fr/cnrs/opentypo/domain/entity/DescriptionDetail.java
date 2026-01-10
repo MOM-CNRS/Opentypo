@@ -41,7 +41,7 @@ public class DescriptionDetail implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fonction_id")
-    private ReferentielOpentheso fonction;
+    private ReferenceOpentheso fonction;
 
     @Column(name = "metrologie", columnDefinition = "TEXT")
     private String metrologie;

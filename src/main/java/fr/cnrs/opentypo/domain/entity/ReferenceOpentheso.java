@@ -17,12 +17,12 @@ import java.io.Serializable;
 
 @Entity
 @Audited
-@Table(name = "image")
+@Table(name = "reference-opentheso")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReferentielOpentheso implements Serializable {
+public class ReferenceOpentheso implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

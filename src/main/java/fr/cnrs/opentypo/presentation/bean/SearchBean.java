@@ -35,12 +35,12 @@ public class SearchBean implements Serializable {
     private String collectionSelected;
     private String langSelected = "fr"; // Français sélectionné par défaut
     
-    private List<Entity> referentiels;
+    private List<Entity> references;
     private List<Entity> collections;
 
     @PostConstruct
     public void init() {
-        loadReferentiels();
+        loadreferences();
         loadCollections();
     }
     
@@ -68,16 +68,16 @@ public class SearchBean implements Serializable {
     /**
      * Charge les référentiels depuis la base de données
      */
-    public void loadReferentiels() {
-        referentiels = new ArrayList<>();
+    public void loadreferences() {
+        references = new ArrayList<>();
         try {
-            referentiels = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
-            referentiels = referentiels.stream()
+            references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
+            references = references.stream()
                 .filter(r -> r.getPublique() != null && r.getPublique())
                 .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
-            referentiels = new ArrayList<>();
+            references = new ArrayList<>();
         }
     }
 

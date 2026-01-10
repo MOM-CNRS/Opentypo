@@ -45,18 +45,18 @@ public class CaracteristiquePhysique implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "forme_id")
-    private ReferentielOpentheso forme;
+    private ReferenceOpentheso forme;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dimensions_id")
-    private ReferentielOpentheso dimensions;
+    private ReferenceOpentheso dimensions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "technique_id")
-    private ReferentielOpentheso technique;
+    private ReferenceOpentheso technique;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fabrication_id")
-    private ReferentielOpentheso fabrication;
+    private ReferenceOpentheso fabrication;
 }
 

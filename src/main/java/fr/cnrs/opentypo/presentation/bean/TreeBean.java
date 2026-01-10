@@ -66,18 +66,18 @@ public class TreeBean implements Serializable {
             try {
                 // Charger les référentiels de la collection
                 applicationBean.loadCollectionReferences();
-                var referentiels = applicationBean.getCollectionReferences();
+                var references = applicationBean.getCollectionReferences();
                 
-                if (referentiels != null && !referentiels.isEmpty()) {
-                    for (Entity referentiel : referentiels) {
-                        DefaultTreeNode node = new DefaultTreeNode(referentiel.getNom(), root);
+                if (references != null && !references.isEmpty()) {
+                    for (Entity reference : references) {
+                        DefaultTreeNode node = new DefaultTreeNode(reference.getNom(), root);
                         // Stocker l'entité dans le nœud pour pouvoir la récupérer lors du clic
-                        node.setData(referentiel);
+                        node.setData(reference);
                         
                         // Restaurer la sélection si c'est la même entité
                         if (previouslySelectedEntity != null && 
                             previouslySelectedEntity.getId() != null &&
-                            previouslySelectedEntity.getId().equals(referentiel.getId())) {
+                            previouslySelectedEntity.getId().equals(reference.getId())) {
                             selectedNode = node;
                         }
                     }
@@ -91,10 +91,10 @@ public class TreeBean implements Serializable {
     /**
      * Ajoute un référentiel à l'arbre
      */
-    public void addReferentielToTree(Entity referentiel) {
-        if (root != null && referentiel != null) {
-            DefaultTreeNode node = new DefaultTreeNode(referentiel.getNom(), root);
-            node.setData(referentiel);
+    public void addreferenceToTree(Entity reference) {
+        if (root != null && reference != null) {
+            DefaultTreeNode node = new DefaultTreeNode(reference.getNom(), root);
+            node.setData(reference);
         }
     }
 

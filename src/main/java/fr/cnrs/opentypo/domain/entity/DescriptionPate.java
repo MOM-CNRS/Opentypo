@@ -31,15 +31,15 @@ public class DescriptionPate implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "couleur_id")
-    private ReferentielOpentheso couleur;
+    private ReferenceOpentheso couleur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nature_id")
-    private ReferentielOpentheso nature;
+    private ReferenceOpentheso nature;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inclusion_id")
-    private ReferentielOpentheso inclusion;
+    private ReferenceOpentheso inclusion;
 
     @Column(name = "cuisson")
     private String cuisson;
