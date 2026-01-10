@@ -2,7 +2,8 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Contenu dynamique -->
     <h:panelGroup class="image-container">
@@ -36,11 +37,11 @@
                     </div>
                     <div class="concept-info-actions">
                         <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                            <i class="pi pi-cog" />
+                            <i class="pi pi-file-edit" />
                             <p:tooltip value="Paramètres" position="top"/>
                         </p:commandLink>
                         <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                            <i class="pi pi-flag" />
+                            <i class="pi pi-trash" />
                             <p:tooltip value="Marquer" position="top"/>
                         </p:commandLink>
                     </div>
@@ -71,10 +72,18 @@
                             <i class="pi pi-user concept-info-icon" />
                             <span>Auteur(s)</span>
                         </div>
-                        <div class="concept-info-value">
-                            <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
-                                #{auteur.prenom} #{auteur.nom}#{status.last ? '' : ', '}
-                            </ui:repeat>
+                        <div class="concept-info-value bibliographie-container">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedReference.auteurs}">
+                                <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
+                                    <span class="bibliographie-badge">
+                                        <i class="pi pi-user bibliographie-badge-icon" />
+                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                    </span>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucun auteur disponible" 
+                                         rendered="#{empty applicationBean.selectedReference.auteurs}"
+                                         styleClass="bibliographie-empty" />
                         </div>
                     </h:panelGroup>
 
@@ -83,37 +92,53 @@
                             <i class="pi pi-book concept-info-icon" />
                             <span>Référence bibliographique</span>
                         </div>
-                        <div class="concept-info-value">#{applicationBean.selectedReference.bibliographie}</div>
+                        <div class="concept-info-value bibliographie-container">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedReference.bibliographie}">
+                                <ui:repeat value="#{fn:split(applicationBean.selectedReference.bibliographie, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-book bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                        </span>
+                                    </ui:fragment>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucune référence bibliographique disponible" 
+                                         rendered="#{empty applicationBean.selectedReference.bibliographie}"
+                                         styleClass="bibliographie-empty" />
+                        </div>
                     </h:panelGroup>
                 </div>
             </div>
 
             <div style="margin-top: 20px">
-                <!-- Section header pour les catégories -->
-                <div class="collection-references-header">
-                    <div class="collection-references-title-section">
-                        <div class="collection-references-icon">
-                            <i class="pi pi-tag" />
+                <!-- Bloc unifié pour les catégories -->
+                <div class="categories-unified-block">
+                    <!-- Section header pour les catégories -->
+                    <div class="collection-references-header">
+                        <div class="collection-references-title-section">
+                            <div class="collection-references-icon">
+                                <i class="pi pi-tag" />
+                            </div>
+                            <div class="collection-references-title-wrapper">
+                                <h3 class="collection-references-title">Catégories du référentiel</h3>
+                                <span class="collection-references-subtitle">
+                                    #{applicationBean.selectedReference.nom}
+                                </span>
+                            </div>
                         </div>
-                        <div class="collection-references-title-wrapper">
-                            <h3 class="collection-references-title">Catégories du référentiel</h3>
-                            <span class="collection-references-subtitle">
-                                #{applicationBean.selectedReference.nom}
-                            </span>
-                        </div>
+                        <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                            <p:commandButton value="Créer une catégorie"
+                                             icon="pi pi-plus"
+                                             styleClass="collection-create-btn"
+                                             onclick="PF('createCategoryDialog').show(); return false;"
+                                             process="@this"
+                                             update="@none"/>
+                        </h:panelGroup>
                     </div>
-                    <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                        <p:commandButton value="Créer une catégorie"
-                                         icon="pi pi-plus"
-                                         styleClass="collection-create-btn"
-                                         onclick="PF('createCategoryDialog').show(); return false;"
-                                         process="@this"
-                                         update="@none"/>
-                    </h:panelGroup>
-                </div>
 
-                <!-- Liste des catégories -->
-                <div class="reference-cards-container">
+                    <!-- Liste des catégories -->
+                    <div class="reference-cards-container">
                     <h:form>
                         <div class="reference-cards-grid">
                             <p:commandLink action="#{applicationBean.showCategory()}"
@@ -139,32 +164,9 @@
                                     </p>
                                 </div>
                             </p:commandLink>
-
-                            <p:commandLink action="#{applicationBean.showCategory()}"
-                                           styleClass="reference-card"
-                                           process="@this"
-                                           update=":centerContent">
-                                <div class="reference-card-content">
-                                    <div class="reference-card-header">
-                                        <div class="reference-card-icon">
-                                            <i class="pi pi-tag" />
-                                        </div>
-                                        <div class="reference-card-title-wrapper">
-                                            <h3 class="reference-card-title">Titre CAT</h3>
-                                            <span class="reference-card-code">Code CAT</span>
-                                        </div>
-                                    </div>
-                                    <p class="reference-card-description">
-                                        Description courte du contenu, contexte scientifique,
-                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                        résumé ou métadonnée. Description courte du contenu, contexte scientifique,
-                                        résumé ou métadonnée.
-                                    </p>
-                                </div>
-                            </p:commandLink>
                         </div>
                     </h:form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,16 +236,28 @@
     </p:dialog>
 
     <style>
-        /* Header pour les catégories - Style cohérent avec le site */
-        .collection-references-header {
+        /* Bloc unifié pour les catégories - Un seul panneau visuel */
+        .categories-unified-block {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Header pour les catégories - Intégré dans le bloc unifié */
+        .categories-unified-block .collection-references-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.875rem 1rem;
+            padding: 0.875rem 1.5rem;
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
-            border: 1px solid rgba(71, 98, 77, 0.12);
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            border: none;
+            border-bottom: 1px solid rgba(71, 98, 77, 0.12);
+            border-radius: 0;
+            margin-bottom: 0;
             gap: 1rem;
         }
 
@@ -334,10 +348,11 @@
         }
 
         @media (max-width: 768px) {
-            .collection-references-header {
+            .categories-unified-block .collection-references-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.75rem;
+                padding: 0.875rem 1rem;
             }
 
             .collection-references-actions {
@@ -348,10 +363,14 @@
                 width: 100% !important;
                 justify-content: center !important;
             }
+
+            .categories-unified-block .reference-cards-container {
+                padding: 1rem !important;
+            }
         }
 
         @media (max-width: 480px) {
-            .collection-references-header {
+            .categories-unified-block .collection-references-header {
                 padding: 0.75rem;
             }
 
@@ -368,16 +387,25 @@
             .collection-references-subtitle {
                 font-size: 0.6875rem;
             }
+
+            .categories-unified-block .reference-cards-container {
+                padding: 0.75rem !important;
+            }
         }
 
-        /* Ajustement du padding pour les cartes de catégories */
-        .reference-cards-container {
-            padding: 0.875rem !important;
+        /* Conteneur unifié pour les cartes de catégories - Intégré dans le bloc unifié */
+        .categories-unified-block .reference-cards-container {
+            padding: 1.5rem !important;
             width: 100% !important;
             box-sizing: border-box !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin-top: 0 !important;
         }
 
-        /* Grille responsive pour les cartes */
+        /* Grille responsive pour les cartes - Intégrée dans le bloc unifié */
         .reference-cards-grid {
             display: grid !important;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
@@ -387,6 +415,17 @@
             padding: 0 !important;
             box-sizing: border-box !important;
             align-items: stretch !important;
+        }
+
+        /* Réduction de l'ombre des cartes individuelles pour l'effet de bloc unifié */
+        .reference-cards-container .reference-card.ui-commandlink {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+            border: 1px solid #f0f0f0 !important;
+        }
+
+        .reference-cards-container .reference-card.ui-commandlink:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border-color: var(--color-action-main, #47624D) !important;
         }
 
         @media (max-width: 1200px) {
@@ -402,8 +441,8 @@
                 gap: 1rem !important;
             }
             
-            .reference-cards-container {
-                padding: 0.5rem !important;
+            .categories-unified-block .reference-cards-container {
+                padding: 1rem !important;
             }
         }
 
@@ -413,8 +452,8 @@
                 gap: 0.875rem !important;
             }
             
-            .reference-cards-container {
-                padding: 0.75rem !important;
+            .categories-unified-block .reference-cards-container {
+                padding: 1rem !important;
             }
         }
 
@@ -616,6 +655,97 @@
             }
         }
 
+
+        /* Styles pour les badges de bibliographie - Design professionnel et moderne */
+        .bibliographie-container {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.75rem !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+        }
+
+        .bibliographie-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.625rem 1rem !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            border-radius: 8px !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.875rem !important;
+            line-height: 1.5 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+        }
+
+        .bibliographie-badge::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 3px !important;
+            height: 100% !important;
+            background: linear-gradient(180deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.7) 100%) !important;
+        }
+
+        .bibliographie-badge-icon {
+            color: var(--color-action-main, #47624D) !important;
+            font-size: 0.875rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .bibliographie-badge-text {
+            color: var(--color-text-primary, #333) !important;
+            font-weight: 500 !important;
+            line-height: 1.5 !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .bibliographie-empty {
+            color: var(--color-text-secondary, #819A91) !important;
+            font-style: italic !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Responsive pour les badges de bibliographie */
+        @media (max-width: 768px) {
+            .bibliographie-container {
+                gap: 0.625rem !important;
+            }
+
+            .bibliographie-badge {
+                padding: 0.5rem 0.875rem !important;
+                font-size: 0.8125rem !important;
+            }
+
+            .bibliographie-badge-icon {
+                font-size: 0.8125rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bibliographie-container {
+                gap: 0.5rem !important;
+            }
+
+            .bibliographie-badge {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.75rem !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .bibliographie-badge-text {
+                font-size: 0.75rem !important;
+            }
+        }
 
         /* Styles pour le dialog de création de catégorie */
         .category-dialog .ui-dialog-content {
