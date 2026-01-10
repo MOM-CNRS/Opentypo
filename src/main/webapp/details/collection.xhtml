@@ -40,7 +40,7 @@
                         <div class="collection-panel-title-wrapper">
                             <p:commandLink action="#{applicationBean.showReferenceDetail(referentiel)}"
                                          process="@this"
-                                         update=":centerContent, :treeWidget"
+                                         update=":centerContent, :treeWidget, :breadcrumbContent"
                                          oncomplete="selectTreeNodeAfterUpdate()"
                                          styleClass="collection-panel-title-link">
                                 <h3 class="collection-panel-title">#{referentiel.nom}</h3>

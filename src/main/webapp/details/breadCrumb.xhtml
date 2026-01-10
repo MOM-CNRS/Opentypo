@@ -34,48 +34,24 @@
                         </h:form>
                     </li>
 
-                    <li class="modern-breadcrumb-separator">
-                        <i class="pi pi-angle-right" />
-                    </li>
-                    <li class="modern-breadcrumb-item">
-                        <a href="#" class="modern-breadcrumb-link">
-                            <span>Electronics</span>
-                        </a>
-                    </li>
-
-                    <li class="modern-breadcrumb-separator">
-                        <i class="pi pi-angle-right" />
-                    </li>
-                    <li class="modern-breadcrumb-item">
-                        <a href="#" class="modern-breadcrumb-link">
-                            <span>Computer</span>
-                        </a>
-                    </li>
-
-                    <li class="modern-breadcrumb-separator">
-                        <i class="pi pi-angle-right" />
-                    </li>
-                    <li class="modern-breadcrumb-item">
-                        <a href="#" class="modern-breadcrumb-link">
-                            <span>Notebook</span>
-                        </a>
-                    </li>
-
-                    <li class="modern-breadcrumb-separator">
-                        <i class="pi pi-angle-right" />
-                    </li>
-                    <li class="modern-breadcrumb-item">
-                        <a href="#" class="modern-breadcrumb-link">
-                            <span>Accessories</span>
-                        </a>
-                    </li>
-
-                    <li class="modern-breadcrumb-separator">
-                        <i class="pi pi-angle-right" />
-                    </li>
-                    <li class="modern-breadcrumb-item modern-breadcrumb-item-active">
-                        <span class="modern-breadcrumb-current">Backpacks</span>
-                    </li>
+                    <ui:repeat value="#{applicationBean.beadCrumbElements}" var="element" varStatus="status">
+                        <li class="modern-breadcrumb-separator">
+                            <i class="pi pi-angle-right" />
+                        </li>
+                        <li class="modern-breadcrumb-item #{status.last ? 'modern-breadcrumb-item-active' : ''}">
+                            <ui:fragment rendered="#{not status.last}">
+                                <p:commandLink styleClass="modern-breadcrumb-link"
+                                             action="#{applicationBean.showCollectionDetail(element)}"
+                                             process="@this"
+                                             update=":centerContent, :breadcrumbContent">
+                                    <span>#{element.nom}</span>
+                                </p:commandLink>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{status.last}">
+                                <span class="modern-breadcrumb-current">#{element.nom}</span>
+                            </ui:fragment>
+                        </li>
+                    </ui:repeat>
                 </ol>
             </nav>
         </div>

@@ -48,9 +48,14 @@ public class ApplicationBean implements Serializable {
     @Inject
     private Provider<TreeBean> treeBeanProvider;
 
+    @Inject
+    private SearchBean searchBean;
+
     private final PanelStateManager panelState = new PanelStateManager();
 
     private List<Language> languages;
+
+    private List<Entity> beadCrumbElements;
     
     private List<Entity> referentiels;
     private List<Entity> collections;
@@ -71,6 +76,7 @@ public class ApplicationBean implements Serializable {
     private String categoryCode;
     private String categoryLabel;
     private String categoryDescription;
+
 
     // Getters pour compatibilité avec XHTML
     public boolean isShowBreadCrumbPanel() { return panelState.isShowBreadCrumb(); }
@@ -167,6 +173,17 @@ public class ApplicationBean implements Serializable {
         }
     }
 
+    public void showSelectedPanel(Entity entity) {
+        switch (entity.getEntityType().getCode()) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION:
+                showCollectionDetail(entity);
+                break;
+            case EntityConstants.ENTITY_TYPE_REFERENCE:
+                showReferenceDetail(entity);
+                break;
+        }
+    }
+
     public boolean isShowDetail() {
         return panelState.isShowDetail();
     }
@@ -174,6 +191,8 @@ public class ApplicationBean implements Serializable {
     public void showCollections() {
         this.selectedEntityLabel = "";
         this.selectedCollection = null; // Réinitialiser la collection sélectionnée
+        this.beadCrumbElements = new ArrayList<>(); // Réinitialiser le breadcrumb
+        searchBean.setCollectionSelected(null);
         panelState.showCollections();
     }
     
@@ -193,6 +212,10 @@ public class ApplicationBean implements Serializable {
         if (searchBean != null) {
             searchBean.setCollectionSelected(collection.getCode());
         }
+        
+        // Initialiser le breadcrumb avec la collection
+        beadCrumbElements = new ArrayList<>();
+        beadCrumbElements.add(collection);
         
         // Initialiser l'arbre avec les référentiels de la collection
         TreeBean treeBean = treeBeanProvider.get();
@@ -225,6 +248,10 @@ public class ApplicationBean implements Serializable {
     public void showReferenceDetail(Entity reference) {
         this.selectedReference = reference;
         panelState.showReference();
+
+        beadCrumbElements = new ArrayList<>();
+        beadCrumbElements.add(selectedCollection);
+        beadCrumbElements.add(reference);
         
         // Sélectionner le nœud correspondant dans l'arbre
         TreeBean treeBean = treeBeanProvider.get();
