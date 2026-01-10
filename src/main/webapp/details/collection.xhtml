@@ -2,7 +2,8 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Section header pour les référentiels -->
     <div class="collection-references-header">
@@ -21,7 +22,7 @@
             <p:commandButton value="Créer une nouvelle référence"
                              icon="pi pi-plus"
                              styleClass="collection-create-btn"
-                             onclick="PF('addreferenceDialog').show(); return false;"
+                             onclick="PF('referenceDialog').show(); return false;"
                              process="@this"
                              update="@none"/>
         </h:panelGroup>
@@ -97,10 +98,18 @@
                                 <i class="pi pi-user collection-info-icon" />
                                 <span>Auteur(s)</span>
                             </div>
-                            <div class="collection-info-value">
-                                <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
-                                    #{auteur.prenom} #{auteur.nom}#{status.last ? '' : ', '}
-                                </ui:repeat>
+                            <div class="collection-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty reference.auteurs}">
+                                    <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-user bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                        </span>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucun auteur disponible" 
+                                             rendered="#{empty reference.auteurs}"
+                                             styleClass="bibliographie-empty" />
                             </div>
                         </div>
 
@@ -109,7 +118,21 @@
                                 <i class="pi pi-book collection-info-icon" />
                                 <span>Référence bibliographique</span>
                             </div>
-                            <div class="collection-info-value">#{reference.bibliographie}</div>
+                            <div class="collection-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty reference.bibliographie}">
+                                    <ui:repeat value="#{fn:split(reference.bibliographie, ';')}" var="ref" varStatus="status">
+                                        <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                            <span class="bibliographie-badge">
+                                                <i class="pi pi-book bibliographie-badge-icon" />
+                                                <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                            </span>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucune référence bibliographique disponible" 
+                                             rendered="#{empty reference.bibliographie}"
+                                             styleClass="bibliographie-empty" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -597,6 +620,97 @@
             background-color: transparent !important;
         }
 
+        /* Styles pour les badges de bibliographie et auteurs - Design professionnel et moderne */
+        .bibliographie-container {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.75rem !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+        }
+
+        .bibliographie-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.625rem 1rem !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            border-radius: 8px !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.875rem !important;
+            line-height: 1.5 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+        }
+
+        .bibliographie-badge::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 3px !important;
+            height: 100% !important;
+            background: linear-gradient(180deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.7) 100%) !important;
+        }
+
+        .bibliographie-badge-icon {
+            color: var(--color-action-main, #47624D) !important;
+            font-size: 0.875rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .bibliographie-badge-text {
+            color: var(--color-text-primary, #333) !important;
+            font-weight: 500 !important;
+            line-height: 1.5 !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .bibliographie-empty {
+            color: var(--color-text-secondary, #819A91) !important;
+            font-style: italic !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Responsive pour les badges de bibliographie */
+        @media (max-width: 768px) {
+            .bibliographie-container {
+                gap: 0.625rem !important;
+            }
+
+            .bibliographie-badge {
+                padding: 0.5rem 0.875rem !important;
+                font-size: 0.8125rem !important;
+            }
+
+            .bibliographie-badge-icon {
+                font-size: 0.8125rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bibliographie-container {
+                gap: 0.5rem !important;
+            }
+
+            .bibliographie-badge {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.75rem !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .bibliographie-badge-text {
+                font-size: 0.75rem !important;
+            }
+        }
+
     </style>
 
     <!-- Script pour sélectionner le nœud dans l'arbre après mise à jour -->
@@ -615,5 +729,5 @@
     </h:outputScript>
 
     <!-- Inclusion du dialog de création de référentiel -->
-    <ui:include src="../tree/referenceDialog.xhtml"/>
+    <ui:include src="../dialogs/referenceDialog.xhtml"/>
 </ui:composition>

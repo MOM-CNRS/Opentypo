@@ -125,7 +125,7 @@ public class ReferenceBean implements Serializable {
             resetReferenceForm();
             
             // Fermer le dialog
-            PrimeFaces.current().executeScript("PF('addreferenceDialog').hide();");
+            PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
             
             // Mettre à jour les composants
             PrimeFaces.current().ajax().update(

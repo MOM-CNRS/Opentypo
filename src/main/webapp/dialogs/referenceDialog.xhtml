@@ -5,8 +5,8 @@
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Dialog pour créer un nouveau référentiel -->
-    <p:dialog id="addreferenceDialog"
-              widgetVar="addreferenceDialog"
+    <p:dialog id="referenceDialog"
+              widgetVar="referenceDialog"
               header="Créer un nouveau référentiel"
               modal="true"
               draggable="false"
@@ -81,7 +81,7 @@
                 <p:commandButton value="Annuler" 
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"
-                               onclick="PF('addreferenceDialog').hide(); return false;"
+                               onclick="PF('referenceDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
                 <p:commandButton value="Valider" 
@@ -90,7 +90,7 @@
                                action="#{referenceBean.createReference}"
                                process="@form"
                                update="@form :growl :treeWidget :cardsContainer :searchForm"
-                               oncomplete="if(!args.validationFailed) {PF('addreferenceDialog').hide();}"/>
+                               oncomplete="if(!args.validationFailed) {PF('referenceDialog').hide();}"/>
             </div>
         </h:form>
     </p:dialog>
