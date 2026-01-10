@@ -2534,7 +2534,7 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
     display: flex;
     overflow: hidden;
     gap: 10px;
-    padding: 5px;
+    padding: 10px !important;
     background-color: var(--color-bg-global);
     box-sizing: border-box;
     width: 100%;

@@ -225,6 +225,12 @@ public class ApplicationBean implements Serializable {
     public void showReferenceDetail(Entity reference) {
         this.selectedReference = reference;
         panelState.showReference();
+        
+        // Sélectionner le nœud correspondant dans l'arbre
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.selectReferenceNode(reference);
+        }
     }
 
     public void showCategory() {

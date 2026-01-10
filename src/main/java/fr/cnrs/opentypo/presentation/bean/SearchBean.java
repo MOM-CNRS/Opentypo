@@ -17,11 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Named("searchBean")
-@SessionScoped
+
+@Slf4j
 @Getter
 @Setter
-@Slf4j
+@SessionScoped
+@Named("searchBean")
 public class SearchBean implements Serializable {
 
     @Inject
@@ -57,14 +58,10 @@ public class SearchBean implements Serializable {
             appBean.showCollections();
         } else {
             // Une collection spécifique est sélectionnée - afficher ses détails
-            Entity selectedCollection = collections.stream()
-                .filter(c -> c.getCode().equals(collectionSelected))
-                .findFirst()
-                .orElse(null);
-            
-            if (selectedCollection != null) {
-                appBean.showCollectionDetail(selectedCollection);
-            }
+            collections.stream()
+                    .filter(c -> c.getCode().equals(collectionSelected))
+                    .findFirst().ifPresent(appBean::showCollectionDetail);
+
         }
     }
     

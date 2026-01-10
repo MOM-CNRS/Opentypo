@@ -47,11 +47,22 @@ public class TreeBean implements Serializable {
             previouslySelectedEntity = (Entity) selectedNode.getData();
         }
         
-        // Réinitialiser la racine
-        root = new DefaultTreeNode("root", null);
+        // Réinitialiser la racine avec le nom de la collection
+        Entity selectedCollection = null;
+        if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+            selectedCollection = applicationBean.getSelectedCollection();
+            String collectionName = selectedCollection.getNom() != null ? selectedCollection.getNom() : "Collection";
+            DefaultTreeNode collectionRoot = new DefaultTreeNode(collectionName, null);
+            // Stocker l'entité collection dans le nœud racine
+            collectionRoot.setData(selectedCollection);
+            root = collectionRoot;
+        } else {
+            root = new DefaultTreeNode("root", null);
+        }
+        
         selectedNode = null; // Réinitialiser la sélection
         
-        if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+        if (selectedCollection != null) {
             try {
                 // Charger les référentiels de la collection
                 applicationBean.loadCollectionReferences();
@@ -96,8 +107,16 @@ public class TreeBean implements Serializable {
             if (data instanceof Entity) {
                 Entity entity = (Entity) data;
 
-                // Vérifier si c'est un référentiel
+                // Vérifier si c'est une collection (racine)
                 if (entity.getEntityType() != null &&
+                    EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
+                    // Si on clique sur la collection, afficher les détails de la collection
+                    if (applicationBean != null) {
+                        applicationBean.showCollectionDetail(entity);
+                    }
+                }
+                // Vérifier si c'est un référentiel
+                else if (entity.getEntityType() != null &&
                     EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
                     // Afficher la page référentiel
                     if (applicationBean != null) {
@@ -141,6 +160,79 @@ public class TreeBean implements Serializable {
         
         // Sinon, utiliser toString()
         return node.toString();
+    }
+
+    /**
+     * Sélectionne le nœud correspondant à une référence dans l'arbre
+     * @param reference La référence à sélectionner
+     */
+    public void selectReferenceNode(Entity reference) {
+        if (reference == null || root == null) {
+            return;
+        }
+        
+        // Parcourir récursivement l'arbre pour trouver le nœud correspondant
+        var foundNode = findNodeByEntity(root, reference);
+        if (foundNode != null) {
+            this.selectedNode = foundNode;
+            // S'assurer que le nœud parent est étendu pour que le nœud soit visible
+            expandNodePath(foundNode);
+            log.debug("Nœud de référence sélectionné : {}", reference.getNom());
+        } else {
+            log.warn("Nœud de référence non trouvé pour : {}", reference.getNom());
+        }
+    }
+    
+    /**
+     * Étend tous les nœuds parents d'un nœud pour le rendre visible
+     * @param node Le nœud dont on veut étendre le chemin
+     */
+    private void expandNodePath(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        
+        TreeNode parent = node.getParent();
+        while (parent != null && parent != root) {
+            parent.setExpanded(true);
+            parent = parent.getParent();
+        }
+    }
+    
+    /**
+     * Trouve récursivement un nœud dans l'arbre correspondant à une entité
+     * @param node Le nœud à partir duquel commencer la recherche
+     * @param entity L'entité à rechercher
+     * @return Le TreeNode correspondant, ou null si non trouvé
+     */
+    private TreeNode findNodeByEntity(TreeNode node, Entity entity) {
+        if (node == null || entity == null) {
+            return null;
+        }
+        
+        // Vérifier si ce nœud correspond à l'entité recherchée
+        if (node.getData() != null && node.getData() instanceof Entity) {
+            Entity nodeEntity = (Entity) node.getData();
+            if (nodeEntity.getId() != null && entity.getId() != null &&
+                nodeEntity.getId().equals(entity.getId())) {
+                return node;
+            }
+        }
+        
+        // Parcourir récursivement les enfants
+        if (node.getChildren() != null) {
+            for (Object childObj : node.getChildren()) {
+                if (childObj instanceof TreeNode) {
+                    TreeNode child = (TreeNode) childObj;
+                    TreeNode found = findNodeByEntity(child, entity);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        }
+        
+        return null;
     }
 
 }

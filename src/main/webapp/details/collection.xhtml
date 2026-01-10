@@ -40,7 +40,8 @@
                         <div class="collection-panel-title-wrapper">
                             <p:commandLink action="#{applicationBean.showReferenceDetail(referentiel)}"
                                          process="@this"
-                                         update=":centerContent"
+                                         update=":centerContent, :treeWidget"
+                                         oncomplete="selectTreeNodeAfterUpdate()"
                                          styleClass="collection-panel-title-link">
                                 <h3 class="collection-panel-title">#{referentiel.nom}</h3>
                             </p:commandLink>
@@ -597,6 +598,21 @@
         }
 
     </style>
+
+    <!-- Script pour sélectionner le nœud dans l'arbre après mise à jour -->
+    <h:outputScript>
+        function selectTreeNodeAfterUpdate() {
+            setTimeout(function() {
+                if (typeof PF !== 'undefined' &amp;&amp; PF('treeWidget')) {
+                    var tree = PF('treeWidget');
+                    var selectedNodes = tree.getSelectedNodes();
+                    if (selectedNodes &amp;&amp; selectedNodes.length &gt; 0) {
+                        tree.selectNode(selectedNodes[0]);
+                    }
+                }
+            }, 300);
+        }
+    </h:outputScript>
 
     <!-- Inclusion du dialog de création de référentiel -->
     <ui:include src="../tree/referentielDialog.xhtml"/>
