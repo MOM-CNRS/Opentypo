@@ -4,9 +4,12 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityRelation;
+import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
@@ -22,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +45,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private EntityRepository entityRepository;
+
+    @Inject
+    private EntityTypeRepository entityTypeRepository;
 
     @Inject
     private EntityRelationRepository entityRelationRepository;
@@ -66,8 +73,14 @@ public class ApplicationBean implements Serializable {
     // Référentiel actuellement sélectionné
     private Entity selectedReference;
     
+    // Catégorie actuellement sélectionnée
+    private Entity selectedCategory;
+    
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
+    
+    // Catégories du référentiel sélectionné
+    private List<Entity> referenceCategories;
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -253,15 +266,65 @@ public class ApplicationBean implements Serializable {
         beadCrumbElements.add(selectedCollection);
         beadCrumbElements.add(reference);
         
-        // Sélectionner le nœud correspondant dans l'arbre
+        // Charger les catégories du référentiel
+        loadReferenceCategories();
+        
+        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
         TreeBean treeBean = treeBeanProvider.get();
         if (treeBean != null) {
             treeBean.selectReferenceNode(reference);
+            // Charger les catégories dans l'arbre
+            treeBean.loadCategoriesForReference(reference);
+        }
+    }
+    
+    /**
+     * Charge les catégories rattachées au référentiel sélectionné
+     */
+    public void loadReferenceCategories() {
+        referenceCategories = new ArrayList<>();
+        if (selectedReference != null) {
+            try {
+                // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
+                referenceCategories = entityRelationRepository.findChildrenByParentAndType(
+                    selectedReference, 
+                    EntityConstants.ENTITY_TYPE_CATEGORY
+                );
+                
+                // Si aucune catégorie trouvée avec "CATEGORY", essayer avec "CATEGORIE"
+                if (referenceCategories.isEmpty()) {
+                    referenceCategories = entityRelationRepository.findChildrenByParentAndType(
+                        selectedReference, 
+                        "CATEGORIE"
+                    );
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des catégories du référentiel", e);
+                referenceCategories = new ArrayList<>();
+            }
         }
     }
 
     public void showCategory() {
         panelState.showCategory();
+    }
+    
+    /**
+     * Affiche les détails d'une catégorie spécifique
+     */
+    public void showCategoryDetail(Entity category) {
+        this.selectedCategory = category;
+        panelState.showCategory();
+        
+        // Mettre à jour le breadcrumb
+        beadCrumbElements = new ArrayList<>();
+        if (selectedCollection != null) {
+            beadCrumbElements.add(selectedCollection);
+        }
+        if (selectedReference != null) {
+            beadCrumbElements.add(selectedReference);
+        }
+        beadCrumbElements.add(category);
     }
 
     public void showGroupe() {
@@ -283,6 +346,9 @@ public class ApplicationBean implements Serializable {
     }
     
     public void createCategory() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        
+        // Validation des champs obligatoires
         if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
                 categoryCode, entityRepository, ":categoryForm")) {
             return;
@@ -293,15 +359,84 @@ public class ApplicationBean implements Serializable {
             return;
         }
         
-        // TODO: Implémenter la logique de sauvegarde de la catégorie
+        // Vérifier qu'un référentiel est sélectionné
+        if (selectedReference == null) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun référentiel n'est sélectionné. Veuillez sélectionner un référentiel avant de créer une catégorie."));
+            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+            return;
+        }
         
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "La catégorie '" + categoryLabel + "' a été créée avec succès."));
+        String codeTrimmed = categoryCode.trim();
+        String labelTrimmed = categoryLabel.trim();
+        String descriptionTrimmed = (categoryDescription != null && !categoryDescription.trim().isEmpty()) 
+            ? categoryDescription.trim() : null;
         
-        resetCategoryForm();
-        PrimeFaces.current().ajax().update(":growl, :categoryForm, :contentPanels");
+        try {
+            // Récupérer le type d'entité CATEGORY
+            // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
+            EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
+                .orElse(entityTypeRepository.findByCode("CATEGORIE")
+                    .orElseThrow(() -> new IllegalStateException(
+                        "Le type d'entité 'CATEGORY' ou 'CATEGORIE' n'existe pas dans la base de données.")));
+            
+            // Créer la nouvelle entité catégorie
+            Entity newCategory = new Entity();
+            newCategory.setCode(codeTrimmed);
+            newCategory.setNom(labelTrimmed);
+            newCategory.setCommentaire(descriptionTrimmed);
+            newCategory.setEntityType(categoryType);
+            newCategory.setPublique(true);
+            newCategory.setCreateDate(LocalDateTime.now());
+            
+            // Sauvegarder la catégorie
+            Entity savedCategory = entityRepository.save(newCategory);
+            
+            // Créer la relation entre le référentiel (parent) et la catégorie (child)
+            if (!entityRelationRepository.existsByParentAndChild(selectedReference.getId(), savedCategory.getId())) {
+                EntityRelation relation = new EntityRelation();
+                relation.setParent(selectedReference);
+                relation.setChild(savedCategory);
+                entityRelationRepository.save(relation);
+            }
+            
+            // Recharger la liste des catégories
+            loadReferenceCategories();
+            
+            // Ajouter la catégorie à l'arbre
+            TreeBean treeBean = treeBeanProvider.get();
+            if (treeBean != null) {
+                treeBean.addCategoryToTree(savedCategory, selectedReference);
+            }
+            
+            // Message de succès
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "La catégorie '" + labelTrimmed + "' a été créée avec succès."));
+            
+            resetCategoryForm();
+            
+            // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des catégories
+            PrimeFaces.current().ajax().update(":growl, :categoryForm, :treeWidget, :categoriesContainer");
+            
+        } catch (IllegalStateException e) {
+            log.error("Erreur lors de la création de la catégorie", e);
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la création de la catégorie", e);
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+        }
     }
 }
 

@@ -56,12 +56,13 @@
                                  onclick="PF('createCategoryDialog').hide(); return false;"
                                  process="@this"
                                  update="@none"/>
+
                 <p:commandButton value="Valider"
                                  icon="pi pi-check"
                                  styleClass="category-btn category-btn-validate"
                                  action="#{applicationBean.createCategory}"
                                  process="@form"
-                                 update="@form :growl"
+                                 update="@form :growl :categoriesContainer :leftTreePanel :"
                                  oncomplete="if(!args.validationFailed) {PF('createCategoryDialog').hide();}"/>
             </div>
         </h:form>

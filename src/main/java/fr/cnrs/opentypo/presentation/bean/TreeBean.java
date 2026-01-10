@@ -97,6 +97,76 @@ public class TreeBean implements Serializable {
             node.setData(reference);
         }
     }
+    
+    /**
+     * Ajoute une catégorie à l'arbre comme enfant d'un référentiel
+     */
+    public void addCategoryToTree(Entity category, Entity parentReference) {
+        if (root != null && category != null && parentReference != null) {
+            // Trouver le nœud du référentiel parent dans l'arbre
+            TreeNode referenceNode = findNodeByEntity(root, parentReference);
+            if (referenceNode != null) {
+                DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
+                categoryNode.setData(category);
+                // Étendre le nœud parent pour que la catégorie soit visible
+                referenceNode.setExpanded(true);
+            } else {
+                log.warn("Nœud référentiel non trouvé pour ajouter la catégorie : {}", parentReference.getNom());
+            }
+        }
+    }
+    
+    /**
+     * Charge toutes les catégories d'un référentiel dans l'arbre
+     */
+    public void loadCategoriesForReference(Entity reference) {
+        if (root == null || reference == null || applicationBean == null) {
+            return;
+        }
+        
+        // Trouver le nœud du référentiel dans l'arbre
+        TreeNode referenceNode = findNodeByEntity(root, reference);
+        if (referenceNode == null) {
+            log.warn("Nœud référentiel non trouvé pour charger les catégories : {}", reference.getNom());
+            return;
+        }
+        
+        // Charger les catégories depuis ApplicationBean
+        applicationBean.loadReferenceCategories();
+        var categories = applicationBean.getReferenceCategories();
+        
+        if (categories != null && !categories.isEmpty()) {
+            // Vérifier si les catégories sont déjà dans l'arbre
+            for (Entity category : categories) {
+                // Vérifier si la catégorie existe déjà dans l'arbre
+                boolean categoryExists = false;
+                if (referenceNode.getChildren() != null) {
+                    for (Object childObj : referenceNode.getChildren()) {
+                        if (childObj instanceof TreeNode) {
+                            TreeNode childNode = (TreeNode) childObj;
+                            if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                Entity childEntity = (Entity) childNode.getData();
+                                if (childEntity.getId() != null && category.getId() != null &&
+                                    childEntity.getId().equals(category.getId())) {
+                                    categoryExists = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Ajouter la catégorie si elle n'existe pas déjà
+                if (!categoryExists) {
+                    DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
+                    categoryNode.setData(category);
+                }
+            }
+            
+            // Étendre le nœud référentiel pour afficher les catégories
+            referenceNode.setExpanded(true);
+        }
+    }
 
     public void onNodeSelect(NodeSelectEvent event) {
         this.selectedNode = event.getTreeNode();
@@ -121,6 +191,8 @@ public class TreeBean implements Serializable {
                     // Afficher la page référentiel
                     if (applicationBean != null) {
                         applicationBean.showReferenceDetail(entity);
+                        // Charger les catégories dans l'arbre pour cette référence
+                        loadCategoriesForReference(entity);
                     }
                 }
             }

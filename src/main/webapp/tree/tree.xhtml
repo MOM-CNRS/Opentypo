@@ -2,8 +2,9 @@
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:p="http://primefaces.org/ui">
 
-    <div class="modern-tree-container">
-        <p:tree value="#{treeBean.root}"
+    <div id="treeContainer" class="modern-tree-container">
+        <p:tree id="treeComponent" 
+                value="#{treeBean.root}"
                 dynamic="true"
                 var="nodetree"
                 styleClass="modern-tree tree-padding-none"
@@ -12,7 +13,7 @@
                 widgetVar="treeWidget">
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>
-            <p:ajax event="select" listener="#{treeBean.onNodeSelect}" update=":contentPanels, :breadcrumbContent"/>
+            <p:ajax event="select" listener="#{treeBean.onNodeSelect}" update=":contentPanels, :breadcrumbContent, :leftTreePanel"/>
 
             <p:treeNode>
                 <span class="modern-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">

@@ -3846,6 +3846,20 @@ body .ui-panelgrid .ui-panelgrid-cell {
     font-style: italic;
 }
 
+/* Message quand aucune catégorie n'est disponible */
+.no-categories-message {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text-secondary, #819A91);
+    font-style: italic;
+    font-size: 0.9375rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.2);
+    border-radius: 8px;
+}
+
 /* Carte moderne */
 .modern-card {
     display: block;
@@ -4205,28 +4219,78 @@ body .reference-card a {
     /* Pas de transform pour éviter le décalage */
 }
 
-/* Description de la carte référentiel */
+/* Wrapper pour la description de la carte référentiel */
+.reference-card-description-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Description de la carte référentiel - Design professionnel et ergonomique */
 .reference-card-description {
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary, #819A91);
+    font-size: 0.875rem;
+    color: var(--color-text-primary, #333);
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.7;
     flex: 1;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: color 0.3s ease;
-    /* Empêcher le décalage au hover */
     position: relative;
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(71, 98, 77, 0.08);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
 }
 
 .reference-card:hover .reference-card-description {
     color: var(--color-text-primary, #333);
     text-decoration: none !important;
-    /* Pas de transform pour éviter le décalage */
+    border-top-color: rgba(71, 98, 77, 0.15);
+}
+
+/* Message pour description vide - Design professionnel */
+.reference-card-description-empty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 1px dashed rgba(71, 98, 77, 0.2);
+    border-radius: 6px;
+    color: var(--color-text-secondary, #819A91);
+    font-size: 0.8125rem;
+    font-style: italic;
+    transition: all 0.3s ease;
+}
+
+.reference-card-description-empty i {
+    color: var(--color-action-main, #47624D);
+    opacity: 0.6;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.reference-card-description-empty span {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.reference-card:hover .reference-card-description-empty {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
+    border-color: rgba(71, 98, 77, 0.3);
+    color: var(--color-text-secondary, #819A91);
+}
+
+.reference-card:hover .reference-card-description-empty i {
+    opacity: 0.8;
+    color: var(--color-action-main, #47624D);
 }
 
 /* Responsive pour les cartes référentiel - Amélioré */
@@ -4281,6 +4345,23 @@ body .reference-card a {
     .reference-card-title {
         font-size: 1rem;
     }
+    
+    .reference-card-description {
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        padding-top: 0.625rem;
+    }
+    
+    .reference-card-description-empty {
+        padding: 0.625rem;
+        font-size: 0.75rem;
+    }
+    
+    .reference-card-description-empty i {
+        font-size: 0.8125rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -4291,6 +4372,23 @@ body .reference-card a {
     
     .reference-card-content {
         padding: 0.5rem;
+    }
+    
+    .reference-card-description {
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        padding-top: 0.625rem;
+    }
+    
+    .reference-card-description-empty {
+        padding: 0.625rem;
+        font-size: 0.75rem;
+    }
+    
+    .reference-card-description-empty i {
+        font-size: 0.8125rem;
     }
 }
 
