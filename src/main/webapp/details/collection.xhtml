@@ -42,7 +42,9 @@
                             <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
                                          process="@this"
                                          update=":centerContent, :treeWidget, :breadcrumbContent"
-                                         oncomplete="selectTreeNodeAfterUpdate()"
+                                         onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                         oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                         onerror="forceHideLoading();"
                                          styleClass="collection-panel-title-link">
                                 <h3 class="collection-panel-title">#{reference.nom}</h3>
                             </p:commandLink>

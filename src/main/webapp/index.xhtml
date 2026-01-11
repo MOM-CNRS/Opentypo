@@ -85,7 +85,10 @@
                                     <p:commandLink action="#{applicationBean.showCollectionDetail(collection)}"
                                                  styleClass="modern-card"
                                                  process="@this" ajax="true"
-                                                 update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent">
+                                                 update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent"
+                                                 onstart="showLoading('Chargement de la collection...', 'spinner');"
+                                                 oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                 onerror="forceHideLoading();">
                                         <div class="modern-card-content">
                                             <div class="modern-card-header">
                                                 <div class="modern-card-icon">

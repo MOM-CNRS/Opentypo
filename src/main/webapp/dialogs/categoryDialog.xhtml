@@ -17,12 +17,12 @@
               closable="true">
 
         <h:form id="categoryForm">
-            <f:event listener="#{applicationBean.resetCategoryForm}" type="preRenderView"/>
+            <f:event listener="#{categoryBean.resetCategoryForm}" type="preRenderView"/>
             <div class="category-form-content">
                 <div class="category-form-group">
                     <p:outputLabel for="categoryCode" value="Code de la catégorie *" />
                     <p:inputText id="categoryCode"
-                                 value="#{applicationBean.categoryCode}"
+                                 value="#{categoryBean.categoryCode}"
                                  required="true"
                                  requiredMessage="Le code de la catégorie est requis"
                                  styleClass="category-input"
@@ -32,7 +32,7 @@
                 <div class="category-form-group">
                     <p:outputLabel for="categoryLabel" value="Label *" />
                     <p:inputText id="categoryLabel"
-                                 value="#{applicationBean.categoryLabel}"
+                                 value="#{categoryBean.categoryLabel}"
                                  required="true"
                                  requiredMessage="Le label est requis"
                                  styleClass="category-input"
@@ -42,7 +42,7 @@
                 <div class="category-form-group">
                     <p:outputLabel for="categoryDescription" value="Description" />
                     <p:inputTextarea id="categoryDescription"
-                                     value="#{applicationBean.categoryDescription}"
+                                     value="#{categoryBean.categoryDescription}"
                                      rows="4"
                                      styleClass="category-textarea"
                                      placeholder="Description de la catégorie"/>
@@ -63,7 +63,9 @@
                                  action="#{applicationBean.createCategory}"
                                  process="@form"
                                  update="@form :growl :categoriesContainer :leftTreePanel"
-                                 oncomplete="if(!args.validationFailed) {PF('createCategoryDialog').hide();}"/>
+                                 onstart="var btn = this; showButtonLoading(btn);"
+                                 oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading(); if(!args.validationFailed) {PF('createCategoryDialog').hide();}}, 100);"
+                                 onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
             </div>
         </h:form>
     </p:dialog>

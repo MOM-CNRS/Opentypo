@@ -1,11 +1,12 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.service.CategoryService;
+import fr.cnrs.opentypo.application.service.GroupService;
+import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityRelation;
-import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
@@ -14,7 +15,6 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -22,10 +22,8 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,6 +54,15 @@ public class ApplicationBean implements Serializable {
     private Provider<TreeBean> treeBeanProvider;
 
     @Inject
+    private ReferenceService referenceService;
+
+    @Inject
+    private CategoryService categoryService;
+
+    @Inject
+    private GroupService groupService;
+
+    @Inject
     private SearchBean searchBean;
 
     private final PanelStateManager panelState = new PanelStateManager();
@@ -81,14 +88,12 @@ public class ApplicationBean implements Serializable {
     
     // Catégories du référentiel sélectionné
     private List<Entity> referenceCategories;
+    
+    // Groupes de la catégorie sélectionnée
+    private List<Entity> categoryGroups;
 
     // Titre de l'écran
     private String selectedEntityLabel;
-    
-    // Propriétés pour le formulaire de création de catégorie
-    private String categoryCode;
-    private String categoryLabel;
-    private String categoryDescription;
 
 
     // Getters pour compatibilité avec XHTML
@@ -212,119 +217,9 @@ public class ApplicationBean implements Serializable {
     public void showCollectionDetail() {
         panelState.showCollectionDetail();
     }
-    
-    /**
-     * Affiche les détails d'une collection spécifique
-     */
-    public void showCollectionDetail(Entity collection) {
-        this.selectedCollection = collection;
-        this.selectedEntityLabel = selectedCollection.getNom();
-        loadCollectionReferences();
-        panelState.showCollectionDetail();
-        SearchBean searchBean = searchBeanProvider.get();
-        if (searchBean != null) {
-            searchBean.setCollectionSelected(collection.getCode());
-        }
-        
-        // Initialiser le breadcrumb avec la collection
-        beadCrumbElements = new ArrayList<>();
-        beadCrumbElements.add(collection);
-        
-        // Initialiser l'arbre avec les référentiels de la collection
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.initializeTreeWithCollection();
-        }
-    }
-    
-    /**
-     * Charge les référentiels rattachés à la collection sélectionnée
-     */
-    public void loadCollectionReferences() {
-        collectionReferences = new ArrayList<>();
-        if (selectedCollection != null) {
-            try {
-                collectionReferences = entityRelationRepository.findChildrenByParentAndType(
-                    selectedCollection, 
-                    EntityConstants.ENTITY_TYPE_REFERENCE
-                );
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des référentiels de la collection", e);
-                collectionReferences = new ArrayList<>();
-            }
-        }
-    }
-
-    /**
-     * Affiche les détails d'un référentiel spécifique
-     */
-    public void showReferenceDetail(Entity reference) {
-        this.selectedReference = reference;
-        panelState.showReference();
-
-        beadCrumbElements = new ArrayList<>();
-        beadCrumbElements.add(selectedCollection);
-        beadCrumbElements.add(reference);
-        
-        // Charger les catégories du référentiel
-        loadReferenceCategories();
-        
-        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.selectReferenceNode(reference);
-            // Charger les catégories dans l'arbre
-            treeBean.loadCategoriesForReference(reference);
-        }
-    }
-    
-    /**
-     * Charge les catégories rattachées au référentiel sélectionné
-     */
-    public void loadReferenceCategories() {
-        referenceCategories = new ArrayList<>();
-        if (selectedReference != null) {
-            try {
-                // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
-                referenceCategories = entityRelationRepository.findChildrenByParentAndType(
-                    selectedReference, 
-                    EntityConstants.ENTITY_TYPE_CATEGORY
-                );
-                
-                // Si aucune catégorie trouvée avec "CATEGORY", essayer avec "CATEGORIE"
-                if (referenceCategories.isEmpty()) {
-                    referenceCategories = entityRelationRepository.findChildrenByParentAndType(
-                        selectedReference, 
-                        "CATEGORIE"
-                    );
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des catégories du référentiel", e);
-                referenceCategories = new ArrayList<>();
-            }
-        }
-    }
 
     public void showCategory() {
         panelState.showCategory();
-    }
-    
-    /**
-     * Affiche les détails d'une catégorie spécifique
-     */
-    public void showCategoryDetail(Entity category) {
-        this.selectedCategory = category;
-        panelState.showCategory();
-        
-        // Mettre à jour le breadcrumb
-        beadCrumbElements = new ArrayList<>();
-        if (selectedCollection != null) {
-            beadCrumbElements.add(selectedCollection);
-        }
-        if (selectedReference != null) {
-            beadCrumbElements.add(selectedReference);
-        }
-        beadCrumbElements.add(category);
     }
 
     public void showGroupe() {
@@ -338,105 +233,103 @@ public class ApplicationBean implements Serializable {
     public void showType() {
         panelState.showType();
     }
-    
-    public void resetCategoryForm() {
-        categoryCode = null;
-        categoryLabel = null;
-        categoryDescription = null;
+
+    /**
+     * Affiche les détails d'une collection spécifique
+     */
+    public void showCollectionDetail(Entity collection) {
+        this.selectedCollection = collection;
+        this.selectedEntityLabel = selectedCollection.getNom();
+
+        refreshCollectionReferencesList();
+
+        panelState.showCollectionDetail();
+        SearchBean searchBean = searchBeanProvider.get();
+        if (searchBean != null) {
+            searchBean.setCollectionSelected(collection.getCode());
+        }
+
+        // Initialiser le breadcrumb avec la collection
+        beadCrumbElements = new ArrayList<>();
+        beadCrumbElements.add(collection);
+
+        // Initialiser l'arbre avec les référentiels de la collection
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.initializeTreeWithCollection();
+        }
     }
-    
-    public void createCategory() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
-        // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
-                categoryCode, entityRepository, ":categoryForm")) {
-            return;
+
+    /**
+     * Affiche les détails d'un référentiel spécifique
+     */
+    public void showReferenceDetail(Entity reference) {
+        this.selectedReference = reference;
+        panelState.showReference();
+
+        beadCrumbElements = new ArrayList<>();
+        beadCrumbElements.add(selectedCollection);
+        beadCrumbElements.add(reference);
+
+        // Charger les catégories du référentiel
+        refreshReferenceCategoriesList();
+
+        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.selectReferenceNode(reference);
+            // Charger les catégories dans l'arbre
+            treeBean.loadCategoriesForReference(reference);
         }
-        
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
-                categoryLabel, ":categoryForm")) {
-            return;
-        }
-        
-        // Vérifier qu'un référentiel est sélectionné
+    }
+
+    /**
+     * Affiche les détails d'une catégorie spécifique
+     */
+    public void showCategoryDetail(Entity category) {
+        this.selectedCategory = category;
+        panelState.showCategory();
+
+        // Charger les groupes de la catégorie depuis la base de données
+        categoryGroups = groupService.loadCategoryGroups(selectedCategory);
+
+        // Trouver le référentiel parent de cette catégorie pour le breadcrumb
         if (selectedReference == null) {
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun référentiel n'est sélectionné. Veuillez sélectionner un référentiel avant de créer une catégorie."));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
-            return;
-        }
-        
-        String codeTrimmed = categoryCode.trim();
-        String labelTrimmed = categoryLabel.trim();
-        String descriptionTrimmed = (categoryDescription != null && !categoryDescription.trim().isEmpty()) 
-            ? categoryDescription.trim() : null;
-        
-        try {
-            // Récupérer le type d'entité CATEGORY
-            // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
-            EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
-                .orElse(entityTypeRepository.findByCode("CATEGORIE")
-                    .orElseThrow(() -> new IllegalStateException(
-                        "Le type d'entité 'CATEGORY' ou 'CATEGORIE' n'existe pas dans la base de données.")));
-            
-            // Créer la nouvelle entité catégorie
-            Entity newCategory = new Entity();
-            newCategory.setCode(codeTrimmed);
-            newCategory.setNom(labelTrimmed);
-            newCategory.setCommentaire(descriptionTrimmed);
-            newCategory.setEntityType(categoryType);
-            newCategory.setPublique(true);
-            newCategory.setCreateDate(LocalDateTime.now());
-            
-            // Sauvegarder la catégorie
-            Entity savedCategory = entityRepository.save(newCategory);
-            
-            // Créer la relation entre le référentiel (parent) et la catégorie (child)
-            if (!entityRelationRepository.existsByParentAndChild(selectedReference.getId(), savedCategory.getId())) {
-                EntityRelation relation = new EntityRelation();
-                relation.setParent(selectedReference);
-                relation.setChild(savedCategory);
-                entityRelationRepository.save(relation);
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(category);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver le référentiel parent
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                                (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
+                                        "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
+                            this.selectedReference = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
             }
-            
-            // Recharger la liste des catégories
-            loadReferenceCategories();
-            
-            // Ajouter la catégorie à l'arbre
-            TreeBean treeBean = treeBeanProvider.get();
-            if (treeBean != null) {
-                treeBean.addCategoryToTree(savedCategory, selectedReference);
-            }
-            
-            // Message de succès
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "La catégorie '" + labelTrimmed + "' a été créée avec succès."));
-            
-            resetCategoryForm();
-            
-            // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des catégories
-            PrimeFaces.current().ajax().update(":growl, :categoryForm, :treeWidget, :categoriesContainer");
-            
-        } catch (IllegalStateException e) {
-            log.error("Erreur lors de la création de la catégorie", e);
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
-        } catch (Exception e) {
-            log.error("Erreur inattendue lors de la création de la catégorie", e);
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
         }
+
+        // Mettre à jour le breadcrumb
+        beadCrumbElements = new ArrayList<>();
+        if (selectedCollection != null) {
+            beadCrumbElements.add(selectedCollection);
+        }
+        if (selectedReference != null) {
+            beadCrumbElements.add(selectedReference);
+        }
+        beadCrumbElements.add(category);
+    }
+
+    public void refreshCollectionReferencesList() {
+        this.collectionReferences = referenceService.loadReferencesByCollection(selectedCollection);
+    }
+
+    public void refreshReferenceCategoriesList() {
+        referenceCategories = categoryService.loadCategoriesByReference(selectedReference);
     }
 }
 

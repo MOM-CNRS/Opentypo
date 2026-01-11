@@ -65,7 +65,7 @@ public class TreeBean implements Serializable {
         if (selectedCollection != null) {
             try {
                 // Charger les référentiels de la collection
-                applicationBean.loadCollectionReferences();
+                applicationBean.refreshCollectionReferencesList();
                 var references = applicationBean.getCollectionReferences();
                 
                 if (references != null && !references.isEmpty()) {
@@ -132,7 +132,7 @@ public class TreeBean implements Serializable {
         }
         
         // Charger les catégories depuis ApplicationBean
-        applicationBean.loadReferenceCategories();
+        applicationBean.refreshReferenceCategoriesList();
         var categories = applicationBean.getReferenceCategories();
         
         if (categories != null && !categories.isEmpty()) {
@@ -193,6 +193,15 @@ public class TreeBean implements Serializable {
                         applicationBean.showReferenceDetail(entity);
                         // Charger les catégories dans l'arbre pour cette référence
                         loadCategoriesForReference(entity);
+                    }
+                }
+                // Vérifier si c'est une catégorie
+                else if (entity.getEntityType() != null &&
+                    (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entity.getEntityType().getCode()) ||
+                     "CATEGORIE".equals(entity.getEntityType().getCode()))) {
+                    // Afficher la page catégorie
+                    if (applicationBean != null) {
+                        applicationBean.showCategoryDetail(entity);
                     }
                 }
             }

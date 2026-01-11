@@ -27,7 +27,10 @@
                 <f:selectItems value="#{searchBean.collections}" var="collection"
                                itemLabel="#{collection.nom}" itemValue="#{collection.code}"/>
                 <p:ajax event="change" listener="#{searchBean.onCollectionChange()}" 
-                        update=":centerContent" process="@this"/>
+                        update=":centerContent" process="@this"
+                        onstart="showLoading('Chargement...', 'spinner');"
+                        oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                        onerror="forceHideLoading();"/>
             </p:selectOneMenu>
 
             <!-- Langue - Compact sans label -->

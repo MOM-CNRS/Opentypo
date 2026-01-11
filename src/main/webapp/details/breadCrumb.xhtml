@@ -27,7 +27,9 @@
                                          action="#{applicationBean.showCollections()}"
                                          process="@this"
                                          update=":centerContent :selectedEntityLabel"
-                                         oncomplete="showOnlyCardsContainer();">
+                                         onstart="showLoading('Chargement des collections...', 'spinner');"
+                                         oncomplete="setTimeout(function(){hideLoading(); showOnlyCardsContainer();}, 500);"
+                                         onerror="forceHideLoading();">
                                 <i class="pi pi-home" />
                                 <span class="breadcrumb-text">Accueil</span>
                             </p:commandLink>
@@ -43,7 +45,10 @@
                                 <p:commandLink styleClass="modern-breadcrumb-link"
                                              action="#{applicationBean.showCollectionDetail(element)}"
                                              process="@this"
-                                             update=":centerContent, :breadcrumbContent">
+                                             update=":centerContent, :breadcrumbContent"
+                                             onstart="showLoading('Chargement de la collection...', 'spinner');"
+                                             oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                             onerror="forceHideLoading();">
                                     <span>#{element.nom}</span>
                                 </p:commandLink>
                             </ui:fragment>

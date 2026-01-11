@@ -3910,6 +3910,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     height: 100%;
     min-height: 0;
     overflow: hidden;
+    background-color: white !important;
 }
 
 /* En-tête de la carte avec icône et titre côte à côte */
@@ -4012,6 +4013,7 @@ body .ui-panelgrid .ui-panelgrid-cell {
     
     .modern-card-content {
         padding: 1.25rem;
+        background-color: white;
     }
     
     .modern-card-icon {

@@ -1,135 +1,184 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Contenu dynamique -->
-    <h:panelGroup layout="block">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel">
-                    <!-- En-tête avec titre et actions -->
-                    <div class="concept-info-header">
-                        <div class="concept-info-title-section">
-                            <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png"
-                                                styleClass="language-flag"
-                                                alt="Français"
-                                                title="Français"/>
-                            </div>
-                            <h2 class="concept-info-title">cortège funéraires</h2>
+    <h:panelGroup class="image-container">
+        <!-- Afficher l'image si disponible -->
+        <p:graphicImage
+                value="#{applicationBean.selectedCategory.image.url}"
+                styleClass="research-image"
+                alt="Image de la catégorie"
+                rendered="#{not empty applicationBean.selectedCategory.image and not empty applicationBean.selectedCategory.image.url}"/>
+
+        <!-- Afficher le texte "OpenTypo" si pas d'image -->
+        <h:panelGroup class="reference-image-placeholder"
+             rendered="#{empty applicationBean.selectedCategory.image or empty applicationBean.selectedCategory.image.url}">
+            <span class="reference-placeholder-text">OpenTypo</span>
+        </h:panelGroup>
+    </h:panelGroup>
+
+    <h:panelGroup class="row">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <!-- En-tête avec titre et actions -->
+                <div class="concept-info-header">
+                    <div class="concept-info-title-section">
+                        <div class="concept-info-language-flag">
+                            <h:graphicImage library="img" name="flag/fr.png"
+                                            styleClass="language-flag"
+                                            alt="Français"
+                                            title="Français"/>
                         </div>
-                        <div class="concept-info-actions">
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-cog" />
-                                <p:tooltip value="Paramètres" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-flag" />
-                                <p:tooltip value="Marquer" position="top"/>
-                            </p:commandLink>
-                        </div>
+                        <h2 class="concept-info-title">#{applicationBean.selectedCategory.nom}</h2>
                     </div>
-
-                    <!-- Grille d'informations -->
-                    <div class="concept-info-grid">
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Catégorie</span>
-                            </div>
-                            <div class="concept-info-value">convoi funèbre</div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description">
-                                Déscription total
-                            </div>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-users concept-info-icon" />
-                                <span>Groupes de - </span>
-                            </div>
-                            <div class="concept-info-value">XXXXXXX</div>
-                        </div>
+                    <div class="concept-info-actions">
+                        <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                            <i class="pi pi-file-edit" />
+                            <p:tooltip value="Paramètres" position="top"/>
+                        </p:commandLink>
+                        <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                            <i class="pi pi-trash" />
+                            <p:tooltip value="Marquer" position="top"/>
+                        </p:commandLink>
                     </div>
                 </div>
 
-                <div class="row mt-20">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Groupe de - XXXXX</h2>
-                                </div>
+                <!-- Grille d'informations -->
+                <div class="concept-info-grid">
+                    <h:panelGroup class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-database concept-info-icon" />
+                            <span>Code</span>
+                        </div>
+                        <div class="concept-info-value">#{applicationBean.selectedCategory.code}</div>
+                    </h:panelGroup>
+
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-file concept-info-icon" />
+                            <span>Description</span>
+                        </div>
+                        <div class="concept-info-value concept-info-description">
+                            #{applicationBean.selectedCategory.commentaire}
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-user concept-info-icon" />
+                            <span>Auteur(s)</span>
+                        </div>
+                        <div class="concept-info-value bibliographie-container">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedCategory.auteurs}">
+                                <ui:repeat value="#{applicationBean.selectedCategory.auteurs}" var="auteur" varStatus="status">
+                                    <span class="bibliographie-badge">
+                                        <i class="pi pi-user bibliographie-badge-icon" />
+                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                    </span>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucun auteur disponible" 
+                                         rendered="#{empty applicationBean.selectedCategory.auteurs}"
+                                         styleClass="bibliographie-empty" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-book concept-info-icon" />
+                            <span>Référence bibliographique</span>
+                        </div>
+                        <div class="concept-info-value bibliographie-container">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedCategory.bibliographie}">
+                                <ui:repeat value="#{fn:split(applicationBean.selectedCategory.bibliographie, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-book bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                        </span>
+                                    </ui:fragment>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucune référence bibliographique disponible" 
+                                         rendered="#{empty applicationBean.selectedCategory.bibliographie}"
+                                         styleClass="bibliographie-empty" />
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px">
+                <!-- Bloc unifié pour les groupes -->
+                <div class="categories-unified-block">
+                    <!-- Section header pour les groupes -->
+                    <div class="collection-references-header">
+                        <div class="collection-references-title-section">
+                            <div class="collection-references-icon">
+                                <i class="pi pi-users" />
                             </div>
+                            <div class="collection-references-title-wrapper">
+                                <h3 class="collection-references-title">Groupes de la catégorie</h3>
+                                <span class="collection-references-subtitle">
+                                    #{applicationBean.selectedCategory.nom}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <p:panel styleClass="panel-text-style">
-                                    <div class="reference-cards-container">
-                                        <h:form>
-                                            <div class="reference-cards-grid">
-                                                <p:commandLink action="#{applicationBean.showGroupe()}"
-                                                               styleClass="reference-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="reference-card-content">
-                                                        <div class="reference-card-header">
-                                                            <div class="reference-card-icon">
-                                                                <i class="pi pi-users" />
-                                                            </div>
-                                                            <div class="reference-card-title-wrapper">
-                                                                <h3 class="reference-card-title">Titre GROUPE</h3>
-                                                                <span class="reference-card-code">Code GROUPE</span>
-                                                                <span class="reference-card-code">Période GROUPE</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="reference-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
+                    <!-- Liste des groupes -->
+                    <h:panelGroup id="groupsContainer" class="reference-cards-container">
+                        <h:form>
+                            <div class="reference-cards-grid">
+                                <ui:repeat value="#{applicationBean.categoryGroups}" var="group" varStatus="status">
+                                    <p:commandLink action="#{applicationBean.showGroupe(group)}"
+                                                styleClass="reference-card"
+                                                process="@this"
+                                                update=":centerContent"
+                                                onstart="showLoading('Chargement du groupe...', 'spinner');"
+                                                oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                onerror="forceHideLoading();">
 
-                                                <p:commandLink action="#{applicationBean.showGroupe()}"
-                                                               styleClass="reference-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="reference-card-content">
-                                                        <div class="reference-card-header">
-                                                            <div class="reference-card-icon">
-                                                                <i class="pi pi-users" />
-                                                            </div>
-                                                            <div class="reference-card-title-wrapper">
-                                                                <h3 class="reference-card-title">Titre GROUPE</h3>
-                                                                <span class="reference-card-code">Code GROUPE</span>
-                                                                <span class="reference-card-code">Période GROUPE</span>
-                                                            </div>
-                                                        </div>
-                                                        <p class="reference-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
-                                                    </div>
-                                                </p:commandLink>
+                                        <div class="reference-card-content">
+                                            <div class="reference-card-header">
+                                                <div class="reference-card-icon">
+                                                    <i class="pi pi-users" />
+                                                </div>
+                                                <div class="reference-card-title-wrapper">
+                                                    <h3 class="reference-card-title">#{group.nom}</h3>
+                                                    <span class="reference-card-code">#{group.code}</span>
+                                                    <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
+                                                        <span class="reference-card-code">
+                                                            <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">
+                                                                Période: #{group.tpq} - #{group.taq}
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{not empty group.tpq and empty group.taq}">
+                                                                TPQ: #{group.tpq}
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{empty group.tpq and not empty group.taq}">
+                                                                TAQ: #{group.taq}
+                                                            </ui:fragment>
+                                                        </span>
+                                                    </ui:fragment>
+                                                </div>
                                             </div>
-                                        </h:form>
-                                    </div>
-                                </p:panel>
+                                        </div>
+                                    </p:commandLink>
+                                </ui:repeat>
+                                
+                                <!-- Message si aucun groupe -->
+                                <h:outputText value="Aucun groupe disponible pour cette catégorie"
+                                             rendered="#{empty applicationBean.categoryGroups}"
+                                             styleClass="no-categories-message" />
                             </div>
-                        </div>
-                    </div>
+                        </h:form>
+                    </h:panelGroup>
                 </div>
 
-                <div class="concept-info-panel mt-20">
+                <div class="concept-info-panel mt-20" style="margin-top: 20px">
                     <!-- Grille d'informations -->
                     <div class="concept-info-grid">
                         <div class="concept-info-item concept-info-item-full">
@@ -137,7 +186,7 @@
                                 <i class="pi pi-comment concept-info-icon" />
                                 <span>Commentaire</span>
                             </div>
-                            <div class="concept-info-value">Text du commentaire</div>
+                            <div class="concept-info-value">#{applicationBean.selectedCategory.commentaire}</div>
                         </div>
 
                         <div class="concept-info-item concept-info-item-full">
@@ -145,7 +194,7 @@
                                 <i class="pi pi-book concept-info-icon" />
                                 <span>Bibliographie</span>
                             </div>
-                            <div class="concept-info-value">XXXXXXX</div>
+                            <div class="concept-info-value">#{applicationBean.selectedCategory.bibliographie}</div>
                         </div>
                     </div>
                 </div>

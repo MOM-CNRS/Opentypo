@@ -23,6 +23,9 @@
     <!-- NOTE: Les styles ont été déplacés dans template_styles.css -->
     <h:outputStylesheet library="css" name="template_styles.css"/>
     
+    <!-- Styles pour les animations de chargement -->
+    <h:outputStylesheet library="css" name="loading.css"/>
+    
     <!-- Définir showLoginDialog dans le head pour qu'il soit disponible immédiatement -->
     <h:outputScript library="js" name="showLoginDialog.js" target="head"/>
 </h:head>
@@ -37,6 +40,9 @@
     <!-- Script pour gérer le menu dynamique -->
     <!-- NOTE: Le script a été déplacé dans template_scripts.js -->
     <h:outputScript library="js" name="template_scripts.js"/>
+
+    <!-- Script pour gérer les animations de chargement -->
+    <h:outputScript library="js" name="loadingUtils.js"/>
 
     <!-- Fonction pour afficher le dialog de login avec vérification -->
     <!-- NOTE: Le script a été déplacé dans template_scripts.js -->

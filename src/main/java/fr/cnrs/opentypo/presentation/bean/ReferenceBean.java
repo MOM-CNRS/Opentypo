@@ -114,7 +114,7 @@ public class ReferenceBean implements Serializable {
             
             // Recharger les référentiels de la collection
             if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
-                applicationBean.loadCollectionReferences();
+                applicationBean.refreshCollectionReferencesList();
             }
 
             updateTree(newReference);
