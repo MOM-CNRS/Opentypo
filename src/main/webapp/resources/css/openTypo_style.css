@@ -2615,7 +2615,7 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-
     border-left: 2px solid var(--color-action-main, #47624D) !important;
 }
 
-/* Toggler (flèche d'expansion) */
+/* Toggler (flèche d'expansion) - Toujours visible pour les nœuds avec enfants */
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
     width: 18px !important;
     height: 18px !important;
@@ -2630,6 +2630,41 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-
     font-size: 0.7rem !important;
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10 !important;
+}
+
+/* Forcer l'affichage du toggler pour les nœuds qui ont des enfants */
+body .modern-tree .ui-tree-container .ui-treenode:has(.ui-treenode-children) .ui-treenode-content .ui-tree-toggler,
+body .modern-tree .ui-tree-container .ui-treenode[data-has-children="true"] .ui-treenode-content .ui-tree-toggler {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* S'assurer que les togglers sont toujours visibles pour les nœuds non-feuilles */
+body .modern-tree .ui-tree-container .ui-treenode:not(.ui-treenode-leaf) .ui-treenode-content .ui-tree-toggler {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Forcer l'affichage du toggler pour la racine (premier nœud) même si pas encore d'enfants détectés */
+body .modern-tree .ui-tree-container > .ui-treenode .ui-treenode-content .ui-tree-toggler {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Cacher le toggler uniquement pour les vraies feuilles (nœuds sans enfants) qui ne sont pas la racine */
+body .modern-tree .ui-tree-container .ui-treenode.ui-treenode-leaf:not(:first-child) .ui-treenode-content .ui-tree-toggler {
+    display: none !important;
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler:hover {
@@ -2748,6 +2783,12 @@ body .ui-tree {
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
+    
+    /* S'assurer que les togglers sont visibles sur tablette */
+    body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+        display: flex !important;
+        visibility: visible !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -2772,6 +2813,12 @@ body .ui-tree {
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+    }
+    
+    /* S'assurer que les togglers sont visibles sur mobile */
+    body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+        display: flex !important;
+        visibility: visible !important;
     }
 }
 

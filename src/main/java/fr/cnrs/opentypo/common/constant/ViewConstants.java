@@ -18,7 +18,7 @@ public final class ViewConstants {
     // IDs de composants JSF
     public static final String COMPONENT_GROWL = ":growl";
     public static final String COMPONENT_CARDS_CONTAINER = ":cardsContainer";
-    public static final String COMPONENT_TREE_WIDGET = ":treeWidget";
+    public static final String COMPONENT_TREE_WIDGET = ":treeContainer";
     public static final String COMPONENT_SEARCH_FORM = ":searchForm";
 }
 

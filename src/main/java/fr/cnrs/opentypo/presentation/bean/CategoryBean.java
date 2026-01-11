@@ -154,7 +154,7 @@ public class CategoryBean implements Serializable {
             resetCategoryForm();
 
             // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des catégories
-            PrimeFaces.current().ajax().update(":growl, :categoryForm, :treeWidget, :categoriesContainer");
+            PrimeFaces.current().ajax().update(":growl, :categoryForm, :treeContainer, :categoriesContainer");
 
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la catégorie", e);

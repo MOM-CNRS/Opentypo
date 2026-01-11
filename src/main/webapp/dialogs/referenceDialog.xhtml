@@ -89,7 +89,7 @@
                                styleClass="reference-btn reference-btn-validate"
                                action="#{referenceBean.createReference}"
                                process="@form"
-                               update="@form :growl :treeWidget :cardsContainer :searchForm"
+                               update="@form :growl :treeContainer :cardsContainer :searchForm"
                                oncomplete="if(!args.validationFailed) {PF('referenceDialog').hide();}"/>
             </div>
         </h:form>

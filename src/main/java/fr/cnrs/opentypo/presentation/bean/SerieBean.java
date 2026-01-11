@@ -145,7 +145,7 @@ public class SerieBean implements Serializable {
             resetSerieForm();
 
             // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des séries
-            PrimeFaces.current().ajax().update(":growl, :serieForm, :treeWidget, :seriesContainer");
+            PrimeFaces.current().ajax().update(":growl, :serieForm, :treeContainer, :seriesContainer");
 
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la série", e);

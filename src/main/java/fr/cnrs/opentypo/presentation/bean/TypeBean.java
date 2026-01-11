@@ -143,7 +143,7 @@ public class TypeBean implements Serializable {
             resetTypeForm();
 
             // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des types
-            PrimeFaces.current().ajax().update(":growl, :typeForm, :treeWidget, :typesContainer");
+            PrimeFaces.current().ajax().update(":growl, :typeForm, :treeContainer, :typesContainer");
 
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du type", e);
