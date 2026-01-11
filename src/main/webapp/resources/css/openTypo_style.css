@@ -4689,6 +4689,17 @@ body .reference-card a {
     color: var(--color-text-primary, #333);
 }
 
+/* Style uniforme pour les champs non renseignés - Respect de la charte couleur */
+.concept-info-value .empty-field-message,
+.concept-info-value .text-muted {
+    color: var(--color-text-secondary, #819A91) !important;
+    font-style: italic;
+    font-size: 0.9375rem;
+    font-weight: 400;
+    display: inline-block;
+    line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .concept-info-header {

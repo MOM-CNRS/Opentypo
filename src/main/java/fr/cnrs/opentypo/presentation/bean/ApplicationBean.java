@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
@@ -95,6 +96,9 @@ public class ApplicationBean implements Serializable {
     
     // Groupe actuellement sélectionné
     private Entity selectedGroup;
+    
+    // Type actuellement sélectionné
+    private Entity selectedType;
     
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
@@ -368,9 +372,143 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un type spécifique
      */
     public void showType(Entity type) {
-        // Pour l'instant, on utilise juste la méthode sans paramètre
-        // TODO: Implémenter l'affichage des détails du type
+        // Recharger le type depuis la base de données pour avoir toutes les données complètes
+        if (type != null && type.getId() != null) {
+            try {
+                this.selectedType = entityRepository.findById(type.getId())
+                    .orElse(type); // Fallback sur le type passé en paramètre si non trouvé
+                
+                // Initialiser les relations lazy si nécessaire
+                if (this.selectedType != null) {
+                    // Accéder aux relations pour forcer leur chargement (si elles existent)
+                    if (this.selectedType.getProduction() != null) {
+                        this.selectedType.getProduction().getValeur(); // Force le chargement
+                    }
+                    if (this.selectedType.getAireCirculation() != null) {
+                        this.selectedType.getAireCirculation().getValeur(); // Force le chargement
+                    }
+                    if (this.selectedType.getCategorieFonctionnelle() != null) {
+                        this.selectedType.getCategorieFonctionnelle().getValeur(); // Force le chargement
+                    }
+                    if (this.selectedType.getCaracteristiquePhysique() != null) {
+                        CaracteristiquePhysique cp = this.selectedType.getCaracteristiquePhysique();
+                        if (cp.getForme() != null) {
+                            cp.getForme().getValeur(); // Force le chargement
+                        }
+                        if (cp.getDimensions() != null) {
+                            cp.getDimensions().getValeur(); // Force le chargement
+                        }
+                        if (cp.getTechnique() != null) {
+                            cp.getTechnique().getValeur(); // Force le chargement
+                        }
+                        if (cp.getFabrication() != null) {
+                            cp.getFabrication().getValeur(); // Force le chargement
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors du rechargement du type depuis la base de données", e);
+                this.selectedType = type; // Fallback sur le type passé en paramètre
+            }
+        } else {
+            this.selectedType = type;
+        }
+        
         panelState.showType();
+        
+        // Trouver le groupe parent de ce type pour le breadcrumb
+        if (selectedGroup == null && selectedType != null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedType);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver le groupe parent
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode()) ||
+                             "GROUPE".equals(parent.getEntityType().getCode()))) {
+                            this.selectedGroup = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche du groupe parent du type", e);
+            }
+        }
+        
+        // Trouver la catégorie parente si nécessaire
+        if (selectedCategory == null && selectedGroup != null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedGroup);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) ||
+                             "CATEGORIE".equals(parent.getEntityType().getCode()))) {
+                            this.selectedCategory = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche de la catégorie parente du groupe", e);
+            }
+        }
+        
+        // Trouver le référentiel parent si nécessaire
+        if (selectedReference == null && selectedCategory != null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedCategory);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
+                             "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
+                            this.selectedReference = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
+            }
+        }
+        
+        // Trouver la collection parente si nécessaire
+        if (selectedCollection == null && selectedReference != null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedReference);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                            this.selectedCollection = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche de la collection parente du référentiel", e);
+            }
+        }
+        
+        // Mettre à jour le breadcrumb
+        beadCrumbElements = new ArrayList<>();
+        if (selectedCollection != null) {
+            beadCrumbElements.add(selectedCollection);
+        }
+        if (selectedReference != null) {
+            beadCrumbElements.add(selectedReference);
+        }
+        if (selectedCategory != null) {
+            beadCrumbElements.add(selectedCategory);
+        }
+        if (selectedGroup != null) {
+            beadCrumbElements.add(selectedGroup);
+        }
+        if (selectedType != null) {
+            beadCrumbElements.add(selectedType);
+        }
     }
 
     /**
