@@ -2703,7 +2703,12 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treen
     justify-content: center;
     flex-shrink: 0;
     flex-grow: 0;
-    line-height: 1.4;
+    line-height: 1;
+}
+
+.ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-label {
+    display: inline-flex;
+    align-items: center;
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-icon {
@@ -2721,8 +2726,7 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important; /* Nécessaire pour que ellipsis fonctionne - empêche le retour à la ligne */
-    display: flex !important;
-    align-items: center !important;
+    display: block !important;
     box-sizing: border-box !important;
     position: relative !important;
 }
