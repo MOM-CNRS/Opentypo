@@ -112,45 +112,54 @@
             </div>
 
             <div style="margin-top: 20px">
-                <!-- Bloc unifié pour les groupes -->
-                <div class="categories-unified-block">
-                    <!-- Section header pour les groupes -->
-                    <div class="collection-references-header">
-                        <div class="collection-references-title-section">
-                            <div class="collection-references-icon">
-                                <i class="pi pi-users" />
-                            </div>
-                            <div class="collection-references-title-wrapper">
-                                <h3 class="collection-references-title">Groupes de la catégorie</h3>
-                                <span class="collection-references-subtitle">
+                <div style="margin-top: 20px">
+                    <!-- Bloc unifié pour les catégories -->
+                    <div class="categories-unified-block">
+                        <!-- Section header pour les catégories -->
+                        <div class="collection-references-header">
+                            <div class="collection-references-title-section">
+                                <div class="collection-references-icon">
+                                    <i class="pi pi-users" />
+                                </div>
+                                <div class="collection-references-title-wrapper">
+                                    <h3 class="collection-references-title">Groupes de la catégorie</h3>
+                                    <span class="collection-references-subtitle">
                                     #{applicationBean.selectedCategory.nom}
                                 </span>
+                                </div>
                             </div>
+                            <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                                <p:commandButton value="Créer un groupe"
+                                                 icon="pi pi-plus"
+                                                 styleClass="collection-create-btn"
+                                                 onclick="PF('createGroupDialog').show(); return false;"
+                                                 process="@this"
+                                                 update="@none"/>
+                            </h:panelGroup>
                         </div>
-                    </div>
 
-                    <!-- Liste des groupes -->
-                    <h:panelGroup id="groupsContainer" class="reference-cards-container">
-                        <h:form>
-                            <div class="reference-cards-grid">
-                                <ui:repeat value="#{applicationBean.categoryGroups}" var="group" varStatus="status">
-                                    <p:commandLink action="#{applicationBean.showGroupe(group)}"
-                                                styleClass="reference-card"
-                                                process="@this"
-                                                update=":centerContent"
-                                                onstart="showLoading('Chargement du groupe...', 'spinner');"
-                                                oncomplete="setTimeout(function(){hideLoading();}, 500);"
-                                                onerror="forceHideLoading();">
+                        <!-- Liste des catégories -->
+                        <h:panelGroup id="groupesContainer" class="reference-cards-container">
+                            <h:form>
+                                <div class="reference-cards-grid">
+                                    <ui:repeat value="#{applicationBean.categoryGroups}" var="group" varStatus="status">
+                                        <p:commandLink action="#{applicationBean.showGroupe(group)}"
+                                                       styleClass="reference-card"
+                                                       process="@this"
+                                                       update=":centerContent"
+                                                       onstart="showLoading('Chargement du groupe...', 'spinner');"
+                                                       oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                       onerror="forceHideLoading();">
 
-                                        <div class="reference-card-content">
-                                            <div class="reference-card-header">
-                                                <div class="reference-card-icon">
-                                                    <i class="pi pi-users" />
-                                                </div>
-                                                <div class="reference-card-title-wrapper">
-                                                    <h3 class="reference-card-title">#{group.nom}</h3>
-                                                    <span class="reference-card-code">#{group.code}</span>
-                                                    <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
+                                            <div class="reference-card-content">
+                                                <div class="reference-card-header">
+                                                    <div class="reference-card-icon">
+                                                        <i class="pi pi-users" />
+                                                    </div>
+                                                    <div class="reference-card-title-wrapper">
+                                                        <h3 class="reference-card-title">#{group.nom}</h3>
+                                                        <span class="reference-card-code">#{group.code}</span>
+                                                        <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
                                                         <span class="reference-card-code">
                                                             <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">
                                                                 Période: #{group.tpq} - #{group.taq}
@@ -162,21 +171,23 @@
                                                                 TAQ: #{group.taq}
                                                             </ui:fragment>
                                                         </span>
-                                                    </ui:fragment>
+                                                        </ui:fragment>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </p:commandLink>
-                                </ui:repeat>
-                                
-                                <!-- Message si aucun groupe -->
-                                <h:outputText value="Aucun groupe disponible pour cette catégorie"
-                                             rendered="#{empty applicationBean.categoryGroups}"
-                                             styleClass="no-categories-message" />
-                            </div>
-                        </h:form>
-                    </h:panelGroup>
+                                        </p:commandLink>
+                                    </ui:repeat>
+
+                                    <!-- Message si aucune catégorie -->
+                                    <h:outputText value="Aucun groupe disponible pour cette catégorie"
+                                                  rendered="#{empty applicationBean.categoryGroups}"
+                                                  styleClass="no-categories-message" />
+                                </div>
+                            </h:form>
+                        </h:panelGroup>
+                    </div>
                 </div>
+
 
                 <div class="concept-info-panel mt-20" style="margin-top: 20px">
                     <!-- Grille d'informations -->
@@ -201,4 +212,7 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <!-- Inclusion du dialog de création de groupe -->
+    <ui:include src="../dialogs/groupDialog.xhtml"/>
 </ui:composition>

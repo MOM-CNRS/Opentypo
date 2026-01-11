@@ -509,8 +509,21 @@
 }
 
 /* Styles pour le dialog de création de catégorie */
+.category-dialog .ui-dialog {
+    max-width: 600px;
+    max-height: 90vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
 .category-dialog .ui-dialog-content {
     padding: 1.5rem !important;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(90vh - 120px);
+    flex: 1;
 }
 
 .category-form-content {
@@ -540,6 +553,9 @@
     border-radius: 0.25rem !important;
     font-size: 0.9rem !important;
     transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
 }
 
 .category-input:focus,
@@ -551,7 +567,13 @@
 
 .category-textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 120px;
+    max-height: 150px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    width: 100% !important;
+    font-family: inherit;
+    line-height: 1.5;
 }
 
 .category-form-actions {
@@ -595,17 +617,149 @@
 
 /* Responsive pour le dialog */
 @media (max-width: 768px) {
-    .category-dialog {
-        width: 90% !important;
-        max-width: 500px !important;
+    .category-dialog .ui-dialog {
+        width: 90vw !important;
+        max-width: 90vw !important;
+        max-height: 85vh !important;
+        margin: 1rem auto !important;
+        left: 5vw !important;
+        right: 5vw !important;
+    }
+
+    .category-dialog .ui-dialog-content {
+        padding: 1.25rem !important;
+        max-height: calc(85vh - 100px) !important;
+    }
+
+    .category-form-content {
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .category-form-group {
+        gap: 0.5rem;
+    }
+
+    .category-form-group label {
+        font-size: 0.875rem;
+    }
+
+    .category-input,
+    .category-textarea {
+        padding: 0.625rem !important;
+        font-size: 0.875rem !important;
     }
 
     .category-form-actions {
         flex-direction: column-reverse;
+        gap: 0.625rem;
+        padding-top: 0.875rem;
     }
 
     .category-btn {
-        width: 100%;
-        justify-content: center;
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-dialog .ui-dialog {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 90vh !important;
+        margin: 0.5rem auto !important;
+        left: 2.5vw !important;
+        right: 2.5vw !important;
+        top: 2vh !important;
+    }
+
+    .category-dialog .ui-dialog-titlebar {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9375rem !important;
+        flex-shrink: 0;
+    }
+
+    .category-dialog .ui-dialog-content {
+        padding: 1rem !important;
+        max-height: calc(90vh - 90px) !important;
+    }
+
+    .category-form-content {
+        gap: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .category-form-group {
+        gap: 0.375rem;
+    }
+
+    .category-form-group label {
+        font-size: 0.8125rem;
+    }
+
+    .category-input,
+    .category-textarea {
+        padding: 0.5rem 0.625rem !important;
+        font-size: 0.8125rem !important;
+    }
+
+    .category-textarea {
+        min-height: 80px;
+        rows: 3;
+    }
+
+    .category-form-actions {
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+    }
+
+    .category-btn {
+        padding: 0.625rem 0.875rem !important;
+        font-size: 0.8125rem !important;
+    }
+}
+
+/* Amélioration pour les très petits écrans */
+@media (max-width: 360px) {
+    .category-dialog .ui-dialog {
+        width: 98vw !important;
+        max-width: 98vw !important;
+        max-height: 95vh !important;
+        left: 1vw !important;
+        right: 1vw !important;
+    }
+
+    .category-dialog .ui-dialog-content {
+        padding: 0.875rem !important;
+        max-height: calc(95vh - 80px) !important;
+    }
+
+    .category-form-content {
+        gap: 0.75rem;
+    }
+
+    .category-form-group label {
+        font-size: 0.75rem;
+    }
+
+    .category-input,
+    .category-textarea {
+        padding: 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Amélioration pour les écrans en mode paysage mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .category-dialog .ui-dialog {
+        max-height: 95vh !important;
+        overflow-y: auto !important;
+    }
+
+    .category-dialog .ui-dialog-content {
+        max-height: calc(95vh - 80px) !important;
+        overflow-y: auto !important;
     }
 }

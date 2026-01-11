@@ -3,12 +3,16 @@ package fr.cnrs.opentypo.presentation.bean.util;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * Gestionnaire d'état des panneaux pour ApplicationBean
  */
 @Getter
 @Setter
-public class PanelStateManager {
+public class PanelStateManager implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     private boolean showCollections = true;
     private boolean showReferencesPanel = false;

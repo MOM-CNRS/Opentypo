@@ -34,36 +34,38 @@ import java.util.stream.Collectors;
 @SessionScoped
 @Named("applicationBean")
 public class ApplicationBean implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     @Inject
-    private Provider<SearchBean> searchBeanProvider;
+    private transient Provider<SearchBean> searchBeanProvider;
 
     @Inject
-    private LangueRepository langueRepository;
+    private transient LangueRepository langueRepository;
 
     @Inject
-    private EntityRepository entityRepository;
+    private transient EntityRepository entityRepository;
 
     @Inject
-    private EntityTypeRepository entityTypeRepository;
+    private transient EntityTypeRepository entityTypeRepository;
 
     @Inject
-    private EntityRelationRepository entityRelationRepository;
+    private transient EntityRelationRepository entityRelationRepository;
 
     @Inject
-    private Provider<TreeBean> treeBeanProvider;
+    private transient Provider<TreeBean> treeBeanProvider;
 
     @Inject
-    private ReferenceService referenceService;
+    private transient ReferenceService referenceService;
 
     @Inject
-    private CategoryService categoryService;
+    private transient CategoryService categoryService;
 
     @Inject
-    private GroupService groupService;
+    private transient GroupService groupService;
 
     @Inject
-    private SearchBean searchBean;
+    private transient SearchBean searchBean;
 
     private final PanelStateManager panelState = new PanelStateManager();
 
@@ -82,6 +84,9 @@ public class ApplicationBean implements Serializable {
     
     // Catégorie actuellement sélectionnée
     private Entity selectedCategory;
+    
+    // Groupe actuellement sélectionné
+    private Entity selectedGroup;
     
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
@@ -225,6 +230,67 @@ public class ApplicationBean implements Serializable {
     public void showGroupe() {
         panelState.showGroupe();
     }
+    
+    /**
+     * Affiche les détails d'un groupe spécifique
+     */
+    public void showGroupe(Entity group) {
+        this.selectedGroup = group;
+        panelState.showGroupe();
+        
+        // Trouver la catégorie parente de ce groupe pour le breadcrumb
+        if (selectedCategory == null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(group);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver la catégorie parente
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) ||
+                             "CATEGORIE".equals(parent.getEntityType().getCode()))) {
+                            this.selectedCategory = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche de la catégorie parente du groupe", e);
+            }
+        }
+        
+        // Si on a la catégorie, trouver le référentiel parent
+        if (selectedCategory != null && selectedReference == null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedCategory);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver le référentiel parent
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
+                             "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
+                            this.selectedReference = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
+            }
+        }
+        
+        // Mettre à jour le breadcrumb
+        beadCrumbElements = new ArrayList<>();
+        if (selectedCollection != null) {
+            beadCrumbElements.add(selectedCollection);
+        }
+        if (selectedReference != null) {
+            beadCrumbElements.add(selectedReference);
+        }
+        if (selectedCategory != null) {
+            beadCrumbElements.add(selectedCategory);
+        }
+        beadCrumbElements.add(group);
+    }
 
     public void showSerie() {
         panelState.showSerie();
@@ -330,6 +396,12 @@ public class ApplicationBean implements Serializable {
 
     public void refreshReferenceCategoriesList() {
         referenceCategories = categoryService.loadCategoriesByReference(selectedReference);
+    }
+
+    public void refreshCategoryGroupsList() {
+        if (selectedCategory != null) {
+            categoryGroups = groupService.loadCategoryGroups(selectedCategory);
+        }
     }
 }
 

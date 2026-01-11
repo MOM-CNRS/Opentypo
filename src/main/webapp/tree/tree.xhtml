@@ -14,7 +14,7 @@
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"/>
             <p:ajax event="select" listener="#{treeBean.onNodeSelect}" 
-                    update=":contentPanels, :breadcrumbContent, :leftTreePanel"
+                    update=":contentPanels, :breadcrumbContent"
                     onstart="showLoading('Chargement...', 'spinner');"
                     oncomplete="setTimeout(function(){hideLoading();}, 500);"
                     onerror="forceHideLoading();"/>

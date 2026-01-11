@@ -112,6 +112,7 @@ public class CategoryBean implements Serializable {
             Entity newCategory = new Entity();
             newCategory.setCode(codeTrimmed);
             newCategory.setNom(labelTrimmed);
+            newCategory.setCommentaire(descriptionTrimmed);
             newCategory.setEntityType(categoryType);
             newCategory.setPublique(true);
             newCategory.setCreateDate(LocalDateTime.now());

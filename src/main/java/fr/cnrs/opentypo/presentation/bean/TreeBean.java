@@ -117,6 +117,24 @@ public class TreeBean implements Serializable {
     }
     
     /**
+     * Ajoute un groupe à l'arbre sous la catégorie parente
+     */
+    public void addGroupToTree(Entity group, Entity parentCategory) {
+        if (root != null && group != null && parentCategory != null) {
+            // Trouver le nœud de la catégorie parente dans l'arbre
+            TreeNode categoryNode = findNodeByEntity(root, parentCategory);
+            if (categoryNode != null) {
+                DefaultTreeNode groupNode = new DefaultTreeNode(group.getNom(), categoryNode);
+                groupNode.setData(group);
+                // Étendre le nœud parent pour que le groupe soit visible
+                categoryNode.setExpanded(true);
+            } else {
+                log.warn("Nœud catégorie non trouvé pour ajouter le groupe : {}", parentCategory.getNom());
+            }
+        }
+    }
+    
+    /**
      * Charge toutes les catégories d'un référentiel dans l'arbre
      */
     public void loadCategoriesForReference(Entity reference) {
@@ -202,6 +220,15 @@ public class TreeBean implements Serializable {
                     // Afficher la page catégorie
                     if (applicationBean != null) {
                         applicationBean.showCategoryDetail(entity);
+                    }
+                }
+                // Vérifier si c'est un groupe
+                else if (entity.getEntityType() != null &&
+                    (EntityConstants.ENTITY_TYPE_GROUP.equals(entity.getEntityType().getCode()) ||
+                     "GROUPE".equals(entity.getEntityType().getCode()))) {
+                    // Afficher la page groupe
+                    if (applicationBean != null) {
+                        applicationBean.showGroupe(entity);
                     }
                 }
             }
