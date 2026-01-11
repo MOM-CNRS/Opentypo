@@ -1,0 +1,77 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer un nouveau type -->
+    <p:dialog id="createTypeDialog"
+              widgetVar="createTypeDialog"
+              header="Créer un nouveau type"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="category-dialog"
+              width="600"
+              height="auto"
+              closable="true"
+              responsive="true">
+
+        <h:form id="typeForm">
+            <f:event listener="#{typeBean.resetTypeForm}" type="preRenderView"/>
+            <div class="category-form-content">
+                <div class="category-form-group">
+                    <p:outputLabel for="typeCode" value="Code du type *" />
+                    <p:inputText id="typeCode"
+                                 value="#{typeBean.typeCode}"
+                                 required="true"
+                                 requiredMessage="Le code du type est requis"
+                                 styleClass="category-input"
+                                 placeholder="Ex: TYP001"/>
+                </div>
+
+                <div class="category-form-group">
+                    <p:outputLabel for="typeLabel" value="Label *" />
+                    <p:inputText id="typeLabel"
+                                 value="#{typeBean.typeLabel}"
+                                 required="true"
+                                 requiredMessage="Le label est requis"
+                                 styleClass="category-input"
+                                 placeholder="Nom du type"/>
+                </div>
+
+                <div class="category-form-group">
+                    <p:outputLabel for="typeDescription" value="Description" />
+                    <p:inputTextarea id="typeDescription"
+                                     value="#{typeBean.typeDescription}"
+                                     rows="5"
+                                     cols="50"
+                                     autoResize="false"
+                                     styleClass="category-textarea"
+                                     placeholder="Description du type"/>
+                </div>
+            </div>
+
+            <div class="category-form-actions">
+                <p:commandButton value="Annuler"
+                                 icon="pi pi-times"
+                                 styleClass="category-btn category-btn-cancel"
+                                 onclick="PF('createTypeDialog').hide(); return false;"
+                                 process="@this"
+                                 update="@none"/>
+
+                <p:commandButton value="Valider"
+                                 icon="pi pi-check"
+                                 styleClass="category-btn category-btn-validate"
+                                 action="#{typeBean.createType}"
+                                 process="@form"
+                                 update="@form :growl :typesContainer :leftTreePanel"
+                                 onstart="var btn = this; showButtonLoading(btn);"
+                                 oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading(); if(!args.validationFailed) {PF('createTypeDialog').hide();}}, 100);"
+                                 onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
+            </div>
+        </h:form>
+    </p:dialog>
+
+    <h:outputStylesheet library="css" name="categoryDialog.css"/>
+</ui:fragment>
