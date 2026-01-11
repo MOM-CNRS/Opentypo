@@ -18,13 +18,17 @@
                     onstart="showLoading('Chargement...', 'spinner');"
                     oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                     onerror="forceHideLoading();"/>
+
             <p:ajax event="select" listener="#{treeBean.onNodeSelect}" 
-                    update=":contentPanels, :breadcrumbContent"
+                    process="@this"
+                    partialSubmit="true"
+                    update=":contentPanels, :breadcrumbContent, @this"
                     onstart="showLoading('Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                    oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible(); restoreTreeSelection();}, 600);"
                     onerror="forceHideLoading();"/>
 
             <p:treeNode>
+                <i class="#{treeBean.getEntityIcon(nodetree)} tree-node-icon"></i>
                 <span class="modern-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
                     #{treeBean.getNodeLabel(nodetree)}
                 </span>

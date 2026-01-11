@@ -30,22 +30,22 @@ public class TreeBean implements Serializable {
 
     @Inject
     private transient ApplicationBean applicationBean;
-    
+
     @Inject
     private transient CategoryService categoryService;
-    
+
     @Inject
     private transient GroupService groupService;
-    
+
     @Inject
     private transient SerieService serieService;
-    
+
     @Inject
     private transient TypeService typeService;
 
     private TreeNode selectedNode;
     private TreeNode root;
-    
+
     private static final long serialVersionUID = 1L;
 
 
@@ -55,7 +55,7 @@ public class TreeBean implements Serializable {
         root = new DefaultTreeNode("root", null);
         // L'arbre sera initialisé dynamiquement quand une collection est sélectionnée
     }
-    
+
     /**
      * Initialise l'arbre avec les référentiels de la collection sélectionnée
      * Charge uniquement le premier niveau (référentiels) - les enfants seront chargés à la demande
@@ -66,7 +66,7 @@ public class TreeBean implements Serializable {
         if (selectedNode != null && selectedNode.getData() != null && selectedNode.getData() instanceof Entity) {
             previouslySelectedEntity = (Entity) selectedNode.getData();
         }
-        
+
         // Réinitialiser la racine avec le nom de la collection
         Entity selectedCollection = null;
         if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
@@ -80,27 +80,25 @@ public class TreeBean implements Serializable {
         } else {
             root = new DefaultTreeNode("root", null);
         }
-        
+
         selectedNode = null; // Réinitialiser la sélection
-        
+
         if (selectedCollection != null) {
             try {
                 // Charger uniquement les référentiels de la collection (niveau 1)
                 // Les catégories seront chargées quand on dépliera un référentiel
                 applicationBean.refreshCollectionReferencesList();
                 var references = applicationBean.getCollectionReferences();
-                
+
                 if (references != null && !references.isEmpty()) {
                     for (Entity reference : references) {
                         DefaultTreeNode referenceNode = new DefaultTreeNode(reference.getNom(), root);
                         // Stocker l'entité dans le nœud pour pouvoir la récupérer lors du clic
                         referenceNode.setData(reference);
                         // Ne pas charger les catégories maintenant - elles seront chargées à la demande
-                        
+
                         // Restaurer la sélection si c'est la même entité
-                        if (previouslySelectedEntity != null && 
-                            previouslySelectedEntity.getId() != null &&
-                            previouslySelectedEntity.getId().equals(reference.getId())) {
+                        if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && previouslySelectedEntity.getId().equals(reference.getId())) {
                             selectedNode = referenceNode;
                         }
                     }
@@ -110,8 +108,8 @@ public class TreeBean implements Serializable {
             }
         }
     }
-    
-    
+
+
     /**
      * Ajoute un référentiel à l'arbre
      */
@@ -121,7 +119,7 @@ public class TreeBean implements Serializable {
             node.setData(reference);
         }
     }
-    
+
     /**
      * Ajoute une catégorie à l'arbre comme enfant d'un référentiel
      */
@@ -138,7 +136,7 @@ public class TreeBean implements Serializable {
             }
         }
     }
-    
+
     /**
      * Ajoute un groupe à l'arbre sous la catégorie parente
      */
@@ -155,7 +153,7 @@ public class TreeBean implements Serializable {
             }
         }
     }
-    
+
     /**
      * Ajoute une série à l'arbre sous le groupe parent
      */
@@ -172,7 +170,7 @@ public class TreeBean implements Serializable {
             }
         }
     }
-    
+
     /**
      * Ajoute un type à l'arbre sous le groupe parent
      */
@@ -189,7 +187,7 @@ public class TreeBean implements Serializable {
             }
         }
     }
-    
+
     /**
      * Charge toutes les catégories d'un référentiel dans l'arbre
      * (Méthode conservée pour compatibilité, mais le chargement se fait maintenant via onNodeExpand)
@@ -198,14 +196,14 @@ public class TreeBean implements Serializable {
         if (root == null || reference == null) {
             return;
         }
-        
+
         // Trouver le nœud du référentiel dans l'arbre
         TreeNode referenceNode = findNodeByEntity(root, reference);
         if (referenceNode == null) {
             log.warn("Nœud référentiel non trouvé pour charger les catégories : {}", reference.getNom());
             return;
         }
-        
+
         // Charger les catégories si le nœud n'a pas encore d'enfants
         if (referenceNode.getChildCount() == 0) {
             loadCategoriesForReference(referenceNode, reference);
@@ -214,6 +212,18 @@ public class TreeBean implements Serializable {
 
     public void onNodeSelect(NodeSelectEvent event) {
         this.selectedNode = event.getTreeNode();
+
+        // Charger les enfants de l'élément sélectionné s'ils ne sont pas déjà chargés
+        int childCountBefore = selectedNode != null ? selectedNode.getChildCount() : 0;
+        loadChildrenIfNeeded(selectedNode);
+        
+        // Si des enfants ont été chargés, étendre le nœud pour les afficher
+        if (selectedNode != null && selectedNode.getChildCount() > childCountBefore) {
+            selectedNode.setExpanded(true);
+            log.debug("Nœud {} étendu automatiquement après chargement de {} enfants", 
+                     selectedNode.getData() instanceof Entity ? ((Entity) selectedNode.getData()).getNom() : "unknown",
+                     selectedNode.getChildCount() - childCountBefore);
+        }
 
         // Récupérer l'entité stockée dans le nœud
         if (selectedNode != null && selectedNode.getData() != null) {
@@ -235,8 +245,6 @@ public class TreeBean implements Serializable {
                     // Afficher la page référentiel
                     if (applicationBean != null) {
                         applicationBean.showReferenceDetail(entity);
-                        // Charger les catégories dans l'arbre pour cette référence
-                        loadCategoriesForReference(entity);
                     }
                 }
                 // Vérifier si c'est une catégorie
@@ -279,89 +287,91 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Charge les enfants d'un nœud quand il est déplié (lazy loading niveau par niveau)
+     * Charge les enfants d'un nœud si nécessaire
+     * Méthode utilitaire partagée entre onNodeExpand et onNodeSelect
      */
-    public void onNodeExpand(NodeExpandEvent event) {
-        TreeNode expandedNode = event.getTreeNode();
-        if (expandedNode == null || expandedNode.getData() == null) {
+    private void loadChildrenIfNeeded(TreeNode node) {
+        if (node == null || node.getData() == null) {
             return;
         }
-        
-        Object data = expandedNode.getData();
+
+        Object data = node.getData();
         if (!(data instanceof Entity)) {
             return;
         }
-        
+
         Entity entity = (Entity) data;
-        
+
         try {
+            int childCountBefore = node.getChildCount();
+            log.debug("Chargement des enfants pour le nœud : {} (type: {}), enfants actuels: {}", 
+                     entity.getNom(), 
+                     entity.getEntityType() != null ? entity.getEntityType().getCode() : "null",
+                     childCountBefore);
+
             // Vérifier si les enfants ont déjà été chargés
-            if (expandedNode.getChildCount() > 0) {
+            if (childCountBefore > 0) {
                 // Les enfants sont déjà chargés, ne rien faire
+                log.debug("Les enfants sont déjà chargés pour le nœud : {}", entity.getNom());
                 return;
             }
-            
+
             // Charger les enfants selon le type d'entité
             if (entity.getEntityType() != null) {
                 String entityTypeCode = entity.getEntityType().getCode();
-                
+
                 // Si c'est une collection, charger les référentiels
                 if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
-                    loadReferencesForCollection(expandedNode, entity);
+                    loadReferencesForCollection(node, entity);
                 }
                 // Si c'est un référentiel, charger les catégories
                 else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) ||
                          "REFERENTIEL".equals(entityTypeCode)) {
-                    loadCategoriesForReference(expandedNode, entity);
+                    loadCategoriesForReference(node, entity);
                 }
                 // Si c'est une catégorie, charger les groupes
                 else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) ||
                          "CATEGORIE".equals(entityTypeCode)) {
-                    loadGroupsForCategory(expandedNode, entity);
+                    loadGroupsForCategory(node, entity);
                 }
                 // Si c'est un groupe, charger les séries et types
                 else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode) ||
                          "GROUPE".equals(entityTypeCode)) {
-                    loadSeriesAndTypesForGroup(expandedNode, entity);
+                    loadSeriesAndTypesForGroup(node, entity);
                 }
+                
+                int childCountAfter = node.getChildCount();
+                log.debug("Après chargement, le nœud {} a maintenant {} enfants (avant: {})", 
+                         entity.getNom(), childCountAfter, childCountBefore);
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des enfants du nœud : {}", entity.getNom(), e);
         }
     }
-    
+
+    /**
+     * Charge les enfants d'un nœud quand il est déplié (lazy loading niveau par niveau)
+     */
+    public void onNodeExpand(NodeExpandEvent event) {
+        TreeNode expandedNode = event.getTreeNode();
+        // Charger les enfants si nécessaire
+        loadChildrenIfNeeded(expandedNode);
+    }
+
     /**
      * Charge les référentiels d'une collection
+     * Recherche les référentiels rattachés et les ajoute comme enfants du nœud collection
      */
     private void loadReferencesForCollection(TreeNode collectionNode, Entity collection) {
         if (applicationBean == null) {
             return;
         }
-        
+
         try {
-            // Vérifier si les référentiels ont déjà été chargés
-            if (collectionNode.getChildCount() > 0) {
-                // Vérifier si ce sont de vrais référentiels (Entity) et non des placeholders
-                boolean hasRealChildren = false;
-                if (collectionNode.getChildren() != null) {
-                    for (Object childObj : collectionNode.getChildren()) {
-                        if (childObj instanceof TreeNode) {
-                            TreeNode childNode = (TreeNode) childObj;
-                            if (childNode.getData() != null && childNode.getData() instanceof Entity) {
-                                hasRealChildren = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (hasRealChildren) {
-                    return; // Les référentiels sont déjà chargés
-                }
-            }
-            
+            // Rechercher les référentiels rattachés à la collection dans la base de données
             applicationBean.refreshCollectionReferencesList();
             var references = applicationBean.getCollectionReferences();
-            
+
             if (references != null && !references.isEmpty()) {
                 for (Entity reference : references) {
                     // Vérifier si le référentiel existe déjà pour éviter les doublons
@@ -381,7 +391,8 @@ public class TreeBean implements Serializable {
                             }
                         }
                     }
-                    
+
+                    // Ajouter le référentiel seulement s'il n'existe pas déjà
                     if (!exists) {
                         DefaultTreeNode referenceNode = new DefaultTreeNode(reference.getNom(), collectionNode);
                         referenceNode.setData(reference);
@@ -392,80 +403,221 @@ public class TreeBean implements Serializable {
             log.error("Erreur lors du chargement des référentiels pour la collection : {}", collection.getNom(), e);
         }
     }
-    
+
     /**
      * Charge les catégories d'un référentiel
+     * Recherche les catégories rattachées et les ajoute comme enfants du nœud référentiel
      */
     private void loadCategoriesForReference(TreeNode referenceNode, Entity reference) {
         if (categoryService == null) {
             return;
         }
-        
+
         try {
+            // Rechercher les catégories rattachées au référentiel dans la base de données
             List<Entity> categories = categoryService.loadCategoriesByReference(reference);
-            
+
             if (categories != null && !categories.isEmpty()) {
                 for (Entity category : categories) {
-                    DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
-                    categoryNode.setData(category);
+                    // Vérifier si la catégorie existe déjà pour éviter les doublons
+                    boolean exists = false;
+                    if (referenceNode.getChildren() != null) {
+                        for (Object childObj : referenceNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && category.getId() != null &&
+                                        childEntity.getId().equals(category.getId())) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Ajouter la catégorie seulement si elle n'existe pas déjà
+                    if (!exists) {
+                        DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
+                        categoryNode.setData(category);
+                    }
                 }
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des catégories pour le référentiel : {}", reference.getNom(), e);
         }
     }
-    
+
     /**
      * Charge les groupes d'une catégorie
+     * Recherche les groupes rattachés et les ajoute comme enfants du nœud catégorie
      */
     private void loadGroupsForCategory(TreeNode categoryNode, Entity category) {
         if (groupService == null) {
             return;
         }
-        
+
         try {
+            // Rechercher les groupes rattachés à la catégorie dans la base de données
             List<Entity> groups = groupService.loadCategoryGroups(category);
-            
+
             if (groups != null && !groups.isEmpty()) {
                 for (Entity group : groups) {
-                    DefaultTreeNode groupNode = new DefaultTreeNode(group.getNom(), categoryNode);
-                    groupNode.setData(group);
+                    // Vérifier si le groupe existe déjà pour éviter les doublons
+                    boolean exists = false;
+                    if (categoryNode.getChildren() != null) {
+                        for (Object childObj : categoryNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && group.getId() != null &&
+                                        childEntity.getId().equals(group.getId())) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Ajouter le groupe seulement s'il n'existe pas déjà
+                    if (!exists) {
+                        DefaultTreeNode groupNode = new DefaultTreeNode(group.getNom(), categoryNode);
+                        groupNode.setData(group);
+                    }
                 }
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des groupes pour la catégorie : {}", category.getNom(), e);
         }
     }
-    
+
     /**
      * Charge les séries et types d'un groupe
+     * Recherche les séries et types rattachés et les ajoute comme enfants du nœud groupe
      */
     private void loadSeriesAndTypesForGroup(TreeNode groupNode, Entity group) {
         if (serieService == null || typeService == null) {
             return;
         }
-        
+
         try {
-            // Charger les séries
+            // Rechercher les séries rattachées au groupe dans la base de données
             List<Entity> series = serieService.loadGroupSeries(group);
             if (series != null && !series.isEmpty()) {
                 for (Entity serie : series) {
-                    DefaultTreeNode serieNode = new DefaultTreeNode(serie.getNom(), groupNode);
-                    serieNode.setData(serie);
+                    // Vérifier si la série existe déjà pour éviter les doublons
+                    boolean exists = false;
+                    if (groupNode.getChildren() != null) {
+                        for (Object childObj : groupNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && serie.getId() != null &&
+                                        childEntity.getId().equals(serie.getId())) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Ajouter la série seulement si elle n'existe pas déjà
+                    if (!exists) {
+                        DefaultTreeNode serieNode = new DefaultTreeNode(serie.getNom(), groupNode);
+                        serieNode.setData(serie);
+                    }
                 }
             }
-            
-            // Charger les types
+
+            // Rechercher les types rattachés au groupe dans la base de données
             List<Entity> types = typeService.loadGroupTypes(group);
             if (types != null && !types.isEmpty()) {
                 for (Entity type : types) {
-                    DefaultTreeNode typeNode = new DefaultTreeNode(type.getNom(), groupNode);
-                    typeNode.setData(type);
+                    // Vérifier si le type existe déjà pour éviter les doublons
+                    boolean exists = false;
+                    if (groupNode.getChildren() != null) {
+                        for (Object childObj : groupNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && type.getId() != null &&
+                                        childEntity.getId().equals(type.getId())) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Ajouter le type seulement s'il n'existe pas déjà
+                    if (!exists) {
+                        DefaultTreeNode typeNode = new DefaultTreeNode(type.getNom(), groupNode);
+                        typeNode.setData(type);
+                    }
                 }
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des séries et types pour le groupe : {}", group.getNom(), e);
         }
+    }
+
+    /**
+     * Retourne l'icône CSS pour un type d'entité donné
+     * Utilisé pour afficher une icône différente selon le type d'entité dans l'arbre
+     */
+    public String getEntityIcon(Object node) {
+        if (node == null) {
+            return "fa fa-file";
+        }
+
+        Entity entity = null;
+        
+        // Si c'est directement une Entity
+        if (node instanceof Entity) {
+            entity = (Entity) node;
+        }
+        // Si c'est un TreeNode
+        else if (node instanceof TreeNode) {
+            TreeNode treeNode = (TreeNode) node;
+            if (treeNode.getData() != null && treeNode.getData() instanceof Entity) {
+                entity = (Entity) treeNode.getData();
+            }
+        }
+
+        if (entity == null || entity.getEntityType() == null) {
+            return "fa fa-file";
+        }
+
+        String entityTypeCode = entity.getEntityType().getCode();
+        
+        // Retourner l'icône selon le type d'entité
+        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
+            return "fa fa-folder-open";
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) ||
+                   "REFERENTIEL".equals(entityTypeCode)) {
+            return "fa fa-book";
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) ||
+                   "CATEGORIE".equals(entityTypeCode)) {
+            return "fa fa-tags";
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode) ||
+                   "GROUPE".equals(entityTypeCode)) {
+            return "fa fa-users";
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) ||
+                   "SERIE".equals(entityTypeCode)) {
+            return "fa fa-list";
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
+            return "fa fa-tag";
+        }
+        
+        // Icône par défaut
+        return "fa fa-file";
     }
 
     /**
@@ -476,13 +628,13 @@ public class TreeBean implements Serializable {
         if (node == null) {
             return "";
         }
-        
+
         // Si c'est directement une Entity
         if (node instanceof Entity) {
             Entity entity = (Entity) node;
             return entity.getNom() != null ? entity.getNom() : "";
         }
-        
+
         // Si c'est un TreeNode
         if (node instanceof TreeNode) {
             TreeNode treeNode = (TreeNode) node;
@@ -494,7 +646,7 @@ public class TreeBean implements Serializable {
             // Sinon, utiliser le label du TreeNode (toString())
             return treeNode.toString();
         }
-        
+
         // Sinon, utiliser toString()
         return node.toString();
     }
@@ -507,7 +659,7 @@ public class TreeBean implements Serializable {
         if (reference == null || root == null) {
             return;
         }
-        
+
         // Parcourir récursivement l'arbre pour trouver le nœud correspondant
         var foundNode = findNodeByEntity(root, reference);
         if (foundNode != null) {
@@ -519,7 +671,7 @@ public class TreeBean implements Serializable {
             log.warn("Nœud de référence non trouvé pour : {}", reference.getNom());
         }
     }
-    
+
     /**
      * Étend tous les nœuds parents d'un nœud pour le rendre visible
      * Charge les enfants si nécessaire avant d'étendre
@@ -529,7 +681,7 @@ public class TreeBean implements Serializable {
         if (node == null) {
             return;
         }
-        
+
         TreeNode parent = node.getParent();
         while (parent != null && parent != root) {
             // Charger les enfants si le nœud n'en a pas encore
@@ -558,7 +710,7 @@ public class TreeBean implements Serializable {
             parent = parent.getParent();
         }
     }
-    
+
     /**
      * Trouve récursivement un nœud dans l'arbre correspondant à une entité
      * @param node Le nœud à partir duquel commencer la recherche
@@ -569,7 +721,7 @@ public class TreeBean implements Serializable {
         if (node == null || entity == null) {
             return null;
         }
-        
+
         // Vérifier si ce nœud correspond à l'entité recherchée
         if (node.getData() != null && node.getData() instanceof Entity) {
             Entity nodeEntity = (Entity) node.getData();
@@ -578,7 +730,7 @@ public class TreeBean implements Serializable {
                 return node;
             }
         }
-        
+
         // Parcourir récursivement les enfants
         if (node.getChildren() != null) {
             for (Object childObj : node.getChildren()) {
@@ -591,7 +743,7 @@ public class TreeBean implements Serializable {
                 }
             }
         }
-        
+
         return null;
     }
 
