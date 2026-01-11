@@ -97,6 +97,9 @@ public class ApplicationBean implements Serializable {
     // Groupe actuellement sélectionné
     private Entity selectedGroup;
     
+    // Série actuellement sélectionnée
+    private Entity selectedSerie;
+    
     // Type actuellement sélectionné
     private Entity selectedType;
     
@@ -114,6 +117,9 @@ public class ApplicationBean implements Serializable {
     
     // Types du groupe sélectionné
     private List<Entity> groupTypes;
+    
+    // Types de la série sélectionnée
+    private List<Entity> serieTypes;
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -359,9 +365,128 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'une série spécifique
      */
     public void showSerie(Entity serie) {
-        // Pour l'instant, on utilise juste la méthode sans paramètre
-        // TODO: Implémenter l'affichage des détails de la série
+        // Recharger la série depuis la base de données pour avoir toutes les données complètes
+        if (serie != null && serie.getId() != null) {
+            try {
+                this.selectedSerie = entityRepository.findById(serie.getId())
+                    .orElse(serie); // Fallback sur la série passée en paramètre si non trouvée
+                
+                if (this.selectedSerie != null) {
+                    // Force loading of lazy relations if needed
+                    if (this.selectedSerie.getProduction() != null) {
+                        this.selectedSerie.getProduction().getValeur();
+                    }
+                    if (this.selectedSerie.getAireCirculation() != null) {
+                        this.selectedSerie.getAireCirculation().getValeur();
+                    }
+                    if (this.selectedSerie.getCategorieFonctionnelle() != null) {
+                        this.selectedSerie.getCategorieFonctionnelle().getValeur();
+                    }
+                    if (this.selectedSerie.getCaracteristiquePhysique() != null) {
+                        CaracteristiquePhysique cp = this.selectedSerie.getCaracteristiquePhysique();
+                        if (cp.getForme() != null) {
+                            cp.getForme().getValeur();
+                        }
+                        if (cp.getDimensions() != null) {
+                            cp.getDimensions().getValeur();
+                        }
+                        if (cp.getTechnique() != null) {
+                            cp.getTechnique().getValeur();
+                        }
+                        if (cp.getFabrication() != null) {
+                            cp.getFabrication().getValeur();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors du rechargement de la série depuis la base de données", e);
+                this.selectedSerie = serie; // Fallback sur la série passée en paramètre
+            }
+        } else {
+            this.selectedSerie = serie;
+        }
+        
         panelState.showSerie();
+        
+        // Charger les types de la série depuis la table entity_relation
+        // Les types sont des entités de type "TYPE" rattachées à la série via entity_relation
+        serieTypes = typeService.loadSerieTypes(selectedSerie);
+        
+        // Trouver le groupe parent de cette série pour le breadcrumb
+        if (selectedGroup == null && selectedSerie != null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedSerie);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver le parent qui est un groupe
+                    for (Entity parent : parents) {
+                        if (parent != null && parent.getEntityType() != null &&
+                            (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode()))) {
+                            selectedGroup = parent;
+                            // Trouver la catégorie parente du groupe
+                            if (selectedCategory == null) {
+                                List<Entity> groupParents = entityRelationRepository.findParentsByChild(selectedGroup);
+                                if (groupParents != null && !groupParents.isEmpty()) {
+                                    for (Entity groupParent : groupParents) {
+                                        if (groupParent != null && groupParent.getEntityType() != null &&
+                                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(groupParent.getEntityType().getCode()))) {
+                                            selectedCategory = groupParent;
+                                            // Trouver la référence parente de la catégorie
+                                            if (selectedReference == null) {
+                                                List<Entity> categoryParents = entityRelationRepository.findParentsByChild(selectedCategory);
+                                                if (categoryParents != null && !categoryParents.isEmpty()) {
+                                                    for (Entity categoryParent : categoryParents) {
+                                                        if (categoryParent != null && categoryParent.getEntityType() != null &&
+                                                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(categoryParent.getEntityType().getCode()))) {
+                                                            selectedReference = categoryParent;
+                                                            // Trouver la collection parente de la référence
+                                                            if (selectedCollection == null) {
+                                                                List<Entity> referenceParents = entityRelationRepository.findParentsByChild(selectedReference);
+                                                                if (referenceParents != null && !referenceParents.isEmpty()) {
+                                                                    for (Entity referenceParent : referenceParents) {
+                                                                        if (referenceParent != null && referenceParent.getEntityType() != null &&
+                                                                            (EntityConstants.ENTITY_TYPE_COLLECTION.equals(referenceParent.getEntityType().getCode()))) {
+                                                                            selectedCollection = referenceParent;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche du groupe parent de la série", e);
+            }
+        }
+        
+        // Construire le breadcrumb : série -> groupe -> catégorie -> référence -> collection
+        beadCrumbElements = new ArrayList<>();
+        if (selectedCollection != null) {
+            beadCrumbElements.add(selectedCollection);
+        }
+        if (selectedReference != null) {
+            beadCrumbElements.add(selectedReference);
+        }
+        if (selectedCategory != null) {
+            beadCrumbElements.add(selectedCategory);
+        }
+        if (selectedGroup != null) {
+            beadCrumbElements.add(selectedGroup);
+        }
+        if (selectedSerie != null) {
+            beadCrumbElements.add(selectedSerie);
+        }
     }
 
     public void showType() {

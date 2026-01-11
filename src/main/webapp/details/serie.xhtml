@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentSeriePanels" layout="block">
@@ -17,7 +18,14 @@
                                                alt="Français"
                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">Label de la série</h2>
+                            <h2 class="concept-info-title">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.nom}">
+                                    #{applicationBean.selectedSerie.nom}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.nom}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </h2>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -38,7 +46,14 @@
                                 <i class="pi pi-list concept-info-icon" />
                                 <span>Série</span>
                             </div>
-                            <div class="concept-info-value">CODE Série</div>
+                            <div class="concept-info-value">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.code}">
+                                    #{applicationBean.selectedSerie.code}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.code}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
 
                         <div class="concept-info-item concept-info-item-full">
@@ -46,7 +61,14 @@
                                 <i class="pi pi-tag concept-info-icon" />
                                 <span>Appellation usuelle</span>
                             </div>
-                            <div class="concept-info-value">Appellation</div>
+                            <div class="concept-info-value">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.appellation}">
+                                    #{applicationBean.selectedSerie.appellation}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.appellation}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
 
                         <div class="concept-info-item">
@@ -54,7 +76,14 @@
                                 <i class="pi pi-calendar concept-info-icon" />
                                 <span>Période</span>
                             </div>
-                            <div class="concept-info-value">Période Valeur</div>
+                            <div class="concept-info-value">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.statut}">
+                                    #{applicationBean.selectedSerie.statut}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.statut}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
 
                         <div class="concept-info-item">
@@ -62,7 +91,14 @@
                                 <i class="pi pi-calendar-minus concept-info-icon" />
                                 <span>TPQ</span>
                             </div>
-                            <div class="concept-info-value">99</div>
+                            <div class="concept-info-value">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.tpq}">
+                                    #{applicationBean.selectedSerie.tpq}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.tpq}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
 
                         <div class="concept-info-item">
@@ -70,7 +106,14 @@
                                 <i class="pi pi-calendar-plus concept-info-icon" />
                                 <span>TAQ</span>
                             </div>
-                            <div class="concept-info-value">99</div>
+                            <div class="concept-info-value">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.taq}">
+                                    #{applicationBean.selectedSerie.taq}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.taq}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
 
                         <div class="concept-info-item concept-info-item-full">
@@ -79,7 +122,12 @@
                                 <span>Description</span>
                             </div>
                             <div class="concept-info-value concept-info-description">
-                                Déscription total
+                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.commentaire}">
+                                    #{applicationBean.selectedSerie.commentaire}
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.commentaire}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
                             </div>
                         </div>
                     </div>
@@ -91,7 +139,15 @@
                             <!-- En-tête avec titre et actions -->
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Types de la série XXXXX</h2>
+                                    <h2 class="concept-info-title fs-1rem">
+                                        Types de la série 
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.nom}">
+                                            #{applicationBean.selectedSerie.nom}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.nom}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </h2>
                                 </div>
                             </div>
 
@@ -99,37 +155,32 @@
                             <div class="typologie-cards-container">
                                 <h:form>
                                     <div class="typologie-cards-grid">
-                                        <p:commandLink action="#{applicationBean.showType()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                                <div class="typologie-card-overlay"></div>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
-
-                                        <p:commandLink action="#{applicationBean.showCategory()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                                <div class="typologie-card-overlay"></div>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
+                                        <ui:repeat value="#{applicationBean.serieTypes}" var="type" varStatus="status">
+                                            <p:commandLink action="#{applicationBean.showType(type)}"
+                                                           styleClass="typologie-card"
+                                                           process="@this"
+                                                           update=":centerContent"
+                                                           onstart="showLoading('Chargement du type...', 'spinner');"
+                                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                           onerror="forceHideLoading();">
+                                                <div class="typologie-card-image-wrapper">
+                                                    <p:graphicImage
+                                                            value="#{type.image.url}"
+                                                            styleClass="typologie-card-image"
+                                                            alt="Typologie"
+                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
+                                                    <div class="typologie-card-overlay"></div>
+                                                </div>
+                                                <div class="typologie-card-content">
+                                                    <h3 class="typologie-card-title">#{type.nom}</h3>
+                                                </div>
+                                            </p:commandLink>
+                                        </ui:repeat>
+                                        
+                                        <!-- Message si aucun type disponible -->
+                                        <h:outputText value="Aucun type disponible pour cette série"
+                                             rendered="#{empty applicationBean.serieTypes}"
+                                             styleClass="no-categories-message" />
                                     </div>
                                 </h:form>
                             </div>
@@ -151,10 +202,17 @@
                             <div class="concept-info-grid">
                                 <div class="concept-info-item concept-info-item-full">
                                     <div class="concept-info-label">
-                                        <i class="pi pi-building concept-info-icon" />
+                                        <i class="pi pi-industry concept-info-icon" />
                                         <span>Production</span>
                                     </div>
-                                    <div class="concept-info-value">Production détail</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.production}">
+                                            #{applicationBean.selectedSerie.production.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.production}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -162,7 +220,9 @@
                                         <i class="pi pi-building concept-info-icon" />
                                         <span>Atelier(s)</span>
                                     </div>
-                                    <div class="concept-info-value">Liste des ateliers</div>
+                                    <div class="concept-info-value">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -170,7 +230,14 @@
                                         <i class="pi pi-map concept-info-icon" />
                                         <span>Aire de circulation</span>
                                     </div>
-                                    <div class="concept-info-value">Détails d'aire de circulation</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.aireCirculation}">
+                                            #{applicationBean.selectedSerie.aireCirculation.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.aireCirculation}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +261,9 @@
                                         <i class="pi pi-palette concept-info-icon" />
                                         <span>Décors</span>
                                     </div>
-                                    <div class="concept-info-value">Détails décors</div>
+                                    <div class="concept-info-value">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -202,7 +271,9 @@
                                         <i class="pi pi-tag concept-info-icon" />
                                         <span>Marques/estampilles</span>
                                     </div>
-                                    <div class="concept-info-value">Détails marques</div>
+                                    <div class="concept-info-value">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -210,7 +281,14 @@
                                         <i class="pi pi-tags concept-info-icon" />
                                         <span>Catégorie fonctionnelle</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de la catégorie fonctionnelle</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.categorieFonctionnelle}">
+                                            #{applicationBean.selectedSerie.categorieFonctionnelle.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.categorieFonctionnelle}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -234,7 +312,14 @@
                                         <i class="pi pi-box concept-info-icon" />
                                         <span>Matériaux</span>
                                     </div>
-                                    <div class="concept-info-value">Détails matériaux</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.materiaux}">
+                                            #{applicationBean.selectedSerie.caracteristiquePhysique.materiaux}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.materiaux}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -242,7 +327,14 @@
                                         <i class="pi pi-circle concept-info-icon" />
                                         <span>Forme</span>
                                     </div>
-                                    <div class="concept-info-value">Détails forme</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.forme}">
+                                            #{applicationBean.selectedSerie.caracteristiquePhysique.forme.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.forme}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -250,7 +342,14 @@
                                         <i class="pi pi-arrows-alt concept-info-icon" />
                                         <span>Dimensions</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de dimension</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.dimensions}">
+                                            #{applicationBean.selectedSerie.caracteristiquePhysique.dimensions.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.dimensions}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -258,7 +357,14 @@
                                         <i class="pi pi-wrench concept-info-icon" />
                                         <span>Technique</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de technique</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.technique}">
+                                            #{applicationBean.selectedSerie.caracteristiquePhysique.technique.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.technique}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -266,7 +372,14 @@
                                         <i class="pi pi-cog concept-info-icon" />
                                         <span>Fabrication</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de fabrication</div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.fabrication}">
+                                            #{applicationBean.selectedSerie.caracteristiquePhysique.fabrication.valeur}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.fabrication}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
                             </div>
                         </div>

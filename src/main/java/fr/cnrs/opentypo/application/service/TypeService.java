@@ -50,4 +50,33 @@ public class TypeService implements Serializable {
 
         return groupTypes;
     }
+
+    /**
+     * Charge les types rattachés à la série sélectionnée depuis la table entity_relation
+     * Les types sont des entités de type "TYPE" qui ont une relation parent-enfant
+     * avec la série sélectionnée dans la table entity_relation
+     * 
+     * @param selectedSerie La série pour laquelle charger les types
+     * @return Liste des entités de type TYPE rattachées à la série via entity_relation
+     */
+    public List<Entity> loadSerieTypes(Entity selectedSerie) {
+        List<Entity> serieTypes = new ArrayList<>();
+        if (selectedSerie != null) {
+            try {
+                // Recherche dans la table entity_relation les enfants (types) de la série parente
+                // La requête SQL générée est : 
+                // SELECT er.child FROM EntityRelation er 
+                // WHERE er.parent = :parent AND er.child.entityType.code = :typeCode
+                serieTypes = entityRelationRepository.findChildrenByParentAndType(
+                        selectedSerie,
+                        EntityConstants.ENTITY_TYPE_TYPE
+                );
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des types de la série depuis entity_relation", e);
+                serieTypes = new ArrayList<>();
+            }
+        }
+
+        return serieTypes;
+    }
 }
