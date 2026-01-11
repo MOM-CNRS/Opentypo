@@ -2551,15 +2551,19 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
     height: 100%;
     box-sizing: border-box;
     overflow: hidden;
+    max-width: 100%; /* Limiter la largeur maximale */
 }
 
 /* Tree moderne */
 .modern-tree {
     width: 100% !important;
     height: 100% !important;
+    max-width: 100% !important;
     border: none !important;
     background: transparent !important;
     font-family: 'Roboto', 'Segoe UI', sans-serif !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
 /* Container du tree */
@@ -2568,12 +2572,18 @@ body .modern-tree .ui-tree-container {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     height: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Contenu du node */
 body .modern-tree .ui-tree-container .ui-treenode {
     padding: 0.0625rem 0 !important;
     margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content {
@@ -2586,6 +2596,10 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content {
     align-items: center !important;
     gap: 0.1875rem !important;
     min-height: 28px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important; /* Pour que l'ellipsis fonctionne */
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
@@ -2605,6 +2619,8 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
     width: 18px !important;
     height: 18px !important;
+    min-width: 18px !important; /* Empêcher le rétrécissement */
+    max-width: 18px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -2613,6 +2629,7 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-
     color: var(--color-text-secondary, #819A91) !important;
     font-size: 0.7rem !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler:hover {
@@ -2634,18 +2651,25 @@ body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treen
     color: var(--color-text-secondary, #819A91) !important;
     font-size: 0.75rem !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    min-width: 16px !important; /* Empêcher le rétrécissement */
+    max-width: 16px !important;
 }
 
-/* Label du node */
+/* Label du node - Avec ellipsis pour les titres trop longs */
 .modern-tree-node-label {
     font-size: 0.8125rem !important;
     color: var(--color-text-primary, #333) !important;
     line-height: 1.4 !important;
-    flex: 1 !important;
-    word-wrap: break-word !important;
-    word-break: break-word !important;
+    flex: 1 1 0% !important; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0% - Permet au label de rétrécir */
+    min-width: 0 !important; /* CRITIQUE : Permet à flex de rétrécir et à ellipsis de fonctionner */
+    max-width: 100% !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    white-space: nowrap !important; /* Nécessaire pour que ellipsis fonctionne - empêche le retour à la ligne */
+    display: block !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
 body .modern-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .modern-tree-node-label {
@@ -2658,6 +2682,10 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     margin-left: 0.5rem !important;
     padding-left: 0.1875rem !important;
     border-left: 1px solid #e5e7eb !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
 /* CSS pour le Tree - Ancien style conservé pour compatibilité */
@@ -2669,10 +2697,13 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     max-height: 85vh;
     overflow-y: auto;
+    overflow-x: hidden !important; /* Empêcher le débordement horizontal */
     transition: all 0.3s ease;
     max-width: 25%;
+    min-width: 0 !important; /* Important pour que flex fonctionne avec ellipsis */
     padding: 0.25rem;
     box-sizing: border-box;
+    width: 100% !important;
 }
 
 /* Scrollbar moderne pour le tree */
@@ -2713,6 +2744,9 @@ body .ui-tree {
     
     .modern-tree-node-label {
         font-size: 0.8125rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 }
 
@@ -2735,6 +2769,9 @@ body .ui-tree {
     
     .modern-tree-node-label {
         font-size: 0.8125rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 }
 

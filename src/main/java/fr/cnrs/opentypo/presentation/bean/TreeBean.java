@@ -1,5 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.service.CategoryService;
+import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import jakarta.annotation.PostConstruct;
@@ -14,6 +16,7 @@ import org.primefaces.model.TreeNode;
 import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.event.NodeExpandEvent;
 import java.io.Serializable;
+import java.util.List;
 
 
 @Getter
@@ -24,10 +27,18 @@ import java.io.Serializable;
 public class TreeBean implements Serializable {
 
     @Inject
-    private ApplicationBean applicationBean;
+    private transient ApplicationBean applicationBean;
+    
+    @Inject
+    private transient CategoryService categoryService;
+    
+    @Inject
+    private transient GroupService groupService;
 
     private TreeNode selectedNode;
     private TreeNode root;
+    
+    private static final long serialVersionUID = 1L;
 
 
     @PostConstruct
@@ -39,6 +50,7 @@ public class TreeBean implements Serializable {
     
     /**
      * Initialise l'arbre avec les référentiels de la collection sélectionnée
+     * Charge récursivement tous les enfants (référentiels, catégories, groupes)
      */
     public void initializeTreeWithCollection() {
         // Sauvegarder l'entité sélectionnée avant la réinitialisation
@@ -55,6 +67,7 @@ public class TreeBean implements Serializable {
             DefaultTreeNode collectionRoot = new DefaultTreeNode(collectionName, null);
             // Stocker l'entité collection dans le nœud racine
             collectionRoot.setData(selectedCollection);
+            // Ne pas étendre la racine - l'arbre reste replié par défaut
             root = collectionRoot;
         } else {
             root = new DefaultTreeNode("root", null);
@@ -70,21 +83,122 @@ public class TreeBean implements Serializable {
                 
                 if (references != null && !references.isEmpty()) {
                     for (Entity reference : references) {
-                        DefaultTreeNode node = new DefaultTreeNode(reference.getNom(), root);
+                        DefaultTreeNode referenceNode = new DefaultTreeNode(reference.getNom(), root);
                         // Stocker l'entité dans le nœud pour pouvoir la récupérer lors du clic
-                        node.setData(reference);
+                        referenceNode.setData(reference);
+                        // Ne pas étendre le nœud - l'arbre reste replié par défaut
+                        
+                        // Charger récursivement les catégories de ce référentiel
+                        loadCategoriesRecursively(referenceNode, reference);
                         
                         // Restaurer la sélection si c'est la même entité
                         if (previouslySelectedEntity != null && 
                             previouslySelectedEntity.getId() != null &&
                             previouslySelectedEntity.getId().equals(reference.getId())) {
-                            selectedNode = node;
+                            selectedNode = referenceNode;
                         }
                     }
                 }
             } catch (Exception e) {
                 log.error("Erreur lors de l'initialisation de l'arbre avec la collection", e);
             }
+        }
+    }
+    
+    /**
+     * Charge récursivement toutes les catégories d'un référentiel et leurs groupes
+     * @param referenceNode Le nœud référentiel dans l'arbre
+     * @param reference L'entité référentiel
+     */
+    private void loadCategoriesRecursively(TreeNode referenceNode, Entity reference) {
+        if (referenceNode == null || reference == null || categoryService == null) {
+            return;
+        }
+        
+        try {
+            // Charger les catégories du référentiel
+            List<Entity> categories = categoryService.loadCategoriesByReference(reference);
+            
+            if (categories != null && !categories.isEmpty()) {
+                for (Entity category : categories) {
+                    // Vérifier si la catégorie existe déjà dans l'arbre
+                    boolean categoryExists = false;
+                    if (referenceNode.getChildren() != null) {
+                        for (Object childObj : referenceNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && category.getId() != null &&
+                                        childEntity.getId().equals(category.getId())) {
+                                        categoryExists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Ajouter la catégorie si elle n'existe pas déjà
+                    if (!categoryExists) {
+                        DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
+                        categoryNode.setData(category);
+                        // Ne pas étendre le nœud - l'arbre reste replié par défaut
+                        
+                        // Charger récursivement les groupes de cette catégorie
+                        loadGroupsRecursively(categoryNode, category);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement récursif des catégories pour le référentiel : {}", reference.getNom(), e);
+        }
+    }
+    
+    /**
+     * Charge récursivement tous les groupes d'une catégorie
+     * @param categoryNode Le nœud catégorie dans l'arbre
+     * @param category L'entité catégorie
+     */
+    private void loadGroupsRecursively(TreeNode categoryNode, Entity category) {
+        if (categoryNode == null || category == null || groupService == null) {
+            return;
+        }
+        
+        try {
+            // Charger les groupes de la catégorie
+            List<Entity> groups = groupService.loadCategoryGroups(category);
+            
+            if (groups != null && !groups.isEmpty()) {
+                for (Entity group : groups) {
+                    // Vérifier si le groupe existe déjà dans l'arbre
+                    boolean groupExists = false;
+                    if (categoryNode.getChildren() != null) {
+                        for (Object childObj : categoryNode.getChildren()) {
+                            if (childObj instanceof TreeNode) {
+                                TreeNode childNode = (TreeNode) childObj;
+                                if (childNode.getData() != null && childNode.getData() instanceof Entity) {
+                                    Entity childEntity = (Entity) childNode.getData();
+                                    if (childEntity.getId() != null && group.getId() != null &&
+                                        childEntity.getId().equals(group.getId())) {
+                                        groupExists = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Ajouter le groupe s'il n'existe pas déjà
+                    if (!groupExists) {
+                        DefaultTreeNode groupNode = new DefaultTreeNode(group.getNom(), categoryNode);
+                        groupNode.setData(group);
+                        // Les groupes sont des feuilles, pas besoin de les étendre
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement récursif des groupes pour la catégorie : {}", category.getNom(), e);
         }
     }
     
@@ -108,8 +222,7 @@ public class TreeBean implements Serializable {
             if (referenceNode != null) {
                 DefaultTreeNode categoryNode = new DefaultTreeNode(category.getNom(), referenceNode);
                 categoryNode.setData(category);
-                // Étendre le nœud parent pour que la catégorie soit visible
-                referenceNode.setExpanded(true);
+                // Ne pas étendre le nœud parent - l'arbre reste replié par défaut
             } else {
                 log.warn("Nœud référentiel non trouvé pour ajouter la catégorie : {}", parentReference.getNom());
             }
@@ -126,8 +239,7 @@ public class TreeBean implements Serializable {
             if (categoryNode != null) {
                 DefaultTreeNode groupNode = new DefaultTreeNode(group.getNom(), categoryNode);
                 groupNode.setData(group);
-                // Étendre le nœud parent pour que le groupe soit visible
-                categoryNode.setExpanded(true);
+                // Ne pas étendre le nœud parent - l'arbre reste replié par défaut
             } else {
                 log.warn("Nœud catégorie non trouvé pour ajouter le groupe : {}", parentCategory.getNom());
             }
@@ -181,8 +293,7 @@ public class TreeBean implements Serializable {
                 }
             }
             
-            // Étendre le nœud référentiel pour afficher les catégories
-            referenceNode.setExpanded(true);
+            // Ne pas étendre le nœud référentiel - l'arbre reste replié par défaut
         }
     }
 
