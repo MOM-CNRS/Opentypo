@@ -5080,6 +5080,9 @@ body .reference-card a {
     height: 200px;
     overflow: hidden;
     background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .typologie-card-image {
@@ -5087,6 +5090,35 @@ body .reference-card a {
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+}
+
+/* Placeholder pour les cartes typologie */
+.typologie-card-image-wrapper .reference-image-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #f5f5f5 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
+.typologie-card-image-wrapper .reference-placeholder-text {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    color: #b0b0b0 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
 }
 
 .typologie-card:hover .typologie-card-image {
@@ -5145,6 +5177,10 @@ body .reference-card a {
     .typologie-card-image-wrapper {
         height: 180px;
     }
+    
+    .typologie-card-image-wrapper .reference-placeholder-text {
+        font-size: 1rem !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -5159,6 +5195,10 @@ body .reference-card a {
     
     .typologie-card-image-wrapper {
         height: 160px;
+    }
+    
+    .typologie-card-image-wrapper .reference-placeholder-text {
+        font-size: 0.9rem !important;
     }
     
     .typologie-card-content {
@@ -5177,6 +5217,10 @@ body .reference-card a {
     
     .typologie-card-image-wrapper {
         height: 220px;
+    }
+    
+    .typologie-card-image-wrapper .reference-placeholder-text {
+        font-size: 1.3rem !important;
     }
 }
 

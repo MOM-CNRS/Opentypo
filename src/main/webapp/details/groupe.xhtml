@@ -122,7 +122,6 @@
                                 <ui:fragment rendered="#{not empty applicationBean.selectedGroup.auteurs}">
                                     <ui:repeat value="#{applicationBean.selectedGroup.auteurs}" var="auteur" varStatus="status">
                                         <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
                                             <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                         </span>
                                     </ui:repeat>
@@ -227,42 +226,42 @@
                                 </h:panelGroup>
                             </div>
 
-                            <!-- Grille de typologies -->
-                            <div class="typologie-cards-container">
+                            <!-- Liste des types -->
+                            <h:panelGroup id="typesContainer" class="reference-cards-container">
                                 <h:form>
-                                    <div class="typologie-cards-grid">
-                                        <p:commandLink action="#{applicationBean.showType()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
+                                    <div class="reference-cards-grid">
+                                        <ui:repeat value="#{applicationBean.groupTypes}" var="type" varStatus="status">
+                                            <p:commandLink action="#{applicationBean.showType()}"
+                                                           styleClass="typologie-card"
+                                                           process="@this"
+                                                           update=":centerContent">
+                                                <div class="typologie-card-image-wrapper">
+                                                    <!-- Afficher l'image si disponible -->
+                                                    <p:graphicImage
+                                                            value="#{type.image.url}"
+                                                            styleClass="typologie-card-image"
+                                                            alt="Typologie"
+                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
 
-                                        <p:commandLink action="#{applicationBean.showType()}"
-                                                       styleClass="typologie-card"
-                                                       process="@this"
-                                                       update=":centerContent">
-                                            <div class="typologie-card-image-wrapper">
-                                                <p:graphicImage
-                                                        value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"/>
-                                            </div>
-                                            <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">Label du Typo</h3>
-                                            </div>
-                                        </p:commandLink>
+                                                    <!-- Afficher le texte "OpenTypo" si pas d'image -->
+                                                    <h:panelGroup class="reference-image-placeholder"
+                                                                  rendered="#{empty type.image or empty type.image.url}">
+                                                        <span class="reference-placeholder-text">OpenTypo</span>
+                                                    </h:panelGroup>
+                                                </div>
+                                                <div class="typologie-card-content">
+                                                    <h3 class="typologie-card-title">#{type.nom}</h3>
+                                                </div>
+                                            </p:commandLink>
+                                        </ui:repeat>
+                                        
+                                        <!-- Message si aucun type disponible -->
+                                        <h:outputText value="Aucun type disponible pour ce groupe"
+                                             rendered="#{empty applicationBean.groupTypes}"
+                                             styleClass="no-categories-message" />
                                     </div>
                                 </h:form>
-                            </div>
+                            </h:panelGroup>
                         </div>
                     </div>
                 </div>
@@ -515,4 +514,7 @@
     
     <!-- Dialog pour créer une série -->
     <ui:include src="../dialogs/serieDialog.xhtml"/>
+    
+    <!-- Dialog pour créer un type -->
+    <ui:include src="../dialogs/typeDialog.xhtml"/>
 </ui:composition>

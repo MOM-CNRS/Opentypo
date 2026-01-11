@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
+import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
@@ -69,6 +70,9 @@ public class ApplicationBean implements Serializable {
     private transient SerieService serieService;
 
     @Inject
+    private transient TypeService typeService;
+
+    @Inject
     private transient SearchBean searchBean;
 
     private final PanelStateManager panelState = new PanelStateManager();
@@ -103,6 +107,9 @@ public class ApplicationBean implements Serializable {
     
     // Séries du groupe sélectionné
     private List<Entity> groupSeries;
+    
+    // Types du groupe sélectionné
+    private List<Entity> groupTypes;
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -257,6 +264,14 @@ public class ApplicationBean implements Serializable {
         
         panelState.showGroupe();
         
+        // Charger les séries du groupe depuis la table entity_relation
+        // Les séries sont des entités de type "SERIE" rattachées au groupe via entity_relation
+        groupSeries = serieService.loadGroupSeries(selectedGroup);
+        
+        // Charger les types du groupe depuis la table entity_relation
+        // Les types sont des entités de type "TYPE" rattachées au groupe via entity_relation
+        groupTypes = typeService.loadGroupTypes(selectedGroup);
+        
         // Trouver la catégorie parente de ce groupe pour le breadcrumb
         if (selectedCategory == null && selectedGroup != null) {
             try {
@@ -346,6 +361,15 @@ public class ApplicationBean implements Serializable {
     }
 
     public void showType() {
+        panelState.showType();
+    }
+    
+    /**
+     * Affiche les détails d'un type spécifique
+     */
+    public void showType(Entity type) {
+        // Pour l'instant, on utilise juste la méthode sans paramètre
+        // TODO: Implémenter l'affichage des détails du type
         panelState.showType();
     }
 
@@ -460,6 +484,16 @@ public class ApplicationBean implements Serializable {
         if (selectedGroup != null) {
             // Recharger depuis entity_relation les séries (entités de type SERIE) rattachées au groupe
             groupSeries = serieService.loadGroupSeries(selectedGroup);
+        }
+    }
+
+    /**
+     * Recharge la liste des types du groupe sélectionné depuis la table entity_relation
+     */
+    public void refreshGroupTypesList() {
+        if (selectedGroup != null) {
+            // Recharger depuis entity_relation les types (entités de type TYPE) rattachées au groupe
+            groupTypes = typeService.loadGroupTypes(selectedGroup);
         }
     }
 }
