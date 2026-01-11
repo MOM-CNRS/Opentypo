@@ -247,6 +247,23 @@ public class TreeBean implements Serializable {
     }
     
     /**
+     * Ajoute une série à l'arbre sous le groupe parent
+     */
+    public void addSerieToTree(Entity serie, Entity parentGroup) {
+        if (root != null && serie != null && parentGroup != null) {
+            // Trouver le nœud du groupe parent dans l'arbre
+            TreeNode groupNode = findNodeByEntity(root, parentGroup);
+            if (groupNode != null) {
+                DefaultTreeNode serieNode = new DefaultTreeNode(serie.getNom(), groupNode);
+                serieNode.setData(serie);
+                // Ne pas étendre le nœud parent - l'arbre reste replié par défaut
+            } else {
+                log.warn("Nœud groupe non trouvé pour ajouter la série : {}", parentGroup.getNom());
+            }
+        }
+    }
+    
+    /**
      * Charge toutes les catégories d'un référentiel dans l'arbre
      */
     public void loadCategoriesForReference(Entity reference) {
@@ -340,6 +357,15 @@ public class TreeBean implements Serializable {
                     // Afficher la page groupe
                     if (applicationBean != null) {
                         applicationBean.showGroupe(entity);
+                    }
+                }
+                // Vérifier si c'est une série
+                else if (entity.getEntityType() != null &&
+                    (EntityConstants.ENTITY_TYPE_SERIES.equals(entity.getEntityType().getCode()) ||
+                     "SERIE".equals(entity.getEntityType().getCode()))) {
+                    // Afficher la page série
+                    if (applicationBean != null) {
+                        applicationBean.showSerie(entity);
                     }
                 }
             }

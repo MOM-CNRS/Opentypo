@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
+import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
@@ -65,6 +66,9 @@ public class ApplicationBean implements Serializable {
     private transient GroupService groupService;
 
     @Inject
+    private transient SerieService serieService;
+
+    @Inject
     private transient SearchBean searchBean;
 
     private final PanelStateManager panelState = new PanelStateManager();
@@ -96,6 +100,9 @@ public class ApplicationBean implements Serializable {
     
     // Groupes de la catégorie sélectionnée
     private List<Entity> categoryGroups;
+    
+    // Séries du groupe sélectionné
+    private List<Entity> groupSeries;
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -328,6 +335,15 @@ public class ApplicationBean implements Serializable {
     public void showSerie() {
         panelState.showSerie();
     }
+    
+    /**
+     * Affiche les détails d'une série spécifique
+     */
+    public void showSerie(Entity serie) {
+        // Pour l'instant, on utilise juste la méthode sans paramètre
+        // TODO: Implémenter l'affichage des détails de la série
+        panelState.showSerie();
+    }
 
     public void showType() {
         panelState.showType();
@@ -434,6 +450,16 @@ public class ApplicationBean implements Serializable {
     public void refreshCategoryGroupsList() {
         if (selectedCategory != null) {
             categoryGroups = groupService.loadCategoryGroups(selectedCategory);
+        }
+    }
+
+    /**
+     * Recharge la liste des séries du groupe sélectionné depuis la table entity_relation
+     */
+    public void refreshGroupSeriesList() {
+        if (selectedGroup != null) {
+            // Recharger depuis entity_relation les séries (entités de type SERIE) rattachées au groupe
+            groupSeries = serieService.loadGroupSeries(selectedGroup);
         }
     }
 }

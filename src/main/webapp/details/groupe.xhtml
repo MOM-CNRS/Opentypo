@@ -40,7 +40,7 @@
                                 <i class="pi pi-users concept-info-icon" />
                                 <span>Groupe</span>
                             </div>
-                            <div class="concept-info-value">Groupe CODE</div>
+                            <div class="concept-info-value">#{applicationBean.selectedGroup.code}</div>
                         </div>
 
                         <div class="concept-info-item">
@@ -90,7 +90,13 @@
                                 <i class="pi pi-link concept-info-icon" />
                                 <span>Alignement externe</span>
                             </div>
-                            <div class="concept-info-value">http://localhost:8080</div>
+                            <div class="concept-info-value">
+                                <h:outputText value="#{applicationBean.selectedGroup.alignementExterne}" 
+                                             rendered="#{not empty applicationBean.selectedGroup.alignementExterne}"/>
+                                <h:outputText value="Non spécifié" 
+                                             rendered="#{empty applicationBean.selectedGroup.alignementExterne}"
+                                             styleClass="text-muted"/>
+                            </div>
                         </div>
 
                         <div class="concept-info-item concept-info-item-full">
@@ -113,16 +119,17 @@
                                 <span>Auteur(s)</span>
                             </div>
                             <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedReference.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
-                                    <span class="bibliographie-badge">
-                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                    </span>
+                                <ui:fragment rendered="#{not empty applicationBean.selectedGroup.auteurs}">
+                                    <ui:repeat value="#{applicationBean.selectedGroup.auteurs}" var="auteur" varStatus="status">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-user bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                        </span>
                                     </ui:repeat>
                                 </ui:fragment>
-                                <h:outputText value="Aucun auteur disponible"
-                                              rendered="#{empty applicationBean.selectedGroup.auteurs}"
-                                              styleClass="bibliographie-empty" />
+                                <h:outputText value="Aucun auteur disponible" 
+                                             rendered="#{empty applicationBean.selectedGroup.auteurs}"
+                                             styleClass="bibliographie-empty" />
                             </div>
                         </div>
                     </div>
@@ -146,43 +153,52 @@
                                     <p:commandButton value="Créer une nouvelle série"
                                                      icon="pi pi-plus"
                                                      styleClass="collection-create-btn"
-                                                     onclick="PF('createCategoryDialog').show(); return false;"
+                                                     onclick="PF('createSerieDialog').show(); return false;"
                                                      process="@this"
                                                      update="@none"/>
                                 </h:panelGroup>
                             </div>
 
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <p:panel styleClass="panel-text-style">
-                                    <div class="reference-cards-container">
-                                        <h:form>
-                                            <div class="reference-cards-grid">
-                                                <p:commandLink action="#{applicationBean.showSerie()}"
-                                                               styleClass="reference-card"
-                                                               process="@this"
-                                                               update=":centerContent">
-                                                    <div class="reference-card-content">
-                                                        <div class="reference-card-header">
-                                                            <div class="reference-card-icon">
-                                                                <i class="pi pi-list" />
-                                                            </div>
-                                                            <div class="reference-card-title-wrapper">
-                                                                <h3 class="reference-card-title">Titre Série</h3>
-                                                                <span class="reference-card-code">Code Série</span>
-                                                            </div>
+                            <!-- Liste des séries -->
+                            <h:panelGroup id="seriesContainer" class="reference-cards-container">
+                                <h:form>
+                                    <div class="reference-cards-grid">
+                                        <ui:repeat value="#{applicationBean.groupSeries}" var="serie" varStatus="status">
+                                            <p:commandLink action="#{applicationBean.showSerie(serie)}"
+                                                           styleClass="reference-card"
+                                                           process="@this"
+                                                           update=":centerContent"
+                                                           onstart="showLoading('Chargement de la série...', 'spinner');"
+                                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                           onerror="forceHideLoading();">
+                                                <div class="reference-card-content">
+                                                    <div class="reference-card-header">
+                                                        <div class="reference-card-icon">
+                                                            <i class="pi pi-list" />
                                                         </div>
-                                                        <p class="reference-card-description">
-                                                            Description courte du contenu, contexte scientifique,
-                                                            résumé ou métadonnée.
-                                                        </p>
+                                                        <div class="reference-card-title-wrapper">
+                                                            <h3 class="reference-card-title">#{serie.nom}</h3>
+                                                            <span class="reference-card-code">#{serie.code}</span>
+                                                        </div>
                                                     </div>
-                                                </p:commandLink>
-                                            </div>
-                                        </h:form>
+                                                    <p class="reference-card-description">
+                                                        <h:outputText value="#{serie.commentaire}" 
+                                                                     rendered="#{not empty serie.commentaire}"/>
+                                                        <h:outputText value="Aucune description disponible" 
+                                                                     rendered="#{empty serie.commentaire}"
+                                                                     styleClass="text-muted"/>
+                                                    </p>
+                                                </div>
+                                            </p:commandLink>
+                                        </ui:repeat>
+                                        
+                                        <!-- Message si aucune série disponible -->
+                                        <h:outputText value="Aucune série disponible pour ce groupe"
+                                             rendered="#{empty applicationBean.groupSeries}"
+                                             styleClass="no-categories-message" />
                                     </div>
-                                </p:panel>
-                            </div>
+                                </h:form>
+                            </h:panelGroup>
                         </div>
                     </div>
                 </div>
@@ -205,7 +221,7 @@
                                     <p:commandButton value="Créer un nouveau type"
                                                      icon="pi pi-plus"
                                                      styleClass="collection-create-btn"
-                                                     onclick="PF('createCategoryDialog').show(); return false;"
+                                                     onclick="PF('createTypeDialog').show(); return false;"
                                                      process="@this"
                                                      update="@none"/>
                                 </h:panelGroup>
@@ -268,7 +284,13 @@
                                         <i class="pi pi-building concept-info-icon" />
                                         <span>Production</span>
                                     </div>
-                                    <div class="concept-info-value">Production détail</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.production.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.production}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.production}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -286,7 +308,13 @@
                                         <i class="pi pi-map concept-info-icon" />
                                         <span>Aire de circulation</span>
                                     </div>
-                                    <div class="concept-info-value">Détails d'aire de circulation</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.aireCirculation.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.aireCirculation}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.aireCirculation}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -396,7 +424,13 @@
                                         <i class="pi pi-arrows-alt concept-info-icon" />
                                         <span>Dimensions</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de dimension</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.dimensions.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -418,7 +452,13 @@
                                         <i class="pi pi-cog concept-info-icon" />
                                         <span>Fabrication</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de fabrication</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.fabrication.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -472,4 +512,7 @@
             </div>
         </div>
     </h:panelGroup>
+    
+    <!-- Dialog pour créer une série -->
+    <ui:include src="../dialogs/serieDialog.xhtml"/>
 </ui:composition>
