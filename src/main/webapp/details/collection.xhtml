@@ -104,7 +104,6 @@
                                 <ui:fragment rendered="#{not empty reference.auteurs}">
                                     <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
                                         <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
                                             <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                         </span>
                                     </ui:repeat>
@@ -125,7 +124,6 @@
                                     <ui:repeat value="#{fn:split(reference.bibliographie, ';')}" var="ref" varStatus="status">
                                         <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                             <span class="bibliographie-badge">
-                                                <i class="pi pi-book bibliographie-badge-icon" />
                                                 <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
                                             </span>
                                         </ui:fragment>

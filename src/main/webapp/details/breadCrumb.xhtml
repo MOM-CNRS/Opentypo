@@ -31,7 +31,7 @@
                                          oncomplete="setTimeout(function(){hideLoading(); showOnlyCardsContainer();}, 500);"
                                          onerror="forceHideLoading();">
                                 <i class="pi pi-home" />
-                                <span class="breadcrumb-text">Accueil</span>
+                                <span class="breadcrumb-text" style="font-size: 0.8125rem !important;">Accueil</span>
                             </p:commandLink>
                         </h:form>
                     </li>
@@ -49,7 +49,7 @@
                                              onstart="showLoading('Chargement de la collection...', 'spinner');"
                                              oncomplete="setTimeout(function(){hideLoading();}, 500);"
                                              onerror="forceHideLoading();">
-                                    <span>#{element.nom}</span>
+                                    <span style="font-size: 0.8125rem !important;">#{element.nom}</span>
                                 </p:commandLink>
                             </ui:fragment>
                             <ui:fragment rendered="#{status.last}">
