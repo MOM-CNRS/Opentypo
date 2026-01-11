@@ -1,7 +1,9 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentGroupePanels" layout="block">
@@ -17,15 +19,15 @@
                                                alt="Français"
                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">Label du Groupe</h2>
+                            <h2 class="concept-info-title">#{applicationBean.selectedGroup.nom}</h2>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-cog" />
+                                <i class="pi pi-file-edit" />
                                 <p:tooltip value="Paramètres" position="top"/>
                             </p:commandLink>
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-flag" />
+                                <i class="pi pi-trash"  />
                                 <p:tooltip value="Marquer" position="top"/>
                             </p:commandLink>
                         </div>
@@ -46,7 +48,13 @@
                                 <i class="pi pi-calendar concept-info-icon" />
                                 <span>Période</span>
                             </div>
-                            <div class="concept-info-value">Période Valeur</div>
+                            <div class="concept-info-value">
+                                <h:outputText value="#{applicationBean.selectedGroup.periode.nom}" 
+                                             rendered="#{not empty applicationBean.selectedGroup.periode}"/>
+                                <h:outputText value="Non spécifiée" 
+                                             rendered="#{empty applicationBean.selectedGroup.periode}"
+                                             styleClass="text-muted"/>
+                            </div>
                         </div>
 
                         <div class="concept-info-item">
@@ -54,7 +62,13 @@
                                 <i class="pi pi-calendar-minus concept-info-icon" />
                                 <span>TPQ</span>
                             </div>
-                            <div class="concept-info-value">99</div>
+                            <div class="concept-info-value">
+                                <h:outputText value="#{applicationBean.selectedGroup.tpq}" 
+                                             rendered="#{not empty applicationBean.selectedGroup.tpq}"/>
+                                <h:outputText value="Non spécifié" 
+                                             rendered="#{empty applicationBean.selectedGroup.tpq}"
+                                             styleClass="text-muted"/>
+                            </div>
                         </div>
 
                         <div class="concept-info-item">
@@ -62,7 +76,13 @@
                                 <i class="pi pi-calendar-plus concept-info-icon" />
                                 <span>TAQ</span>
                             </div>
-                            <div class="concept-info-value">99</div>
+                            <div class="concept-info-value">
+                                <h:outputText value="#{applicationBean.selectedGroup.taq}" 
+                                             rendered="#{not empty applicationBean.selectedGroup.taq}"/>
+                                <h:outputText value="Non spécifié" 
+                                             rendered="#{empty applicationBean.selectedGroup.taq}"
+                                             styleClass="text-muted"/>
+                            </div>
                         </div>
 
                         <div class="concept-info-item concept-info-item-full">
@@ -79,7 +99,11 @@
                                 <span>Description</span>
                             </div>
                             <div class="concept-info-value concept-info-description">
-                                Déscription total
+                                <h:outputText value="#{applicationBean.selectedGroup.commentaire}" 
+                                             rendered="#{not empty applicationBean.selectedGroup.commentaire}"/>
+                                <h:outputText value="Aucune description disponible" 
+                                             rendered="#{empty applicationBean.selectedGroup.commentaire}"
+                                             styleClass="text-muted"/>
                             </div>
                         </div>
 
@@ -88,19 +112,44 @@
                                 <i class="pi pi-user concept-info-icon" />
                                 <span>Auteur(s)</span>
                             </div>
-                            <div class="concept-info-value">Firas GABSI</div>
+                            <div class="concept-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedReference.auteurs}">
+                                    <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
+                                    <span class="bibliographie-badge">
+                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                    </span>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucun auteur disponible"
+                                              rendered="#{empty applicationBean.selectedGroup.auteurs}"
+                                              styleClass="bibliographie-empty" />
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Série de XXXXX</h2>
+                            <div class="collection-references-header">
+                                <div class="collection-references-title-section">
+                                    <div class="collection-references-icon">
+                                        <i class="pi pi-tag" />
+                                    </div>
+                                    <div class="collection-references-title-wrapper">
+                                        <h3 class="collection-references-title">Liste des séries</h3>
+                                        <span class="collection-references-subtitle">#{applicationBean.selectedGroup.nom}</span>
+                                    </div>
                                 </div>
+                                <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                                    <p:commandButton value="Créer une nouvelle série"
+                                                     icon="pi pi-plus"
+                                                     styleClass="collection-create-btn"
+                                                     onclick="PF('createCategoryDialog').show(); return false;"
+                                                     process="@this"
+                                                     update="@none"/>
+                                </h:panelGroup>
                             </div>
 
                             <!-- Grille d'informations -->
@@ -138,14 +187,28 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Liste des types du groupe XXXXX</h2>
+                            <div class="collection-references-header">
+                                <div class="collection-references-title-section">
+                                    <div class="collection-references-icon">
+                                        <i class="pi pi-tag" />
+                                    </div>
+                                    <div class="collection-references-title-wrapper">
+                                        <h3 class="collection-references-title">Liste des types</h3>
+                                        <span class="collection-references-subtitle">#{applicationBean.selectedGroup.nom}</span>
+                                    </div>
                                 </div>
+                                <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                                    <p:commandButton value="Créer un nouveau type"
+                                                     icon="pi pi-plus"
+                                                     styleClass="collection-create-btn"
+                                                     onclick="PF('createCategoryDialog').show(); return false;"
+                                                     process="@this"
+                                                     update="@none"/>
+                                </h:panelGroup>
                             </div>
 
                             <!-- Grille de typologies -->
@@ -188,7 +251,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -213,7 +276,9 @@
                                         <i class="pi pi-building concept-info-icon" />
                                         <span>Atelier(s)</span>
                                     </div>
-                                    <div class="concept-info-value">Liste des ateliers</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="Non spécifiée" styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -228,7 +293,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -245,7 +310,13 @@
                                         <i class="pi pi-palette concept-info-icon" />
                                         <span>Décors</span>
                                     </div>
-                                    <div class="concept-info-value">Détails décors</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.descriptionDetail.decors}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.descriptionDetail and not empty applicationBean.selectedGroup.descriptionDetail.decors}"/>
+                                        <h:outputText value="Non spécifié" 
+                                                     rendered="#{empty applicationBean.selectedGroup.descriptionDetail or empty applicationBean.selectedGroup.descriptionDetail.decors}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -253,7 +324,13 @@
                                         <i class="pi pi-tag concept-info-icon" />
                                         <span>Marques/estampilles</span>
                                     </div>
-                                    <div class="concept-info-value">Détails marques</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.descriptionDetail.marques}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.descriptionDetail and not empty applicationBean.selectedGroup.descriptionDetail.marques}"/>
+                                        <h:outputText value="Non spécifié" 
+                                                     rendered="#{empty applicationBean.selectedGroup.descriptionDetail or empty applicationBean.selectedGroup.descriptionDetail.marques}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -261,14 +338,20 @@
                                         <i class="pi pi-tags concept-info-icon" />
                                         <span>Catégorie fonctionnelle</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de la catégorie fonctionnelle</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.categorieFonctionnelle.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.categorieFonctionnelle}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.categorieFonctionnelle}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -285,7 +368,13 @@
                                         <i class="pi pi-box concept-info-icon" />
                                         <span>Matériaux</span>
                                     </div>
-                                    <div class="concept-info-value">Détails matériaux</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.materiaux}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.materiaux}"/>
+                                        <h:outputText value="Non spécifié" 
+                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.materiaux}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -293,7 +382,13 @@
                                         <i class="pi pi-circle concept-info-icon" />
                                         <span>Forme</span>
                                     </div>
-                                    <div class="concept-info-value">Détails forme</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.forme.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -309,7 +404,13 @@
                                         <i class="pi pi-wrench concept-info-icon" />
                                         <span>Technique</span>
                                     </div>
-                                    <div class="concept-info-value">Détails de technique</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.technique.nom}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"/>
+                                        <h:outputText value="Non spécifiée" 
+                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -324,7 +425,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- Grille d'informations -->
@@ -334,7 +435,13 @@
                                         <i class="pi pi-comment concept-info-icon" />
                                         <span>Commentaire</span>
                                     </div>
-                                    <div class="concept-info-value">Text du commentaire</div>
+                                    <div class="concept-info-value">
+                                        <h:outputText value="#{applicationBean.selectedGroup.commentaire}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.commentaire}"/>
+                                        <h:outputText value="Aucun commentaire disponible" 
+                                                     rendered="#{empty applicationBean.selectedGroup.commentaire}"
+                                                     styleClass="text-muted"/>
+                                    </div>
                                 </div>
 
                                 <div class="concept-info-item concept-info-item-full">
@@ -342,7 +449,21 @@
                                         <i class="pi pi-book concept-info-icon" />
                                         <span>Bibliographie</span>
                                     </div>
-                                    <div class="concept-info-value">XXXXXXX</div>
+                                    <div class="concept-info-value bibliographie-container">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedGroup.bibliographie}">
+                                            <ui:repeat value="#{fn:split(applicationBean.selectedGroup.bibliographie, ';')}" var="ref" varStatus="status">
+                                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                    <span class="bibliographie-badge">
+                                                        <i class="pi pi-book bibliographie-badge-icon" />
+                                                        <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                    </span>
+                                                </ui:fragment>
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <h:outputText value="Aucune référence bibliographique disponible" 
+                                                     rendered="#{empty applicationBean.selectedGroup.bibliographie}"
+                                                     styleClass="bibliographie-empty" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

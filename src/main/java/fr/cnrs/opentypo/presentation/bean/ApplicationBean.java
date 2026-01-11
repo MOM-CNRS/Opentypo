@@ -235,13 +235,25 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un groupe spécifique
      */
     public void showGroupe(Entity group) {
-        this.selectedGroup = group;
+        // Recharger le groupe depuis la base de données pour avoir toutes les données complètes
+        if (group != null && group.getId() != null) {
+            try {
+                this.selectedGroup = entityRepository.findById(group.getId())
+                    .orElse(group); // Fallback sur le groupe passé en paramètre si non trouvé
+            } catch (Exception e) {
+                log.error("Erreur lors du rechargement du groupe depuis la base de données", e);
+                this.selectedGroup = group; // Fallback sur le groupe passé en paramètre
+            }
+        } else {
+            this.selectedGroup = group;
+        }
+        
         panelState.showGroupe();
         
         // Trouver la catégorie parente de ce groupe pour le breadcrumb
-        if (selectedCategory == null) {
+        if (selectedCategory == null && selectedGroup != null) {
             try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(group);
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedGroup);
                 if (parents != null && !parents.isEmpty()) {
                     // Trouver la catégorie parente
                     for (Entity parent : parents) {
@@ -278,6 +290,25 @@ public class ApplicationBean implements Serializable {
             }
         }
         
+        // Si on a le référentiel, trouver la collection parente
+        if (selectedReference != null && selectedCollection == null) {
+            try {
+                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedReference);
+                if (parents != null && !parents.isEmpty()) {
+                    // Trouver la collection parente
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                            this.selectedCollection = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche de la collection parente du référentiel", e);
+            }
+        }
+        
         // Mettre à jour le breadcrumb
         beadCrumbElements = new ArrayList<>();
         if (selectedCollection != null) {
@@ -289,7 +320,9 @@ public class ApplicationBean implements Serializable {
         if (selectedCategory != null) {
             beadCrumbElements.add(selectedCategory);
         }
-        beadCrumbElements.add(group);
+        if (selectedGroup != null) {
+            beadCrumbElements.add(selectedGroup);
+        }
     }
 
     public void showSerie() {
