@@ -138,6 +138,11 @@
                 </div>
             </div>
         </ui:repeat>
+        
+        <!-- Message si aucune référence disponible -->
+        <h:outputText value="Aucune référence disponible pour cette collection"
+             rendered="#{empty applicationBean.collectionReferences}"
+             styleClass="no-categories-message" />
     </h:panelGroup>
 
     <h:outputStylesheet library="css" name="collection.css"/>

@@ -15,17 +15,17 @@
 
             <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"
                     update=":treeContainer"
-                    onstart="showLoading('Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
-                    onerror="forceHideLoading();"/>
+                    onstart="showPanelLoading('rightTreePanel', 'Chargement...', 'spinner');"
+                    oncomplete="setTimeout(function(){hidePanelLoading(); ensureRootTogglerVisible();}, 500);"
+                    onerror="hidePanelLoading();"/>
 
             <p:ajax event="select" listener="#{treeBean.onNodeSelect}" 
                     process="@this"
                     partialSubmit="true"
                     update=":contentPanels, :breadcrumbContent, @this"
-                    onstart="showLoading('Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible(); restoreTreeSelection();}, 600);"
-                    onerror="forceHideLoading();"/>
+                    onstart="showPanelLoading('rightTreePanel', 'Chargement...', 'spinner');"
+                    oncomplete="setTimeout(function(){hidePanelLoading(); ensureRootTogglerVisible(); restoreTreeSelection();}, 600);"
+                    onerror="hidePanelLoading();"/>
 
             <p:treeNode>
                 <i class="#{treeBean.getEntityIcon(nodetree)} tree-node-icon" />

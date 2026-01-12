@@ -523,3 +523,127 @@ setInterval(function() {
         }
     }
 }, 500);
+
+// Variables pour le loader de panel
+let panelLoadingActive = false;
+let panelLoadingOverlay = null;
+
+/**
+ * Affiche le spinner dans un panel spécifique (rightTreePanel)
+ * @param {string} panelId - ID du panel où afficher le spinner
+ * @param {string} message - Message optionnel à afficher
+ * @param {string} type - Type de loader ('spinner', 'dots', 'bars', 'gradient')
+ */
+function showPanelLoading(panelId, message, type) {
+    type = type || 'spinner';
+    message = message || 'Chargement...';
+    
+    if (panelLoadingActive) {
+        return;
+    }
+    
+    panelLoadingActive = true;
+    
+    const panel = document.getElementById(panelId);
+    if (!panel) {
+        console.warn('Panel non trouvé:', panelId);
+        return;
+    }
+    
+    // Créer l'overlay s'il n'existe pas
+    panelLoadingOverlay = document.getElementById('panelLoadingOverlay');
+    if (!panelLoadingOverlay) {
+        panelLoadingOverlay = document.createElement('div');
+        panelLoadingOverlay.id = 'panelLoadingOverlay';
+        panelLoadingOverlay.className = 'panel-loading-overlay';
+        panel.appendChild(panelLoadingOverlay);
+    }
+    
+    // Créer le conteneur
+    let container = panelLoadingOverlay.querySelector('.panel-loading-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'panel-loading-container';
+        panelLoadingOverlay.appendChild(container);
+    }
+    
+    // Vider le conteneur
+    container.innerHTML = '';
+    
+    // Ajouter le loader selon le type
+    let loaderElement = null;
+    switch(type) {
+        case 'dots':
+            loaderElement = createDotsLoader();
+            break;
+        case 'bars':
+            loaderElement = createBarsLoader();
+            break;
+        case 'gradient':
+            loaderElement = createGradientLoader();
+            break;
+        default:
+            loaderElement = createSpinnerLoader();
+    }
+    
+    container.appendChild(loaderElement);
+    
+    // Ajouter le texte
+    const textElement = document.createElement('p');
+    textElement.className = 'loading-text';
+    textElement.textContent = message;
+    container.appendChild(textElement);
+    
+    // Afficher avec un léger délai
+    setTimeout(() => {
+        panelLoadingOverlay.classList.add('active');
+    }, 10);
+    
+    // Bloquer l'arbre pendant le chargement
+    blockTree();
+}
+
+/**
+ * Masque le spinner du panel
+ */
+function hidePanelLoading() {
+    if (!panelLoadingActive) {
+        return;
+    }
+    
+    panelLoadingActive = false;
+    
+    if (panelLoadingOverlay) {
+        panelLoadingOverlay.classList.remove('active');
+        // Retirer l'overlay du DOM après l'animation
+        setTimeout(() => {
+            if (panelLoadingOverlay && !panelLoadingOverlay.classList.contains('active')) {
+                panelLoadingOverlay.remove();
+                panelLoadingOverlay = null;
+            }
+        }, 300);
+    }
+    
+    // Débloquer l'arbre
+    unblockTree();
+}
+
+/**
+ * Bloque l'interaction avec l'arbre
+ */
+function blockTree() {
+    const treeContainer = document.getElementById('treeContainer');
+    if (treeContainer) {
+        treeContainer.classList.add('tree-blocked');
+    }
+}
+
+/**
+ * Débloque l'interaction avec l'arbre
+ */
+function unblockTree() {
+    const treeContainer = document.getElementById('treeContainer');
+    if (treeContainer) {
+        treeContainer.classList.remove('tree-blocked');
+    }
+}
