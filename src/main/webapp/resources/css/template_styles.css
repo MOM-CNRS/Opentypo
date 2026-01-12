@@ -661,7 +661,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 }
 
 .concept-info-title {
-    font-size: 1.5rem !important;
+    font-size: 1.2rem !important;
     font-weight: 700 !important;
     color: var(--color-text-primary, #333) !important;
     margin: 0 !important;
@@ -759,7 +759,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     }
 
     .concept-info-title {
-        font-size: 1.25rem !important;
+        font-size: 1.05rem !important;
     }
 
     .concept-info-grid {

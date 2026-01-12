@@ -3971,6 +3971,144 @@ body .ui-panelgrid .ui-panelgrid-cell {
     border-radius: 8px;
 }
 
+/* Message vide amélioré pour les catégories dans reference.xhtml */
+.empty-categories-message {
+    grid-column: 1 / -1;
+    width: calc(100% - 2rem);
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.01) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.25);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    min-height: 200px;
+}
+
+.empty-categories-message:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border-color: rgba(71, 98, 77, 0.35);
+}
+
+.empty-categories-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.empty-categories-icon i {
+    font-size: 2rem;
+    color: var(--color-action-main, #47624D);
+    opacity: 0.7;
+}
+
+.empty-categories-message:hover .empty-categories-icon {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+}
+
+.empty-categories-message:hover .empty-categories-icon i {
+    opacity: 0.9;
+}
+
+.empty-categories-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    max-width: 480px;
+    width: 100%;
+}
+
+.empty-categories-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.empty-categories-text {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
+    margin: 0;
+    line-height: 1.6;
+    padding: 0 0.5rem;
+}
+
+.empty-categories-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-action-main, #47624D);
+    margin-top: 0.75rem;
+    padding: 0.625rem 1rem;
+    background: rgba(71, 98, 77, 0.08);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+.empty-categories-hint i {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.empty-categories-hint span {
+    line-height: 1.4;
+}
+
+/* Responsive pour le message vide */
+@media (max-width: 768px) {
+    .empty-categories-message {
+        width: calc(100% - 1rem);
+        margin: 0.5rem;
+        padding: 1.75rem 1rem;
+        min-height: 180px;
+    }
+    
+    .empty-categories-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-categories-icon i {
+        font-size: 1.75rem;
+    }
+    
+    .empty-categories-title {
+        font-size: 1rem;
+    }
+    
+    .empty-categories-text {
+        font-size: 0.8125rem;
+        padding: 0 0.25rem;
+    }
+    
+    .empty-categories-hint {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.875rem;
+        margin-top: 0.625rem;
+    }
+    
+    .empty-categories-content {
+        gap: 0.5rem;
+        max-width: 100%;
+    }
+}
+
 /* Carte moderne */
 .modern-card {
     display: block;
@@ -4158,10 +4296,6 @@ body .ui-panelgrid .ui-panelgrid-cell {
 /* Conteneur des cartes référentiel */
 .reference-cards-container {
     width: 100%;
-    padding-top: 0.75rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
-    padding-bottom: 0.75rem;
     box-sizing: border-box;
 }
 
@@ -4549,11 +4683,33 @@ body .reference-card a {
 }
 
 .concept-info-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--color-text-primary, #333);
     margin: 0;
     line-height: 1.3;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.concept-info-title-name {
+    color: var(--color-text-primary, #333);
+    font-weight: 700;
+    padding-top: 4px;
+}
+
+.concept-info-title-code {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+    letter-spacing: 0.5px;
+    background: rgba(71, 98, 77, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(71, 98, 77, 0.2);
 }
 
 .concept-info-language {
@@ -4708,7 +4864,12 @@ body .reference-card a {
     }
 
     .concept-info-title {
-        font-size: 1.25rem;
+        font-size: 1.05rem;
+    }
+    
+    .concept-info-title-code {
+        font-size: 0.875rem;
+        padding: 0.2rem 0.4rem;
     }
 
     .concept-info-actions {

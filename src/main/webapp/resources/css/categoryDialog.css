@@ -157,7 +157,6 @@
 
 /* Conteneur unifié pour les cartes de catégories - Intégré dans le bloc unifié */
 .categories-unified-block .reference-cards-container {
-    padding: 1.5rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
     background: transparent !important;

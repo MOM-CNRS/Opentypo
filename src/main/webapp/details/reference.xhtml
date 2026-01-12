@@ -2,7 +2,6 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Contenu dynamique -->
@@ -33,7 +32,10 @@
                                             alt="Français"
                                             title="Français"/>
                         </div>
-                        <h2 class="concept-info-title">#{applicationBean.selectedReference.nom}</h2>
+                        <h2 class="concept-info-title">
+                            <span class="concept-info-title-name">#{applicationBean.selectedReference.nom}</span>
+                            <span class="concept-info-title-code">#{applicationBean.selectedReference.code}</span>
+                        </h2>
                     </div>
                     <div class="concept-info-actions">
                         <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -49,14 +51,6 @@
 
                 <!-- Grille d'informations -->
                 <div class="concept-info-grid">
-                    <h:panelGroup class="concept-info-item">
-                        <div class="concept-info-label">
-                            <i class="pi pi-database concept-info-icon" />
-                            <span>Code</span>
-                        </div>
-                        <div class="concept-info-value">#{applicationBean.selectedReference.code}</div>
-                    </h:panelGroup>
-
                     <h:panelGroup class="concept-info-item concept-info-item-full">
                         <div class="concept-info-label">
                             <i class="pi pi-file concept-info-icon" />
@@ -175,9 +169,19 @@
                                 </ui:repeat>
                                 
                                 <!-- Message si aucune catégorie -->
-                                <h:outputText value="Aucune catégorie disponible pour ce référentiel"
-                                             rendered="#{empty applicationBean.referenceCategories}"
-                                             styleClass="no-categories-message" />
+                                <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.referenceCategories}">
+                                    <div class="empty-categories-icon">
+                                        <i class="pi pi-inbox" />
+                                    </div>
+                                    <div class="empty-categories-content">
+                                        <h4 class="empty-categories-title">Aucune catégorie disponible</h4>
+                                        <p class="empty-categories-text">Ce référentiel ne contient actuellement aucune catégorie.</p>
+                                        <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                            <i class="pi pi-info-circle" />
+                                            <span>Cliquez sur "Créer une catégorie" pour en ajouter une.</span>
+                                        </h:panelGroup>
+                                    </div>
+                                </h:panelGroup>
                             </div>
                         </h:form>
                     </h:panelGroup>
