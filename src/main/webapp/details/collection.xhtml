@@ -78,9 +78,11 @@
                             rendered="#{not empty reference.image and not empty reference.image.url}"/>
                         
                         <!-- Afficher le texte "OpenTypo" si pas d'image -->
-                        <div class="collection-image-placeholder">
-                            <span class="collection-placeholder-text">OpenTypo</span>
-                        </div>
+                        <h:panelGroup rendered="#{empty reference.image or reference.image.url}">
+                            <div class="collection-image-placeholder">
+                                <span class="collection-placeholder-text">OpenTypo</span>
+                            </div>
+                        </h:panelGroup>
                     </div>
 
                     <!-- Informations en grille compacte -->

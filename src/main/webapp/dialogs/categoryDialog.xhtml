@@ -21,7 +21,7 @@
             <f:event listener="#{categoryBean.resetCategoryForm}" type="preRenderView"/>
             <div class="category-form-content">
                 <div class="category-form-group">
-                    <p:outputLabel for="categoryCode" value="Code de la catégorie *" />
+                    <p:outputLabel for="categoryCode" value="Code de la catégorie" />
                     <p:inputText id="categoryCode"
                                  value="#{categoryBean.categoryCode}"
                                  required="true"
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="category-form-group">
-                    <p:outputLabel for="categoryLabel" value="Label *" />
+                    <p:outputLabel for="categoryLabel" value="Label" />
                     <p:inputText id="categoryLabel"
                                  value="#{categoryBean.categoryLabel}"
                                  required="true"
@@ -63,7 +63,7 @@
                 <p:commandButton value="Valider"
                                  icon="pi pi-check"
                                  styleClass="category-btn category-btn-validate"
-                                 action="#{applicationBean.createCategory}"
+                                 action="#{categoryBean.createCategory}"
                                  process="@form"
                                  update="@form :growl :categoriesContainer :leftTreePanel"
                                  onstart="var btn = this; showButtonLoading(btn);"

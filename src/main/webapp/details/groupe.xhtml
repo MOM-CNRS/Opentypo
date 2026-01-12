@@ -19,7 +19,10 @@
                                                alt="Français"
                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">#{applicationBean.selectedGroup.nom}</h2>
+                            <h2 class="concept-info-title">
+                                <span class="concept-info-title-name">#{applicationBean.selectedGroup.nom}</span>
+                                <span class="concept-info-title-code">#{applicationBean.selectedGroup.code}</span>
+                            </h2>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -35,14 +38,6 @@
 
                     <!-- Grille d'informations -->
                     <div class="concept-info-grid">
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-users concept-info-icon" />
-                                <span>Groupe</span>
-                            </div>
-                            <div class="concept-info-value">#{applicationBean.selectedGroup.code}</div>
-                        </div>
-
                         <div class="concept-info-item">
                             <div class="concept-info-label">
                                 <i class="pi pi-calendar concept-info-icon" />
@@ -190,11 +185,21 @@
                                                 </div>
                                             </p:commandLink>
                                         </ui:repeat>
-                                        
-                                        <!-- Message si aucune série disponible -->
-                                        <h:outputText value="Aucune série disponible pour ce groupe"
-                                             rendered="#{empty applicationBean.groupSeries}"
-                                             styleClass="no-categories-message" />
+
+                                        <!-- Message si aucune catégorie -->
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.groupSeries}">
+                                            <div class="empty-categories-icon">
+                                                <i class="pi pi-inbox" />
+                                            </div>
+                                            <div class="empty-categories-content">
+                                                <h4 class="empty-categories-title">Aucune série disponible</h4>
+                                                <p class="empty-categories-text">Ce groupe ne contient actuellement aucune série.</p>
+                                                <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                    <i class="pi pi-info-circle" />
+                                                    <span>Cliquez sur "Créer une nouvelle série" pour en ajouter une.</span>
+                                                </h:panelGroup>
+                                            </div>
+                                        </h:panelGroup>
                                     </div>
                                 </h:form>
                             </h:panelGroup>
@@ -256,9 +261,19 @@
                                         </ui:repeat>
                                         
                                         <!-- Message si aucun type disponible -->
-                                        <h:outputText value="Aucun type disponible pour ce groupe"
-                                             rendered="#{empty applicationBean.groupTypes}"
-                                             styleClass="no-categories-message" />
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.groupTypes}">
+                                            <div class="empty-categories-icon">
+                                                <i class="pi pi-inbox" />
+                                            </div>
+                                            <div class="empty-categories-content">
+                                                <h4 class="empty-categories-title">Aucun type disponible</h4>
+                                                <p class="empty-categories-text">Ce groupe ne contient actuellement aucun type.</p>
+                                                <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                    <i class="pi pi-info-circle" />
+                                                    <span>Cliquez sur "Créer une nouveau type" pour en ajouter une.</span>
+                                                </h:panelGroup>
+                                            </div>
+                                        </h:panelGroup>
                                     </div>
                                 </h:form>
                             </h:panelGroup>

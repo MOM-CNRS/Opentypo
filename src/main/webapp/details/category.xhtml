@@ -33,7 +33,10 @@
                                             alt="Français"
                                             title="Français"/>
                         </div>
-                        <h2 class="concept-info-title">#{applicationBean.selectedCategory.nom}</h2>
+                        <h2 class="concept-info-title">
+                            <span class="concept-info-title-name">#{applicationBean.selectedCategory.nom}</span>
+                            <span class="concept-info-title-code">#{applicationBean.selectedCategory.code}</span>
+                        </h2>
                     </div>
                     <div class="concept-info-actions">
                         <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -49,14 +52,6 @@
 
                 <!-- Grille d'informations -->
                 <div class="concept-info-grid">
-                    <h:panelGroup class="concept-info-item">
-                        <div class="concept-info-label">
-                            <i class="pi pi-database concept-info-icon" />
-                            <span>Code</span>
-                        </div>
-                        <div class="concept-info-value">#{applicationBean.selectedCategory.code}</div>
-                    </h:panelGroup>
-
                     <h:panelGroup class="concept-info-item concept-info-item-full">
                         <div class="concept-info-label">
                             <i class="pi pi-file concept-info-icon" />
@@ -179,9 +174,19 @@
                                     </ui:repeat>
 
                                     <!-- Message si aucune catégorie -->
-                                    <h:outputText value="Aucun groupe disponible pour cette catégorie"
-                                                  rendered="#{empty applicationBean.categoryGroups}"
-                                                  styleClass="no-categories-message" />
+                                    <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.categoryGroups}">
+                                        <div class="empty-categories-icon">
+                                            <i class="pi pi-inbox" />
+                                        </div>
+                                        <div class="empty-categories-content">
+                                            <h4 class="empty-categories-title">Aucun group disponible</h4>
+                                            <p class="empty-categories-text">Cette catégorie ne contient actuellement aucun groupe.</p>
+                                            <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                <i class="pi pi-info-circle" />
+                                                <span>Cliquez sur "Créer un nouveau groupe" pour en ajouter une.</span>
+                                            </h:panelGroup>
+                                        </div>
+                                    </h:panelGroup>
                                 </div>
                             </h:form>
                         </h:panelGroup>

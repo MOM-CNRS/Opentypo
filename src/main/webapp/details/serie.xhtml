@@ -133,7 +133,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -178,9 +178,19 @@
                                         </ui:repeat>
                                         
                                         <!-- Message si aucun type disponible -->
-                                        <h:outputText value="Aucun type disponible pour cette série"
-                                             rendered="#{empty applicationBean.serieTypes}"
-                                             styleClass="no-categories-message" />
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.serieTypes}">
+                                            <div class="empty-categories-icon">
+                                                <i class="pi pi-inbox" />
+                                            </div>
+                                            <div class="empty-categories-content">
+                                                <h4 class="empty-categories-title">Aucun type disponible</h4>
+                                                <p class="empty-categories-text">Cette série ne contient actuellement aucun type.</p>
+                                                <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                    <i class="pi pi-info-circle" />
+                                                    <span>Cliquez sur "Créer une nouveau type" pour en ajouter une.</span>
+                                                </h:panelGroup>
+                                            </div>
+                                        </h:panelGroup>
                                     </div>
                                 </h:form>
                             </div>
@@ -188,7 +198,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -244,7 +254,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -295,7 +305,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -386,7 +396,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20">
+                <div class="row mt-20" style="margin-top: 15px">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- Grille d'informations -->
