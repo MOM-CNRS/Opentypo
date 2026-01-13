@@ -546,13 +546,36 @@ public class ApplicationBean implements Serializable {
             try {
                 List<Entity> parents = entityRelationRepository.findParentsByChild(selectedType);
                 if (parents != null && !parents.isEmpty()) {
-                    // Trouver le groupe parent
+                    // Chercher d'abord un groupe parent
                     for (Entity parent : parents) {
                         if (parent.getEntityType() != null &&
                             (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode()) ||
                              "GROUPE".equals(parent.getEntityType().getCode()))) {
                             this.selectedGroup = parent;
                             break;
+                        }
+                    }
+                    // Si pas de groupe trouvé, chercher une série parente
+                    if (this.selectedGroup == null) {
+                        for (Entity parent : parents) {
+                            if (parent.getEntityType() != null &&
+                                (EntityConstants.ENTITY_TYPE_SERIES.equals(parent.getEntityType().getCode()) ||
+                                 "SERIE".equals(parent.getEntityType().getCode()))) {
+                                this.selectedSerie = parent;
+                                // Chercher le groupe parent de la série
+                                List<Entity> serieParents = entityRelationRepository.findParentsByChild(this.selectedSerie);
+                                if (serieParents != null && !serieParents.isEmpty()) {
+                                    for (Entity serieParent : serieParents) {
+                                        if (serieParent.getEntityType() != null &&
+                                            (EntityConstants.ENTITY_TYPE_GROUP.equals(serieParent.getEntityType().getCode()) ||
+                                             "GROUPE".equals(serieParent.getEntityType().getCode()))) {
+                                            this.selectedGroup = serieParent;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
                         }
                     }
                 }
@@ -617,7 +640,7 @@ public class ApplicationBean implements Serializable {
             }
         }
         
-        // Mettre à jour le breadcrumb
+        // Mettre à jour le breadcrumb : collection -> référence -> catégorie -> groupe -> série -> type
         beadCrumbElements = new ArrayList<>();
         if (selectedCollection != null) {
             beadCrumbElements.add(selectedCollection);
@@ -630,6 +653,9 @@ public class ApplicationBean implements Serializable {
         }
         if (selectedGroup != null) {
             beadCrumbElements.add(selectedGroup);
+        }
+        if (selectedSerie != null) {
+            beadCrumbElements.add(selectedSerie);
         }
         if (selectedType != null) {
             beadCrumbElements.add(selectedType);

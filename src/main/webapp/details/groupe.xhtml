@@ -236,10 +236,13 @@
                                 <h:form>
                                     <div class="reference-cards-grid">
                                         <ui:repeat value="#{applicationBean.groupTypes}" var="type" varStatus="status">
-                                            <p:commandLink action="#{applicationBean.showType()}"
+                                            <p:commandLink action="#{applicationBean.showType(type)}"
                                                            styleClass="typologie-card"
                                                            process="@this"
-                                                           update=":centerContent">
+                                                           update=":centerContent"
+                                                           onstart="showLoading('Chargement du type...', 'spinner');"
+                                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                           onerror="forceHideLoading();">
                                                 <div class="typologie-card-image-wrapper">
                                                     <!-- Afficher l'image si disponible -->
                                                     <p:graphicImage
