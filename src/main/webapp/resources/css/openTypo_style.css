@@ -7961,3 +7961,246 @@ body .ui-datatable .ui-datatable-data>tr>td {
         justify-content: center !important;
     }
 }
+
+/* Dialog de confirmation de suppression du référentiel */
+.reference-delete-dialog .ui-dialog {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.reference-delete-dialog .ui-dialog-titlebar {
+    background: linear-gradient(135deg, var(--color-danger, #B84A3C) 0%, rgba(184, 74, 60, 0.9) 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+.reference-delete-dialog .ui-dialog-titlebar-close {
+    color: white !important;
+    opacity: 0.9 !important;
+    transition: all 0.2s ease !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.reference-delete-dialog .ui-dialog-titlebar-close:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
+}
+
+.reference-delete-dialog .ui-dialog-content {
+    padding: 2.5rem !important;
+    background: #ffffff !important;
+}
+
+/* Header personnalisé */
+.reference-delete-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.25rem !important;
+    padding: 1.75rem 2rem !important;
+    width: 100% !important;
+}
+
+.reference-delete-header-icon-wrapper {
+    width: 56px !important;
+    height: 56px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.reference-delete-header-icon {
+    font-size: 1.75rem !important;
+    color: white !important;
+}
+
+.reference-delete-header-content {
+    flex: 1 !important;
+}
+
+.reference-delete-header-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin: 0 0 0.25rem 0 !important;
+    line-height: 1.3 !important;
+}
+
+.reference-delete-header-subtitle {
+    font-size: 0.9375rem !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+/* Message avec icône */
+.reference-delete-message-wrapper {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding: 1.5rem !important;
+    background: linear-gradient(135deg, rgba(184, 74, 60, 0.08) 0%, rgba(184, 74, 60, 0.03) 100%) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(184, 74, 60, 0.2) !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.reference-delete-icon-warning {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(184, 74, 60, 0.15) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.reference-delete-icon-warning i {
+    font-size: 1.25rem !important;
+    color: var(--color-danger, #B84A3C) !important;
+}
+
+.reference-delete-message-content {
+    flex: 1 !important;
+}
+
+.reference-delete-message-text {
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    line-height: 1.6 !important;
+    margin: 0 0 1rem 0 !important;
+}
+
+.reference-delete-message-text strong {
+    color: var(--color-danger, #B84A3C) !important;
+    font-weight: 600 !important;
+}
+
+.reference-delete-list {
+    margin: 0.75rem 0 !important;
+    padding-left: 1.5rem !important;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.8 !important;
+}
+
+.reference-delete-list li {
+    margin-bottom: 0.5rem !important;
+}
+
+.reference-delete-warning-text {
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    line-height: 1.6 !important;
+    margin: 1rem 0 0 0 !important;
+    padding: 0.75rem !important;
+    background: rgba(184, 74, 60, 0.05) !important;
+    border-left: 3px solid var(--color-danger, #B84A3C) !important;
+    border-radius: 4px !important;
+}
+
+.reference-delete-warning-text strong {
+    color: var(--color-danger, #B84A3C) !important;
+    font-weight: 600 !important;
+}
+
+/* Actions */
+.reference-delete-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid rgba(184, 74, 60, 0.15) !important;
+}
+
+.reference-delete-btn {
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 6px !important;
+    font-size: 0.9375rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.reference-delete-btn-confirm {
+    background-color: var(--color-danger, #B84A3C) !important;
+    color: #ffffff !important;
+}
+
+.reference-delete-btn-confirm:hover {
+    background-color: rgba(184, 74, 60, 0.9) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(184, 74, 60, 0.3) !important;
+}
+
+.reference-delete-btn-cancel {
+    background-color: var(--color-action-secondary, #6C757D) !important;
+    color: #ffffff !important;
+}
+
+.reference-delete-btn-cancel:hover {
+    background-color: rgba(108, 117, 125, 0.9) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2) !important;
+}
+
+/* Responsive pour le dialog de suppression */
+@media (max-width: 768px) {
+    .reference-delete-dialog .ui-dialog {
+        width: 90% !important;
+        max-width: 90% !important;
+    }
+    
+    .reference-delete-dialog .ui-dialog-content {
+        padding: 1.5rem !important;
+    }
+    
+    .reference-delete-header {
+        padding: 1.25rem 1.5rem !important;
+        gap: 1rem !important;
+    }
+    
+    .reference-delete-header-icon-wrapper {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    .reference-delete-header-icon {
+        font-size: 1.5rem !important;
+    }
+    
+    .reference-delete-header-title {
+        font-size: 1.25rem !important;
+    }
+    
+    .reference-delete-header-subtitle {
+        font-size: 0.875rem !important;
+    }
+    
+    .reference-delete-actions {
+        flex-direction: column !important;
+    }
+    
+    .reference-delete-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}

@@ -10,6 +10,7 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
@@ -26,6 +27,7 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -840,6 +842,116 @@ public class ApplicationBean implements Serializable {
                     FacesMessage.SEVERITY_ERROR,
                     "Erreur",
                     "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Supprime récursivement une entité et toutes ses entités enfants
+     * @param entity L'entité à supprimer
+     */
+    private void deleteEntityRecursively(Entity entity) {
+        if (entity == null || entity.getId() == null) {
+            return;
+        }
+
+        try {
+            // Trouver tous les enfants de cette entité
+            List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
+            
+            // Supprimer récursivement tous les enfants
+            for (Entity child : children) {
+                deleteEntityRecursively(child);
+            }
+            
+            // Supprimer toutes les relations où cette entité est parent
+            List<EntityRelation> parentRelations = entityRelationRepository.findByParent(entity);
+            if (parentRelations != null && !parentRelations.isEmpty()) {
+                entityRelationRepository.deleteAll(parentRelations);
+            }
+            
+            // Supprimer toutes les relations où cette entité est enfant
+            List<EntityRelation> childRelations = entityRelationRepository.findByChild(entity);
+            if (childRelations != null && !childRelations.isEmpty()) {
+                entityRelationRepository.deleteAll(childRelations);
+            }
+            
+            // Supprimer l'entité elle-même
+            entityRepository.delete(entity);
+            
+            log.info("Entité supprimée avec succès: {} (ID: {})", entity.getCode(), entity.getId());
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression récursive de l'entité: {}", entity.getCode(), e);
+            throw e; // Propager l'erreur pour que la transaction soit annulée
+        }
+    }
+
+    /**
+     * Supprime le référentiel sélectionné et toutes ses entités rattachées
+     */
+    @Transactional
+    public void deleteReference() {
+        if (selectedReference == null || selectedReference.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun référentiel sélectionné."));
+            }
+            return;
+        }
+
+        try {
+            String referenceCode = selectedReference.getCode();
+            String referenceName = selectedReference.getNom();
+            Long referenceId = selectedReference.getId();
+            
+            // Supprimer récursivement le référentiel et toutes ses entités enfants
+            deleteEntityRecursively(selectedReference);
+            
+            // Réinitialiser la sélection
+            selectedReference = null;
+            referenceCategories = new ArrayList<>();
+            
+            // Recharger les référentiels de la collection
+            if (selectedCollection != null) {
+                refreshCollectionReferencesList();
+            }
+            
+            // Mettre à jour l'arbre
+            if (treeBeanProvider != null) {
+                TreeBean treeBean = treeBeanProvider.get();
+                if (treeBean != null) {
+                    treeBean.initializeTreeWithCollection();
+                }
+            }
+            
+            // Afficher un message de succès
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le référentiel '" + referenceName + "' et toutes ses entités rattachées ont été supprimés avec succès."));
+            }
+            
+            // Afficher le panel de la collection
+            if (selectedCollection != null) {
+                panelState.showCollectionDetail();
+            } else {
+                panelState.showCollections();
+            }
+            
+            log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression du référentiel", e);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
             }
         }
     }
