@@ -18,6 +18,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -102,6 +103,11 @@ public class ApplicationBean implements Serializable {
     
     // Type actuellement sélectionné
     private Entity selectedType;
+    
+    // État d'édition pour le référentiel
+    private boolean editingReference = false;
+    private String editingReferenceDescription;
+    private String editingReferenceBibliographie;
     
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
@@ -763,6 +769,78 @@ public class ApplicationBean implements Serializable {
     public void refreshCategoryGroupsList() {
         if (selectedCategory != null) {
             categoryGroups = groupService.loadCategoryGroups(selectedCategory);
+        }
+    }
+
+    /**
+     * Active le mode édition pour le référentiel sélectionné
+     */
+    public void startEditingReference() {
+        if (selectedReference != null) {
+            editingReference = true;
+            editingReferenceDescription = selectedReference.getCommentaire();
+            editingReferenceBibliographie = selectedReference.getBibliographie();
+        }
+    }
+
+    /**
+     * Annule l'édition du référentiel
+     */
+    public void cancelEditingReference() {
+        editingReference = false;
+        editingReferenceDescription = null;
+        editingReferenceBibliographie = null;
+    }
+
+    /**
+     * Sauvegarde les modifications du référentiel
+     */
+    public void saveReference() {
+        if (selectedReference == null) {
+            return;
+        }
+
+        try {
+            // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+            Entity referenceToUpdate = entityRepository.findById(selectedReference.getId())
+                .orElse(selectedReference);
+
+            // Mettre à jour les champs
+            referenceToUpdate.setCommentaire(editingReferenceDescription != null 
+                ? editingReferenceDescription.trim() : null);
+            referenceToUpdate.setBibliographie(editingReferenceBibliographie != null 
+                ? editingReferenceBibliographie.trim() : null);
+
+            // Sauvegarder dans la base de données
+            entityRepository.save(referenceToUpdate);
+
+            // Mettre à jour la référence sélectionnée
+            selectedReference = referenceToUpdate;
+
+            // Désactiver le mode édition
+            editingReference = false;
+            editingReferenceDescription = null;
+            editingReferenceBibliographie = null;
+
+            // Afficher un message de succès
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Les modifications ont été enregistrées avec succès."));
+            }
+
+            log.info("Référentiel mis à jour avec succès: {}", selectedReference.getCode());
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde du référentiel", e);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
+            }
         }
     }
 

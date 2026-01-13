@@ -7668,3 +7668,296 @@ body .ui-datatable .ui-datatable-data>tr>td {
 #rightTreePanel {
     position: relative;
 }
+
+/* Styles pour l'édition du référentiel */
+.reference-edit-textarea {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.75rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.3) !important;
+    border-radius: 6px !important;
+    font-size: 0.9375rem !important;
+    font-family: 'Roboto', 'Segoe UI', sans-serif !important;
+    line-height: 1.6 !important;
+    color: var(--color-text-primary, #333) !important;
+    background: #ffffff !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    resize: vertical !important;
+}
+
+.reference-edit-textarea:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.reference-edit-textarea::placeholder {
+    color: var(--color-text-secondary, #819A91) !important;
+    opacity: 0.7 !important;
+}
+
+.reference-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(71, 98, 77, 0.15);
+}
+
+.reference-edit-btn {
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 6px !important;
+    font-size: 0.9375rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.reference-edit-btn-validate {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+}
+
+.reference-edit-btn-validate:hover {
+    background-color: rgba(71, 98, 77, 0.9) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(71, 98, 77, 0.2);
+}
+
+.reference-edit-btn-cancel {
+    background-color: var(--color-action-secondary, #6C757D) !important;
+    color: #ffffff !important;
+}
+
+.reference-edit-btn-cancel:hover {
+    background-color: rgba(108, 117, 125, 0.9) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+}
+
+/* Responsive pour les boutons d'édition */
+@media (max-width: 768px) {
+    .reference-edit-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .reference-edit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dialog de confirmation de sauvegarde du référentiel */
+.reference-confirm-dialog .ui-dialog {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.reference-confirm-dialog .ui-dialog-titlebar {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+}
+
+.reference-confirm-dialog .ui-dialog-titlebar-close {
+    color: white !important;
+    opacity: 0.9 !important;
+    transition: all 0.2s ease !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.reference-confirm-dialog .ui-dialog-titlebar-close:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
+}
+
+.reference-confirm-dialog .ui-dialog-content {
+    padding: 2.5rem !important;
+    background: #ffffff !important;
+}
+
+/* Header personnalisé */
+.reference-confirm-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.25rem !important;
+    padding: 1.75rem 2rem !important;
+    width: 100% !important;
+}
+
+.reference-confirm-header-icon-wrapper {
+    width: 56px !important;
+    height: 56px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.reference-confirm-header-icon {
+    font-size: 1.75rem !important;
+    color: white !important;
+}
+
+.reference-confirm-header-content {
+    flex: 1 !important;
+}
+
+.reference-confirm-header-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin: 0 0 0.25rem 0 !important;
+    line-height: 1.3 !important;
+}
+
+.reference-confirm-header-subtitle {
+    font-size: 0.9375rem !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+/* Message avec icône */
+.reference-confirm-message-wrapper {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding: 1.5rem !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(71, 98, 77, 0.15) !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.reference-confirm-icon-info {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(71, 98, 77, 0.1) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.reference-confirm-icon-info i {
+    font-size: 1.25rem !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.reference-confirm-message-text {
+    flex: 1 !important;
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+}
+
+/* Actions */
+.reference-confirm-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid rgba(71, 98, 77, 0.15) !important;
+}
+
+.reference-confirm-btn {
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 6px !important;
+    font-size: 0.9375rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.reference-confirm-btn-validate {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+}
+
+.reference-confirm-btn-validate:hover {
+    background-color: rgba(71, 98, 77, 0.9) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(71, 98, 77, 0.2) !important;
+}
+
+.reference-confirm-btn-cancel {
+    background-color: var(--color-action-secondary, #6C757D) !important;
+    color: #ffffff !important;
+}
+
+.reference-confirm-btn-cancel:hover {
+    background-color: rgba(108, 117, 125, 0.9) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2) !important;
+}
+
+/* Responsive pour le dialog de confirmation */
+@media (max-width: 768px) {
+    .reference-confirm-dialog .ui-dialog {
+        width: 90% !important;
+        max-width: 90% !important;
+    }
+    
+    .reference-confirm-dialog .ui-dialog-content {
+        padding: 1.5rem !important;
+    }
+    
+    .reference-confirm-header {
+        padding: 1.25rem 1.5rem !important;
+        gap: 1rem !important;
+    }
+    
+    .reference-confirm-header-icon-wrapper {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    .reference-confirm-header-icon {
+        font-size: 1.5rem !important;
+    }
+    
+    .reference-confirm-header-title {
+        font-size: 1.25rem !important;
+    }
+    
+    .reference-confirm-header-subtitle {
+        font-size: 0.875rem !important;
+    }
+    
+    .reference-confirm-actions {
+        flex-direction: column !important;
+    }
+    
+    .reference-confirm-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
