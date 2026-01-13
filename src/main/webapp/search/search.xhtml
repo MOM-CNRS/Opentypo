@@ -45,14 +45,20 @@
             <!-- Zone de recherche principale - Compacte -->
             <div class="search-input-compact-wrapper">
                 <p:inputText id="searchInput" 
+                             value="#{searchBean.searchTerm}"
                              placeholder="Rechercher..." 
                              styleClass="search-input-compact"
-                             autocomplete="off"/>
-                <p:commandButton icon="pi pi-search"
+                             autocomplete="off">
+                    <p:ajax event="keypress" 
+                            onkeypress="if(event.keyCode === 13) {PF('searchButton').click(); return false;}"/>
+                </p:inputText>
+                <p:commandButton id="searchButton"
+                                 icon="pi pi-search"
                                  styleClass="search-button-compact"
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
-                                 update="@none"
+                                 update="@all"
+                                 oncomplete="showResultsPanel();"
                                  title="Rechercher"/>
             </div>
 
@@ -64,11 +70,13 @@
                              update="@none"/>
 
             <!-- Bouton afficher/cacher les résultats - Compact -->
-            <p:commandButton icon="pi pi-chevron-right"
+            <p:commandButton id="toggleResultsPanelBtn"
+                             icon="pi pi-chevron-right"
                              onclick="toggleRightPanel(); return false;"
                              styleClass="search-toggle-compact"
                              process="@this" 
-                             update="@none"/>
+                             update="@none"
+                             title="Afficher / Cacher les résultats"/>
         </div>
 
         <!-- Section recherche avancée - Positionnée en dessous de la barre principale -->
@@ -111,6 +119,51 @@
             const section = document.getElementById('advanced-search-options');
             if (section) {
                 section.classList.toggle('advanced-search-visible');
+            }
+        }
+
+        function showResultsPanel() {
+            const panel = document.getElementById('panelRight');
+            const button = document.getElementById('toggleResultsPanelBtn');
+            
+            if (!panel) return;
+            
+            // Afficher le panel
+            panel.classList.add('visible');
+            
+            // Changer l'icône du bouton en chevron-left
+            if (button) {
+                const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
+                if (iconSpan) {
+                    iconSpan.classList.remove('pi-chevron-right');
+                    iconSpan.classList.add('pi-chevron-left');
+                }
+            }
+        }
+
+        function toggleRightPanel() {
+            const panel = document.getElementById('panelRight');
+            const button = document.getElementById('toggleResultsPanelBtn');
+            
+            if (!panel) return;
+            
+            // Toggle la classe visible
+            panel.classList.toggle('visible');
+            
+            // Changer l'icône du bouton selon l'état
+            if (button) {
+                const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
+                if (iconSpan) {
+                    if (panel.classList.contains('visible')) {
+                        // Panel visible : icône chevron-left
+                        iconSpan.classList.remove('pi-chevron-right');
+                        iconSpan.classList.add('pi-chevron-left');
+                    } else {
+                        // Panel caché : icône chevron-right
+                        iconSpan.classList.remove('pi-chevron-left');
+                        iconSpan.classList.add('pi-chevron-right');
+                    }
+                }
             }
         }
     </script>

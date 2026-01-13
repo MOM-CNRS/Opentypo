@@ -2,44 +2,91 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <p:panel header="Résult de la recherche"
-             toggleable="false"
-             closable="false"
-             widgetVar="relations"
-             styleClass="search-results-container">
-
-        <div class="search-results-content">
-            <!-- Concepts génériques -->
-            <div class="search-result-row">
-                <div class="search-result-label-section">
-                    <div class="search-result-label-content">
-                        <i class="pi pi-arrow-up search-result-label-icon" />
-                        <h:outputText value="Concepts génériques" styleClass="search-result-label-text"/>
+    <h:panelGroup id="searchResultsPanel" styleClass="search-results-panel">
+        <ui:fragment rendered="#{searchBean.hasSearchResults()}">
+            <div class="search-results-header">
+                <div class="search-results-header-content">
+                    <i class="pi pi-search search-results-header-icon" />
+                    <div class="search-results-header-text">
+                        <h3 class="search-results-title">Résultats de la recherche</h3>
+                        <p class="search-results-count">
+                            <ui:fragment rendered="#{searchBean.searchResultsCount == 1}">
+                                #{searchBean.searchResultsCount} résultat trouvé
+                            </ui:fragment>
+                            <ui:fragment rendered="#{searchBean.searchResultsCount != 1}">
+                                #{searchBean.searchResultsCount} résultats trouvés
+                            </ui:fragment>
+                        </p>
                     </div>
-                </div>
-                <div class="search-result-concepts-section">
-                    <p:commandLink action="#" process="@this" update="@none" styleClass="search-result-concept-link">
-                        <h:outputText value="convoi funèbre"/>
-                    </p:commandLink>
                 </div>
             </div>
 
-            <div class="search-result-row">
-                <div class="search-result-label-section">
-                    <div class="search-result-label-content">
-                        <i class="pi pi-arrow-up search-result-label-icon" />
-                        <h:outputText value="Concepts génériques" styleClass="search-result-label-text"/>
+            <div class="search-results-content">
+                <ui:repeat value="#{searchBean.searchResults}" var="result">
+                    <div class="search-result-item">
+                        <div class="search-result-item-icon-wrapper">
+                            <i class="#{searchBean.getEntityIcon(result)} search-result-item-icon" />
+                        </div>
+                        <div class="search-result-item-content">
+                            <div class="search-result-item-header">
+                                <p:commandLink action="#{searchBean.showEntityDetail(result)}"
+                                             process="@this"
+                                             update="@all"
+                                             styleClass="search-result-item-title-link"
+                                             onstart="showLoading('Chargement...', 'spinner');"
+                                             oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                             onerror="forceHideLoading();">
+                                    <h:outputText value="#{result.nom}" />
+                                </p:commandLink>
+                            </div>
+                            <div class="search-result-item-meta">
+                                <span class="search-result-item-code">
+                                    <i class="pi pi-code" />
+                                    #{result.code}
+                                </span>
+                            </div>
+                            <span class="search-result-item-type-badge">
+                                    #{searchBean.getEntityTypeLabel(result)}
+                                </span>
+                        </div>
                     </div>
-                </div>
-                <div class="search-result-concepts-section">
-                    <p:commandLink action="#" process="@this" update="@none" styleClass="search-result-concept-link">
-                        <h:outputText value="convoi funèbre"/>
-                    </p:commandLink>
+                </ui:repeat>
+            </div>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{not searchBean.hasSearchResults() and searchBean.searchTerm != null and not empty searchBean.searchTerm}">
+            <div class="search-results-empty">
+                <div class="search-results-empty-content">
+                    <div class="search-results-empty-icon-wrapper">
+                        <i class="pi pi-search search-results-empty-icon" />
+                    </div>
+                    <h3 class="search-results-empty-title">Aucun résultat trouvé</h3>
+                    <p class="search-results-empty-text">
+                        Aucune entité ne correspond à votre recherche "<strong>#{searchBean.searchTerm}</strong>".
+                    </p>
+                    <p class="search-results-empty-hint">
+                        Essayez de modifier vos critères de recherche ou de vérifier l'orthographe.
+                    </p>
                 </div>
             </div>
-        </div>
-    </p:panel>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{searchBean.searchTerm == null or empty searchBean.searchTerm}">
+            <div class="search-results-placeholder">
+                <div class="search-results-placeholder-content">
+                    <div class="search-results-placeholder-icon-wrapper">
+                        <i class="pi pi-search search-results-placeholder-icon" />
+                    </div>
+                    <h3 class="search-results-placeholder-title">Rechercher dans le thésaurus</h3>
+                    <p class="search-results-placeholder-text">
+                        Entrez un terme de recherche dans le champ ci-dessus et cliquez sur le bouton de recherche pour commencer.
+                    </p>
+                </div>
+            </div>
+        </ui:fragment>
+    </h:panelGroup>
 
 </ui:composition>

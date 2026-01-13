@@ -166,11 +166,9 @@
                 </h:panelGroup>
             </h:panelGroup>
 
-            <!-- Panneau droit masqué -->
-            <h:panelGroup rendered="true" >
-                <div id="panelRight" class="search-result hidden">
-                    <ui:include src="search/searchResult.xhtml"/>
-                </div>
+            <!-- Panneau droit pour les résultats de recherche -->
+            <h:panelGroup id="panelRight" styleClass="search-result">
+                <ui:include src="search/searchResult.xhtml"/>
             </h:panelGroup>
         </h:panelGroup>
     </ui:define>

@@ -41,5 +41,11 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
      * Trouve toutes les entités par nom (insensible à la casse)
      */
     List<Entity> findByNomContainingIgnoreCase(String nom);
+
+    /**
+     * Trouve toutes les entités par nom contenant le terme de recherche (insensible à la casse)
+     */
+    @Query("SELECT e FROM Entity e WHERE LOWER(e.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Entity> findByNomContainingIgnoreCaseQuery(@Param("searchTerm") String searchTerm);
 }
 
