@@ -5,8 +5,68 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
+    <!-- Section d'informations de la collection - Version améliorée -->
+    <h:panelGroup id="collectionDetailPanel" class="row">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <!-- En-tête avec titre et actions -->
+                <div class="concept-info-header">
+                    <div class="concept-info-title-section">
+                        <div class="concept-info-language-flag">
+                            <h:graphicImage library="img" name="flag/fr.png"
+                                            styleClass="language-flag"
+                                            alt="Français"
+                                            title="Français"/>
+                        </div>
+                        <h2 class="concept-info-title">
+                            <span class="concept-info-title-name">#{collectionBean.labelSelected.nom}</span>
+                        </h2>
+                    </div>
+                    <div class="collection-visibility-section">
+                        <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
+                            <h:outputText value="Publique"
+                                          styleClass="collection-switch-text-public"
+                                          rendered="#{not applicationBean.selectedCollection.publique}"/>
+                            <h:outputText value="Privée"
+                                          styleClass="collection-switch-text-private"
+                                          rendered="#{applicationBean.selectedCollection.publique}"/>
+                        </h:panelGroup>
+                        <p:selectBooleanCheckbox value="#{applicationBean.selectedCollection.publique}"
+                                                 disabled="true"
+                                                 styleClass="collection-switch"
+                                                 id="collectionPublique">
+                            <p:ajax event="change" process="@this" ajax="true" update=":collectionDetailPanel"/>
+                        </p:selectBooleanCheckbox>
+                    </div>
+                </div>
+
+                <!-- Grille d'informations -->
+                <h:form id="collectionEditForm">
+                    <div class="concept-info-grid">
+                        <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file concept-info-icon" />
+                                <span>Description</span>
+                            </div>
+                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty collectionBean.descriptionSelected.valeur}">
+                                        #{collectionBean.descriptionSelected.valeur}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty collectionBean.descriptionSelected or collectionBean.descriptionSelected.valeur}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </h:panelGroup>
+
     <!-- Section header pour les référentiels -->
-    <div class="collection-references-header">
+    <div class="collection-references-header" style="margin-top: 20px">
         <div class="collection-references-title-section">
             <div class="collection-references-icon">
                 <i class="pi pi-database" />
@@ -152,4 +212,89 @@
 
     <!-- Inclusion du dialog de création de référentiel -->
     <ui:include src="../dialogs/referenceDialog.xhtml"/>
+
+
+
+    <style>
+        /* Section Visibilité */
+        .collection-visibility-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 5px;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(71, 98, 77, 0.1);
+        }
+
+        .collection-switch-label {
+            font-weight: 500;
+            color: var(--color-text-primary, #333);
+            font-size: 0.9375rem;
+            cursor: pointer;
+            user-select: none;
+            margin: 0;
+        }
+
+        .collection-switch-text-public {
+            color: var(--color-action-main, #47624D);
+            font-weight: 600;
+        }
+
+        .collection-switch-text-private {
+            color: #6C757D;
+            font-weight: 600;
+        }
+
+        .collection-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .collection-switch {
+            position: relative;
+            width: 56px !important;
+            height: 32px !important;
+        }
+
+        .collection-switch .ui-chkbox-box {
+            width: 56px !important;
+            height: 32px !important;
+            border-radius: 16px !important;
+            background: #6C757D !important;
+            border: 2px solid #6C757D !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative !important;
+            cursor: pointer !important;
+        }
+
+        .collection-switch .ui-chkbox-box:before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .collection-switch .ui-chkbox-box.ui-state-active {
+            background: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+        }
+
+        .collection-switch .ui-chkbox-box.ui-state-active:before {
+            transform: translateX(24px);
+            box-shadow: 0 2px 6px rgba(71, 98, 77, 0.4);
+        }
+
+        .collection-switch .ui-chkbox-icon {
+            display: none !important;
+        }
+    </style>
 </ui:composition>

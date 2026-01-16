@@ -13,6 +13,8 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -31,6 +33,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Getter
@@ -63,6 +66,9 @@ public class CollectionBean implements Serializable {
     @Inject
     private Provider<SearchBean> searchBeanProvider;
 
+    @Inject
+    private transient Provider<TreeBean> treeBeanProvider;
+
     // Propriétés pour le formulaire de création de collection
     private String collectionDescription;
     private List<Langue> availableLanguages;
@@ -83,6 +89,10 @@ public class CollectionBean implements Serializable {
     
     // Collection publique ou privée
     private Boolean collectionPublique = true; // Par défaut, la collection est publique
+
+    private Label labelSelected;
+    private Description descriptionSelected;
+    private boolean editingCollection = false;
     
     /**
      * Classe interne pour gérer les noms multilingues
@@ -115,6 +125,50 @@ public class CollectionBean implements Serializable {
     @PostConstruct
     public void init() {
         loadAvailableLanguages();
+    }
+
+
+
+
+    /**
+     * Affiche les détails d'une collection spécifique
+     */
+    public void showCollectionDetail(Entity collection) {
+
+        ApplicationBean appBean = applicationBeanProvider.get();
+        appBean.setSelectedCollection(collection);
+
+        Optional<Label> label = collection.getLabels().stream()
+                .filter(element -> element.getLangue().getCode().equalsIgnoreCase(searchBeanProvider.get().getLangSelected()))
+                .findFirst();
+        if (label.isPresent()) {
+            labelSelected = label.get();
+            appBean.setSelectedEntityLabel(labelSelected.getNom().toUpperCase());
+        }
+
+        Optional<Description> description = collection.getDescriptions().stream()
+                .filter(element -> element.getLangue().getCode().equalsIgnoreCase(searchBeanProvider.get().getLangSelected()))
+                .findFirst();
+        description.ifPresent(value -> descriptionSelected = value);
+
+        appBean.refreshCollectionReferencesList();
+
+        SearchBean searchBean = searchBeanProvider.get();
+        if (searchBean != null) {
+            searchBean.setCollectionSelected(collection.getCode());
+        }
+
+        // Initialiser le breadcrumb avec la collection
+        appBean.setBeadCrumbElements(new ArrayList<>());
+        appBean.getBeadCrumbElements().add(collection);
+
+        // Initialiser l'arbre avec les référentiels de la collection
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.initializeTreeWithCollection();
+        }
+
+        appBean.showCollectionDetail();
     }
 
     /**

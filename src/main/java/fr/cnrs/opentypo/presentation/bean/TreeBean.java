@@ -43,6 +43,9 @@ public class TreeBean implements Serializable {
     @Inject
     private transient TypeService typeService;
 
+    @Inject
+    private transient CollectionBean collectionBean;
+
     private TreeNode selectedNode;
     private TreeNode root;
 
@@ -261,8 +264,8 @@ public class TreeBean implements Serializable {
                 if (entity.getEntityType() != null &&
                     EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
                     // Si on clique sur la collection, afficher les détails de la collection
-                    if (applicationBean != null) {
-                        applicationBean.showCollectionDetail(entity);
+                    if (collectionBean != null) {
+                        collectionBean.showCollectionDetail(entity);
                     }
                 }
                 // Vérifier si c'est un référentiel

@@ -84,6 +84,10 @@ public class ApplicationBean implements Serializable {
     @Inject
     private transient LoginBean loginBean;
 
+    @Inject
+    private CollectionBean collectionBean;
+
+
     private final PanelStateManager panelState = new PanelStateManager();
 
     private List<Language> languages;
@@ -316,7 +320,7 @@ public class ApplicationBean implements Serializable {
     public void showSelectedPanel(Entity entity) {
         switch (entity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
-                showCollectionDetail(entity);
+                collectionBean.showCollectionDetail(entity);
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 showReferenceDetail(entity);
@@ -756,32 +760,6 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
-     * Affiche les détails d'une collection spécifique
-     */
-    public void showCollectionDetail(Entity collection) {
-        this.selectedCollection = collection;
-        this.selectedEntityLabel = selectedCollection.getNom();
-
-        refreshCollectionReferencesList();
-
-        panelState.showCollectionDetail();
-        SearchBean searchBean = searchBeanProvider.get();
-        if (searchBean != null) {
-            searchBean.setCollectionSelected(collection.getCode());
-        }
-
-        // Initialiser le breadcrumb avec la collection
-        beadCrumbElements = new ArrayList<>();
-        beadCrumbElements.add(collection);
-
-        // Initialiser l'arbre avec les référentiels de la collection
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.initializeTreeWithCollection();
-        }
-    }
-
-    /**
      * Affiche les détails d'un référentiel spécifique
      */
     public void showReferenceDetail(Entity reference) {
@@ -1077,8 +1055,8 @@ public class ApplicationBean implements Serializable {
         }
         
         // Afficher les détails de la collection pour édition
-        showCollectionDetail(collection);
-        
+        collectionBean.showCollectionDetail(collection);
+
         // TODO: Ouvrir un dialog d'édition ou activer le mode édition
         // Pour l'instant, on affiche juste les détails
     }

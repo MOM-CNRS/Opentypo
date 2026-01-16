@@ -42,6 +42,9 @@ public class SearchBean implements Serializable {
     private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
+    private Provider<CollectionBean> collectionBeanProvider;
+
+    @Inject
     private Provider<TreeBean> treeBeanProvider;
 
     private String searchSelected;
@@ -90,7 +93,7 @@ public class SearchBean implements Serializable {
                             .findFirst();
                     label.ifPresent(value -> appBean.setSelectedEntityLabel(value.getNom().toUpperCase()));
 
-                    appBean.showCollectionDetail(selectedEntity);
+                    collectionBeanProvider.get().showCollectionDetail(selectedEntity);
                     // Initialiser l'arbre avec la collection comme racine
                     treeBean.initializeTreeWithEntity(selectedEntity);
                 }
@@ -152,7 +155,7 @@ public class SearchBean implements Serializable {
                         .orElse(null);
                 
                 if (selectedEntity != null) {
-                    appBean.showCollectionDetail(selectedEntity);
+                    collectionBeanProvider.get().showCollectionDetail(selectedEntity);
                     // Initialiser l'arbre avec la collection comme racine
                     treeBean.initializeTreeWithEntity(selectedEntity);
                 }
@@ -461,7 +464,7 @@ public class SearchBean implements Serializable {
         
         // Appeler la méthode appropriée selon le type d'entité
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
-            appBean.showCollectionDetail(entity);
+            collectionBeanProvider.get().showCollectionDetail(entity);
             // Initialiser l'arbre avec la collection comme racine
             if (treeBean != null) {
                 treeBean.initializeTreeWithEntity(entity);
