@@ -16,21 +16,23 @@
 
             <!-- Logo texte : Opentypo -->
             <div class="logo-desktop header-logo-text">
-                <span class="logo-accent"></span>
+                <span class="logo-accent" />
                 <span class="logo-text">
                     <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
                 </span>
             </div>
             <div class="logo-mobile header-logo-text">
-                <span class="logo-accent"></span>
+                <span class="logo-accent" />
                 <span class="logo-text">
                     <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
                 </span>
             </div>
         </div>
+
         <h:panelGroup id="selectedEntityLabel" styleClass="header-title" rendered="#{facesContext.viewRoot.viewId != null and facesContext.viewRoot.viewId.contains('/index.xhtml')}">
             <h:outputText value="#{applicationBean.selectedEntityLabel}"/>
         </h:panelGroup>
+
         <div class="header-right">
             <h:form id="headerForm">
                 <!-- Icône d'alertes -->

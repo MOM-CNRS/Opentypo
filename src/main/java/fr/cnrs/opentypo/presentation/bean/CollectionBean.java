@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Getter
 @Setter
 @SessionScoped
@@ -374,7 +375,7 @@ public class CollectionBean implements Serializable {
         }
 
         // Utiliser le premier nom comme nom principal et code
-        String nomPrincipal = collectionNames.get(0).getNom().trim();
+        String nomPrincipal = collectionNames.getFirst().getNom().trim();
         String code = nomPrincipal.toUpperCase();
 
         try {

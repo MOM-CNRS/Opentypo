@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import jakarta.annotation.PostConstruct;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,8 +83,13 @@ public class SearchBean implements Serializable {
                         .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionCode))
                         .findFirst()
                         .orElse(null);
-                
+
                 if (selectedEntity != null) {
+                    Optional<Label> label = selectedEntity.getLabels().stream()
+                            .filter(element -> element.getLangue().getCode().equalsIgnoreCase(langSelected))
+                            .findFirst();
+                    label.ifPresent(value -> appBean.setSelectedEntityLabel(value.getNom().toUpperCase()));
+
                     appBean.showCollectionDetail(selectedEntity);
                     // Initialiser l'arbre avec la collection comme racine
                     treeBean.initializeTreeWithEntity(selectedEntity);
@@ -112,6 +119,7 @@ public class SearchBean implements Serializable {
                     
                     if (selectedEntity != null) {
                         appBean.showReferenceDetail(selectedEntity);
+                        appBean.setSelectedEntityLabel(getTitle(parentCollection, selectedEntity));
                         
                         // Toujours construire l'arbre en partant de la collection parente
                         if (parentCollection != null) {
@@ -150,6 +158,25 @@ public class SearchBean implements Serializable {
                 }
             }
         }
+    }
+
+    private String getTitle(Entity parentCollection, Entity selectedEntity) {
+        Optional<Label> labelReferent = selectedEntity.getLabels().stream()
+                .filter(element -> element.getLangue().getCode().equalsIgnoreCase(langSelected))
+                .findFirst();
+
+        Optional<Label> labelCollection = parentCollection.getLabels().stream()
+                .filter(element -> element.getLangue().getCode().equalsIgnoreCase(langSelected))
+                .findFirst();
+
+        String title = "";
+        if (labelCollection.isPresent()) {
+            title = labelCollection.get().getNom().toUpperCase();
+        }
+        if (labelReferent.isPresent()) {
+            title = title + " - " + labelReferent.get().getNom();
+        }
+        return title;
     }
     
     /**
@@ -209,7 +236,11 @@ public class SearchBean implements Serializable {
                 
                 // Ajouter la collection comme item sélectionnable (avec son code)
                 String collectionValue = "COL:" + collection.getCode();
-                String collectionDisplayCode = collection.getCode();
+
+                Optional<Label> label = collection.getLabels().stream()
+                        .filter(element -> element.getLangue().getCode().equalsIgnoreCase(langSelected))
+                        .findFirst();
+                String collectionDisplayCode = label.isPresent() ? label.get().getNom() : collection.getCode();
                 // Tronquer le code si trop long (max 40 caractères)
                 if (collectionDisplayCode.length() > 40) {
                     collectionDisplayCode = collectionDisplayCode.substring(0, 37) + "...";
