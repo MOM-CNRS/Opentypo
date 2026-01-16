@@ -38,6 +38,14 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     List<Entity> findByEntityTypeCode(@Param("typeCode") String typeCode);
 
     /**
+     * Trouve toutes les entités d'un type par le code du type avec leurs labels
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels " +
+           "WHERE e.entityType.code = :typeCode")
+    List<Entity> findByEntityTypeCodeWithLabels(@Param("typeCode") String typeCode);
+
+    /**
      * Trouve toutes les entités par nom (insensible à la casse)
      */
     List<Entity> findByNomContainingIgnoreCase(String nom);

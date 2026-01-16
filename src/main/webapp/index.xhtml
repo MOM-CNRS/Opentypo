@@ -79,28 +79,45 @@
                     </h:panelGroup>
 
                     <div class="modern-cards-container">
-                        <h:form>
+                        <h:form id="collectionsForm">
                             <div class="modern-cards-grid">
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
-                                    <p:commandLink action="#{applicationBean.showCollectionDetail(collection)}"
-                                                 styleClass="modern-card"
-                                                 process="@this" ajax="true"
-                                                 update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer"
-                                                 onstart="showLoading('Chargement de la collection...', 'spinner');"
-                                                 oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
-                                                 onerror="forceHideLoading();">
-                                        <div class="modern-card-content">
-                                            <div class="modern-card-header">
-                                                <div class="modern-card-icon">
-                                                    <i class="pi pi-folder" />
+                                    <div class="modern-card-wrapper">
+                                        <!-- Bouton de suppression en haut à droite -->
+                                        <h:panelGroup class="modern-card-delete-action" rendered="#{loginBean.canCreateOrEdit()}">
+                                            <p:commandLink action="#{applicationBean.deleteCollection(collection)}"
+                                                         process="@this"
+                                                         update="@all"
+                                                         styleClass="modern-card-delete-button"
+                                                         title="Supprimer la collection"
+                                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer la collection \'' + '#{collection.nom}' + '\' et toutes ses entités rattachées ?');"
+                                                         onstart="showLoading('Suppression en cours...', 'spinner');"
+                                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                                         onerror="forceHideLoading();">
+                                                <i class="pi pi-trash" />
+                                            </p:commandLink>
+                                        </h:panelGroup>
+                                        
+                                        <p:commandLink action="#{applicationBean.showCollectionDetail(collection)}"
+                                                     styleClass="modern-card"
+                                                     process="@this" ajax="true"
+                                                     update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer"
+                                                     onstart="showLoading('Chargement de la collection...', 'spinner');"
+                                                     oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
+                                                     onerror="forceHideLoading();">
+                                            <div class="modern-card-content">
+                                                <div class="modern-card-header">
+                                                    <div class="modern-card-icon">
+                                                        <i class="pi pi-folder" />
+                                                    </div>
+                                                    <h3 class="modern-card-title">#{applicationBean.getCollectionNameForLanguage(collection)}</h3>
                                                 </div>
-                                                <h3 class="modern-card-title">#{collection.nom}</h3>
+                                                <p class="modern-card-description">
+                                                    #{empty applicationBean.getCollectionDescriptionForLanguage(collection) ? 'Aucune description disponible' : applicationBean.getCollectionDescriptionForLanguage(collection)}
+                                                </p>
                                             </div>
-                                            <p class="modern-card-description">
-                                                #{empty collection.commentaire ? 'Aucune description disponible' : collection.commentaire}
-                                            </p>
-                                        </div>
-                                    </p:commandLink>
+                                        </p:commandLink>
+                                    </div>
                                 </ui:repeat>
                                 
                                 <!-- Message si aucune collection n'est disponible -->

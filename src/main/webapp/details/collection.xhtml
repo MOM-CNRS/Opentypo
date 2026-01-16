@@ -46,9 +46,9 @@
                                          oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                          onerror="forceHideLoading();"
                                          styleClass="collection-panel-title-link">
-                                <h3 class="collection-panel-title">#{reference.nom}</h3>
+                                <h3 class="collection-panel-title">#{reference.code}</h3>
                             </p:commandLink>
-                            <span class="collection-panel-subtitle">#{reference.code}</span>
+                            <span class="collection-panel-subtitle">#{reference.nom}</span>
                         </div>
                     </div>
                     <h:panelGroup class="collection-panel-actions" rendered="#{loginBean.canCreateOrEdit()}">

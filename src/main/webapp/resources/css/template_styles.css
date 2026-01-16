@@ -349,7 +349,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 .candidats-datatable .ui-datatable-header {
     background: transparent !important;
     border: none !important;
-    padding: 0 0 1rem 0 !important;
     font-size: 1.125rem !important;
     font-weight: 600 !important;
     color: var(--color-text-primary, #333) !important;
@@ -359,7 +358,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
     color: var(--color-action-main, #47624D) !important;
     font-weight: 600 !important;
-    padding: 1rem !important;
     border: 1px solid rgba(71, 98, 77, 0.1) !important;
     border-bottom: 2px solid var(--color-action-main, #47624D) !important;
 }
@@ -1050,6 +1048,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 
 /* Actions */
 .users-actions-modern {
+    margin: 5px;
     display: flex !important;
     gap: 0.5rem !important;
     align-items: center !important;

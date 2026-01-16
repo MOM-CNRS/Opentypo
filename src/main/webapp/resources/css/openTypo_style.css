@@ -4399,6 +4399,128 @@ body .ui-panelgrid .ui-panelgrid-cell {
     }
 }
 
+/* Wrapper pour les cartes avec actions */
+.modern-card-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Bouton de suppression en haut à droite de la carte */
+.modern-card-delete-action {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+.modern-card-wrapper:hover .modern-card-delete-action {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modern-card-delete-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.modern-card-delete-button i {
+    font-size: 1rem;
+    color: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.modern-card-delete-button:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 1);
+}
+
+.modern-card-delete-button:hover i {
+    transform: scale(1.1);
+}
+
+.modern-card-delete-button:active {
+    transform: scale(1.05) rotate(0deg);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+}
+
+/* Actions sur les cartes (édition et suppression) - Ancien style conservé pour compatibilité */
+.modern-card-actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modern-card-wrapper:hover .modern-card-actions {
+    opacity: 1;
+}
+
+.modern-card-action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card-action-btn i {
+    font-size: 0.875rem;
+}
+
+.modern-card-edit-btn {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.9) 0%, rgba(71, 98, 77, 0.7) 100%);
+    color: #ffffff;
+}
+
+.modern-card-edit-btn:hover {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(71, 98, 77, 0.3);
+}
+
+.modern-card-delete-btn {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(220, 53, 69, 0.7) 100%);
+    color: #ffffff;
+}
+
+.modern-card-delete-btn:hover {
+    background: var(--color-danger, #B84A3C) !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
 /* Style pour le panneau référentiel */
 .info-concept {
     width: 100%;
@@ -7877,7 +7999,6 @@ a.users-edit-btn:hover {
 }
 
 body .ui-datatable .ui-datatable-data>tr>td {
-    padding: 5px !important;
     border: none !important;
 }
 

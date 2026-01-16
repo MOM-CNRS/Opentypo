@@ -9,8 +9,10 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
+import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
+import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
@@ -78,6 +80,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private transient SearchBean searchBean;
+
+    @Inject
+    private transient LoginBean loginBean;
 
     private final PanelStateManager panelState = new PanelStateManager();
 
@@ -149,7 +154,7 @@ public class ApplicationBean implements Serializable {
         this.selectedEntityLabel = "";
         checkSessionExpiration();
         loadLanguages();
-        loadCollections();
+        loadPublicCollections();
     }
 
     /**
@@ -214,18 +219,98 @@ public class ApplicationBean implements Serializable {
 
     /**
      * Charge les collections depuis la base de données
+     * Si l'utilisateur est déconnecté, affiche uniquement les collections publiques
+     * Trie par ordre alphabétique décroissant
      */
-    public void loadCollections() {
+    public void loadPublicCollections() {
         collections = new ArrayList<>();
         try {
-            collections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
+            // Charger les collections avec leurs labels (une seule collection à la fois avec JOIN FETCH)
+            collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
+            
+            // Initialiser les descriptions pour chaque collection (évite le problème MultipleBagFetchException)
+            for (Entity collection : collections) {
+                if (collection.getDescriptions() != null) {
+                    // Forcer l'initialisation de la collection lazy
+                    collection.getDescriptions().size();
+                }
+            }
+            
+            // Filtrer selon l'authentification et trier par ordre alphabétique décroissant (Z à A)
+            boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
             collections = collections.stream()
-                .filter(c -> c.getPublique() != null && c.getPublique())
+                .filter(c -> isAuthenticated || (c.getPublique() != null && c.getPublique()))
+                .sorted((c1, c2) -> {
+                    String nom1 = getCollectionNameForLanguage(c1);
+                    String nom2 = getCollectionNameForLanguage(c2);
+                    return nom1.compareToIgnoreCase(nom2);
+                })
                 .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des collections depuis la base de données", e);
             collections = new ArrayList<>();
         }
+    }
+    
+    /**
+     * Récupère le nom d'une collection selon la langue sélectionnée dans SearchBean
+     * Par défaut, utilise le français ("fr")
+     * Si aucun label n'est trouvé pour la langue, retourne le nom par défaut de l'entité
+     */
+    public String getCollectionNameForLanguage(Entity collection) {
+        if (collection == null) {
+            return "";
+        }
+        
+        final String langCode = (searchBean != null && searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty()) 
+            ? searchBean.getLangSelected() 
+            : "fr"; // Par défaut français
+        
+        // Chercher le label dans la langue sélectionnée
+        if (collection.getLabels() != null && !collection.getLabels().isEmpty()) {
+            return collection.getLabels().stream()
+                .filter(label -> label.getLangue() != null && langCode.equals(label.getLangue().getCode()))
+                .map(Label::getNom)
+                .findFirst()
+                .orElse(collection.getNom()); // Fallback sur le nom par défaut
+        }
+        
+        return collection.getNom();
+    }
+    
+    /**
+     * Récupère la description d'une collection selon la langue sélectionnée dans SearchBean
+     * Par défaut, utilise le français ("fr")
+     * Si aucune description n'est trouvée pour la langue, retourne le commentaire par défaut de l'entité
+     */
+    public String getCollectionDescriptionForLanguage(Entity collection) {
+        if (collection == null) {
+            return "";
+        }
+        
+        final String langCode = (searchBean != null && searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty()) 
+            ? searchBean.getLangSelected() 
+            : "fr"; // Par défaut français
+        
+        // Chercher la description dans la langue sélectionnée
+        if (collection.getDescriptions() != null && !collection.getDescriptions().isEmpty()) {
+            return collection.getDescriptions().stream()
+                .filter(desc -> desc.getLangue() != null && langCode.equals(desc.getLangue().getCode()))
+                .map(Description::getValeur)
+                .findFirst()
+                .orElse(collection.getCommentaire() != null ? collection.getCommentaire() : ""); // Fallback sur le commentaire par défaut
+        }
+        
+        return collection.getCommentaire() != null ? collection.getCommentaire() : "";
+    }
+    
+    /**
+     * Méthode appelée lorsque la langue change dans la barre de recherche
+     * Recharge les collections avec le nouveau tri selon la langue sélectionnée
+     */
+    public void onLanguageChange() {
+        // Recharger les collections pour appliquer le nouveau tri selon la langue
+        loadPublicCollections();
     }
 
     public void showSelectedPanel(Entity entity) {
@@ -973,6 +1058,95 @@ public class ApplicationBean implements Serializable {
         if (selectedGroup != null) {
             // Recharger depuis entity_relation les types (entités de type TYPE) rattachées au groupe
             groupTypes = typeService.loadGroupTypes(selectedGroup);
+        }
+    }
+    
+    /**
+     * Édite une collection (affiche les détails pour édition)
+     */
+    public void editCollection(Entity collection) {
+        if (collection == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucune collection sélectionnée."));
+            }
+            return;
+        }
+        
+        // Afficher les détails de la collection pour édition
+        showCollectionDetail(collection);
+        
+        // TODO: Ouvrir un dialog d'édition ou activer le mode édition
+        // Pour l'instant, on affiche juste les détails
+    }
+    
+    /**
+     * Supprime une collection et toutes ses entités rattachées
+     */
+    @Transactional
+    public void deleteCollection(Entity collection) {
+        if (collection == null || collection.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucune collection sélectionnée."));
+            }
+            return;
+        }
+
+        try {
+            String collectionCode = collection.getCode();
+            String collectionName = collection.getNom();
+            Long collectionId = collection.getId();
+            
+            // Supprimer récursivement la collection et toutes ses entités enfants
+            deleteEntityRecursively(collection);
+            
+            // Réinitialiser la sélection si c'était la collection sélectionnée
+            if (selectedCollection != null && selectedCollection.getId().equals(collectionId)) {
+                selectedCollection = null;
+                selectedEntityLabel = "";
+                collectionReferences = new ArrayList<>();
+            }
+            
+            // Recharger les collections
+            loadPublicCollections();
+            
+            // Mettre à jour l'arbre
+            if (treeBeanProvider != null) {
+                TreeBean treeBean = treeBeanProvider.get();
+                if (treeBean != null) {
+                    treeBean.initializeTreeWithCollection();
+                }
+            }
+            
+            // Afficher un message de succès
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "La collection '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
+            }
+            
+            // Afficher le panel des collections
+            panelState.showCollections();
+            
+            log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la collection", e);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+            }
         }
     }
 }
