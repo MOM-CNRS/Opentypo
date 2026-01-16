@@ -40,7 +40,7 @@
                     </h:panelGroup>
 
                     <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
-                    <h:panelGroup rendered="#{loginBean.authenticated and loginBean.isAdmin()}">
+                    <h:panelGroup rendered="#{loginBean.authenticated and loginBean.isAdminTechnique()}">
                         <h:link outcome="/users/users.xhtml" styleClass="sidebar-menu-item" data-menu-item="users">
                             <div class="sidebar-menu-item-content">
                                 <div class="sidebar-menu-item-icon">

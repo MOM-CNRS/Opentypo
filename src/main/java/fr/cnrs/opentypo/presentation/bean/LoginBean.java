@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
 import jakarta.enterprise.context.SessionScoped;
@@ -102,11 +103,11 @@ public class LoginBean implements Serializable {
             // Ajouter un rôle spécifique basé sur le groupe
             if (utilisateur.getGroupe() != null) {
                 String groupeNom = utilisateur.getGroupe().getNom();
-                if ("Administrateur".equalsIgnoreCase(groupeNom)) {
+                if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                } else if ("Éditeur".equalsIgnoreCase(groupeNom)) {
+                } else if (GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
-                } else if ("Lecteur".equalsIgnoreCase(groupeNom)) {
+                } else if (GroupEnum.LECTEUR.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_READER"));
                 }
             }
@@ -209,10 +210,10 @@ public class LoginBean implements Serializable {
      * 
      * @return true si l'utilisateur est administrateur, false sinon
      */
-    public boolean isAdmin() {
+    public boolean isAdminTechnique() {
         return currentUser != null 
             && currentUser.getGroupe() != null 
-            && "Administrateur".equalsIgnoreCase(currentUser.getGroupe().getNom());
+            && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
     /**
@@ -223,7 +224,7 @@ public class LoginBean implements Serializable {
     public boolean isEditor() {
         return currentUser != null 
             && currentUser.getGroupe() != null 
-            && "Éditeur".equalsIgnoreCase(currentUser.getGroupe().getNom());
+            && GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
     /**
@@ -232,7 +233,7 @@ public class LoginBean implements Serializable {
      * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
      */
     public boolean canCreateOrEdit() {
-        return authenticated && currentUser != null && (isAdmin() || isEditor());
+        return authenticated && currentUser != null && (isAdminTechnique() || isEditor());
     }
 }
 

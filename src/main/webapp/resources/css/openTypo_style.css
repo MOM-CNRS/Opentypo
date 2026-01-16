@@ -6623,6 +6623,7 @@ a.users-edit-btn:hover {
     flex-wrap: wrap;
     gap: 1.5rem;
     font-family: 'Roboto', 'Segoe UI', sans-serif;
+    position: relative;
 }
 
 /* Dropdown lignes par page - Style minimaliste */
@@ -6731,14 +6732,22 @@ a.users-edit-btn:hover {
     font-weight: 500;
 }
 
-/* Rapport de page - Style discret */
+/* Rapport de page - Style discret - Positionné à droite */
 .modern-users-table .ui-paginator .ui-paginator-current {
-    color: #6b7280;
-    font-size: 0.875rem;
-    font-weight: 400;
-    padding: 0;
-    background: transparent;
-    border: none;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+    border: 1px solid rgba(71, 98, 77, 0.15) !important;
+    border-radius: 6px !important;
+    margin: 0 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 36px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    order: 999 !important;
 }
 
 /* Espacement et organisation */
@@ -7013,6 +7022,40 @@ a.users-edit-btn:hover {
 .users-form-group .ui-message-error-icon {
     color: #dc3545;
     margin-right: 0.5rem;
+}
+
+/* Masquer les messages vides (sans erreur) */
+.users-form-group .ui-message:not(.ui-message-error):not(.ui-message-warn):not(.ui-message-info):not(.ui-message-success) {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Masquer les messages qui n'ont pas d'icône visible */
+.users-form-group .ui-message.ui-message-icon-only:empty,
+.users-form-group .ui-message.ui-message-icon-only:not(:has(.ui-message-error-icon)):not(:has(.ui-message-warn-icon)):not(:has(.ui-message-info-icon)):not(:has(.ui-message-success-icon)) {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Alternative pour les navigateurs qui ne supportent pas :has() */
+.users-form-group .ui-message.ui-message-icon-only {
+    min-height: 0;
+}
+
+.users-form-group .ui-message.ui-message-icon-only:not(.ui-state-error):not(.ui-state-warn):not(.ui-state-info):not(.ui-state-success) {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
 }
 
 /* Styles pour les champs requis */
