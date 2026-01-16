@@ -1896,16 +1896,83 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
 .search-compact-select {
     flex-shrink: 0;
     min-width: 140px;
+    max-width: 250px; /* Limiter la largeur maximale */
 }
 
 .search-compact-select .ui-selectonemenu {
     min-width: 140px;
+    max-width: 250px; /* Limiter la largeur maximale */
     height: 38px;
     border: 1px solid #d0d0d0;
     border-radius: 4px;
     background-color: #ffffff;
     transition: all 0.2s ease;
     font-size: 0.875rem;
+    overflow: hidden; /* Empêcher le débordement */
+}
+
+/* Label du select avec ellipsis */
+.search-compact-select .ui-selectonemenu-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    padding-right: 1.5rem; /* Espace pour l'icône de flèche */
+}
+
+/* Items du menu déroulant avec ellipsis */
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item,
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item-group {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+/* Collections dans le menu - Style distinctif */
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item.collection-menu-item {
+    font-weight: 600 !important;
+    color: var(--color-action-main, #47624D) !important;
+    background-color: rgba(71, 98, 77, 0.05) !important;
+    border-left: 3px solid var(--color-action-main, #47624D) !important;
+    padding-left: 0.75rem !important;
+    margin-bottom: 0.125rem !important;
+}
+
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item.collection-menu-item:hover {
+    background-color: rgba(71, 98, 77, 0.12) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+/* Références dans le menu - Style distinctif avec indentation visible */
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item.reference-menu-item {
+    font-weight: normal !important;
+    color: var(--color-text-primary, #333) !important;
+    padding-left: 2rem !important; /* Indentation importante pour les références */
+    border-left: 2px solid rgba(71, 98, 77, 0.15) !important;
+    margin-left: 0.5rem !important;
+    font-size: 0.9em !important;
+    background-color: rgba(71, 98, 77, 0.02) !important;
+}
+
+.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item.reference-menu-item:hover {
+    background-color: rgba(71, 98, 77, 0.08) !important;
+    border-left-color: var(--color-action-main, #47624D) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+/* Menu déroulant avec largeur limitée */
+.search-compact-select .ui-selectonemenu-panel {
+    max-width: 300px; /* Largeur maximale du menu déroulant */
+    min-width: 200px;
+}
+
+.search-compact-select .ui-selectonemenu-items-wrapper {
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .search-compact-select .ui-selectonemenu:hover {
@@ -5538,7 +5605,7 @@ body .reference-card a {
 }
 
 .research-image {
-    width: 80% !important;
+    width: 70% !important;
     max-width: 900px !important;          /* limite sur grands écrans */
     height: auto !important;
 

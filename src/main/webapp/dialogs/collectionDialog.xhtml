@@ -21,14 +21,31 @@
         <h:form id="collectionDialogForm">
             <f:event listener="#{collectionBean.resetCollectionForm}" type="preRenderView"/>
             <div class="collection-form-content">
-                <div class="collection-form-group">
-                    <p:outputLabel for="collectionNom" value="Nom de la collection" />
-                    <p:inputText id="collectionNom" 
-                               value="#{collectionBean.collectionNom}"
-                               required="true"
-                               requiredMessage="Le nom de la collection est requis"
-                               styleClass="collection-input"
-                               placeholder="Ex: Collection de céramiques"/>
+                <div class="collection-form-row">
+                    <div class="collection-form-group collection-form-group-flex">
+                        <p:outputLabel for="collectionNom" value="Nom de la collection" />
+                        <p:inputText id="collectionNom" 
+                                   value="#{collectionBean.collectionNom}"
+                                   required="true"
+                                   requiredMessage="Le nom de la collection est requis"
+                                   styleClass="collection-input"
+                                   placeholder="Ex: Collection de céramiques"/>
+                    </div>
+
+                    <div class="collection-form-group collection-form-group-flex">
+                        <p:outputLabel for="collectionLangue" value="Langue du label" />
+                        <p:selectOneMenu id="collectionLangue"
+                                       value="#{collectionBean.collectionLangueCode}"
+                                       required="true"
+                                       requiredMessage="La langue est requise"
+                                       styleClass="collection-select">
+                            <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                            <f:selectItems value="#{collectionBean.availableLanguages}" 
+                                         var="langue"
+                                         itemLabel="#{langue.nom}"
+                                         itemValue="#{langue.code}" />
+                        </p:selectOneMenu>
+                    </div>
                 </div>
 
                 <div class="collection-form-group">
@@ -67,10 +84,22 @@
             margin-bottom: 1.5rem;
         }
 
+        .collection-form-row {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            width: 100%;
+        }
+
         .collection-form-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+        }
+
+        .collection-form-group-flex {
+            flex: 1 1 0%;
+            min-width: 0;
         }
 
         .collection-form-group label {
@@ -80,9 +109,9 @@
         }
 
         .collection-input,
-        .collection-textarea {
+        .collection-textarea,
+        .collection-select {
             width: 100% !important;
-            padding: 0.625rem 0.75rem !important;
             border: 1px solid rgba(71, 98, 77, 0.3) !important;
             border-radius: 0.25rem !important;
             font-size: 0.9rem !important;
@@ -90,7 +119,8 @@
         }
 
         .collection-input:focus,
-        .collection-textarea:focus {
+        .collection-textarea:focus,
+        .collection-select:focus {
             border-color: var(--color-action-main, #47624D) !important;
             box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
             outline: none !important;
@@ -145,6 +175,15 @@
             .collection-dialog {
                 width: 90% !important;
                 max-width: 500px !important;
+            }
+
+            .collection-form-row {
+                flex-direction: column;
+                gap: 1.25rem;
+            }
+
+            .collection-form-group-flex {
+                flex: 1 1 auto;
             }
 
             .collection-form-actions {

@@ -111,6 +111,32 @@ public class TreeBean implements Serializable {
 
 
     /**
+     * Initialise l'arbre avec une entité spécifique comme racine
+     * @param entity L'entité à utiliser comme racine de l'arbre
+     */
+    public void initializeTreeWithEntity(Entity entity) {
+        if (entity == null) {
+            root = new DefaultTreeNode("root", null);
+            selectedNode = null;
+            return;
+        }
+
+        // Créer un nouveau nœud racine avec l'entité sélectionnée
+        String entityName = entity.getNom() != null ? entity.getNom() : "Entité";
+        DefaultTreeNode entityRoot = new DefaultTreeNode(entityName, null);
+        entityRoot.setData(entity);
+        root = entityRoot;
+        selectedNode = entityRoot;
+
+        // Charger les enfants directs de cette entité
+        try {
+            loadChildrenIfNeeded(entityRoot);
+        } catch (Exception e) {
+            log.error("Erreur lors de l'initialisation de l'arbre avec l'entité : {}", entity.getNom(), e);
+        }
+    }
+
+    /**
      * Ajoute un référentiel à l'arbre
      */
     public void addreferenceToTree(Entity reference) {

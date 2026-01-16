@@ -5,10 +5,14 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Image;
+import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -44,6 +48,9 @@ public class CollectionBean implements Serializable {
     private UtilisateurRepository utilisateurRepository;
 
     @Inject
+    private LangueRepository langueRepository;
+
+    @Inject
     private LoginBean loginBean;
 
     @Inject
@@ -55,10 +62,30 @@ public class CollectionBean implements Serializable {
     // Propriétés pour le formulaire de création de collection
     private String collectionNom;
     private String collectionDescription;
+    private String collectionLangueCode;
+    private List<Langue> availableLanguages;
+
+    @PostConstruct
+    public void init() {
+        loadAvailableLanguages();
+    }
+
+    /**
+     * Charge les langues disponibles depuis la base de données
+     */
+    private void loadAvailableLanguages() {
+        try {
+            availableLanguages = langueRepository.findAllByOrderByNomAsc();
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement des langues", e);
+            availableLanguages = new ArrayList<>();
+        }
+    }
 
     public void resetCollectionForm() {
         collectionNom = null;
         collectionDescription = null;
+        collectionLangueCode = null;
     }
 
     public void creerCollection() {
@@ -70,6 +97,11 @@ public class CollectionBean implements Serializable {
             return;
         }
 
+        if (collectionLangueCode == null || collectionLangueCode.trim().isEmpty()) {
+            addErrorMessage("La langue du label est requise.");
+            return;
+        }
+
         String nomTrimmed = collectionNom.trim();
         String descriptionTrimmed = collectionDescription != null ? collectionDescription.trim() : null;
 
@@ -78,10 +110,14 @@ public class CollectionBean implements Serializable {
                 .orElseThrow(() -> new IllegalStateException(
                     "Le type d'entité '" + EntityConstants.ENTITY_TYPE_COLLECTION + "' n'existe pas dans la base de données."));
 
-            // Générer un code unique pour la collection
-            String code = generateUniqueCode(nomTrimmed);
+            // Récupérer la langue sélectionnée
+            Langue langue = langueRepository.findByCode(collectionLangueCode);
+            if (langue == null) {
+                addErrorMessage("La langue sélectionnée n'existe pas dans la base de données.");
+                return;
+            }
 
-            Entity nouvelleCollection = createNewCollection(code, nomTrimmed, descriptionTrimmed, collectionType);
+            Entity nouvelleCollection = createNewCollection(nomTrimmed.toUpperCase(), nomTrimmed, descriptionTrimmed, collectionType, langue);
             entityRepository.save(nouvelleCollection);
 
             refreshCollectionsList();
@@ -123,30 +159,9 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Génère un code unique pour la collection basé sur le nom
+     * Crée une nouvelle entité collection avec un label dans la langue sélectionnée
      */
-    private String generateUniqueCode(String nom) {
-        // Créer un code à partir du nom (en majuscules, sans espaces, avec préfixe)
-        String baseCode = "COL_" + nom.toUpperCase()
-            .replaceAll("[^A-Z0-9]", "_")
-            .replaceAll("_+", "_")
-            .replaceAll("^_|_$", "");
-        
-        // Vérifier si le code existe déjà, sinon ajouter un suffixe
-        String code = baseCode;
-        int suffix = 1;
-        while (entityRepository.existsByCode(code)) {
-            code = baseCode + "_" + suffix;
-            suffix++;
-        }
-        
-        return code;
-    }
-
-    /**
-     * Crée une nouvelle entité collection
-     */
-    private Entity createNewCollection(String code, String nom, String description, EntityType type) {
+    private Entity createNewCollection(String code, String nom, String description, EntityType type, Langue langue) {
         Entity nouvelleCollection = new Entity();
         nouvelleCollection.setCode(code);
         nouvelleCollection.setNom(nom);
@@ -162,6 +177,13 @@ public class CollectionBean implements Serializable {
             auteurs.add(currentUser);
             nouvelleCollection.setAuteurs(auteurs);
         }
+
+        // Créer un label pour le nom dans la langue sélectionnée
+        Label label = new Label();
+        label.setNom(nom);
+        label.setEntity(nouvelleCollection);
+        label.setLangue(langue);
+        nouvelleCollection.getLabels().add(label);
 
         return nouvelleCollection;
     }

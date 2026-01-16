@@ -23,13 +23,11 @@
                              placeholder="Collection"
                              filter="true"
                              filterMatchMode="contains">
-                <f:selectItem itemLabel="Toutes les collections" itemValue="" noSelectionOption="true"/>
-                <f:selectItems value="#{searchBean.collections}" var="collection"
-                               itemLabel="#{collection.nom}" itemValue="#{collection.code}"/>
+                <f:selectItems value="#{searchBean.hierarchicalCollectionItems}"/>
                 <p:ajax event="change" listener="#{searchBean.onCollectionChange()}" 
-                        update=":centerContent" process="@this"
+                        update=":centerContent, :treeContainer" process="@this"
                         onstart="showLoading('Chargement...', 'spinner');"
-                        oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                        oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                         onerror="forceHideLoading();"/>
             </p:selectOneMenu>
 
@@ -73,7 +71,7 @@
             <p:commandButton id="toggleResultsPanelBtn"
                              icon="pi pi-chevron-right"
                              onclick="toggleRightPanel(); return false;"
-                             styleClass="search-toggle-compact"
+                             styleClass="search-advanced-compact"
                              process="@this" 
                              update="@none"
                              title="Afficher / Cacher les résultats"/>
@@ -86,8 +84,11 @@
                     <p:outputLabel for="typeFilter" value="Type" styleClass="filter-label-compact"/>
                     <p:selectOneMenu id="typeFilter" styleClass="filter-select-compact">
                         <f:selectItem itemLabel="Tous" itemValue=""/>
-                        <f:selectItem itemLabel="Concept" itemValue="concept"/>
                         <f:selectItem itemLabel="Collection" itemValue="collection"/>
+                        <f:selectItem itemLabel="Référence" itemValue="reference"/>
+                        <f:selectItem itemLabel="Groupe" itemValue="groupe"/>
+                        <f:selectItem itemLabel="Série" itemValue="serie"/>
+                        <f:selectItem itemLabel="Type" itemValue="type"/>
                     </p:selectOneMenu>
                 </div>
 
@@ -122,49 +123,135 @@
             }
         }
 
-        function showResultsPanel() {
+        /**
+         * Met à jour l'icône du bouton selon l'état du panel
+         */
+        function updateToggleButtonIcon() {
             const panel = document.getElementById('panelRight');
             const button = document.getElementById('toggleResultsPanelBtn');
+            
+            if (!panel || !button) return;
+            
+            const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
+            if (!iconSpan) return;
+            
+            // Vérifier si le panel est visible
+            const isVisible = panel.classList.contains('visible');
+            
+            if (isVisible) {
+                // Panel visible : icône chevron-left (pour cacher)
+                iconSpan.classList.remove('pi-chevron-right');
+                iconSpan.classList.add('pi-chevron-left');
+            } else {
+                // Panel caché : icône chevron-right (pour afficher)
+                iconSpan.classList.remove('pi-chevron-left');
+                iconSpan.classList.add('pi-chevron-right');
+            }
+        }
+
+        function showResultsPanel() {
+            const panel = document.getElementById('panelRight');
             
             if (!panel) return;
             
             // Afficher le panel
             panel.classList.add('visible');
             
-            // Changer l'icône du bouton en chevron-left
-            if (button) {
-                const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
-                if (iconSpan) {
-                    iconSpan.classList.remove('pi-chevron-right');
-                    iconSpan.classList.add('pi-chevron-left');
-                }
-            }
+            // Mettre à jour l'icône du bouton
+            updateToggleButtonIcon();
         }
 
         function toggleRightPanel() {
             const panel = document.getElementById('panelRight');
-            const button = document.getElementById('toggleResultsPanelBtn');
             
             if (!panel) return;
             
             // Toggle la classe visible
             panel.classList.toggle('visible');
             
-            // Changer l'icône du bouton selon l'état
-            if (button) {
-                const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
-                if (iconSpan) {
-                    if (panel.classList.contains('visible')) {
-                        // Panel visible : icône chevron-left
-                        iconSpan.classList.remove('pi-chevron-right');
-                        iconSpan.classList.add('pi-chevron-left');
-                    } else {
-                        // Panel caché : icône chevron-right
-                        iconSpan.classList.remove('pi-chevron-left');
-                        iconSpan.classList.add('pi-chevron-right');
+            // Mettre à jour l'icône du bouton selon l'état
+            updateToggleButtonIcon();
+        }
+
+        // Synchroniser l'icône au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateToggleButtonIcon();
+        });
+
+        // Synchroniser l'icône après le chargement complet (au cas où)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateToggleButtonIcon);
+        } else {
+            // Le DOM est déjà chargé
+            setTimeout(updateToggleButtonIcon, 100);
+        }
+
+        // Fonction pour distinguer visuellement les collections et références dans le menu
+        function styleCollectionMenuItems() {
+            const menuItems = document.querySelectorAll('.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item');
+            menuItems.forEach(function(item) {
+                const label = item.querySelector('.ui-selectonemenu-item-label');
+                if (label) {
+                    const text = label.textContent || label.innerText;
+                    // Si c'est une collection (commence par 📁 sans beaucoup d'espaces)
+                    if (text.trim().startsWith('📁')) {
+                        item.classList.add('collection-menu-item');
+                        item.classList.remove('reference-menu-item');
+                    }
+                    // Si c'est une référence (contient 📖 avec indentation)
+                    else if (text.includes('📖')) {
+                        var hasIndentation = text.startsWith(' ') || text.startsWith('\u00A0');
+                        if (hasIndentation) {
+                            item.classList.add('reference-menu-item');
+                            item.classList.remove('collection-menu-item');
+                        }
+                    }
+                }
+            });
+        }
+
+        // Appliquer les styles après le chargement et après chaque ouverture du menu
+        document.addEventListener('DOMContentLoaded', function() {
+            styleCollectionMenuItems();
+        });
+
+        // Observer les changements dans le DOM pour réappliquer les styles
+        if (typeof MutationObserver !== 'undefined') {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length > 0) {
+                        setTimeout(styleCollectionMenuItems, 100);
+                    }
+                });
+            });
+
+            // Observer le conteneur du menu
+            const menuContainer = document.querySelector('.search-compact-select');
+            if (menuContainer) {
+                observer.observe(menuContainer, { childList: true, subtree: true });
+            }
+        }
+
+        // Réappliquer les styles quand le menu s'ouvre
+        // Utiliser addEventListener si jQuery n'est pas disponible
+        document.addEventListener('click', function(e) {
+            if (e.target) {
+                var isTrigger = e.target.classList.contains('ui-selectonemenu-trigger') || 
+                                e.target.closest('.ui-selectonemenu-trigger');
+                if (isTrigger) {
+                    const selectMenu = e.target.closest('.search-compact-select');
+                    if (selectMenu) {
+                        setTimeout(styleCollectionMenuItems, 200);
                     }
                 }
             }
+        });
+
+        // Alternative avec jQuery si disponible
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('click', '.search-compact-select .ui-selectonemenu-trigger', function() {
+                setTimeout(styleCollectionMenuItems, 200);
+            });
         }
     </script>
 

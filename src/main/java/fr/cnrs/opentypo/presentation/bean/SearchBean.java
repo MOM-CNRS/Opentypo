@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import jakarta.faces.model.SelectItem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,6 +39,9 @@ public class SearchBean implements Serializable {
     @Inject
     private Provider<ApplicationBean> applicationBeanProvider;
 
+    @Inject
+    private Provider<TreeBean> treeBeanProvider;
+
     private String searchSelected;
     private String collectionSelected;
     private String langSelected = "fr"; // Français sélectionné par défaut
@@ -58,7 +62,8 @@ public class SearchBean implements Serializable {
      */
     public void onCollectionChange() {
         ApplicationBean appBean = applicationBeanProvider.get();
-        if (appBean == null) {
+        TreeBean treeBean = treeBeanProvider.get();
+        if (appBean == null || treeBean == null) {
             return;
         }
         
@@ -66,11 +71,84 @@ public class SearchBean implements Serializable {
             // "Toutes les collections" est sélectionné - afficher le panel des collections
             appBean.showCollections();
         } else {
-            // Une collection spécifique est sélectionnée - afficher ses détails
-            collections.stream()
-                    .filter(c -> c.getCode().equals(collectionSelected))
-                    .findFirst().ifPresent(appBean::showCollectionDetail);
-
+            Entity selectedEntity = null;
+            
+            // Parser la valeur sélectionnée pour déterminer si c'est une collection ou une référence
+            if (collectionSelected.startsWith("COL:")) {
+                // C'est une collection
+                String collectionCode = collectionSelected.substring(4);
+                selectedEntity = collections.stream()
+                        .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionCode))
+                        .findFirst()
+                        .orElse(null);
+                
+                if (selectedEntity != null) {
+                    appBean.showCollectionDetail(selectedEntity);
+                    // Initialiser l'arbre avec la collection comme racine
+                    treeBean.initializeTreeWithEntity(selectedEntity);
+                }
+            } else if (collectionSelected.startsWith("REF:")) {
+                // C'est une référence : format "REF:collectionCode:referenceCode"
+                String[] parts = collectionSelected.split(":", 3);
+                if (parts.length == 3) {
+                    String collectionCode = parts[1];
+                    String referenceCode = parts[2];
+                    
+                    // Trouver la collection parente
+                    Entity parentCollection = collections.stream()
+                            .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionCode))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    // S'assurer que les références sont chargées
+                    if (references == null || references.isEmpty()) {
+                        loadreferences();
+                    }
+                    // Trouver la référence et afficher ses détails
+                    selectedEntity = references.stream()
+                            .filter(r -> r != null && r.getCode() != null && r.getCode().equals(referenceCode))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (selectedEntity != null) {
+                        appBean.showReferenceDetail(selectedEntity);
+                        
+                        // Toujours construire l'arbre en partant de la collection parente
+                        if (parentCollection != null) {
+                            // Initialiser l'arbre avec la collection comme racine
+                            treeBean.initializeTreeWithEntity(parentCollection);
+                        } else {
+                            // Si on ne trouve pas la collection, essayer de la trouver via les relations
+                            try {
+                                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedEntity);
+                                if (parents != null && !parents.isEmpty()) {
+                                    for (Entity parent : parents) {
+                                        if (parent != null && parent.getEntityType() != null &&
+                                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                                            treeBean.initializeTreeWithEntity(parent);
+                                            break;
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log.error("Erreur lors de la recherche de la collection parente", e);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Format ancien (compatibilité) - traiter comme un code de collection
+                selectedEntity = collections.stream()
+                        .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionSelected))
+                        .findFirst()
+                        .orElse(null);
+                
+                if (selectedEntity != null) {
+                    appBean.showCollectionDetail(selectedEntity);
+                    // Initialiser l'arbre avec la collection comme racine
+                    treeBean.initializeTreeWithEntity(selectedEntity);
+                }
+            }
         }
     }
     
@@ -104,6 +182,71 @@ public class SearchBean implements Serializable {
             log.error("Erreur lors du chargement des collections depuis la base de données", e);
             collections = new ArrayList<>();
         }
+    }
+
+    /**
+     * Retourne une liste plate de SelectItem permettant de sélectionner les collections (par nom) et leurs références
+     * Les collections sont sélectionnables directement
+     * Les références sont listées avec un préfixe visuel pour indiquer leur collection parente
+     */
+    public List<SelectItem> getHierarchicalCollectionItems() {
+        List<SelectItem> items = new ArrayList<>();
+        
+        // Ajouter l'option "Toutes les collections"
+        items.add(new SelectItem("", "Toutes les collections"));
+        
+        try {
+            // S'assurer que les collections sont chargées
+            if (collections == null || collections.isEmpty()) {
+                loadCollections();
+            }
+            
+            // Pour chaque collection
+            for (Entity collection : collections) {
+                if (collection == null || collection.getCode() == null) {
+                    continue;
+                }
+                
+                // Ajouter la collection comme item sélectionnable (avec son code)
+                String collectionValue = "COL:" + collection.getCode();
+                String collectionDisplayCode = collection.getCode();
+                // Tronquer le code si trop long (max 40 caractères)
+                if (collectionDisplayCode.length() > 40) {
+                    collectionDisplayCode = collectionDisplayCode.substring(0, 37) + "...";
+                }
+                // Collection avec style distinctif (pas d'indentation)
+                items.add(new SelectItem(collectionValue, "📁 " + collectionDisplayCode));
+                
+                // Récupérer les références rattachées à cette collection
+                List<Entity> collectionReferences = entityRelationRepository.findChildrenByParentAndType(
+                    collection, EntityConstants.ENTITY_TYPE_REFERENCE);
+                
+                // Filtrer pour ne garder que les références publiques
+                collectionReferences = collectionReferences.stream()
+                    .filter(r -> r != null && r.getPublique() != null && r.getPublique())
+                    .collect(Collectors.toList());
+                
+                // Ajouter les références comme items sélectionnables avec indentation visuelle importante
+                for (Entity reference : collectionReferences) {
+                    if (reference != null && reference.getCode() != null) {
+                        // Utiliser un préfixe pour identifier que c'est une référence
+                        String value = "REF:" + collection.getCode() + ":" + reference.getCode();
+                        // Utiliser le code de la référence avec indentation visuelle importante et icône
+                        String displayCode = reference.getCode();
+                        // Tronquer le code si trop long (max 40 caractères car on a plus d'espace avec l'indentation)
+                        if (displayCode.length() > 40) {
+                            displayCode = displayCode.substring(0, 37) + "...";
+                        }
+                        // Indentation importante avec caractères non-breaking space pour un décalage visible
+                        items.add(new SelectItem(value, "\u00A0\u00A0\u00A0\u00A0📖 " + displayCode));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la création de la liste hiérarchique", e);
+        }
+        
+        return items;
     }
 
     /**
@@ -173,11 +316,33 @@ public class SearchBean implements Serializable {
                     loadCollections();
                 }
                 
+                // Parser la valeur sélectionnée pour déterminer si c'est une collection ou une référence
+                Entity selectedCollection = null;
+                String collectionCode;
+                
+                if (collectionSelected.startsWith("COL:")) {
+                    // C'est une collection
+                    collectionCode = collectionSelected.substring(4);
+                } else if (collectionSelected.startsWith("REF:")) {
+                    // C'est une référence : format "REF:collectionCode:referenceCode"
+                    String[] parts = collectionSelected.split(":", 3);
+                    if (parts.length == 3) {
+                        collectionCode = parts[1];
+                    } else {
+                        collectionCode = null;
+                    }
+                } else {
+                    // Format ancien (compatibilité)
+                    collectionCode = collectionSelected;
+                }
+                
                 // Trouver la collection sélectionnée
-                Entity selectedCollection = collections.stream()
-                    .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionSelected))
-                    .findFirst()
-                    .orElse(null);
+                if (collectionCode != null) {
+                    selectedCollection = collections.stream()
+                        .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionCode))
+                        .findFirst()
+                        .orElse(null);
+                }
                 
                 if (selectedCollection != null) {
                     log.debug("Collection trouvée: {}", selectedCollection.getNom());
@@ -256,6 +421,7 @@ public class SearchBean implements Serializable {
         }
         
         ApplicationBean appBean = applicationBeanProvider.get();
+        TreeBean treeBean = treeBeanProvider.get();
         if (appBean == null) {
             return;
         }
@@ -265,9 +431,59 @@ public class SearchBean implements Serializable {
         // Appeler la méthode appropriée selon le type d'entité
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
             appBean.showCollectionDetail(entity);
+            // Initialiser l'arbre avec la collection comme racine
+            if (treeBean != null) {
+                treeBean.initializeTreeWithEntity(entity);
+            }
         } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) || 
                    "REFERENTIEL".equals(entityTypeCode)) {
+            // Pour une référence, trouver la collection parente et construire l'arbre à partir de celle-ci
+            Entity parentCollection = null;
+            try {
+                // Chercher la collection parente via les relations
+                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent != null && parent.getEntityType() != null &&
+                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                            parentCollection = parent;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Erreur lors de la recherche de la collection parente pour la référence : {}", 
+                         entity.getCode(), e);
+            }
+            
+            // Afficher les détails de la référence
             appBean.showReferenceDetail(entity);
+            
+            // Construire l'arbre en partant de la collection parente
+            if (treeBean != null && parentCollection != null) {
+                treeBean.initializeTreeWithEntity(parentCollection);
+            } else if (treeBean != null) {
+                // Si on ne trouve pas la collection parente, essayer de trouver via les collections chargées
+                if (collections == null || collections.isEmpty()) {
+                    loadCollections();
+                }
+                // Chercher dans les collections chargées si la référence est liée
+                for (Entity collection : collections) {
+                    if (collection != null) {
+                        try {
+                            List<Entity> refs = entityRelationRepository.findChildrenByParentAndType(
+                                collection, EntityConstants.ENTITY_TYPE_REFERENCE);
+                            if (refs != null && refs.stream().anyMatch(r -> 
+                                r != null && r.getCode() != null && r.getCode().equals(entity.getCode()))) {
+                                treeBean.initializeTreeWithEntity(collection);
+                                break;
+                            }
+                        } catch (Exception e) {
+                            log.debug("Erreur lors de la vérification de la relation collection-référence", e);
+                        }
+                    }
+                }
+            }
         } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) || 
                    "CATEGORIE".equals(entityTypeCode)) {
             appBean.showCategoryDetail(entity);
