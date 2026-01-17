@@ -643,7 +643,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 1rem !important;
+    padding: 0.5rem !important;
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
     border-bottom: 2px solid #f0f0f0 !important;
     flex-wrap: wrap !important;

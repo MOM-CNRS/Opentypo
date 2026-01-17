@@ -14,7 +14,8 @@
               styleClass="modern-login-dialog"
               width="480"
               height="auto"
-              hideEffect="fade">
+              hideEffect="fade"
+              onShow="resetLoginFormCommand();">
 
         <f:facet name="header">
             <div class="modern-login-header">
@@ -29,6 +30,10 @@
         </f:facet>
 
         <h:form id="loginForm">
+            <p:remoteCommand name="resetLoginFormCommand"
+                           action="#{loginBean.resetLoginForm}"
+                           update=":loginForm"
+                           process="@this"/>
             <div class="modern-login-container">
                 <p:messages id="loginMessages"
                             for="loginForm"
@@ -69,10 +74,9 @@
                     <p:commandButton value="Se connecter"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login()}"
-                                     update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm :cardsContainer :contentPanels"
+                                     update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm"
                                      styleClass="modern-login-button modern-login-button-primary"
-                                     process="@this username password" ajax="true"
-                                     oncomplete="if(!args.validationFailed) {PF('loginDialog').hide();}" />
+                                     process="@this username password" ajax="true" />
 
                     <p:commandButton value="Annuler"
                                      icon="pi pi-times"

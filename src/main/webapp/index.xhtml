@@ -83,21 +83,6 @@
                             <div class="modern-cards-grid">
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
                                     <div class="modern-card-wrapper">
-                                        <!-- Bouton de suppression en haut à droite -->
-                                        <h:panelGroup class="modern-card-delete-action" rendered="#{loginBean.canCreateOrEdit()}">
-                                            <p:commandLink action="#{applicationBean.deleteCollection(collection)}"
-                                                         process="@this"
-                                                         update="@all"
-                                                         styleClass="modern-card-delete-button"
-                                                         title="Supprimer la collection"
-                                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer la collection \'' + '#{collection.nom}' + '\' et toutes ses entités rattachées ?');"
-                                                         onstart="showLoading('Suppression en cours...', 'spinner');"
-                                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                                         onerror="forceHideLoading();">
-                                                <i class="pi pi-trash" />
-                                            </p:commandLink>
-                                        </h:panelGroup>
-                                        
                                         <p:commandLink action="#{collectionBean.showCollectionDetail(collection)}"
                                                      styleClass="modern-card"
                                                      process="@this" ajax="true"
@@ -111,6 +96,11 @@
                                                         <i class="pi pi-folder" />
                                                     </div>
                                                     <h3 class="modern-card-title">#{applicationBean.getCollectionNameForLanguage(collection)}</h3>
+                                                    <!-- Indicateur de statut privé/public -->
+                                                    <div class="collection-card-status-badge #{collection.publique ? 'collection-status-public' : 'collection-status-private'}"
+                                                         title="#{collection.publique ? 'Collection publique' : 'Collection privée'}">
+                                                        <i class="pi #{collection.publique ? 'pi-globe' : 'pi-lock'}" />
+                                                    </div>
                                                 </div>
                                                 <p class="modern-card-description">
                                                     #{empty applicationBean.getCollectionDescriptionForLanguage(collection) ? 'Aucune description disponible' : applicationBean.getCollectionDescriptionForLanguage(collection)}
@@ -121,20 +111,17 @@
                                 </ui:repeat>
                                 
                                 <!-- Message si aucune collection n'est disponible -->
-                                <h:panelGroup rendered="#{empty applicationBean.collections}" styleClass="no-collections-message">
-                                    <div class="modern-card">
-                                        <div class="modern-card-content">
-                                            <div class="modern-card-header">
-                                                <div class="modern-card-icon">
-                                                    <i class="pi pi-info-circle" />
-                                                </div>
-                                                <h3 class="modern-card-title">Aucune collection disponible</h3>
-                                            </div>
-                                            <p class="modern-card-description">
-                                                Il n'y a actuellement aucune collection dans la base de données. 
-                                                Utilisez le bouton "Créer une nouvelle collection" pour en ajouter une.
-                                            </p>
-                                        </div>
+                                <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.collections}">
+                                    <div class="empty-categories-icon">
+                                        <i class="pi pi-inbox" />
+                                    </div>
+                                    <div class="empty-categories-content">
+                                        <h4 class="empty-categories-title">Aucune collection disponible</h4>
+                                        <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                            <i class="pi pi-info-circle" />
+                                            <span>Il n'y a actuellement aucune collection dans la base de données.<br/>
+                                                Utilisez le bouton "Créer une nouvelle collection" pour en ajouter une.</span>
+                                        </h:panelGroup>
                                     </div>
                                 </h:panelGroup>
                             </div>
@@ -191,78 +178,60 @@
     </ui:define>
 
     <style>
-        /* Section de création de collection - Design moderne et responsive */
-        .create-collection-section {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
+        /* Indicateur de statut sur les cartes de collection */
+        .collection-card-status-badge {
+            display: inline-flex;
             align-items: center;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
-            box-sizing: border-box;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
-        /* Bouton de création de collection - Style moderne avec gradient */
-        .create-collection-btn {
-            padding: 0.625rem 1.25rem !important;
-            font-size: 0.9375rem !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
-            border: none !important;
-            color: #ffffff !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 0.625rem !important;
-            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.25) !important;
-            cursor: pointer !important;
+        .collection-status-public {
+            background: rgba(71, 98, 77, 0.1);
+            color: var(--color-action-main, #47624D);
+            border: 2px solid rgba(71, 98, 77, 0.2);
         }
 
-        .create-collection-btn:hover {
-            background: linear-gradient(135deg, #3a4f3e 0%, var(--color-action-main, #47624D) 100%) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+        .collection-status-private {
+            background: rgba(184, 74, 60, 0.1);
+            color: var(--color-danger, #B84A3C);
+            border: 2px solid rgba(184, 74, 60, 0.2);
         }
 
-        .create-collection-btn:active {
-            transform: translateY(0) !important;
-            box-shadow: 0 2px 6px rgba(71, 98, 77, 0.3) !important;
+        .modern-card:hover .collection-card-status-badge {
+            transform: scale(1.1);
         }
 
-        .create-collection-btn .ui-button-icon-left,
-        .create-collection-btn .ui-button-icon {
-            font-size: 1rem !important;
+        .modern-card:hover .collection-status-public {
+            background: rgba(71, 98, 77, 0.15);
+            border-color: var(--color-action-main, #47624D);
         }
 
-        .create-collection-btn .ui-button-text {
-            padding: 0 !important;
+        .modern-card:hover .collection-status-private {
+            background: rgba(184, 74, 60, 0.15);
+            border-color: var(--color-danger, #B84A3C);
         }
 
-        /* Responsive pour la section de création */
+        /* Responsive pour l'indicateur de statut */
         @media (max-width: 768px) {
-            .create-collection-section {
-                justify-content: center;
-                padding: 1rem 0.75rem;
-            }
-
-            .create-collection-btn {
-                width: 100%;
-                max-width: 400px;
-                justify-content: center;
-                font-size: 0.875rem !important;
-                padding: 0.75rem 1rem !important;
+            .collection-card-status-badge {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8125rem;
             }
         }
 
         @media (max-width: 480px) {
-            .create-collection-section {
-                padding: 0.75rem 0.5rem;
-            }
-
-            .create-collection-btn {
-                font-size: 0.8125rem !important;
-                padding: 0.625rem 0.875rem !important;
+            .collection-card-status-badge {
+                width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
             }
         }
     </style>

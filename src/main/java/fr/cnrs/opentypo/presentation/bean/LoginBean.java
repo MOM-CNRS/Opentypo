@@ -7,6 +7,7 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.PrimeFaces;
@@ -41,6 +42,9 @@ public class LoginBean implements Serializable {
     @Inject
     private fr.cnrs.opentypo.presentation.bean.NotificationBean notificationBean;
 
+    @Inject
+    private Provider<ApplicationBean> applicationBeanProvider;
+
     private String username; // Email de l'utilisateur
     private String password;
     private boolean authenticated = false;
@@ -48,7 +52,16 @@ public class LoginBean implements Serializable {
 
 
     public void openLoginDialog() {
+        resetLoginForm();
         PrimeFaces.current().executeScript("PF('loginDialog').show();");
+    }
+
+    /**
+     * Réinitialise les champs du formulaire de connexion
+     */
+    public void resetLoginForm() {
+        username = null;
+        password = null;
     }
 
     public void login() {
@@ -127,13 +140,21 @@ public class LoginBean implements Serializable {
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
             
+            // Recharger les collections pour inclure les collections privées maintenant que l'utilisateur est connecté
+            ApplicationBean appBean = applicationBeanProvider.get();
+            if (appBean != null) {
+                appBean.loadPublicCollections();
+            }
+            
             notificationBean.showSuccessWithUpdate("Connexion réussie",
                 "Bienvenue dans votre espace de recherche, " + displayName + ".",
                 ":growl, :headerForm, :sidebarForm, :create-collection-section, :centerContent");
             
             // Réinitialiser les champs
-            username = null;
-            password = null;
+            resetLoginForm();
+            
+            // Fermer le dialogue après un court délai pour permettre l'affichage du message de succès
+            PrimeFaces.current().executeScript("setTimeout(function(){PF('loginDialog').hide();}, 300);");
         } else {
             notificationBean.showErrorWithUpdate("Échec de l'authentification",
                 "Les identifiants saisis sont incorrects. Veuillez réessayer.",

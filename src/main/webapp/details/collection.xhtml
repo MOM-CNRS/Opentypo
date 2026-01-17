@@ -8,28 +8,75 @@
     <!-- Section d'informations de la collection - Version améliorée -->
     <h:panelGroup id="collectionDetailPanel" class="row">
         <div class="col-md-12">
-            <div class="concept-info-panel">
+            <div class="concept-info-panel #{collectionBean.editingCollection ? 'collection-edit-mode' : ''}">
                 <!-- En-tête avec titre et actions -->
-                <div class="concept-info-header">
-                    <div class="concept-info-title-section">
-                        <div class="concept-info-language-flag">
-                            <h:graphicImage library="img" name="flag/fr.png"
-                                            styleClass="language-flag"
-                                            alt="Français"
-                                            title="Français"/>
+                <div class="concept-info-header #{collectionBean.editingCollection ? 'collection-edit-header' : ''}">
+                    <!-- Indicateur de mode édition -->
+                    <ui:fragment rendered="#{collectionBean.editingCollection}">
+                        <div class="collection-edit-badge">
+                            <i class="pi pi-pencil"></i>
+                            <span>Mode édition</span>
                         </div>
+                    </ui:fragment>
+                    <div class="concept-info-title-section">
+                        <ui:fragment rendered="#{not collectionBean.editingCollection}">
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" 
+                                              name="flag/#{not empty searchBean.langSelected ? searchBean.langSelected : 'fr'}.png"
+                                              styleClass="language-flag"
+                                              alt="#{not empty searchBean.langSelected ? searchBean.langSelected : 'Français'}"
+                                              title="#{not empty searchBean.langSelected ? searchBean.langSelected : 'Français'}"/>
+                            </div>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{collectionBean.editingCollection}">
+                            <div class="collection-edit-language-selector">
+                                <p:selectOneMenu value="#{collectionBean.editingLanguageCode}"
+                                                styleClass="collection-edit-lang-select"
+                                                id="collectionEditLangSelect">
+                                    <f:selectItems value="#{collectionBean.getAvailableLanguagesForSelector()}" 
+                                                 var="langue"
+                                                 itemLabel="#{langue.nom}"
+                                                 itemValue="#{langue.code}" />
+                                    <p:ajax event="change" 
+                                           listener="#{collectionBean.changeEditingLanguage()}"
+                                           process="@this"
+                                           update=":collectionEditForm:collectionEditLabelInput, :collectionEditForm:collectionEditDescriptionInput"
+                                           onstart="showLoading('Chargement...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                           onerror="forceHideLoading();"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </ui:fragment>
                         <h2 class="concept-info-title">
-                            <span class="concept-info-title-name">#{collectionBean.labelSelected.nom}</span>
+                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
+                                <span class="concept-info-title-name">
+                                    <ui:fragment rendered="#{not empty collectionBean.labelSelected}">
+                                        #{collectionBean.labelSelected.nom}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty collectionBean.labelSelected and not empty applicationBean.selectedCollection}">
+                                        #{applicationBean.selectedCollection.nom}
+                                    </ui:fragment>
+                                </span>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{collectionBean.editingCollection}">
+                                <div class="collection-edit-field-wrapper">
+                                    <p:inputText id="collectionEditLabelInput"
+                                               value="#{collectionBean.editingLabelValue}"
+                                               styleClass="collection-edit-input collection-edit-label-input"
+                                               placeholder="Saisissez le label de la collection"
+                                               required="true"/>
+                                </div>
+                            </ui:fragment>
                         </h2>
                     </div>
                     <div class="collection-visibility-section">
                         <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
                             <h:outputText value="Publique"
                                           styleClass="collection-switch-text-public"
-                                          rendered="#{not applicationBean.selectedCollection.publique}"/>
+                                          rendered="#{applicationBean.selectedCollection.publique}"/>
                             <h:outputText value="Privée"
                                           styleClass="collection-switch-text-private"
-                                          rendered="#{applicationBean.selectedCollection.publique}"/>
+                                          rendered="#{not applicationBean.selectedCollection.publique}"/>
                         </h:panelGroup>
                         <p:selectBooleanCheckbox value="#{applicationBean.selectedCollection.publique}"
                                                  disabled="true"
@@ -38,6 +85,27 @@
                             <p:ajax event="change" process="@this" ajax="true" update=":collectionDetailPanel"/>
                         </p:selectBooleanCheckbox>
                     </div>
+                    <!-- Actions pour l'administrateur technique -->
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
+                        <p:commandLink action="#{applicationBean.editCollection(applicationBean.selectedCollection)}"
+                                       process="@this"
+                                       update=":collectionDetailPanel, :collectionEditForm"
+                                       ajax="true"
+                                       styleClass="concept-action-button"
+                                       title="Modifier la collection"
+                                       onstart="showLoading('Chargement...', 'spinner');"
+                                       oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                       onerror="forceHideLoading();">
+                            <i class="pi pi-file-edit" />
+                            <p:tooltip value="Modifier" position="top"/>
+                        </p:commandLink>
+                        <p:commandLink onclick="PF('confirmDeleteCollectionDialog').show(); return false;"
+                                       styleClass="concept-action-button"
+                                       title="Supprimer la collection">
+                            <i class="pi pi-trash" />
+                            <p:tooltip value="Supprimer" position="top"/>
+                        </p:commandLink>
+                    </h:panelGroup>
                 </div>
 
                 <!-- Grille d'informations -->
@@ -50,16 +118,57 @@
                             </div>
                             <ui:fragment rendered="#{not collectionBean.editingCollection}">
                                 <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty collectionBean.descriptionSelected.valeur}">
+                                    <ui:fragment rendered="#{not empty collectionBean.descriptionSelected and not empty collectionBean.descriptionSelected.valeur}">
                                         #{collectionBean.descriptionSelected.valeur}
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty collectionBean.descriptionSelected or collectionBean.descriptionSelected.valeur}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                    <ui:fragment rendered="#{empty collectionBean.descriptionSelected or empty collectionBean.descriptionSelected.valeur}">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedCollection.commentaire}">
+                                            #{applicationBean.selectedCollection.commentaire}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedCollection.commentaire}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
                                     </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{collectionBean.editingCollection}">
+                                <div class="collection-edit-field-wrapper">
+                                    <p:inputTextarea id="collectionEditDescriptionInput"
+                                                    value="#{collectionBean.editingDescriptionValue}"
+                                                    rows="6"
+                                                    cols="50"
+                                                    styleClass="collection-edit-textarea"
+                                                    placeholder="Saisissez la description de la collection"/>
+                                    <div class="collection-edit-hint">
+                                        <i class="pi pi-info-circle"></i>
+                                        <span>Les modifications seront enregistrées pour la langue actuellement sélectionnée</span>
+                                    </div>
                                 </div>
                             </ui:fragment>
                         </h:panelGroup>
                     </div>
+                    
+                    <!-- Boutons de validation et d'annulation en mode édition -->
+                    <ui:fragment rendered="#{collectionBean.editingCollection}">
+                        <div class="collection-edit-actions">
+                            <p:commandButton value="Annuler"
+                                             icon="pi pi-times"
+                                             action="#{collectionBean.cancelEditingCollection}"
+                                             process="@this"
+                                             update=":collectionDetailPanel"
+                                             styleClass="collection-edit-btn collection-edit-btn-cancel"
+                                             immediate="true"/>
+                            <p:commandButton value="Valider"
+                                           icon="pi pi-check"
+                                           action="#{collectionBean.saveCollectionChanges}"
+                                           process="@this" ajax="true"
+                                           update=":collectionDetailPanel, :growl, :centerContent"
+                                           styleClass="collection-edit-btn collection-edit-btn-validate"
+                                           onstart="showLoading('Enregistrement en cours...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                           onerror="forceHideLoading();"/>
+                        </div>
+                    </ui:fragment>
                 </h:form>
             </div>
         </div>
@@ -213,7 +322,68 @@
     <!-- Inclusion du dialog de création de référentiel -->
     <ui:include src="../dialogs/referenceDialog.xhtml"/>
 
+    <!-- Dialog de confirmation de suppression de la collection -->
+    <p:dialog id="confirmDeleteCollectionDialog"
+              widgetVar="confirmDeleteCollectionDialog"
+              header="Confirmer la suppression"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="500"
+              height="auto"
+              styleClass="collection-delete-dialog">
 
+        <f:facet name="header">
+            <div class="collection-delete-header">
+                <div class="collection-delete-header-icon-wrapper">
+                    <i class="pi pi-trash collection-delete-header-icon" />
+                </div>
+                <div class="collection-delete-header-content">
+                    <h3 class="collection-delete-header-title">Confirmer la suppression</h3>
+                    <p class="collection-delete-header-subtitle">Cette action est irréversible</p>
+                </div>
+            </div>
+        </f:facet>
+
+        <div class="collection-delete-message-wrapper">
+            <div class="collection-delete-message-icon">
+                <i class="pi pi-exclamation-triangle" />
+            </div>
+            <div class="collection-delete-message-content">
+                <p class="collection-delete-message-text">
+                    <strong>Attention !</strong> Vous êtes sur le point de supprimer la collection 
+                    <strong>"#{applicationBean.selectedCollection.nom}"</strong> ainsi que <strong>toutes les entités</strong> qui lui sont rattachées :
+                </p>
+                <ul class="collection-delete-list">
+                    <li>Tous les référentiels</li>
+                    <li>Toutes les catégories</li>
+                    <li>Tous les groupes</li>
+                    <li>Toutes les séries</li>
+                    <li>Tous les types</li>
+                </ul>
+                <p class="collection-delete-warning-text">
+                    Cette action est <strong>définitive et irréversible</strong>. Êtes-vous sûr de vouloir continuer ?
+                </p>
+            </div>
+        </div>
+
+        <div class="collection-delete-actions">
+            <p:commandButton value="Oui, supprimer"
+                             icon="pi pi-trash"
+                             action="#{applicationBean.deleteCollection(applicationBean.selectedCollection)}"
+                             process="@this"
+                             ajax="true"
+                             update=":centerContent, :treeContainer, :growl"
+                             styleClass="collection-delete-btn collection-delete-btn-confirm"
+                             oncomplete="setTimeout(function(){PF('confirmDeleteCollectionDialog').hide();}, 100);"/>
+            <p:commandButton value="Annuler"
+                             icon="pi pi-times"
+                             onclick="PF('confirmDeleteCollectionDialog').hide(); return false;"
+                             type="button"
+                             styleClass="collection-delete-btn collection-delete-btn-cancel"/>
+        </div>
+    </p:dialog>
 
     <style>
         /* Section Visibilité */
@@ -295,6 +465,553 @@
 
         .collection-switch .ui-chkbox-icon {
             display: none !important;
+        }
+
+        /* Styles pour le mode édition - Design professionnel */
+        .collection-edit-mode {
+            border: 2px solid var(--color-action-main, #47624D);
+            box-shadow: 0 4px 20px rgba(71, 98, 77, 0.15), 0 0 0 1px rgba(71, 98, 77, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(238, 239, 224, 0.3) 100%);
+        }
+
+        .collection-edit-header {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.03) 100%);
+            border-bottom: 2px solid var(--color-action-main, #47624D);
+            position: relative;
+        }
+
+        .collection-edit-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.3);
+            z-index: 10;
+        }
+
+        .collection-edit-badge i {
+            font-size: 0.875rem;
+        }
+
+        .collection-edit-field-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .collection-edit-field-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-action-main, #47624D);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .collection-edit-field-label i {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        .collection-edit-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid rgba(71, 98, 77, 0.2);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-text-primary, #333);
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .collection-edit-input::placeholder {
+            color: rgba(129, 154, 145, 0.6);
+            font-weight: 400;
+        }
+
+        .collection-edit-input:focus {
+            outline: none;
+            border-color: var(--color-action-main, #47624D);
+            box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.12), 0 4px 12px rgba(71, 98, 77, 0.15);
+            background: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .collection-edit-input:hover:not(:focus) {
+            border-color: rgba(71, 98, 77, 0.4);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .collection-edit-label-input {
+            margin: 0;
+        }
+
+        .collection-edit-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(71, 98, 77, 0.2);
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            line-height: 1.7;
+            color: var(--color-text-primary, #333);
+            background: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            resize: vertical;
+            min-height: 140px;
+            font-family: inherit;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .collection-edit-textarea::placeholder {
+            color: rgba(129, 154, 145, 0.6);
+        }
+
+        .collection-edit-textarea:focus {
+            outline: none;
+            border-color: var(--color-action-main, #47624D);
+            box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.12), 0 4px 12px rgba(71, 98, 77, 0.15);
+            background: #ffffff;
+        }
+
+        .collection-edit-textarea:hover:not(:focus) {
+            border-color: rgba(71, 98, 77, 0.4);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .collection-edit-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            background: rgba(71, 98, 77, 0.06);
+            border-left: 3px solid var(--color-action-main, #47624D);
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: rgba(71, 98, 77, 0.9);
+            margin-top: 0.25rem;
+        }
+
+        .collection-edit-hint i {
+            font-size: 0.875rem;
+            color: var(--color-action-main, #47624D);
+        }
+
+        .collection-edit-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(71, 98, 77, 0.1);
+        }
+
+        .collection-edit-btn {
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.625rem;
+            min-width: 140px;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .collection-edit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .collection-edit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .collection-edit-btn-validate {
+            background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+            color: white;
+            border: 2px solid var(--color-action-main, #47624D);
+        }
+
+        .collection-edit-btn-validate:hover {
+            background: linear-gradient(135deg, var(--color-hover, #A7C1A8) 0%, rgba(167, 193, 168, 0.9) 100%);
+            border-color: var(--color-hover, #A7C1A8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(71, 98, 77, 0.35);
+        }
+
+        .collection-edit-btn-validate:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.25);
+        }
+
+        .collection-edit-btn-cancel {
+            background: #ffffff;
+            color: var(--color-text-primary, #333);
+            border: 2px solid rgba(71, 98, 77, 0.2);
+        }
+
+        .collection-edit-btn-cancel:hover {
+            background: #f8f8f8;
+            border-color: rgba(71, 98, 77, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: var(--color-text-primary, #333);
+        }
+
+        .collection-edit-btn-cancel:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .collection-edit-btn i {
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sélecteur de langue en mode édition */
+        .collection-edit-language-selector {
+            margin-right: 0.75rem;
+        }
+
+        .collection-edit-lang-select {
+            min-width: 150px !important;
+            font-size: 0.875rem !important;
+        }
+
+        .collection-edit-lang-select .ui-selectonemenu-label {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            color: var(--color-text-primary, #333) !important;
+            border: 2px solid rgba(71, 98, 77, 0.2) !important;
+            border-radius: 8px !important;
+            background: #ffffff !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .collection-edit-lang-select .ui-selectonemenu-label:hover {
+            border-color: rgba(71, 98, 77, 0.4) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .collection-edit-lang-select .ui-state-focus .ui-selectonemenu-label {
+            border-color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.12) !important;
+        }
+
+        .collection-edit-lang-select .ui-selectonemenu-trigger {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+            border-left: 1px solid rgba(71, 98, 77, 0.2) !important;
+        }
+
+        .collection-edit-lang-select .ui-selectonemenu-trigger .ui-icon {
+            font-size: 0.875rem !important;
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        /* Responsive pour le mode édition */
+        @media (max-width: 768px) {
+            .collection-edit-language-selector {
+                margin-right: 0.5rem;
+            }
+
+            .collection-edit-lang-select {
+                min-width: 130px !important;
+                font-size: 0.8125rem !important;
+            }
+
+            .collection-edit-badge {
+                position: static;
+                margin-bottom: 1rem;
+                align-self: flex-start;
+            }
+
+            .collection-edit-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .collection-edit-actions {
+                flex-direction: column;
+                padding: 1.25rem;
+            }
+
+            .collection-edit-btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .collection-edit-field-wrapper {
+                gap: 0.625rem;
+            }
+
+            .collection-edit-hint {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .collection-edit-badge {
+                font-size: 0.75rem;
+                padding: 0.4375rem 0.875rem;
+            }
+
+            .collection-edit-input {
+                font-size: 1.1rem;
+                padding: 0.75rem 0.875rem;
+            }
+
+            .collection-edit-textarea {
+                min-height: 120px;
+                padding: 0.875rem;
+            }
+
+            .collection-edit-actions {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+
+            .collection-edit-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Dialog de confirmation de suppression de la collection */
+        .collection-delete-dialog .ui-dialog {
+            border-radius: 16px !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+            overflow: hidden !important;
+        }
+
+        .collection-delete-dialog .ui-dialog-titlebar {
+            background: linear-gradient(135deg, var(--color-danger, #B84A3C) 0%, rgba(184, 74, 60, 0.9) 100%) !important;
+            color: white !important;
+            border: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .collection-delete-dialog .ui-dialog-titlebar-close {
+            color: white !important;
+            opacity: 0.9 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .collection-delete-dialog .ui-dialog-titlebar-close:hover {
+            opacity: 1 !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .collection-delete-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        .collection-delete-header-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .collection-delete-header-icon {
+            font-size: 1.75rem;
+            color: white;
+        }
+
+        .collection-delete-header-content {
+            flex: 1;
+        }
+
+        .collection-delete-header-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .collection-delete-header-subtitle {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .collection-delete-message-wrapper {
+            padding: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .collection-delete-message-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(184, 74, 60, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--color-danger, #B84A3C);
+            font-size: 1.5rem;
+        }
+
+        .collection-delete-message-content {
+            flex: 1;
+        }
+
+        .collection-delete-message-text {
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--color-text-primary, #333);
+        }
+
+        .collection-delete-list {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: var(--color-text-primary, #333);
+        }
+
+        .collection-delete-list li {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .collection-delete-warning-text {
+            margin: 1.5rem 0 0 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--color-danger, #B84A3C);
+            font-weight: 600;
+        }
+
+        .collection-delete-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .collection-delete-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .collection-delete-btn-confirm {
+            background: var(--color-danger, #B84A3C);
+            color: white;
+        }
+
+        .collection-delete-btn-confirm:hover {
+            background: rgba(184, 74, 60, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(184, 74, 60, 0.3);
+        }
+
+        .collection-delete-btn-cancel {
+            background: #f0f0f0;
+            color: var(--color-text-primary, #333);
+        }
+
+        .collection-delete-btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        /* Responsive pour le dialog de suppression */
+        @media (max-width: 768px) {
+            .collection-delete-dialog .ui-dialog {
+                width: 90% !important;
+                max-width: 90% !important;
+            }
+
+            .collection-delete-header {
+                padding: 1.25rem 1.5rem;
+                gap: 1rem;
+            }
+
+            .collection-delete-header-icon-wrapper {
+                width: 48px;
+                height: 48px;
+            }
+
+            .collection-delete-header-icon {
+                font-size: 1.5rem;
+            }
+
+            .collection-delete-header-title {
+                font-size: 1.25rem;
+            }
+
+            .collection-delete-header-subtitle {
+                font-size: 0.875rem;
+            }
+
+            .collection-delete-message-wrapper {
+                padding: 1.5rem;
+                gap: 1rem;
+            }
+
+            .collection-delete-actions {
+                flex-direction: column;
+                padding: 1.25rem 1.5rem;
+            }
+
+            .collection-delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </ui:composition>

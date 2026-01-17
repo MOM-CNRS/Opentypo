@@ -315,6 +315,11 @@ public class ApplicationBean implements Serializable {
     public void onLanguageChange() {
         // Recharger les collections pour appliquer le nouveau tri selon la langue
         loadPublicCollections();
+        
+        // Mettre à jour le label et la description de la collection sélectionnée si elle existe
+        if (selectedCollection != null && collectionBean != null) {
+            collectionBean.updateCollectionLanguage();
+        }
     }
 
     public void showSelectedPanel(Entity entity) {
@@ -1056,9 +1061,11 @@ public class ApplicationBean implements Serializable {
         
         // Afficher les détails de la collection pour édition
         collectionBean.showCollectionDetail(collection);
-
-        // TODO: Ouvrir un dialog d'édition ou activer le mode édition
-        // Pour l'instant, on affiche juste les détails
+        
+        // Activer le mode édition
+        collectionBean.startEditingCollection();
+        
+        log.debug("Mode édition activé pour la collection: {}", collection.getCode());
     }
     
     /**

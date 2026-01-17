@@ -63,19 +63,22 @@
                                    var="nameItem"
                                    styleClass="collection-names-table"
                                    rendered="#{not empty collectionBean.collectionNames}">
-                            <p:column headerText="Nom" styleClass="collection-table-name-column">
-                                <div class="collection-table-name-cell">
-                                    <h:outputText value="#{nameItem.nom}" styleClass="collection-table-name-text" />
+
+                            <p:column headerText="Nom" width="90" styleClass="collection-table-name-column">
+                                <div style="display: flex; align-items: center; alignement: vertical; gap: 8px;">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{nameItem.langueCode}.png"
+                                                    styleClass="collection-table-flag"
+                                                    alt="#{nameItem.langue.nom}"
+                                                    title="#{nameItem.langue.nom}" />
+
+                                    <div style="height: auto;">
+                                        <h:outputText value="#{nameItem.nom}"
+                                                      styleClass="collection-table-name-text" />
+                                    </div>
                                 </div>
                             </p:column>
-                            <p:column headerText="Langue">
-                                <h:graphicImage library="img"
-                                                name="flag/#{nameItem.langueCode}.png"
-                                                styleClass="collection-table-flag"
-                                                alt="#{nameItem.langue.nom}"
-                                                title="#{nameItem.langue.nom}"/>
-                            </p:column>
-                            <p:column headerText="Action" styleClass="collection-table-action-column" style="width: 80px;">
+                            <p:column headerText="Actions" width="15" styleClass="users-col-actions">
                                 <div class="users-actions-modern">
                                     <p:commandButton icon="pi pi-trash"
                                                      styleClass="action-btn action-delete"
@@ -118,24 +121,27 @@
                                            rows="3"
                                            styleClass="collection-textarea"/>
                         </div>
+                    </div>
+
+                    <div class="collection-name-input-row">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newDescriptionLangue"
-                                           value="#{collectionBean.newDescriptionLangueCode}"
-                                           styleClass="collection-select">
+                                             value="#{collectionBean.newDescriptionLangueCode}"
+                                             styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
-                                <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewDescription()}" 
-                                             var="langue"
-                                             itemLabel="#{langue.nom}"
-                                             itemValue="#{langue.code}" />
+                                <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewDescription()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
                         <p:commandButton value="Ajouter"
-                                       icon="pi pi-plus"
-                                       styleClass="collection-btn-add"
-                                       actionListener="#{collectionBean.addDescriptionFromInput()}"
-                                       process="@form"
-                                       ajax="true"
-                                       update=":collectionDialogForm:collectionDescriptionsTable :collectionDialogForm:newDescriptionInput :collectionDialogForm:newDescriptionLangue growl"/>
+                                         icon="pi pi-plus"
+                                         styleClass="collection-btn-add"
+                                         actionListener="#{collectionBean.addDescriptionFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":collectionDialogForm:collectionDescriptionsTable :collectionDialogForm:newDescriptionInput :collectionDialogForm:newDescriptionLangue growl"/>
                     </div>
                     
                     <!-- Tableau des descriptions ajoutées -->
@@ -145,19 +151,20 @@
                                    styleClass="collection-names-table"
                                    emptyMessage="Aucune description ajoutée"
                                    rendered="#{not empty collectionBean.collectionDescriptions}">
-                            <p:column headerText="Description" styleClass="collection-table-name-column">
-                                <div class="collection-table-name-cell">
-                                    <h:outputText value="#{descriptionItem.valeur}" styleClass="collection-table-name-text" />
+                            <p:column headerText="Description" styleClass="collection-table-name-column" width="85">
+                                <div style="display: flex; align-items: center; alignement: vertical; gap: 8px;">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{descriptionItem.langueCode}.png"
+                                                    styleClass="collection-table-flag"
+                                                    alt="#{descriptionItem.langue.nom}"
+                                                    title="#{descriptionItem.langue.nom}"/>
+
+                                    <div style="height: auto;">
+                                        <h:outputText value="#{descriptionItem.valeur}" styleClass="collection-table-name-text" />
+                                    </div>
                                 </div>
                             </p:column>
-                            <p:column headerText="Langue">
-                                <h:graphicImage library="img"
-                                                name="flag/#{descriptionItem.langueCode}.png"
-                                                styleClass="collection-table-flag"
-                                                alt="#{descriptionItem.langue.nom}"
-                                                title="#{descriptionItem.langue.nom}"/>
-                            </p:column>
-                            <p:column headerText="Action" styleClass="collection-table-action-column" style="width: 80px;">
+                            <p:column headerText="Action" styleClass="collection-table-action-column" width="15">
                                 <div class="collection-table-action-cell">
                                     <p:commandButton icon="pi pi-trash"
                                                   styleClass="collection-btn-remove-small"

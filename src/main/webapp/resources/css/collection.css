@@ -900,3 +900,176 @@
         display: none;
     }
 }
+
+/* ============================================
+   STYLES POUR LE MODE ÉDITION DE COLLECTION
+   ============================================ */
+
+/* Badge de mode édition */
+.collection-edit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.1) 100%);
+    border: 1px solid rgba(71, 98, 77, 0.3);
+    border-radius: 12px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+    margin-bottom: 0.75rem;
+}
+
+.collection-edit-badge i {
+    font-size: 0.875rem;
+}
+
+/* Sélecteur de langue en mode édition */
+.collection-edit-language-selector {
+    margin-right: 0.75rem;
+}
+
+.collection-edit-lang-select {
+    min-width: 150px;
+}
+
+/* Wrapper pour les champs d'édition */
+.collection-edit-field-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Champs d'édition */
+.collection-edit-input,
+.collection-edit-textarea {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    border: 2px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 8px !important;
+    font-size: 0.9375rem !important;
+    font-family: inherit !important;
+    background: #ffffff !important;
+    color: var(--color-text-primary, #333) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.collection-edit-input:focus,
+.collection-edit-textarea:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.12), 0 2px 8px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+    transform: translateY(-1px);
+}
+
+.collection-edit-input:hover,
+.collection-edit-textarea:hover {
+    border-color: rgba(71, 98, 77, 0.4) !important;
+    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.1) !important;
+}
+
+.collection-edit-label-input {
+    font-weight: 600 !important;
+    font-size: 1.125rem !important;
+}
+
+.collection-edit-textarea {
+    resize: vertical !important;
+    min-height: 120px !important;
+    line-height: 1.6 !important;
+}
+
+/* Indice d'aide pour l'édition */
+.collection-edit-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(71, 98, 77, 0.05);
+    border-left: 3px solid var(--color-action-main, #47624D);
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary, #819A91);
+}
+
+.collection-edit-hint i {
+    color: var(--color-action-main, #47624D);
+    font-size: 0.875rem;
+}
+
+/* Actions d'édition (boutons Valider/Annuler) */
+.collection-edit-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(71, 98, 77, 0.15);
+}
+
+.collection-edit-btn {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    min-width: 120px !important;
+    justify-content: center !important;
+}
+
+.collection-edit-btn-validate {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    color: white !important;
+    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.2) !important;
+}
+
+.collection-edit-btn-validate:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.9) 0%, var(--color-action-main, #47624D) 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+}
+
+.collection-edit-btn-cancel {
+    background: #f5f5f5 !important;
+    color: var(--color-text-primary, #333) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.collection-edit-btn-cancel:hover {
+    background: #e8e8e8 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Mode édition - styles pour le panel */
+.collection-edit-mode {
+    border: 2px solid rgba(71, 98, 77, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.15) !important;
+}
+
+.collection-edit-header {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+    border-bottom: 2px solid rgba(71, 98, 77, 0.2) !important;
+}
+
+/* Responsive pour le mode édition */
+@media (max-width: 768px) {
+    .collection-edit-actions {
+        flex-direction: column;
+    }
+
+    .collection-edit-btn {
+        width: 100%;
+    }
+
+    .collection-edit-lang-select {
+        min-width: 120px;
+    }
+}
