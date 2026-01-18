@@ -25,7 +25,7 @@
                              filterMatchMode="contains">
                 <f:selectItems value="#{searchBean.hierarchicalCollectionItems}"/>
                 <p:ajax event="change" listener="#{searchBean.onCollectionChange()}" 
-                        update=":centerContent, :treeContainer :selectedEntityLabel" process="@this"
+                        update=":centerContent, :treeContainer, :selectedEntityLabel, :collectionsForm" process="@this"
                         onstart="showLoading('Chargement...', 'spinner');"
                         oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                         onerror="forceHideLoading();"/>

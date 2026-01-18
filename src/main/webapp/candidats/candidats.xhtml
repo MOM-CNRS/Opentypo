@@ -6,20 +6,20 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
-        <div class="candidats-container">
-            <div class="candidats-header">
-                <div class="candidats-header-content">
+        <div class="users-container">
+            <div class="users-header">
+                <div class="users-header-content">
                     <div>
-                        <h1 class="candidats-title">
-                            <i class="pi pi-users candidats-title-icon"></i>
+                        <h1 class="users-title">
+                            <i class="pi pi-users users-title-icon" />
                             Gestion des Candidats
                         </h1>
-                        <p class="candidats-subtitle">Gérez et suivez les propositions de types</p>
+                        <p class="users-subtitle">Gérez et suivez les propositions de types</p>
                     </div>
                     <h:form>
                         <p:commandButton value="Nouveau candidat" 
                                        icon="pi pi-plus"
-                                       styleClass="candidats-create-button"
+                                       styleClass="users-create-button"
                                        action="/candidats/create.xhtml?faces-redirect=true"
                                        process="@this"
                                        update="@none"/>
@@ -27,66 +27,82 @@
                 </div>
             </div>
 
-            <div class="candidats-content">
+            <div class="users-content">
                 <h:form id="candidatsForm">
                     <p:tabView id="candidatsTabs" 
                               activeIndex="#{candidatBean.activeTabIndex}"
-                              styleClass="candidats-tabview"
+                              styleClass="users-tabview"
                               dynamic="true"
                               cache="false">
                         
                         <!-- Onglet : Candidats en cours -->
                         <p:tab title="Candidats en cours" 
-                               titleStyleClass="candidats-tab-title">
-                            <div class="candidats-table-container">
+                               titleStyleClass="users-tab-title">
+                            <div class="users-table-wrapper">
                                 <p:dataTable id="tableEnCours"
                                            value="#{candidatBean.candidatsEnCours}"
                                            var="candidat"
-                                           styleClass="candidats-datatable"
+                                           styleClass="modern-users-table"
                                            emptyMessage="Aucun candidat en cours"
                                            paginator="true"
                                            rows="10"
                                            rowsPerPageTemplate="10,20,50"
-                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}">
+                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                           paginatorPosition="bottom"
+                                           sortMode="multiple"
+                                           rowStyleClass="modern-users-row">
                                     
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="candidats-col-code">
-                                        <h:outputText value="#{candidat.typeCode}"/>
+                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+                                        <div class="candidat-code-cell">
+                                            <i class="pi pi-tag"/>
+                                            <h:outputText value="#{candidat.typeCode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="candidats-col-label">
-                                        <h:outputText value="#{candidat.label}"/>
+                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
+                                        <div class="candidat-label-cell">
+                                            <h:outputText value="#{candidat.label}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="candidats-col-periode">
-                                        <h:outputText value="#{candidat.periode}"/>
+                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.periode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="candidats-col-date">
-                                        <h:outputText value="#{candidat.dateCreation}">
-                                            <f:converter converterId="localDateTimeConverter"/>
-                                        </h:outputText>
+                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
+                                        <div class="date-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.dateCreation}">
+                                                <f:converter converterId="localDateTimeConverter"/>
+                                            </h:outputText>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Créateur" styleClass="candidats-col-creator">
-                                        <h:outputText value="#{candidat.createur}"/>
+                                    <p:column headerText="Créateur" styleClass="users-col-creator">
+                                        <div class="user-info-cell">
+                                            <div class="user-name">#{candidat.createur}</div>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Actions" styleClass="candidats-col-actions">
-                                        <div class="candidats-actions">
+                                    <p:column headerText="Actions" styleClass="users-col-actions">
+                                        <div class="users-actions-modern">
                                             <p:commandButton icon="pi pi-eye"
-                                                           styleClass="candidats-action-btn candidats-view-btn"
+                                                           styleClass="action-btn action-view"
                                                            title="Visualiser"
                                                            action="#{candidatBean.visualiserCandidat(candidat)}"
                                                            process="@this"
                                                            update="@none"/>
                                             <p:commandButton icon="pi pi-check"
-                                                           styleClass="candidats-action-btn candidats-validate-btn"
+                                                           styleClass="action-btn action-validate"
                                                            title="Valider"
                                                            action="#{candidatBean.validerCandidat(candidat)}"
                                                            process="@this"
                                                            update=":candidatsForm"/>
                                             <p:commandButton icon="pi pi-times"
-                                                           styleClass="candidats-action-btn candidats-refuse-btn"
+                                                           styleClass="action-btn action-refuse"
                                                            title="Refuser"
                                                            action="#{candidatBean.refuserCandidat(candidat)}"
                                                            process="@this"
@@ -99,39 +115,54 @@
                         
                         <!-- Onglet : Candidats validés -->
                         <p:tab title="Candidats validés" 
-                               titleStyleClass="candidats-tab-title">
-                            <div class="candidats-table-container">
+                               titleStyleClass="users-tab-title">
+                            <div class="users-table-wrapper">
                                 <p:dataTable id="tableValides"
                                            value="#{candidatBean.candidatsValides}"
                                            var="candidat"
-                                           styleClass="candidats-datatable"
+                                           styleClass="modern-users-table"
                                            emptyMessage="Aucun candidat validé"
                                            paginator="true"
                                            rows="10"
-                                           rowsPerPageTemplate="10,20,50">
+                                           rowsPerPageTemplate="10,20,50"
+                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                           paginatorPosition="bottom"
+                                           sortMode="multiple"
+                                           rowStyleClass="modern-users-row">
                                     
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}">
-                                        <h:outputText value="#{candidat.typeCode}"/>
+                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+                                        <div class="candidat-code-cell">
+                                            <i class="pi pi-tag"/>
+                                            <h:outputText value="#{candidat.typeCode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Label" sortBy="#{candidat.label}">
-                                        <h:outputText value="#{candidat.label}"/>
+                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
+                                        <div class="candidat-label-cell">
+                                            <h:outputText value="#{candidat.label}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}">
-                                        <h:outputText value="#{candidat.periode}"/>
+                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.periode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Date validation" sortBy="#{candidat.dateModification}">
-                                        <h:outputText value="#{candidat.dateModification}">
-                                            <f:converter converterId="localDateTimeConverter"/>
-                                        </h:outputText>
+                                    <p:column headerText="Date validation" sortBy="#{candidat.dateModification}" styleClass="users-col-date">
+                                        <div class="date-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.dateModification}">
+                                                <f:converter converterId="localDateTimeConverter"/>
+                                            </h:outputText>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Actions">
-                                        <div class="candidats-actions">
+                                    <p:column headerText="Actions" styleClass="users-col-actions">
+                                        <div class="users-actions-modern">
                                             <p:commandButton icon="pi pi-eye"
-                                                           styleClass="candidats-action-btn candidats-view-btn"
+                                                           styleClass="action-btn action-view"
                                                            title="Visualiser"
                                                            action="#{candidatBean.visualiserCandidat(candidat)}"
                                                            process="@this"
@@ -144,45 +175,60 @@
                         
                         <!-- Onglet : Candidats refusés -->
                         <p:tab title="Candidats refusés" 
-                               titleStyleClass="candidats-tab-title">
-                            <div class="candidats-table-container">
+                               titleStyleClass="users-tab-title">
+                            <div class="users-table-wrapper">
                                 <p:dataTable id="tableRefuses"
                                            value="#{candidatBean.candidatsRefuses}"
                                            var="candidat"
-                                           styleClass="candidats-datatable"
+                                           styleClass="modern-users-table"
                                            emptyMessage="Aucun candidat refusé"
                                            paginator="true"
                                            rows="10"
-                                           rowsPerPageTemplate="10,20,50">
+                                           rowsPerPageTemplate="10,20,50"
+                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                           paginatorPosition="bottom"
+                                           sortMode="multiple"
+                                           rowStyleClass="modern-users-row">
                                     
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}">
-                                        <h:outputText value="#{candidat.typeCode}"/>
+                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+                                        <div class="candidat-code-cell">
+                                            <i class="pi pi-tag"/>
+                                            <h:outputText value="#{candidat.typeCode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Label" sortBy="#{candidat.label}">
-                                        <h:outputText value="#{candidat.label}"/>
+                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
+                                        <div class="candidat-label-cell">
+                                            <h:outputText value="#{candidat.label}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}">
-                                        <h:outputText value="#{candidat.periode}"/>
+                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.periode}"/>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Date refus" sortBy="#{candidat.dateModification}">
-                                        <h:outputText value="#{candidat.dateModification}">
-                                            <f:converter converterId="localDateTimeConverter"/>
-                                        </h:outputText>
+                                    <p:column headerText="Date refus" sortBy="#{candidat.dateModification}" styleClass="users-col-date">
+                                        <div class="date-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.dateModification}">
+                                                <f:converter converterId="localDateTimeConverter"/>
+                                            </h:outputText>
+                                        </div>
                                     </p:column>
                                     
-                                    <p:column headerText="Actions">
-                                        <div class="candidats-actions">
+                                    <p:column headerText="Actions" styleClass="users-col-actions">
+                                        <div class="users-actions-modern">
                                             <p:commandButton icon="pi pi-eye"
-                                                           styleClass="candidats-action-btn candidats-view-btn"
+                                                           styleClass="action-btn action-view"
                                                            title="Visualiser"
                                                            action="#{candidatBean.visualiserCandidat(candidat)}"
                                                            process="@this"
                                                            update="@none"/>
                                             <p:commandButton icon="pi pi-trash"
-                                                           styleClass="candidats-action-btn candidats-delete-btn"
+                                                           styleClass="action-btn action-delete"
                                                            title="Supprimer"
                                                            action="#{candidatBean.supprimerCandidat(candidat)}"
                                                            process="@this"
@@ -199,5 +245,52 @@
         </div>
     </ui:define>
 
-</ui:composition>
+    <script>
+        // Remplacer "of" par "sur" dans le paginateur
+        function replacePaginatorText() {
+            const paginatorCurrents = document.querySelectorAll('.ui-paginator-current');
+            paginatorCurrents.forEach(function(element) {
+                if (element.textContent) {
+                    element.textContent = element.textContent.replace(/\s+of\s+/gi, ' sur ');
+                }
+            });
+        }
 
+        // Exécuter au chargement de la page
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                replacePaginatorText();
+                // Observer les changements du DOM pour les mises à jour dynamiques
+                observePaginatorChanges();
+            });
+        } else {
+            replacePaginatorText();
+            observePaginatorChanges();
+        }
+
+        // Observer les changements dans le paginateur (pour les mises à jour AJAX)
+        function observePaginatorChanges() {
+            const paginatorContainers = document.querySelectorAll('.ui-paginator');
+            paginatorContainers.forEach(function(container) {
+                if (typeof MutationObserver !== 'undefined') {
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.addedNodes.length > 0 || mutation.type === 'childList') {
+                                setTimeout(replacePaginatorText, 100);
+                            }
+                        });
+                    });
+                    observer.observe(container, { childList: true, subtree: true });
+                }
+            });
+        }
+
+        // Écouter les événements AJAX de PrimeFaces
+        if (typeof PrimeFaces !== 'undefined') {
+            PrimeFaces.ajax.addOnComplete(function() {
+                setTimeout(replacePaginatorText, 100);
+            });
+        }
+    </script>
+
+</ui:composition>
