@@ -86,7 +86,7 @@
                                         <p:commandLink action="#{collectionBean.showCollectionDetail(collection)}"
                                                      styleClass="modern-card"
                                                      process="@this" ajax="true"
-                                                     update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer"
+                                                     update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer :collectionSelect"
                                                      onstart="showLoading('Chargement de la collection...', 'spinner');"
                                                      oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                                                      onerror="forceHideLoading();">

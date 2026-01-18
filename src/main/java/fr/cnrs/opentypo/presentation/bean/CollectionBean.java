@@ -132,9 +132,6 @@ public class CollectionBean implements Serializable {
         loadAvailableLanguages();
     }
 
-
-
-
     /**
      * Affiche les détails d'une collection spécifique
      */
@@ -200,8 +197,9 @@ public class CollectionBean implements Serializable {
 
         appBean.refreshCollectionReferencesList();
 
-        if (searchBean != null) {
-            searchBean.setCollectionSelected(refreshedCollection.getCode());
+        if (searchBean != null && refreshedCollection.getCode() != null) {
+            // Utiliser le format "COL:" + code pour correspondre au format attendu par hierarchicalCollectionItems
+            searchBean.setCollectionSelected("COL:" + refreshedCollection.getCode());
         }
 
         // Initialiser le breadcrumb avec la collection
