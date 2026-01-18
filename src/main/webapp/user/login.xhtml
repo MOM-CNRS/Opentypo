@@ -71,18 +71,18 @@
                 </div>
 
                 <div class="modern-login-actions">
+                    <p:commandButton value="Annuler"
+                                     icon="pi pi-times"
+                                     onclick="PF('loginDialog').hide(); return false;"
+                                     type="button"
+                                     styleClass="modern-login-button modern-login-button-secondary" />
+
                     <p:commandButton value="Se connecter"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login()}"
                                      update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm"
                                      styleClass="modern-login-button modern-login-button-primary"
                                      process="@this username password" ajax="true" />
-
-                    <p:commandButton value="Annuler"
-                                     icon="pi pi-times"
-                                     onclick="PF('loginDialog').hide(); return false;"
-                                     type="button"
-                                     styleClass="modern-login-button modern-login-button-secondary" />
                 </div>
             </div>
         </h:form>

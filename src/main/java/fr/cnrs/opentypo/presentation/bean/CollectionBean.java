@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -98,6 +99,7 @@ public class CollectionBean implements Serializable {
     private String editingLabelValue;
     private String editingDescriptionValue;
     private String editingLanguageCode; // Langue sélectionnée en mode édition
+    private Boolean editingStatus;
     
     /**
      * Classe interne pour gérer les noms multilingues
@@ -195,6 +197,8 @@ public class CollectionBean implements Serializable {
             descriptionSelected = null;
         }
 
+        editingStatus = refreshedCollection.getPublique();
+
         appBean.refreshCollectionReferencesList();
 
         if (searchBean != null && refreshedCollection.getCode() != null) {
@@ -291,9 +295,6 @@ public class CollectionBean implements Serializable {
         
         // Charger les valeurs pour la langue sélectionnée
         loadEditingValuesForLanguage(editingLanguageCode);
-        log.debug("Valeurs chargées - Label: '{}', Description: '{}'", 
-            editingLabelValue != null ? editingLabelValue : "null",
-            editingDescriptionValue != null ? editingDescriptionValue : "null");
     }
 
     /**
@@ -363,22 +364,56 @@ public class CollectionBean implements Serializable {
             // Si pas de description pour cette langue, utiliser le commentaire par défaut
             editingDescriptionValue = refreshedCollection.getCommentaire() != null ? refreshedCollection.getCommentaire() : "";
         }
+
+        editingStatus = refreshedCollection.getPublique();
     }
 
     /**
      * Change la langue en mode édition et charge les valeurs correspondantes
      */
     public void changeEditingLanguage() {
-        log.debug("Changement de langue d'édition vers: {}", editingLanguageCode);
-        if (editingLanguageCode != null && !editingLanguageCode.isEmpty()) {
-            loadEditingValuesForLanguage(editingLanguageCode);
-            log.debug("Valeurs chargées - Label: '{}', Description: '{}'", 
-                editingLabelValue != null ? editingLabelValue : "null",
-                editingDescriptionValue != null ? editingDescriptionValue : "null");
+        // Récupérer la valeur depuis les paramètres de la requête si elle n'est pas dans le bean
+        String langCode = editingLanguageCode;
+        
+        // Si la valeur est null ou vide, essayer de la récupérer depuis les paramètres de la requête
+        if (langCode == null || langCode.isEmpty()) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                // Essayer plusieurs noms possibles pour le paramètre
+                String[] possibleNames = {
+                    "collectionEditForm:collectionEditLangSelect",
+                    "collectionEditLangSelect",
+                    "collectionEditForm:collectionEditLangSelect_input"
+                };
+                
+                for (String paramName : possibleNames) {
+                    String paramValue = facesContext.getExternalContext().getRequestParameterMap().get(paramName);
+                    if (paramValue != null && !paramValue.isEmpty()) {
+                        langCode = paramValue;
+                        editingLanguageCode = langCode; // Mettre à jour le bean
+                        log.debug("Valeur récupérée depuis les paramètres de requête ({}): {}", paramName, langCode);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        log.debug("Changement de langue d'édition vers: {}", langCode);
+        if (langCode != null && !langCode.isEmpty()) {
+            loadEditingValuesForLanguage(langCode);
         } else {
-            log.warn("Tentative de changement de langue avec un code null ou vide");
-            editingLabelValue = "";
-            editingDescriptionValue = "";
+            log.warn("Tentative de changement de langue avec un code null ou vide. editingLanguageCode: {}", editingLanguageCode);
+            // Essayer de récupérer depuis SearchBean comme fallback
+            SearchBean searchBean = searchBeanProvider.get();
+            if (searchBean != null && searchBean.getLangSelected() != null) {
+                langCode = searchBean.getLangSelected();
+                editingLanguageCode = langCode;
+                log.debug("Utilisation de la langue depuis SearchBean: {}", langCode);
+                loadEditingValuesForLanguage(langCode);
+            } else {
+                editingLabelValue = "";
+                editingDescriptionValue = "";
+            }
         }
     }
 
@@ -482,6 +517,8 @@ public class CollectionBean implements Serializable {
                     }
                 }
             }
+
+            refreshedCollection.setPublique(editingStatus);
             
             // Sauvegarder la collection
             Entity savedCollection = entityRepository.save(refreshedCollection);
@@ -851,6 +888,7 @@ public class CollectionBean implements Serializable {
         nouvelleCollection.setCode(code);
         nouvelleCollection.setNom(nomPrincipal);
         nouvelleCollection.setEntityType(type);
+        nouvelleCollection.setStatut(EntityStatusEnum.FINALE.name());
         nouvelleCollection.setPublique(collectionPublique != null ? collectionPublique : true);
         nouvelleCollection.setCreateDate(LocalDateTime.now());
 

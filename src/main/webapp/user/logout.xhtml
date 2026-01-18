@@ -40,6 +40,11 @@
                 </div>
 
                 <div class="modern-logout-actions">
+                    <p:commandButton value="Annuler"
+                                     icon="pi pi-times"
+                                     onclick="PF('confirmLogoutDialog').hide(); return false;"
+                                     type="button"
+                                     styleClass="modern-logout-button modern-logout-button-cancel" />
                     <p:commandButton value="Oui, me déconnecter"
                                      icon="pi pi-sign-out"
                                      action="#{loginBean.logout()}"
@@ -47,11 +52,6 @@
                                      update=":growl, :headerForm, :sidebarForm :cardsContainer :contentPanels"
                                      styleClass="modern-logout-button modern-logout-button-confirm"
                                      oncomplete="PF('confirmLogoutDialog').hide();" />
-                    <p:commandButton value="Annuler"
-                                     icon="pi pi-times"
-                                     onclick="PF('confirmLogoutDialog').hide(); return false;"
-                                     type="button"
-                                     styleClass="modern-logout-button modern-logout-button-cancel" />
                 </div>
             </div>
         </h:form>
