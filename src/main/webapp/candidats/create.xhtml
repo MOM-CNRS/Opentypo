@@ -7,224 +7,322 @@
 
     <ui:define name="mainContent">
         <f:event listener="#{candidatBean.initNouveauCandidat}" type="preRenderView"/>
-        <div class="candidats-container">
-            <div class="candidats-header">
-                <h1 class="candidats-title">
-                    <i class="pi pi-plus-circle candidats-title-icon"></i>
-                    Créer un nouveau candidat
-                </h1>
-                <p class="candidats-subtitle">Proposez un nouveau type</p>
-            </div>
-
-            <div class="candidats-content">
-                <h:form id="createCandidatForm">
-                    <p:panel header="Informations du type" styleClass="candidats-form-panel">
-                        <div class="candidats-form-grid">
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="typeCode" value="Code du type *" />
-                                <p:inputText id="typeCode" 
-                                           value="#{candidatBean.nouveauCandidat.typeCode}"
-                                           required="true"
-                                           requiredMessage="Le code du type est requis"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="label" value="Label *" />
-                                <p:inputText id="label" 
-                                           value="#{candidatBean.nouveauCandidat.label}"
-                                           required="true"
-                                           requiredMessage="Le label est requis"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="langue" value="Langue" />
-                                <p:selectOneMenu id="langue" 
-                                               value="#{candidatBean.nouveauCandidat.langue}"
-                                               styleClass="candidats-select">
-                                    <f:selectItem itemLabel="Français" itemValue="fr"/>
-                                    <f:selectItem itemLabel="Anglais" itemValue="en"/>
-                                    <f:selectItem itemLabel="Espagnol" itemValue="es"/>
-                                    <f:selectItem itemLabel="Allemand" itemValue="de"/>
-                                </p:selectOneMenu>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="periode" value="Période" />
-                                <p:inputText id="periode" 
-                                           value="#{candidatBean.nouveauCandidat.periode}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="tpq" value="TPQ" />
-                                <p:inputNumber id="tpq" 
-                                             value="#{candidatBean.nouveauCandidat.tpq}"
-                                             styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="taq" value="TAQ" />
-                                <p:inputNumber id="taq" 
-                                             value="#{candidatBean.nouveauCandidat.taq}"
-                                             styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group candidats-form-group-full">
-                                <p:outputLabel for="commentaireDatation" value="Commentaire datation" />
-                                <p:inputTextarea id="commentaireDatation" 
-                                               value="#{candidatBean.nouveauCandidat.commentaireDatation}"
-                                               rows="3"
-                                               styleClass="candidats-textarea"/>
-                            </div>
-                        </div>
-                    </p:panel>
-
-                    <p:panel header="Détails" styleClass="candidats-form-panel">
-                        <div class="candidats-form-grid">
-                            <div class="candidats-form-group candidats-form-group-full">
-                                <p:outputLabel for="appellationUsuelle" value="Appellation usuelle" />
-                                <p:inputText id="appellationUsuelle" 
-                                           value="#{candidatBean.nouveauCandidat.appellationUsuelle}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group candidats-form-group-full">
-                                <p:outputLabel for="description" value="Description" />
-                                <p:inputTextarea id="description" 
-                                               value="#{candidatBean.nouveauCandidat.description}"
-                                               rows="5"
-                                               styleClass="candidats-textarea"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="production" value="Production" />
-                                <p:inputText id="production" 
-                                           value="#{candidatBean.nouveauCandidat.production}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="ateliers" value="Atelier(s)" />
-                                <p:inputText id="ateliers" 
-                                           value="#{candidatBean.nouveauCandidat.ateliers}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="aireCirculation" value="Aire de circulation" />
-                                <p:inputText id="aireCirculation" 
-                                           value="#{candidatBean.nouveauCandidat.aireCirculation}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="categorieFonctionnelle" value="Catégorie fonctionnelle" />
-                                <p:inputText id="categorieFonctionnelle" 
-                                           value="#{candidatBean.nouveauCandidat.categorieFonctionnelle}"
-                                           styleClass="candidats-input"/>
-                            </div>
-                        </div>
-                    </p:panel>
-
-                    <p:panel header="Caractéristiques physiques" styleClass="candidats-form-panel">
-                        <div class="candidats-form-grid">
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="materiaux" value="Matériaux" />
-                                <p:inputText id="materiaux" 
-                                           value="#{candidatBean.nouveauCandidat.materiaux}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="forme" value="Forme" />
-                                <p:inputText id="forme" 
-                                           value="#{candidatBean.nouveauCandidat.forme}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="dimensions" value="Dimensions" />
-                                <p:inputText id="dimensions" 
-                                           value="#{candidatBean.nouveauCandidat.dimensions}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="technique" value="Technique" />
-                                <p:inputText id="technique" 
-                                           value="#{candidatBean.nouveauCandidat.technique}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="fabrication" value="Fabrication" />
-                                <p:inputText id="fabrication" 
-                                           value="#{candidatBean.nouveauCandidat.fabrication}"
-                                           styleClass="candidats-input"/>
-                            </div>
-                        </div>
-                    </p:panel>
-
-                    <p:panel header="Informations complémentaires" styleClass="candidats-form-panel">
-                        <div class="candidats-form-grid">
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="reference" value="Référentiel" />
-                                <p:inputText id="reference"
-                                           value="#{candidatBean.nouveauCandidat.reference}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="typologiqueScientifique" value="Typologique scientifique" />
-                                <p:inputText id="typologiqueScientifique" 
-                                           value="#{candidatBean.nouveauCandidat.typologiqueScientifique}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="identifiantPerenne" value="Identifiant pérenne" />
-                                <p:inputText id="identifiantPerenne" 
-                                           value="#{candidatBean.nouveauCandidat.identifiantPerenne}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group">
-                                <p:outputLabel for="ancienneVersion" value="Ancienne version" />
-                                <p:inputText id="ancienneVersion" 
-                                           value="#{candidatBean.nouveauCandidat.ancienneVersion}"
-                                           styleClass="candidats-input"/>
-                            </div>
-
-                            <div class="candidats-form-group candidats-form-group-full">
-                                <p:outputLabel for="bibliographie" value="Bibliographie" />
-                                <p:inputTextarea id="bibliographie" 
-                                               value="#{candidatBean.nouveauCandidat.bibliographie}"
-                                               rows="3"
-                                               styleClass="candidats-textarea"/>
-                            </div>
-                        </div>
-                    </p:panel>
-
-                    <div class="candidats-form-actions">
-                        <p:commandButton value="Annuler" 
-                                       icon="pi pi-times"
-                                       styleClass="candidats-btn candidats-btn-cancel"
+        <div class="users-container">
+            <div class="users-header">
+                <div class="users-header-content">
+                    <div>
+                        <h1 class="users-title">
+                            <i class="pi pi-plus-circle users-title-icon" />
+                            Créer un nouveau candidat
+                        </h1>
+                        <p class="users-subtitle">Proposez une nouvelle entité</p>
+                    </div>
+                    <h:form>
+                        <p:commandButton value="Retour à la liste"
+                                       icon="pi pi-arrow-left"
+                                       styleClass="users-create-button"
                                        action="/candidats/candidats.xhtml?faces-redirect=true"
                                        process="@this"
                                        update="@none"/>
-                        <p:commandButton value="Sauvegarder" 
-                                       icon="pi pi-check"
-                                       styleClass="candidats-btn candidats-btn-save"
-                                       action="#{candidatBean.sauvegarderCandidat}"
-                                       process="@form"
-                                       update="@form :growl"/>
-                    </div>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="users-content">
+                <h:form id="createCandidatForm">
+                    <p:wizard id="candidatWizard"
+                             widgetVar="candidatWizard"
+                             flowListener="#{candidatBean.onFlowProcess}"
+                             styleClass="users-wizard"
+                             showNavBar="true"
+                             showStepStatus="true">
+                        
+                        <!-- Étape 1 : Informations de base -->
+                        <p:tab id="step1" title="Informations de base">
+                            <div class="wizard-step-content">
+                                <div class="wizard-step-header">
+                                    <i class="pi pi-info-circle wizard-step-icon" />
+                                    <h3 class="wizard-step-title">Informations principales</h3>
+                                    <p class="wizard-step-description">Remplissez les informations de base pour créer votre candidat</p>
+                                </div>
+                                
+                                <div class="users-form-panel wizard-form-panel">
+                                    <div class="form-section">
+                                        <div class="form-section-header">
+                                            <i class="pi pi-tag form-section-icon" />
+                                            <h4 class="form-section-title">Type et identification</h4>
+                                        </div>
+                                        <div class="users-form-grid">
+                                            <div class="users-form-group users-form-group-full">
+                                                <p:outputLabel for="entityType" value="Type d'entité" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-sitemap input-icon" />
+                                                    <p:selectOneMenu id="entityType"
+                                                                   value="#{candidatBean.selectedEntityType}"
+                                                                   styleClass="users-select"
+                                                                   required="true"
+                                                                   requiredMessage="Le type d'entité est requis">
+                                                        <f:selectItem itemLabel="Sélectionnez un type" itemValue="" />
+                                                        <f:selectItems value="#{candidatBean.availableEntityTypes}"
+                                                                     var="entityType"
+                                                                     itemLabel="#{candidatBean.getEntityTypeName(entityType)}"
+                                                                     itemValue="#{entityType}" />
+                                                    </p:selectOneMenu>
+                                                </div>
+                                                <p:message for="entityType" display="icon"/>
+                                            </div>
+
+                                            <div class="users-form-group">
+                                                <p:outputLabel for="entityCode" value="Code (nom court)" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-hashtag input-icon" />
+                                                    <p:inputText id="entityCode"
+                                                               value="#{candidatBean.entityCode}"
+                                                               required="true"
+                                                               requiredMessage="Le code est requis"
+                                                               styleClass="users-input"
+                                                               placeholder="Ex: TYPE-001"
+                                                               maxlength="100"/>
+                                                </div>
+                                                <p:message for="entityCode" display="icon"/>
+                                            </div>
+
+                                            <div class="users-form-group">
+                                                <p:outputLabel for="entityLabel" value="Label (nom long)" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-pencil input-icon" />
+                                                    <p:inputText id="entityLabel"
+                                                               value="#{candidatBean.entityLabel}"
+                                                               required="true"
+                                                               requiredMessage="Le label est requis"
+                                                               styleClass="users-input"
+                                                               placeholder="Nom de l'entité"
+                                                               maxlength="255"/>
+                                                </div>
+                                                <p:message for="entityLabel" display="icon"/>
+                                            </div>
+
+                                            <div class="users-form-group">
+                                                <p:outputLabel for="selectedLangue" value="Langue pour le label" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-globe input-icon" />
+                                                    <p:selectOneMenu id="selectedLangue"
+                                                                   value="#{candidatBean.selectedLangue}"
+                                                                   styleClass="users-select"
+                                                                   required="true"
+                                                                   requiredMessage="La langue est requise">
+                                                        <f:selectItem itemLabel="Sélectionnez une langue" itemValue="" />
+                                                        <f:selectItems value="#{candidatBean.availableLanguages}"
+                                                                     var="langue"
+                                                                     itemLabel="#{langue.nom}"
+                                                                     itemValue="#{langue}" />
+                                                    </p:selectOneMenu>
+                                                </div>
+                                                <p:message for="selectedLangue" display="icon"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section">
+                                        <div class="form-section-header">
+                                            <i class="pi pi-folder form-section-icon" />
+                                            <h4 class="form-section-title">Collection et référentiel</h4>
+                                        </div>
+                                        <div class="users-form-grid">
+                                            <div class="users-form-group">
+                                                <p:outputLabel for="selectedCollection" value="Collection" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-folder-open input-icon" />
+                                                    <p:selectOneMenu id="selectedCollection"
+                                                                   value="#{candidatBean.selectedCollection}"
+                                                                   styleClass="users-select"
+                                                                   required="true"
+                                                                   requiredMessage="La collection est requise"
+                                                                   filter="true"
+                                                                   filterMatchMode="contains">
+                                                        <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                                                        <f:selectItems value="#{candidatBean.availableCollections}"
+                                                                     var="collection"
+                                                                     itemLabel="#{collection.nom}"
+                                                                     itemValue="#{collection}" />
+                                                        <p:ajax event="change"
+                                                               listener="#{candidatBean.loadReferencesForCollection()}"
+                                                               process="@this"
+                                                               update="selectedReference"
+                                                               onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                                               oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                                               onerror="forceHideLoading();"/>
+                                                    </p:selectOneMenu>
+                                                </div>
+                                                <p:message for="selectedCollection" display="icon"/>
+                                            </div>
+
+                                            <div class="users-form-group">
+                                                <p:outputLabel for="selectedReference" value="Référentiel" />
+                                                <div class="input-wrapper">
+                                                    <i class="pi pi-book input-icon" />
+                                                    <p:selectOneMenu id="selectedReference"
+                                                                   value="#{candidatBean.selectedReference}"
+                                                                   styleClass="users-select"
+                                                                   required="true"
+                                                                   requiredMessage="Le référentiel est requis"
+                                                                   disabled="#{empty candidatBean.selectedCollection}"
+                                                                   filter="true"
+                                                                   filterMatchMode="contains">
+                                                        <f:selectItem itemLabel="Sélectionnez d'abord une collection" itemValue="" />
+                                                        <f:selectItems value="#{candidatBean.availableReferences}"
+                                                                     var="reference"
+                                                                     itemLabel="#{reference.nom}"
+                                                                     itemValue="#{reference}" />
+                                                    </p:selectOneMenu>
+                                                </div>
+                                                <p:message for="selectedReference" display="icon"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:tab>
+
+                        <!-- Étape 2 : Formulaire selon le type -->
+                        <p:tab id="step2" title="Détails">
+                            <div class="wizard-step-content">
+                                <div class="wizard-step-header">
+                                    <i class="pi pi-file-edit wizard-step-icon" />
+                                    <h3 class="wizard-step-title">Détails complémentaires</h3>
+                                    <p class="wizard-step-description">Complétez les informations spécifiques selon le type sélectionné</p>
+                                </div>
+                                
+                                <div class="users-form-panel wizard-form-panel">
+                                    <!-- Formulaire pour TYPE -->
+                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'TYPE'}">
+                                        <div class="form-section">
+                                            <div class="form-section-header">
+                                                <i class="pi pi-tag form-section-icon" />
+                                                <h4 class="form-section-title">Description du type</h4>
+                                            </div>
+                                            <div class="users-form-grid">
+                                                <div class="users-form-group users-form-group-full">
+                                                    <p:outputLabel for="typeDescription" value="Description" />
+                                                    <div class="input-wrapper">
+                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                                        <p:inputTextarea id="typeDescription"
+                                                                       value="#{candidatBean.typeDescription}"
+                                                                       rows="6"
+                                                                       styleClass="users-textarea"
+                                                                       placeholder="Saisissez une description détaillée du type..."/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <!-- Formulaire pour SERIES -->
+                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'SERIES'}">
+                                        <div class="form-section">
+                                            <div class="form-section-header">
+                                                <i class="pi pi-list form-section-icon" />
+                                                <h4 class="form-section-title">Description de la série</h4>
+                                            </div>
+                                            <div class="users-form-grid">
+                                                <div class="users-form-group users-form-group-full">
+                                                    <p:outputLabel for="serieDescription" value="Description" />
+                                                    <div class="input-wrapper">
+                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                                        <p:inputTextarea id="serieDescription"
+                                                                       value="#{candidatBean.serieDescription}"
+                                                                       rows="6"
+                                                                       styleClass="users-textarea"
+                                                                       placeholder="Saisissez une description détaillée de la série..."/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <!-- Formulaire pour GROUP -->
+                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'GROUP'}">
+                                        <div class="form-section">
+                                            <div class="form-section-header">
+                                                <i class="pi pi-th-large form-section-icon" />
+                                                <h4 class="form-section-title">Description du groupe</h4>
+                                            </div>
+                                            <div class="users-form-grid">
+                                                <div class="users-form-group users-form-group-full">
+                                                    <p:outputLabel for="groupDescription" value="Description" />
+                                                    <div class="input-wrapper">
+                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                                        <p:inputTextarea id="groupDescription"
+                                                                       value="#{candidatBean.groupDescription}"
+                                                                       rows="6"
+                                                                       styleClass="users-textarea"
+                                                                       placeholder="Saisissez une description détaillée du groupe..."/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <!-- Formulaire pour CATEGORY -->
+                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'CATEGORY'}">
+                                        <div class="form-section">
+                                            <div class="form-section-header">
+                                                <i class="pi pi-bookmark form-section-icon" />
+                                                <h4 class="form-section-title">Description de la catégorie</h4>
+                                            </div>
+                                            <div class="users-form-grid">
+                                                <div class="users-form-group users-form-group-full">
+                                                    <p:outputLabel for="categoryDescription" value="Description" />
+                                                    <div class="input-wrapper">
+                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                                        <p:inputTextarea id="categoryDescription"
+                                                                       value="#{candidatBean.categoryDescription}"
+                                                                       rows="6"
+                                                                       styleClass="users-textarea"
+                                                                       placeholder="Saisissez une description détaillée de la catégorie..."/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <!-- Formulaire pour COLLECTION -->
+                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'COLLECTION'}">
+                                        <div class="form-section">
+                                            <div class="form-section-header">
+                                                <i class="pi pi-folder form-section-icon" />
+                                                <h4 class="form-section-title">Paramètres de la collection</h4>
+                                            </div>
+                                            <div class="users-form-grid">
+                                                <div class="users-form-group users-form-group-full">
+                                                    <p:outputLabel for="collectionDescription" value="Description" />
+                                                    <div class="input-wrapper">
+                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                                        <p:inputTextarea id="collectionDescription"
+                                                                       value="#{candidatBean.collectionDescription}"
+                                                                       rows="6"
+                                                                       styleClass="users-textarea"
+                                                                       placeholder="Saisissez une description détaillée de la collection..."/>
+                                                    </div>
+                                                </div>
+                                                <div class="users-form-group">
+                                                    <p:outputLabel for="collectionPublique" value="Collection publique" />
+                                                    <div class="checkbox-wrapper-enhanced">
+                                                        <p:selectBooleanCheckbox id="collectionPublique"
+                                                                                value="#{candidatBean.collectionPublique}"
+                                                                                styleClass="users-checkbox"/>
+                                                        <span class="checkbox-label">Rendre cette collection visible publiquement</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+                                </div>
+                            </div>
+                        </p:tab>
+                    </p:wizard>
                 </h:form>
             </div>
         </div>
     </ui:define>
-
 </ui:composition>
-
