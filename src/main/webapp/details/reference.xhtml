@@ -74,10 +74,18 @@
                                             alt="Français"
                                             title="Français"/>
                         </div>
-                        <h2 class="concept-info-title">
-                            <span class="concept-info-title-name">#{applicationBean.selectedReference.nom}</span>
-                            <span class="concept-info-title-code">#{applicationBean.selectedReference.code}</span>
-                        </h2>
+                        <div class="collection-panel-title-wrapper">
+                            <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                           process="@this"
+                                           update=":centerContent, :treeContainer, :breadcrumbContent"
+                                           onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                           onerror="forceHideLoading();"
+                                           styleClass="collection-panel-title-link">
+                                <h3 class="collection-panel-title">#{applicationBean.selectedReference.code}</h3>
+                            </p:commandLink>
+                            <span class="collection-panel-subtitle">#{applicationBean.selectedReference.nom}</span>
+                        </div>
                     </div>
                     <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
                         <ui:fragment rendered="#{not applicationBean.editingReference}">

@@ -3,12 +3,14 @@ package fr.cnrs.opentypo.presentation.bean.candidats;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
+import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -25,6 +27,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Named("candidatBean")
@@ -52,6 +55,9 @@ public class CandidatBean implements Serializable {
     @Inject
     private EntityRelationRepository entityRelationRepository;
 
+    @Inject
+    private SearchBean searchBean;
+
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;
@@ -72,14 +78,62 @@ public class CandidatBean implements Serializable {
     private List<Entity> availableReferences;
     
     // Index du wizard (0 = étape 1, 1 = étape 2)
-    private int wizardStep = 0;
+    private int currentStep = 0;
+    
+    /**
+     * Passe à l'étape suivante du wizard
+     */
+    public void nextStep() {
+        if (currentStep < 1) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            
+            // La validation JSF est déjà effectuée par PrimeFaces (process="@form")
+            // Si la validation a échoué, on reste sur l'étape 1
+            if (facesContext.isValidationFailed()) {
+                log.debug("Validation JSF échouée, reste sur l'étape 1");
+                return;
+            }
+            
+            // Validation manuelle supplémentaire
+            if (validateStep1()) {
+                currentStep++;
+                log.debug("Passage à l'étape 2");
+            } else {
+                log.debug("Validation manuelle échouée, reste sur l'étape 1");
+            }
+        }
+    }
+    
+    /**
+     * Retourne à l'étape précédente du wizard
+     */
+    public void previousStep() {
+        if (currentStep > 0) {
+            currentStep--;
+        }
+    }
+    
+    /**
+     * Retourne true si on est sur l'étape 1
+     */
+    public boolean isStep1() {
+        return currentStep == 0;
+    }
+    
+    /**
+     * Retourne true si on est sur l'étape 2
+     */
+    public boolean isStep2() {
+        return currentStep == 1;
+    }
+
 
     @PostConstruct
     public void init() {
         chargerCandidats();
         loadAvailableEntityTypes();
         loadAvailableLanguages();
-        loadAvailableCollections();
+        availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
     }
     
     /**
@@ -109,44 +163,23 @@ public class CandidatBean implements Serializable {
     }
     
     /**
-     * Charge les collections disponibles depuis la base de données
-     * Si l'utilisateur est déconnecté, affiche uniquement les collections publiques
-     * Si l'utilisateur est connecté, affiche toutes les collections (publiques et privées)
-     */
-    public void loadAvailableCollections() {
-        try {
-            // Charger toutes les collections depuis la base de données
-            List<Entity> allCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
-            
-            // Filtrer selon l'authentification
-            boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
-            availableCollections = allCollections.stream()
-                .filter(c -> {
-                    // Si l'utilisateur est authentifié, afficher toutes les collections
-                    // Sinon, afficher uniquement les collections publiques
-                    return isAuthenticated || (c.getPublique() != null && c.getPublique());
-                })
-                .collect(Collectors.toList());
-            
-            log.debug("Collections chargées: {} (utilisateur authentifié: {})", 
-                availableCollections.size(), isAuthenticated);
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des collections depuis la base de données", e);
-            availableCollections = new ArrayList<>();
-        }
-    }
-    
-    /**
      * Charge les référentiels d'une collection sélectionnée depuis la base de données
      * Filtre les référentiels selon l'état d'authentification de l'utilisateur
      */
     public void loadReferencesForCollection() {
+        log.debug("loadReferencesForCollection appelée - selectedCollection: {}", 
+            selectedCollection != null ? selectedCollection.getCode() : "null");
+        
         availableReferences = new ArrayList<>();
         if (selectedCollection != null) {
             try {
+                // Recharger la collection depuis la base pour éviter les problèmes de lazy loading
+                Entity refreshedCollection = entityRepository.findById(selectedCollection.getId())
+                    .orElse(selectedCollection);
+                
                 // Charger les référentiels rattachés à la collection sélectionnée
                 List<Entity> allReferences = entityRelationRepository.findChildrenByParentAndType(
-                    selectedCollection, EntityConstants.ENTITY_TYPE_REFERENCE);
+                    refreshedCollection, EntityConstants.ENTITY_TYPE_REFERENCE);
                 
                 // Filtrer selon l'authentification
                 boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
@@ -159,7 +192,7 @@ public class CandidatBean implements Serializable {
                     .collect(Collectors.toList());
                 
                 log.debug("Référentiels chargés pour la collection {}: {} (utilisateur authentifié: {})", 
-                    selectedCollection.getCode(), availableReferences.size(), isAuthenticated);
+                    refreshedCollection.getCode(), availableReferences.size(), isAuthenticated);
             } catch (Exception e) {
                 log.error("Erreur lors du chargement des référentiels de la collection", e);
                 availableReferences = new ArrayList<>();
@@ -167,67 +200,55 @@ public class CandidatBean implements Serializable {
         } else {
             // Si aucune collection n'est sélectionnée, vider la liste des référentiels
             availableReferences = new ArrayList<>();
+            log.debug("Aucune collection sélectionnée, liste des référentiels vidée");
         }
         // Réinitialiser la sélection du référentiel si la collection change
         selectedReference = null;
     }
     
     /**
-     * Passe à l'étape suivante du wizard
-     */
-    public void nextStep() {
-        if (wizardStep == 0) {
-            // Valider l'étape 1
-            if (validateStep1()) {
-                wizardStep = 1;
-            }
-        }
-    }
-    
-    /**
-     * Retourne à l'étape précédente du wizard
-     */
-    public void previousStep() {
-        if (wizardStep > 0) {
-            wizardStep--;
-        }
-    }
-    
-    /**
      * Valide l'étape 1 du formulaire
      */
     private boolean validateStep1() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        boolean isValid = true;
+        
         if (selectedEntityType == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le type d'entité est requis."));
-            return false;
+            isValid = false;
         }
         if (entityCode == null || entityCode.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le code est requis."));
-            return false;
+            isValid = false;
         }
         if (entityLabel == null || entityLabel.trim().isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le label est requis."));
-            return false;
+            isValid = false;
         }
         if (selectedLangue == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La langue est requise."));
-            return false;
+            isValid = false;
         }
         if (selectedCollection == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La collection est requise."));
-            return false;
+            isValid = false;
         }
         if (selectedReference == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
+            facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le référentiel est requis."));
-            return false;
+            isValid = false;
         }
-        return true;
+        
+        if (!isValid) {
+            facesContext.validationFailed();
+        }
+        
+        return isValid;
     }
     
     /**
@@ -296,14 +317,14 @@ public class CandidatBean implements Serializable {
         // Réinitialiser les champs du wizard
         resetWizardForm();
         // Charger les collections disponibles depuis la base de données
-        loadAvailableCollections();
+        availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
     }
     
     /**
      * Réinitialise le formulaire du wizard
      */
     public void resetWizardForm() {
-        wizardStep = 0;
+        currentStep = 0;
         selectedEntityType = null;
         entityCode = null;
         entityLabel = null;
@@ -328,23 +349,6 @@ public class CandidatBean implements Serializable {
     private String collectionDescription;
     private Boolean collectionPublique = true;
     
-    /**
-     * Gère la navigation dans le wizard
-     */
-    public String onFlowProcess(org.primefaces.event.FlowEvent event) {
-        String oldStep = event.getOldStep();
-        String newStep = event.getNewStep();
-        
-        // Si on passe de l'étape 1 à l'étape 2, valider l'étape 1
-        if ("step1".equals(oldStep) && "step2".equals(newStep)) {
-            if (!validateStep1()) {
-                return oldStep; // Rester sur l'étape 1
-            }
-        }
-        
-        return newStep;
-    }
-
     public void sauvegarderCandidat() {
         if (nouveauCandidat.getId() == null) {
             // Nouveau candidat
@@ -405,6 +409,14 @@ public class CandidatBean implements Serializable {
     public String visualiserCandidat(Candidat candidat) {
         candidatSelectionne = candidat;
         return "/candidats/view.xhtml?faces-redirect=true";
+    }
+
+    public String getCollectionLabel(Entity collection) {
+        Optional<Label> existingLabel = collection.getLabels().stream()
+                .filter(l -> l.getLangue() != null && l.getLangue().getCode().equalsIgnoreCase(searchBean.getLangSelected()))
+                .findFirst();
+
+        return existingLabel.isPresent() ? existingLabel.get().getNom() : collection.getCode();
     }
 }
 

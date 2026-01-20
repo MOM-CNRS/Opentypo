@@ -51,29 +51,12 @@
                 </div>
 
                 <div class="reference-form-group">
-                    <p:outputLabel for="periode" value="Période" />
-                    <p:inputText id="periode"
-                                 value="#{referenceBean.periodeId}"
-                                 styleClass="reference-input"
-                                 placeholder="Nom du référentiel"/>
-                </div>
-
-                <div class="reference-form-group">
                     <p:outputLabel for="referenceBibliographique" value="Référence bibliographique" />
                     <p:inputTextarea id="referenceBibliographique" 
                                     value="#{referenceBean.referenceBibliographique}"
                                     rows="3"
                                     styleClass="reference-textarea"
                                     placeholder="Référence bibliographique"/>
-                </div>
-
-                <div class="reference-form-group">
-                    <p:outputLabel for="categories" value="Catégories du référentiel" />
-                    <p:inputText id="categories"
-                                 value="#{referenceBean.categorieIds}"
-                                 requiredMessage="La catégorie est requis"
-                                 styleClass="reference-input"
-                                 placeholder="Nom du référentiel"/>
                 </div>
             </div>
 

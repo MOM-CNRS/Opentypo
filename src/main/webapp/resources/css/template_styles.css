@@ -371,8 +371,8 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 }
 
 .candidats-datatable .ui-datatable-data > tr > td {
-    padding: 0.5rem !important;
     border: 1px solid rgba(71, 98, 77, 0.1) !important;
+    padding: 0px !important;
 }
 
 .candidats-actions {
@@ -659,11 +659,92 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 }
 
 .concept-info-title {
-    font-size: 1.2rem !important;
-    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    font-weight: 400 !important;
     color: var(--color-text-primary, #333) !important;
     margin: 0 !important;
+    line-height: 1.8 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.625rem !important;
+    position: relative !important;
+}
+
+/* Style élégant pour le code - Badge moderne en première ligne */
+.concept-info-title-code {
+    display: inline-block !important;
+    font-size: 0.8125rem !important;
+    font-weight: 700 !important;
+    color: var(--color-action-main, #47624D) !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px !important;
+    border-left: 4px solid var(--color-action-main, #47624D) !important;
+    box-shadow: 0 1px 3px rgba(71, 98, 77, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
     line-height: 1.3 !important;
+    align-self: flex-start !important;
+    max-width: fit-content !important;
+}
+
+.concept-info-title-code::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 4px !important;
+    height: 100% !important;
+    background: linear-gradient(180deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.7) 100%) !important;
+    transition: width 0.3s ease !important;
+}
+
+.concept-info-title-code:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+    box-shadow: 0 3px 8px rgba(71, 98, 77, 0.2) !important;
+    transform: translateX(2px) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.concept-info-title-code:hover::before {
+    width: 6px !important;
+}
+
+/* Style élégant pour le nom - Typographie raffinée en deuxième ligne */
+.concept-info-title-name {
+    color: var(--color-text-primary, #333) !important;
+    font-weight: 600 !important;
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+    word-wrap: break-word !important;
+    transition: all 0.3s ease !important;
+    letter-spacing: -0.02em !important;
+    margin-top: 0.125rem !important;
+    position: relative !important;
+    padding-left: 0.25rem !important;
+}
+
+.concept-info-title-name::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    bottom: 0.25rem !important;
+    width: 0 !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, transparent 100%) !important;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.concept-info-title:hover .concept-info-title-name {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.concept-info-title:hover .concept-info-title-name::before {
+    width: 60px !important;
 }
 
 .concept-info-language-flag {
@@ -758,6 +839,28 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 
     .concept-info-title {
         font-size: 1.05rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .concept-info-title-code {
+        font-size: 0.75rem !important;
+        padding: 0.4375rem 0.875rem !important;
+        border-left-width: 3px !important;
+    }
+    
+    .concept-info-title-name {
+        font-size: 1.25rem !important;
+        width: 100% !important;
+        padding-left: 0.125rem !important;
+    }
+    
+    .concept-info-title-name::before {
+        height: 1.5px !important;
+        bottom: 0.125rem !important;
+    }
+    
+    .concept-info-title:hover .concept-info-title-name::before {
+        width: 40px !important;
     }
 
     .concept-info-grid {
@@ -1596,7 +1699,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     display: none !important;
 }
 
-/* Styles améliorés pour le contenu des étapes */
+/* Styles améliorés pour le contenu des étapes et barre de progression du wizard personnalisé */
 .wizard-step-content {
     padding-left: 2rem !important;
     padding-right: 2rem !important;
@@ -1655,6 +1758,151 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     border-radius: 16px !important;
     padding: 2rem !important;
     border: 1px solid rgba(71, 98, 77, 0.1) !important;
+}
+
+/* Wizard personnalisé - barre de progression */
+.wizard-progress {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%) !important;
+    padding: 2rem 2.5rem !important;
+    border-bottom: 2px solid rgba(71, 98, 77, 0.1) !important;
+}
+
+.wizard-steps {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 2rem !important;
+    position: relative !important;
+}
+
+.wizard-step {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.875rem !important;
+    position: relative !important;
+    flex: 1 !important;
+    max-width: 260px !important;
+}
+
+.wizard-step .step-number {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: rgba(71, 98, 77, 0.1) !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 700 !important;
+    font-size: 1.125rem !important;
+    border: 3px solid rgba(71, 98, 77, 0.2) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.wizard-step.active .step-number {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    color: #ffffff !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 4px 16px rgba(71, 98, 77, 0.4) !important;
+    transform: scale(1.1) !important;
+}
+
+.wizard-step.completed .step-number {
+    background: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.wizard-step.completed .step-number::after {
+    content: '\\2713' !important;
+    font-size: 1.5rem !important;
+}
+
+.wizard-step .step-texts {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.15rem !important;
+}
+
+.wizard-step .step-label {
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    transition: color 0.3s ease !important;
+}
+
+.wizard-step.active .step-label {
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 700 !important;
+}
+
+.wizard-step.completed .step-label {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.wizard-step .step-status {
+    font-size: 0.8125rem !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    opacity: 0.9 !important;
+}
+
+.wizard-step.active .step-status {
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 500 !important;
+}
+
+.wizard-step.completed .step-status {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.wizard-step .step-line {
+    position: absolute !important;
+    top: 24px !important;
+    left: calc(50% + 28px) !important;
+    right: -2rem !important;
+    height: 3px !important;
+    background: rgba(71, 98, 77, 0.2) !important;
+    z-index: 1 !important;
+    transition: background 0.4s ease !important;
+}
+
+.wizard-step:last-child .step-line {
+    display: none !important;
+}
+
+.wizard-step.completed .step-line {
+    background: var(--color-action-main, #47624D) !important;
+}
+
+@media (max-width: 768px) {
+    .wizard-progress {
+        padding: 1.5rem 1rem !important;
+    }
+    
+    .wizard-steps {
+        gap: 1rem !important;
+    }
+    
+    .wizard-step {
+        max-width: 180px !important;
+    }
+    
+    .wizard-step .step-number {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1rem !important;
+    }
+    
+    .wizard-step .step-label {
+        font-size: 0.8125rem !important;
+    }
+    
+    .wizard-step .step-status {
+        font-size: 0.75rem !important;
+    }
 }
 
 /* Sections de formulaire */
@@ -1861,6 +2109,175 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     }
 }
 
+/* Navigation du wizard - Design amélioré */
+.wizard-navigation {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 2rem 2.5rem !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
+    border-top: 2px solid rgba(71, 98, 77, 0.1) !important;
+    gap: 1rem !important;
+    position: relative !important;
+}
+
+.wizard-nav-left,
+.wizard-nav-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+}
+
+.wizard-nav-left {
+    flex: 0 0 auto !important;
+}
+
+.wizard-nav-right {
+    flex: 1 !important;
+    justify-content: flex-end !important;
+}
+
+.wizard-navigation::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent 0%, rgba(71, 98, 77, 0.2) 50%, transparent 100%) !important;
+}
+
+.wizard-btn {
+    padding: 1rem 2.25rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    border-radius: 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.625rem !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    min-width: 140px !important;
+    justify-content: center !important;
+}
+
+.wizard-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s, height 0.6s !important;
+}
+
+.wizard-btn:hover::before {
+    width: 300px !important;
+    height: 300px !important;
+}
+
+.wizard-btn-next,
+.wizard-btn-finish {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.85) 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(71, 98, 77, 0.3) !important;
+}
+
+.wizard-btn-next:hover,
+.wizard-btn-finish:hover {
+    background: linear-gradient(135deg, #3a4f3e 0%, var(--color-action-main, #47624D) 100%) !important;
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 8px 20px rgba(71, 98, 77, 0.4) !important;
+}
+
+.wizard-btn-next:active,
+.wizard-btn-finish:active {
+    transform: translateY(-1px) scale(1) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+}
+
+.wizard-btn-finish {
+    background: linear-gradient(135deg, #2d7a3d 0%, var(--color-action-main, #47624D) 100%) !important;
+    box-shadow: 0 4px 16px rgba(45, 122, 61, 0.35) !important;
+}
+
+.wizard-btn-finish:hover {
+    background: linear-gradient(135deg, #256633 0%, #2d7a3d 100%) !important;
+    box-shadow: 0 8px 24px rgba(45, 122, 61, 0.45) !important;
+}
+
+.wizard-btn-prev {
+    background: #ffffff !important;
+    color: var(--color-action-main, #47624D) !important;
+    border: 2px solid var(--color-action-main, #47624D) !important;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.15) !important;
+}
+
+.wizard-btn-prev:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 6px 16px rgba(71, 98, 77, 0.25) !important;
+}
+
+.wizard-btn-prev:active {
+    transform: translateY(-1px) scale(1) !important;
+    box-shadow: 0 3px 10px rgba(71, 98, 77, 0.2) !important;
+}
+
+.wizard-btn .ui-button-icon-left,
+.wizard-btn .ui-button-icon-right,
+.wizard-btn .ui-button-icon {
+    font-size: 1.125rem !important;
+    transition: transform 0.3s ease !important;
+}
+
+.wizard-btn-next:hover .ui-button-icon-right,
+.wizard-btn-finish:hover .ui-button-icon-right {
+    transform: translateX(3px) !important;
+}
+
+.wizard-btn-prev:hover .ui-button-icon-left {
+    transform: translateX(-3px) !important;
+}
+
+/* Responsive pour la navigation du wizard */
+@media (max-width: 768px) {
+    .wizard-navigation {
+        padding: 1.5rem 1.25rem !important;
+        flex-direction: column !important;
+        gap: 0.875rem !important;
+    }
+    
+    .wizard-nav-left,
+    .wizard-nav-right {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .wizard-nav-right {
+        order: -1 !important;
+    }
+    
+    .wizard-nav-left {
+        order: 1 !important;
+    }
+    
+    .wizard-btn {
+        width: 100% !important;
+        min-width: unset !important;
+        padding: 0.9375rem 1.75rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
 /* Styles pour le sélecteur de référentiels - DataTable */
 .users-references-search {
     position: relative !important;
@@ -1912,7 +2329,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 .users-references-datatable .ui-datatable-data > tr > td {
     border: none !important;
     vertical-align: middle !important;
-    padding: 1rem !important;
 }
 
 .users-reference-checkbox {
