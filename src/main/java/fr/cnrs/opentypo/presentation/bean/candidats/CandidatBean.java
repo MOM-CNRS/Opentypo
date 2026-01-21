@@ -64,11 +64,11 @@ public class CandidatBean implements Serializable {
     private int activeTabIndex = 0; // 0 = en cours, 1 = validés, 2 = refusés
     
     // Champs pour l'étape 1 du formulaire
-    private EntityType selectedEntityType;
+    private Long selectedEntityTypeId;
     private String entityCode;
     private String entityLabel;
-    private Langue selectedLangue;
-    private Entity selectedCollection;
+    private String selectedLangueCode;
+    private Long selectedCollectionId;
     private Entity selectedReference;
     
     // Liste des données pour les sélecteurs
@@ -77,30 +77,35 @@ public class CandidatBean implements Serializable {
     private List<Entity> availableCollections;
     private List<Entity> availableReferences;
     
-    // Index du wizard (0 = étape 1, 1 = étape 2)
+    // Index du wizard (0 = étape 1, 1 = étape 2, 2 = étape 3)
     private int currentStep = 0;
     
     /**
      * Passe à l'étape suivante du wizard
      */
     public void nextStep() {
-        if (currentStep < 1) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            
-            // La validation JSF est déjà effectuée par PrimeFaces (process="@form")
-            // Si la validation a échoué, on reste sur l'étape 1
-            if (facesContext.isValidationFailed()) {
-                log.debug("Validation JSF échouée, reste sur l'étape 1");
-                return;
-            }
-            
-            // Validation manuelle supplémentaire
+        log.info("nextStep() appelée - currentStep actuel: {}", currentStep);
+        
+        if (currentStep == 0) { // De l'étape 1 à l'étape 2
+            log.info("Validation de l'étape 1...");
+            // Validation manuelle
             if (validateStep1()) {
                 currentStep++;
-                log.debug("Passage à l'étape 2");
+                log.info("Passage à l'étape 2 - currentStep = {}", currentStep);
             } else {
-                log.debug("Validation manuelle échouée, reste sur l'étape 1");
+                log.warn("Validation échouée à l'étape 1, reste sur l'étape 1");
             }
+        } else if (currentStep == 1) { // De l'étape 2 à l'étape 3
+            log.info("Validation de l'étape 2...");
+            // Validation manuelle
+            if (validateStep2()) {
+                currentStep++;
+                log.info("Passage à l'étape 3 - currentStep = {}", currentStep);
+            } else {
+                log.warn("Validation échouée à l'étape 2, reste sur l'étape 2");
+            }
+        } else {
+            log.warn("nextStep() appelée mais currentStep = {} (hors limites)", currentStep);
         }
     }
     
@@ -125,6 +130,13 @@ public class CandidatBean implements Serializable {
      */
     public boolean isStep2() {
         return currentStep == 1;
+    }
+    
+    /**
+     * Retourne true si on est sur l'étape 3
+     */
+    public boolean isStep3() {
+        return currentStep == 2;
     }
 
 
@@ -167,15 +179,21 @@ public class CandidatBean implements Serializable {
      * Filtre les référentiels selon l'état d'authentification de l'utilisateur
      */
     public void loadReferencesForCollection() {
-        log.debug("loadReferencesForCollection appelée - selectedCollection: {}", 
-            selectedCollection != null ? selectedCollection.getCode() : "null");
+        log.debug("loadReferencesForCollection appelée - selectedCollectionId: {}", selectedCollectionId);
         
         availableReferences = new ArrayList<>();
-        if (selectedCollection != null) {
+        if (selectedCollectionId != null) {
             try {
                 // Recharger la collection depuis la base pour éviter les problèmes de lazy loading
-                Entity refreshedCollection = entityRepository.findById(selectedCollection.getId())
-                    .orElse(selectedCollection);
+                Entity refreshedCollection = entityRepository.findById(selectedCollectionId)
+                    .orElse(null);
+                
+                if (refreshedCollection == null) {
+                    log.warn("Collection avec l'ID {} non trouvée", selectedCollectionId);
+                    availableReferences = new ArrayList<>();
+                    selectedReference = null;
+                    return;
+                }
                 
                 // Charger les référentiels rattachés à la collection sélectionnée
                 List<Entity> allReferences = entityRelationRepository.findChildrenByParentAndType(
@@ -204,16 +222,21 @@ public class CandidatBean implements Serializable {
         }
         // Réinitialiser la sélection du référentiel si la collection change
         selectedReference = null;
+        
+        log.debug("availableReferences size après chargement: {}", availableReferences != null ? availableReferences.size() : 0);
+        
+        // Forcer la mise à jour du formulaire complet pour s'assurer que f:selectItems est re-évalué
+        PrimeFaces.current().ajax().update(":createCandidatForm");
     }
     
     /**
-     * Valide l'étape 1 du formulaire
+     * Valide l'étape 1 du formulaire (Type et identification)
      */
     private boolean validateStep1() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         boolean isValid = true;
         
-        if (selectedEntityType == null) {
+        if (selectedEntityTypeId == null) {
             facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le type d'entité est requis."));
             isValid = false;
@@ -228,12 +251,27 @@ public class CandidatBean implements Serializable {
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le label est requis."));
             isValid = false;
         }
-        if (selectedLangue == null) {
+        if (selectedLangueCode == null) {
             facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La langue est requise."));
             isValid = false;
         }
-        if (selectedCollection == null) {
+        
+        if (!isValid) {
+            facesContext.validationFailed();
+        }
+        
+        return isValid;
+    }
+    
+    /**
+     * Valide l'étape 2 du formulaire (Collection et référentiel)
+     */
+    private boolean validateStep2() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        boolean isValid = true;
+        
+        if (selectedCollectionId == null) {
             facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La collection est requise."));
             isValid = false;
@@ -311,6 +349,13 @@ public class CandidatBean implements Serializable {
     }
 
     public void initNouveauCandidat() {
+        // Ne réinitialiser que lors du premier chargement de la page, pas lors des requêtes AJAX
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null && facesContext.isPostback()) {
+            // C'est une requête AJAX, ne pas réinitialiser
+            return;
+        }
+        
         nouveauCandidat = new Candidat();
         nouveauCandidat.setCreateur(userBean.getUsername());
         nouveauCandidat.setStatut(Candidat.Statut.EN_COURS);
@@ -324,12 +369,20 @@ public class CandidatBean implements Serializable {
      * Réinitialise le formulaire du wizard
      */
     public void resetWizardForm() {
+        // Ne réinitialiser currentStep que si on n'est pas déjà dans le wizard
+        // Cela évite de réinitialiser l'étape lors des mises à jour AJAX
+        if (currentStep == 0 && selectedEntityTypeId == null && entityCode == null) {
+            // Seulement réinitialiser si le formulaire est vraiment vide
+        } else {
+            // Ne pas réinitialiser currentStep si on est déjà dans le wizard
+            return;
+        }
         currentStep = 0;
-        selectedEntityType = null;
+        selectedEntityTypeId = null;
         entityCode = null;
         entityLabel = null;
-        selectedLangue = null;
-        selectedCollection = null;
+        selectedLangueCode = null;
+        selectedCollectionId = null;
         selectedReference = null;
         availableReferences = new ArrayList<>();
         // Réinitialiser les champs de l'étape 2
