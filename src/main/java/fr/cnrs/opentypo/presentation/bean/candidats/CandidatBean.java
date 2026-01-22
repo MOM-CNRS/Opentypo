@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
+import org.primefaces.event.NodeSelectEvent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -76,6 +79,10 @@ public class CandidatBean implements Serializable {
     private List<Langue> availableLanguages;
     private List<Entity> availableCollections;
     private List<Entity> availableReferences;
+    
+    // Arbre pour les référentiels et leurs enfants
+    private TreeNode referenceTreeRoot;
+    private TreeNode selectedTreeNode;
     
     // Index du wizard (0 = étape 1, 1 = étape 2, 2 = étape 3)
     private int currentStep = 0;
@@ -176,12 +183,17 @@ public class CandidatBean implements Serializable {
     
     /**
      * Charge les référentiels d'une collection sélectionnée depuis la base de données
-     * Filtre les référentiels selon l'état d'authentification de l'utilisateur
+     * Construit un arbre avec les référentiels et leurs enfants
+     * Filtre selon l'état d'authentification de l'utilisateur
      */
     public void loadReferencesForCollection() {
         log.debug("loadReferencesForCollection appelée - selectedCollectionId: {}", selectedCollectionId);
         
-        availableReferences = new ArrayList<>();
+        // Réinitialiser l'arbre
+        referenceTreeRoot = null;
+        selectedTreeNode = null;
+        selectedReference = null;
+        
         if (selectedCollectionId != null) {
             try {
                 // Recharger la collection depuis la base pour éviter les problèmes de lazy loading
@@ -190,10 +202,14 @@ public class CandidatBean implements Serializable {
                 
                 if (refreshedCollection == null) {
                     log.warn("Collection avec l'ID {} non trouvée", selectedCollectionId);
-                    availableReferences = new ArrayList<>();
-                    selectedReference = null;
                     return;
                 }
+                
+                // Créer le nœud racine avec le code de la collection
+                String collectionCode = refreshedCollection.getCode() != null ? refreshedCollection.getCode() : "Collection";
+                DefaultTreeNode rootNode = new DefaultTreeNode(collectionCode, null);
+                rootNode.setData(refreshedCollection);
+                referenceTreeRoot = rootNode;
                 
                 // Charger les référentiels rattachés à la collection sélectionnée
                 List<Entity> allReferences = entityRelationRepository.findChildrenByParentAndType(
@@ -201,7 +217,7 @@ public class CandidatBean implements Serializable {
                 
                 // Filtrer selon l'authentification
                 boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
-                availableReferences = allReferences.stream()
+                List<Entity> filteredReferences = allReferences.stream()
                     .filter(r -> {
                         // Si l'utilisateur est authentifié, afficher tous les référentiels
                         // Sinon, afficher uniquement les référentiels publics
@@ -209,26 +225,52 @@ public class CandidatBean implements Serializable {
                     })
                     .collect(Collectors.toList());
                 
-                log.debug("Référentiels chargés pour la collection {}: {} (utilisateur authentifié: {})", 
-                    refreshedCollection.getCode(), availableReferences.size(), isAuthenticated);
+                // Construire l'arbre avec les référentiels et leurs enfants
+                for (Entity reference : filteredReferences) {
+                    DefaultTreeNode referenceNode = new DefaultTreeNode(reference.getNom(), referenceTreeRoot);
+                    referenceNode.setData(reference);
+                    // Charger les enfants du référentiel (catégories, groupes, etc.)
+                    loadChildrenRecursively(referenceNode, reference, isAuthenticated);
+                }
+                
+                log.debug("Arbre construit pour la collection {}: {} référentiels (utilisateur authentifié: {})", 
+                    refreshedCollection.getCode(), filteredReferences.size(), isAuthenticated);
             } catch (Exception e) {
                 log.error("Erreur lors du chargement des référentiels de la collection", e);
-                availableReferences = new ArrayList<>();
             }
         } else {
-            // Si aucune collection n'est sélectionnée, vider la liste des référentiels
-            availableReferences = new ArrayList<>();
-            log.debug("Aucune collection sélectionnée, liste des référentiels vidée");
+            log.debug("Aucune collection sélectionnée, arbre vidé");
         }
-        // Réinitialiser la sélection du référentiel si la collection change
-        selectedReference = null;
         
-        log.debug("availableReferences size après chargement: {}", availableReferences != null ? availableReferences.size() : 0);
-        
-        // Forcer la mise à jour du formulaire complet pour s'assurer que f:selectItems est re-évalué
-        PrimeFaces.current().ajax().update(":createCandidatForm");
+        // Forcer la mise à jour du conteneur de l'arbre
+        PrimeFaces.current().ajax().update(":createCandidatForm:referenceTreeContainer");
     }
     
+    /**
+     * Charge récursivement les enfants d'une entité dans l'arbre
+     */
+    private void loadChildrenRecursively(TreeNode parentNode, Entity parentEntity, boolean isAuthenticated) {
+        try {
+            // Charger tous les enfants directs
+            List<Entity> children = entityRelationRepository.findChildrenByParent(parentEntity);
+            
+            // Filtrer selon l'authentification
+            List<Entity> filteredChildren = children.stream()
+                .filter(child -> isAuthenticated || (child.getPublique() != null && child.getPublique()))
+                .collect(Collectors.toList());
+            
+            // Ajouter chaque enfant comme nœud et charger ses propres enfants
+            for (Entity child : filteredChildren) {
+                DefaultTreeNode childNode = new DefaultTreeNode(child.getNom(), parentNode);
+                childNode.setData(child);
+                // Charger récursivement les enfants de cet enfant
+                loadChildrenRecursively(childNode, child, isAuthenticated);
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement des enfants de l'entité {}", parentEntity.getNom(), e);
+        }
+    }
+
     /**
      * Valide l'étape 1 du formulaire (Type et identification)
      */
@@ -276,7 +318,7 @@ public class CandidatBean implements Serializable {
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La collection est requise."));
             isValid = false;
         }
-        if (selectedReference == null) {
+        if (selectedTreeNode == null) {
             facesContext.addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le référentiel est requis."));
             isValid = false;
@@ -385,6 +427,8 @@ public class CandidatBean implements Serializable {
         selectedCollectionId = null;
         selectedReference = null;
         availableReferences = new ArrayList<>();
+        referenceTreeRoot = null;
+        selectedTreeNode = null;
         // Réinitialiser les champs de l'étape 2
         typeDescription = null;
         serieDescription = null;
@@ -470,6 +514,99 @@ public class CandidatBean implements Serializable {
                 .findFirst();
 
         return existingLabel.isPresent() ? existingLabel.get().getNom() : collection.getCode();
+    }
+    
+    /**
+     * Vérifie si un objet est une instance de Entity
+     * Utilisé dans les expressions EL où instanceof n'est pas supporté
+     */
+    public boolean isEntity(Object obj) {
+        return obj != null && obj instanceof Entity;
+    }
+    
+    /**
+     * Vérifie si le nœud de l'arbre contient une Entity comme data
+     * Gère le cas où node peut être un TreeNode ou directement la valeur de data
+     */
+    public boolean isNodeEntity(Object node) {
+        if (node == null) {
+            return false;
+        }
+        // Si node est directement une Entity
+        if (node instanceof Entity) {
+            return true;
+        }
+        // Si node est un TreeNode, vérifier son data
+        if (node instanceof TreeNode) {
+            Object data = ((TreeNode) node).getData();
+            return data != null && data instanceof Entity;
+        }
+        // Si node est une String ou autre type, ce n'est pas une Entity
+        return false;
+    }
+    
+    /**
+     * Récupère l'Entity depuis un nœud de l'arbre
+     * Retourne null si le nœud ne contient pas une Entity
+     */
+    public Entity getEntityFromNode(Object node) {
+        if (node == null) {
+            return null;
+        }
+        // Si node est directement une Entity
+        if (node instanceof Entity) {
+            return (Entity) node;
+        }
+        // Si node est un TreeNode, récupérer son data
+        if (node instanceof TreeNode) {
+            Object data = ((TreeNode) node).getData();
+            if (data instanceof Entity) {
+                return (Entity) data;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Récupère la valeur d'affichage d'un nœud (nom de l'Entity, code de la collection, ou valeur par défaut)
+     */
+    public String getNodeDisplayValue(Object node) {
+        Entity entity = getEntityFromNode(node);
+        if (entity != null) {
+            // Si c'est le nœud racine (collection), afficher le code
+            if (node instanceof TreeNode) {
+                TreeNode treeNode = (TreeNode) node;
+                if (treeNode.getParent() == null) {
+                    // C'est le nœud racine, afficher le code de la collection
+                    return entity.getCode() != null ? entity.getCode() : entity.getNom();
+                }
+            }
+            // Sinon, afficher le nom de l'entité
+            return entity.getCode();
+        }
+        // Si ce n'est pas une Entity, retourner la représentation string du nœud
+        if (node instanceof TreeNode) {
+            Object data = ((TreeNode) node).getData();
+            return data != null ? data.toString() : node.toString();
+        }
+        return node != null ? node.toString() : "";
+    }
+    
+    /**
+     * Vérifie si une collection est sélectionnée
+     */
+    public boolean isCollectionSelected() {
+        return selectedCollectionId != null;
+    }
+    
+    /**
+     * Vérifie si un nœud est le nœud racine (a un parent null)
+     */
+    public boolean isRootNode(Object node) {
+        if (node instanceof TreeNode) {
+            return ((TreeNode) node).getParent() == null;
+        }
+        return false;
     }
 }
 

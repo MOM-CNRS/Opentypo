@@ -200,7 +200,7 @@
                                                             <p:ajax event="change"
                                                                     listener="#{candidatBean.loadReferencesForCollection}"
                                                                     process="@this"
-                                                                    update="@form"
+                                                                    update=":createCandidatForm:referenceTreeContainer"
                                                                     onstart="showLoading('Chargement des référentiels...', 'spinner');"
                                                                     oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                                                     onerror="forceHideLoading();"/>
@@ -209,28 +209,34 @@
                                                     <p:message for="selectedCollection" display="icon"/>
                                                 </div>
 
-                                                <p:outputPanel id="referenceGroup" styleClass="users-form-group" autoUpdate="true">
-                                                    <p:outputLabel for="selectedReference" value="Référentiel" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-book input-icon" />
-                                                        <p:selectOneMenu id="selectedReference"
-                                                                         value="#{candidatBean.selectedReference}"
-                                                                         styleClass="users-select"
-                                                                         required="true"
-                                                                         requiredMessage="Le référentiel est requis"
-                                                                         validatorMessage="Le référentiel est requis"
-                                                                         filter="true"
-                                                                         filterMatchMode="contains"
-                                                                         disabled="#{empty candidatBean.availableReferences}">
-                                                            <f:selectItem itemLabel="#{empty candidatBean.selectedCollectionId ? 'Sélectionnez d\'abord une collection' : (empty candidatBean.availableReferences ? 'Aucun référentiel disponible' : 'Sélectionnez un référentiel')}" itemValue="" />
-                                                            <f:selectItems value="#{candidatBean.availableReferences}"
-                                                                           var="reference"
-                                                                           itemLabel="#{reference.nom}"
-                                                                           itemValue="#{reference}" />
-                                                        </p:selectOneMenu>
-                                                    </div>
-                                                    <p:message for="selectedReference" display="icon"/>
-                                                </p:outputPanel>
+                                                <h:panelGroup class="users-form-group users-form-group-full"
+                                                              rendered="#{candidatBean.isCollectionSelected()}">
+                                                    <p:outputLabel value="Sélectionner l'entité parent" />
+                                                    <p:outputPanel id="referenceTreeContainer" styleClass="reference-tree-container">
+                                                        <p:tree id="referenceTree"
+                                                                value="#{candidatBean.referenceTreeRoot}"
+                                                                var="node"
+                                                                selectionMode="single"
+                                                                selection="#{candidatBean.selectedTreeNode}"
+                                                                styleClass="horizontal-tree"
+                                                                orientation="horizontal"
+                                                                dynamic="false"
+                                                                rendered="#{candidatBean.isCollectionSelected()}">
+                                                            <p:treeNode>
+                                                                <div class="tree-node-content #{candidatBean.isRootNode(node) ? 'tree-node-root' : ''}">
+                                                                    <i class="pi pi-circle-fill tree-node-icon" />
+                                                                    <span class="tree-node-label">
+                                                                        #{candidatBean.getNodeDisplayValue(node)}
+                                                                    </span>
+                                                                </div>
+                                                            </p:treeNode>
+                                                        </p:tree>
+                                                        <p:message for="referenceTree"
+                                                                   rendered="#{candidatBean.isStep2() and empty candidatBean.selectedReference}"
+                                                                   severity="error"
+                                                                   summary="L'entité parent est requise"/>
+                                                    </p:outputPanel>
+                                                </h:panelGroup>
                                             </div>
                                         </div>
                                     </div>
@@ -391,40 +397,83 @@
                             </div>
                             
                             <div class="wizard-nav-right">
-                                <p:commandButton value="Suivant"
-                                               icon="pi pi-arrow-right"
-                                               iconPos="right"
-                                               styleClass="wizard-btn wizard-btn-next"
-                                               action="#{candidatBean.nextStep()}"
-                                               process="@this" ajax="true"
-                                               update=":createCandidatForm"
-                                               rendered="#{candidatBean.isStep1()}"/>
+                                <p:commandButton value="Suivant 1"
+                                                 icon="pi pi-arrow-right"
+                                                 iconPos="right"
+                                                 styleClass="wizard-btn wizard-btn-next"
+                                                 action="#{candidatBean.nextStep()}"
+                                                 process="@form" ajax="true"
+                                                 update=":createCandidatForm :growl"
+                                                 rendered="#{candidatBean.isStep1()}"/>
                                 
-                                <p:commandButton value="Suivant"
-                                               icon="pi pi-arrow-right"
-                                               iconPos="right"
-                                               styleClass="wizard-btn wizard-btn-next"
-                                               action="#{candidatBean.nextStep()}"
-                                               process="selectedCollection selectedReference"
-                                               update=":createCandidatForm"
-                                               rendered="#{candidatBean.isStep2()}"/>
+                                <p:commandButton value="Suivant 2"
+                                                 icon="pi pi-arrow-right"
+                                                 iconPos="right"
+                                                 styleClass="wizard-btn wizard-btn-next"
+                                                 action="#{candidatBean.nextStep()}"
+                                                 process="@form" ajax="true"
+                                                 update="@form :growl"
+                                                 rendered="#{candidatBean.isStep2()}"/>
                                 
                                 <p:commandButton value="Terminer"
-                                               icon="pi pi-check"
-                                               iconPos="right"
-                                               styleClass="wizard-btn wizard-btn-finish"
-                                               action="#{candidatBean.sauvegarderCandidat()}"
-                                               process="@form"
-                                               update="@form :growl"
-                                               rendered="#{candidatBean.isStep3()}"
-                                               onstart="showLoading('Sauvegarde du candidat...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                               onerror="forceHideLoading();"/>
+                                                 icon="pi pi-check"
+                                                 iconPos="right"
+                                                 styleClass="wizard-btn wizard-btn-finish"
+                                                 action="#{candidatBean.sauvegarderCandidat()}"
+                                                 process="@form"
+                                                 update="@form :growl"
+                                                 rendered="#{candidatBean.isStep3()}"
+                                                 onstart="showLoading('Sauvegarde du candidat...', 'spinner');"
+                                                 oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                                 onerror="forceHideLoading();"/>
                             </div>
                         </div>
                     </div>
                 </h:form>
             </div>
         </div>
+        
+        <!-- Styles pour l'arbre de sélection -->
+        <style>
+            /* Styles pour l'arbre horizontal de sélection */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
+                background-color: rgba(71, 98, 77, 0.08);
+            }
+            
+            /* Style pour le nœud sélectionné */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+                color: var(--color-action-main, #47624D);
+                font-weight: 600;
+                border-left: 3px solid var(--color-action-main, #47624D);
+            }
+            
+            /* Style pour le nœud racine (non sélectionnable) */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root {
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root:hover {
+                background-color: transparent;
+            }
+            
+            /* Style pour les icônes dans les nœuds sélectionnés */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-icon {
+                color: var(--color-action-main, #47624D);
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-label {
+                color: var(--color-action-main, #47624D);
+                font-weight: 600;
+            }
+        </style>
     </ui:define>
 </ui:composition>
