@@ -6,6 +6,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{candidatBean.loadCandidatsPage()}"/>
         <div class="users-container">
             <div class="users-header">
                 <div class="users-header-content">
@@ -36,8 +37,7 @@
                               cache="false">
                         
                         <!-- Onglet : Candidats en cours -->
-                        <p:tab title="Candidats en cours" 
-                               titleStyleClass="users-tab-title">
+                        <p:tab title="Candidats en cours" titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableEnCours"
                                            value="#{candidatBean.candidatsEnCours}"
@@ -98,9 +98,10 @@
                                             <p:commandButton icon="pi pi-check"
                                                            styleClass="action-btn action-validate"
                                                            title="Valider"
-                                                           action="#{candidatBean.validerCandidat(candidat)}"
+                                                           action="#{candidatBean.prepareValidateCandidat(candidat)}"
                                                            process="@this"
-                                                           update=":candidatsForm"/>
+                                                           update=":candidatsForm"
+                                                           oncomplete="PF('confirmValidateDialog').show();"/>
                                             <p:commandButton icon="pi pi-times"
                                                            styleClass="action-btn action-refuse"
                                                            title="Refuser"
@@ -230,16 +231,117 @@
                                             <p:commandButton icon="pi pi-trash"
                                                            styleClass="action-btn action-delete"
                                                            title="Supprimer"
-                                                           action="#{candidatBean.supprimerCandidat(candidat)}"
+                                                           action="#{candidatBean.prepareDeleteCandidat(candidat)}"
                                                            process="@this"
                                                            update=":candidatsForm"
-                                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce candidat ?');"/>
+                                                           oncomplete="PF('confirmDeleteDialog').show();"/>
                                         </div>
                                     </p:column>
                                 </p:dataTable>
                             </div>
                         </p:tab>
                     </p:tabView>
+                    
+                    <!-- Dialog de confirmation de validation -->
+                    <p:dialog id="confirmValidateDialog"
+                              widgetVar="confirmValidateDialog"
+                              header="Confirmer la validation"
+                              modal="true"
+                              closable="true"
+                              resizable="false"
+                              draggable="false"
+                              width="500"
+                              height="auto"
+                              styleClass="candidat-confirm-dialog">
+                        <f:facet name="header">
+                            <div class="candidat-confirm-header">
+                                <div class="candidat-confirm-header-icon-wrapper">
+                                    <i class="pi pi-check-circle candidat-confirm-header-icon" />
+                                </div>
+                                <div class="candidat-confirm-header-content">
+                                    <h3 class="candidat-confirm-header-title">Confirmer la validation</h3>
+                                    <p class="candidat-confirm-header-subtitle">Le candidat sera validé et passera au statut ACCEPTED</p>
+                                </div>
+                            </div>
+                        </f:facet>
+                        <div class="candidat-confirm-message-wrapper">
+                            <div class="candidat-confirm-icon-info">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <p class="candidat-confirm-message-text">
+                                Êtes-vous sûr de vouloir valider ce candidat ?<br/>
+                                <strong>#{candidatBean.candidatAValider != null ? candidatBean.candidatAValider.label : ''}</strong>
+                            </p>
+                        </div>
+                        <f:facet name="footer">
+                            <div class="candidat-confirm-footer">
+                                <p:commandButton value="Annuler"
+                                               icon="pi pi-times"
+                                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
+                                               onclick="PF('confirmValidateDialog').hide(); return false;"
+                                               process="@this"
+                                               update="@none"/>
+                                <p:commandButton value="Oui, valider"
+                                               icon="pi pi-check"
+                                               styleClass="candidat-confirm-btn candidat-confirm-btn-confirm"
+                                               action="#{candidatBean.validerCandidatConfirm()}"
+                                               process=":candidatsForm"
+                                               update=":candidatsForm :growl"
+                                               oncomplete="PF('confirmValidateDialog').hide();"/>
+                            </div>
+                        </f:facet>
+                    </p:dialog>
+                    
+                    <!-- Dialog de confirmation de suppression -->
+                    <p:dialog id="confirmDeleteDialog"
+                              widgetVar="confirmDeleteDialog"
+                              header="Confirmer la suppression"
+                              modal="true"
+                              closable="true"
+                              resizable="false"
+                              draggable="false"
+                              width="500"
+                              height="auto"
+                              styleClass="candidat-confirm-dialog">
+                        <f:facet name="header">
+                            <div class="candidat-confirm-header">
+                                <div class="candidat-confirm-header-icon-wrapper">
+                                    <i class="pi pi-exclamation-triangle candidat-confirm-header-icon" style="color: #dc3545;" />
+                                </div>
+                                <div class="candidat-confirm-header-content">
+                                    <h3 class="candidat-confirm-header-title">Confirmer la suppression</h3>
+                                    <p class="candidat-confirm-header-subtitle">Cette action est irréversible</p>
+                                </div>
+                            </div>
+                        </f:facet>
+                        <div class="candidat-confirm-message-wrapper">
+                            <div class="candidat-confirm-icon-info">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <p class="candidat-confirm-message-text">
+                                Êtes-vous sûr de vouloir supprimer ce candidat ?<br/>
+                                <strong>#{candidatBean.candidatASupprimer != null ? candidatBean.candidatASupprimer.label : ''}</strong><br/>
+                                <span style="color: #dc3545; font-weight: 600;">Cette action est définitive et ne peut pas être annulée.</span>
+                            </p>
+                        </div>
+                        <f:facet name="footer">
+                            <div class="candidat-confirm-footer">
+                                <p:commandButton value="Annuler"
+                                               icon="pi pi-times"
+                                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
+                                               onclick="PF('confirmDeleteDialog').hide(); return false;"
+                                               process="@this"
+                                               update="@none"/>
+                                <p:commandButton value="Oui, supprimer"
+                                               icon="pi pi-trash"
+                                               styleClass="candidat-confirm-btn candidat-confirm-btn-delete"
+                                               action="#{candidatBean.supprimerCandidatConfirm()}"
+                                               process=":candidatsForm"
+                                               update=":candidatsForm :growl"
+                                               oncomplete="PF('confirmDeleteDialog').hide();"/>
+                            </div>
+                        </f:facet>
+                    </p:dialog>
                 </h:form>
             </div>
         </div>
@@ -292,5 +394,137 @@
             });
         }
     </script>
+
+    <style>
+        /* Styles pour les dialogues de confirmation */
+        .candidat-confirm-dialog .ui-dialog-content {
+            padding: 1.5rem !important;
+        }
+
+        .candidat-confirm-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .candidat-confirm-header-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .candidat-confirm-header-icon {
+            font-size: 1.5rem;
+            color: var(--color-action-main, #47624D);
+        }
+
+        .candidat-confirm-header-content {
+            flex: 1;
+        }
+
+        .candidat-confirm-header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary, #333);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .candidat-confirm-header-subtitle {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary, #819A91);
+            margin: 0;
+        }
+
+        .candidat-confirm-message-wrapper {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(71, 98, 77, 0.03);
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .candidat-confirm-icon-info {
+            font-size: 1.5rem;
+            color: var(--color-action-main, #47624D);
+        }
+
+        .candidat-confirm-message-text {
+            flex: 1;
+            color: var(--color-text-primary, #333);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .candidat-confirm-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(71, 98, 77, 0.1);
+        }
+
+        .candidat-confirm-btn {
+            padding: 0.75rem 1.5rem !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+            min-width: 120px !important;
+        }
+
+        .candidat-confirm-btn-confirm {
+            background: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+        }
+
+        .candidat-confirm-btn-confirm:hover {
+            background: #3a4f3e !important;
+            border-color: #3a4f3e !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+        }
+
+        .candidat-confirm-btn-delete {
+            background: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: #ffffff !important;
+        }
+
+        .candidat-confirm-btn-delete:hover {
+            background: #c82333 !important;
+            border-color: #bd2130 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+        }
+
+        .candidat-confirm-btn-cancel {
+            background: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+
+        .candidat-confirm-btn-cancel:hover {
+            background: #5a6268 !important;
+            border-color: #5a6268 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+        }
+
+        @media (max-width: 768px) {
+            .candidat-confirm-footer {
+                flex-direction: column;
+            }
+
+            .candidat-confirm-btn {
+                width: 100% !important;
+            }
+        }
+    </style>
 
 </ui:composition>

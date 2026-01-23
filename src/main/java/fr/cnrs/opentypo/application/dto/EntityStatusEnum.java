@@ -6,7 +6,9 @@ import lombok.Getter;
 public enum EntityStatusEnum {
 
     PROPOSITION,
-    FINALE;
+    ACCEPTED,
+    REFUSED,
+    AUTOMATIC;
 
     EntityStatusEnum() {
 

@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div class="wizard-content">
+        <div class="wizard-step-content">
+            <div class="wizard-step-header">
+                <i class="pi pi-tag wizard-step-icon" />
+                <h3 class="wizard-step-title">Type et identification</h3>
+                <p class="wizard-step-description">Remplissez les informations de base pour identifier votre candidat</p>
+            </div>
+
+            <div class="users-form-panel wizard-form-panel">
+                <div class="users-form-grid">
+                    <div class="users-form-group users-form-group-full">
+                        <p:outputLabel for="entityType" value="Type d'entité" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-sitemap input-icon" />
+                            <p:selectOneMenu id="entityType"
+                                             value="#{candidatBean.selectedEntityTypeId}"
+                                             styleClass="users-select"
+                                             required="true"
+                                             requiredMessage="Le type d'entité est requis"
+                                             validatorMessage="Le type d'entité est requis">
+                                <f:selectItem itemLabel="Sélectionnez un type" itemValue="" />
+                                <f:selectItems value="#{candidatBean.availableEntityTypes}"
+                                               var="entityType"
+                                               itemLabel="#{candidatBean.getEntityTypeName(entityType)}"
+                                               itemValue="#{entityType.id}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:message for="entityType" display="icon"/>
+                    </div>
+
+                    <div class="users-form-group">
+                        <p:outputLabel for="selectedLangue" value="Langue pour le label" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-globe input-icon" />
+                            <p:selectOneMenu id="selectedLangue"
+                                             value="#{candidatBean.selectedLangueCode}"
+                                             styleClass="users-select"
+                                             required="true"
+                                             requiredMessage="La langue est requise"
+                                             validatorMessage="La langue est requise">
+                                <f:selectItem itemLabel="Sélectionnez une langue" itemValue="" />
+                                <f:selectItems value="#{candidatBean.availableLanguages}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:message for="selectedLangue" display="icon"/>
+                    </div>
+
+                    <div class="users-form-group">
+                        <p:outputLabel for="entityLabel" value="Label" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-pencil input-icon" />
+                            <p:inputText id="entityLabel"
+                                         value="#{candidatBean.entityLabel}"
+                                         required="true"
+                                         requiredMessage="Le label est requis"
+                                         validatorMessage="Le label est requis"
+                                         styleClass="users-input"
+                                         placeholder="Nom de l'entité"
+                                         maxlength="255"/>
+                        </div>
+                        <p:message for="entityLabel" display="icon"/>
+                    </div>
+
+                    <div class="users-form-group">
+                        <p:outputLabel for="entityCode" value="Code" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-hashtag input-icon" />
+                            <p:inputText id="entityCode"
+                                         value="#{candidatBean.entityCode}"
+                                         required="true"
+                                         requiredMessage="Le code est requis"
+                                         validatorMessage="Le code est requis"
+                                         styleClass="users-input"
+                                         placeholder="Ex: TYPE-001"
+                                         maxlength="100"/>
+                        </div>
+                        <p:message for="entityCode" display="icon"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

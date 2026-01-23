@@ -372,7 +372,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 
 .candidats-datatable .ui-datatable-data > tr > td {
     border: 1px solid rgba(71, 98, 77, 0.1) !important;
-    padding: 0px !important;
 }
 
 .candidats-actions {

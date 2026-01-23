@@ -1,0 +1,76 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div class="wizard-content">
+        <div class="wizard-step-content">
+            <div class="wizard-step-header">
+                <i class="pi pi-folder-open wizard-step-icon" />
+                <h3 class="wizard-step-title">Collection et référentiel</h3>
+                <p class="wizard-step-description">Sélectionnez la collection et le référentiel associés à votre candidat</p>
+            </div>
+
+            <div class="users-form-panel wizard-form-panel">
+                <div class="users-form-grid">
+                    <div class="users-form-group">
+                        <p:outputLabel for="selectedCollection" value="Collection" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-folder-open input-icon" />
+                            <p:selectOneMenu id="selectedCollection"
+                                             value="#{candidatBean.selectedCollectionId}"
+                                             styleClass="users-select"
+                                             required="true"
+                                             requiredMessage="La collection est requise"
+                                             validatorMessage="La collection est requise">
+                                <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                                <f:selectItems value="#{candidatBean.availableCollections}"
+                                               var="collection"
+                                               itemLabel="#{candidatBean.getCollectionLabel(collection)}"
+                                               itemValue="#{collection.id}" />
+                                <p:ajax event="change"
+                                        listener="#{candidatBean.loadReferencesForCollection}"
+                                        process="@this"
+                                        update=":createCandidatForm:referenceTreeContainer"
+                                        onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                        oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                        onerror="forceHideLoading();"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <p:message for="selectedCollection" display="icon"/>
+                    </div>
+
+                    <h:panelGroup id="referenceTreeContainer" class="users-form-group users-form-group-full"
+                                  rendered="#{candidatBean.isCollectionSelected()}">
+                        <p:outputLabel value="Sélectionner l'entité parent" />
+                        <p:outputPanel styleClass="reference-tree-container">
+                            <p:tree id="referenceTree"
+                                    value="#{candidatBean.referenceTreeRoot}"
+                                    var="node"
+                                    selectionMode="single"
+                                    selection="#{candidatBean.selectedTreeNode}"
+                                    styleClass="horizontal-tree"
+                                    orientation="horizontal"
+                                    dynamic="false"
+                                    rendered="#{candidatBean.isCollectionSelected()}">
+                                <p:treeNode>
+                                    <div class="tree-node-content #{candidatBean.isRootNode(node) ? 'tree-node-root' : ''}">
+                                        <i class="pi #{candidatBean.isRootNode(node) ? 'pi-folder' : 'pi-circle-fill'} tree-node-icon" />
+                                        <span class="tree-node-label">
+                                            #{candidatBean.getNodeDisplayValue(node)}
+                                        </span>
+                                    </div>
+                                </p:treeNode>
+                            </p:tree>
+                            <p:message for="referenceTree"
+                                       rendered="#{candidatBean.isStep2() and empty candidatBean.selectedTreeNode}"
+                                       severity="error"
+                                       summary="L'entité parent est requise"/>
+                        </p:outputPanel>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

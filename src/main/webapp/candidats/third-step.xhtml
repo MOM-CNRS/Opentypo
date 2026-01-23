@@ -1,0 +1,148 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div class="wizard-content">
+        <div class="wizard-step-content">
+            <div class="wizard-step-header">
+                <i class="pi pi-file-edit wizard-step-icon" />
+                <h3 class="wizard-step-title">Détails complémentaires</h3>
+                <p class="wizard-step-description">Complétez les informations spécifiques selon le type sélectionné</p>
+            </div>
+
+            <!-- 1ère partie : Récapitulatif des informations des étapes 1 et 2 -->
+            <div class="users-form-panel wizard-form-panel summary-panel">
+                <div class="summary-content">
+                    <div class="summary-section">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Type d'entité :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-tag summary-value-icon" />
+                                    #{candidatBean.getEntityTypeName(candidatBean.selectedEntityType)}
+                                </span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Code :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-code summary-value-icon" />
+                                    #{candidatBean.entityCode}
+                                </span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Label :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-tag summary-value-icon" />
+                                    #{candidatBean.entityLabel}
+                                </span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Langue :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-globe summary-value-icon" />
+                                    #{candidatBean.getSelectedLangueName()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Collection :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-folder summary-value-icon" />
+                                    #{candidatBean.getCollectionLabel(candidatBean.selectedCollection)}
+                                </span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Élément parent :</span>
+                                <span class="summary-value">
+                                    <i class="pi pi-sitemap summary-value-icon" />
+                                    #{candidatBean.selectedParentEntity != null ? candidatBean.selectedParentEntity.code : 'Non sélectionné'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
+            <div class="users-form-panel wizard-form-panel">
+                <!-- Formulaire pour TYPE -->
+
+                <!-- Formulaire pour CATEGORY -->
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 2}">
+                    <ui:include src="category-form.xhtml"/>
+                </ui:fragment>
+
+                <!-- Formulaire pour GROUP -->
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 3}">
+                    <ui:include src="group-form.xhtml"/>
+                </ui:fragment>
+
+                <!-- Formulaire pour SERIES -->
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 4}">
+                    <ui:include src="serie-form.xhtml"/>
+                </ui:fragment>
+
+
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <i class="pi pi-tag form-section-icon" />
+                            <h4 class="form-section-title">Description du type</h4>
+                        </div>
+                        <div class="users-form-grid">
+                            <div class="users-form-group users-form-group-full">
+                                <p:outputLabel for="typeDescription" value="Description" />
+                                <div class="input-wrapper">
+                                    <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                    <p:inputTextarea id="typeDescription"
+                                                     value="#{candidatBean.typeDescription}"
+                                                     rows="6"
+                                                     styleClass="users-textarea"
+                                                     placeholder="Saisissez une description détaillée du type..."/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+
+                <!-- Formulaire pour COLLECTION -->
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 6}">
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <i class="pi pi-folder form-section-icon" />
+                            <h4 class="form-section-title">Paramètres de la collection</h4>
+                        </div>
+                        <div class="users-form-grid">
+                            <div class="users-form-group users-form-group-full">
+                                <p:outputLabel for="collectionDescription" value="Description" />
+                                <div class="input-wrapper">
+                                    <i class="pi pi-align-left input-icon input-icon-textarea" />
+                                    <p:inputTextarea id="collectionDescription"
+                                                     value="#{candidatBean.collectionDescription}"
+                                                     rows="6"
+                                                     styleClass="users-textarea"
+                                                     placeholder="Saisissez une description détaillée de la collection..."/>
+                                </div>
+                            </div>
+                            <div class="users-form-group">
+                                <p:outputLabel for="collectionPublique" value="Collection publique" />
+                                <div class="checkbox-wrapper-enhanced">
+                                    <p:selectBooleanCheckbox id="collectionPublique"
+                                                             value="#{candidatBean.collectionPublique}"
+                                                             styleClass="users-checkbox"/>
+                                    <span class="checkbox-label">Rendre cette collection visible publiquement</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </div>
+        </div>
+    </div>
+</ui:composition>

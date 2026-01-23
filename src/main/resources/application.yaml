@@ -8,6 +8,17 @@ server:
         secure: ${COOKIE_SECURE:false}  # true en production avec HTTPS
         same-site: strict
         max-age: 3600  # 1 heure en secondes
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+  tomcat:
+    max-http-post-size: 10MB
+    max-swallow-size: 10MB
+    max-part-count: 100  # Augmenter la limite du nombre de "parts" dans une requête multipart
+                        # Chaque champ de formulaire compte comme une "part"
+                        # Avec un formulaire complexe, on peut avoir beaucoup de champs
   compression:
     enabled: true
     mime-types: text/css,application/javascript,text/html,application/json
@@ -31,6 +42,12 @@ spring:
     name: OpenTypo
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+
+# Configuration du serveur IIIF pour l'upload d'images
+iiif:
+  server:
+    url: ${IIIF_SERVER_URL:http://localhost:8182}  # URL de base du serveur IIIF
+    api-key: ${IIIF_API_KEY:}  # Clé API optionnelle pour l'authentification
   datasource:
     url: jdbc:postgresql://localhost:5432/opentypo
     username: postgres

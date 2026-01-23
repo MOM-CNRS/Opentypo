@@ -33,41 +33,82 @@
                     <!-- Wizard personnalisé -->
                     <div class="custom-wizard">
                         <!-- Barre de progression -->
-                        <div class="wizard-progress">
-                            <div class="wizard-steps">
+                        <div class="wizard-progress-modern">
+                            <div class="wizard-steps-modern">
                                 <!-- Étape 1 -->
-                                <div class="wizard-step #{candidatBean.isStep1() ? 'active' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'completed' : '')}">
-                                    <div class="step-number">1</div>
-                                    <div class="step-texts">
-                                        <div class="step-label">Type et identification</div>
-                                        <div class="step-status">
-                                            #{candidatBean.isStep1() ? 'Étape en cours'
-                                              : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'Étape terminée' : 'Étape à venir')}
+                                <div class="wizard-step-modern #{candidatBean.isStep1() ? 'active' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'completed' : 'pending')}">
+                                    <div class="step-indicator">
+                                        <div class="step-circle">
+                                            <ui:fragment rendered="#{(candidatBean.isStep2() or candidatBean.isStep3())}">
+                                                <i class="pi pi-check step-check-icon" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{candidatBean.isStep1() or (not candidatBean.isStep1() and not (candidatBean.isStep2() or candidatBean.isStep3()))}">
+                                                <span class="step-number-text">1</span>
+                                            </ui:fragment>
+                                        </div>
+                                        <ui:fragment rendered="#{not candidatBean.isStep3()}">
+                                            <div class="step-connector"></div>
+                                        </ui:fragment>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="step-icon-wrapper">
+                                            <i class="pi pi-tag step-icon" />
+                                        </div>
+                                        <div class="step-info">
+                                            <div class="step-title">Type et identification</div>
+                                            <div class="step-subtitle">
+                                                #{candidatBean.isStep1() ? 'En cours'
+                                                  : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'Terminé' : 'À venir')}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="step-line"></div>
                                 </div>
 
                                 <!-- Étape 2 -->
-                                <div class="wizard-step #{candidatBean.isStep2() ? 'active' : (candidatBean.isStep3() ? 'completed' : '')}">
-                                    <div class="step-number">2</div>
-                                    <div class="step-texts">
-                                        <div class="step-label">Collection et référentiel</div>
-                                        <div class="step-status">
-                                            #{candidatBean.isStep2() ? 'Étape en cours'
-                                              : (candidatBean.isStep3() ? 'Étape terminée' : 'Étape à venir')}
+                                <div class="wizard-step-modern #{candidatBean.isStep2() ? 'active' : (candidatBean.isStep3() ? 'completed' : (candidatBean.isStep1() ? 'pending' : 'disabled'))}">
+                                    <div class="step-indicator">
+                                        <div class="step-circle">
+                                            <ui:fragment rendered="#{candidatBean.isStep3()}">
+                                                <i class="pi pi-check step-check-icon" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{candidatBean.isStep2() or (not candidatBean.isStep2() and not candidatBean.isStep3())}">
+                                                <span class="step-number-text">2</span>
+                                            </ui:fragment>
+                                        </div>
+                                        <ui:fragment rendered="#{not candidatBean.isStep3()}">
+                                            <div class="step-connector"></div>
+                                        </ui:fragment>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="step-icon-wrapper">
+                                            <i class="pi pi-sitemap step-icon" />
+                                        </div>
+                                        <div class="step-info">
+                                            <div class="step-title">Collection et référentiel</div>
+                                            <div class="step-subtitle">
+                                                #{candidatBean.isStep2() ? 'En cours'
+                                                  : (candidatBean.isStep3() ? 'Terminé' : (candidatBean.isStep1() ? 'À venir' : 'Non disponible'))}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="step-line"></div>
                                 </div>
 
                                 <!-- Étape 3 -->
-                                <div class="wizard-step #{candidatBean.isStep3() ? 'active' : ''}">
-                                    <div class="step-number">3</div>
-                                    <div class="step-texts">
-                                        <div class="step-label">Détails</div>
-                                        <div class="step-status">
-                                            #{candidatBean.isStep3() ? 'Étape en cours' : 'Étape à venir'}
+                                <div class="wizard-step-modern #{candidatBean.isStep3() ? 'active' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'pending' : 'disabled')}">
+                                    <div class="step-indicator">
+                                        <div class="step-circle">
+                                            <span class="step-number-text">3</span>
+                                        </div>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="step-icon-wrapper">
+                                            <i class="pi pi-file-edit step-icon" />
+                                        </div>
+                                        <div class="step-info">
+                                            <div class="step-title">Détails</div>
+                                            <div class="step-subtitle">
+                                                #{candidatBean.isStep3() ? 'En cours' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'À venir' : 'Non disponible')}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -76,403 +117,879 @@
 
                         <!-- Contenu de l'étape 1 : Type et identification -->
                         <ui:fragment rendered="#{candidatBean.isStep1()}">
-                            <div class="wizard-content">
-                                <div class="wizard-step-content">
-                                    <div class="wizard-step-header">
-                                        <i class="pi pi-tag wizard-step-icon" />
-                                        <h3 class="wizard-step-title">Type et identification</h3>
-                                        <p class="wizard-step-description">Remplissez les informations de base pour identifier votre candidat</p>
-                                    </div>
-
-                                    <div class="users-form-panel wizard-form-panel">
-                                        <div class="form-section">
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="entityType" value="Type d'entité" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-sitemap input-icon" />
-                                                        <p:selectOneMenu id="entityType"
-                                                                         value="#{candidatBean.selectedEntityTypeId}"
-                                                                         styleClass="users-select"
-                                                                         required="true"
-                                                                         requiredMessage="Le type d'entité est requis"
-                                                                         validatorMessage="Le type d'entité est requis">
-                                                            <f:selectItem itemLabel="Sélectionnez un type" itemValue="" />
-                                                            <f:selectItems value="#{candidatBean.availableEntityTypes}"
-                                                                           var="entityType"
-                                                                           itemLabel="#{candidatBean.getEntityTypeName(entityType)}"
-                                                                           itemValue="#{entityType.id}" />
-                                                        </p:selectOneMenu>
-                                                    </div>
-                                                    <p:message for="entityType" display="icon"/>
-                                                </div>
-
-                                                <div class="users-form-group">
-                                                    <p:outputLabel for="selectedLangue" value="Langue pour le label" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-globe input-icon" />
-                                                        <p:selectOneMenu id="selectedLangue"
-                                                                         value="#{candidatBean.selectedLangueCode}"
-                                                                         styleClass="users-select"
-                                                                         required="true"
-                                                                         requiredMessage="La langue est requise"
-                                                                         validatorMessage="La langue est requise">
-                                                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="" />
-                                                            <f:selectItems value="#{candidatBean.availableLanguages}"
-                                                                           var="langue"
-                                                                           itemLabel="#{langue.nom}"
-                                                                           itemValue="#{langue.code}" />
-                                                        </p:selectOneMenu>
-                                                    </div>
-                                                    <p:message for="selectedLangue" display="icon"/>
-                                                </div>
-
-                                                <div class="users-form-group">
-                                                    <p:outputLabel for="entityLabel" value="Label" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-pencil input-icon" />
-                                                        <p:inputText id="entityLabel"
-                                                                     value="#{candidatBean.entityLabel}"
-                                                                     required="true"
-                                                                     requiredMessage="Le label est requis"
-                                                                     validatorMessage="Le label est requis"
-                                                                     styleClass="users-input"
-                                                                     placeholder="Nom de l'entité"
-                                                                     maxlength="255"/>
-                                                    </div>
-                                                    <p:message for="entityLabel" display="icon"/>
-                                                </div>
-
-                                                <div class="users-form-group">
-                                                    <p:outputLabel for="entityCode" value="Code" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-hashtag input-icon" />
-                                                        <p:inputText id="entityCode"
-                                                                     value="#{candidatBean.entityCode}"
-                                                                     required="true"
-                                                                     requiredMessage="Le code est requis"
-                                                                     validatorMessage="Le code est requis"
-                                                                     styleClass="users-input"
-                                                                     placeholder="Ex: TYPE-001"
-                                                                     maxlength="100"/>
-                                                    </div>
-                                                    <p:message for="entityCode" display="icon"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <ui:include src="first-step.xhtml"/>
                         </ui:fragment>
 
                         <!-- Contenu de l'étape 2 : Collection et référentiel -->
                         <ui:fragment rendered="#{candidatBean.isStep2()}">
-                            <div class="wizard-content">
-                                <div class="wizard-step-content">
-                                    <div class="wizard-step-header">
-                                        <i class="pi pi-folder-open wizard-step-icon" />
-                                        <h3 class="wizard-step-title">Collection et référentiel</h3>
-                                        <p class="wizard-step-description">Sélectionnez la collection et le référentiel associés à votre candidat</p>
-                                    </div>
-
-                                    <div class="users-form-panel wizard-form-panel">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-folder form-section-icon" />
-                                                <h4 class="form-section-title">Collection et référentiel</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group">
-                                                    <p:outputLabel for="selectedCollection" value="Collection" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-folder-open input-icon" />
-                                                        <p:selectOneMenu id="selectedCollection"
-                                                                         value="#{candidatBean.selectedCollectionId}"
-                                                                         styleClass="users-select"
-                                                                         required="true"
-                                                                         requiredMessage="La collection est requise"
-                                                                         validatorMessage="La collection est requise">
-                                                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
-                                                            <f:selectItems value="#{candidatBean.availableCollections}"
-                                                                           var="collection"
-                                                                           itemLabel="#{candidatBean.getCollectionLabel(collection)}"
-                                                                           itemValue="#{collection.id}" />
-                                                            <p:ajax event="change"
-                                                                    listener="#{candidatBean.loadReferencesForCollection}"
-                                                                    process="@this"
-                                                                    update=":createCandidatForm:referenceTreeContainer"
-                                                                    onstart="showLoading('Chargement des référentiels...', 'spinner');"
-                                                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                                                    onerror="forceHideLoading();"/>
-                                                        </p:selectOneMenu>
-                                                    </div>
-                                                    <p:message for="selectedCollection" display="icon"/>
-                                                </div>
-
-                                                <h:panelGroup class="users-form-group users-form-group-full"
-                                                              rendered="#{candidatBean.isCollectionSelected()}">
-                                                    <p:outputLabel value="Sélectionner l'entité parent" />
-                                                    <p:outputPanel id="referenceTreeContainer" styleClass="reference-tree-container">
-                                                        <p:tree id="referenceTree"
-                                                                value="#{candidatBean.referenceTreeRoot}"
-                                                                var="node"
-                                                                selectionMode="single"
-                                                                selection="#{candidatBean.selectedTreeNode}"
-                                                                styleClass="horizontal-tree"
-                                                                orientation="horizontal"
-                                                                dynamic="false"
-                                                                rendered="#{candidatBean.isCollectionSelected()}">
-                                                            <p:treeNode>
-                                                                <div class="tree-node-content #{candidatBean.isRootNode(node) ? 'tree-node-root' : ''}">
-                                                                    <i class="pi pi-circle-fill tree-node-icon" />
-                                                                    <span class="tree-node-label">
-                                                                        #{candidatBean.getNodeDisplayValue(node)}
-                                                                    </span>
-                                                                </div>
-                                                            </p:treeNode>
-                                                        </p:tree>
-                                                        <p:message for="referenceTree"
-                                                                   rendered="#{candidatBean.isStep2() and empty candidatBean.selectedReference}"
-                                                                   severity="error"
-                                                                   summary="L'entité parent est requise"/>
-                                                    </p:outputPanel>
-                                                </h:panelGroup>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <ui:include src="second-step.xhtml"/>
                         </ui:fragment>
 
                         <!-- Contenu de l'étape 3 : Détails -->
                         <ui:fragment rendered="#{candidatBean.isStep3()}">
-                            <div class="wizard-content">
-                                <div class="wizard-step-content">
-                                <div class="wizard-step-header">
-                                    <i class="pi pi-file-edit wizard-step-icon" />
-                                    <h3 class="wizard-step-title">Détails complémentaires</h3>
-                                    <p class="wizard-step-description">Complétez les informations spécifiques selon le type sélectionné</p>
-                                </div>
-
-                                <div class="users-form-panel wizard-form-panel">
-                                    <!-- Formulaire pour TYPE -->
-                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'TYPE'}">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-tag form-section-icon" />
-                                                <h4 class="form-section-title">Description du type</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="typeDescription" value="Description" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                                        <p:inputTextarea id="typeDescription"
-                                                                         value="#{candidatBean.typeDescription}"
-                                                                         rows="6"
-                                                                         styleClass="users-textarea"
-                                                                         placeholder="Saisissez une description détaillée du type..."/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ui:fragment>
-
-                                    <!-- Formulaire pour SERIES -->
-                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'SERIES'}">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-list form-section-icon" />
-                                                <h4 class="form-section-title">Description de la série</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="serieDescription" value="Description" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                                        <p:inputTextarea id="serieDescription"
-                                                                         value="#{candidatBean.serieDescription}"
-                                                                         rows="6"
-                                                                         styleClass="users-textarea"
-                                                                         placeholder="Saisissez une description détaillée de la série..."/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ui:fragment>
-
-                                    <!-- Formulaire pour GROUP -->
-                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'GROUP'}">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-th-large form-section-icon" />
-                                                <h4 class="form-section-title">Description du groupe</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="groupDescription" value="Description" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                                        <p:inputTextarea id="groupDescription"
-                                                                         value="#{candidatBean.groupDescription}"
-                                                                         rows="6"
-                                                                         styleClass="users-textarea"
-                                                                         placeholder="Saisissez une description détaillée du groupe..."/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ui:fragment>
-
-                                    <!-- Formulaire pour CATEGORY -->
-                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'CATEGORY'}">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-bookmark form-section-icon" />
-                                                <h4 class="form-section-title">Description de la catégorie</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="categoryDescription" value="Description" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                                        <p:inputTextarea id="categoryDescription"
-                                                                         value="#{candidatBean.categoryDescription}"
-                                                                         rows="6"
-                                                                         styleClass="users-textarea"
-                                                                         placeholder="Saisissez une description détaillée de la catégorie..."/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ui:fragment>
-
-                                    <!-- Formulaire pour COLLECTION -->
-                                    <ui:fragment rendered="#{candidatBean.selectedEntityType != null and candidatBean.selectedEntityType.code == 'COLLECTION'}">
-                                        <div class="form-section">
-                                            <div class="form-section-header">
-                                                <i class="pi pi-folder form-section-icon" />
-                                                <h4 class="form-section-title">Paramètres de la collection</h4>
-                                            </div>
-                                            <div class="users-form-grid">
-                                                <div class="users-form-group users-form-group-full">
-                                                    <p:outputLabel for="collectionDescription" value="Description" />
-                                                    <div class="input-wrapper">
-                                                        <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                                        <p:inputTextarea id="collectionDescription"
-                                                                         value="#{candidatBean.collectionDescription}"
-                                                                         rows="6"
-                                                                         styleClass="users-textarea"
-                                                                         placeholder="Saisissez une description détaillée de la collection..."/>
-                                                    </div>
-                                                </div>
-                                                <div class="users-form-group">
-                                                    <p:outputLabel for="collectionPublique" value="Collection publique" />
-                                                    <div class="checkbox-wrapper-enhanced">
-                                                        <p:selectBooleanCheckbox id="collectionPublique"
-                                                                                 value="#{candidatBean.collectionPublique}"
-                                                                                 styleClass="users-checkbox"/>
-                                                        <span class="checkbox-label">Rendre cette collection visible publiquement</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ui:fragment>
-                                </div>
-                            </div>
-                        </div>
+                            <ui:include src="third-step.xhtml"/>
                         </ui:fragment>
 
                         <!-- Boutons de navigation -->
-                        <div class="wizard-navigation">
+                        <h:panelGroup id="nav-button" class="wizard-navigation">
                             <div class="wizard-nav-left">
                                 <p:commandButton value="Précédent"
                                                icon="pi pi-arrow-left"
                                                styleClass="wizard-btn wizard-btn-prev"
                                                action="#{candidatBean.previousStep()}"
                                                process="@this"
-                                               update="@form"
+                                               update="@form :nav-button :growl "
                                                rendered="#{candidatBean.isStep2() or candidatBean.isStep3()}"
                                                oncomplete="scrollToTop();"/>
                             </div>
                             
                             <div class="wizard-nav-right">
-                                <p:commandButton value="Suivant 1"
+                                <p:commandButton value="Suivant"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
                                                  action="#{candidatBean.nextStep()}"
                                                  process="@form" ajax="true"
-                                                 update=":createCandidatForm :growl"
+                                                 update=":createCandidatForm :growl :nav-button"
                                                  rendered="#{candidatBean.isStep1()}"/>
                                 
-                                <p:commandButton value="Suivant 2"
+                                <p:commandButton value="Suivant"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
                                                  action="#{candidatBean.nextStep()}"
                                                  process="@form" ajax="true"
-                                                 update="@form :growl"
+                                                 update="@form :growl :nav-button"
                                                  rendered="#{candidatBean.isStep2()}"/>
                                 
                                 <p:commandButton value="Terminer"
                                                  icon="pi pi-check"
                                                  iconPos="right"
+                                                 process="@form" ajax="true"
+                                                 update="@form :growl :nav-button"
                                                  styleClass="wizard-btn wizard-btn-finish"
-                                                 action="#{candidatBean.sauvegarderCandidat()}"
-                                                 process="@form"
-                                                 update="@form :growl"
-                                                 rendered="#{candidatBean.isStep3()}"
-                                                 onstart="showLoading('Sauvegarde du candidat...', 'spinner');"
-                                                 oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                                 onerror="forceHideLoading();"/>
+                                                 onclick="PF('confirmSaveCandidatDialog').show(); return false;"
+                                                 rendered="#{candidatBean.isStep3()}"/>
                             </div>
-                        </div>
+                        </h:panelGroup>
                     </div>
+                    <!-- Dialog de confirmation de sauvegarde -->
+                    <p:dialog id="confirmSaveCandidatDialog"
+                              widgetVar="confirmSaveCandidatDialog"
+                              header="Confirmer la création"
+                              modal="true"
+                              closable="true"
+                              resizable="false"
+                              draggable="false"
+                              width="500"
+                              height="auto"
+                              styleClass="candidat-confirm-dialog">
+
+                        <f:facet name="header">
+                            <div class="candidat-confirm-header">
+                                <div class="candidat-confirm-header-icon-wrapper">
+                                    <i class="pi pi-check-circle candidat-confirm-header-icon" />
+                                </div>
+                                <div class="candidat-confirm-header-content">
+                                    <h3 class="candidat-confirm-header-title">Confirmer la création</h3>
+                                    <p class="candidat-confirm-header-subtitle">Le candidat sera enregistré avec le statut PROPOSITION</p>
+                                </div>
+                            </div>
+                        </f:facet>
+
+                        <div class="candidat-confirm-message-wrapper">
+                            <div class="candidat-confirm-icon-info">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <p class="candidat-confirm-message-text">
+                                Êtes-vous sûr de vouloir créer cette entité ? Toutes les informations saisies seront enregistrées dans la base de données avec le statut <strong>PROPOSITION</strong>. 
+                                Vous pourrez ensuite la valider ou la modifier depuis la liste des candidats.
+                            </p>
+                        </div>
+
+                        <div class="candidat-confirm-actions">
+                            <p:commandButton value="Oui, créer"
+                                             icon="pi pi-check"
+                                             action="#{candidatBean.sauvegarderCandidat()}"
+                                             process=":createCandidatForm"
+                                             ajax="true"
+                                             update=":createCandidatForm :growl"
+                                             styleClass="candidat-confirm-btn candidat-confirm-btn-validate"
+                                             onstart="showLoading('Sauvegarde du candidat...', 'spinner');"
+                                             oncomplete="setTimeout(function(){PF('confirmSaveCandidatDialog').hide(); hideLoading();}, 300);"
+                                             onerror="forceHideLoading();"/>
+                            <p:commandButton value="Annuler"
+                                             icon="pi pi-times"
+                                             onclick="PF('confirmSaveCandidatDialog').hide(); return false;"
+                                             type="button"
+                                             styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
+                        </div>
+                    </p:dialog>
                 </h:form>
             </div>
         </div>
-        
-        <!-- Styles pour l'arbre de sélection -->
+
+        <!-- Styles pour l'arbre de sélection et le récapitulatif -->
         <style>
-            /* Styles pour l'arbre horizontal de sélection */
-            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
-                cursor: pointer;
-                padding: 0.5rem;
-                border-radius: 4px;
-                transition: all 0.2s ease;
+            /* ============================================
+               STYLES POUR LA BARRE DE PROGRESSION MODERNE
+               Design élégant, moderne et responsive
+               ============================================ */
+            
+            .wizard-progress-modern {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+                padding: 2.5rem 2rem;
+                border-bottom: 1px solid rgba(71, 98, 77, 0.08);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .wizard-progress-modern::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, 
+                    var(--color-action-main, #47624D) 0%, 
+                    rgba(71, 98, 77, 0.3) 50%, 
+                    rgba(71, 98, 77, 0.1) 100%);
+            }
+
+            .wizard-steps-modern {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                position: relative;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .wizard-step-modern {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                flex: 1;
+                position: relative;
+                z-index: 1;
+            }
+
+            .step-indicator {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                margin-bottom: 1rem;
+                position: relative;
+            }
+
+            .step-circle {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                z-index: 3;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 3px solid;
+                background: #ffffff;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .wizard-step-modern.pending .step-circle {
+                border-color: rgba(71, 98, 77, 0.2);
+                background: #f8f9fa;
+                color: var(--color-text-secondary, #819A91);
+            }
+
+            .wizard-step-modern.active .step-circle {
+                border-color: var(--color-action-main, #47624D);
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+                color: #ffffff;
+                box-shadow: 0 4px 16px rgba(71, 98, 77, 0.4);
+                transform: scale(1.1);
+                animation: pulse 2s infinite;
+            }
+
+            .wizard-step-modern.completed .step-circle {
+                border-color: var(--color-action-main, #47624D);
+                background: var(--color-action-main, #47624D);
+                color: #ffffff;
+                box-shadow: 0 2px 12px rgba(71, 98, 77, 0.3);
+            }
+
+            .wizard-step-modern.disabled .step-circle {
+                border-color: rgba(71, 98, 77, 0.1);
+                background: #f0f0f0;
+                color: var(--color-text-secondary, #819A91);
+                opacity: 0.5;
+            }
+
+            @keyframes pulse {
+                0%, 100% {
+                    box-shadow: 0 4px 16px rgba(71, 98, 77, 0.4);
+                }
+                50% {
+                    box-shadow: 0 4px 24px rgba(71, 98, 77, 0.6);
+                }
+            }
+
+            .step-number-text {
+                font-size: 1.25rem;
+                font-weight: 700;
+                line-height: 1;
+            }
+
+            .step-check-icon {
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+
+            .step-connector {
+                flex: 1;
+                height: 3px;
+                margin: 0 0.5rem;
+                background: rgba(71, 98, 77, 0.15);
+                border-radius: 2px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.4s ease;
+            }
+
+            .wizard-step-modern.completed .step-connector {
+                background: var(--color-action-main, #47624D);
+            }
+
+            .wizard-step-modern.active .step-connector {
+                background: linear-gradient(90deg, 
+                    var(--color-action-main, #47624D) 0%, 
+                    rgba(71, 98, 77, 0.3) 100%);
+            }
+
+            .step-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+                text-align: center;
+                max-width: 200px;
+            }
+
+            .step-icon-wrapper {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                background: rgba(71, 98, 77, 0.05);
+            }
+
+            .wizard-step-modern.active .step-icon-wrapper {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.2);
+            }
+
+            .wizard-step-modern.completed .step-icon-wrapper {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%);
+            }
+
+            .step-icon {
+                font-size: 1.5rem;
+                color: var(--color-text-secondary, #819A91);
+                transition: all 0.3s ease;
+            }
+
+            .wizard-step-modern.active .step-icon {
+                color: var(--color-action-main, #47624D);
+                transform: scale(1.1);
+            }
+
+            .wizard-step-modern.completed .step-icon {
+                color: var(--color-action-main, #47624D);
+            }
+
+            .step-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .step-title {
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: var(--color-text-primary, #333);
+                transition: all 0.3s ease;
+                line-height: 1.3;
+            }
+
+            .wizard-step-modern.active .step-title {
+                color: var(--color-action-main, #47624D);
+                font-weight: 700;
+                font-size: 1rem;
+            }
+
+            .wizard-step-modern.completed .step-title {
+                color: var(--color-action-main, #47624D);
+            }
+
+            .wizard-step-modern.disabled .step-title {
+                color: var(--color-text-secondary, #819A91);
+                opacity: 0.6;
+            }
+
+            .step-subtitle {
+                font-size: 0.8125rem;
+                color: var(--color-text-secondary, #819A91);
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .wizard-step-modern.active .step-subtitle {
+                color: var(--color-action-main, #47624D);
+                font-weight: 600;
+            }
+
+            .wizard-step-modern.completed .step-subtitle {
+                color: var(--color-action-main, #47624D);
+            }
+
+            .wizard-step-modern.disabled .step-subtitle {
+                opacity: 0.5;
+            }
+
+            /* Responsive */
+            @media (max-width: 992px) {
+                .wizard-progress-modern {
+                    padding: 2rem 1.5rem;
+                }
+
+                .step-content {
+                    max-width: 160px;
+                }
+
+                .step-circle {
+                    width: 48px;
+                    height: 48px;
+                }
+
+                .step-icon-wrapper {
+                    width: 40px;
+                    height: 40px;
+                }
+
+                .step-icon {
+                    font-size: 1.25rem;
+                }
+
+                .step-title {
+                    font-size: 0.875rem;
+                }
+
+                .step-subtitle {
+                    font-size: 0.75rem;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .wizard-progress-modern {
+                    padding: 1.5rem 1rem;
+                }
+
+                .wizard-steps-modern {
+                    flex-direction: column;
+                    gap: 1.5rem;
+                    align-items: stretch;
+                }
+
+                .wizard-step-modern {
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                .step-indicator {
+                    flex-direction: column;
+                    width: auto;
+                    margin-bottom: 0;
+                    margin-right: 1rem;
+                }
+
+                .step-connector {
+                    display: none;
+                }
+
+                .step-content {
+                    flex-direction: row;
+                    align-items: center;
+                    text-align: left;
+                    max-width: none;
+                    flex: 1;
+                }
+
+                .step-icon-wrapper {
+                    flex-shrink: 0;
+                }
+
+                .step-info {
+                    flex: 1;
+                }
+
+                .step-circle {
+                    width: 44px;
+                    height: 44px;
+                }
+
+                .step-number-text {
+                    font-size: 1.125rem;
+                }
+
+                .step-check-icon {
+                    font-size: 1.25rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .wizard-progress-modern {
+                    padding: 1.25rem 0.75rem;
+                }
+
+                .step-circle {
+                    width: 40px;
+                    height: 40px;
+                }
+
+                .step-icon-wrapper {
+                    width: 36px;
+                    height: 36px;
+                }
+
+                .step-icon {
+                    font-size: 1.125rem;
+                }
+
+                .step-title {
+                    font-size: 0.8125rem;
+                }
+
+                .step-subtitle {
+                    font-size: 0.6875rem;
+                }
+            }
+
+            /* ============================================
+               STYLES POUR L'ARBRE DE SÉLECTION
+               Design ergonomique, respect de la charte couleur, responsive
+               ============================================ */
+            
+            /* Container principal de l'arbre */
+            .reference-tree-container {
+                width: 100%;
+                padding: 1rem;
+                background: var(--color-bg-global, #EEEFE0);
+                border-radius: 8px;
+                border: 1px solid rgba(71, 98, 77, 0.15);
+                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.05);
             }
             
+            /* Container de l'arbre PrimeFaces */
+            .reference-tree-container .horizontal-tree {
+                width: 100%;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                padding: 0;
+            }
+            
+            /* Nœud de l'arbre - Design en carte */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
+                flex: 0 1 auto;
+                min-width: 200px;
+                max-width: 100%;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+                cursor: pointer;
+                padding: 0.875rem 1rem;
+                border-radius: 8px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: #ffffff;
+                border: 2px solid rgba(71, 98, 77, 0.15);
+                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.08);
+                display: flex;
+                align-items: center;
+                gap: 0.625rem;
+                min-height: 48px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* Effet hover sur les nœuds */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
-                background-color: rgba(71, 98, 77, 0.08);
+                background: linear-gradient(135deg, #ffffff 0%, var(--color-hover, #A7C1A8) 100%);
+                border-color: var(--color-action-main, #47624D);
+                box-shadow: 0 4px 8px rgba(71, 98, 77, 0.15);
+                transform: translateY(-2px);
             }
             
             /* Style pour le nœud sélectionné */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
-                background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
-                color: var(--color-action-main, #47624D);
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+                color: #ffffff;
                 font-weight: 600;
-                border-left: 3px solid var(--color-action-main, #47624D);
+                border-color: var(--color-action-main, #47624D);
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.25);
+                transform: translateY(-2px);
             }
             
             /* Style pour le nœud racine (non sélectionnable) */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root {
                 cursor: not-allowed;
-                opacity: 0.7;
+                opacity: 0.6;
+                background: var(--color-bg-secondary, #D1D8BE);
+                border-color: rgba(71, 98, 77, 0.2);
+                position: relative;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--color-action-main, #47624D);
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root:hover {
-                background-color: transparent;
+                background: var(--color-bg-secondary, #D1D8BE);
+                transform: none;
+                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.08);
+            }
+            
+            /* Contenu du nœud */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-content {
+                display: flex;
+                align-items: center;
+                gap: 0.625rem;
+                width: 100%;
+            }
+            
+            /* Icône du nœud */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-icon {
+                font-size: 0.875rem;
+                color: var(--color-text-secondary, #819A91);
+                transition: all 0.3s ease;
+                flex-shrink: 0;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover .tree-node-icon {
+                color: var(--color-action-main, #47624D);
+                transform: scale(1.1);
             }
             
             /* Style pour les icônes dans les nœuds sélectionnés */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-icon {
+                color: #ffffff;
+            }
+            
+            /* Label du nœud */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-label {
+                flex: 1;
+                font-size: 0.9375rem;
+                color: var(--color-text-primary, #333);
+                font-weight: 500;
+                line-height: 1.4;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover .tree-node-label {
                 color: var(--color-action-main, #47624D);
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-label {
+                color: #ffffff;
+                font-weight: 600;
+            }
+            
+            /* Style pour le nœud racine - label */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root .tree-node-label {
+                color: var(--color-text-secondary, #819A91);
+                font-weight: 600;
+            }
+            
+            /* Enfants de l'arbre (niveaux imbriqués) */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children {
+                margin-top: 0.75rem;
+                padding-left: 1.5rem;
+                border-left: 2px dashed rgba(71, 98, 77, 0.2);
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .reference-tree-container {
+                    padding: 0.75rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
+                    min-width: 100%;
+                    max-width: 100%;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+                    padding: 0.75rem;
+                    min-height: 44px;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children {
+                    padding-left: 1rem;
+                    margin-top: 0.5rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .reference-tree-container {
+                    padding: 0.5rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+                    padding: 0.625rem;
+                    min-height: 40px;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-label {
+                    font-size: 0.875rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-icon {
+                    font-size: 0.75rem;
+                }
+            }
+            
+            /* Styles pour le panneau récapitulatif */
+            .summary-panel {
+                margin-bottom: 2rem;
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+                border: 1px solid rgba(71, 98, 77, 0.1);
+            }
+            
+            .summary-content {
+                padding: 1.5rem 0;
+            }
+            
+            .summary-section {
+                margin-bottom: 1.5rem;
+            }
+            
+            .summary-section:last-child {
+                margin-bottom: 0;
+            }
+            
+            .summary-section-title {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--color-action-main, #47624D);
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 2px solid rgba(71, 98, 77, 0.1);
+            }
+            
+            .summary-icon {
+                font-size: 1rem;
+                color: var(--color-action-main, #47624D);
+            }
+            
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+            
+            .summary-item {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+                padding: 0.75rem;
+                background: white;
+                border-radius: 6px;
+                border: 1px solid rgba(71, 98, 77, 0.1);
+                transition: all 0.2s ease;
+            }
+            
+            .summary-item:hover {
+                border-color: rgba(71, 98, 77, 0.3);
+                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.1);
+            }
+            
+            .summary-label {
+                font-size: 0.8125rem;
+                color: var(--color-text-secondary, #819A91);
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .summary-value {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.9375rem;
+                color: var(--color-text-primary, #333);
+                font-weight: 500;
+                margin-top: 0.25rem;
+            }
+            
+            .summary-value-icon {
+                font-size: 0.875rem;
+                color: var(--color-action-main, #47624D);
+            }
+            
+            @media (max-width: 768px) {
+                .summary-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* Styles pour le dialog de confirmation */
+            .candidat-confirm-dialog .ui-dialog-content {
+                padding: 1.5rem !important;
+            }
+
+            .candidat-confirm-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.5rem 0;
+            }
+
+            .candidat-confirm-header-icon-wrapper {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .candidat-confirm-header-icon {
+                font-size: 1.5rem;
+                color: var(--color-action-main, #47624D);
+            }
+
+            .candidat-confirm-header-content {
+                flex: 1;
+            }
+
+            .candidat-confirm-header-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: var(--color-text-primary, #333);
+                margin: 0 0 0.25rem 0;
+            }
+
+            .candidat-confirm-header-subtitle {
+                font-size: 0.875rem;
+                color: var(--color-text-secondary, #819A91);
+                margin: 0;
+            }
+
+            .candidat-confirm-message-wrapper {
+                display: flex;
+                gap: 1rem;
+                padding: 1.25rem;
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+                border: 1px solid rgba(71, 98, 77, 0.1);
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+            }
+
+            .candidat-confirm-icon-info {
+                font-size: 1.5rem;
+                color: var(--color-action-main, #47624D);
+                flex-shrink: 0;
+            }
+
+            .candidat-confirm-message-text {
+                font-size: 0.9375rem;
+                color: var(--color-text-primary, #333);
+                line-height: 1.6;
+                margin: 0;
+            }
+
+            .candidat-confirm-message-text strong {
                 color: var(--color-action-main, #47624D);
                 font-weight: 600;
+            }
+
+            .candidat-confirm-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 1rem;
+            }
+
+            .candidat-confirm-btn {
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                transition: all 0.3s ease !important;
+                min-width: 120px !important;
+            }
+
+            .candidat-confirm-btn-validate {
+                background: var(--color-action-main, #47624D) !important;
+                border-color: var(--color-action-main, #47624D) !important;
+                color: #ffffff !important;
+            }
+
+            .candidat-confirm-btn-validate:hover {
+                background: #3a4f3e !important;
+                border-color: #3a4f3e !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+            }
+
+            .candidat-confirm-btn-cancel {
+                background: #6c757d !important;
+                border-color: #6c757d !important;
+                color: #ffffff !important;
+            }
+
+            .candidat-confirm-btn-cancel:hover {
+                background: #5a6268 !important;
+                border-color: #5a6268 !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            }
+
+            @media (max-width: 768px) {
+                .candidat-confirm-actions {
+                    flex-direction: column;
+                }
+
+                .candidat-confirm-btn {
+                    width: 100% !important;
+                }
             }
         </style>
     </ui:define>

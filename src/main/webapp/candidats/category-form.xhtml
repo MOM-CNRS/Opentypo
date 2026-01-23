@@ -1,0 +1,902 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <div class="wizard-content">
+        <!-- Formulaire -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel value="Image principale" />
+            <p class="users-form-hint" style="margin-bottom: 1rem;">
+                <i class="pi pi-info-circle" />
+                Uploadez une image qui sera chargée dans IIIF. Seule l'URL sera enregistrée en base de données.
+            </p>
+
+            <h:panelGroup id="imageUploadContainer" class="category-image-upload-container">
+                <!-- Afficher l'image si une URL existe -->
+                <ui:fragment rendered="#{not empty candidatBean.categoryImagePrincipaleUrl}">
+                    <div class="category-image-preview">
+                        <div class="category-image-preview-wrapper">
+                            <img src="#{candidatBean.categoryImagePrincipaleUrl}"
+                                 alt="Image principale"
+                                 class="category-image-preview-img"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+                            <div class="category-image-preview-placeholder" style="display:none;">
+                                <i class="pi pi-image" />
+                                <span>Image non disponible</span>
+                            </div>
+                        </div>
+                        <div class="category-image-url">
+                            <i class="pi pi-link" />
+                            <span class="category-image-url-text" title="#{candidatBean.categoryImagePrincipaleUrl}">
+                                            #{candidatBean.categoryImagePrincipaleUrl}
+                                        </span>
+                        </div>
+                        <p:commandButton value="Supprimer l'image"
+                                         icon="pi pi-trash"
+                                         styleClass="category-btn-remove-image"
+                                         action="#{candidatBean.removeImage()}"
+                                         process="@this"
+                                         ajax="true"
+                                         update=":createCandidatForm:imageUploadContainer"/>
+                    </div>
+                </ui:fragment>
+
+                <!-- Formulaire d'upload si aucune image n'est définie -->
+                <ui:fragment rendered="#{empty candidatBean.categoryImagePrincipaleUrl}">
+                    <div class="category-image-upload-form">
+                        <div class="input-wrapper">
+                            <i class="pi pi-upload input-icon" />
+                            <p:fileUpload id="categoryImageUpload"
+                                          fileUploadListener="#{candidatBean.handleImageUpload}"
+                                          mode="advanced"
+                                          dragDropSupport="true"
+                                          update=":createCandidatForm:imageUploadContainer :growl"
+                                          allowTypes="/(\.|\/)(gif|jpe?g|png|webp)$/i"
+                                          maxFileSize="10485760"
+                                          fileLimit="1"
+                                          multiple="false"
+                                          auto="true"
+                                          styleClass="category-file-upload"
+                                          label="Choisir une image"
+                                          uploadLabel="Uploader"
+                                          cancelLabel="Annuler"
+                                          invalidFileMessage="Type de fichier invalide. Formats acceptés: JPG, PNG, GIF, WEBP"
+                                          invalidSizeMessage="Fichier trop volumineux. Taille maximale: 10MB"
+                                          fileLimitMessage="Un seul fichier autorisé"
+                                          messageTemplate="{name} ({size})"/>
+                        </div>
+                        <p class="users-form-hint" style="margin-top: 0.5rem;">
+                            <i class="pi pi-info-circle" />
+                            Formats acceptés: JPG, PNG, GIF, WEBP. Taille maximale: 10MB
+                        </p>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
+        </div>
+
+        <!-- Traductions du label (multilingues) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Traductions du label" />
+            <p class="users-form-hint" style="margin-bottom: 1rem;">
+                <i class="pi pi-info-circle" />
+                Ajoutez des traductions du label pour d'autres langues. La langue définie à l'étape 1 est exclue.
+            </p>
+
+            <!-- Formulaire pour ajouter une nouvelle traduction de label -->
+            <div class="category-label-input-section">
+                <div class="category-label-input-row">
+                    <div class="category-label-input-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-tag input-icon" />
+                            <p:inputText id="newCategoryLabelInput"
+                                         value="#{candidatBean.newCategoryLabelValue}"
+                                         placeholder="Saisissez la traduction du label..."
+                                         styleClass="users-input"
+                                         maxlength="255"/>
+                        </div>
+                    </div>
+                    <div class="category-label-select-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-globe input-icon" />
+                            <p:selectOneMenu id="newCategoryLabelLangue"
+                                             value="#{candidatBean.newCategoryLabelLangueCode}"
+                                             styleClass="users-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewCategoryLabel()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <p:commandButton value="Ajouter"
+                                     icon="pi pi-plus"
+                                     styleClass="category-btn-add"
+                                     actionListener="#{candidatBean.addCategoryLabelFromInput()}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":createCandidatForm:categoryLabelsTable :createCandidatForm:newCategoryLabelInput :createCandidatForm:newCategoryLabelLangue :growl"/>
+                </div>
+            </div>
+
+            <!-- Liste des traductions de label ajoutées -->
+            <h:panelGroup id="categoryLabelsTable">
+                <p:dataTable value="#{candidatBean.categoryLabels}"
+                             var="labelItem"
+                             styleClass="category-labels-table"
+                             emptyMessage="Aucune traduction ajoutée"
+                             rendered="#{not empty candidatBean.categoryLabels}">
+                    <p:column headerText="Langue" styleClass="category-table-langue-column" width="20">
+                        <div class="category-table-langue-cell">
+                            <h:panelGroup rendered="#{labelItem.langueCode != null}">
+                                <h:graphicImage library="img"
+                                                name="flag/#{labelItem.langueCode}.png"
+                                                styleClass="category-table-flag"
+                                                alt="#{labelItem.langue.nom}"
+                                                title="#{labelItem.langue.nom}"/>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{labelItem.langue != null}">
+                                            <span class="category-table-langue-name">
+                                                #{labelItem.langue.nom}
+                                            </span>
+                            </h:panelGroup>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Label" styleClass="category-table-label-column" width="70">
+                        <div class="category-table-label-cell">
+                            <h:outputText value="#{labelItem.nom}"
+                                          styleClass="category-table-label-text" />
+                        </div>
+                    </p:column>
+                    <p:column headerText="Action" styleClass="category-table-action-column" width="10">
+                        <div class="category-table-action-cell">
+                            <p:commandButton icon="pi pi-trash"
+                                             styleClass="category-btn-remove"
+                                             action="#{candidatBean.removeCategoryLabel(labelItem)}"
+                                             process="@form"
+                                             ajax="true"
+                                             update=":createCandidatForm:categoryLabelsTable :createCandidatForm:newCategoryLabelLangue"
+                                             title="Supprimer cette traduction"/>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+
+                <ui:fragment rendered="#{empty candidatBean.categoryLabels}">
+                    <div class="category-no-labels">
+                        <div class="category-no-labels-content">
+                            <div class="category-no-labels-icon">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <div class="category-no-labels-text">
+                                <h4 class="category-no-labels-title">Aucune traduction ajoutée</h4>
+                                <p class="category-no-labels-message">Utilisez le formulaire ci-dessus pour ajouter une traduction du label dans une autre langue.</p>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
+        </div>
+
+        <!-- Descriptions multilingues -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Descriptions" />
+            <p class="users-form-hint" style="margin-bottom: 1rem;">
+                <i class="pi pi-info-circle" />
+                Ajoutez une description pour chaque langue. Chaque langue ne peut être utilisée qu'une seule fois.
+            </p>
+
+            <!-- Formulaire pour ajouter une nouvelle description -->
+            <div class="category-description-input-section">
+                <div class="category-description-input-row">
+                    <div class="category-description-textarea-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-align-left input-icon input-icon-textarea" />
+                            <p:inputTextarea id="newCategoryDescriptionInput"
+                                             value="#{candidatBean.newCategoryDescriptionValue}"
+                                             placeholder="Saisissez une description détaillée de la catégorie..."
+                                             rows="4"
+                                             styleClass="users-textarea"
+                                             maxlength="2000"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-description-input-row">
+                    <div class="category-description-select-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-globe input-icon" />
+                            <p:selectOneMenu id="newCategoryDescriptionLangue"
+                                             value="#{candidatBean.newCategoryDescriptionLangueCode}"
+                                             styleClass="users-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewCategoryDescription()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <p:commandButton value="Ajouter"
+                                     icon="pi pi-plus"
+                                     styleClass="category-btn-add"
+                                     actionListener="#{candidatBean.addCategoryDescriptionFromInput()}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":createCandidatForm:categoryDescriptionsTable :createCandidatForm:newCategoryDescriptionInput :createCandidatForm:newCategoryDescriptionLangue :growl"/>
+                </div>
+            </div>
+
+            <!-- Liste des descriptions ajoutées -->
+            <h:panelGroup id="categoryDescriptionsTable">
+                <p:dataTable value="#{candidatBean.categoryDescriptions}"
+                             var="descriptionItem"
+                             styleClass="category-descriptions-table"
+                             emptyMessage="Aucune description ajoutée"
+                             rendered="#{not empty candidatBean.categoryDescriptions}">
+                    <p:column headerText="Langue" styleClass="category-table-langue-column" width="20">
+                        <div class="category-table-langue-cell">
+                            <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
+                                <h:graphicImage library="img"
+                                                name="flag/#{descriptionItem.langueCode}.png"
+                                                styleClass="category-table-flag"
+                                                alt="#{descriptionItem.langue.nom}"
+                                                title="#{descriptionItem.langue.nom}"/>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{descriptionItem.langue != null}">
+                                            <span class="category-table-langue-name">
+                                                #{descriptionItem.langue.nom}
+                                            </span>
+                            </h:panelGroup>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Description" styleClass="category-table-description-column" width="70">
+                        <div class="category-table-description-cell">
+                            <h:outputText value="#{descriptionItem.valeur}"
+                                          styleClass="category-table-description-text" />
+                        </div>
+                    </p:column>
+                    <p:column headerText="Action" styleClass="category-table-action-column" width="10">
+                        <div class="category-table-action-cell">
+                            <p:commandButton icon="pi pi-trash"
+                                             styleClass="category-btn-remove"
+                                             action="#{candidatBean.removeCategoryDescription(descriptionItem)}"
+                                             process="@form"
+                                             ajax="true"
+                                             update=":createCandidatForm:categoryDescriptionsTable :createCandidatForm:newCategoryDescriptionLangue"
+                                             title="Supprimer cette description"/>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+
+                <ui:fragment rendered="#{empty candidatBean.categoryDescriptions}">
+                    <div class="category-no-descriptions">
+                        <div class="category-no-descriptions-content">
+                            <div class="category-no-descriptions-icon">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <div class="category-no-descriptions-text">
+                                <h4 class="category-no-descriptions-title">Aucune description ajoutée</h4>
+                                <p class="category-no-descriptions-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
+        </div>
+
+        <!-- Références bibliographiques (Saisie libre avec tags) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="categoryReferencesBibliographiques" value="Références bibliographiques" />
+            <div class="input-wrapper">
+                <i class="pi pi-book input-icon" />
+                <p:chips id="categoryReferencesBibliographiques"
+                         value="#{candidatBean.categoryReferencesBibliographiques}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez une référence bibliographique et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Saisissez chaque référence bibliographique et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
+            </p>
+            <p:message for="categoryReferencesBibliographiques" display="icon"/>
+        </div>
+
+        <!-- Commentaire -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="categoryCommentaire" value="Commentaire" />
+            <div class="input-wrapper">
+                <i class="pi pi-comment input-icon input-icon-textarea" />
+                <p:inputTextarea id="categoryCommentaire"
+                                 value="#{candidatBean.categoryCommentaire}"
+                                 rows="5"
+                                 styleClass="users-textarea"
+                                 placeholder="Ajoutez un commentaire sur cette catégorie..."
+                                 maxlength="1000"/>
+            </div>
+            <p:message for="categoryCommentaire" display="icon"/>
+        </div>
+
+        <!-- Bibliographie -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="categoryBibliographie" value="Bibliographie" />
+            <div class="input-wrapper">
+                <i class="pi pi-book input-icon input-icon-textarea" />
+                <p:inputTextarea id="categoryBibliographie"
+                                 value="#{candidatBean.categoryBibliographie}"
+                                 rows="5"
+                                 styleClass="users-textarea"
+                                 placeholder="Saisissez des informations bibliographiques complémentaires..."
+                                 maxlength="2000"/>
+            </div>
+            <p:message for="categoryBibliographie" display="icon"/>
+        </div>
+    </div>
+
+    <!-- Styles personnalisés pour le formulaire de catégorie -->
+    <style>
+        /* En-tête de section amélioré */
+        .form-section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.1);
+        }
+
+        .form-section-icon {
+            font-size: 1.5rem;
+            color: var(--color-action-main, #47624D);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary, #333);
+            margin: 0.5rem 0;
+        }
+
+        .form-section-description {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary, #819A91);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Amélioration du composant chips (tags) */
+        .users-chips {
+            width: 100% !important;
+        }
+
+        .users-chips .ui-chips-container {
+            width: 100% !important;
+            min-height: 48px !important;
+            padding: 0.5rem 0.75rem 0.5rem 3rem !important;
+            border: 1px solid rgba(71, 98, 77, 0.2) !important;
+            border-radius: 8px !important;
+            background: #ffffff !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .users-chips .ui-chips-container:focus-within {
+            border-color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.1) !important;
+        }
+
+        .users-chips .ui-chips-input-token {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 0.5rem !important;
+            align-items: center !important;
+        }
+
+        .users-chips .ui-chips-input-token input {
+            border: none !important;
+            outline: none !important;
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.9375rem !important;
+            flex: 1 !important;
+            min-width: 200px !important;
+            background: transparent !important;
+        }
+
+        .users-chips .ui-chips-token {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
+            border: 1px solid rgba(71, 98, 77, 0.2) !important;
+            border-radius: 6px !important;
+            color: var(--color-text-primary, #333) !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+            cursor: default !important;
+        }
+
+        .users-chips .ui-chips-token:hover {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.1) 100%) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 4px rgba(71, 98, 77, 0.15) !important;
+        }
+
+        .users-chips .ui-chips-token-label {
+            max-width: 300px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        .users-chips .ui-chips-token-icon {
+            cursor: pointer !important;
+            color: var(--color-text-secondary, #819A91) !important;
+            font-size: 0.875rem !important;
+            transition: all 0.2s ease !important;
+            padding: 0.125rem !important;
+            border-radius: 4px !important;
+        }
+
+        .users-chips .ui-chips-token-icon:hover {
+            color: #dc3545 !important;
+            background: rgba(220, 53, 69, 0.1) !important;
+        }
+
+        /* Alignement de l'icône avec le composant chips */
+        .input-wrapper .users-chips {
+            width: 100% !important;
+        }
+
+        /* Changement de couleur de l'icône quand le champ est en focus */
+        .input-wrapper .users-chips .ui-chips-container:focus-within ~ .input-icon,
+        .input-wrapper:has(.users-chips .ui-chips-container:focus-within) .input-icon {
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        /* Hint text */
+        .users-form-hint {
+            margin-top: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary, #819A91);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .users-form-hint i {
+            font-size: 0.875rem;
+            color: var(--color-action-main, #47624D);
+        }
+
+        /* Styles pour l'upload d'image */
+        .category-image-upload-container {
+            width: 100%;
+        }
+
+        .category-image-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 1px solid rgba(71, 98, 77, 0.1);
+            border-radius: 8px;
+        }
+
+        .category-image-preview-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid rgba(71, 98, 77, 0.2);
+            background: #f8f9fa;
+        }
+
+        .category-image-preview-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        .category-image-preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--color-text-secondary, #819A91);
+            gap: 1rem;
+        }
+
+        .category-image-preview-placeholder i {
+            font-size: 3rem;
+        }
+
+        .category-image-url {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: white;
+            border: 1px solid rgba(71, 98, 77, 0.15);
+            border-radius: 6px;
+            word-break: break-all;
+        }
+
+        .category-image-url i {
+            color: var(--color-action-main, #47624D);
+            flex-shrink: 0;
+        }
+
+        .category-image-url-text {
+            font-size: 0.875rem;
+            color: var(--color-text-primary, #333);
+            font-family: 'Courier New', monospace;
+        }
+
+        .category-btn-remove-image {
+            align-self: flex-start;
+            background: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: #ffffff !important;
+            padding: 0.625rem 1.25rem !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .category-btn-remove-image:hover {
+            background: #c82333 !important;
+            border-color: #bd2130 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+        }
+
+        .category-image-upload-form {
+            padding: 0.75rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 2px dashed rgba(71, 98, 77, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .category-image-upload-form:hover {
+            border-color: var(--color-action-main, #47624D);
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.05) 0%, rgba(71, 98, 77, 0.02) 100%);
+        }
+
+        .category-file-upload {
+            width: 100% !important;
+        }
+
+        .category-file-upload .ui-fileupload-buttonbar {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .category-file-upload .ui-fileupload-content {
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        /* Styles pour les traductions de label */
+        .category-label-input-section {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 1px solid rgba(71, 98, 77, 0.1);
+            border-radius: 8px;
+        }
+
+        .category-label-input-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .category-label-input-wrapper {
+            flex: 1;
+        }
+
+        .category-label-select-wrapper {
+            flex: 0 0 250px;
+        }
+
+        .category-labels-table {
+            width: 100% !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+        }
+
+        .category-labels-table .ui-datatable-header {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+            padding: 1rem !important;
+            font-weight: 600 !important;
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .category-labels-table .ui-datatable-data tr {
+            border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+            transition: background 0.2s ease !important;
+        }
+
+        .category-labels-table .ui-datatable-data tr:hover {
+            background: rgba(71, 98, 77, 0.05) !important;
+        }
+
+        .category-labels-table .ui-datatable-data tr:last-child {
+            border-bottom: none !important;
+        }
+
+        .category-table-label-cell {
+            padding: 0.75rem 0;
+        }
+
+        .category-table-label-text {
+            color: var(--color-text-primary, #333);
+            font-weight: 500;
+            line-height: 1.5;
+            word-wrap: break-word;
+            display: block;
+        }
+
+        /* Message quand aucun label */
+        .category-no-labels {
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 2px dashed rgba(71, 98, 77, 0.2);
+            border-radius: 8px;
+        }
+
+        .category-no-labels-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-no-labels-icon {
+            font-size: 2.5rem;
+            color: var(--color-text-secondary, #819A91);
+        }
+
+        .category-no-labels-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text-primary, #333);
+            margin: 0;
+        }
+
+        .category-no-labels-message {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary, #819A91);
+            margin: 0;
+            max-width: 400px;
+        }
+
+        /* Styles pour les descriptions multilingues */
+        .category-description-input-section {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 1px solid rgba(71, 98, 77, 0.1);
+            border-radius: 8px;
+        }
+
+        .category-description-input-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .category-description-input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-description-textarea-wrapper {
+            flex: 1;
+        }
+
+        .category-description-select-wrapper {
+            flex: 0 0 250px;
+        }
+
+        .category-btn-add {
+            padding: 0.75rem 1.5rem !important;
+            background: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+            white-space: nowrap !important;
+        }
+
+        .category-btn-add:hover {
+            background: #3a4f3e !important;
+            border-color: #3a4f3e !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
+        }
+
+        .category-descriptions-table {
+            width: 100% !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+        }
+
+        .category-descriptions-table .ui-datatable-header {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+            padding: 1rem !important;
+            font-weight: 600 !important;
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .category-descriptions-table .ui-datatable-data tr {
+            border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+            transition: background 0.2s ease !important;
+        }
+
+        .category-descriptions-table .ui-datatable-data tr:hover {
+            background: rgba(71, 98, 77, 0.05) !important;
+        }
+
+        .category-descriptions-table .ui-datatable-data tr:last-child {
+            border-bottom: none !important;
+        }
+
+        .category-table-langue-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+        }
+
+        .category-table-flag {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            border: 1px solid rgba(71, 98, 77, 0.2);
+            object-fit: cover;
+        }
+
+        .category-table-langue-name {
+            font-weight: 500;
+            color: var(--color-text-primary, #333);
+            font-size: 0.875rem;
+        }
+
+        .category-table-description-cell {
+            padding: 0.75rem 0;
+        }
+
+        .category-table-description-text {
+            color: var(--color-text-primary, #333);
+            line-height: 1.5;
+            word-wrap: break-word;
+            display: block;
+        }
+
+        .category-table-action-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.75rem 0;
+        }
+
+        .category-btn-remove {
+            background: transparent !important;
+            border: 1px solid rgba(220, 53, 69, 0.3) !important;
+            color: #dc3545 !important;
+            padding: 0.5rem !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .category-btn-remove:hover {
+            background: rgba(220, 53, 69, 0.1) !important;
+            border-color: #dc3545 !important;
+            transform: scale(1.1) !important;
+        }
+
+        /* Message quand aucune description */
+        .category-no-descriptions {
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border: 2px dashed rgba(71, 98, 77, 0.2);
+            border-radius: 8px;
+        }
+
+        .category-no-descriptions-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .category-no-descriptions-icon {
+            font-size: 2.5rem;
+            color: var(--color-text-secondary, #819A91);
+        }
+
+        .category-no-descriptions-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text-primary, #333);
+            margin: 0;
+        }
+
+        .category-no-descriptions-message {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary, #819A91);
+            margin: 0;
+            max-width: 400px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-section-header {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-section-title {
+                font-size: 1.125rem;
+            }
+
+            .users-chips .ui-chips-input-token input {
+                min-width: 150px !important;
+            }
+
+            .users-chips .ui-chips-token-label {
+                max-width: 200px !important;
+            }
+
+            .users-chips .ui-chips-container {
+                padding-left: 2.75rem !important;
+            }
+
+            .input-icon {
+                left: 0.75rem !important;
+            }
+
+            .category-description-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .category-description-select-wrapper {
+                flex: 1;
+            }
+
+            .category-btn-add {
+                width: 100% !important;
+            }
+
+            .category-label-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .category-label-select-wrapper {
+                flex: 1;
+            }
+        }
+    </style>
+</ui:composition>

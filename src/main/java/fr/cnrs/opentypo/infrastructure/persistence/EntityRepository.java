@@ -55,5 +55,15 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
      */
     @Query("SELECT e FROM Entity e WHERE LOWER(e.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Entity> findByNomContainingIgnoreCaseQuery(@Param("searchTerm") String searchTerm);
+
+    /**
+     * Trouve toutes les entités par statut
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels " +
+           "LEFT JOIN FETCH e.entityType " +
+           "WHERE e.statut = :statut " +
+           "ORDER BY e.createDate DESC")
+    List<Entity> findByStatut(@Param("statut") String statut);
 }
 

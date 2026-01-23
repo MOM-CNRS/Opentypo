@@ -1,3 +1,15 @@
+server:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+  tomcat:
+    max-http-post-size: 10MB
+    max-swallow-size: 10MB
+    max-part-count: 100  # Augmenter la limite du nombre de "parts" dans une requête multipart
+
 spring:
   # Configuration CORS pour le développement local
   web:
@@ -49,4 +61,10 @@ logging:
     jakarta.faces: INFO
     org.joinfaces: INFO
     org.primefaces: WARN
+
+# Configuration du serveur IIIF pour l'upload d'images
+iiif:
+  server:
+    url: ${IIIF_SERVER_URL:http://localhost:8182}  # URL de base du serveur IIIF
+    api-key: ${IIIF_API_KEY:}  # Clé API optionnelle pour l'authentification
 

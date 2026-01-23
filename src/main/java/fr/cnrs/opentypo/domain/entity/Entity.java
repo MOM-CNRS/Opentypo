@@ -91,6 +91,9 @@ public class Entity implements Serializable {
     @Column(name = "publique", nullable = false)
     private Boolean publique = true; // Par défaut, l'entité est publique
 
+    @Column(name = "image_principale_url", length = 500)
+    private String imagePrincipaleUrl;
+
     // Relations avec EntityType
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_type_id", nullable = false)

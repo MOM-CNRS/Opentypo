@@ -888,7 +888,7 @@ public class CollectionBean implements Serializable {
         nouvelleCollection.setCode(code);
         nouvelleCollection.setNom(nomPrincipal);
         nouvelleCollection.setEntityType(type);
-        nouvelleCollection.setStatut(EntityStatusEnum.FINALE.name());
+        nouvelleCollection.setStatut(EntityStatusEnum.AUTOMATIC.name());
         nouvelleCollection.setPublique(collectionPublique != null ? collectionPublique : true);
         nouvelleCollection.setCreateDate(LocalDateTime.now());
 

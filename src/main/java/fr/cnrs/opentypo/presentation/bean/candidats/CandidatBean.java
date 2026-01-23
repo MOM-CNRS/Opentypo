@@ -1,10 +1,15 @@
 package fr.cnrs.opentypo.presentation.bean.candidats;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.application.service.IiifImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -12,26 +17,32 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-import org.primefaces.event.NodeSelectEvent;
+import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Named("candidatBean")
 @SessionScoped
@@ -61,10 +72,16 @@ public class CandidatBean implements Serializable {
     @Inject
     private SearchBean searchBean;
 
+    @Inject
+    private IiifImageService iiifImageService;
+
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;
+    private Candidat candidatAValider; // Candidat sélectionné pour validation
+    private Candidat candidatASupprimer; // Candidat sélectionné pour suppression
     private int activeTabIndex = 0; // 0 = en cours, 1 = validés, 2 = refusés
+    private boolean candidatsLoaded = false; // Flag pour savoir si les candidats ont été chargés
     
     // Champs pour l'étape 1 du formulaire
     private Long selectedEntityTypeId;
@@ -72,7 +89,7 @@ public class CandidatBean implements Serializable {
     private String entityLabel;
     private String selectedLangueCode;
     private Long selectedCollectionId;
-    private Entity selectedReference;
+    private Entity selectedParentEntity;
     
     // Liste des données pour les sélecteurs
     private List<EntityType> availableEntityTypes;
@@ -107,6 +124,8 @@ public class CandidatBean implements Serializable {
             // Validation manuelle
             if (validateStep2()) {
                 currentStep++;
+                Entity parent = (Entity) selectedTreeNode.getData();
+                selectedParentEntity = entityRepository.findById(parent.getId()).orElse(null);
                 log.info("Passage à l'étape 3 - currentStep = {}", currentStep);
             } else {
                 log.warn("Validation échouée à l'étape 2, reste sur l'étape 2");
@@ -156,6 +175,17 @@ public class CandidatBean implements Serializable {
     }
     
     /**
+     * Méthode appelée lors de l'accès à la page candidats
+     * Recharge les données pour s'assurer qu'elles sont à jour
+     */
+    public void loadCandidatsPage() {
+        log.debug("Chargement de la page candidats, rechargement des données");
+        candidatsLoaded = false; // Invalider le cache
+        chargerCandidats();
+    }
+    
+    
+    /**
      * Charge les types d'entités disponibles (sauf REFERENTIEL)
      */
     public void loadAvailableEntityTypes() {
@@ -192,7 +222,6 @@ public class CandidatBean implements Serializable {
         // Réinitialiser l'arbre
         referenceTreeRoot = null;
         selectedTreeNode = null;
-        selectedReference = null;
         
         if (selectedCollectionId != null) {
             try {
@@ -299,9 +328,8 @@ public class CandidatBean implements Serializable {
             isValid = false;
         }
         
-        if (!isValid) {
-            facesContext.validationFailed();
-        }
+        // Ne pas appeler validationFailed() car cela empêche la mise à jour des composants
+        // On retourne simplement false et on laisse nextStep() gérer la mise à jour
         
         return isValid;
     }
@@ -324,9 +352,8 @@ public class CandidatBean implements Serializable {
             isValid = false;
         }
         
-        if (!isValid) {
-            facesContext.validationFailed();
-        }
+        // Ne pas appeler validationFailed() car cela empêche la mise à jour des composants
+        // On retourne simplement false et on laisse nextStep() gérer la mise à jour
         
         return isValid;
     }
@@ -355,39 +382,169 @@ public class CandidatBean implements Serializable {
         }
     }
 
+    /**
+     * Charge les candidats depuis la base de données
+     * Cette méthode est appelée lors de l'initialisation et peut être appelée manuellement pour rafraîchir les données
+     */
     public void chargerCandidats() {
-        // Données d'exemple - à remplacer par un service réel
-        if (candidats.isEmpty()) {
-            candidats.add(new Candidat(1L, "TYPE-001", "Amphore type A", "fr", "Période romaine", 100, 200, 
-                "Commentaire datation", "Amphore", "Description", "Production locale", "Atelier 1", 
-                "Aire méditerranéenne", "Catégorie 1", "Céramique", "Ronde", "20x30cm", "Tournage", 
-                "Fabrication manuelle", new ArrayList<>(), new ArrayList<>(), "REF-001", "TYP-001", 
-                "ID-001", "V1", "Bibliographie", Candidat.Statut.EN_COURS, LocalDateTime.now(), null, "admin"));
+        try {
+            // Charger les entités avec statut PROPOSITION, ACCEPTED, REFUSED
+            List<Entity> entitiesProposition = entityRepository.findByStatut(EntityStatusEnum.PROPOSITION.name());
+            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.ACCEPTED.name());
+            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSED.name());
             
-            candidats.add(new Candidat(2L, "TYPE-002", "Vase type B", "fr", "Période grecque", 300, 400, 
-                "Commentaire", "Vase", "Description", "Production", "Atelier 2", "Aire", "Catégorie", 
-                "Céramique", "Oval", "15x25cm", "Moulage", "Fabrication", new ArrayList<>(), new ArrayList<>(), 
-                "REF-002", "TYP-002", "ID-002", "V1", "Bibliographie", Candidat.Statut.VALIDE, 
-                LocalDateTime.now().minusDays(5), LocalDateTime.now().minusDays(1), "admin"));
+            // Convertir en Candidat et stocker dans la liste
+            candidats.clear();
+            candidats.addAll(entitiesProposition.stream()
+                .map(this::convertEntityToCandidat)
+                .collect(Collectors.toList()));
+            candidats.addAll(entitiesAccepted.stream()
+                .map(this::convertEntityToCandidat)
+                .collect(Collectors.toList()));
+            candidats.addAll(entitiesRefused.stream()
+                .map(this::convertEntityToCandidat)
+                .collect(Collectors.toList()));
+            
+            candidatsLoaded = true;
+            log.info("Chargement des candidats terminé: {} PROPOSITION, {} ACCEPTED, {} REFUSED", 
+                entitiesProposition.size(), entitiesAccepted.size(), entitiesRefused.size());
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement des candidats depuis la base de données", e);
+            candidats.clear();
+            candidatsLoaded = false;
         }
     }
 
+    /**
+     * Convertit une Entity en Candidat pour l'affichage
+     */
+    private Candidat convertEntityToCandidat(Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        Candidat candidat = new Candidat();
+        candidat.setId(entity.getId());
+        candidat.setTypeCode(entity.getEntityType() != null ? entity.getEntityType().getCode() : "");
+        
+        // Récupérer le label principal (premier label disponible ou nom par défaut)
+        String label = entity.getNom();
+        if (entity.getLabels() != null && !entity.getLabels().isEmpty()) {
+            // Essayer de trouver un label en français, sinon prendre le premier
+            Optional<Label> labelFr = entity.getLabels().stream()
+                .filter(l -> l.getLangue() != null && "fr".equalsIgnoreCase(l.getLangue().getCode()))
+                .findFirst();
+            if (labelFr.isPresent()) {
+                label = labelFr.get().getNom();
+            } else {
+                label = entity.getLabels().get(0).getNom();
+            }
+        }
+        candidat.setLabel(label);
+        
+        // Récupérer la langue principale (premier label ou "fr" par défaut)
+        String langue = "fr";
+        if (entity.getLabels() != null && !entity.getLabels().isEmpty() && 
+            entity.getLabels().get(0).getLangue() != null) {
+            langue = entity.getLabels().get(0).getLangue().getCode();
+        }
+        candidat.setLangue(langue);
+        
+        // Période
+        candidat.setPeriode(entity.getPeriode() != null ? entity.getPeriode().getValeur() : "");
+        
+        // Dates et autres champs
+        candidat.setTpq(entity.getTpq());
+        candidat.setTaq(entity.getTaq());
+        candidat.setCommentaireDatation(entity.getCommentaire());
+        candidat.setAppellationUsuelle(entity.getAppellation());
+        
+        // Description (première description disponible)
+        String description = "";
+        if (entity.getDescriptions() != null && !entity.getDescriptions().isEmpty()) {
+            Optional<Description> descFr = entity.getDescriptions().stream()
+                .filter(d -> d.getLangue() != null && "fr".equalsIgnoreCase(d.getLangue().getCode()))
+                .findFirst();
+            if (descFr.isPresent()) {
+                description = descFr.get().getValeur();
+            } else {
+                description = entity.getDescriptions().get(0).getValeur();
+            }
+        }
+        candidat.setDescription(description);
+        
+        candidat.setProduction(entity.getProduction() != null ? entity.getProduction().getValeur() : "");
+        candidat.setAireCirculation(entity.getAireCirculation() != null ? entity.getAireCirculation().getValeur() : "");
+        candidat.setCategorieFonctionnelle(entity.getCategorieFonctionnelle() != null ? 
+            entity.getCategorieFonctionnelle().getValeur() : "");
+        candidat.setReference(entity.getReference());
+        candidat.setTypologiqueScientifique(entity.getTypologieScientifique());
+        candidat.setIdentifiantPerenne(entity.getIdentifiantPerenne());
+        candidat.setAncienneVersion(entity.getAncienneVersion());
+        candidat.setBibliographie(entity.getBibliographie());
+        
+        // Dates
+        candidat.setDateCreation(entity.getCreateDate());
+        // Pour dateModification, on utilise createDate si pas de modification (pour REFUSED/ACCEPTED, on pourrait utiliser Envers)
+        candidat.setDateModification(entity.getCreateDate());
+        
+        // Créateur
+        candidat.setCreateur(entity.getCreateBy() != null ? entity.getCreateBy() : "");
+        
+        // Statut
+        if (EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
+            candidat.setStatut(Candidat.Statut.EN_COURS);
+        } else if (EntityStatusEnum.ACCEPTED.name().equals(entity.getStatut())) {
+            candidat.setStatut(Candidat.Statut.VALIDE);
+        } else if (EntityStatusEnum.REFUSED.name().equals(entity.getStatut())) {
+            candidat.setStatut(Candidat.Statut.REFUSE);
+        } else {
+            candidat.setStatut(Candidat.Statut.EN_COURS);
+        }
+        
+        return candidat;
+    }
+
+    /**
+     * Retourne la liste des candidats en cours (statut PROPOSITION)
+     */
     public List<Candidat> getCandidatsEnCours() {
+        // Recharger les données si nécessaire (lazy loading)
+        chargerCandidatsIfNeeded();
         return candidats.stream()
             .filter(c -> c.getStatut() == Candidat.Statut.EN_COURS)
             .collect(Collectors.toList());
     }
 
+    /**
+     * Retourne la liste des candidats validés (statut ACCEPTED)
+     */
     public List<Candidat> getCandidatsValides() {
+        // Recharger les données si nécessaire (lazy loading)
+        chargerCandidatsIfNeeded();
         return candidats.stream()
             .filter(c -> c.getStatut() == Candidat.Statut.VALIDE)
             .collect(Collectors.toList());
     }
 
+    /**
+     * Retourne la liste des candidats refusés (statut REFUSED)
+     */
     public List<Candidat> getCandidatsRefuses() {
+        // Recharger les données si nécessaire (lazy loading)
+        chargerCandidatsIfNeeded();
         return candidats.stream()
             .filter(c -> c.getStatut() == Candidat.Statut.REFUSE)
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Recharge les candidats si nécessaire (lazy loading)
+     */
+    private void chargerCandidatsIfNeeded() {
+        if (!candidatsLoaded) {
+            chargerCandidats();
+        }
     }
 
     public void initNouveauCandidat() {
@@ -425,7 +582,6 @@ public class CandidatBean implements Serializable {
         entityLabel = null;
         selectedLangueCode = null;
         selectedCollectionId = null;
-        selectedReference = null;
         availableReferences = new ArrayList<>();
         referenceTreeRoot = null;
         selectedTreeNode = null;
@@ -434,73 +590,581 @@ public class CandidatBean implements Serializable {
         serieDescription = null;
         groupDescription = null;
         categoryDescription = null;
+        categoryImagePrincipaleUrl = null;
+        categoryLabels = new ArrayList<>();
+        newCategoryLabelValue = null;
+        newCategoryLabelLangueCode = null;
+        categoryDescriptions = new ArrayList<>();
+        newCategoryDescriptionValue = null;
+        newCategoryDescriptionLangueCode = null;
+        categoryCommentaire = null;
+        categoryBibliographie = null;
+        categoryReferencesBibliographiques = new ArrayList<>();
         collectionDescription = null;
         collectionPublique = true;
+        
+        // Réinitialiser les champs du groupe
+        groupPeriode = null;
+        groupTpq = null;
+        groupTaq = null;
     }
     
     // Champs pour l'étape 2 selon le type
     private String typeDescription;
     private String serieDescription;
     private String groupDescription;
-    private String categoryDescription;
+    private String categoryDescription; // Ancien champ, conservé pour compatibilité
+    private String categoryImagePrincipaleUrl;
+    private UploadedFile uploadedImageFile;
+    private List<CategoryLabelItem> categoryLabels = new ArrayList<>();
+    private String newCategoryLabelValue;
+    private String newCategoryLabelLangueCode;
+    private List<CategoryDescriptionItem> categoryDescriptions = new ArrayList<>();
+    private String newCategoryDescriptionValue;
+    private String newCategoryDescriptionLangueCode;
+    private String categoryCommentaire;
+    private String categoryBibliographie;
+    private List<String> categoryReferencesBibliographiques = new ArrayList<>();
     private String collectionDescription;
     private Boolean collectionPublique = true;
     
+    // Champs pour le formulaire de groupe
+    private String groupPeriode;
+    private Integer groupTpq;
+    private Integer groupTaq;
+    
+    /**
+     * Classe interne pour représenter un label de catégorie avec sa langue
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryLabelItem implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String nom;
+        private String langueCode;
+        private Langue langue;
+    }
+    
+    /**
+     * Classe interne pour représenter une description de catégorie avec sa langue
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryDescriptionItem implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String valeur;
+        private String langueCode;
+        private Langue langue;
+    }
+    
+    /**
+     * Récupère le type d'entité sélectionné
+     */
+    public EntityType getSelectedEntityType() {
+        if (selectedEntityTypeId == null) {
+            return null;
+        }
+        return entityTypeRepository.findById(selectedEntityTypeId).orElse(null);
+    }
+    
+    /**
+     * Récupère la collection sélectionnée
+     */
+    public Entity getSelectedCollection() {
+        if (selectedCollectionId == null) {
+            return null;
+        }
+        return entityRepository.findById(selectedCollectionId).orElse(null);
+    }
+    
+    /**
+     * Récupère la langue sélectionnée
+     */
+    public Langue getSelectedLangue() {
+        if (selectedLangueCode == null) {
+            return null;
+        }
+        return langueRepository.findByCode(selectedLangueCode);
+    }
+    
+    /**
+     * Récupère le nom de la langue sélectionnée
+     */
+    public String getSelectedLangueName() {
+        // Si un candidat est sélectionné, utiliser sa langue
+        if (candidatSelectionne != null && candidatSelectionne.getLangue() != null) {
+            Langue langue = langueRepository.findByCode(candidatSelectionne.getLangue());
+            return langue != null ? langue.getNom() : candidatSelectionne.getLangue();
+        }
+        // Sinon, utiliser la langue sélectionnée dans le wizard
+        Langue langue = getSelectedLangue();
+        return langue != null ? langue.getNom() : "";
+    }
+    
+    /**
+     * Sauvegarde le candidat en créant l'entité dans la base de données avec le statut PROPOSITION
+     */
     public void sauvegarderCandidat() {
-        if (nouveauCandidat.getId() == null) {
-            // Nouveau candidat
-            Long nouveauId = candidats.stream()
-                .mapToLong(Candidat::getId)
-                .max()
-                .orElse(0L) + 1;
-            nouveauCandidat.setId(nouveauId);
-            nouveauCandidat.setDateCreation(LocalDateTime.now());
-            candidats.add(nouveauCandidat);
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        
+        try {
+            // Validation des champs obligatoires
+            if (selectedEntityTypeId == null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Le type d'entité est requis."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            if (entityCode == null || entityCode.trim().isEmpty()) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Le code est requis."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            if (entityLabel == null || entityLabel.trim().isEmpty()) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Le label est requis."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            if (selectedLangueCode == null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "La langue est requise."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            if (selectedCollectionId == null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "La collection est requise."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            if (selectedTreeNode == null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Le référentiel est requis."));
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                return;
+            }
+            
+            // Récupérer le type d'entité
+            EntityType entityType = entityTypeRepository.findById(selectedEntityTypeId)
+                .orElseThrow(() -> new IllegalStateException("Le type d'entité sélectionné n'existe pas."));
+            
+            // Créer la nouvelle entité
+            Entity newEntity = new Entity();
+            newEntity.setCode(entityCode.trim());
+            newEntity.setNom(entityLabel.trim());
+            newEntity.setEntityType(entityType);
+            newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
+            newEntity.setPublique(true);
+            newEntity.setCreateDate(LocalDateTime.now());
+            
+            // Récupérer l'utilisateur actuel
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                newEntity.setCreateBy(currentUser.getEmail());
+                List<Utilisateur> auteurs = new ArrayList<>();
+                auteurs.add(currentUser);
+                newEntity.setAuteurs(auteurs);
+            }
+            
+            // Ajouter le label principal (de l'étape 1)
+            Langue languePrincipale = langueRepository.findByCode(selectedLangueCode);
+            if (languePrincipale != null) {
+                Label labelPrincipal = new Label();
+                labelPrincipal.setNom(entityLabel.trim());
+                labelPrincipal.setEntity(newEntity);
+                labelPrincipal.setLangue(languePrincipale);
+                newEntity.getLabels().add(labelPrincipal);
+            }
+            
+            // Ajouter les traductions de labels (pour les catégories)
+            if (categoryLabels != null && !categoryLabels.isEmpty()) {
+                for (CategoryLabelItem labelItem : categoryLabels) {
+                    if (labelItem.getNom() != null && !labelItem.getNom().trim().isEmpty() &&
+                        labelItem.getLangueCode() != null && !labelItem.getLangueCode().trim().isEmpty()) {
+                        
+                        Langue langue = langueRepository.findByCode(labelItem.getLangueCode());
+                        if (langue != null) {
+                            Label label = new Label();
+                            label.setNom(labelItem.getNom().trim());
+                            label.setEntity(newEntity);
+                            label.setLangue(langue);
+                            newEntity.getLabels().add(label);
+                        }
+                    }
+                }
+            }
+            
+            // Ajouter les descriptions (pour les catégories)
+            if (categoryDescriptions != null && !categoryDescriptions.isEmpty()) {
+                for (CategoryDescriptionItem descriptionItem : categoryDescriptions) {
+                    if (descriptionItem.getValeur() != null && !descriptionItem.getValeur().trim().isEmpty() &&
+                        descriptionItem.getLangueCode() != null && !descriptionItem.getLangueCode().trim().isEmpty()) {
+                        
+                        Langue langue = langueRepository.findByCode(descriptionItem.getLangueCode());
+                        if (langue != null) {
+                            Description description = new Description();
+                            description.setValeur(descriptionItem.getValeur().trim());
+                            description.setEntity(newEntity);
+                            description.setLangue(langue);
+                            newEntity.getDescriptions().add(description);
+                        }
+                    }
+                }
+            }
+            
+            // Ajouter les autres champs spécifiques selon le type
+            if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType.getCode()) || 
+                "CATEGORIE".equals(entityType.getCode())) {
+                // Champs spécifiques aux catégories
+                if (categoryCommentaire != null && !categoryCommentaire.trim().isEmpty()) {
+                    newEntity.setCommentaire(categoryCommentaire.trim());
+                }
+                if (categoryBibliographie != null && !categoryBibliographie.trim().isEmpty()) {
+                    newEntity.setBibliographie(categoryBibliographie.trim());
+                }
+                if (categoryImagePrincipaleUrl != null && !categoryImagePrincipaleUrl.trim().isEmpty()) {
+                    newEntity.setImagePrincipaleUrl(categoryImagePrincipaleUrl.trim());
+                }
+                // Les références bibliographiques peuvent être stockées dans rereferenceBibliographique
+                if (categoryReferencesBibliographiques != null && !categoryReferencesBibliographiques.isEmpty()) {
+                    String refs = String.join("; ", categoryReferencesBibliographiques);
+                    newEntity.setRereferenceBibliographique(refs);
+                }
+            } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode())) {
+                if (typeDescription != null && !typeDescription.trim().isEmpty()) {
+                    newEntity.setCommentaire(typeDescription.trim());
+                }
+            } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityType.getCode()) || 
+                       "SERIE".equals(entityType.getCode())) {
+                if (serieDescription != null && !serieDescription.trim().isEmpty()) {
+                    newEntity.setCommentaire(serieDescription.trim());
+                }
+            } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType.getCode()) || 
+                       "GROUPE".equals(entityType.getCode())) {
+                // Construire le commentaire avec description et période
+                StringBuilder commentaireBuilder = new StringBuilder();
+                if (groupDescription != null && !groupDescription.trim().isEmpty()) {
+                    commentaireBuilder.append(groupDescription.trim());
+                }
+                if (groupPeriode != null && !groupPeriode.trim().isEmpty()) {
+                    if (commentaireBuilder.length() > 0) {
+                        commentaireBuilder.append("\n\nPériode: ").append(groupPeriode.trim());
+                    } else {
+                        commentaireBuilder.append("Période: ").append(groupPeriode.trim());
+                    }
+                }
+                if (commentaireBuilder.length() > 0) {
+                    newEntity.setCommentaire(commentaireBuilder.toString());
+                }
+                // Ajouter TPQ et TAQ
+                if (groupTpq != null) {
+                    newEntity.setTpq(groupTpq);
+                }
+                if (groupTaq != null) {
+                    newEntity.setTaq(groupTaq);
+                }
+            } else if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityType.getCode())) {
+                if (collectionDescription != null && !collectionDescription.trim().isEmpty()) {
+                    newEntity.setCommentaire(collectionDescription.trim());
+                }
+                if (collectionPublique != null) {
+                    newEntity.setPublique(collectionPublique);
+                }
+            }
+            
+            // Sauvegarder l'entité
+            Entity savedEntity = entityRepository.save(newEntity);
+            
+            // Créer la relation avec le parent (référentiel)
+            EntityRelation relation = new EntityRelation();
+            relation.setParent(selectedParentEntity);
+            relation.setChild(savedEntity);
+            entityRelationRepository.save(relation);
+            
+            // Message de succès
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le candidat a été créé avec succès avec le statut PROPOSITION."));
+            
+            // Réinitialiser le formulaire
+            resetWizardForm();
+            currentStep = 0;
+            
+            // Mettre à jour le growl et le formulaire
+            PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+            
+            // Rediriger vers la liste des candidats après un court délai
+            PrimeFaces.current().executeScript("setTimeout(function(){window.location.href='/candidats/candidats.xhtml';}, 1500);");
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde du candidat", e);
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+        }
+    }
+
+    /**
+     * Prépare la validation d'un candidat (stocke le candidat et ouvre le dialogue)
+     */
+    public void prepareValidateCandidat(Candidat candidat) {
+        this.candidatAValider = candidat;
+    }
+    
+    /**
+     * Prépare la suppression d'un candidat (stocke le candidat et ouvre le dialogue)
+     */
+    public void prepareDeleteCandidat(Candidat candidat) {
+        this.candidatASupprimer = candidat;
+    }
+    
+    /**
+     * Valide un candidat après confirmation (change le statut à ACCEPTED)
+     */
+    public void validerCandidatConfirm() {
+        if (candidatAValider != null) {
+            validerCandidat(candidatAValider);
+            candidatAValider = null; // Réinitialiser après validation
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun candidat sélectionné pour validation."));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+    
+    /**
+     * Supprime un candidat après confirmation
+     */
+    public void supprimerCandidatConfirm() {
+        if (candidatASupprimer != null) {
+            supprimerCandidat(candidatASupprimer);
+            candidatASupprimer = null; // Réinitialiser après suppression
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun candidat sélectionné pour suppression."));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+    
+    /**
+     * Valide un candidat (change le statut à ACCEPTED)
+     */
+    public void validerCandidat(Candidat candidat) {
+        try {
+            if (candidat == null || candidat.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Candidat invalide."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            Entity entity = entityRepository.findById(candidat.getId())
+                .orElse(null);
+            
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            // Initialiser la liste des auteurs pour éviter les problèmes de lazy loading
+            if (entity.getAuteurs() != null) {
+                entity.getAuteurs().size(); // Force le chargement
+            }
+            
+            entity.setStatut(EntityStatusEnum.ACCEPTED.name());
+            
+            // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                // Initialiser la liste des auteurs si nécessaire
+                if (entity.getAuteurs() == null) {
+                    entity.setAuteurs(new ArrayList<>());
+                }
+                // Vérifier si l'utilisateur n'est pas déjà dans la liste
+                boolean userAlreadyAuthor = entity.getAuteurs().stream()
+                    .anyMatch(auteur -> auteur.getId().equals(currentUser.getId()));
+                if (!userAlreadyAuthor) {
+                    entity.getAuteurs().add(currentUser);
+                }
+            }
+            
+            entityRepository.save(entity);
+            
+            // Recharger les candidats pour mettre à jour l'affichage
+            candidatsLoaded = false;
+            chargerCandidats();
+            
+            String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le candidat a été validé par " + userName + "."));
+            PrimeFaces.current().ajax().update(":growl, :candidatsForm");
+        } catch (Exception e) {
+            log.error("Erreur lors de la validation du candidat", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la validation : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+
+    /**
+     * Refuse un candidat (change le statut à REFUSED)
+     */
+    public void refuserCandidat(Candidat candidat) {
+        try {
+            if (candidat == null || candidat.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Candidat invalide."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            Entity entity = entityRepository.findById(candidat.getId())
+                .orElse(null);
+            
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            // Initialiser la liste des auteurs pour éviter les problèmes de lazy loading
+            if (entity.getAuteurs() != null) {
+                entity.getAuteurs().size(); // Force le chargement
+            }
+            
+            entity.setStatut(EntityStatusEnum.REFUSED.name());
+            
+            // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                // Initialiser la liste des auteurs si nécessaire
+                if (entity.getAuteurs() == null) {
+                    entity.setAuteurs(new ArrayList<>());
+                }
+                // Vérifier si l'utilisateur n'est pas déjà dans la liste
+                boolean userAlreadyAuthor = entity.getAuteurs().stream()
+                    .anyMatch(auteur -> auteur.getId().equals(currentUser.getId()));
+                if (!userAlreadyAuthor) {
+                    entity.getAuteurs().add(currentUser);
+                }
+            }
+            
+            entityRepository.save(entity);
+            
+            // Recharger les candidats pour mettre à jour l'affichage
+            candidatsLoaded = false;
+            chargerCandidats();
+            
+            String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le candidat a été refusé par " + userName + "."));
+            PrimeFaces.current().ajax().update(":growl, :candidatsForm");
+        } catch (Exception e) {
+            log.error("Erreur lors du refus du candidat", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors du refus : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+
+    /**
+     * Supprime un candidat (supprime l'entité de la base de données)
+     */
+    public void supprimerCandidat(Candidat candidat) {
+        try {
+            if (candidat == null || candidat.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Candidat invalide."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            Entity entity = entityRepository.findById(candidat.getId())
+                .orElse(null);
+            
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                PrimeFaces.current().ajax().update(":growl");
+                return;
+            }
+            
+            // Récupérer le nom de l'utilisateur avant suppression
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+            
+            entityRepository.delete(entity);
+            
+            // Recharger les candidats pour mettre à jour l'affichage
+            candidatsLoaded = false;
+            chargerCandidats();
             
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO,
                     "Succès",
-                    "Le candidat a été créé avec succès."));
-        } else {
-            // Modification
-            nouveauCandidat.setDateModification(LocalDateTime.now());
+                    "Le candidat a été supprimé par " + userName + "."));
+            PrimeFaces.current().ajax().update(":growl, :candidatsForm");
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression du candidat", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "Le candidat a été modifié avec succès."));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl");
         }
-        
-        PrimeFaces.current().ajax().update(":growl, :candidatsForm");
-        PrimeFaces.current().executeScript("window.location.href='/candidats/candidats.xhtml';");
-    }
-
-    public void validerCandidat(Candidat candidat) {
-        candidat.setStatut(Candidat.Statut.VALIDE);
-        candidat.setDateModification(LocalDateTime.now());
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "Le candidat a été validé."));
-        PrimeFaces.current().ajax().update(":growl, :candidatsForm");
-    }
-
-    public void refuserCandidat(Candidat candidat) {
-        candidat.setStatut(Candidat.Statut.REFUSE);
-        candidat.setDateModification(LocalDateTime.now());
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "Le candidat a été refusé."));
-        PrimeFaces.current().ajax().update(":growl, :candidatsForm");
-    }
-
-    public void supprimerCandidat(Candidat candidat) {
-        candidats.remove(candidat);
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès",
-                "Le candidat a été supprimé."));
-        PrimeFaces.current().ajax().update(":growl, :candidatsForm");
     }
 
     public String visualiserCandidat(Candidat candidat) {
@@ -607,6 +1271,433 @@ public class CandidatBean implements Serializable {
             return ((TreeNode) node).getParent() == null;
         }
         return false;
+    }
+    
+    /**
+     * Gère l'upload de l'image principale vers IIIF
+     * Upload l'image vers le serveur IIIF et récupère l'URL pour l'enregistrer
+     */
+    public void handleImageUpload(FileUploadEvent event) {
+        if (event == null || event.getFile() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Aucun fichier sélectionné."));
+            }
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        
+        UploadedFile uploadedFile = event.getFile();
+        
+        try {
+            log.info("Début de l'upload de l'image {} vers IIIF", uploadedFile.getFileName());
+            
+            // Convertir UploadedFile en MultipartFile pour le service IIIF
+            MultipartFile multipartFile = new UploadedFileToMultipartFileAdapter(uploadedFile);
+            
+            // Uploader vers IIIF et récupérer l'URL
+            String iiifUrl = iiifImageService.uploadImage(multipartFile);
+            
+            // Stocker l'URL dans categoryImagePrincipaleUrl
+            categoryImagePrincipaleUrl = iiifUrl;
+            
+            log.info("Image uploadée avec succès. URL IIIF: {}", iiifUrl);
+            
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Succès",
+                        "L'image a été uploadée avec succès vers IIIF. URL: " + iiifUrl));
+            }
+            
+            PrimeFaces.current().ajax().update(":createCandidatForm:imageUploadContainer :growl");
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de l'upload de l'image vers IIIF", e);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                String errorMessage = "Une erreur est survenue lors de l'upload de l'image vers IIIF";
+                if (e.getMessage() != null) {
+                    errorMessage += ": " + e.getMessage();
+                }
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        errorMessage));
+            }
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+    
+    /**
+     * Adapter pour convertir UploadedFile (PrimeFaces) en MultipartFile (Spring)
+     */
+    private static class UploadedFileToMultipartFileAdapter implements MultipartFile {
+        private final UploadedFile uploadedFile;
+        
+        public UploadedFileToMultipartFileAdapter(UploadedFile uploadedFile) {
+            this.uploadedFile = uploadedFile;
+        }
+        
+        @Override
+        public String getName() {
+            return uploadedFile.getFileName();
+        }
+        
+        @Override
+        public String getOriginalFilename() {
+            return uploadedFile.getFileName();
+        }
+        
+        @Override
+        public String getContentType() {
+            return uploadedFile.getContentType();
+        }
+        
+        @Override
+        public boolean isEmpty() {
+            return uploadedFile.getSize() == 0;
+        }
+        
+        @Override
+        public long getSize() {
+            return uploadedFile.getSize();
+        }
+        
+        @Override
+        public byte[] getBytes() throws IOException {
+            return uploadedFile.getContent();
+        }
+        
+        @Override
+        public java.io.InputStream getInputStream() throws IOException {
+            return uploadedFile.getInputStream();
+        }
+        
+        @Override
+        public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
+            throw new UnsupportedOperationException("transferTo not supported");
+        }
+    }
+    
+    /**
+     * Supprime l'image principale
+     */
+    public void removeImage() {
+        categoryImagePrincipaleUrl = null;
+        uploadedImageFile = null;
+        PrimeFaces.current().ajax().update(":createCandidatForm:imageUploadContainer");
+    }
+    
+    /**
+     * Ajoute un nouveau label de catégorie depuis les champs de saisie
+     */
+    public void addCategoryLabelFromInput() {
+        if (newCategoryLabelValue == null || newCategoryLabelValue.trim().isEmpty()) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Le label est requis."));
+            }
+            return;
+        }
+        
+        if (newCategoryLabelLangueCode == null || newCategoryLabelLangueCode.trim().isEmpty()) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "La langue est requise."));
+            }
+            return;
+        }
+        
+        // Vérifier si la langue est déjà utilisée
+        if (isLangueAlreadyUsedInCategoryLabels(newCategoryLabelLangueCode, null)) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Cette langue est déjà utilisée pour un autre label."));
+            }
+            return;
+        }
+        
+        // Vérifier que la langue n'est pas celle de l'étape 1
+        if (selectedLangueCode != null && selectedLangueCode.equals(newCategoryLabelLangueCode)) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Cette langue est déjà utilisée pour le label principal (étape 1)."));
+            }
+            return;
+        }
+        
+        if (categoryLabels == null) {
+            categoryLabels = new ArrayList<>();
+        }
+        
+        Langue langue = langueRepository.findByCode(newCategoryLabelLangueCode);
+        CategoryLabelItem newItem = new CategoryLabelItem(
+            newCategoryLabelValue.trim(), 
+            newCategoryLabelLangueCode, 
+            langue);
+        categoryLabels.add(newItem);
+        
+        // Réinitialiser les champs de saisie
+        newCategoryLabelValue = null;
+        newCategoryLabelLangueCode = null;
+    }
+    
+    /**
+     * Supprime un label de catégorie de la liste
+     */
+    public void removeCategoryLabel(CategoryLabelItem labelItem) {
+        if (categoryLabels != null) {
+            categoryLabels.remove(labelItem);
+        }
+    }
+    
+    /**
+     * Vérifie si une langue est déjà utilisée dans les labels de catégorie
+     */
+    public boolean isLangueAlreadyUsedInCategoryLabels(String langueCode, CategoryLabelItem currentItem) {
+        if (categoryLabels == null || langueCode == null || langueCode.isEmpty()) {
+            return false;
+        }
+        return categoryLabels.stream()
+            .filter(item -> item != currentItem && item.getLangueCode() != null)
+            .anyMatch(item -> item.getLangueCode().equals(langueCode));
+    }
+    
+    /**
+     * Obtient les langues disponibles pour un nouveau label (excluant celle de l'étape 1 et celles déjà utilisées)
+     */
+    public List<Langue> getAvailableLanguagesForNewCategoryLabel() {
+        if (availableLanguages == null) {
+            return new ArrayList<>();
+        }
+        return availableLanguages.stream()
+            .filter(langue -> {
+                // Exclure la langue de l'étape 1
+                if (selectedLangueCode != null && selectedLangueCode.equals(langue.getCode())) {
+                    return false;
+                }
+                // Exclure les langues déjà utilisées
+                return !isLangueAlreadyUsedInCategoryLabels(langue.getCode(), null);
+            })
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Ajoute une nouvelle description de catégorie depuis les champs de saisie
+     */
+    public void addCategoryDescriptionFromInput() {
+        if (newCategoryDescriptionValue == null || newCategoryDescriptionValue.trim().isEmpty()) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "La description est requise."));
+            }
+            return;
+        }
+        
+        if (newCategoryDescriptionLangueCode == null || newCategoryDescriptionLangueCode.trim().isEmpty()) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "La langue est requise."));
+            }
+            return;
+        }
+        
+        // Vérifier si la langue est déjà utilisée
+        if (isLangueAlreadyUsedInCategoryDescriptions(newCategoryDescriptionLangueCode, null)) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Cette langue est déjà utilisée pour une autre description."));
+            }
+            return;
+        }
+        
+        if (categoryDescriptions == null) {
+            categoryDescriptions = new ArrayList<>();
+        }
+        
+        Langue langue = langueRepository.findByCode(newCategoryDescriptionLangueCode);
+        CategoryDescriptionItem newItem = new CategoryDescriptionItem(
+            newCategoryDescriptionValue.trim(), 
+            newCategoryDescriptionLangueCode, 
+            langue);
+        categoryDescriptions.add(newItem);
+        
+        // Réinitialiser les champs de saisie
+        newCategoryDescriptionValue = null;
+        newCategoryDescriptionLangueCode = null;
+    }
+    
+    /**
+     * Supprime une description de catégorie de la liste
+     */
+    public void removeCategoryDescription(CategoryDescriptionItem descriptionItem) {
+        if (categoryDescriptions != null) {
+            categoryDescriptions.remove(descriptionItem);
+        }
+    }
+    
+    /**
+     * Vérifie si une langue est déjà utilisée dans les descriptions de catégorie
+     */
+    public boolean isLangueAlreadyUsedInCategoryDescriptions(String langueCode, CategoryDescriptionItem currentItem) {
+        if (categoryDescriptions == null || langueCode == null || langueCode.isEmpty()) {
+            return false;
+        }
+        return categoryDescriptions.stream()
+            .filter(item -> item != currentItem && item.getLangueCode() != null)
+            .anyMatch(item -> item.getLangueCode().equals(langueCode));
+    }
+    
+    /**
+     * Obtient les langues disponibles pour une nouvelle description (toutes les langues disponibles, excluant seulement celles déjà utilisées)
+     */
+    public List<Langue> getAvailableLanguagesForNewCategoryDescription() {
+        if (availableLanguages == null) {
+            return new ArrayList<>();
+        }
+        return availableLanguages.stream()
+            .filter(langue -> {
+                // Exclure uniquement les langues déjà utilisées dans les descriptions (pour éviter les doublons)
+                // La langue principale de l'étape 1 est incluse car on peut avoir une description dans la même langue
+                return !isLangueAlreadyUsedInCategoryDescriptions(langue.getCode(), null);
+            })
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Surcharge de getEntityTypeName pour accepter un Candidat
+     */
+    public String getEntityTypeName(Candidat candidat) {
+        if (candidat == null || candidat.getTypeCode() == null) {
+            return "";
+        }
+        String code = candidat.getTypeCode();
+        switch (code) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION:
+                return "Collection";
+            case EntityConstants.ENTITY_TYPE_CATEGORY:
+                return "Catégorie";
+            case EntityConstants.ENTITY_TYPE_GROUP:
+                return "Groupe";
+            case EntityConstants.ENTITY_TYPE_SERIES:
+                return "Série";
+            case EntityConstants.ENTITY_TYPE_TYPE:
+                return "Type";
+            default:
+                return code;
+        }
+    }
+    
+    /**
+     * Surcharge de getCollectionLabel pour accepter un Candidat
+     */
+    public String getCollectionLabel(Candidat candidat) {
+        if (candidat == null || candidat.getId() == null) {
+            return "Aucune collection";
+        }
+        
+        try {
+            Optional<Entity> entityOpt = entityRepository.findById(candidat.getId());
+            if (entityOpt.isPresent()) {
+                Entity entity = entityOpt.get();
+                
+                // Trouver la collection parente
+                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                            // Charger les labels de la collection
+                            if (parent.getLabels() != null) {
+                                parent.getLabels().size(); // Force le chargement
+                            }
+                            return getCollectionLabel(parent);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération de la collection depuis le candidat", e);
+        }
+        
+        return "Aucune collection";
+    }
+    
+    /**
+     * Obtient le code de l'entité à partir du candidat sélectionné
+     */
+    public String getEntityCodeFromCandidat() {
+        if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
+            return "Non sélectionné";
+        }
+        
+        try {
+            Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
+            if (entityOpt.isPresent()) {
+                return entityOpt.get().getCode();
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération du code de l'entité", e);
+        }
+        
+        return "Non sélectionné";
+    }
+    
+    /**
+     * Obtient le code de l'entité parente à partir du candidat sélectionné
+     */
+    public String getParentCodeFromCandidat() {
+        if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
+            return "Non sélectionné";
+        }
+        
+        try {
+            Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
+            if (entityOpt.isPresent()) {
+                Entity entity = entityOpt.get();
+                
+                // Trouver l'entité parente (non-collection)
+                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
+                if (parents != null && !parents.isEmpty()) {
+                    for (Entity parent : parents) {
+                        if (parent.getEntityType() != null &&
+                            !EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                            return parent.getCode();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération du parent depuis le candidat", e);
+        }
+        
+        return "Non sélectionné";
     }
 }
 
