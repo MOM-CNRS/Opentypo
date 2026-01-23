@@ -87,6 +87,7 @@ public class CandidatBean implements Serializable {
     private Long selectedEntityTypeId;
     private String entityCode;
     private String entityLabel;
+    private String candidatProduction;
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;

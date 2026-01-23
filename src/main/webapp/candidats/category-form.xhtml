@@ -19,7 +19,7 @@
                     <div class="candidat-label-input-wrapper">
                         <div class="input-wrapper">
                             <i class="pi pi-tag input-icon" />
-                            <p:inputText id="newLabelInput"
+                            <p:inputText id="newCategoryLabelInput"
                                          value="#{candidatBean.newLabelValue}"
                                          placeholder="Saisissez la traduction du label..."
                                          styleClass="users-input"
@@ -46,7 +46,7 @@
                                      actionListener="#{candidatBean.addLabelFromInput()}"
                                      process="@form"
                                      ajax="true"
-                                     update=":createCandidatForm:candidatLabelsTable :createCandidatForm:newLabelInput :createCandidatForm:newLabelLangue :growl"/>
+                                     update=":createCandidatForm:candidatLabelsTable :createCandidatForm:newCategoryLabelInput :createCandidatForm:newLabelLangue :growl"/>
                 </div>
             </div>
 

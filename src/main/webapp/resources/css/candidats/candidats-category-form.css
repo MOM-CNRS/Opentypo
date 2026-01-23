@@ -1,3 +1,53 @@
+        /* Fond élégant pour wizard-content */
+        .wizard-content {
+            background: #ffffff !important;
+            padding: 2rem !important;
+            border-radius: 12px !important;
+            position: relative !important;
+        }
+
+        /* Styles pour les titres de rubriques */
+        .wizard-content .users-form-group > label,
+        .wizard-content .users-form-group .ui-outputlabel {
+            font-size: 1.125rem !important;
+            font-weight: 700 !important;
+            color: var(--color-action-main, #47624D) !important;
+            margin-bottom: 0.75rem !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+            display: block !important;
+            position: relative !important;
+            padding-left: 0 !important;
+            letter-spacing: -0.01em !important;
+            line-height: 1.4 !important;
+        }
+
+        .wizard-content .users-form-group > label::before,
+        .wizard-content .users-form-group .ui-outputlabel::before {
+            content: '' !important;
+            position: absolute !important;
+            left: 0 !important;
+            bottom: -2px !important;
+            width: 60px !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.3) 100%) !important;
+            border-radius: 2px 2px 0 0 !important;
+        }
+
+        /* Amélioration visuelle avec un léger fond pour les sections */
+        .wizard-content .users-form-group.users-form-group-full {
+            position: relative !important;
+        }
+
+        .wizard-content .users-form-group.users-form-group-full::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -1rem !important;
+            right: -1rem !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent 0%, rgba(71, 98, 77, 0.1) 20%, rgba(71, 98, 77, 0.1) 80%, transparent 100%) !important;
+        }
+
         /* En-tête de section amélioré */
         .form-section-header {
             margin-bottom: 2rem;
@@ -512,6 +562,17 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .wizard-content .users-form-group > label,
+            .wizard-content .users-form-group .ui-outputlabel {
+                font-size: 1rem !important;
+                margin-bottom: 0.625rem !important;
+            }
+
+            .wizard-content .users-form-group > label::before,
+            .wizard-content .users-form-group .ui-outputlabel::before {
+                width: 40px !important;
+            }
+
             .form-section-header {
                 margin-bottom: 1.5rem;
             }
