@@ -590,16 +590,16 @@ public class CandidatBean implements Serializable {
         serieDescription = null;
         groupDescription = null;
         categoryDescription = null;
-        categoryImagePrincipaleUrl = null;
-        categoryLabels = new ArrayList<>();
-        newCategoryLabelValue = null;
-        newCategoryLabelLangueCode = null;
-        categoryDescriptions = new ArrayList<>();
-        newCategoryDescriptionValue = null;
-        newCategoryDescriptionLangueCode = null;
-        categoryCommentaire = null;
-        categoryBibliographie = null;
-        categoryReferencesBibliographiques = new ArrayList<>();
+        imagePrincipaleUrl = null;
+        candidatLabels = new ArrayList<>();
+        newLabelValue = null;
+        newLabelLangueCode = null;
+        descriptions = new ArrayList<>();
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+        candidatCommentaire = null;
+        candidatBibliographie = null;
+        referencesBibliographiques = new ArrayList<>();
         collectionDescription = null;
         collectionPublique = true;
         
@@ -614,17 +614,17 @@ public class CandidatBean implements Serializable {
     private String serieDescription;
     private String groupDescription;
     private String categoryDescription; // Ancien champ, conservé pour compatibilité
-    private String categoryImagePrincipaleUrl;
+    private String imagePrincipaleUrl;
     private UploadedFile uploadedImageFile;
-    private List<CategoryLabelItem> categoryLabels = new ArrayList<>();
-    private String newCategoryLabelValue;
-    private String newCategoryLabelLangueCode;
-    private List<CategoryDescriptionItem> categoryDescriptions = new ArrayList<>();
-    private String newCategoryDescriptionValue;
-    private String newCategoryDescriptionLangueCode;
-    private String categoryCommentaire;
-    private String categoryBibliographie;
-    private List<String> categoryReferencesBibliographiques = new ArrayList<>();
+    private List<CategoryLabelItem> candidatLabels = new ArrayList<>();
+    private String newLabelValue;
+    private String newLabelLangueCode;
+    private List<CategoryDescriptionItem> descriptions = new ArrayList<>();
+    private String newDescriptionValue;
+    private String newDescriptionLangueCode;
+    private String candidatCommentaire;
+    private String candidatBibliographie;
+    private List<String> referencesBibliographiques = new ArrayList<>();
     private String collectionDescription;
     private Boolean collectionPublique = true;
     
@@ -800,8 +800,8 @@ public class CandidatBean implements Serializable {
             }
             
             // Ajouter les traductions de labels (pour les catégories)
-            if (categoryLabels != null && !categoryLabels.isEmpty()) {
-                for (CategoryLabelItem labelItem : categoryLabels) {
+            if (candidatLabels != null && !candidatLabels.isEmpty()) {
+                for (CategoryLabelItem labelItem : candidatLabels) {
                     if (labelItem.getNom() != null && !labelItem.getNom().trim().isEmpty() &&
                         labelItem.getLangueCode() != null && !labelItem.getLangueCode().trim().isEmpty()) {
                         
@@ -818,8 +818,8 @@ public class CandidatBean implements Serializable {
             }
             
             // Ajouter les descriptions (pour les catégories)
-            if (categoryDescriptions != null && !categoryDescriptions.isEmpty()) {
-                for (CategoryDescriptionItem descriptionItem : categoryDescriptions) {
+            if (descriptions != null && !descriptions.isEmpty()) {
+                for (CategoryDescriptionItem descriptionItem : descriptions) {
                     if (descriptionItem.getValeur() != null && !descriptionItem.getValeur().trim().isEmpty() &&
                         descriptionItem.getLangueCode() != null && !descriptionItem.getLangueCode().trim().isEmpty()) {
                         
@@ -839,18 +839,18 @@ public class CandidatBean implements Serializable {
             if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType.getCode()) || 
                 "CATEGORIE".equals(entityType.getCode())) {
                 // Champs spécifiques aux catégories
-                if (categoryCommentaire != null && !categoryCommentaire.trim().isEmpty()) {
-                    newEntity.setCommentaire(categoryCommentaire.trim());
+                if (candidatCommentaire != null && !candidatCommentaire.trim().isEmpty()) {
+                    newEntity.setCommentaire(candidatCommentaire.trim());
                 }
-                if (categoryBibliographie != null && !categoryBibliographie.trim().isEmpty()) {
-                    newEntity.setBibliographie(categoryBibliographie.trim());
+                if (candidatBibliographie != null && !candidatBibliographie.trim().isEmpty()) {
+                    newEntity.setBibliographie(candidatBibliographie.trim());
                 }
-                if (categoryImagePrincipaleUrl != null && !categoryImagePrincipaleUrl.trim().isEmpty()) {
-                    newEntity.setImagePrincipaleUrl(categoryImagePrincipaleUrl.trim());
+                if (imagePrincipaleUrl != null && !imagePrincipaleUrl.trim().isEmpty()) {
+                    newEntity.setImagePrincipaleUrl(imagePrincipaleUrl.trim());
                 }
                 // Les références bibliographiques peuvent être stockées dans rereferenceBibliographique
-                if (categoryReferencesBibliographiques != null && !categoryReferencesBibliographiques.isEmpty()) {
-                    String refs = String.join("; ", categoryReferencesBibliographiques);
+                if (referencesBibliographiques != null && !referencesBibliographiques.isEmpty()) {
+                    String refs = String.join("; ", referencesBibliographiques);
                     newEntity.setRereferenceBibliographique(refs);
                 }
             } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode())) {
@@ -1301,8 +1301,8 @@ public class CandidatBean implements Serializable {
             // Uploader vers IIIF et récupérer l'URL
             String iiifUrl = iiifImageService.uploadImage(multipartFile);
             
-            // Stocker l'URL dans categoryImagePrincipaleUrl
-            categoryImagePrincipaleUrl = iiifUrl;
+            // Stocker l'URL dans imagePrincipaleUrl
+            imagePrincipaleUrl = iiifUrl;
             
             log.info("Image uploadée avec succès. URL IIIF: {}", iiifUrl);
             
@@ -1388,7 +1388,7 @@ public class CandidatBean implements Serializable {
      * Supprime l'image principale
      */
     public void removeImage() {
-        categoryImagePrincipaleUrl = null;
+        imagePrincipaleUrl = null;
         uploadedImageFile = null;
         PrimeFaces.current().ajax().update(":createCandidatForm:imageUploadContainer");
     }
@@ -1396,8 +1396,8 @@ public class CandidatBean implements Serializable {
     /**
      * Ajoute un nouveau label de catégorie depuis les champs de saisie
      */
-    public void addCategoryLabelFromInput() {
-        if (newCategoryLabelValue == null || newCategoryLabelValue.trim().isEmpty()) {
+    public void addLabelFromInput() {
+        if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1408,7 +1408,7 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        if (newCategoryLabelLangueCode == null || newCategoryLabelLangueCode.trim().isEmpty()) {
+        if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1420,7 +1420,7 @@ public class CandidatBean implements Serializable {
         }
         
         // Vérifier si la langue est déjà utilisée
-        if (isLangueAlreadyUsedInCategoryLabels(newCategoryLabelLangueCode, null)) {
+        if (isLangueAlreadyUsedIncandidatLabels(newLabelLangueCode, null)) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1432,7 +1432,7 @@ public class CandidatBean implements Serializable {
         }
         
         // Vérifier que la langue n'est pas celle de l'étape 1
-        if (selectedLangueCode != null && selectedLangueCode.equals(newCategoryLabelLangueCode)) {
+        if (selectedLangueCode != null && selectedLangueCode.equals(newLabelLangueCode)) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1443,39 +1443,39 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        if (categoryLabels == null) {
-            categoryLabels = new ArrayList<>();
+        if (candidatLabels == null) {
+            candidatLabels = new ArrayList<>();
         }
         
-        Langue langue = langueRepository.findByCode(newCategoryLabelLangueCode);
+        Langue langue = langueRepository.findByCode(newLabelLangueCode);
         CategoryLabelItem newItem = new CategoryLabelItem(
-            newCategoryLabelValue.trim(), 
-            newCategoryLabelLangueCode, 
+            newLabelValue.trim(), 
+            newLabelLangueCode, 
             langue);
-        categoryLabels.add(newItem);
+        candidatLabels.add(newItem);
         
         // Réinitialiser les champs de saisie
-        newCategoryLabelValue = null;
-        newCategoryLabelLangueCode = null;
+        newLabelValue = null;
+        newLabelLangueCode = null;
     }
     
     /**
      * Supprime un label de catégorie de la liste
      */
-    public void removeCategoryLabel(CategoryLabelItem labelItem) {
-        if (categoryLabels != null) {
-            categoryLabels.remove(labelItem);
+    public void removeCandidatLabel(CategoryLabelItem labelItem) {
+        if (candidatLabels != null) {
+            candidatLabels.remove(labelItem);
         }
     }
     
     /**
      * Vérifie si une langue est déjà utilisée dans les labels de catégorie
      */
-    public boolean isLangueAlreadyUsedInCategoryLabels(String langueCode, CategoryLabelItem currentItem) {
-        if (categoryLabels == null || langueCode == null || langueCode.isEmpty()) {
+    public boolean isLangueAlreadyUsedIncandidatLabels(String langueCode, CategoryLabelItem currentItem) {
+        if (candidatLabels == null || langueCode == null || langueCode.isEmpty()) {
             return false;
         }
-        return categoryLabels.stream()
+        return candidatLabels.stream()
             .filter(item -> item != currentItem && item.getLangueCode() != null)
             .anyMatch(item -> item.getLangueCode().equals(langueCode));
     }
@@ -1483,7 +1483,7 @@ public class CandidatBean implements Serializable {
     /**
      * Obtient les langues disponibles pour un nouveau label (excluant celle de l'étape 1 et celles déjà utilisées)
      */
-    public List<Langue> getAvailableLanguagesForNewCategoryLabel() {
+    public List<Langue> getAvailableLanguagesForNewLabel() {
         if (availableLanguages == null) {
             return new ArrayList<>();
         }
@@ -1494,7 +1494,7 @@ public class CandidatBean implements Serializable {
                     return false;
                 }
                 // Exclure les langues déjà utilisées
-                return !isLangueAlreadyUsedInCategoryLabels(langue.getCode(), null);
+                return !isLangueAlreadyUsedIncandidatLabels(langue.getCode(), null);
             })
             .collect(Collectors.toList());
     }
@@ -1502,8 +1502,8 @@ public class CandidatBean implements Serializable {
     /**
      * Ajoute une nouvelle description de catégorie depuis les champs de saisie
      */
-    public void addCategoryDescriptionFromInput() {
-        if (newCategoryDescriptionValue == null || newCategoryDescriptionValue.trim().isEmpty()) {
+    public void addCandidatDescriptionFromInput() {
+        if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1514,7 +1514,7 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        if (newCategoryDescriptionLangueCode == null || newCategoryDescriptionLangueCode.trim().isEmpty()) {
+        if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1526,7 +1526,7 @@ public class CandidatBean implements Serializable {
         }
         
         // Vérifier si la langue est déjà utilisée
-        if (isLangueAlreadyUsedInCategoryDescriptions(newCategoryDescriptionLangueCode, null)) {
+        if (isLangueAlreadyUsedIndescriptions(newDescriptionLangueCode, null)) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
@@ -1537,39 +1537,39 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        if (categoryDescriptions == null) {
-            categoryDescriptions = new ArrayList<>();
+        if (descriptions == null) {
+            descriptions = new ArrayList<>();
         }
         
-        Langue langue = langueRepository.findByCode(newCategoryDescriptionLangueCode);
+        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
         CategoryDescriptionItem newItem = new CategoryDescriptionItem(
-            newCategoryDescriptionValue.trim(), 
-            newCategoryDescriptionLangueCode, 
+            newDescriptionValue.trim(), 
+            newDescriptionLangueCode, 
             langue);
-        categoryDescriptions.add(newItem);
+        descriptions.add(newItem);
         
         // Réinitialiser les champs de saisie
-        newCategoryDescriptionValue = null;
-        newCategoryDescriptionLangueCode = null;
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
     }
     
     /**
      * Supprime une description de catégorie de la liste
      */
-    public void removeCategoryDescription(CategoryDescriptionItem descriptionItem) {
-        if (categoryDescriptions != null) {
-            categoryDescriptions.remove(descriptionItem);
+    public void removeCandidatDescription(CategoryDescriptionItem descriptionItem) {
+        if (descriptions != null) {
+            descriptions.remove(descriptionItem);
         }
     }
     
     /**
      * Vérifie si une langue est déjà utilisée dans les descriptions de catégorie
      */
-    public boolean isLangueAlreadyUsedInCategoryDescriptions(String langueCode, CategoryDescriptionItem currentItem) {
-        if (categoryDescriptions == null || langueCode == null || langueCode.isEmpty()) {
+    public boolean isLangueAlreadyUsedIndescriptions(String langueCode, CategoryDescriptionItem currentItem) {
+        if (descriptions == null || langueCode == null || langueCode.isEmpty()) {
             return false;
         }
-        return categoryDescriptions.stream()
+        return descriptions.stream()
             .filter(item -> item != currentItem && item.getLangueCode() != null)
             .anyMatch(item -> item.getLangueCode().equals(langueCode));
     }
@@ -1577,7 +1577,7 @@ public class CandidatBean implements Serializable {
     /**
      * Obtient les langues disponibles pour une nouvelle description (toutes les langues disponibles, excluant seulement celles déjà utilisées)
      */
-    public List<Langue> getAvailableLanguagesForNewCategoryDescription() {
+        public List<Langue> getAvailableLanguagesForNewDescription() {
         if (availableLanguages == null) {
             return new ArrayList<>();
         }
@@ -1585,7 +1585,7 @@ public class CandidatBean implements Serializable {
             .filter(langue -> {
                 // Exclure uniquement les langues déjà utilisées dans les descriptions (pour éviter les doublons)
                 // La langue principale de l'étape 1 est incluse car on peut avoir une description dans la même langue
-                return !isLangueAlreadyUsedInCategoryDescriptions(langue.getCode(), null);
+                return !isLangueAlreadyUsedIndescriptions(langue.getCode(), null);
             })
             .collect(Collectors.toList());
     }
