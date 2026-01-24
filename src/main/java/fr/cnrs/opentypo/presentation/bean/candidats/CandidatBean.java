@@ -75,6 +75,9 @@ public class CandidatBean implements Serializable {
     @Inject
     private IiifImageService iiifImageService;
 
+    @Inject
+    private fr.cnrs.opentypo.presentation.bean.PactolsDialogBean pactolsDialogBean;
+
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;

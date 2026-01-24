@@ -1,0 +1,152 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer une nouvelle catégorie -->
+    <p:dialog id="openthesoDialog"
+              widgetVar="openthesoDialog"
+              header="Recherche dans OpenTheso"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="true"
+              width="600"
+              height="auto"
+              styleClass="pactols-dialog"
+              showEffect="fade"
+              hideEffect="fade">
+
+        <h:panelGroup id="openThesoForm">
+            <!-- 1ère ligne : Liste des thésaurus + bouton rechercher -->
+            <div class="pactols-dialog-row">
+                <div class="pactols-dialog-field">
+                    <p:outputLabel for="thesaurusSelect" value="Liste des thésaurus" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-book input-icon" />
+                        <p:selectOneMenu id="thesaurusSelect"
+                                         value="#{pactolsDialogBean.selectedThesaurusId}"
+                                         styleClass="users-select"
+                                         filter="true"
+                                         filterMatchMode="contains">
+                            <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
+                            <f:selectItems value="#{pactolsDialogBean.availableThesaurus}" var="thesaurus"
+                                           itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+                <div class="pactols-dialog-button">
+                    <p:commandButton value="Rechercher"
+                                     icon="pi pi-search"
+                                     styleClass="candidat-btn-add"
+                                     action="#{pactolsDialogBean.onThesaurusSearch}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":collectionSelect :growl"/>
+                </div>
+            </div>
+
+            <!-- 2ème ligne : Liste des collections du thésaurus sélectionné -->
+            <div class="pactols-dialog-row">
+                <div class="pactols-dialog-field-full">
+                    <p:outputLabel for="collectionSelect" value="Liste des collections" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-sitemap input-icon" />
+                        <p:selectOneMenu id="collectionSelect"
+                                         value="#{pactolsDialogBean.selectedCollectionId}"
+                                         styleClass="users-select"
+                                         filter="true"
+                                         filterMatchMode="contains">
+                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                            <f:selectItems value="#{pactolsDialogBean.availableCollections}" var="collection"
+                                           itemLabel="#{collection.selectedLabel}" itemValue="#{collection.idGroup}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3ème ligne : Champ texte pour la valeur recherchée + liste des langues + bouton rechercher -->
+            <div class="pactols-dialog-row">
+                <div class="pactols-dialog-field">
+                    <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-search input-icon" />
+                        <p:inputText id="searchValueInput"
+                                     value="#{pactolsDialogBean.searchValue}"
+                                     styleClass="users-input"
+                                     placeholder="Saisissez un terme de recherche..."
+                                     disabled="#{not pactolsDialogBean.searchFieldsEnabled}"/>
+                    </div>
+                </div>
+                <div class="pactols-dialog-field">
+                    <p:outputLabel for="languageSelect" value="Langue" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-globe input-icon" />
+                        <p:selectOneMenu id="languageSelect"
+                                         value="#{pactolsDialogBean.selectedLanguageId}"
+                                         styleClass="users-select"
+                                         disabled="#{not pactolsDialogBean.searchFieldsEnabled}">
+                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
+                            <f:selectItems value="#{pactolsDialogBean.availableLanguages}" var="langue"
+                                           itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+                <div class="pactols-dialog-button">
+                    <p:commandButton id="conceptSearchButton"
+                                     value="Rechercher"
+                                     icon="pi pi-search"
+                                     styleClass="candidat-btn-add"
+                                     action="#{pactolsDialogBean.onConceptSearch}"
+                                     process="@form"
+                                     update="pactolsDialogForm :growl"/>
+                </div>
+            </div>
+
+            <!-- 4ème ligne : Liste des termes trouvés -->
+            <div class="pactols-dialog-row">
+                <div class="pactols-dialog-field-full">
+                    <p:outputLabel value="Résultats de la recherche" />
+                    <p:dataTable id="conceptsTable"
+                                 value="#{pactolsDialogBean.searchResults}"
+                                 var="concept"
+                                 styleClass="pactols-concepts-table"
+                                 emptyMessage="Aucun résultat trouvé"
+                                 selection="#{pactolsDialogBean.selectedConcept}"
+                                 selectionMode="single"
+                                 disabled="#{not pactolsDialogBean.resultsEnabled}">
+                        <p:column headerText="ID Concept" width="30">
+                            <h:outputText value="#{concept.idConcept}" />
+                        </p:column>
+                        <p:column headerText="Terme" width="70">
+                            <h:outputText value="#{concept.selectedTerm}" />
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </div>
+        </h:panelGroup>
+
+        <div class="category-form-actions">
+            <p:commandButton value="Annuler"
+                             icon="pi pi-times"
+                             styleClass="category-btn category-btn-cancel"
+                             onclick="PF('createCategoryDialog').hide(); return false;"
+                             process="@this"
+                             update="@none"/>
+
+            <p:commandButton value="Valider"
+                             icon="pi pi-check"
+                             styleClass="category-btn category-btn-validate"
+                             action="#{categoryBean.createCategory}"
+                             process="@form"
+                             update="@form :growl"
+                             onstart="var btn = this; showButtonLoading(btn);"
+                             oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading(); if(!args.validationFailed) {PF('createCategoryDialog').hide();}}, 100);"
+                             onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
+        </div>
+    </p:dialog>
+
+    <!-- Styles pour la boîte de dialogue -->
+    <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
+</ui:fragment>

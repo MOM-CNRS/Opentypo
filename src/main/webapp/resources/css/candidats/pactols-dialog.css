@@ -1,0 +1,108 @@
+        /* Styles pour la boîte de dialogue PACTOLS */
+        .pactols-dialog .ui-dialog-content {
+            padding: 1.5rem !important;
+        }
+
+        .pactols-dialog-row {
+            display: flex !important;
+            gap: 1rem !important;
+            align-items: flex-end !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .pactols-dialog-row:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .pactols-dialog-field {
+            flex: 1 !important;
+        }
+
+        .pactols-dialog-field-full {
+            flex: 1 1 100% !important;
+        }
+
+        .pactols-dialog-button {
+            flex-shrink: 0 !important;
+            align-self: flex-end !important;
+        }
+
+        .pactols-dialog-actions {
+            justify-content: flex-end !important;
+            margin-top: 2rem !important;
+            padding-top: 1.5rem !important;
+            border-top: 1px solid rgba(71, 98, 77, 0.15) !important;
+        }
+
+        .pactols-dialog-actions-buttons {
+            display: flex !important;
+            gap: 1rem !important;
+        }
+
+        .pactols-concepts-table {
+            width: 100% !important;
+            border: 1px solid rgba(71, 98, 77, 0.15) !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+        }
+
+        .pactols-concepts-table .ui-datatable-header {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
+            border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+            padding: 1rem !important;
+            font-weight: 600 !important;
+            color: var(--color-action-main, #47624D) !important;
+        }
+
+        .pactols-concepts-table .ui-datatable-data tr {
+            border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+            transition: background 0.2s ease !important;
+            cursor: pointer !important;
+        }
+
+        .pactols-concepts-table .ui-datatable-data tr:hover {
+            background: rgba(71, 98, 77, 0.05) !important;
+        }
+
+        .pactols-concepts-table .ui-datatable-data tr.ui-state-highlight {
+            background: rgba(71, 98, 77, 0.15) !important;
+        }
+
+        .pactols-concepts-table .ui-datatable-data tr:last-child {
+            border-bottom: none !important;
+        }
+
+        .candidat-btn-cancel {
+            background: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+            padding: 0.75rem 1.5rem !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .candidat-btn-cancel:hover {
+            background: #5a6268 !important;
+            border-color: #5a6268 !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pactols-dialog-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            .pactols-dialog-button {
+                align-self: stretch !important;
+            }
+
+            .pactols-dialog-actions-buttons {
+                flex-direction: column !important;
+            }
+
+            .pactols-dialog-actions-buttons .ui-button {
+                width: 100% !important;
+            }
+        }
