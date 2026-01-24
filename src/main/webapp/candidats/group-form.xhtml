@@ -293,7 +293,7 @@
                                  actionListener="#{pactolsDialogBean.loadThesaurus}"
                                  process="@form"
                                  ajax="true"
-                                 update="openthesoForm:thesaurusSelect :growl"
+                                 update=":openThesoForm :growl"
                                  oncomplete="hideLoading(); PF('openthesoDialog').show();"
                                  onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
             </div>

@@ -107,7 +107,17 @@ public class CandidatBean implements Serializable {
     
     // Index du wizard (0 = étape 1, 1 = étape 2, 2 = étape 3)
     private int currentStep = 0;
-    
+
+
+
+    @PostConstruct
+    public void init() {
+        chargerCandidats();
+        loadAvailableEntityTypes();
+        loadAvailableLanguages();
+        availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
+    }
+
     /**
      * Passe à l'étape suivante du wizard
      */
@@ -167,15 +177,6 @@ public class CandidatBean implements Serializable {
      */
     public boolean isStep3() {
         return currentStep == 2;
-    }
-
-
-    @PostConstruct
-    public void init() {
-        chargerCandidats();
-        loadAvailableEntityTypes();
-        loadAvailableLanguages();
-        availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
     }
     
     /**
@@ -584,7 +585,7 @@ public class CandidatBean implements Serializable {
         selectedEntityTypeId = null;
         entityCode = null;
         entityLabel = null;
-        selectedLangueCode = null;
+        selectedLangueCode = searchBean.getLangSelected();
         selectedCollectionId = null;
         availableReferences = new ArrayList<>();
         referenceTreeRoot = null;
