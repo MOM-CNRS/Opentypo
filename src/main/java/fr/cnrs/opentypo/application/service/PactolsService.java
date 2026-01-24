@@ -218,23 +218,38 @@ public class PactolsService {
                 List<PactolsConcept> concepts = new ArrayList<>();
                 
                 for (Object item : response.getBody()) {
-                    Map<String, Object> conceptMap = objectMapper.convertValue(item, new TypeReference<Map<String, Object>>() {});
+                    LinkedHashMap<String, Object> conceptMap = objectMapper.convertValue(item, new TypeReference<LinkedHashMap<String, Object>>() {});
                     
                     PactolsConcept concept = new PactolsConcept();
                     concept.setIdConcept((String) conceptMap.get("idConcept"));
                     
                     // Extraire les termes
                     Object termsObj = conceptMap.get("terms");
-                    if (termsObj instanceof Map) {
-                        Map<String, String> terms = objectMapper.convertValue(termsObj, new TypeReference<Map<String, String>>() {});
+                    if (termsObj instanceof ArrayList<?>) {
+                        List<LinkedHashMap<String, String>> terms = objectMapper.convertValue(termsObj, new TypeReference<List<LinkedHashMap<String, String>>>() {});
                         concept.setTerms(terms);
                         
                         // Sélectionner le terme selon la langue choisie
-                        String term = terms.get(idLang);
-                        if (term == null && !terms.isEmpty()) {
-                            term = terms.values().iterator().next();
+                        // Sélectionner le label selon la langue
+                        Optional<LinkedHashMap<String, String>> labelOpt = terms.stream()
+                                .filter(element -> element.containsKey("lang") && idLang.equals(element.get("lang")))
+                                .findFirst();
+
+                        if (labelOpt.isEmpty()) {
+                            // Si la langue n'est pas trouvée, chercher "fr" par défaut
+                            labelOpt = terms.stream()
+                                    .filter(element -> element.containsKey("lang") && "fr".equals(element.get("lang")))
+                                    .findFirst();
                         }
-                        concept.setSelectedTerm(term != null ? term : "");
+
+                        if (labelOpt.isPresent() && labelOpt.get().containsKey("value")) {
+                            concept.setSelectedTerm(labelOpt.get().get("value"));
+                        } else if (!terms.isEmpty() && terms.get(0).containsKey("value")) {
+                            // Prendre le premier disponible si aucun ne correspond
+                            concept.setSelectedTerm(terms.get(0).get("value"));
+                        } else {
+                            concept.setSelectedTerm("");
+                        }
                     }
                     
                     concepts.add(concept);

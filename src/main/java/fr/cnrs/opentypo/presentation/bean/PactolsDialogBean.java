@@ -53,11 +53,6 @@ public class PactolsDialogBean implements Serializable {
     private List<PactolsConcept> searchResults = new ArrayList<>();
     private PactolsConcept selectedConcept;
 
-    // États d'activation des champs
-    private boolean collectionsEnabled = false;
-    private boolean searchFieldsEnabled = false;
-    private boolean resultsEnabled = false;
-
     @PostConstruct
     public void init() {
         // Initialisation vide, sera remplie lors de l'ouverture de la boîte de dialogue
@@ -94,6 +89,7 @@ public class PactolsDialogBean implements Serializable {
      * Réinitialise l'état de la boîte de dialogue
      */
     private void resetDialog() {
+        selectedThesaurusId = null;
         availableCollections = new ArrayList<>();
         selectedCollectionId = null;
         availableLanguages = new ArrayList<>();
@@ -101,9 +97,6 @@ public class PactolsDialogBean implements Serializable {
         searchValue = "";
         searchResults = new ArrayList<>();
         selectedConcept = null;
-        collectionsEnabled = false;
-        searchFieldsEnabled = false;
-        resultsEnabled = false;
     }
 
     /**
@@ -139,17 +132,9 @@ public class PactolsDialogBean implements Serializable {
 
         // Réinitialiser les sélections pour les nouvelles listes
         selectedCollectionId = null;
-        
-        // Activer tous les champs restants
-        collectionsEnabled = true;
-        searchFieldsEnabled = true;
-
-        log.info("Collections chargées: {}", availableCollections != null ? availableCollections.size() : 0);
-        log.info("Langues chargées: {}", availableLanguages != null ? availableLanguages.size() : 0);
-        log.info("Champs activés - collectionsEnabled: {}, searchFieldsEnabled: {}", collectionsEnabled, searchFieldsEnabled);
 
         // Mettre à jour tous les composants de la boîte de dialogue
-        PrimeFaces.current().ajax().update("pactolsDialogForm:collectionSelect pactolsDialogForm:languageSelect pactolsDialogForm:searchValueInput pactolsDialogForm:conceptSearchButton pactolsDialogForm");
+        PrimeFaces.current().ajax().update(":openThesoForm:collectionSelect :openThesoForm:languageSelect :openThesoForm:searchValueInput :openThesoForm:conceptSearchButton :growl");
         
         log.info("=== onThesaurusSearch() terminée ===");
         return null;
@@ -185,9 +170,7 @@ public class PactolsDialogBean implements Serializable {
         
         searchResults = pactolsService.searchConcepts(selectedThesaurusId, searchValue.trim(), selectedLanguageId, selectedCollectionId);
 
-        resultsEnabled = !searchResults.isEmpty();
-
-        PrimeFaces.current().ajax().update("pactolsDialogForm");
+        PrimeFaces.current().ajax().update(":openThesoForm:conceptsTable :growl");
     }
 
     /**

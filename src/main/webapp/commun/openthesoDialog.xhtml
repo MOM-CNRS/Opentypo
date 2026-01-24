@@ -43,7 +43,7 @@
                                      action="#{pactolsDialogBean.onThesaurusSearch}"
                                      process="@form"
                                      ajax="true"
-                                     update=":collectionSelect :growl"/>
+                                     update=":openThesoForm:collectionSelect :openThesoForm:languageSelect :openThesoForm:searchValueInput :openThesoForm:conceptSearchButton :growl"/>
                 </div>
             </div>
 
@@ -75,8 +75,7 @@
                         <p:inputText id="searchValueInput"
                                      value="#{pactolsDialogBean.searchValue}"
                                      styleClass="users-input"
-                                     placeholder="Saisissez un terme de recherche..."
-                                     disabled="#{not pactolsDialogBean.searchFieldsEnabled}"/>
+                                     placeholder="Saisissez un terme de recherche..."/>
                     </div>
                 </div>
                 <div class="pactols-dialog-field">
@@ -85,8 +84,7 @@
                         <i class="pi pi-globe input-icon" />
                         <p:selectOneMenu id="languageSelect"
                                          value="#{pactolsDialogBean.selectedLanguageId}"
-                                         styleClass="users-select"
-                                         disabled="#{not pactolsDialogBean.searchFieldsEnabled}">
+                                         styleClass="users-select">
                             <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
                             <f:selectItems value="#{pactolsDialogBean.availableLanguages}" var="langue"
                                            itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
@@ -100,7 +98,7 @@
                                      styleClass="candidat-btn-add"
                                      action="#{pactolsDialogBean.onConceptSearch}"
                                      process="@form"
-                                     update="pactolsDialogForm :growl"/>
+                                     update=":openThesoForm:conceptsTable :growl"/>
                 </div>
             </div>
 
@@ -111,11 +109,11 @@
                     <p:dataTable id="conceptsTable"
                                  value="#{pactolsDialogBean.searchResults}"
                                  var="concept"
+                                 rowKey="#{concept.idConcept}"
                                  styleClass="pactols-concepts-table"
                                  emptyMessage="Aucun résultat trouvé"
                                  selection="#{pactolsDialogBean.selectedConcept}"
-                                 selectionMode="single"
-                                 disabled="#{not pactolsDialogBean.resultsEnabled}">
+                                 selectionMode="single">
                         <p:column headerText="ID Concept" width="30">
                             <h:outputText value="#{concept.idConcept}" />
                         </p:column>

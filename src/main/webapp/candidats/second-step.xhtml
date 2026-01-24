@@ -31,8 +31,8 @@
                                                itemValue="#{collection.id}" />
                                 <p:ajax event="change"
                                         listener="#{candidatBean.loadReferencesForCollection}"
-                                        process="@this"
-                                        update=":createCandidatForm:referenceTreeContainer"
+                                        process="@this" ajax="true"
+                                        update=":createCandidatForm:referenceTree"
                                         onstart="showLoading('Chargement des référentiels...', 'spinner');"
                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                         onerror="forceHideLoading();"/>

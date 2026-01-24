@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +19,6 @@ public class PactolsConcept implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private String idConcept;
-    private Map<String, String> terms; // Map<langue, terme>
+    private List<LinkedHashMap<String, String>> terms; // Map<langue, terme>
     private String selectedTerm; // Terme sélectionné selon la langue choisie
 }
