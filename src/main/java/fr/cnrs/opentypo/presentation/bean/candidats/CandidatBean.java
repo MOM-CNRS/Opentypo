@@ -15,6 +15,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
+import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,7 +77,7 @@ public class CandidatBean implements Serializable {
     private IiifImageService iiifImageService;
 
     @Inject
-    private fr.cnrs.opentypo.presentation.bean.PactolsDialogBean pactolsDialogBean;
+    private OpenThesoDialogBean openThesoDialogBean;
 
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;

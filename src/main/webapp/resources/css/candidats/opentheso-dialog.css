@@ -2,12 +2,10 @@
    BOÎTE DE DIALOGUE OPENTHESO
    Design ergonomique, moderne et responsive
    Respect de la charte graphique Opentypo
-   Amélioration du design sans modifier le HTML
    ============================================ */
 
 /* Dialog principal - Style amélioré */
-.opentheso-dialog .ui-dialog,
-.pactols-dialog.ui-dialog {
+.opentheso-dialog.ui-dialog {
     border-radius: 16px !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     border: 1px solid rgba(71, 98, 77, 0.15) !important;
@@ -28,8 +26,7 @@
 }
 
 /* Header du dialog avec gradient de la charte */
-.opentheso-dialog .ui-dialog-titlebar,
-.pactols-dialog .ui-dialog-titlebar {
+.opentheso-dialog .ui-dialog-titlebar {
     background: linear-gradient(135deg, 
         var(--color-action-main, #47624D) 0%, 
         rgba(71, 98, 77, 0.95) 100%) !important;
@@ -48,8 +45,7 @@
     flex-wrap: nowrap !important;
 }
 
-.opentheso-dialog .ui-dialog-titlebar::before,
-.pactols-dialog .ui-dialog-titlebar::before {
+.opentheso-dialog .ui-dialog-titlebar::before {
     content: '' !important;
     position: absolute !important;
     top: 0 !important;
@@ -62,8 +58,7 @@
         rgba(255, 255, 255, 0.3) 100%) !important;
 }
 
-.opentheso-dialog .ui-dialog-titlebar .ui-dialog-title,
-.pactols-dialog .ui-dialog-titlebar .ui-dialog-title {
+.opentheso-dialog .ui-dialog-titlebar .ui-dialog-title {
     color: #ffffff !important;
     display: flex !important;
     align-items: center !important;
@@ -76,8 +71,7 @@
     padding: 0 !important;
 }
 
-.opentheso-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close,
-.pactols-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close {
+.opentheso-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close {
     color: rgba(255, 255, 255, 0.9) !important;
     transition: background-color 0.2s ease !important;
     border-radius: 4px !important;
@@ -94,15 +88,13 @@
     cursor: pointer !important;
 }
 
-.opentheso-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover,
-.pactols-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover {
+.opentheso-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover {
     background: rgba(255, 255, 255, 0.15) !important;
     color: #ffffff !important;
 }
 
 /* Contenu du dialog */
-.opentheso-dialog .ui-dialog-content,
-.pactols-dialog .ui-dialog-content {
+.opentheso-dialog .ui-dialog-content {
     padding: 2rem !important;
     background: #ffffff !important;
     max-height: 85vh !important;
@@ -110,65 +102,70 @@
 }
 
 /* Scrollbar personnalisée */
-.opentheso-dialog .ui-dialog-content::-webkit-scrollbar,
-.pactols-dialog .ui-dialog-content::-webkit-scrollbar {
+.opentheso-dialog .ui-dialog-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-track,
-.pactols-dialog .ui-dialog-content::-webkit-scrollbar-track {
+.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-track {
     background: var(--color-bg-global, #EEEFE0);
     border-radius: 4px;
 }
 
-.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-thumb,
-.pactols-dialog .ui-dialog-content::-webkit-scrollbar-thumb {
+.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-thumb {
     background: rgba(71, 98, 77, 0.3);
     border-radius: 4px;
 }
 
-.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-thumb:hover,
-.pactols-dialog .ui-dialog-content::-webkit-scrollbar-thumb:hover {
+.opentheso-dialog .ui-dialog-content::-webkit-scrollbar-thumb:hover {
     background: rgba(71, 98, 77, 0.5);
 }
 
-/* Lignes du formulaire */
-.opentheso-dialog .pactols-dialog-row,
-.pactols-dialog .pactols-dialog-row {
+/* ============================================
+   STRUCTURE DU FORMULAIRE - ALIGNEMENT
+   ============================================ */
+
+/* Lignes du formulaire - Flexbox pour alignement horizontal */
+.opentheso-dialog .opentheso-dialog-row {
     display: flex !important;
+    flex-direction: row !important;
     gap: 1.25rem !important;
     align-items: flex-end !important;
     margin-bottom: 1.75rem !important;
+    width: 100% !important;
 }
 
-.opentheso-dialog .pactols-dialog-row:last-child,
-.pactols-dialog .pactols-dialog-row:last-child {
+.opentheso-dialog .opentheso-dialog-row:last-child {
     margin-bottom: 0 !important;
 }
 
-/* Champs du formulaire */
-.opentheso-dialog .pactols-dialog-field,
-.pactols-dialog .pactols-dialog-field {
+/* Champs du formulaire - Flex pour distribution équitable */
+.opentheso-dialog .opentheso-dialog-field {
     flex: 1 !important;
     min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
-.opentheso-dialog .pactols-dialog-field-full,
-.pactols-dialog .pactols-dialog-field-full {
+.opentheso-dialog .opentheso-dialog-field-full {
     flex: 1 1 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
-.opentheso-dialog .pactols-dialog-button,
-.pactols-dialog .pactols-dialog-button {
+/* Bouton dans la ligne - Aligné en bas */
+.opentheso-dialog .opentheso-dialog-button {
     flex-shrink: 0 !important;
     align-self: flex-end !important;
+    display: flex !important;
+    align-items: flex-end !important;
 }
 
 /* Labels améliorés */
-.opentheso-dialog .pactols-dialog-field p:outputLabel,
-.opentheso-dialog .pactols-dialog-field .ui-outputlabel,
-.pactols-dialog .pactols-dialog-field p:outputLabel,
-.pactols-dialog .pactols-dialog-field .ui-outputlabel {
+.opentheso-dialog .opentheso-dialog-field p:outputLabel,
+.opentheso-dialog .opentheso-dialog-field .ui-outputlabel,
+.opentheso-dialog .opentheso-dialog-field-full p:outputLabel,
+.opentheso-dialog .opentheso-dialog-field-full .ui-outputlabel {
     font-weight: 600 !important;
     color: var(--color-text-primary, #333) !important;
     font-size: 0.875rem !important;
@@ -178,14 +175,17 @@
 }
 
 /* Wrapper des inputs avec icônes */
-.opentheso-dialog .pactols-dialog-field .input-wrapper,
-.pactols-dialog .pactols-dialog-field .input-wrapper {
+.opentheso-dialog .opentheso-dialog-field .input-wrapper,
+.opentheso-dialog .opentheso-dialog-field-full .input-wrapper {
     position: relative !important;
     margin-top: 0.5rem !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-.opentheso-dialog .pactols-dialog-field .input-icon,
-.pactols-dialog .pactols-dialog-field .input-icon {
+.opentheso-dialog .opentheso-dialog-field .input-icon,
+.opentheso-dialog .opentheso-dialog-field-full .input-icon {
     position: absolute !important;
     left: 1rem !important;
     top: 50% !important;
@@ -198,10 +198,10 @@
 }
 
 /* Inputs et selects améliorés */
-.opentheso-dialog .pactols-dialog-field .users-select,
-.opentheso-dialog .pactols-dialog-field .users-input,
-.pactols-dialog .pactols-dialog-field .users-select,
-.pactols-dialog .pactols-dialog-field .users-input {
+.opentheso-dialog .opentheso-dialog-field .users-select,
+.opentheso-dialog .opentheso-dialog-field .users-input,
+.opentheso-dialog .opentheso-dialog-field-full .users-select,
+.opentheso-dialog .opentheso-dialog-field-full .users-input {
     padding-left: 2.75rem !important;
     border: 2px solid rgba(71, 98, 77, 0.15) !important;
     border-radius: 8px !important;
@@ -210,37 +210,38 @@
     background: #ffffff !important;
     color: var(--color-text-primary, #333) !important;
     width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.opentheso-dialog .pactols-dialog-field .users-select:hover,
-.opentheso-dialog .pactols-dialog-field .users-input:hover,
-.pactols-dialog .pactols-dialog-field .users-select:hover,
-.pactols-dialog .pactols-dialog-field .users-input:hover {
+.opentheso-dialog .opentheso-dialog-field .users-select:hover,
+.opentheso-dialog .opentheso-dialog-field .users-input:hover,
+.opentheso-dialog .opentheso-dialog-field-full .users-select:hover,
+.opentheso-dialog .opentheso-dialog-field-full .users-input:hover {
     border-color: rgba(71, 98, 77, 0.25) !important;
 }
 
-.opentheso-dialog .pactols-dialog-field .users-select:focus,
-.opentheso-dialog .pactols-dialog-field .users-input:focus,
-.opentheso-dialog .pactols-dialog-field .users-select.ui-state-focus,
-.opentheso-dialog .pactols-dialog-field .users-input.ui-state-focus,
-.pactols-dialog .pactols-dialog-field .users-select:focus,
-.pactols-dialog .pactols-dialog-field .users-input:focus,
-.pactols-dialog .pactols-dialog-field .users-select.ui-state-focus,
-.pactols-dialog .pactols-dialog-field .users-input.ui-state-focus {
+.opentheso-dialog .opentheso-dialog-field .users-select:focus,
+.opentheso-dialog .opentheso-dialog-field .users-input:focus,
+.opentheso-dialog .opentheso-dialog-field .users-select.ui-state-focus,
+.opentheso-dialog .opentheso-dialog-field .users-input.ui-state-focus,
+.opentheso-dialog .opentheso-dialog-field-full .users-select:focus,
+.opentheso-dialog .opentheso-dialog-field-full .users-input:focus,
+.opentheso-dialog .opentheso-dialog-field-full .users-select.ui-state-focus,
+.opentheso-dialog .opentheso-dialog-field-full .users-input.ui-state-focus {
     border-color: var(--color-action-main, #47624D) !important;
     box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.1) !important;
     outline: none !important;
 }
 
 /* Champs désactivés */
-.opentheso-dialog .pactols-dialog-field .users-select:disabled,
-.opentheso-dialog .pactols-dialog-field .users-input:disabled,
-.opentheso-dialog .pactols-dialog-field .users-select.ui-state-disabled,
-.opentheso-dialog .pactols-dialog-field .users-input.ui-state-disabled,
-.pactols-dialog .pactols-dialog-field .users-select:disabled,
-.pactols-dialog .pactols-dialog-field .users-input:disabled,
-.pactols-dialog .pactols-dialog-field .users-select.ui-state-disabled,
-.pactols-dialog .pactols-dialog-field .users-input.ui-state-disabled {
+.opentheso-dialog .opentheso-dialog-field .users-select:disabled,
+.opentheso-dialog .opentheso-dialog-field .users-input:disabled,
+.opentheso-dialog .opentheso-dialog-field .users-select.ui-state-disabled,
+.opentheso-dialog .opentheso-dialog-field .users-input.ui-state-disabled,
+.opentheso-dialog .opentheso-dialog-field-full .users-select:disabled,
+.opentheso-dialog .opentheso-dialog-field-full .users-input:disabled,
+.opentheso-dialog .opentheso-dialog-field-full .users-select.ui-state-disabled,
+.opentheso-dialog .opentheso-dialog-field-full .users-input.ui-state-disabled {
     background: var(--color-bg-global, #EEEFE0) !important;
     border-color: rgba(71, 98, 77, 0.1) !important;
     color: var(--color-text-secondary, #819A91) !important;
@@ -249,24 +250,21 @@
 }
 
 /* Section des actions */
-.opentheso-dialog .pactols-dialog-actions,
-.pactols-dialog .pactols-dialog-actions {
+.opentheso-dialog .opentheso-dialog-actions {
     justify-content: flex-end !important;
     margin-top: 2.5rem !important;
     padding-top: 2rem !important;
     border-top: 2px solid rgba(71, 98, 77, 0.1) !important;
 }
 
-.opentheso-dialog .pactols-dialog-actions-buttons,
-.pactols-dialog .pactols-dialog-actions-buttons {
+.opentheso-dialog .opentheso-dialog-actions-buttons {
     display: flex !important;
     gap: 1rem !important;
     flex-wrap: wrap !important;
 }
 
 /* Tableau des résultats amélioré */
-.opentheso-dialog .pactols-concepts-table,
-.pactols-dialog .pactols-concepts-table {
+.opentheso-dialog .opentheso-concepts-table {
     width: 100% !important;
     border: 2px solid rgba(71, 98, 77, 0.1) !important;
     border-radius: 10px !important;
@@ -276,8 +274,7 @@
     background: #ffffff !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-header,
-.pactols-dialog .pactols-concepts-table .ui-datatable-header {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-header {
     background: linear-gradient(135deg, 
         rgba(71, 98, 77, 0.08) 0%, 
         rgba(71, 98, 77, 0.04) 100%) !important;
@@ -290,24 +287,21 @@
     letter-spacing: 0.5px !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data tr,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data tr {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data tr {
     border-bottom: 1px solid rgba(71, 98, 77, 0.08) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     cursor: pointer !important;
     background: #ffffff !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data tr:hover,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data tr:hover {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data tr:hover {
     background: linear-gradient(90deg, 
         rgba(71, 98, 77, 0.05) 0%, 
         rgba(71, 98, 77, 0.03) 100%) !important;
     transform: translateX(2px) !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data tr.ui-state-highlight,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data tr.ui-state-highlight {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data tr.ui-state-highlight {
     background: linear-gradient(90deg, 
         var(--color-action-main, #47624D) 0%, 
         rgba(71, 98, 77, 0.9) 100%) !important;
@@ -315,18 +309,15 @@
     color: #ffffff !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data tr.ui-state-highlight td,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data tr.ui-state-highlight td {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data tr.ui-state-highlight td {
     color: #ffffff !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data tr:last-child,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data tr:last-child {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data tr:last-child {
     border-bottom: none !important;
 }
 
-.opentheso-dialog .pactols-concepts-table .ui-datatable-data td,
-.pactols-dialog .pactols-concepts-table .ui-datatable-data td {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-data td {
     padding: 1rem 1.25rem !important;
     color: var(--color-text-primary, #333) !important;
     font-size: 0.9375rem !important;
@@ -334,8 +325,7 @@
 }
 
 /* Message vide du tableau */
-.opentheso-dialog .pactols-concepts-table .ui-datatable-empty-message,
-.pactols-dialog .pactols-concepts-table .ui-datatable-empty-message {
+.opentheso-dialog .opentheso-concepts-table .ui-datatable-empty-message {
     padding: 3rem 1.5rem !important;
     text-align: center !important;
     color: var(--color-text-secondary, #819A91) !important;
@@ -346,8 +336,7 @@
 }
 
 /* Boutons améliorés */
-.opentheso-dialog .candidat-btn-add,
-.pactols-dialog .candidat-btn-add {
+.opentheso-dialog .candidat-btn-add {
     background: linear-gradient(135deg, 
         var(--color-action-main, #47624D) 0%, 
         rgba(71, 98, 77, 0.95) 100%) !important;
@@ -360,10 +349,10 @@
     box-shadow: 0 2px 8px rgba(71, 98, 77, 0.2) !important;
     font-size: 0.875rem !important;
     white-space: nowrap !important;
+    min-width: auto !important;
 }
 
-.opentheso-dialog .candidat-btn-add:hover,
-.pactols-dialog .candidat-btn-add:hover {
+.opentheso-dialog .candidat-btn-add:hover {
     transform: translateY(-1px) !important;
     box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3) !important;
     background: linear-gradient(135deg, 
@@ -371,13 +360,11 @@
         var(--color-action-main, #47624D) 100%) !important;
 }
 
-.opentheso-dialog .candidat-btn-add:active,
-.pactols-dialog .candidat-btn-add:active {
+.opentheso-dialog .candidat-btn-add:active {
     transform: translateY(0) !important;
 }
 
-.opentheso-dialog .candidat-btn-add:disabled,
-.pactols-dialog .candidat-btn-add:disabled {
+.opentheso-dialog .candidat-btn-add:disabled {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
     transform: none !important;
@@ -385,8 +372,7 @@
 }
 
 /* Boutons Annuler et Valider dans category-form-actions */
-.opentheso-dialog .category-form-actions,
-.pactols-dialog .category-form-actions {
+.opentheso-dialog .category-form-actions {
     display: flex !important;
     justify-content: flex-end !important;
     gap: 1rem !important;
@@ -396,14 +382,11 @@
     flex-wrap: wrap !important;
 }
 
-/* Cibler spécifiquement les boutons dans openthesoDialog */
-.opentheso-dialog .category-form-actions .category-btn,
-.pactols-dialog .category-form-actions .category-btn {
+.opentheso-dialog .category-form-actions .category-btn {
     min-width: 120px !important;
 }
 
-.opentheso-dialog .category-btn-cancel,
-.pactols-dialog .category-btn-cancel {
+.opentheso-dialog .category-btn-cancel {
     background: #ffffff !important;
     border: 2px solid rgba(71, 98, 77, 0.2) !important;
     color: var(--color-text-primary, #333) !important;
@@ -415,8 +398,7 @@
     min-width: 120px !important;
 }
 
-.opentheso-dialog .category-btn-cancel:hover,
-.pactols-dialog .category-btn-cancel:hover {
+.opentheso-dialog .category-btn-cancel:hover {
     background: var(--color-bg-global, #EEEFE0) !important;
     border-color: var(--color-action-main, #47624D) !important;
     color: var(--color-action-main, #47624D) !important;
@@ -424,8 +406,7 @@
     box-shadow: 0 4px 12px rgba(71, 98, 77, 0.15) !important;
 }
 
-.opentheso-dialog .category-btn-validate,
-.pactols-dialog .category-btn-validate {
+.opentheso-dialog .category-btn-validate {
     background: linear-gradient(135deg, 
         var(--color-action-main, #47624D) 0%, 
         rgba(71, 98, 77, 0.95) 100%) !important;
@@ -440,8 +421,7 @@
     min-width: 120px !important;
 }
 
-.opentheso-dialog .category-btn-validate:hover,
-.pactols-dialog .category-btn-validate:hover {
+.opentheso-dialog .category-btn-validate:hover {
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 16px rgba(71, 98, 77, 0.35) !important;
     background: linear-gradient(135deg, 
@@ -449,14 +429,12 @@
         var(--color-action-main, #47624D) 100%) !important;
 }
 
-.opentheso-dialog .category-btn-validate:active,
-.pactols-dialog .category-btn-validate:active {
+.opentheso-dialog .category-btn-validate:active {
     transform: translateY(0) !important;
     box-shadow: 0 2px 8px rgba(71, 98, 77, 0.3) !important;
 }
 
-.opentheso-dialog .category-btn-validate:disabled,
-.pactols-dialog .category-btn-validate:disabled {
+.opentheso-dialog .category-btn-validate:disabled {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
     transform: none !important;
@@ -464,7 +442,6 @@
 
 /* Overlay du dialog - Supprimé pour éviter le blocage */
 .opentheso-dialog .ui-widget-overlay,
-.pactols-dialog .ui-widget-overlay,
 body .ui-widget-overlay {
     display: none !important;
     background: transparent !important;
@@ -478,8 +455,7 @@ body .ui-widget-overlay[aria-hidden="false"] {
 }
 
 /* Focus visible pour l'accessibilité */
-.opentheso-dialog .ui-button:focus,
-.pactols-dialog .ui-button:focus {
+.opentheso-dialog .ui-button:focus {
     outline: 2px solid var(--color-action-main, #47624D) !important;
     outline-offset: 2px !important;
 }
@@ -489,82 +465,70 @@ body .ui-widget-overlay[aria-hidden="false"] {
    ============================================ */
 
 @media (max-width: 992px) {
-    .opentheso-dialog .ui-dialog,
-    .pactols-dialog.ui-dialog {
+    .opentheso-dialog.ui-dialog {
         width: 95vw !important;
         max-width: 95vw !important;
     }
 
-    .opentheso-dialog .ui-dialog-content,
-    .pactols-dialog .ui-dialog-content {
+    .opentheso-dialog .ui-dialog-content {
         padding: 1.5rem !important;
     }
 
-    .opentheso-dialog .pactols-dialog-row,
-    .pactols-dialog .pactols-dialog-row {
+    .opentheso-dialog .opentheso-dialog-row {
         gap: 1rem !important;
     }
 }
 
 @media (max-width: 768px) {
-    .opentheso-dialog .ui-dialog-titlebar,
-    .pactols-dialog .ui-dialog-titlebar {
+    .opentheso-dialog .ui-dialog-titlebar {
         padding: 1.25rem 1.5rem !important;
         font-size: 1rem !important;
     }
 
-    .opentheso-dialog .ui-dialog-content,
-    .pactols-dialog .ui-dialog-content {
+    .opentheso-dialog .ui-dialog-content {
         padding: 1.25rem !important;
     }
 
-    .opentheso-dialog .pactols-dialog-row,
-    .pactols-dialog .pactols-dialog-row {
+    .opentheso-dialog .opentheso-dialog-row {
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 1rem !important;
         margin-bottom: 1.5rem !important;
     }
 
-    .opentheso-dialog .pactols-dialog-button,
-    .pactols-dialog .pactols-dialog-button {
+    .opentheso-dialog .opentheso-dialog-button {
         align-self: stretch !important;
-    }
-
-    .opentheso-dialog .pactols-dialog-button .ui-button,
-    .pactols-dialog .pactols-dialog-button .ui-button {
         width: 100% !important;
     }
 
-    .opentheso-dialog .category-form-actions,
-    .pactols-dialog .category-form-actions {
+    .opentheso-dialog .opentheso-dialog-button .ui-button {
+        width: 100% !important;
+    }
+
+    .opentheso-dialog .category-form-actions {
         margin-top: 2rem !important;
         padding-top: 1.5rem !important;
         flex-direction: column !important;
         gap: 0.75rem !important;
     }
 
-    .opentheso-dialog .category-form-actions .ui-button,
-    .pactols-dialog .category-form-actions .ui-button {
+    .opentheso-dialog .category-form-actions .ui-button {
         width: 100% !important;
     }
 
-    .opentheso-dialog .pactols-concepts-table .ui-datatable-header,
-    .pactols-dialog .pactols-concepts-table .ui-datatable-header {
+    .opentheso-dialog .opentheso-concepts-table .ui-datatable-header {
         padding: 1rem !important;
         font-size: 0.875rem !important;
     }
 
-    .opentheso-dialog .pactols-concepts-table .ui-datatable-data td,
-    .pactols-dialog .pactols-concepts-table .ui-datatable-data td {
+    .opentheso-dialog .opentheso-concepts-table .ui-datatable-data td {
         padding: 0.875rem 1rem !important;
         font-size: 0.875rem !important;
     }
 }
 
 @media (max-width: 480px) {
-    .opentheso-dialog .ui-dialog,
-    .pactols-dialog.ui-dialog {
+    .opentheso-dialog.ui-dialog {
         width: 100vw !important;
         max-width: 100vw !important;
         margin: 0 !important;
@@ -572,38 +536,33 @@ body .ui-widget-overlay[aria-hidden="false"] {
         height: 100vh !important;
     }
 
-    .opentheso-dialog .ui-dialog-titlebar,
-    .pactols-dialog .ui-dialog-titlebar {
+    .opentheso-dialog .ui-dialog-titlebar {
         padding: 1rem 1.25rem !important;
         font-size: 0.9375rem !important;
     }
 
-    .opentheso-dialog .ui-dialog-content,
-    .pactols-dialog .ui-dialog-content {
+    .opentheso-dialog .ui-dialog-content {
         padding: 1rem !important;
         max-height: calc(100vh - 80px) !important;
     }
 
-    .opentheso-dialog .pactols-dialog-field .users-select,
-    .opentheso-dialog .pactols-dialog-field .users-input,
-    .pactols-dialog .pactols-dialog-field .users-select,
-    .pactols-dialog .pactols-dialog-field .users-input {
+    .opentheso-dialog .opentheso-dialog-field .users-select,
+    .opentheso-dialog .opentheso-dialog-field .users-input,
+    .opentheso-dialog .opentheso-dialog-field-full .users-select,
+    .opentheso-dialog .opentheso-dialog-field-full .users-input {
         padding-left: 2.5rem !important;
         font-size: 0.875rem !important;
     }
 
-    .opentheso-dialog .pactols-dialog-field .input-icon,
-    .pactols-dialog .pactols-dialog-field .input-icon {
+    .opentheso-dialog .opentheso-dialog-field .input-icon,
+    .opentheso-dialog .opentheso-dialog-field-full .input-icon {
         left: 0.875rem !important;
         font-size: 0.9375rem !important;
     }
 
     .opentheso-dialog .candidat-btn-add,
     .opentheso-dialog .category-btn-cancel,
-    .opentheso-dialog .category-btn-validate,
-    .pactols-dialog .candidat-btn-add,
-    .pactols-dialog .category-btn-cancel,
-    .pactols-dialog .category-btn-validate {
+    .opentheso-dialog .category-btn-validate {
         padding: 0.75rem 1.5rem !important;
         font-size: 0.875rem !important;
     }

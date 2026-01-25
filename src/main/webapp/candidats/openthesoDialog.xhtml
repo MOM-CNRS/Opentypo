@@ -14,53 +14,54 @@
               draggable="true"
               width="600"
               height="auto"
-              styleClass="pactols-dialog"
+              styleClass="opentheso-dialog"
               showEffect="fade"
               hideEffect="fade"
-              responsive="true">
+              responsive="true"
+              appendTo="@(body)">
 
-        <h:panelGroup id="openThesoForm">
+        <h:form id="openThesoForm">
             <!-- 1ère ligne : Liste des thésaurus + bouton rechercher -->
-            <div class="pactols-dialog-row">
-                <div class="pactols-dialog-field">
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field">
                     <p:outputLabel for="thesaurusSelect" value="Liste des thésaurus" />
                     <div class="input-wrapper">
                         <i class="pi pi-book input-icon" />
                         <p:selectOneMenu id="thesaurusSelect"
-                                         value="#{pactolsDialogBean.selectedThesaurusId}"
+                                         value="#{openThesoDialogBean.selectedThesaurusId}"
                                          styleClass="users-select"
                                          filter="true"
                                          filterMatchMode="contains">
                             <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
-                            <f:selectItems value="#{pactolsDialogBean.availableThesaurus}" var="thesaurus"
+                            <f:selectItems value="#{openThesoDialogBean.availableThesaurus}" var="thesaurus"
                                            itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
                         </p:selectOneMenu>
                     </div>
                 </div>
-                <div class="pactols-dialog-button">
+                <div class="opentheso-dialog-button">
                     <p:commandButton value="Rechercher"
                                      icon="pi pi-search"
                                      styleClass="candidat-btn-add"
-                                     action="#{pactolsDialogBean.onThesaurusSearch}"
-                                     process="@form"
+                                     actionListener="#{openThesoDialogBean.onThesaurusSearch}"
+                                     process="thesaurusSelect"
                                      ajax="true"
                                      update=":openThesoForm :growl"/>
                 </div>
             </div>
 
             <!-- 2ème ligne : Liste des collections du thésaurus sélectionné -->
-            <div class="pactols-dialog-row">
-                <div class="pactols-dialog-field-full">
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
                     <p:outputLabel for="collectionSelect" value="Liste des collections" />
                     <div class="input-wrapper">
                         <i class="pi pi-sitemap input-icon" />
                         <p:selectOneMenu id="collectionSelect"
-                                         value="#{pactolsDialogBean.selectedCollectionId}"
+                                         value="#{openThesoDialogBean.selectedCollectionId}"
                                          styleClass="users-select"
                                          filter="true"
                                          filterMatchMode="contains">
                             <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
-                            <f:selectItems value="#{pactolsDialogBean.availableCollections}" var="collection"
+                            <f:selectItems value="#{openThesoDialogBean.availableCollections}" var="collection"
                                            itemLabel="#{collection.selectedLabel}" itemValue="#{collection.idGroup}"/>
                         </p:selectOneMenu>
                     </div>
@@ -68,52 +69,52 @@
             </div>
 
             <!-- 3ème ligne : Champ texte pour la valeur recherchée + liste des langues + bouton rechercher -->
-            <div class="pactols-dialog-row">
-                <div class="pactols-dialog-field">
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field">
                     <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
                     <div class="input-wrapper">
                         <i class="pi pi-search input-icon" />
                         <p:inputText id="searchValueInput"
-                                     value="#{pactolsDialogBean.searchValue}"
+                                     value="#{openThesoDialogBean.searchValue}"
                                      styleClass="users-input"
                                      placeholder="Saisissez un terme de recherche..."/>
                     </div>
                 </div>
-                <div class="pactols-dialog-field">
+                <div class="opentheso-dialog-field">
                     <p:outputLabel for="languageSelect" value="Langue" />
                     <div class="input-wrapper">
                         <i class="pi pi-globe input-icon" />
                         <p:selectOneMenu id="languageSelect"
-                                         value="#{pactolsDialogBean.selectedLanguageId}"
+                                         value="#{openThesoDialogBean.selectedLanguageId}"
                                          styleClass="users-select">
                             <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
-                            <f:selectItems value="#{pactolsDialogBean.availableLanguages}" var="langue"
+                            <f:selectItems value="#{openThesoDialogBean.availableLanguages}" var="langue"
                                            itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
                         </p:selectOneMenu>
                     </div>
                 </div>
-                <div class="pactols-dialog-button">
+                <div class="opentheso-dialog-button">
                     <p:commandButton id="conceptSearchButton"
                                      value="Rechercher"
                                      icon="pi pi-search"
                                      styleClass="candidat-btn-add"
-                                     action="#{pactolsDialogBean.onConceptSearch}"
+                                     action="#{openThesoDialogBean.onConceptSearch}"
                                      process="@form"
                                      update=":openThesoForm:conceptsTable :growl"/>
                 </div>
             </div>
 
             <!-- 4ème ligne : Liste des termes trouvés -->
-            <div class="pactols-dialog-row">
-                <div class="pactols-dialog-field-full">
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
                     <p:outputLabel value="Résultats de la recherche" />
                     <p:dataTable id="conceptsTable"
-                                 value="#{pactolsDialogBean.searchResults}"
+                                 value="#{openThesoDialogBean.searchResults}"
                                  var="concept"
                                  rowKey="#{concept.idConcept}"
-                                 styleClass="pactols-concepts-table"
+                                 styleClass="opentheso-concepts-table"
                                  emptyMessage="Aucun résultat trouvé"
-                                 selection="#{pactolsDialogBean.selectedConcept}"
+                                 selection="#{openThesoDialogBean.selectedConcept}"
                                  selectionMode="single">
                         <p:column headerText="ID Concept" width="30">
                             <h:outputText value="#{concept.idConcept}" />
@@ -124,7 +125,7 @@
                     </p:dataTable>
                 </div>
             </div>
-        </h:panelGroup>
+        </h:form>
 
         <div class="category-form-actions">
             <p:commandButton value="Annuler"

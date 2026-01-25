@@ -22,12 +22,12 @@ import java.util.function.Consumer;
  * Bean pour gérer la boîte de dialogue de recherche PACTOLS
  * Réutilisable et dynamique pour différents champs
  */
-@Named("pactolsDialogBean")
+@Named("openThesoDialogBean")
 @SessionScoped
 @Getter
 @Setter
 @Slf4j
-public class PactolsDialogBean implements Serializable {
+public class OpenThesoDialogBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
