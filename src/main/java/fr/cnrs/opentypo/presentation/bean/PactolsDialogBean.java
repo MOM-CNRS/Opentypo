@@ -55,7 +55,8 @@ public class PactolsDialogBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        // Initialisation vide, sera remplie lors de l'ouverture de la boîte de dialogue
+        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
     }
 
     /**
@@ -64,10 +65,6 @@ public class PactolsDialogBean implements Serializable {
     public void loadThesaurus() {
         // Réinitialiser l'état
         resetDialog();
-
-        // Charger la liste des thésaurus
-        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
     }
 
     /**
@@ -102,7 +99,7 @@ public class PactolsDialogBean implements Serializable {
     /**
      * Recherche les collections et langues lorsqu'un thésaurus est sélectionné
      */
-    public String onThesaurusSearch() {
+    public void onThesaurusSearch() {
         log.info("=== onThesaurusSearch() appelée ===");
         log.info("selectedThesaurusId: {}", selectedThesaurusId);
         
@@ -111,7 +108,7 @@ public class PactolsDialogBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
             PrimeFaces.current().ajax().update(":growl");
-            return null;
+            return;
         }
 
         String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
@@ -134,10 +131,7 @@ public class PactolsDialogBean implements Serializable {
         selectedCollectionId = null;
 
         // Mettre à jour tous les composants de la boîte de dialogue
-        PrimeFaces.current().ajax().update(":openThesoForm:collectionSelect :openThesoForm:languageSelect :openThesoForm:searchValueInput :openThesoForm:conceptSearchButton :growl");
-        
-        log.info("=== onThesaurusSearch() terminée ===");
-        return null;
+        PrimeFaces.current().ajax().update(":openThesoForm :growl");
     }
 
     /**

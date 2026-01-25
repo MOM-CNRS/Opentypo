@@ -31,9 +31,9 @@
             <div class="users-content">
                 <h:form id="createCandidatForm">
                     <!-- Wizard personnalisé -->
-                    <div class="custom-wizard">
+                    <div class="custom-wizard" id="wizardContainer">
                         <!-- Barre de progression -->
-                        <div class="wizard-progress-modern">
+                        <h:panelGroup id="wizardProgress" class="wizard-progress-modern">
                             <div class="wizard-steps-modern">
                                 <!-- Étape 1 -->
                                 <div class="wizard-step-modern #{candidatBean.isStep1() ? 'active' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'completed' : 'pending')}">
@@ -113,22 +113,25 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </h:panelGroup>
 
-                        <!-- Contenu de l'étape 1 : Type et identification -->
-                        <ui:fragment rendered="#{candidatBean.isStep1()}">
-                            <ui:include src="first-step.xhtml"/>
-                        </ui:fragment>
+                        <!-- Contenu des étapes -->
+                        <h:panelGroup id="wizardContent">
+                            <!-- Contenu de l'étape 1 : Type et identification -->
+                            <ui:fragment rendered="#{candidatBean.isStep1()}">
+                                <ui:include src="first-step.xhtml"/>
+                            </ui:fragment>
 
-                        <!-- Contenu de l'étape 2 : Collection et référentiel -->
-                        <ui:fragment rendered="#{candidatBean.isStep2()}">
-                            <ui:include src="second-step.xhtml"/>
-                        </ui:fragment>
+                            <!-- Contenu de l'étape 2 : Collection et référentiel -->
+                            <ui:fragment rendered="#{candidatBean.isStep2()}">
+                                <ui:include src="second-step.xhtml"/>
+                            </ui:fragment>
 
-                        <!-- Contenu de l'étape 3 : Détails -->
-                        <ui:fragment rendered="#{candidatBean.isStep3()}">
-                            <ui:include src="third-step.xhtml"/>
-                        </ui:fragment>
+                            <!-- Contenu de l'étape 3 : Détails -->
+                            <ui:fragment rendered="#{candidatBean.isStep3()}">
+                                <ui:include src="third-step.xhtml"/>
+                            </ui:fragment>
+                        </h:panelGroup>
 
                         <!-- Boutons de navigation -->
                         <h:panelGroup id="nav-button" class="wizard-navigation">
@@ -136,95 +139,56 @@
                                 <p:commandButton value="Précédent"
                                                icon="pi pi-arrow-left"
                                                styleClass="wizard-btn wizard-btn-prev"
-                                               action="#{candidatBean.previousStep()}"
-                                               process="@this"
-                                               update="@form :nav-button :growl "
-                                               rendered="#{candidatBean.isStep2() or candidatBean.isStep3()}"
-                                               oncomplete="scrollToTop();"/>
+                                               action="#{candidatBean.previousStep}"
+                                               process="@form"
+                                               ajax="true"
+                                               update=":createCandidatForm :growl"
+                                               rendered="#{candidatBean.isStep2() or candidatBean.isStep3()}"/>
                             </div>
-                            
+
                             <div class="wizard-nav-right">
                                 <p:commandButton value="Suivant"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
-                                                 action="#{candidatBean.nextStep()}"
-                                                 process="@form" ajax="true"
-                                                 update=":createCandidatForm :growl :nav-button"
+                                                 action="#{candidatBean.nextStep}"
+                                                 process="@form"
+                                                 ajax="true"
+                                                 update=":createCandidatForm :growl"
                                                  rendered="#{candidatBean.isStep1()}"/>
-                                
+
                                 <p:commandButton value="Suivant"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
-                                                 action="#{candidatBean.nextStep()}"
-                                                 process="@form" ajax="true"
-                                                 update="@form :growl :nav-button"
+                                                 action="#{candidatBean.nextStep}"
+                                                 process="@form"
+                                                 ajax="true"
+                                                 update=":createCandidatForm :growl"
                                                  rendered="#{candidatBean.isStep2()}"/>
-                                
+
                                 <p:commandButton value="Terminer"
                                                  icon="pi pi-check"
                                                  iconPos="right"
-                                                 process="@form" ajax="true"
-                                                 update="@form :growl :nav-button"
+                                                 process="@form"
+                                                 ajax="true"
+                                                 update=":createCandidatForm :growl"
                                                  styleClass="wizard-btn wizard-btn-finish"
                                                  onclick="PF('confirmSaveCandidatDialog').show(); return false;"
                                                  rendered="#{candidatBean.isStep3()}"/>
                             </div>
                         </h:panelGroup>
                     </div>
-                    <!-- Dialog de confirmation de sauvegarde -->
-                    <p:dialog id="confirmSaveCandidatDialog"
-                              widgetVar="confirmSaveCandidatDialog"
-                              header="Confirmer la création"
-                              modal="true"
-                              closable="true"
-                              resizable="false"
-                              draggable="false"
-                              width="500"
-                              height="auto"
-                              styleClass="candidat-confirm-dialog">
 
-                        <f:facet name="header">
-                            <div class="candidat-confirm-header">
-                                <div class="candidat-confirm-header-icon-wrapper">
-                                    <i class="pi pi-check-circle candidat-confirm-header-icon" />
-                                </div>
-                                <div class="candidat-confirm-header-content">
-                                    <h3 class="candidat-confirm-header-title">Confirmer la création</h3>
-                                    <p class="candidat-confirm-header-subtitle">Le candidat sera enregistré avec le statut PROPOSITION</p>
-                                </div>
-                            </div>
-                        </f:facet>
+                    <ui:include src="confirmCreateCandidatDialog.xhtml"/>
 
-                        <div class="candidat-confirm-message-wrapper">
-                            <div class="candidat-confirm-icon-info">
-                                <i class="pi pi-info-circle" />
-                            </div>
-                            <p class="candidat-confirm-message-text">
-                                Êtes-vous sûr de vouloir créer cette entité ? Toutes les informations saisies seront enregistrées dans la base de données avec le statut <strong>PROPOSITION</strong>. 
-                                Vous pourrez ensuite la valider ou la modifier depuis la liste des candidats.
-                            </p>
-                        </div>
+                    <!-- Boîte de dialogue OpenTheso -->
+                    <ui:include src="openthesoDialog.xhtml"/>
 
-                        <div class="candidat-confirm-actions">
-                            <p:commandButton value="Oui, créer"
-                                             icon="pi pi-check"
-                                             action="#{candidatBean.sauvegarderCandidat()}"
-                                             process=":createCandidatForm"
-                                             ajax="true"
-                                             update=":createCandidatForm :growl"
-                                             styleClass="candidat-confirm-btn candidat-confirm-btn-validate"
-                                             onstart="showLoading('Sauvegarde du candidat...', 'spinner');"
-                                             oncomplete="setTimeout(function(){PF('confirmSaveCandidatDialog').hide(); hideLoading();}, 300);"
-                                             onerror="forceHideLoading();"/>
-                            <p:commandButton value="Annuler"
-                                             icon="pi pi-times"
-                                             onclick="PF('confirmSaveCandidatDialog').hide(); return false;"
-                                             type="button"
-                                             styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
-                        </div>
-                    </p:dialog>
+                    <!-- Bouton Scroll to Top -->
+                    <p:scrollTop threshold="100" 
+                                 icon="pi pi-arrow-up" 
+                                 behavior="smooth"/>
                 </h:form>
             </div>
         </div>

@@ -291,7 +291,7 @@
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
                                  actionListener="#{pactolsDialogBean.loadThesaurus}"
-                                 process="@form"
+                                 process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
                                  oncomplete="hideLoading(); PF('openthesoDialog').show();"
@@ -351,7 +351,4 @@
 
     <!-- Styles personnalisés pour le formulaire de groupe -->
     <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
-
-    <!-- Boîte de dialogue PACTOLS -->
-    <ui:include src="../commun/openthesoDialog.xhtml"/>
 </ui:composition>

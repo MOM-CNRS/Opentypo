@@ -456,13 +456,29 @@
                ============================================ */
             
             /* Container principal de l'arbre */
+            /* ============================================
+               ARBRE DE RÉFÉRENCES - DESIGN PROFESSIONNEL
+               ============================================ */
+            
             .reference-tree-container {
                 width: 100%;
-                padding: 1rem;
-                background: var(--color-bg-global, #EEEFE0);
-                border-radius: 8px;
-                border: 1px solid rgba(71, 98, 77, 0.15);
-                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.05);
+                padding: 1.5rem;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 12px;
+                border: 1px solid rgba(71, 98, 77, 0.12);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .reference-tree-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.3) 100%);
             }
             
             /* Container de l'arbre PrimeFaces */
@@ -473,57 +489,80 @@
             .reference-tree-container .horizontal-tree .ui-tree-container {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 0.75rem;
+                gap: 1rem;
                 padding: 0;
+                align-items: flex-start;
             }
             
-            /* Nœud de l'arbre - Design en carte */
+            /* Nœud de l'arbre - Design moderne en carte */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
                 flex: 0 1 auto;
-                min-width: 200px;
+                min-width: 220px;
                 max-width: 100%;
+                position: relative;
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
                 cursor: pointer;
-                padding: 0.875rem 1rem;
-                border-radius: 8px;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 1rem 1.25rem;
+                border-radius: 10px;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 background: #ffffff;
-                border: 2px solid rgba(71, 98, 77, 0.15);
-                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.08);
+                border: 1.5px solid rgba(71, 98, 77, 0.12);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
                 display: flex;
                 align-items: center;
-                gap: 0.625rem;
-                min-height: 48px;
+                gap: 0.75rem;
+                min-height: 56px;
                 position: relative;
                 overflow: hidden;
             }
             
-            /* Effet hover sur les nœuds */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: transparent;
+                transition: all 0.25s ease;
+            }
+            
+            /* Effet hover sur les nœuds - Design élégant */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
-                background: linear-gradient(135deg, #ffffff 0%, var(--color-hover, #A7C1A8) 100%);
+                background: linear-gradient(135deg, #ffffff 0%, #f0f4f2 100%);
                 border-color: var(--color-action-main, #47624D);
-                box-shadow: 0 4px 8px rgba(71, 98, 77, 0.15);
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.12), 0 2px 4px rgba(71, 98, 77, 0.08);
                 transform: translateY(-2px);
             }
             
-            /* Style pour le nœud sélectionné */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover::before {
+                background: var(--color-action-main, #47624D);
+            }
+            
+            /* Style pour le nœud sélectionné - Design premium */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
-                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.95) 100%);
                 color: #ffffff;
                 font-weight: 600;
                 border-color: var(--color-action-main, #47624D);
-                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.25);
+                box-shadow: 0 6px 16px rgba(71, 98, 77, 0.25), 0 2px 6px rgba(71, 98, 77, 0.15);
                 transform: translateY(-2px);
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight::before {
+                background: rgba(255, 255, 255, 0.3);
+                width: 4px;
             }
             
             /* Style pour le nœud racine (non sélectionnable) */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root {
-                cursor: not-allowed;
-                opacity: 0.6;
-                background: var(--color-bg-secondary, #D1D8BE);
-                border-color: rgba(71, 98, 77, 0.2);
+                cursor: default;
+                opacity: 0.75;
+                background: linear-gradient(135deg, #f5f7f6 0%, #e8ece9 100%);
+                border-color: rgba(71, 98, 77, 0.15);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
                 position: relative;
             }
             
@@ -534,50 +573,63 @@
                 left: 0;
                 right: 0;
                 height: 3px;
-                background: var(--color-action-main, #47624D);
+                background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.4) 100%);
+                width: 100%;
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root:hover {
-                background: var(--color-bg-secondary, #D1D8BE);
+                background: linear-gradient(135deg, #f5f7f6 0%, #e8ece9 100%);
                 transform: none;
-                box-shadow: 0 2px 4px rgba(71, 98, 77, 0.08);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                border-color: rgba(71, 98, 77, 0.15);
             }
             
             /* Contenu du nœud */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-content {
                 display: flex;
                 align-items: center;
-                gap: 0.625rem;
+                gap: 0.75rem;
                 width: 100%;
             }
             
-            /* Icône du nœud */
+            /* Icône du nœud - Design moderne */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-icon {
-                font-size: 0.875rem;
-                color: var(--color-text-secondary, #819A91);
-                transition: all 0.3s ease;
+                font-size: 1rem;
+                color: var(--color-text-secondary, #6b7d75);
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(71, 98, 77, 0.06);
+                border-radius: 6px;
+                padding: 0.25rem;
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover .tree-node-icon {
                 color: var(--color-action-main, #47624D);
-                transform: scale(1.1);
+                background: rgba(71, 98, 77, 0.12);
+                transform: scale(1.05);
             }
             
             /* Style pour les icônes dans les nœuds sélectionnés */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight .tree-node-icon {
                 color: #ffffff;
+                background: rgba(255, 255, 255, 0.2);
             }
             
-            /* Label du nœud */
+            /* Label du nœud - Typographie professionnelle */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-label {
                 flex: 1;
                 font-size: 0.9375rem;
-                color: var(--color-text-primary, #333);
+                color: var(--color-text-primary, #2c3e2d);
                 font-weight: 500;
-                line-height: 1.4;
+                line-height: 1.5;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
+                letter-spacing: 0.01em;
             }
             
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover .tree-node-label {
@@ -591,29 +643,51 @@
             
             /* Style pour le nœud racine - label */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content.tree-node-root .tree-node-label {
-                color: var(--color-text-secondary, #819A91);
+                color: var(--color-text-secondary, #5a6b63);
                 font-weight: 600;
             }
             
-            /* Enfants de l'arbre (niveaux imbriqués) */
+            /* Enfants de l'arbre (niveaux imbriqués) - Design hiérarchique */
             .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children {
-                margin-top: 0.75rem;
-                padding-left: 1.5rem;
-                border-left: 2px dashed rgba(71, 98, 77, 0.2);
+                margin-top: 1rem;
+                padding-left: 2rem;
+                border-left: 2px solid rgba(71, 98, 77, 0.15);
                 display: flex;
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.75rem;
+                position: relative;
             }
             
-            /* Responsive Design */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children::before {
+                content: '';
+                position: absolute;
+                left: -2px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(180deg, rgba(71, 98, 77, 0.2) 0%, rgba(71, 98, 77, 0.1) 50%, rgba(71, 98, 77, 0.2) 100%);
+            }
+            
+            /* Responsive Design - Mobile First */
+            @media (max-width: 1024px) {
+                .reference-tree-container {
+                    padding: 1.25rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
+                    min-width: 200px;
+                }
+            }
+            
             @media (max-width: 768px) {
                 .reference-tree-container {
-                    padding: 0.75rem;
+                    padding: 1rem;
+                    border-radius: 10px;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container {
                     flex-direction: column;
-                    gap: 0.5rem;
+                    gap: 0.75rem;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
@@ -622,32 +696,224 @@
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
-                    padding: 0.75rem;
-                    min-height: 44px;
+                    padding: 0.875rem 1rem;
+                    min-height: 52px;
+                    border-radius: 8px;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children {
-                    padding-left: 1rem;
-                    margin-top: 0.5rem;
+                    padding-left: 1.5rem;
+                    margin-top: 0.75rem;
                 }
             }
             
             @media (max-width: 480px) {
                 .reference-tree-container {
-                    padding: 0.5rem;
+                    padding: 0.875rem;
+                    border-radius: 8px;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
-                    padding: 0.625rem;
-                    min-height: 40px;
+                    padding: 0.75rem;
+                    min-height: 48px;
+                    gap: 0.625rem;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-label {
                     font-size: 0.875rem;
+                    line-height: 1.4;
                 }
                 
                 .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-icon {
-                    font-size: 0.75rem;
+                    font-size: 0.875rem;
+                    width: 18px;
+                    height: 18px;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode-children {
+                    padding-left: 1rem;
+                    margin-top: 0.625rem;
+                }
+            }
+            
+            /* Amélioration pour les très petits écrans */
+            @media (max-width: 360px) {
+                .reference-tree-container {
+                    padding: 0.75rem;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+                    padding: 0.625rem;
+                    min-height: 44px;
+                }
+                
+                .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .tree-node-label {
+                    font-size: 0.8125rem;
+                }
+            }
+            
+            /* Animation pour l'apparition des nœuds */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode {
+                animation: fadeInUp 0.3s ease-out;
+            }
+            
+            /* Focus pour l'accessibilité */
+            .reference-tree-container .horizontal-tree .ui-tree-container .ui-treenode .ui-treenode-content:focus {
+                outline: 2px solid var(--color-action-main, #47624D);
+                outline-offset: 2px;
+            }
+            
+            /* ============================================
+               BOUTON SCROLL TO TOP - DESIGN PROFESSIONNEL
+               Respect de la charte graphique du site
+               ============================================ */
+            
+            /* Container du bouton scrollTop */
+            .ui-scrolltop {
+                width: 48px !important;
+                height: 48px !important;
+                border-radius: 50% !important;
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+                border: 2px solid rgba(255, 255, 255, 0.2) !important;
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+                color: #ffffff !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: fixed !important;
+                bottom: 2rem !important;
+                right: 2rem !important;
+                z-index: 1000 !important;
+                cursor: pointer !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transform: scale(0.8) translateY(20px) !important;
+            }
+            
+            /* Affichage du bouton quand il est visible */
+            .ui-scrolltop.ui-scrolltop-visible {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: scale(1) translateY(0) !important;
+            }
+            
+            /* Icône du bouton */
+            .ui-scrolltop .ui-scrolltop-icon {
+                font-size: 1.25rem !important;
+                color: #ffffff !important;
+                line-height: 1 !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            /* Effet hover - Design élégant */
+            .ui-scrolltop:hover {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.95) 0%, var(--color-action-main, #47624D) 100%) !important;
+                box-shadow: 0 6px 20px rgba(71, 98, 77, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+                transform: translateY(-4px) scale(1.05) !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+            }
+            
+            .ui-scrolltop:hover .ui-scrolltop-icon {
+                transform: translateY(-2px) !important;
+            }
+            
+            /* Effet actif (clic) */
+            .ui-scrolltop:active {
+                transform: translateY(-2px) scale(1.02) !important;
+                box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+            }
+            
+            /* Animation d'apparition */
+            @keyframes scrollTopFadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+            
+            .ui-scrolltop.ui-scrolltop-visible {
+                animation: scrollTopFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            /* Responsive Design - Tablettes */
+            @media (max-width: 768px) {
+                .ui-scrolltop {
+                    width: 44px !important;
+                    height: 44px !important;
+                    bottom: 1.5rem !important;
+                    right: 1.5rem !important;
+                }
+                
+                .ui-scrolltop .ui-scrolltop-icon {
+                    font-size: 1.125rem !important;
+                }
+            }
+            
+            /* Responsive Design - Mobiles */
+            @media (max-width: 480px) {
+                .ui-scrolltop {
+                    width: 40px !important;
+                    height: 40px !important;
+                    bottom: 1.25rem !important;
+                    right: 1.25rem !important;
+                    box-shadow: 0 3px 10px rgba(71, 98, 77, 0.25), 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+                }
+                
+                .ui-scrolltop .ui-scrolltop-icon {
+                    font-size: 1rem !important;
+                }
+                
+                .ui-scrolltop:hover {
+                    box-shadow: 0 5px 16px rgba(71, 98, 77, 0.35), 0 3px 8px rgba(0, 0, 0, 0.18) !important;
+                }
+            }
+            
+            /* Responsive Design - Très petits écrans */
+            @media (max-width: 360px) {
+                .ui-scrolltop {
+                    width: 36px !important;
+                    height: 36px !important;
+                    bottom: 1rem !important;
+                    right: 1rem !important;
+                }
+                
+                .ui-scrolltop .ui-scrolltop-icon {
+                    font-size: 0.9375rem !important;
+                }
+            }
+            
+            /* Focus pour l'accessibilité */
+            .ui-scrolltop:focus {
+                outline: 3px solid rgba(71, 98, 77, 0.4) !important;
+                outline-offset: 3px !important;
+            }
+            
+            /* Amélioration pour les écrans tactiles */
+            @media (hover: none) and (pointer: coarse) {
+                .ui-scrolltop {
+                    width: 52px !important;
+                    height: 52px !important;
+                }
+                
+                .ui-scrolltop:active {
+                    background: linear-gradient(135deg, rgba(71, 98, 77, 0.9) 0%, var(--color-action-main, #47624D) 100%) !important;
+                    transform: scale(0.95) !important;
                 }
             }
             

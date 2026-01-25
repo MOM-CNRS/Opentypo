@@ -32,7 +32,7 @@
                                 <p:ajax event="change"
                                         listener="#{candidatBean.loadReferencesForCollection}"
                                         process="@this" ajax="true"
-                                        update=":createCandidatForm:referenceTree"
+                                        update=":createCandidatForm:referenceTree :createCandidatForm:directEntitySelect"
                                         onstart="showLoading('Chargement des référentiels...', 'spinner');"
                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                         onerror="forceHideLoading();"/>
@@ -41,8 +41,32 @@
                         <p:message for="selectedCollection" display="icon"/>
                     </div>
 
-                    <h:panelGroup id="referenceTreeContainer" class="users-form-group users-form-group-full"
-                                  rendered="#{candidatBean.isCollectionSelected()}">
+                    <div class="users-form-group">
+                        <p:outputLabel for="directEntitySelect" value="Collection rattachée" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-sitemap input-icon" />
+                            <p:selectOneMenu id="directEntitySelect"
+                                             value="#{candidatBean.selectedDirectEntityId}"
+                                             styleClass="users-select"
+                                             disabled="#{empty candidatBean.availableDirectEntities}">
+                                <f:selectItem itemLabel="Sélectionnez une entité" itemValue="" />
+                                <f:selectItems value="#{candidatBean.availableDirectEntities}"
+                                               var="entity"
+                                               itemLabel="#{candidatBean.getDirectEntityLabel(entity)}"
+                                               itemValue="#{entity.id}" />
+                                <p:ajax event="change"
+                                        listener="#{candidatBean.onDirectEntityChange}"
+                                        process="@this" ajax="true"
+                                        update=":createCandidatForm:referenceTreeContainer"
+                                        onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                        oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                        onerror="forceHideLoading();"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <p:message for="directEntitySelect" display="icon"/>
+                    </div>
+
+                    <h:panelGroup id="referenceTreeContainer" class="users-form-group users-form-group-full">
                         <p:outputLabel value="Sélectionner l'entité parent" />
                         <p:outputPanel styleClass="reference-tree-container">
                             <p:tree id="referenceTree"
@@ -52,8 +76,7 @@
                                     selection="#{candidatBean.selectedTreeNode}"
                                     styleClass="horizontal-tree"
                                     orientation="horizontal"
-                                    dynamic="false"
-                                    rendered="#{candidatBean.isCollectionSelected()}">
+                                    dynamic="false">
                                 <p:treeNode>
                                     <div class="tree-node-content #{candidatBean.isRootNode(node) ? 'tree-node-root' : ''}">
                                         <i class="pi #{candidatBean.isRootNode(node) ? 'pi-folder' : 'pi-circle-fill'} tree-node-icon" />

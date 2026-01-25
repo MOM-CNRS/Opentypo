@@ -94,12 +94,14 @@ public class CandidatBean implements Serializable {
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
+    private Long selectedDirectEntityId; // Entité directement rattachée à la collection
     
     // Liste des données pour les sélecteurs
     private List<EntityType> availableEntityTypes;
     private List<Langue> availableLanguages;
     private List<Entity> availableCollections;
     private List<Entity> availableReferences;
+    private List<Entity> availableDirectEntities; // Entités directement rattachées à la collection
     
     // Arbre pour les référentiels et leurs enfants
     private TreeNode referenceTreeRoot;
@@ -116,12 +118,13 @@ public class CandidatBean implements Serializable {
         loadAvailableEntityTypes();
         loadAvailableLanguages();
         availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
+        availableDirectEntities = new ArrayList<>();
     }
 
     /**
      * Passe à l'étape suivante du wizard
      */
-    public void nextStep() {
+    public String nextStep() {
         log.info("nextStep() appelée - currentStep actuel: {}", currentStep);
         
         if (currentStep == 0) { // De l'étape 1 à l'étape 2
@@ -147,15 +150,21 @@ public class CandidatBean implements Serializable {
         } else {
             log.warn("nextStep() appelée mais currentStep = {} (hors limites)", currentStep);
         }
+        
+        return null; // Reste sur la même page avec mise à jour AJAX
     }
     
     /**
      * Retourne à l'étape précédente du wizard
      */
-    public void previousStep() {
+    public String previousStep() {
+        log.info("previousStep() appelée - currentStep actuel: {}", currentStep);
         if (currentStep > 0) {
             currentStep--;
+            log.info("Retour à l'étape précédente - currentStep = {}", currentStep);
         }
+        
+        return null; // Reste sur la même page avec mise à jour AJAX
     }
     
     /**
@@ -224,9 +233,13 @@ public class CandidatBean implements Serializable {
     public void loadReferencesForCollection() {
         log.debug("loadReferencesForCollection appelée - selectedCollectionId: {}", selectedCollectionId);
         
-        // Réinitialiser l'arbre
+        // Réinitialiser l'arbre et la sélection de référence
         referenceTreeRoot = null;
         selectedTreeNode = null;
+        selectedDirectEntityId = null;
+        
+        // Charger les entités directement rattachées
+        loadDirectEntitiesForCollection();
         
         if (selectedCollectionId != null) {
             try {
@@ -274,6 +287,128 @@ public class CandidatBean implements Serializable {
             }
         } else {
             log.debug("Aucune collection sélectionnée, arbre vidé");
+        }
+        
+        // Forcer la mise à jour du conteneur de l'arbre et du champ des entités directes
+        PrimeFaces.current().ajax().update(":createCandidatForm:referenceTreeContainer :createCandidatForm:directEntitySelect");
+    }
+    
+    /**
+     * Charge les entités directement rattachées à la collection sélectionnée
+     */
+    public void loadDirectEntitiesForCollection() {
+        log.debug("loadDirectEntitiesForCollection appelée - selectedCollectionId: {}", selectedCollectionId);
+        
+        // Réinitialiser la sélection
+        selectedDirectEntityId = null;
+        availableDirectEntities = new ArrayList<>();
+        
+        if (selectedCollectionId != null) {
+            try {
+                // Recharger la collection depuis la base pour éviter les problèmes de lazy loading
+                Entity refreshedCollection = entityRepository.findById(selectedCollectionId)
+                    .orElse(null);
+                
+                if (refreshedCollection == null) {
+                    log.warn("Collection avec l'ID {} non trouvée", selectedCollectionId);
+                    return;
+                }
+                
+                // Charger toutes les entités directement rattachées à la collection (tous types confondus)
+                List<Entity> allDirectEntities = entityRelationRepository.findChildrenByParent(refreshedCollection);
+                
+                // Filtrer selon l'authentification
+                boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
+                availableDirectEntities = allDirectEntities.stream()
+                    .filter(e -> {
+                        // Si l'utilisateur est authentifié, afficher toutes les entités
+                        // Sinon, afficher uniquement les entités publiques
+                        return isAuthenticated || (e.getPublique() != null && e.getPublique());
+                    })
+                    .collect(Collectors.toList());
+                
+                log.debug("Entités directement rattachées chargées pour la collection {}: {} entités (utilisateur authentifié: {})", 
+                    refreshedCollection.getCode(), availableDirectEntities.size(), isAuthenticated);
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des entités directement rattachées à la collection", e);
+                availableDirectEntities = new ArrayList<>();
+            }
+        } else {
+            log.debug("Aucune collection sélectionnée, liste des entités directes vidée");
+        }
+    }
+    
+    /**
+     * Récupère le label d'une entité pour l'affichage dans le selectOneMenu
+     */
+    public String getDirectEntityLabel(Entity entity) {
+        if (entity == null) {
+            return "";
+        }
+        // Essayer d'obtenir le label dans la langue sélectionnée
+        if (selectedLangueCode != null && entity.getLabels() != null) {
+            Optional<Label> labelOpt = entity.getLabels().stream()
+                .filter(l -> selectedLangueCode.equals(l.getLangue().getCode()))
+                .findFirst();
+            if (labelOpt.isPresent() && labelOpt.get().getNom() != null && !labelOpt.get().getNom().trim().isEmpty()) {
+                return entity.getCode() + " - " + labelOpt.get().getNom();
+            }
+        }
+        // Sinon, on utilise le code uniquement
+        return entity.getCode();
+    }
+    
+    /**
+     * Méthode appelée lors du changement de l'entité directe sélectionnée
+     * Construit l'arbre à partir de la référence sélectionnée
+     */
+    public void onDirectEntityChange() {
+        log.debug("onDirectEntityChange appelée - selectedDirectEntityId: {}", selectedDirectEntityId);
+        
+        // Réinitialiser l'arbre
+        referenceTreeRoot = null;
+        selectedTreeNode = null;
+        
+        if (selectedDirectEntityId != null && !selectedDirectEntityId.toString().trim().isEmpty()) {
+            try {
+                // Recharger l'entité depuis la base pour éviter les problèmes de lazy loading
+                Entity selectedReference = entityRepository.findById(selectedDirectEntityId)
+                    .orElse(null);
+                
+                if (selectedReference == null) {
+                    log.warn("Référence avec l'ID {} non trouvée", selectedDirectEntityId);
+                    return;
+                }
+                
+                // Filtrer selon l'authentification
+                boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
+                
+                // Vérifier si l'entité est publique ou si l'utilisateur est authentifié
+                if (!isAuthenticated && (selectedReference.getPublique() == null || !selectedReference.getPublique())) {
+                    log.debug("Référence {} non accessible (non publique et utilisateur non authentifié)", selectedReference.getCode());
+                    return;
+                }
+                
+                // Créer le nœud racine avec la référence sélectionnée
+                String referenceCode = selectedReference.getCode() != null ? selectedReference.getCode() : "Référence";
+                String referenceLabel = selectedReference.getNom() != null ? selectedReference.getNom() : referenceCode;
+                DefaultTreeNode rootNode = new DefaultTreeNode(referenceLabel, null);
+                rootNode.setData(selectedReference);
+                referenceTreeRoot = rootNode;
+                
+                // Charger les enfants de la référence sélectionnée (catégories, groupes, etc.)
+                loadChildrenRecursively(rootNode, selectedReference, isAuthenticated);
+                
+                log.debug("Arbre construit à partir de la référence {}: {} enfants chargés (utilisateur authentifié: {})", 
+                    selectedReference.getCode(), rootNode.getChildCount(), isAuthenticated);
+            } catch (Exception e) {
+                log.error("Erreur lors de la construction de l'arbre à partir de la référence sélectionnée", e);
+            }
+        } else {
+            // Si aucune référence n'est sélectionnée, réinitialiser l'arbre
+            log.debug("Aucune référence sélectionnée, arbre réinitialisé");
+            referenceTreeRoot = null;
+            selectedTreeNode = null;
         }
         
         // Forcer la mise à jour du conteneur de l'arbre
@@ -587,7 +722,9 @@ public class CandidatBean implements Serializable {
         entityLabel = null;
         selectedLangueCode = searchBean.getLangSelected();
         selectedCollectionId = null;
+        selectedDirectEntityId = null;
         availableReferences = new ArrayList<>();
+        availableDirectEntities = new ArrayList<>();
         referenceTreeRoot = null;
         selectedTreeNode = null;
         // Réinitialiser les champs de l'étape 2
@@ -1259,13 +1396,6 @@ public class CandidatBean implements Serializable {
             return data != null ? data.toString() : node.toString();
         }
         return node != null ? node.toString() : "";
-    }
-    
-    /**
-     * Vérifie si une collection est sélectionnée
-     */
-    public boolean isCollectionSelected() {
-        return selectedCollectionId != null;
     }
     
     /**
