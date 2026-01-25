@@ -49,7 +49,7 @@
                                              value="#{candidatBean.selectedDirectEntityId}"
                                              styleClass="users-select"
                                              disabled="#{empty candidatBean.availableDirectEntities}">
-                                <f:selectItem itemLabel="Sélectionnez une entité" itemValue="" />
+                                <f:selectItem itemLabel="Sélectionnez une référence" itemValue="" />
                                 <f:selectItems value="#{candidatBean.availableDirectEntities}"
                                                var="entity"
                                                itemLabel="#{candidatBean.getDirectEntityLabel(entity)}"

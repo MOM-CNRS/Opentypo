@@ -10,10 +10,12 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.IiifImageService;
+import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,6 +82,9 @@ public class CandidatBean implements Serializable {
     @Inject
     private OpenThesoDialogBean openThesoDialogBean;
 
+    @Inject
+    private ReferenceOpenthesoRepository referenceOpenthesoRepository;
+
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;
@@ -96,6 +102,7 @@ public class CandidatBean implements Serializable {
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
     private Long selectedDirectEntityId; // Entité directement rattachée à la collection
+    private Entity currentEntity; // Entité créée à l'étape 1, utilisée dans les étapes suivantes
     
     // Liste des données pour les sélecteurs
     private List<EntityType> availableEntityTypes;
@@ -132,6 +139,19 @@ public class CandidatBean implements Serializable {
             log.info("Validation de l'étape 1...");
             // Validation manuelle
             if (validateStep1()) {
+                // Créer l'entité dans la base de données avec les données de l'étape 1
+                try {
+                    currentEntity = createEntityFromStep1();
+                    log.info("Entité créée à l'étape 1 avec l'ID: {}", currentEntity.getId());
+                } catch (Exception e) {
+                    log.error("Erreur lors de la création de l'entité à l'étape 1", e);
+                    FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Erreur",
+                            "Une erreur est survenue lors de la création de l'entité : " + e.getMessage()));
+                    PrimeFaces.current().ajax().update(":growl");
+                    return null;
+                }
                 currentStep++;
                 log.info("Passage à l'étape 2 - currentStep = {}", currentStep);
             } else {
@@ -141,9 +161,55 @@ public class CandidatBean implements Serializable {
             log.info("Validation de l'étape 2...");
             // Validation manuelle
             if (validateStep2()) {
-                currentStep++;
+                // Récupérer l'entité parent depuis le nœud sélectionné
                 Entity parent = (Entity) selectedTreeNode.getData();
                 selectedParentEntity = entityRepository.findById(parent.getId()).orElse(null);
+                
+                // Créer la relation parent-enfant si l'entité de l'étape 1 existe
+                if (currentEntity != null && currentEntity.getId() != null && selectedParentEntity != null) {
+                    try {
+                        // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+                        Entity refreshedEntity = entityRepository.findById(currentEntity.getId())
+                            .orElse(null);
+                        
+                        if (refreshedEntity != null) {
+                            // Vérifier si la relation existe déjà
+                            boolean relationExists = entityRelationRepository.existsByParentAndChild(
+                                selectedParentEntity.getId(), refreshedEntity.getId());
+                            
+                            if (!relationExists) {
+                                // Créer la relation parent-enfant
+                                EntityRelation relation = new EntityRelation();
+                                relation.setParent(selectedParentEntity);
+                                relation.setChild(refreshedEntity);
+                                entityRelationRepository.save(relation);
+                                
+                                log.info("Relation créée entre parent (ID={}) et enfant (ID={})", 
+                                    selectedParentEntity.getId(), refreshedEntity.getId());
+                            } else {
+                                log.info("Relation existe déjà entre parent (ID={}) et enfant (ID={})", 
+                                    selectedParentEntity.getId(), refreshedEntity.getId());
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Erreur lors de la création de la relation parent-enfant", e);
+                        FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Erreur",
+                                "Une erreur est survenue lors de la création de la relation : " + e.getMessage()));
+                        PrimeFaces.current().ajax().update(":growl");
+                        return null;
+                    }
+                } else {
+                    log.warn("Impossible de créer la relation : currentEntity={}, selectedParentEntity={}", 
+                        currentEntity != null ? currentEntity.getId() : null,
+                        selectedParentEntity != null ? selectedParentEntity.getId() : null);
+                }
+                
+                // Charger les données existantes depuis la base de données
+                loadExistingStep3Data();
+                
+                currentStep++;
                 log.info("Passage à l'étape 3 - currentStep = {}", currentStep);
             } else {
                 log.warn("Validation échouée à l'étape 2, reste sur l'étape 2");
@@ -197,6 +263,27 @@ public class CandidatBean implements Serializable {
         log.debug("Chargement de la page candidats, rechargement des données");
         candidatsLoaded = false; // Invalider le cache
         chargerCandidats();
+        
+        // Vérifier les paramètres de requête pour afficher des messages
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            String success = facesContext.getExternalContext().getRequestParameterMap().get("success");
+            String error = facesContext.getExternalContext().getRequestParameterMap().get("error");
+            
+            if ("true".equals(success)) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Succès",
+                        "Le candidat a été créé avec succès. Vous pouvez le voir dans la liste des candidats en cours."));
+                PrimeFaces.current().ajax().update(":growl");
+            } else if ("true".equals(error)) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Une erreur est survenue lors de la sauvegarde."));
+                PrimeFaces.current().ajax().update(":growl");
+            }
+        }
     }
     
     
@@ -718,6 +805,7 @@ public class CandidatBean implements Serializable {
             return;
         }
         currentStep = 0;
+        currentEntity = null; // Réinitialiser l'entité créée
         selectedEntityTypeId = null;
         entityCode = null;
         entityLabel = null;
@@ -750,6 +838,86 @@ public class CandidatBean implements Serializable {
         groupPeriode = null;
         groupTpq = null;
         groupTaq = null;
+    }
+    
+    /**
+     * Charge les données existantes depuis currentEntity pour l'étape 3
+     */
+    private void loadExistingStep3Data() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        // Recharger l'entité depuis la base avec toutes ses relations
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity == null) {
+            return;
+        }
+        
+        // Charger les labels existants (excluant le label principal de l'étape 1)
+        candidatLabels = new ArrayList<>();
+        if (refreshedEntity.getLabels() != null) {
+            for (Label label : refreshedEntity.getLabels()) {
+                // Exclure le label principal de l'étape 1
+                if (label.getLangue() != null && 
+                    selectedLangueCode != null &&
+                    label.getLangue().getCode() != null &&
+                    !label.getLangue().getCode().equals(selectedLangueCode)) {
+                    CategoryLabelItem item = new CategoryLabelItem(
+                        label.getNom(),
+                        label.getLangue().getCode(),
+                        label.getLangue()
+                    );
+                    candidatLabels.add(item);
+                }
+            }
+        }
+        
+        // Charger les descriptions existantes
+        descriptions = new ArrayList<>();
+        if (refreshedEntity.getDescriptions() != null) {
+            for (Description desc : refreshedEntity.getDescriptions()) {
+                CategoryDescriptionItem item = new CategoryDescriptionItem(
+                    desc.getValeur(),
+                    desc.getLangue() != null ? desc.getLangue().getCode() : null,
+                    desc.getLangue()
+                );
+                descriptions.add(item);
+            }
+        }
+        
+        // Charger les champs de texte
+        candidatCommentaire = refreshedEntity.getCommentaire();
+        candidatBibliographie = refreshedEntity.getBibliographie();
+        
+        // Charger les références bibliographiques
+        if (refreshedEntity.getRereferenceBibliographique() != null && 
+            !refreshedEntity.getRereferenceBibliographique().isEmpty()) {
+            String[] refs = refreshedEntity.getRereferenceBibliographique().split("; ");
+            referencesBibliographiques = new ArrayList<>(Arrays.asList(refs));
+        } else {
+            referencesBibliographiques = new ArrayList<>();
+        }
+        
+        // Charger les champs spécifiques selon le type d'entité
+        if (refreshedEntity.getEntityType() != null) {
+            String typeCode = refreshedEntity.getEntityType().getCode();
+            
+            if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(typeCode)) {
+                // Pour les collections, charger la description depuis DescriptionDetail si disponible
+                // Note: collectionDescription et collectionPublique sont gérés différemment
+                collectionPublique = refreshedEntity.getPublique();
+            } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)) {
+                typeDescription = refreshedEntity.getCommentaire(); // Utiliser commentaire pour la description du type
+            }
+        }
+        
+        // Charger les champs spécifiques au groupe
+        groupTpq = refreshedEntity.getTpq();
+        groupTaq = refreshedEntity.getTaq();
+        if (refreshedEntity.getPeriode() != null) {
+            groupPeriode = refreshedEntity.getPeriode().getValeur();
+        }
     }
     
     // Champs pour l'étape 2 selon le type
@@ -849,7 +1017,155 @@ public class CandidatBean implements Serializable {
     }
     
     /**
+     * Crée une entité dans la base de données avec les données de l'étape 1
+     * @return L'entité créée
+     */
+    private Entity createEntityFromStep1() {
+        // Récupérer le type d'entité
+        EntityType entityType = entityTypeRepository.findById(selectedEntityTypeId)
+            .orElseThrow(() -> new IllegalStateException("Le type d'entité sélectionné n'existe pas."));
+        
+        // Créer la nouvelle entité avec seulement les données de l'étape 1
+        Entity newEntity = new Entity();
+        newEntity.setCode(entityCode.trim());
+        newEntity.setNom(entityLabel.trim());
+        newEntity.setEntityType(entityType);
+        newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
+        newEntity.setPublique(true);
+        newEntity.setCreateDate(LocalDateTime.now());
+        
+        // Récupérer l'utilisateur actuel
+        Utilisateur currentUser = loginBean.getCurrentUser();
+        if (currentUser != null) {
+            newEntity.setCreateBy(currentUser.getEmail());
+            List<Utilisateur> auteurs = new ArrayList<>();
+            auteurs.add(currentUser);
+            newEntity.setAuteurs(auteurs);
+        }
+        
+        // Ajouter le label principal (de l'étape 1)
+        Langue languePrincipale = langueRepository.findByCode(selectedLangueCode);
+        if (languePrincipale != null) {
+            Label labelPrincipal = new Label();
+            labelPrincipal.setNom(entityLabel.trim());
+            labelPrincipal.setLangue(languePrincipale);
+            labelPrincipal.setEntity(newEntity);
+            List<Label> labels = new ArrayList<>();
+            labels.add(labelPrincipal);
+            newEntity.setLabels(labels);
+        }
+        
+        // Sauvegarder l'entité
+        Entity savedEntity = entityRepository.save(newEntity);
+        
+        log.info("Entité créée à l'étape 1: ID={}, Code={}, Nom={}", 
+            savedEntity.getId(), savedEntity.getCode(), savedEntity.getNom());
+        
+        return savedEntity;
+    }
+
+    /**
+     * Termine le processus de création de candidat et redirige vers la liste des candidats
+     * Met à jour l'entité avec les valeurs finales : période, commentaire, références bibliographiques, bibliographie, TAQ, TPQ
+     */
+    public String terminerCandidat() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        
+        try {
+            // Vérifier que currentEntity existe
+            if (currentEntity == null || currentEntity.getId() == null) {
+                if (facesContext != null) {
+                    facesContext.addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Erreur",
+                            "L'entité n'a pas été créée. Veuillez compléter les étapes précédentes."));
+                    PrimeFaces.current().ajax().update(":growl");
+                }
+                return null;
+            }
+            
+            // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity == null) {
+                if (facesContext != null) {
+                    facesContext.addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Erreur",
+                            "L'entité n'a pas été trouvée dans la base de données."));
+                    PrimeFaces.current().ajax().update(":growl");
+                }
+                return null;
+            }
+            
+            // Mettre à jour le commentaire
+            if (candidatCommentaire != null) {
+                refreshedEntity.setCommentaire(candidatCommentaire.trim());
+            }
+            
+            // Mettre à jour la bibliographie
+            if (candidatBibliographie != null) {
+                refreshedEntity.setBibliographie(candidatBibliographie.trim());
+            }
+            
+            // Mettre à jour les références bibliographiques (concaténées avec ';')
+            if (referencesBibliographiques != null && !referencesBibliographiques.isEmpty()) {
+                String refs = String.join("; ", referencesBibliographiques);
+                refreshedEntity.setRereferenceBibliographique(refs);
+            } else {
+                refreshedEntity.setRereferenceBibliographique(null);
+            }
+            
+            // Mettre à jour TPQ
+            if (groupTpq != null) {
+                refreshedEntity.setTpq(groupTpq);
+            }
+            
+            // Mettre à jour TAQ
+            if (groupTaq != null) {
+                refreshedEntity.setTaq(groupTaq);
+            }
+            
+            // Mettre à jour la période
+            // Si groupPeriode est une chaîne simple, on peut l'ajouter au commentaire
+            // Si c'est géré via ReferenceOpentheso, on doit créer ou récupérer la référence
+            if (groupPeriode != null && !groupPeriode.trim().isEmpty()) {
+                // Pour l'instant, on ajoute la période au commentaire si elle n'est pas déjà présente
+                // ou on peut créer une ReferenceOpentheso si nécessaire
+                // Note: La période peut être gérée via le dialog OpenTheso avec le code "PERIODE"
+                // Ici, on suppose que groupPeriode est une chaîne simple à ajouter au commentaire
+                String currentCommentaire = refreshedEntity.getCommentaire();
+                if (currentCommentaire == null || currentCommentaire.trim().isEmpty()) {
+                    refreshedEntity.setCommentaire("Période: " + groupPeriode.trim());
+                } else if (!currentCommentaire.contains("Période:")) {
+                    refreshedEntity.setCommentaire(currentCommentaire + "\n\nPériode: " + groupPeriode.trim());
+                }
+            }
+            
+            // Sauvegarder l'entité mise à jour
+            entityRepository.save(refreshedEntity);
+            log.info("Entité mise à jour avec les valeurs finales: ID={}", refreshedEntity.getId());
+            
+            // Recharger la liste des candidats pour avoir les données à jour
+            chargerCandidats();
+            
+            // Réinitialiser le formulaire
+            resetWizardForm();
+            currentStep = 0;
+            
+            // Rediriger vers la liste des candidats avec un paramètre de succès
+            // Le message sera affiché dans loadCandidatsPage() en vérifiant le paramètre
+            return "/candidats/candidats.xhtml?faces-redirect=true&success=true";
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la finalisation du candidat", e);
+            // Rediriger avec un paramètre d'erreur
+            return "/candidats/candidats.xhtml?faces-redirect=true&error=true";
+        }
+    }
+    
+    /**
      * Sauvegarde le candidat en créant l'entité dans la base de données avec le statut PROPOSITION
+     * (Méthode conservée pour compatibilité, mais l'enregistrement se fait maintenant au fur et à mesure)
      */
     public void sauvegarderCandidat() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -910,36 +1226,49 @@ public class CandidatBean implements Serializable {
                 return;
             }
             
-            // Récupérer le type d'entité
-            EntityType entityType = entityTypeRepository.findById(selectedEntityTypeId)
-                .orElseThrow(() -> new IllegalStateException("Le type d'entité sélectionné n'existe pas."));
-            
-            // Créer la nouvelle entité
-            Entity newEntity = new Entity();
-            newEntity.setCode(entityCode.trim());
-            newEntity.setNom(entityLabel.trim());
-            newEntity.setEntityType(entityType);
-            newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
-            newEntity.setPublique(true);
-            newEntity.setCreateDate(LocalDateTime.now());
-            
-            // Récupérer l'utilisateur actuel
-            Utilisateur currentUser = loginBean.getCurrentUser();
-            if (currentUser != null) {
-                newEntity.setCreateBy(currentUser.getEmail());
-                List<Utilisateur> auteurs = new ArrayList<>();
-                auteurs.add(currentUser);
-                newEntity.setAuteurs(auteurs);
+            // Utiliser l'entité créée à l'étape 1 ou en créer une nouvelle si elle n'existe pas
+            Entity newEntity;
+            if (currentEntity != null && currentEntity.getId() != null) {
+                // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+                newEntity = entityRepository.findById(currentEntity.getId())
+                    .orElseThrow(() -> new IllegalStateException("L'entité créée à l'étape 1 n'existe plus."));
+                log.info("Utilisation de l'entité existante créée à l'étape 1: ID={}", newEntity.getId());
+            } else {
+                // Créer une nouvelle entité (fallback si l'étape 1 n'a pas créé l'entité)
+                log.warn("Aucune entité trouvée de l'étape 1, création d'une nouvelle entité");
+                EntityType entityType = entityTypeRepository.findById(selectedEntityTypeId)
+                    .orElseThrow(() -> new IllegalStateException("Le type d'entité sélectionné n'existe pas."));
+                
+                newEntity = new Entity();
+                newEntity.setCode(entityCode.trim());
+                newEntity.setNom(entityLabel.trim());
+                newEntity.setEntityType(entityType);
+                newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
+                newEntity.setPublique(true);
+                newEntity.setCreateDate(LocalDateTime.now());
+                
+                Utilisateur currentUser = loginBean.getCurrentUser();
+                if (currentUser != null) {
+                    newEntity.setCreateBy(currentUser.getEmail());
+                    List<Utilisateur> auteurs = new ArrayList<>();
+                    auteurs.add(currentUser);
+                    newEntity.setAuteurs(auteurs);
+                }
             }
             
-            // Ajouter le label principal (de l'étape 1)
-            Langue languePrincipale = langueRepository.findByCode(selectedLangueCode);
-            if (languePrincipale != null) {
-                Label labelPrincipal = new Label();
-                labelPrincipal.setNom(entityLabel.trim());
-                labelPrincipal.setEntity(newEntity);
-                labelPrincipal.setLangue(languePrincipale);
-                newEntity.getLabels().add(labelPrincipal);
+            // Ajouter le label principal si pas déjà présent (de l'étape 1)
+            if (newEntity.getLabels() == null || newEntity.getLabels().isEmpty()) {
+                Langue languePrincipale = langueRepository.findByCode(selectedLangueCode);
+                if (languePrincipale != null) {
+                    Label labelPrincipal = new Label();
+                    labelPrincipal.setNom(entityLabel.trim());
+                    labelPrincipal.setEntity(newEntity);
+                    labelPrincipal.setLangue(languePrincipale);
+                    if (newEntity.getLabels() == null) {
+                        newEntity.setLabels(new ArrayList<>());
+                    }
+                    newEntity.getLabels().add(labelPrincipal);
+                }
             }
             
             // Ajouter les traductions de labels (pour les catégories)
@@ -979,8 +1308,9 @@ public class CandidatBean implements Serializable {
             }
             
             // Ajouter les autres champs spécifiques selon le type
-            if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType.getCode()) || 
-                "CATEGORIE".equals(entityType.getCode())) {
+            EntityType entityType = newEntity.getEntityType();
+            if (entityType != null && (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType.getCode()) || 
+                "CATEGORIE".equals(entityType.getCode()))) {
                 // Champs spécifiques aux catégories
                 if (candidatCommentaire != null && !candidatCommentaire.trim().isEmpty()) {
                     newEntity.setCommentaire(candidatCommentaire.trim());
@@ -996,17 +1326,17 @@ public class CandidatBean implements Serializable {
                     String refs = String.join("; ", referencesBibliographiques);
                     newEntity.setRereferenceBibliographique(refs);
                 }
-            } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode())) {
+            } else if (entityType != null && EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode())) {
                 if (typeDescription != null && !typeDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(typeDescription.trim());
                 }
-            } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityType.getCode()) || 
-                       "SERIE".equals(entityType.getCode())) {
+            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_SERIES.equals(entityType.getCode()) || 
+                       "SERIE".equals(entityType.getCode()))) {
                 if (serieDescription != null && !serieDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(serieDescription.trim());
                 }
-            } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType.getCode()) || 
-                       "GROUPE".equals(entityType.getCode())) {
+            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType.getCode()) || 
+                       "GROUPE".equals(entityType.getCode()))) {
                 // Construire le commentaire avec description et période
                 StringBuilder commentaireBuilder = new StringBuilder();
                 if (groupDescription != null && !groupDescription.trim().isEmpty()) {
@@ -1029,7 +1359,7 @@ public class CandidatBean implements Serializable {
                 if (groupTaq != null) {
                     newEntity.setTaq(groupTaq);
                 }
-            } else if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityType.getCode())) {
+            } else if (entityType != null && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityType.getCode())) {
                 if (collectionDescription != null && !collectionDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(collectionDescription.trim());
                 }
@@ -1038,14 +1368,43 @@ public class CandidatBean implements Serializable {
                 }
             }
             
-            // Sauvegarder l'entité
+            // Utiliser la référence ReferenceOpentheso créée depuis le dialog OpenTheso
+            if (openThesoDialogBean.getCreatedReference() != null) {
+                try {
+                    ReferenceOpentheso createdReference = openThesoDialogBean.getCreatedReference();
+                    
+                    // Vérifier le code pour déterminer quel champ de l'entité mettre à jour
+                    String code = createdReference.getCode();
+                    if ("PRODUCTION".equals(code)) {
+                        newEntity.setProduction(createdReference);
+                        log.info("Référence Production associée à l'entité: {}", createdReference.getId());
+                    }
+                    // Ajouter d'autres codes ici si nécessaire (PERIODE, etc.)
+                    // else if ("PERIODE".equals(code)) {
+                    //     newEntity.setPeriode(createdReference);
+                    // }
+                    
+                } catch (Exception e) {
+                    log.error("Erreur lors de l'association de la référence ReferenceOpentheso", e);
+                    // Ne pas bloquer la sauvegarde du candidat en cas d'erreur
+                }
+            }
+            
+            // Sauvegarder l'entité (mise à jour si elle existe déjà, création sinon)
             Entity savedEntity = entityRepository.save(newEntity);
             
-            // Créer la relation avec le parent (référentiel)
-            EntityRelation relation = new EntityRelation();
-            relation.setParent(selectedParentEntity);
-            relation.setChild(savedEntity);
-            entityRelationRepository.save(relation);
+            // Créer la relation avec le parent (référentiel) si elle n'existe pas déjà
+            if (selectedParentEntity != null) {
+                // Vérifier si la relation existe déjà
+                boolean relationExists = entityRelationRepository.existsByParentAndChild(
+                    selectedParentEntity.getId(), savedEntity.getId());
+                if (!relationExists) {
+                    EntityRelation relation = new EntityRelation();
+                    relation.setParent(selectedParentEntity);
+                    relation.setChild(savedEntity);
+                    entityRelationRepository.save(relation);
+                }
+            }
             
             // Message de succès
             facesContext.addMessage(null,
@@ -1533,6 +1892,17 @@ public class CandidatBean implements Serializable {
      * Ajoute un nouveau label de catégorie depuis les champs de saisie
      */
     public void addLabelFromInput() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas encore été créée. Veuillez d'abord compléter les étapes précédentes."));
+            }
+            return;
+        }
+        
         if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
@@ -1555,18 +1925,6 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        // Vérifier si la langue est déjà utilisée
-        if (isLangueAlreadyUsedIncandidatLabels(newLabelLangueCode, null)) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Cette langue est déjà utilisée pour un autre label."));
-            }
-            return;
-        }
-        
         // Vérifier que la langue n'est pas celle de l'étape 1
         if (selectedLangueCode != null && selectedLangueCode.equals(newLabelLangueCode)) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -1579,11 +1937,68 @@ public class CandidatBean implements Serializable {
             return;
         }
         
+        // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas été trouvée dans la base de données."));
+            }
+            return;
+        }
+        
+        // Vérifier si la langue est déjà utilisée dans la base de données
+        if (refreshedEntity.getLabels() != null) {
+            boolean langueAlreadyUsed = refreshedEntity.getLabels().stream()
+                .anyMatch(label -> label.getLangue() != null && 
+                    label.getLangue().getCode() != null &&
+                    label.getLangue().getCode().equals(newLabelLangueCode));
+            
+            if (langueAlreadyUsed) {
+                FacesContext facesContext = FacesContext.getCurrentInstance();
+                if (facesContext != null) {
+                    facesContext.addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            "Attention",
+                            "Cette langue est déjà utilisée pour un autre label."));
+                }
+                return;
+            }
+        }
+        
+        // Créer et sauvegarder le label dans la base de données
+        Langue langue = langueRepository.findByCode(newLabelLangueCode);
+        if (langue == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "La langue sélectionnée n'a pas été trouvée."));
+            }
+            return;
+        }
+        
+        Label newLabel = new Label();
+        newLabel.setNom(newLabelValue.trim());
+        newLabel.setEntity(refreshedEntity);
+        newLabel.setLangue(langue);
+        
+        if (refreshedEntity.getLabels() == null) {
+            refreshedEntity.setLabels(new ArrayList<>());
+        }
+        refreshedEntity.getLabels().add(newLabel);
+        
+        // Sauvegarder l'entité (le label sera sauvegardé grâce au cascade)
+        entityRepository.save(refreshedEntity);
+        
+        // Mettre à jour la liste locale pour l'affichage
         if (candidatLabels == null) {
             candidatLabels = new ArrayList<>();
         }
-        
-        Langue langue = langueRepository.findByCode(newLabelLangueCode);
         CategoryLabelItem newItem = new CategoryLabelItem(
             newLabelValue.trim(), 
             newLabelLangueCode, 
@@ -1593,27 +2008,108 @@ public class CandidatBean implements Serializable {
         // Réinitialiser les champs de saisie
         newLabelValue = null;
         newLabelLangueCode = null;
+        
+        // Message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le label a été ajouté avec succès."));
+        }
     }
     
     /**
-     * Supprime un label de catégorie de la liste
+     * Supprime un label de catégorie de la liste et de la base de données
      */
     public void removeCandidatLabel(CategoryLabelItem labelItem) {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas encore été créée."));
+            }
+            return;
+        }
+        
+        // Recharger l'entité depuis la base
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity == null || refreshedEntity.getLabels() == null) {
+            return;
+        }
+        
+        // Trouver et supprimer le label correspondant dans la base de données
+        Label labelToRemove = refreshedEntity.getLabels().stream()
+            .filter(label -> label.getLangue() != null && 
+                label.getLangue().getCode() != null &&
+                label.getLangue().getCode().equals(labelItem.getLangueCode()) &&
+                label.getNom() != null &&
+                label.getNom().equals(labelItem.getNom()))
+            .findFirst()
+            .orElse(null);
+        
+        if (labelToRemove != null) {
+            refreshedEntity.getLabels().remove(labelToRemove);
+            entityRepository.save(refreshedEntity);
+        }
+        
+        // Supprimer de la liste locale
         if (candidatLabels != null) {
             candidatLabels.remove(labelItem);
         }
+        
+        // Message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le label a été supprimé avec succès."));
+        }
     }
     
     /**
-     * Vérifie si une langue est déjà utilisée dans les labels de catégorie
+     * Vérifie si une langue est déjà utilisée dans les labels de catégorie (dans la liste locale et la base de données)
      */
     public boolean isLangueAlreadyUsedIncandidatLabels(String langueCode, CategoryLabelItem currentItem) {
-        if (candidatLabels == null || langueCode == null || langueCode.isEmpty()) {
+        if (langueCode == null || langueCode.isEmpty()) {
             return false;
         }
-        return candidatLabels.stream()
-            .filter(item -> item != currentItem && item.getLangueCode() != null)
-            .anyMatch(item -> item.getLangueCode().equals(langueCode));
+        
+        // Vérifier dans la liste locale
+        if (candidatLabels != null) {
+            boolean foundInList = candidatLabels.stream()
+                .filter(item -> item != currentItem && item.getLangueCode() != null)
+                .anyMatch(item -> item.getLangueCode().equals(langueCode));
+            if (foundInList) {
+                return true;
+            }
+        }
+        
+        // Vérifier dans la base de données si currentEntity existe
+        if (currentEntity != null && currentEntity.getId() != null) {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getLabels() != null) {
+                boolean foundInDb = refreshedEntity.getLabels().stream()
+                    .filter(label -> label.getLangue() != null && 
+                        label.getLangue().getCode() != null &&
+                        label.getLangue().getCode().equals(langueCode))
+                    .anyMatch(label -> {
+                        // Exclure le label principal de l'étape 1
+                        if (selectedLangueCode != null && selectedLangueCode.equals(langueCode)) {
+                            return false;
+                        }
+                        return true;
+                    });
+                if (foundInDb) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -1636,9 +2132,20 @@ public class CandidatBean implements Serializable {
     }
     
     /**
-     * Ajoute une nouvelle description de catégorie depuis les champs de saisie
+     * Ajoute une nouvelle description de catégorie depuis les champs de saisie et la sauvegarde dans la base de données
      */
     public void addCandidatDescriptionFromInput() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas encore été créée. Veuillez d'abord compléter les étapes précédentes."));
+            }
+            return;
+        }
+        
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
@@ -1661,23 +2168,68 @@ public class CandidatBean implements Serializable {
             return;
         }
         
-        // Vérifier si la langue est déjà utilisée
-        if (isLangueAlreadyUsedIndescriptions(newDescriptionLangueCode, null)) {
+        // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity == null) {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
                 facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Cette langue est déjà utilisée pour une autre description."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas été trouvée dans la base de données."));
             }
             return;
         }
         
+        // Vérifier si la langue est déjà utilisée dans la base de données
+        if (refreshedEntity.getDescriptions() != null) {
+            boolean langueAlreadyUsed = refreshedEntity.getDescriptions().stream()
+                .anyMatch(desc -> desc.getLangue() != null && 
+                    desc.getLangue().getCode() != null &&
+                    desc.getLangue().getCode().equals(newDescriptionLangueCode));
+            
+            if (langueAlreadyUsed) {
+                FacesContext facesContext = FacesContext.getCurrentInstance();
+                if (facesContext != null) {
+                    facesContext.addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            "Attention",
+                            "Cette langue est déjà utilisée pour une autre description."));
+                }
+                return;
+            }
+        }
+        
+        // Créer et sauvegarder la description dans la base de données
+        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
+        if (langue == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "La langue sélectionnée n'a pas été trouvée."));
+            }
+            return;
+        }
+        
+        Description newDescription = new Description();
+        newDescription.setValeur(newDescriptionValue.trim());
+        newDescription.setEntity(refreshedEntity);
+        newDescription.setLangue(langue);
+        
+        if (refreshedEntity.getDescriptions() == null) {
+            refreshedEntity.setDescriptions(new ArrayList<>());
+        }
+        refreshedEntity.getDescriptions().add(newDescription);
+        
+        // Sauvegarder l'entité (la description sera sauvegardée grâce au cascade)
+        entityRepository.save(refreshedEntity);
+        
+        // Mettre à jour la liste locale pour l'affichage
         if (descriptions == null) {
             descriptions = new ArrayList<>();
         }
-        
-        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
         CategoryDescriptionItem newItem = new CategoryDescriptionItem(
             newDescriptionValue.trim(), 
             newDescriptionLangueCode, 
@@ -1687,27 +2239,103 @@ public class CandidatBean implements Serializable {
         // Réinitialiser les champs de saisie
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
+        
+        // Message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "La description a été ajoutée avec succès."));
+        }
     }
     
     /**
-     * Supprime une description de catégorie de la liste
+     * Supprime une description de catégorie de la liste et de la base de données
      */
     public void removeCandidatDescription(CategoryDescriptionItem descriptionItem) {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité n'a pas encore été créée."));
+            }
+            return;
+        }
+        
+        // Recharger l'entité depuis la base
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity == null || refreshedEntity.getDescriptions() == null) {
+            return;
+        }
+        
+        // Trouver et supprimer la description correspondante dans la base de données
+        Description descriptionToRemove = refreshedEntity.getDescriptions().stream()
+            .filter(desc -> desc.getLangue() != null && 
+                desc.getLangue().getCode() != null &&
+                desc.getLangue().getCode().equals(descriptionItem.getLangueCode()) &&
+                desc.getValeur() != null &&
+                desc.getValeur().equals(descriptionItem.getValeur()))
+            .findFirst()
+            .orElse(null);
+        
+        if (descriptionToRemove != null) {
+            refreshedEntity.getDescriptions().remove(descriptionToRemove);
+            entityRepository.save(refreshedEntity);
+        }
+        
+        // Supprimer de la liste locale
         if (descriptions != null) {
             descriptions.remove(descriptionItem);
         }
+        
+        // Message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "La description a été supprimée avec succès."));
+        }
     }
     
     /**
-     * Vérifie si une langue est déjà utilisée dans les descriptions de catégorie
+     * Vérifie si une langue est déjà utilisée dans les descriptions de catégorie (dans la liste locale et la base de données)
      */
     public boolean isLangueAlreadyUsedIndescriptions(String langueCode, CategoryDescriptionItem currentItem) {
-        if (descriptions == null || langueCode == null || langueCode.isEmpty()) {
+        if (langueCode == null || langueCode.isEmpty()) {
             return false;
         }
-        return descriptions.stream()
-            .filter(item -> item != currentItem && item.getLangueCode() != null)
-            .anyMatch(item -> item.getLangueCode().equals(langueCode));
+        
+        // Vérifier dans la liste locale
+        if (descriptions != null) {
+            boolean foundInList = descriptions.stream()
+                .filter(item -> item != currentItem && item.getLangueCode() != null)
+                .anyMatch(item -> item.getLangueCode().equals(langueCode));
+            if (foundInList) {
+                return true;
+            }
+        }
+        
+        // Vérifier dans la base de données si currentEntity existe
+        if (currentEntity != null && currentEntity.getId() != null) {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptions() != null) {
+                boolean foundInDb = refreshedEntity.getDescriptions().stream()
+                    .filter(desc -> desc.getLangue() != null && 
+                        desc.getLangue().getCode() != null &&
+                        desc.getLangue().getCode().equals(langueCode))
+                    .findAny()
+                    .isPresent();
+                if (foundInDb) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -1724,6 +2352,158 @@ public class CandidatBean implements Serializable {
                 return !isLangueAlreadyUsedIndescriptions(langue.getCode(), null);
             })
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Sauvegarde automatiquement le champ commentaire dans la base de données
+     */
+    public void saveCommentaire() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                refreshedEntity.setCommentaire(candidatCommentaire);
+                entityRepository.save(refreshedEntity);
+                log.debug("Commentaire sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde du commentaire", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement le champ bibliographie dans la base de données
+     */
+    public void saveBibliographie() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                refreshedEntity.setBibliographie(candidatBibliographie);
+                entityRepository.save(refreshedEntity);
+                log.debug("Bibliographie sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde de la bibliographie", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement les références bibliographiques dans la base de données
+     */
+    public void saveReferencesBibliographiques() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                String refs = null;
+                if (referencesBibliographiques != null && !referencesBibliographiques.isEmpty()) {
+                    refs = String.join("; ", referencesBibliographiques);
+                }
+                refreshedEntity.setRereferenceBibliographique(refs);
+                entityRepository.save(refreshedEntity);
+                log.debug("Références bibliographiques sauvegardées pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde des références bibliographiques", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement la description du type dans la base de données
+     */
+    public void saveTypeDescription() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_TYPE.equals(
+                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
+                refreshedEntity.setCommentaire(typeDescription);
+                entityRepository.save(refreshedEntity);
+                log.debug("Description du type sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde de la description du type", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement la description de la collection dans la base de données
+     */
+    public void saveCollectionDescription() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_COLLECTION.equals(
+                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
+                // Note: collectionDescription pourrait être stocké dans DescriptionDetail ou commentaire
+                // Pour l'instant, on utilise commentaire
+                refreshedEntity.setCommentaire(collectionDescription);
+                entityRepository.save(refreshedEntity);
+                log.debug("Description de la collection sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde de la description de la collection", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement le statut public de la collection dans la base de données
+     */
+    public void saveCollectionPublique() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_COLLECTION.equals(
+                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
+                refreshedEntity.setPublique(collectionPublique);
+                entityRepository.save(refreshedEntity);
+                log.debug("Statut public de la collection sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde du statut public de la collection", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
+     */
+    public void saveGroupFields() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_GROUP.equals(
+                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
+                refreshedEntity.setTpq(groupTpq);
+                refreshedEntity.setTaq(groupTaq);
+                // Note: groupPeriode est géré via ReferenceOpentheso, pas directement dans Entity
+                entityRepository.save(refreshedEntity);
+                log.debug("Champs du groupe sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde des champs du groupe", e);
+        }
     }
     
     /**
@@ -1834,6 +2614,99 @@ public class CandidatBean implements Serializable {
         }
         
         return "Non sélectionné";
+    }
+
+    /**
+     * Met à jour le champ candidatProduction avec le terme sélectionné depuis OpenTheso
+     */
+    /**
+     * Met à jour le champ production depuis OpenTheso après validation
+     * Recharge l'entité depuis la base de données pour avoir la référence à jour
+     */
+    public void updateProductionFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            // Recharger l'entité depuis la base de données pour avoir la référence production à jour
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getProduction() != null) {
+                // Mettre à jour le champ candidatProduction avec la valeur de la référence
+                candidatProduction = refreshedEntity.getProduction().getValeur();
+                // Mettre à jour currentEntity pour garder la synchronisation
+                currentEntity = refreshedEntity;
+                log.info("Champ production mis à jour pour l'entité ID={}: {}", currentEntity.getId(), candidatProduction);
+            } else if (openThesoDialogBean.getCreatedReference() != null) {
+                // Fallback : utiliser la référence créée si l'entité n'a pas encore été rechargée
+                candidatProduction = openThesoDialogBean.getCreatedReference().getValeur();
+            } else if (openThesoDialogBean.getSelectedConcept() != null) {
+                // Fallback : utiliser le concept sélectionné
+                candidatProduction = openThesoDialogBean.getSelectedConcept().getSelectedTerm();
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour du champ production depuis OpenTheso", e);
+        }
+    }
+
+    /**
+     * Supprime l'entité créée à l'étape 1 et toutes ses relations si l'utilisateur confirme l'abandon
+     */
+    public void abandonnerProposition() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        
+        if (currentEntity == null || currentEntity.getId() == null) {
+            // Aucune entité à supprimer
+            log.info("Aucune entité à supprimer lors de l'abandon");
+            resetWizardForm();
+            return;
+        }
+        
+        try {
+            Long entityId = currentEntity.getId();
+            log.info("Suppression de l'entité créée à l'étape 1: ID={}", entityId);
+            
+            // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+            Entity entityToDelete = entityRepository.findById(entityId).orElse(null);
+            
+            if (entityToDelete != null) {
+                // Supprimer toutes les relations où cette entité est enfant
+                List<EntityRelation> relationsAsChild = entityRelationRepository.findByChild(entityToDelete);
+                if (relationsAsChild != null && !relationsAsChild.isEmpty()) {
+                    entityRelationRepository.deleteAll(relationsAsChild);
+                    log.debug("{} relations supprimées (entité comme enfant)", relationsAsChild.size());
+                }
+                
+                // Supprimer toutes les relations où cette entité est parent
+                List<EntityRelation> relationsAsParent = entityRelationRepository.findByParent(entityToDelete);
+                if (relationsAsParent != null && !relationsAsParent.isEmpty()) {
+                    entityRelationRepository.deleteAll(relationsAsParent);
+                    log.debug("{} relations supprimées (entité comme parent)", relationsAsParent.size());
+                }
+                
+                // Supprimer l'entité elle-même
+                entityRepository.delete(entityToDelete);
+                log.info("Entité supprimée avec succès: ID={}", entityId);
+                
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Succès",
+                        "La proposition a été abandonnée et supprimée."));
+            } else {
+                log.warn("Entité avec l'ID {} non trouvée pour suppression", entityId);
+            }
+            
+            // Réinitialiser le formulaire
+            resetWizardForm();
+            currentEntity = null;
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de l'entité", e);
+            facesContext.addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+        }
     }
 }
 

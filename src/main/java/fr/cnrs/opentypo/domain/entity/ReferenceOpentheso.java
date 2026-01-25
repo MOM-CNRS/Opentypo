@@ -33,4 +33,16 @@ public class ReferenceOpentheso implements Serializable {
 
     @Column(name = "valeur", nullable = false, length = 500)
     private String valeur;
+
+    @Column(name = "thesaurus_id")
+    private String thesaurusId;
+
+    @Column(name = "concept_id")
+    private String conceptId;
+
+    @Column(name = "collection_id")
+    private String collectionId;
+
+    @Column(name = "url", length = 500)
+    private String url;
 }

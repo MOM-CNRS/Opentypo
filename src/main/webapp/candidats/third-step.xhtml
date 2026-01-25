@@ -104,7 +104,9 @@
                                                      value="#{candidatBean.typeDescription}"
                                                      rows="6"
                                                      styleClass="users-textarea"
-                                                     placeholder="Saisissez une description détaillée du type..."/>
+                                                     placeholder="Saisissez une description détaillée du type...">
+                                        <p:ajax event="blur" listener="#{candidatBean.saveTypeDescription}" process="@this" update="@none"/>
+                                    </p:inputTextarea>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +129,9 @@
                                                      value="#{candidatBean.collectionDescription}"
                                                      rows="6"
                                                      styleClass="users-textarea"
-                                                     placeholder="Saisissez une description détaillée de la collection..."/>
+                                                     placeholder="Saisissez une description détaillée de la collection...">
+                                        <p:ajax event="blur" listener="#{candidatBean.saveCollectionDescription}" process="@this" update="@none"/>
+                                    </p:inputTextarea>
                                 </div>
                             </div>
                             <div class="users-form-group">
@@ -135,7 +139,9 @@
                                 <div class="checkbox-wrapper-enhanced">
                                     <p:selectBooleanCheckbox id="collectionPublique"
                                                              value="#{candidatBean.collectionPublique}"
-                                                             styleClass="users-checkbox"/>
+                                                             styleClass="users-checkbox">
+                                        <p:ajax event="change" listener="#{candidatBean.saveCollectionPublique}" process="@this" update="@none"/>
+                                    </p:selectBooleanCheckbox>
                                     <span class="checkbox-label">Rendre cette collection visible publiquement</span>
                                 </div>
                             </div>

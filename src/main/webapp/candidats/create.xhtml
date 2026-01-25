@@ -21,7 +21,7 @@
                         <p:commandButton value="Retour à la liste"
                                          icon="pi pi-arrow-left"
                                          styleClass="users-create-button"
-                                         action="/candidats/candidats.xhtml?faces-redirect=true"
+                                         onclick="PF('confirmAbandonDialog').show(); return false;"
                                          process="@this"
                                          update="@none"/>
                     </h:form>
@@ -147,7 +147,7 @@
                             </div>
 
                             <div class="wizard-nav-right">
-                                <p:commandButton value="Suivant"
+                                <p:commandButton value="Suivant 1"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
@@ -157,7 +157,7 @@
                                                  update=":createCandidatForm :growl"
                                                  rendered="#{candidatBean.isStep1()}"/>
 
-                                <p:commandButton value="Suivant"
+                                <p:commandButton value="Suivant 2"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
@@ -171,16 +171,18 @@
                                                  icon="pi pi-check"
                                                  iconPos="right"
                                                  process="@form"
-                                                 ajax="true"
-                                                 update=":createCandidatForm :growl"
+                                                 ajax="false"
                                                  styleClass="wizard-btn wizard-btn-finish"
-                                                 onclick="PF('confirmSaveCandidatDialog').show(); return false;"
+                                                 action="#{candidatBean.terminerCandidat()}"
                                                  rendered="#{candidatBean.isStep3()}"/>
                             </div>
                         </h:panelGroup>
                     </div>
 
                     <ui:include src="confirmCreateCandidatDialog.xhtml"/>
+
+                    <!-- Boîte de dialogue de confirmation d'abandon -->
+                    <ui:include src="confirmAbandonDialog.xhtml"/>
 
                     <!-- Boîte de dialogue OpenTheso -->
                     <ui:include src="openthesoDialog.xhtml"/>

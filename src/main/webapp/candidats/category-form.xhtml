@@ -225,7 +225,9 @@
                          styleClass="users-chips"
                          placeholder="Saisissez une référence bibliographique et appuyez sur Entrée..."
                          maxlength="500"
-                         addOnBlur="true"/>
+                         addOnBlur="true">
+                    <p:ajax event="change" listener="#{candidatBean.saveReferencesBibliographiques}" process="@this" update="@none"/>
+                </p:chips>
             </div>
             <p class="users-form-hint">
                 <i class="pi pi-info-circle" />
@@ -244,7 +246,9 @@
                                  rows="5"
                                  styleClass="users-textarea"
                                  placeholder="Ajoutez un commentaire sur cette catégorie..."
-                                 maxlength="1000"/>
+                                 maxlength="1000">
+                    <p:ajax event="blur" listener="#{candidatBean.saveCommentaire}" process="@this" update="@none"/>
+                </p:inputTextarea>
             </div>
             <p:message for="candidatCommentaire" display="icon"/>
         </div>
@@ -259,7 +263,9 @@
                                  rows="5"
                                  styleClass="users-textarea"
                                  placeholder="Saisissez des informations bibliographiques complémentaires..."
-                                 maxlength="2000"/>
+                                 maxlength="2000">
+                    <p:ajax event="blur" listener="#{candidatBean.saveBibliographie}" process="@this" update="@none"/>
+                </p:inputTextarea>
             </div>
             <p:message for="candidatBibliographie" display="icon"/>
         </div>

@@ -141,11 +141,11 @@
             <p:commandButton value="Valider"
                              icon="pi pi-check"
                              styleClass="category-btn category-btn-validate"
-                             action="#{categoryBean.createCategory}"
-                             process="@form"
-                             update="@form :growl"
+                             action="#{openThesoDialogBean.validateSelection}"
+                             process="conceptsTable"
+                             update=":createCandidatForm :growl"
                              onstart="var btn = this; showButtonLoading(btn);"
-                             oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading(); if(!args.validationFailed) {PF('createCategoryDialog').hide();}}, 100);"
+                             oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading();}, 100);"
                              onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
         </div>
     </p:dialog>
@@ -158,5 +158,12 @@
                      action="#{openThesoDialogBean.initializeDialog}"
                      process="@none"
                      update=":createCandidatForm:openThesoForm2"
+                     autoRun="false"/>
+
+    <!-- Remote command pour mettre à jour la production -->
+    <p:remoteCommand name="updateProductionFromOpenTheso"
+                     action="#{candidatBean.updateProductionFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
                      autoRun="false"/>
 </ui:fragment>

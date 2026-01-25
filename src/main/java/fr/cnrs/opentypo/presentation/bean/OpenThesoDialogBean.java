@@ -2,6 +2,11 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.pactols.*;
 import fr.cnrs.opentypo.application.service.PactolsService;
+import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -37,10 +42,19 @@ public class OpenThesoDialogBean implements Serializable {
     @Inject
     private SearchBean searchBean;
 
+    @Inject
+    private ReferenceOpenthesoRepository referenceOpenthesoRepository;
+
+    @Inject
+    private EntityRepository entityRepository;
+
     // État de la boîte de dialogue
     private String dialogWidgetVar;
     private String targetFieldId; // ID du champ cible où insérer la valeur
     private Consumer<String> onValidateCallback; // Callback appelé lors de la validation
+    private String referenceCode; // Code pour la référence (PRODUCTION, PERIODE, etc.)
+    private Long entityId; // ID de l'entité à mettre à jour
+    private ReferenceOpentheso createdReference; // Référence créée lors de la validation
 
     // Données du formulaire
     private List<PactolsThesaurus> availableThesaurus = new ArrayList<>();
@@ -53,6 +67,8 @@ public class OpenThesoDialogBean implements Serializable {
     private List<PactolsConcept> searchResults = new ArrayList<>();
     private PactolsConcept selectedConcept;
 
+    private CandidatBean candidatBean;
+
     @PostConstruct
     public void init() {
         String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
@@ -61,14 +77,36 @@ public class OpenThesoDialogBean implements Serializable {
 
     /**
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
+     * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
+     * @param entityId ID de l'entité à mettre à jour
      */
-    public void loadThesaurus() {
+    public void loadThesaurus(CandidatBean candidatBean, String code, Long entityId) {
+        this.candidatBean = candidatBean;
+        this.referenceCode = code != null ? code : "PRODUCTION";
+        this.entityId = entityId;
+        
         // Recharger les thésaurus avec la langue sélectionnée
         String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
         availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
         
         // Réinitialiser l'état
         resetDialog();
+    }
+
+    /**
+     * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
+     * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
+     */
+    public void loadThesaurus(String code) {
+        loadThesaurus(candidatBean, code, null);
+    }
+
+    /**
+     * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
+     * Utilise "PRODUCTION" par défaut
+     */
+    public void loadThesaurus() {
+        loadThesaurus(candidatBean, "PRODUCTION", null);
     }
 
     /**
@@ -115,6 +153,8 @@ public class OpenThesoDialogBean implements Serializable {
         searchValue = "";
         searchResults = new ArrayList<>();
         selectedConcept = null;
+        createdReference = null;
+        // Note: referenceCode et entityId ne sont pas réinitialisés car ils doivent persister
     }
 
     /**
@@ -186,12 +226,20 @@ public class OpenThesoDialogBean implements Serializable {
     }
 
     /**
-     * Valide la sélection et ferme la boîte de dialogue
+     * Valide la sélection et crée une instance de ReferenceOpentheso
      */
     public void validateSelection() {
         if (selectedConcept == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un concept."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        if (selectedThesaurusId == null || selectedThesaurusId.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Thésaurus non sélectionné."));
+            PrimeFaces.current().ajax().update(":growl");
             return;
         }
 
@@ -200,21 +248,89 @@ public class OpenThesoDialogBean implements Serializable {
             selectedTerm = selectedConcept.getIdConcept();
         }
 
-        // Appeler le callback si défini
-        if (onValidateCallback != null) {
-            onValidateCallback.accept(selectedTerm);
+        try {
+            // Créer l'instance de ReferenceOpentheso avec toutes les informations
+            String conceptId = selectedConcept.getIdConcept();
+            String thesaurusId = selectedThesaurusId;
+            String collectionId = selectedCollectionId != null ? selectedCollectionId : "";
+            
+            // Construire l'URL au format base_URL/?idc={id_concept}&idt={id_thesaurus}
+            String baseUrl = "https://pactols.frantiq.fr";
+            String url = baseUrl + "/?idc=" + conceptId + "&idt=" + thesaurusId;
+            
+            // Déterminer le code de la référence (par défaut PRODUCTION)
+            String code = (referenceCode != null && !referenceCode.trim().isEmpty()) 
+                ? referenceCode.trim() 
+                : "PRODUCTION";
+            
+            // Créer la nouvelle entrée ReferenceOpentheso
+            ReferenceOpentheso referenceOpentheso = new ReferenceOpentheso();
+            referenceOpentheso.setCode(code);
+            referenceOpentheso.setValeur(selectedTerm);
+            referenceOpentheso.setConceptId(conceptId);
+            referenceOpentheso.setThesaurusId(thesaurusId);
+            referenceOpentheso.setCollectionId(collectionId);
+            referenceOpentheso.setUrl(url);
+            
+            // Sauvegarder la référence
+            createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+            
+            log.info("Référence ReferenceOpentheso créée avec le code '{}' pour le concept: {}", code, conceptId);
+            
+            // Mettre à jour l'entité avec la référence si entityId est fourni
+            if (entityId != null) {
+                try {
+                    Entity entity = entityRepository.findById(entityId).orElse(null);
+                    if (entity != null) {
+                        // Lier la référence à l'entité selon le type
+                        if ("PRODUCTION".equals(code)) {
+                            entity.setProduction(createdReference);
+                        } else if ("PERIODE".equals(code)) {
+                            entity.setPeriode(createdReference);
+                        } else if ("AIRE_CIRCULATION".equals(code) || "AIRE".equals(code)) {
+                            entity.setAireCirculation(createdReference);
+                        } else if ("CATEGORIE_FONCTIONNELLE".equals(code) || "CATEGORIE".equals(code)) {
+                            entity.setCategorieFonctionnelle(createdReference);
+                        }
+                        
+                        // Sauvegarder l'entité mise à jour
+                        candidatBean.setCurrentEntity(entityRepository.save(entity));
+                        log.info("Entité ID={} mise à jour avec la référence {} (code: {})", 
+                            entityId, createdReference.getId(), code);
+                    } else {
+                        log.warn("Entité avec ID={} non trouvée, impossible de lier la référence", entityId);
+                    }
+                } catch (Exception e) {
+                    log.error("Erreur lors de la mise à jour de l'entité avec la référence", e);
+                    // Ne pas bloquer le processus si la mise à jour de l'entité échoue
+                }
+            }
+            
+            // Appeler le callback si défini avec le terme sélectionné
+            if (onValidateCallback != null) {
+                onValidateCallback.accept(selectedTerm);
+            }
+
+            // Appeler le remote command pour mettre à jour le champ correspondant
+            PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
+
+            // Fermer la boîte de dialogue
+            PrimeFaces.current().executeScript("setTimeout(function() { PF('openthesoDialog').hide(); }, 100);");
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", 
+                    "Référence créée avec succès (Code: " + code + ")."));
+            
+            // Mettre à jour le formulaire pour afficher le nom du concept
+            PrimeFaces.current().ajax().update(":createCandidatForm :growl");
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la création de la référence ReferenceOpentheso", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", 
+                    "Une erreur est survenue lors de la création de la référence."));
+            PrimeFaces.current().ajax().update(":growl");
         }
-
-        // Réinitialiser
-        resetDialog();
-
-        // Fermer la boîte de dialogue
-        PrimeFaces.current().executeScript("setTimeout(function() { PF('" + dialogWidgetVar + "').hide(); }, 100);");
-
-        FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Valeur sélectionnée avec succès."));
-        
-        PrimeFaces.current().ajax().update(":growl");
     }
 
     /**
