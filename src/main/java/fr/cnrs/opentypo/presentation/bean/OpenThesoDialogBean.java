@@ -63,8 +63,29 @@ public class OpenThesoDialogBean implements Serializable {
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
      */
     public void loadThesaurus() {
+        // Recharger les thésaurus avec la langue sélectionnée
+        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
+        
         // Réinitialiser l'état
         resetDialog();
+    }
+
+    /**
+     * Initialise l'interface du dialog à l'ouverture
+     */
+    public void initializeDialog() {
+        log.info("=== initializeDialog() appelée ===");
+        
+        // Recharger les thésaurus avec la langue sélectionnée
+        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
+        
+        // Réinitialiser tous les champs
+        resetDialog();
+        
+        // Mettre à jour l'interface
+        PrimeFaces.current().ajax().update(":createCandidatForm:openThesoForm2");
     }
 
     /**
@@ -129,9 +150,6 @@ public class OpenThesoDialogBean implements Serializable {
 
         // Réinitialiser les sélections pour les nouvelles listes
         selectedCollectionId = null;
-
-        // Mettre à jour tous les composants de la boîte de dialogue
-        PrimeFaces.current().ajax().update(":openThesoForm :growl");
     }
 
     /**

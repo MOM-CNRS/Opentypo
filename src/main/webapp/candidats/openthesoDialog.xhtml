@@ -18,16 +18,16 @@
               showEffect="fade"
               hideEffect="fade"
               responsive="true"
-              appendTo="@(body)">
+              onShow="initializeOpenThesoDialog()">
 
-        <h:form id="openThesoForm">
+        <h:panelGroup id="openThesoForm2">
             <!-- 1ère ligne : Liste des thésaurus + bouton rechercher -->
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field">
-                    <p:outputLabel for="thesaurusSelect" value="Liste des thésaurus" />
+                    <p:outputLabel for="thesaurusSelect2" value="Liste des thésaurus" />
                     <div class="input-wrapper">
                         <i class="pi pi-book input-icon" />
-                        <p:selectOneMenu id="thesaurusSelect"
+                        <p:selectOneMenu id="thesaurusSelect2"
                                          value="#{openThesoDialogBean.selectedThesaurusId}"
                                          styleClass="users-select"
                                          filter="true"
@@ -35,27 +35,42 @@
                             <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
                             <f:selectItems value="#{openThesoDialogBean.availableThesaurus}" var="thesaurus"
                                            itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
+
+                            <p:ajax event="valueChange"
+                                    listener="#{openThesoDialogBean.onThesaurusSearch}"
+                                    process="thesaurusSelect2"
+                                    update=":createCandidatForm:openThesoForm2 :growl"
+                                    onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
                         </p:selectOneMenu>
                     </div>
                 </div>
-                <div class="opentheso-dialog-button">
-                    <p:commandButton value="Rechercher"
-                                     icon="pi pi-search"
-                                     styleClass="candidat-btn-add"
-                                     actionListener="#{openThesoDialogBean.onThesaurusSearch}"
-                                     process="thesaurusSelect"
-                                     ajax="true"
-                                     update=":openThesoForm :growl"/>
+            </div>
+
+            <!-- 2ème ligne : Liste des langues du thésaurus sélectionné -->
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field">
+                    <p:outputLabel for="thesaurusSelect2" value="Liste des langues" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-book input-icon" />
+                        <p:selectOneMenu id="languageSelect"
+                                         value="#{openThesoDialogBean.selectedLanguageId}"
+                                         styleClass="users-select">
+                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
+                            <f:selectItems value="#{openThesoDialogBean.availableLanguages}" var="langue"
+                                           itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
+                        </p:selectOneMenu>
+                    </div>
                 </div>
             </div>
 
-            <!-- 2ème ligne : Liste des collections du thésaurus sélectionné -->
+            <!-- 3ème ligne : Liste des collections du thésaurus sélectionné -->
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field-full">
-                    <p:outputLabel for="collectionSelect" value="Liste des collections" />
+                    <p:outputLabel for="collectionSelect2" value="Liste des collections" />
                     <div class="input-wrapper">
                         <i class="pi pi-sitemap input-icon" />
-                        <p:selectOneMenu id="collectionSelect"
+                        <p:selectOneMenu id="collectionSelect2"
                                          value="#{openThesoDialogBean.selectedCollectionId}"
                                          styleClass="users-select"
                                          filter="true"
@@ -80,19 +95,6 @@
                                      placeholder="Saisissez un terme de recherche..."/>
                     </div>
                 </div>
-                <div class="opentheso-dialog-field">
-                    <p:outputLabel for="languageSelect" value="Langue" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-globe input-icon" />
-                        <p:selectOneMenu id="languageSelect"
-                                         value="#{openThesoDialogBean.selectedLanguageId}"
-                                         styleClass="users-select">
-                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
-                            <f:selectItems value="#{openThesoDialogBean.availableLanguages}" var="langue"
-                                           itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
-                        </p:selectOneMenu>
-                    </div>
-                </div>
                 <div class="opentheso-dialog-button">
                     <p:commandButton id="conceptSearchButton"
                                      value="Rechercher"
@@ -100,7 +102,8 @@
                                      styleClass="candidat-btn-add"
                                      action="#{openThesoDialogBean.onConceptSearch}"
                                      process="@form"
-                                     update=":openThesoForm:conceptsTable :growl"/>
+                                     ajax="true"
+                                     update=":createCandidatForm:openThesoForm2 :growl"/>
                 </div>
             </div>
 
@@ -125,7 +128,7 @@
                     </p:dataTable>
                 </div>
             </div>
-        </h:form>
+        </h:panelGroup>
 
         <div class="category-form-actions">
             <p:commandButton value="Annuler"
@@ -149,4 +152,11 @@
 
     <!-- Styles pour la boîte de dialogue -->
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
+
+    <!-- Remote command pour initialiser le dialog -->
+    <p:remoteCommand name="initializeOpenThesoDialog"
+                     action="#{openThesoDialogBean.initializeDialog}"
+                     process="@none"
+                     update=":createCandidatForm:openThesoForm2"
+                     autoRun="false"/>
 </ui:fragment>
