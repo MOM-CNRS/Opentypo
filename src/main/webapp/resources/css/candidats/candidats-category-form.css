@@ -12,7 +12,6 @@
             font-size: 1.125rem !important;
             font-weight: 700 !important;
             color: var(--color-action-main, #47624D) !important;
-            margin-bottom: 0.75rem !important;
             border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
             display: block !important;
             position: relative !important;
