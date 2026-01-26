@@ -300,7 +300,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'PRODUCTION', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'PRODUCTION', candidatBean.currentEntity.id)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -369,7 +369,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'AIRE_CIRCULATION', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'AIRE_CIRCULATION', candidatBean.currentEntity.id)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -381,6 +381,93 @@
                 Cliquez sur "Ajouter" pour sélectionner une aire de circulation depuis OpenTheso. Vous pouvez ajouter plusieurs valeurs.
             </p>
             <p:message for="aireCirculationGroup" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Description -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Description" styleClass="form-section-title" style="font-size: 1.2em; font-weight: 600; margin-bottom: 15px; display: block;"/>
+        </div>
+        
+        <!-- Décors -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="groupDecors" value="Décors" />
+            <div class="input-wrapper">
+                <i class="pi pi-palette input-icon" />
+                <p:inputText id="groupDecors"
+                             value="#{candidatBean.decors}"
+                             styleClass="users-input"
+                             placeholder="Saisissez le décors..."
+                             maxlength="255"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Ce champ sera enregistré lorsque vous cliquerez sur "Terminer".
+            </p>
+            <p:message for="groupDecors" display="icon"/>
+        </div>
+        
+        <!-- Marques/estampilles -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="groupMarquesEstampilles" value="Marques/estampilles" />
+            <div class="input-wrapper">
+                <i class="pi pi-tag input-icon" />
+                <p:chips id="groupMarquesEstampilles"
+                         value="#{candidatBean.marquesEstampilles}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Saisissez chaque marque/estampille et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer. Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="groupMarquesEstampilles" display="icon"/>
+        </div>
+        
+        <!-- Fonction/usage -->
+        <h:panelGroup id="fonctionUsageGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Fonction/usage" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.fonctionUsage != null ? candidatBean.fonctionUsage.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fonction/usage sélectionnée"
+                                 rendered="#{candidatBean.hasFonctionUsage()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fonction/usage sélectionnée"
+                                 rendered="#{!candidatBean.hasFonctionUsage()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FONCTION_USAGE', candidatBean.currentEntity.id)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la fonction/usage"
+                                 rendered="#{candidatBean.hasFonctionUsage()}"
+                                 onclick="PF('confirmDeleteFonctionUsageDialog').show(); return false;"
+                                 type="button"
+                                 process="@none"
+                                 update="@none"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Cliquez sur "Ajouter" pour sélectionner une fonction/usage depuis OpenTheso. Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="fonctionUsageGroup" display="icon"/>
         </h:panelGroup>
 
         <!-- Références bibliographiques (Saisie libre avec tags) -->

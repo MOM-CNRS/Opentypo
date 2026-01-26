@@ -173,4 +173,11 @@
                      process="@none"
                      update=":createCandidatForm :growl"
                      autoRun="false"/>
+    
+    <!-- Remote command pour mettre à jour la fonction/usage -->
+    <p:remoteCommand name="updateFonctionUsageFromOpenTheso"
+                     action="#{candidatBean.updateFonctionUsageFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
 </ui:fragment>

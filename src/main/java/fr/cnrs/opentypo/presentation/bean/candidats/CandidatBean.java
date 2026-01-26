@@ -11,6 +11,7 @@ import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.IiifImageService;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
+import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -99,6 +100,9 @@ public class CandidatBean implements Serializable {
     private String entityLabel;
     private String candidatProduction;
     private List<ReferenceOpentheso> airesCirculation = new ArrayList<>(); // Liste des aires de circulation
+    private String decors; // Décors (sauvegardé seulement au clic sur Terminer)
+    private List<String> marquesEstampilles = new ArrayList<>(); // Marques/estampilles (sauvegardé immédiatement)
+    private ReferenceOpentheso fonctionUsage; // Fonction/usage (sauvegardé immédiatement via OpenTheso)
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
@@ -843,6 +847,9 @@ public class CandidatBean implements Serializable {
         referencesBibliographiques = new ArrayList<>();
         ateliers = new ArrayList<>();
         airesCirculation = new ArrayList<>();
+        decors = null;
+        marquesEstampilles = new ArrayList<>();
+        fonctionUsage = null;
         collectionDescription = null;
         collectionPublique = true;
         
@@ -927,6 +934,34 @@ public class CandidatBean implements Serializable {
                 .collect(Collectors.toList());
         } else {
             airesCirculation = new ArrayList<>();
+        }
+        
+        // Charger les données de DescriptionDetail
+        DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+        if (descDetail != null) {
+            decors = descDetail.getDecors();
+            
+            // Charger les marques/estampilles
+            if (descDetail.getMarques() != null && !descDetail.getMarques().isEmpty()) {
+                String[] marquesArray = descDetail.getMarques().split("; ");
+                marquesEstampilles = new ArrayList<>(Arrays.asList(marquesArray));
+            } else {
+                marquesEstampilles = new ArrayList<>();
+            }
+            
+            // Charger la fonction/usage (forcer le chargement de la relation LAZY)
+            ReferenceOpentheso fonction = descDetail.getFonction();
+            if (fonction != null) {
+                // Forcer le chargement en accédant à une propriété
+                fonction.getValeur();
+                fonctionUsage = fonction;
+            } else {
+                fonctionUsage = null;
+            }
+        } else {
+            decors = null;
+            marquesEstampilles = new ArrayList<>();
+            fonctionUsage = null;
         }
         
         // Charger les champs spécifiques selon le type d'entité
@@ -1180,7 +1215,20 @@ public class CandidatBean implements Serializable {
                 }
             }
             
-            // Sauvegarder l'entité mise à jour
+            // Mettre à jour DescriptionDetail avec le décors
+            DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+            if (descDetail == null) {
+                descDetail = new DescriptionDetail();
+                descDetail.setEntity(refreshedEntity);
+                refreshedEntity.setDescriptionDetail(descDetail);
+            }
+            if (decors != null && !decors.trim().isEmpty()) {
+                descDetail.setDecors(decors.trim());
+            } else {
+                descDetail.setDecors(null);
+            }
+            
+            // Sauvegarder l'entité mise à jour (cascade sauvegardera DescriptionDetail)
             entityRepository.save(refreshedEntity);
             log.info("Entité mise à jour avec les valeurs finales: ID={}", refreshedEntity.getId());
             
@@ -2539,6 +2587,173 @@ public class CandidatBean implements Serializable {
             }
         } catch (Exception e) {
             log.error("Erreur lors de la sauvegarde des ateliers", e);
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement les marques/estampilles dans la base de données
+     */
+    public void saveMarquesEstampilles() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                // Récupérer ou créer DescriptionDetail
+                DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+                if (descDetail == null) {
+                    descDetail = new DescriptionDetail();
+                    descDetail.setEntity(refreshedEntity);
+                    refreshedEntity.setDescriptionDetail(descDetail);
+                }
+                
+                // Sauvegarder les marques/estampilles
+                String marquesStr = null;
+                if (marquesEstampilles != null && !marquesEstampilles.isEmpty()) {
+                    marquesStr = String.join("; ", marquesEstampilles);
+                }
+                descDetail.setMarques(marquesStr);
+                
+                // Sauvegarder l'entité (cascade sauvegardera DescriptionDetail)
+                entityRepository.save(refreshedEntity);
+                log.debug("Marques/estampilles sauvegardées pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde des marques/estampilles", e);
+        }
+    }
+    
+    /**
+     * Vérifie si une fonction/usage existe pour l'entité courante
+     */
+    public boolean hasFonctionUsage() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+
+        try {
+            // Utiliser la variable locale si elle est déjà chargée
+            if (fonctionUsage != null) {
+                return true;
+            }
+            
+            // Sinon, vérifier dans la base de données
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+                if (descDetail != null) {
+                    ReferenceOpentheso fonction = descDetail.getFonction();
+                    if (fonction != null) {
+                        // Forcer le chargement en accédant à une propriété
+                        fonction.getValeur();
+                        fonctionUsage = fonction; // Mettre en cache
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la fonction/usage", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Met à jour le champ fonction/usage depuis OpenTheso après validation
+     */
+    public void updateFonctionUsageFromOpenTheso() {
+        log.info("updateFonctionUsageFromOpenTheso() appelée - currentEntity ID={}", 
+            currentEntity != null ? currentEntity.getId() : "null");
+        
+        if (currentEntity == null || currentEntity.getId() == null) {
+            log.warn("updateFonctionUsageFromOpenTheso() - currentEntity ou ID est null");
+            return;
+        }
+        
+        try {
+            // Recharger l'entité depuis la base de données pour avoir la liste à jour
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                // Forcer le chargement de DescriptionDetail (relation LAZY)
+                DescriptionDetail descDetail = currentEntity.getDescriptionDetail();
+                log.debug("DescriptionDetail chargé: {}", descDetail != null ? "oui" : "non");
+                
+                if (descDetail != null) {
+                    // Forcer le chargement de la fonction (relation LAZY)
+                    ReferenceOpentheso fonction = descDetail.getFonction();
+                    log.debug("Fonction chargée: {}", fonction != null ? "oui" : "non");
+                    
+                    if (fonction != null) {
+                        // Accéder à une propriété pour forcer le chargement
+                        String valeur = fonction.getValeur();
+                        fonctionUsage = fonction;
+                        log.info("Fonction/usage mise à jour pour l'entité ID={}, fonction={}", 
+                            currentEntity.getId(), valeur);
+                    } else {
+                        fonctionUsage = null;
+                        log.info("Fonction/usage mise à null pour l'entité ID={}", currentEntity.getId());
+                    }
+                } else {
+                    fonctionUsage = null;
+                    log.info("DescriptionDetail est null, fonctionUsage mise à null pour l'entité ID={}", 
+                        currentEntity.getId());
+                }
+            } else {
+                log.warn("updateFonctionUsageFromOpenTheso() - Entité non trouvée avec ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour du champ fonction/usage depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Supprime la fonction/usage de l'entité
+     */
+    public void deleteFonctionUsage() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucune entité sélectionnée."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionDetail() != null) {
+                DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+                descDetail.setFonction(null);
+                entityRepository.save(refreshedEntity);
+                
+                // Mettre à jour currentEntity et la variable locale
+                currentEntity = refreshedEntity;
+                fonctionUsage = null;
+                
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Succès",
+                        "La fonction/usage a été supprimée avec succès."));
+                PrimeFaces.current().ajax().update(":growl");
+                
+                log.info("Fonction/usage supprimée pour l'entité ID={}", currentEntity.getId());
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Aucune fonction/usage à supprimer."));
+                PrimeFaces.current().ajax().update(":growl");
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la fonction/usage", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(":growl");
         }
     }
     

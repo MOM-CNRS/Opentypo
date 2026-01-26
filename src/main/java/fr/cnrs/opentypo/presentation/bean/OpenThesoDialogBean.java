@@ -317,6 +317,25 @@ public class OpenThesoDialogBean implements Serializable {
                             } else {
                                 createdReference = referenceOpentheso;
                             }
+                        } else if ("FONCTION_USAGE".equals(code)) {
+                            // Pour FONCTION_USAGE, on met à jour DescriptionDetail
+                            referenceOpentheso.setEntity(entity);
+                            // Récupérer ou créer DescriptionDetail
+                            fr.cnrs.opentypo.domain.entity.DescriptionDetail descDetail = entity.getDescriptionDetail();
+                            if (descDetail == null) {
+                                descDetail = new fr.cnrs.opentypo.domain.entity.DescriptionDetail();
+                                descDetail.setEntity(entity);
+                                entity.setDescriptionDetail(descDetail);
+                                log.info("DescriptionDetail créé pour l'entité ID={}", entity.getId());
+                            }
+                            descDetail.setFonction(referenceOpentheso);
+                            // Sauvegarder l'entité (cascade sauvegardera aussi DescriptionDetail et la référence)
+                            Entity savedEntity = entityRepository.save(entity);
+                            log.info("Fonction/usage sauvegardée pour l'entité ID={}, fonction={}", 
+                                savedEntity.getId(), referenceOpentheso.getValeur());
+                            // Recharger pour s'assurer que les relations sont bien chargées
+                            savedEntity = entityRepository.findById(savedEntity.getId()).orElse(savedEntity);
+                            createdReference = referenceOpentheso;
                         } else {
                             // Pour les autres codes, on définit simplement la relation
                             referenceOpentheso.setEntity(entity);
@@ -350,6 +369,8 @@ public class OpenThesoDialogBean implements Serializable {
                 PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
             } else if ("AIRE_CIRCULATION".equals(code) || "AIRE".equals(code)) {
                 PrimeFaces.current().executeScript("updateAireCirculationFromOpenTheso();");
+            } else if ("FONCTION_USAGE".equals(code)) {
+                PrimeFaces.current().executeScript("updateFonctionUsageFromOpenTheso();");
             } else {
                 // Par défaut, utiliser updateProductionFromOpenTheso pour compatibilité
                 PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
