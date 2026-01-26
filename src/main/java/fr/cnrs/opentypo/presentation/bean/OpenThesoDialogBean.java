@@ -7,7 +7,6 @@ import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
-import fr.cnrs.opentypo.presentation.bean.candidats.CandidatWizardBean;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -68,7 +67,7 @@ public class OpenThesoDialogBean implements Serializable {
     private List<PactolsConcept> searchResults = new ArrayList<>();
     private PactolsConcept selectedConcept;
 
-    private CandidatWizardBean candidatWizardBean;
+    private CandidatBean candidatBean;
 
     @PostConstruct
     public void init() {
@@ -81,8 +80,8 @@ public class OpenThesoDialogBean implements Serializable {
      * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
      * @param entityId ID de l'entité à mettre à jour
      */
-    public void loadThesaurus(CandidatWizardBean candidatWizardBean, String code, Long entityId) {
-        this.candidatWizardBean = candidatWizardBean;
+    public void loadThesaurus(CandidatBean candidatBean, String code, Long entityId) {
+        this.candidatBean = candidatBean;
         this.referenceCode = code != null ? code : "PRODUCTION";
         this.entityId = entityId;
         
@@ -99,7 +98,7 @@ public class OpenThesoDialogBean implements Serializable {
      * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
      */
     public void loadThesaurus(String code) {
-        loadThesaurus(candidatWizardBean, code, null);
+        loadThesaurus(candidatBean, code, null);
     }
 
     /**
@@ -107,7 +106,7 @@ public class OpenThesoDialogBean implements Serializable {
      * Utilise "PRODUCTION" par défaut
      */
     public void loadThesaurus() {
-        loadThesaurus(candidatWizardBean, "PRODUCTION", null);
+        loadThesaurus(candidatBean, "PRODUCTION", null);
     }
 
     /**
@@ -273,39 +272,73 @@ public class OpenThesoDialogBean implements Serializable {
             referenceOpentheso.setCollectionId(collectionId);
             referenceOpentheso.setUrl(url);
             
-            // Sauvegarder la référence
-            createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-            
-            log.info("Référence ReferenceOpentheso créée avec le code '{}' pour le concept: {}", code, conceptId);
-            
-            // Mettre à jour l'entité avec la référence si entityId est fourni
+            // Lier la référence à l'entité si entityId est fourni
             if (entityId != null) {
                 try {
                     Entity entity = entityRepository.findById(entityId).orElse(null);
                     if (entity != null) {
-                        // Lier la référence à l'entité selon le type
+                        // Pour les codes qui utilisent une seule référence (PRODUCTION, PERIODE, etc.)
+                        // on met à jour directement la colonne dans Entity
                         if ("PRODUCTION".equals(code)) {
-                            entity.setProduction(createdReference);
+                            entity.setProduction(referenceOpentheso);
+                            referenceOpentheso.setEntity(entity);
+                            // Sauvegarder l'entité (cascade sauvegardera aussi la référence)
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
                         } else if ("PERIODE".equals(code)) {
-                            entity.setPeriode(createdReference);
-                        } else if ("AIRE_CIRCULATION".equals(code) || "AIRE".equals(code)) {
-                            entity.setAireCirculation(createdReference);
+                            entity.setPeriode(referenceOpentheso);
+                            referenceOpentheso.setEntity(entity);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
                         } else if ("CATEGORIE_FONCTIONNELLE".equals(code) || "CATEGORIE".equals(code)) {
-                            entity.setCategorieFonctionnelle(createdReference);
+                            entity.setCategorieFonctionnelle(referenceOpentheso);
+                            referenceOpentheso.setEntity(entity);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("AIRE_CIRCULATION".equals(code)) {
+                            // Pour AIRE_CIRCULATION, on utilise la relation @OneToMany dans Entity
+                            referenceOpentheso.setEntity(entity);
+                            // Initialiser la liste si elle est null
+                            if (entity.getAiresCirculation() == null) {
+                                entity.setAiresCirculation(new java.util.ArrayList<>());
+                            }
+                            // Ajouter la référence à la liste
+                            entity.getAiresCirculation().add(referenceOpentheso);
+                            // Sauvegarder l'entité (cascade sauvegardera aussi la référence)
+                            Entity savedEntity = entityRepository.save(entity);
+                            // Récupérer la référence sauvegardée depuis l'entité
+                            if (savedEntity.getAiresCirculation() != null) {
+                                createdReference = savedEntity.getAiresCirculation().stream()
+                                    .filter(ref -> ref.getCode().equals(code) && 
+                                            ref.getConceptId() != null && 
+                                            ref.getConceptId().equals(referenceOpentheso.getConceptId()))
+                                    .findFirst()
+                                    .orElse(referenceOpentheso);
+                            } else {
+                                createdReference = referenceOpentheso;
+                            }
+                        } else {
+                            // Pour les autres codes, on définit simplement la relation
+                            referenceOpentheso.setEntity(entity);
+                            createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
                         }
-                        
-                        // Sauvegarder l'entité mise à jour
-                        candidatWizardBean.setCurrentEntity(entityRepository.save(entity));
-                        log.info("Entité ID={} mise à jour avec la référence {} (code: {})", 
-                            entityId, createdReference.getId(), code);
                     } else {
                         log.warn("Entité avec ID={} non trouvée, impossible de lier la référence", entityId);
+                        // Sauvegarder quand même la référence sans lien
+                        createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
                     }
                 } catch (Exception e) {
-                    log.error("Erreur lors de la mise à jour de l'entité avec la référence", e);
-                    // Ne pas bloquer le processus si la mise à jour de l'entité échoue
+                    log.error("Erreur lors de la liaison de la référence à l'entité", e);
+                    // Sauvegarder quand même la référence sans lien
+                    createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
                 }
+            } else {
+                // Pas d'entityId fourni, sauvegarder simplement la référence
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
             }
+            
+            log.info("Référence ReferenceOpentheso créée avec le code '{}' pour le concept: {} (entity_id: {})", 
+                code, conceptId, entityId);
             
             // Appeler le callback si défini avec le terme sélectionné
             if (onValidateCallback != null) {
@@ -313,7 +346,14 @@ public class OpenThesoDialogBean implements Serializable {
             }
 
             // Appeler le remote command pour mettre à jour le champ correspondant
-            PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
+            if ("PRODUCTION".equals(code)) {
+                PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
+            } else if ("AIRE_CIRCULATION".equals(code) || "AIRE".equals(code)) {
+                PrimeFaces.current().executeScript("updateAireCirculationFromOpenTheso();");
+            } else {
+                // Par défaut, utiliser updateProductionFromOpenTheso pour compatibilité
+                PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
+            }
 
             // Fermer la boîte de dialogue
             PrimeFaces.current().executeScript("setTimeout(function() { PF('openthesoDialog').hide(); }, 100);");

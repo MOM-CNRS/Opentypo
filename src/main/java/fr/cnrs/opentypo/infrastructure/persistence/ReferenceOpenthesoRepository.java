@@ -31,5 +31,17 @@ public interface ReferenceOpenthesoRepository extends JpaRepository<ReferenceOpe
      */
     @Query("SELECT r FROM ReferenceOpentheso r WHERE LOWER(r.valeur) LIKE LOWER(CONCAT('%', :valeur, '%'))")
     List<ReferenceOpentheso> findByValeurContainingIgnoreCase(@Param("valeur") String valeur);
+
+    /**
+     * Trouve toutes les références pour une entité et un code donnés
+     */
+    @Query("SELECT r FROM ReferenceOpentheso r WHERE r.entity.id = :entityId AND r.code = :code")
+    List<ReferenceOpentheso> findByEntityIdAndCode(@Param("entityId") Long entityId, @Param("code") String code);
+
+    /**
+     * Trouve toutes les références pour une entité donnée
+     */
+    @Query("SELECT r FROM ReferenceOpentheso r WHERE r.entity.id = :entityId")
+    List<ReferenceOpentheso> findByEntityId(@Param("entityId") Long entityId);
 }
 

@@ -478,8 +478,13 @@ public class ApplicationBean implements Serializable {
                     if (this.selectedSerie.getProduction() != null) {
                         this.selectedSerie.getProduction().getValeur();
                     }
-                    if (this.selectedSerie.getAireCirculation() != null) {
-                        this.selectedSerie.getAireCirculation().getValeur();
+                    // Forcer le chargement de la liste des aires de circulation
+                    if (this.selectedSerie.getAiresCirculation() != null) {
+                        this.selectedSerie.getAiresCirculation().forEach(ref -> {
+                            if (ref != null && "AIRE_CIRCULATION".equals(ref.getCode())) {
+                                ref.getValeur(); // Force le chargement
+                            }
+                        });
                     }
                     if (this.selectedSerie.getCategorieFonctionnelle() != null) {
                         this.selectedSerie.getCategorieFonctionnelle().getValeur();
@@ -611,8 +616,13 @@ public class ApplicationBean implements Serializable {
                     if (this.selectedType.getProduction() != null) {
                         this.selectedType.getProduction().getValeur(); // Force le chargement
                     }
-                    if (this.selectedType.getAireCirculation() != null) {
-                        this.selectedType.getAireCirculation().getValeur(); // Force le chargement
+                    // Forcer le chargement de la liste des aires de circulation
+                    if (this.selectedType.getAiresCirculation() != null) {
+                        this.selectedType.getAiresCirculation().forEach(ref -> {
+                            if (ref != null && "AIRE_CIRCULATION".equals(ref.getCode())) {
+                                ref.getValeur(); // Force le chargement
+                            }
+                        });
                     }
                     if (this.selectedType.getCategorieFonctionnelle() != null) {
                         this.selectedType.getCategorieFonctionnelle().getValeur(); // Force le chargement

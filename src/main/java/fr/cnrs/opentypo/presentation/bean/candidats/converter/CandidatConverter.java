@@ -77,7 +77,16 @@ public class CandidatConverter {
         candidat.setDescription(description);
         
         candidat.setProduction(entity.getProduction() != null ? entity.getProduction().getValeur() : "");
-        candidat.setAireCirculation(entity.getAireCirculation() != null ? entity.getAireCirculation().getValeur() : "");
+        // Aire de circulation : concaténer toutes les valeurs avec "; "
+        String aireCirculationStr = "";
+        if (entity.getAiresCirculation() != null && !entity.getAiresCirculation().isEmpty()) {
+            aireCirculationStr = entity.getAiresCirculation().stream()
+                .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                .map(ref -> ref.getValeur())
+                .filter(v -> v != null && !v.isEmpty())
+                .collect(java.util.stream.Collectors.joining("; "));
+        }
+        candidat.setAireCirculation(aireCirculationStr);
         candidat.setCategorieFonctionnelle(entity.getCategorieFonctionnelle() != null ? 
             entity.getCategorieFonctionnelle().getValeur() : "");
         candidat.setReference(entity.getReference());

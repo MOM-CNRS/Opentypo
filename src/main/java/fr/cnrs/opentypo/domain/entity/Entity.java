@@ -116,9 +116,8 @@ public class Entity implements Serializable {
     @JoinColumn(name = "production_id")
     private ReferenceOpentheso production;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "aire_circulation")
-    private ReferenceOpentheso aireCirculation;
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> airesCirculation = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_fonctionnelle")

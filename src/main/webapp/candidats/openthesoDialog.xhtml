@@ -166,4 +166,11 @@
                      process="@none"
                      update=":createCandidatForm :growl"
                      autoRun="false"/>
+    
+    <!-- Remote command pour mettre à jour l'aire de circulation -->
+    <p:remoteCommand name="updateAireCirculationFromOpenTheso"
+                     action="#{candidatBean.updateAireCirculationFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
 </ui:fragment>
