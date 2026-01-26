@@ -166,6 +166,41 @@
             margin: 0.5rem 0;
         }
 
+        /* Style spécifique pour le titre "Caractéristiques physiques" */
+        .caracteristiques-physiques-section {
+            position: relative;
+            margin-top: 2.5rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .caracteristiques-physiques-title,
+        .caracteristiques-physiques-title.ui-outputlabel {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: var(--color-action-main, #47624D) !important;
+            margin: 0 !important;
+            margin-bottom: 1.25rem !important;
+            padding: 1rem 1.25rem !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.03) 100%) !important;
+            border-left: 4px solid var(--color-action-main, #47624D) !important;
+            border-radius: 8px 0 0 8px !important;
+            display: block !important;
+            position: relative !important;
+            letter-spacing: 0.01em !important;
+            text-transform: uppercase !important;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.1) !important;
+        }
+
+        .caracteristiques-physiques-title::before {
+            display: none !important;
+            content: none !important;
+        }
+
+        .caracteristiques-physiques-title::after {
+            display: none !important;
+            content: none !important;
+        }
+
         .form-section-description {
             font-size: 0.9375rem;
             color: var(--color-text-secondary, #819A91);
@@ -686,6 +721,26 @@
 
             .form-section-title {
                 font-size: 1.125rem;
+            }
+
+            /* Responsive pour le titre Caractéristiques physiques */
+            .caracteristiques-physiques-title,
+            .caracteristiques-physiques-title.ui-outputlabel {
+                font-size: 1rem !important;
+                padding: 0.875rem 1rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .caracteristiques-physiques-section {
+                margin-top: 2rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+
+            .caracteristiques-physiques-title,
+            .caracteristiques-physiques-title.ui-outputlabel {
+                font-size: 1rem !important;
+                padding: 0.75rem 0.875rem !important;
+                margin-bottom: 0.875rem !important;
             }
 
             .users-chips .ui-chips-input-token input {

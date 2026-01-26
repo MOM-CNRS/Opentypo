@@ -383,13 +383,14 @@
             <p:message for="aireCirculationGroup" display="icon"/>
         </h:panelGroup>
 
-        <!-- Description -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel value="Description" styleClass="form-section-title" style="font-size: 1.2em; font-weight: 600; margin-bottom: 15px; display: block;"/>
+        <!-- Caractéristiques physiques -->
+        <div class="users-form-group users-form-group-full caracteristiques-physiques-section" style="margin-top: 20px;">
+            <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title"
+                              style="padding-left: 15px !important;"/></b>
         </div>
         
         <!-- Décors -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+        <div class="users-form-group users-form-group-full">
             <p:outputLabel for="groupDecors" value="Décors" />
             <div class="input-wrapper">
                 <i class="pi pi-palette input-icon" />
@@ -471,12 +472,13 @@
         </h:panelGroup>
 
         <!-- Caractéristiques physiques -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel value="Caractéristiques physiques" styleClass="form-section-title" style="font-size: 1.2em; font-weight: 600; margin-bottom: 15px; display: block;"/>
+        <div class="users-form-group users-form-group-full caracteristiques-physiques-section" style="margin-top: 20px">
+            <b><p:outputLabel value="Caractéristiques physiques" styleClass="caracteristiques-physiques-title"
+                              style="padding-left: 15px !important;"/></b>
         </div>
         
         <!-- Métrologie -->
-        <h:panelGroup id="metrologieGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup id="metrologieGroup" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Métrologie" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -554,26 +556,6 @@
             </div>
             <p:message for="fabricationFaconnageGroup" display="icon"/>
         </h:panelGroup>
-        
-        <!-- Description pâte -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupDescriptionPate" value="Description pâte" />
-            <div class="input-wrapper">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText id="groupDescriptionPate"
-                             value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Les modifications sont enregistrées automatiquement.
-            </p>
-            <p:message for="groupDescriptionPate" display="icon"/>
-        </div>
         
         <!-- Couleur de pâte -->
         <h:panelGroup id="couleurPateGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
@@ -654,6 +636,26 @@
             </div>
             <p:message for="naturePateGroup" display="icon"/>
         </h:panelGroup>
+
+        <!-- Description pâte (champ texte) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="groupDescriptionPate" value="Description pâte" />
+            <div class="input-wrapper">
+                <i class="pi pi-align-left input-icon" />
+                <p:inputText id="groupDescriptionPate"
+                             value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             placeholder="Saisissez la description de la pâte..."
+                             maxlength="255">
+                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
+                </p:inputText>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="groupDescriptionPate" display="icon"/>
+        </div>
         
         <!-- Inclusions -->
         <h:panelGroup id="inclusionsGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
