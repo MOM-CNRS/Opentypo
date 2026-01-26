@@ -37,8 +37,9 @@ public class CaracteristiquePhysique implements Serializable {
     @JoinColumn(name = "entity_id", nullable = false, unique = true)
     private Entity entity;
 
-    @Column(name = "metrologie", columnDefinition = "TEXT")
-    private String metrologie;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "metrologie_id")
+    private ReferenceOpentheso metrologie;
 
     @Column(name = "materiaux", columnDefinition = "TEXT")
     private String materiaux;

@@ -131,6 +131,10 @@ public class Entity implements Serializable {
     @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private CaracteristiquePhysique caracteristiquePhysique;
 
+    // Relations avec DescriptionPate
+    @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private DescriptionPate descriptionPate;
+
     // Relations avec EntityRelation (parent)
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EntityRelation> parentRelations = new ArrayList<>();

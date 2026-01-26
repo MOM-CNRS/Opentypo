@@ -180,4 +180,41 @@
                      process="@none"
                      update=":createCandidatForm :growl"
                      autoRun="false"/>
+    
+    <!-- Remote commands pour les caractéristiques physiques -->
+    <p:remoteCommand name="updateMetrologieFromOpenTheso"
+                     action="#{candidatBean.updateMetrologieFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
+    
+    <p:remoteCommand name="updateFabricationFaconnageFromOpenTheso"
+                     action="#{candidatBean.updateFabricationFaconnageFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
+    
+    <p:remoteCommand name="updateCouleurPateFromOpenTheso"
+                     action="#{candidatBean.updateCouleurPateFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
+    
+    <p:remoteCommand name="updateNaturePateFromOpenTheso"
+                     action="#{candidatBean.updateNaturePateFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
+    
+    <p:remoteCommand name="updateInclusionsFromOpenTheso"
+                     action="#{candidatBean.updateInclusionsFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
+    
+    <p:remoteCommand name="updateCuissonPostCuissonFromOpenTheso"
+                     action="#{candidatBean.updateCuissonPostCuissonFromOpenTheso}"
+                     process="@none"
+                     update=":createCandidatForm :growl"
+                     autoRun="false"/>
 </ui:fragment>

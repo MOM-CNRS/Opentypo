@@ -2,7 +2,9 @@ package fr.cnrs.opentypo.presentation.bean.candidats;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
+import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -103,6 +105,16 @@ public class CandidatBean implements Serializable {
     private String decors; // Décors (sauvegardé seulement au clic sur Terminer)
     private List<String> marquesEstampilles = new ArrayList<>(); // Marques/estampilles (sauvegardé immédiatement)
     private ReferenceOpentheso fonctionUsage; // Fonction/usage (sauvegardé immédiatement via OpenTheso)
+    
+    // Caractéristiques physiques
+    private ReferenceOpentheso metrologie; // Métrologie (sauvegardé immédiatement via OpenTheso)
+    private ReferenceOpentheso fabricationFaconnage; // Fabrication/façonnage (sauvegardé immédiatement via OpenTheso)
+    private String descriptionPate; // Description pâte (sauvegardé immédiatement)
+    private ReferenceOpentheso couleurPate; // Couleur de pâte (sauvegardé immédiatement via OpenTheso)
+    private ReferenceOpentheso naturePate; // Nature de pâte (sauvegardé immédiatement via OpenTheso)
+    private ReferenceOpentheso inclusions; // Inclusions (sauvegardé immédiatement via OpenTheso)
+    private ReferenceOpentheso cuissonPostCuisson; // Cuisson/post-cuisson (sauvegardé immédiatement via OpenTheso)
+    
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
@@ -850,6 +862,13 @@ public class CandidatBean implements Serializable {
         decors = null;
         marquesEstampilles = new ArrayList<>();
         fonctionUsage = null;
+        metrologie = null;
+        fabricationFaconnage = null;
+        descriptionPate = null;
+        couleurPate = null;
+        naturePate = null;
+        inclusions = null;
+        cuissonPostCuisson = null;
         collectionDescription = null;
         collectionPublique = true;
         
@@ -962,6 +981,79 @@ public class CandidatBean implements Serializable {
             decors = null;
             marquesEstampilles = new ArrayList<>();
             fonctionUsage = null;
+        }
+        
+        // Charger les données de CaracteristiquePhysique
+        CaracteristiquePhysique carPhysique = refreshedEntity.getCaracteristiquePhysique();
+        if (carPhysique != null) {
+            // Charger la métrologie (relation LAZY)
+            ReferenceOpentheso metrologieRef = carPhysique.getMetrologie();
+            if (metrologieRef != null) {
+                metrologieRef.getValeur(); // Forcer le chargement
+                metrologie = metrologieRef;
+            } else {
+                metrologie = null;
+            }
+            
+            // Charger la fabrication (relation LAZY)
+            ReferenceOpentheso fabricationRef = carPhysique.getFabrication();
+            if (fabricationRef != null) {
+                fabricationRef.getValeur(); // Forcer le chargement
+                fabricationFaconnage = fabricationRef;
+            } else {
+                fabricationFaconnage = null;
+            }
+        } else {
+            metrologie = null;
+            fabricationFaconnage = null;
+        }
+        
+        // Charger les données de DescriptionPate
+        DescriptionPate descPate = refreshedEntity.getDescriptionPate();
+        if (descPate != null) {
+            descriptionPate = descPate.getDescription();
+            
+            // Charger la couleur (relation LAZY)
+            ReferenceOpentheso couleurRef = descPate.getCouleur();
+            if (couleurRef != null) {
+                couleurRef.getValeur(); // Forcer le chargement
+                couleurPate = couleurRef;
+            } else {
+                couleurPate = null;
+            }
+            
+            // Charger la nature (relation LAZY)
+            ReferenceOpentheso natureRef = descPate.getNature();
+            if (natureRef != null) {
+                natureRef.getValeur(); // Forcer le chargement
+                naturePate = natureRef;
+            } else {
+                naturePate = null;
+            }
+            
+            // Charger l'inclusion (relation LAZY)
+            ReferenceOpentheso inclusionRef = descPate.getInclusion();
+            if (inclusionRef != null) {
+                inclusionRef.getValeur(); // Forcer le chargement
+                inclusions = inclusionRef;
+            } else {
+                inclusions = null;
+            }
+            
+            // Charger la cuisson (relation LAZY)
+            ReferenceOpentheso cuissonRef = descPate.getCuisson();
+            if (cuissonRef != null) {
+                cuissonRef.getValeur(); // Forcer le chargement
+                cuissonPostCuisson = cuissonRef;
+            } else {
+                cuissonPostCuisson = null;
+            }
+        } else {
+            descriptionPate = null;
+            couleurPate = null;
+            naturePate = null;
+            inclusions = null;
+            cuissonPostCuisson = null;
         }
         
         // Charger les champs spécifiques selon le type d'entité
@@ -2754,6 +2846,509 @@ public class CandidatBean implements Serializable {
                     "Erreur",
                     "Une erreur est survenue lors de la suppression : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+    
+    /**
+     * Sauvegarde automatiquement la description de pâte dans la base de données
+     */
+    public void saveDescriptionPate() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                // Récupérer ou créer DescriptionPate
+                DescriptionPate descPate = refreshedEntity.getDescriptionPate();
+                if (descPate == null) {
+                    descPate = new DescriptionPate();
+                    descPate.setEntity(refreshedEntity);
+                    refreshedEntity.setDescriptionPate(descPate);
+                }
+                
+                // Sauvegarder la description
+                if (descriptionPate != null && !descriptionPate.trim().isEmpty()) {
+                    descPate.setDescription(descriptionPate.trim());
+                } else {
+                    descPate.setDescription(null);
+                }
+                
+                // Sauvegarder l'entité (cascade sauvegardera DescriptionPate)
+                entityRepository.save(refreshedEntity);
+                log.debug("Description de pâte sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde de la description de pâte", e);
+        }
+    }
+    
+    /**
+     * Vérifie si une métrologie existe pour l'entité courante
+     */
+    public boolean hasMetrologie() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (metrologie != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+                ReferenceOpentheso metrologieRef = refreshedEntity.getCaracteristiquePhysique().getMetrologie();
+                if (metrologieRef != null) {
+                    metrologieRef.getValeur();
+                    metrologie = metrologieRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la métrologie", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Vérifie si une fabrication/façonnage existe pour l'entité courante
+     */
+    public boolean hasFabricationFaconnage() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (fabricationFaconnage != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+                ReferenceOpentheso fabricationRef = refreshedEntity.getCaracteristiquePhysique().getFabrication();
+                if (fabricationRef != null) {
+                    fabricationRef.getValeur();
+                    fabricationFaconnage = fabricationRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la fabrication/façonnage", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Vérifie si une couleur de pâte existe pour l'entité courante
+     */
+    public boolean hasCouleurPate() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (couleurPate != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                ReferenceOpentheso couleurRef = refreshedEntity.getDescriptionPate().getCouleur();
+                if (couleurRef != null) {
+                    couleurRef.getValeur();
+                    couleurPate = couleurRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la couleur de pâte", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Vérifie si une nature de pâte existe pour l'entité courante
+     */
+    public boolean hasNaturePate() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (naturePate != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                ReferenceOpentheso natureRef = refreshedEntity.getDescriptionPate().getNature();
+                if (natureRef != null) {
+                    natureRef.getValeur();
+                    naturePate = natureRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la nature de pâte", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Vérifie si une inclusion existe pour l'entité courante
+     */
+    public boolean hasInclusions() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (inclusions != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                ReferenceOpentheso inclusionRef = refreshedEntity.getDescriptionPate().getInclusion();
+                if (inclusionRef != null) {
+                    inclusionRef.getValeur();
+                    inclusions = inclusionRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification des inclusions", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Vérifie si une cuisson/post-cuisson existe pour l'entité courante
+     */
+    public boolean hasCuissonPostCuisson() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        try {
+            if (cuissonPostCuisson != null) {
+                return true;
+            }
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                ReferenceOpentheso cuissonRef = refreshedEntity.getDescriptionPate().getCuisson();
+                if (cuissonRef != null) {
+                    cuissonRef.getValeur();
+                    cuissonPostCuisson = cuissonRef;
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Erreur lors de la vérification de la cuisson/post-cuisson", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Met à jour le champ métrologie depuis OpenTheso après validation
+     */
+    public void updateMetrologieFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
+                if (carPhysique != null) {
+                    ReferenceOpentheso metrologieRef = carPhysique.getMetrologie();
+                    if (metrologieRef != null) {
+                        metrologieRef.getValeur();
+                        metrologie = metrologieRef;
+                    } else {
+                        metrologie = null;
+                    }
+                } else {
+                    metrologie = null;
+                }
+                log.info("Métrologie mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour de la métrologie depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Met à jour le champ fabrication/façonnage depuis OpenTheso après validation
+     */
+    public void updateFabricationFaconnageFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
+                if (carPhysique != null) {
+                    ReferenceOpentheso fabricationRef = carPhysique.getFabrication();
+                    if (fabricationRef != null) {
+                        fabricationRef.getValeur();
+                        fabricationFaconnage = fabricationRef;
+                    } else {
+                        fabricationFaconnage = null;
+                    }
+                } else {
+                    fabricationFaconnage = null;
+                }
+                log.info("Fabrication/façonnage mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour de la fabrication/façonnage depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Met à jour le champ couleur de pâte depuis OpenTheso après validation
+     */
+    public void updateCouleurPateFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                DescriptionPate descPate = currentEntity.getDescriptionPate();
+                if (descPate != null) {
+                    ReferenceOpentheso couleurRef = descPate.getCouleur();
+                    if (couleurRef != null) {
+                        couleurRef.getValeur();
+                        couleurPate = couleurRef;
+                    } else {
+                        couleurPate = null;
+                    }
+                } else {
+                    couleurPate = null;
+                }
+                log.info("Couleur de pâte mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour de la couleur de pâte depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Met à jour le champ nature de pâte depuis OpenTheso après validation
+     */
+    public void updateNaturePateFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                DescriptionPate descPate = currentEntity.getDescriptionPate();
+                if (descPate != null) {
+                    ReferenceOpentheso natureRef = descPate.getNature();
+                    if (natureRef != null) {
+                        natureRef.getValeur();
+                        naturePate = natureRef;
+                    } else {
+                        naturePate = null;
+                    }
+                } else {
+                    naturePate = null;
+                }
+                log.info("Nature de pâte mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour de la nature de pâte depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Met à jour le champ inclusions depuis OpenTheso après validation
+     */
+    public void updateInclusionsFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                DescriptionPate descPate = currentEntity.getDescriptionPate();
+                if (descPate != null) {
+                    ReferenceOpentheso inclusionRef = descPate.getInclusion();
+                    if (inclusionRef != null) {
+                        inclusionRef.getValeur();
+                        inclusions = inclusionRef;
+                    } else {
+                        inclusions = null;
+                    }
+                } else {
+                    inclusions = null;
+                }
+                log.info("Inclusions mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour des inclusions depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Met à jour le champ cuisson/post-cuisson depuis OpenTheso après validation
+     */
+    public void updateCuissonPostCuissonFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null) {
+                currentEntity = refreshedEntity;
+                DescriptionPate descPate = currentEntity.getDescriptionPate();
+                if (descPate != null) {
+                    ReferenceOpentheso cuissonRef = descPate.getCuisson();
+                    if (cuissonRef != null) {
+                        cuissonRef.getValeur();
+                        cuissonPostCuisson = cuissonRef;
+                    } else {
+                        cuissonPostCuisson = null;
+                    }
+                } else {
+                    cuissonPostCuisson = null;
+                }
+                log.info("Cuisson/post-cuisson mise à jour pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la mise à jour de la cuisson/post-cuisson depuis OpenTheso", e);
+        }
+    }
+    
+    /**
+     * Supprime la métrologie de l'entité
+     */
+    public void deleteMetrologie() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+                refreshedEntity.getCaracteristiquePhysique().setMetrologie(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                metrologie = null;
+                log.info("Métrologie supprimée pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la métrologie", e);
+        }
+    }
+    
+    /**
+     * Supprime la fabrication/façonnage de l'entité
+     */
+    public void deleteFabricationFaconnage() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+                refreshedEntity.getCaracteristiquePhysique().setFabrication(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                fabricationFaconnage = null;
+                log.info("Fabrication/façonnage supprimée pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la fabrication/façonnage", e);
+        }
+    }
+    
+    /**
+     * Supprime la couleur de pâte de l'entité
+     */
+    public void deleteCouleurPate() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                refreshedEntity.getDescriptionPate().setCouleur(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                couleurPate = null;
+                log.info("Couleur de pâte supprimée pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la couleur de pâte", e);
+        }
+    }
+    
+    /**
+     * Supprime la nature de pâte de l'entité
+     */
+    public void deleteNaturePate() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                refreshedEntity.getDescriptionPate().setNature(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                naturePate = null;
+                log.info("Nature de pâte supprimée pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la nature de pâte", e);
+        }
+    }
+    
+    /**
+     * Supprime les inclusions de l'entité
+     */
+    public void deleteInclusions() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                refreshedEntity.getDescriptionPate().setInclusion(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                inclusions = null;
+                log.info("Inclusions supprimées pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression des inclusions", e);
+        }
+    }
+    
+    /**
+     * Supprime la cuisson/post-cuisson de l'entité
+     */
+    public void deleteCuissonPostCuisson() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        try {
+            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+                refreshedEntity.getDescriptionPate().setCuisson(null);
+                entityRepository.save(refreshedEntity);
+                currentEntity = refreshedEntity;
+                cuissonPostCuisson = null;
+                log.info("Cuisson/post-cuisson supprimée pour l'entité ID={}", currentEntity.getId());
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de la cuisson/post-cuisson", e);
         }
     }
     

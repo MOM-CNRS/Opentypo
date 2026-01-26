@@ -26,7 +26,7 @@ public class DescriptionPate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "description", nullable = false, length = 255)
+    @Column(name = "description", length = 255)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,8 +41,13 @@ public class DescriptionPate implements Serializable {
     @JoinColumn(name = "inclusion_id")
     private ReferenceOpentheso inclusion;
 
-    @Column(name = "cuisson")
-    private String cuisson;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cuisson_id")
+    private ReferenceOpentheso cuisson;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entity_id", nullable = false, unique = true)
+    private fr.cnrs.opentypo.domain.entity.Entity entity;
 
 }
 

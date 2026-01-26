@@ -2,8 +2,11 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.pactols.*;
 import fr.cnrs.opentypo.application.service.PactolsService;
+import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
+import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
@@ -309,9 +312,7 @@ public class OpenThesoDialogBean implements Serializable {
                             // Récupérer la référence sauvegardée depuis l'entité
                             if (savedEntity.getAiresCirculation() != null) {
                                 createdReference = savedEntity.getAiresCirculation().stream()
-                                    .filter(ref -> ref.getCode().equals(code) && 
-                                            ref.getConceptId() != null && 
-                                            ref.getConceptId().equals(referenceOpentheso.getConceptId()))
+                                    .filter(ref -> ref.getCode().equals(code) && ref.getConceptId() != null && ref.getConceptId().equals(referenceOpentheso.getConceptId()))
                                     .findFirst()
                                     .orElse(referenceOpentheso);
                             } else {
@@ -321,9 +322,9 @@ public class OpenThesoDialogBean implements Serializable {
                             // Pour FONCTION_USAGE, on met à jour DescriptionDetail
                             referenceOpentheso.setEntity(entity);
                             // Récupérer ou créer DescriptionDetail
-                            fr.cnrs.opentypo.domain.entity.DescriptionDetail descDetail = entity.getDescriptionDetail();
+                            DescriptionDetail descDetail = entity.getDescriptionDetail();
                             if (descDetail == null) {
-                                descDetail = new fr.cnrs.opentypo.domain.entity.DescriptionDetail();
+                                descDetail = new DescriptionDetail();
                                 descDetail.setEntity(entity);
                                 entity.setDescriptionDetail(descDetail);
                                 log.info("DescriptionDetail créé pour l'entité ID={}", entity.getId());
@@ -335,6 +336,84 @@ public class OpenThesoDialogBean implements Serializable {
                                 savedEntity.getId(), referenceOpentheso.getValeur());
                             // Recharger pour s'assurer que les relations sont bien chargées
                             savedEntity = entityRepository.findById(savedEntity.getId()).orElse(savedEntity);
+                            createdReference = referenceOpentheso;
+                        } else if ("METROLOGIE".equals(code)) {
+                            // Pour METROLOGIE, on met à jour CaracteristiquePhysique
+                            referenceOpentheso.setEntity(entity);
+                            // Récupérer ou créer CaracteristiquePhysique
+                            CaracteristiquePhysique carPhysique = entity.getCaracteristiquePhysique();
+                            if (carPhysique == null) {
+                                carPhysique = new CaracteristiquePhysique();
+                                carPhysique.setEntity(entity);
+                                entity.setCaracteristiquePhysique(carPhysique);
+                                log.info("CaracteristiquePhysique créé pour l'entité ID={}", entity.getId());
+                            }
+                            carPhysique.setMetrologie(referenceOpentheso);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("FABRICATION_FACONNAGE".equals(code)) {
+                            // Pour FABRICATION_FACONNAGE, on met à jour CaracteristiquePhysique
+                            referenceOpentheso.setEntity(entity);
+                            CaracteristiquePhysique carPhysique = entity.getCaracteristiquePhysique();
+                            if (carPhysique == null) {
+                                carPhysique = new CaracteristiquePhysique();
+                                carPhysique.setEntity(entity);
+                                entity.setCaracteristiquePhysique(carPhysique);
+                            }
+                            carPhysique.setFabrication(referenceOpentheso);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("COULEUR_PATE".equals(code)) {
+                            // Pour COULEUR_PATE, on met à jour DescriptionPate
+                            referenceOpentheso.setEntity(entity);
+                            DescriptionPate descPate = entity.getDescriptionPate();
+                            if (descPate == null) {
+                                descPate = new DescriptionPate();
+                                descPate.setEntity(entity);
+                                descPate.setDescription(""); // Valeur par défaut requise
+                                entity.setDescriptionPate(descPate);
+                            }
+                            descPate.setCouleur(referenceOpentheso);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("NATURE_PATE".equals(code)) {
+                            // Pour NATURE_PATE, on met à jour DescriptionPate
+                            referenceOpentheso.setEntity(entity);
+                            DescriptionPate descPate = entity.getDescriptionPate();
+                            if (descPate == null) {
+                                descPate = new DescriptionPate();
+                                descPate.setEntity(entity);
+                                descPate.setDescription("");
+                                entity.setDescriptionPate(descPate);
+                            }
+                            descPate.setNature(referenceOpentheso);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("INCLUSIONS".equals(code)) {
+                            // Pour INCLUSIONS, on met à jour DescriptionPate
+                            referenceOpentheso.setEntity(entity);
+                            DescriptionPate descPate = entity.getDescriptionPate();
+                            if (descPate == null) {
+                                descPate = new DescriptionPate();
+                                descPate.setEntity(entity);
+                                descPate.setDescription("");
+                                entity.setDescriptionPate(descPate);
+                            }
+                            descPate.setInclusion(referenceOpentheso);
+                            entityRepository.save(entity);
+                            createdReference = referenceOpentheso;
+                        } else if ("CUISSON_POST_CUISSON".equals(code)) {
+                            // Pour CUISSON_POST_CUISSON, on met à jour DescriptionPate
+                            referenceOpentheso.setEntity(entity);
+                            DescriptionPate descPate = entity.getDescriptionPate();
+                            if (descPate == null) {
+                                descPate = new DescriptionPate();
+                                descPate.setEntity(entity);
+                                descPate.setDescription("");
+                                entity.setDescriptionPate(descPate);
+                            }
+                            descPate.setCuisson(referenceOpentheso);
+                            entityRepository.save(entity);
                             createdReference = referenceOpentheso;
                         } else {
                             // Pour les autres codes, on définit simplement la relation
@@ -371,6 +450,18 @@ public class OpenThesoDialogBean implements Serializable {
                 PrimeFaces.current().executeScript("updateAireCirculationFromOpenTheso();");
             } else if ("FONCTION_USAGE".equals(code)) {
                 PrimeFaces.current().executeScript("updateFonctionUsageFromOpenTheso();");
+            } else if ("METROLOGIE".equals(code)) {
+                PrimeFaces.current().executeScript("updateMetrologieFromOpenTheso();");
+            } else if ("FABRICATION_FACONNAGE".equals(code)) {
+                PrimeFaces.current().executeScript("updateFabricationFaconnageFromOpenTheso();");
+            } else if ("COULEUR_PATE".equals(code)) {
+                PrimeFaces.current().executeScript("updateCouleurPateFromOpenTheso();");
+            } else if ("NATURE_PATE".equals(code)) {
+                PrimeFaces.current().executeScript("updateNaturePateFromOpenTheso();");
+            } else if ("INCLUSIONS".equals(code)) {
+                PrimeFaces.current().executeScript("updateInclusionsFromOpenTheso();");
+            } else if ("CUISSON_POST_CUISSON".equals(code)) {
+                PrimeFaces.current().executeScript("updateCuissonPostCuissonFromOpenTheso();");
             } else {
                 // Par défaut, utiliser updateProductionFromOpenTheso pour compatibilité
                 PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
