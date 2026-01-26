@@ -33,81 +33,81 @@
                     <!-- Wizard personnalisé -->
                     <div class="custom-wizard" id="wizardContainer">
                         <!-- Barre de progression -->
-                        <h:panelGroup id="wizardProgress" class="wizard-progress-modern">
-                            <div class="wizard-steps-modern">
-                                <!-- Étape 1 -->
-                                <div class="wizard-step-modern #{candidatBean.isStep1() ? 'active' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'completed' : 'pending')}">
-                                    <div class="step-indicator">
-                                        <div class="step-circle">
-                                            <ui:fragment rendered="#{(candidatBean.isStep2() or candidatBean.isStep3())}">
-                                                <i class="pi pi-check step-check-icon" />
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{candidatBean.isStep1() or (not candidatBean.isStep1() and not (candidatBean.isStep2() or candidatBean.isStep3()))}">
-                                                <span class="step-number-text">1</span>
-                                            </ui:fragment>
+                        <h:panelGroup id="wizardProgress" class="wizard-progress-bar-style">
+                            <div class="wizard-progress-bar-container">
+                                <!-- Barre de progression globale -->
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill" style="width: #{candidatBean.isStep1() ? '0%' : (candidatBean.isStep2() ? '50%' : '100%')}"></div>
+                                </div>
+                                
+                                <!-- Étapes -->
+                                <div class="wizard-steps-bar">
+                                    <!-- Étape 1 -->
+                                    <div class="wizard-step-bar #{candidatBean.isStep1() ? 'active' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'completed' : 'pending')}">
+                                        <div class="step-marker-bar">
+                                            <div class="step-dot-bar">
+                                                <ui:fragment rendered="#{(candidatBean.isStep2() or candidatBean.isStep3())}">
+                                                    <i class="pi pi-check step-check-bar" />
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{candidatBean.isStep1() or (not candidatBean.isStep1() and not (candidatBean.isStep2() or candidatBean.isStep3()))}">
+                                                    <span class="step-num-bar">1</span>
+                                                </ui:fragment>
+                                            </div>
                                         </div>
-                                        <ui:fragment rendered="#{not candidatBean.isStep3()}">
-                                            <div class="step-connector"></div>
-                                        </ui:fragment>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="step-icon-wrapper">
-                                            <i class="pi pi-tag step-icon" />
-                                        </div>
-                                        <div class="step-info">
-                                            <div class="step-title">Type et identification</div>
-                                            <div class="step-subtitle">
-                                                #{candidatBean.isStep1() ? 'En cours'
-                                                  : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'Terminé' : 'À venir')}
+                                        <div class="step-card-bar">
+                                            <div class="step-icon-bar">
+                                                <i class="pi pi-tag" />
+                                            </div>
+                                            <div class="step-text-bar">
+                                                <div class="step-title-bar">Type et identification</div>
+                                                <div class="step-status-bar">
+                                                    #{candidatBean.isStep1() ? 'En cours' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'Terminé' : 'À venir')}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Étape 2 -->
-                                <div class="wizard-step-modern #{candidatBean.isStep2() ? 'active' : (candidatBean.isStep3() ? 'completed' : (candidatBean.isStep1() ? 'pending' : 'disabled'))}">
-                                    <div class="step-indicator">
-                                        <div class="step-circle">
-                                            <ui:fragment rendered="#{candidatBean.isStep3()}">
-                                                <i class="pi pi-check step-check-icon" />
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{candidatBean.isStep2() or (not candidatBean.isStep2() and not candidatBean.isStep3())}">
-                                                <span class="step-number-text">2</span>
-                                            </ui:fragment>
+                                    <!-- Étape 2 -->
+                                    <div class="wizard-step-bar #{candidatBean.isStep2() ? 'active' : (candidatBean.isStep3() ? 'completed' : (candidatBean.isStep1() ? 'pending' : 'disabled'))}">
+                                        <div class="step-marker-bar">
+                                            <div class="step-dot-bar">
+                                                <ui:fragment rendered="#{candidatBean.isStep3()}">
+                                                    <i class="pi pi-check step-check-bar" />
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{candidatBean.isStep2() or (not candidatBean.isStep2() and not candidatBean.isStep3())}">
+                                                    <span class="step-num-bar">2</span>
+                                                </ui:fragment>
+                                            </div>
                                         </div>
-                                        <ui:fragment rendered="#{not candidatBean.isStep3()}">
-                                            <div class="step-connector"></div>
-                                        </ui:fragment>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="step-icon-wrapper">
-                                            <i class="pi pi-sitemap step-icon" />
-                                        </div>
-                                        <div class="step-info">
-                                            <div class="step-title">Collection et référentiel</div>
-                                            <div class="step-subtitle">
-                                                #{candidatBean.isStep2() ? 'En cours'
-                                                  : (candidatBean.isStep3() ? 'Terminé' : (candidatBean.isStep1() ? 'À venir' : 'Non disponible'))}
+                                        <div class="step-card-bar">
+                                            <div class="step-icon-bar">
+                                                <i class="pi pi-sitemap" />
+                                            </div>
+                                            <div class="step-text-bar">
+                                                <div class="step-title-bar">Collection et référentiel</div>
+                                                <div class="step-status-bar">
+                                                    #{candidatBean.isStep2() ? 'En cours' : (candidatBean.isStep3() ? 'Terminé' : (candidatBean.isStep1() ? 'À venir' : 'Non disponible'))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Étape 3 -->
-                                <div class="wizard-step-modern #{candidatBean.isStep3() ? 'active' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'pending' : 'disabled')}">
-                                    <div class="step-indicator">
-                                        <div class="step-circle">
-                                            <span class="step-number-text">3</span>
+                                    <!-- Étape 3 -->
+                                    <div class="wizard-step-bar #{candidatBean.isStep3() ? 'active' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'pending' : 'disabled')}">
+                                        <div class="step-marker-bar">
+                                            <div class="step-dot-bar">
+                                                <span class="step-num-bar">3</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="step-content">
-                                        <div class="step-icon-wrapper">
-                                            <i class="pi pi-file-edit step-icon" />
-                                        </div>
-                                        <div class="step-info">
-                                            <div class="step-title">Détails</div>
-                                            <div class="step-subtitle">
-                                                #{candidatBean.isStep3() ? 'En cours' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'À venir' : 'Non disponible')}
+                                        <div class="step-card-bar">
+                                            <div class="step-icon-bar">
+                                                <i class="pi pi-file-edit" />
+                                            </div>
+                                            <div class="step-text-bar">
+                                                <div class="step-title-bar">Détails</div>
+                                                <div class="step-status-bar">
+                                                    #{candidatBean.isStep3() ? 'En cours' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'À venir' : 'Non disponible')}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

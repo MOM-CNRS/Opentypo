@@ -1,4 +1,370 @@
             /* ============================================
+               WIZARD PROGRESS BAR STYLE - Design moderne avec barre de progression
+               Style horizontal avec barre de progression animée et cartes élégantes
+               ============================================ */
+            
+            .wizard-progress-bar-style {
+                padding: 1.5rem 1.5rem 2rem !important;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+                border-radius: 16px !important;
+                margin-bottom: 1.5rem !important;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+                border: 1px solid rgba(71, 98, 77, 0.1) !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .wizard-progress-bar-container {
+                position: relative !important;
+            }
+            
+            /* Barre de progression globale */
+            .progress-bar-track {
+                position: absolute !important;
+                top: 32px !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 4px !important;
+                background: #e8ece9 !important;
+                border-radius: 2px !important;
+                z-index: 1 !important;
+                overflow: hidden !important;
+            }
+            
+            .progress-bar-fill {
+                height: 100% !important;
+                background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+                border-radius: 2px !important;
+                transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                box-shadow: 0 0 10px rgba(71, 98, 77, 0.4) !important;
+            }
+            
+            .wizard-steps-bar {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                position: relative !important;
+                z-index: 2 !important;
+                padding-top: 0.5rem !important;
+            }
+            
+            .wizard-step-bar {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                position: relative !important;
+                min-width: 0 !important;
+            }
+            
+            .step-marker-bar {
+                margin-bottom: 1rem !important;
+                position: relative !important;
+                z-index: 3 !important;
+            }
+            
+            .step-dot-bar {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: #ffffff !important;
+                border: 3px solid #e8ece9 !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                position: relative !important;
+            }
+            
+            .step-dot-bar::before {
+                content: '' !important;
+                position: absolute !important;
+                top: -3px !important;
+                left: -3px !important;
+                right: -3px !important;
+                bottom: -3px !important;
+                border-radius: 50% !important;
+                border: 2px solid transparent !important;
+                transition: all 0.4s ease !important;
+            }
+            
+            .step-num-bar {
+                font-size: 0.9375rem !important;
+                font-weight: 700 !important;
+                color: #9e9e9e !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .step-check-bar {
+                font-size: 1rem !important;
+                color: #ffffff !important;
+                font-weight: bold !important;
+            }
+            
+            .step-card-bar {
+                background: #ffffff !important;
+                border-radius: 12px !important;
+                padding: 1rem !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+                border: 2px solid transparent !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                width: 100% !important;
+                max-width: 200px !important;
+                text-align: center !important;
+            }
+            
+            .step-icon-bar {
+                width: 48px !important;
+                height: 48px !important;
+                border-radius: 12px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin: 0 auto 0.75rem !important;
+                background: linear-gradient(135deg, #f5f7f6 0%, #e8ece9 100%) !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .step-icon-bar i {
+                font-size: 1.5rem !important;
+                color: #9e9e9e !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .step-text-bar {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.25rem !important;
+            }
+            
+            .step-title-bar {
+                font-size: 0.875rem !important;
+                font-weight: 600 !important;
+                color: #757575 !important;
+                line-height: 1.3 !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .step-status-bar {
+                font-size: 0.75rem !important;
+                font-weight: 500 !important;
+                color: #bdbdbd !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            /* États actifs - VERT du site (#47624D) */
+            .wizard-step-bar.active .step-dot-bar {
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+                border-color: var(--color-action-main, #47624D) !important;
+                box-shadow: 0 4px 16px rgba(71, 98, 77, 0.4), 
+                            0 0 0 8px rgba(71, 98, 77, 0.1) !important;
+                transform: scale(1.15) !important;
+            }
+            
+            .wizard-step-bar.active .step-dot-bar::before {
+                border-color: rgba(71, 98, 77, 0.3) !important;
+                animation: ripple 2s ease-out infinite !important;
+            }
+            
+            .wizard-step-bar.active .step-num-bar {
+                color: #ffffff !important;
+            }
+            
+            .wizard-step-bar.active .step-card-bar {
+                border-color: var(--color-action-main, #47624D) !important;
+                box-shadow: 0 4px 16px rgba(71, 98, 77, 0.2), 
+                            0 2px 8px rgba(71, 98, 77, 0.15) !important;
+                transform: translateY(-4px) !important;
+            }
+            
+            .wizard-step-bar.active .step-icon-bar {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+                transform: scale(1.1) !important;
+            }
+            
+            .wizard-step-bar.active .step-icon-bar i {
+                color: var(--color-action-main, #47624D) !important;
+            }
+            
+            .wizard-step-bar.active .step-title-bar {
+                color: var(--color-action-main, #47624D) !important;
+                font-weight: 700 !important;
+            }
+            
+            .wizard-step-bar.active .step-status-bar {
+                color: var(--color-action-main, #47624D) !important;
+                font-weight: 600 !important;
+            }
+            
+            /* États complétés */
+            .wizard-step-bar.completed .step-dot-bar {
+                background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+                border-color: var(--color-action-main, #47624D) !important;
+                box-shadow: 0 2px 12px rgba(71, 98, 77, 0.3) !important;
+            }
+            
+            .wizard-step-bar.completed .step-card-bar {
+                border-color: rgba(71, 98, 77, 0.3) !important;
+                background: linear-gradient(135deg, #ffffff 0%, rgba(71, 98, 77, 0.02) 100%) !important;
+            }
+            
+            .wizard-step-bar.completed .step-icon-bar {
+                background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+            }
+            
+            .wizard-step-bar.completed .step-icon-bar i {
+                color: var(--color-action-main, #47624D) !important;
+            }
+            
+            .wizard-step-bar.completed .step-title-bar {
+                color: var(--color-action-main, #47624D) !important;
+            }
+            
+            .wizard-step-bar.completed .step-status-bar {
+                color: var(--color-action-main, #47624D) !important;
+            }
+            
+            /* États en attente */
+            .wizard-step-bar.pending .step-dot-bar {
+                background: #ffffff !important;
+                border-color: #e8ece9 !important;
+            }
+            
+            /* États désactivés */
+            .wizard-step-bar.disabled .step-dot-bar {
+                background: #f5f5f5 !important;
+                border-color: #e0e0e0 !important;
+                opacity: 0.5 !important;
+            }
+            
+            .wizard-step-bar.disabled .step-card-bar {
+                opacity: 0.6 !important;
+            }
+            
+            .wizard-step-bar.disabled .step-title-bar,
+            .wizard-step-bar.disabled .step-status-bar,
+            .wizard-step-bar.disabled .step-icon-bar i {
+                opacity: 0.5 !important;
+            }
+            
+            /* Animation ripple pour étape active */
+            @keyframes ripple {
+                0% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(1.5);
+                    opacity: 0;
+                }
+            }
+            
+            /* Animation au survol */
+            .wizard-step-bar:not(.disabled):hover .step-card-bar {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .wizard-step-bar.active:hover .step-card-bar {
+                transform: translateY(-6px) !important;
+            }
+            
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .wizard-progress-bar-style {
+                    padding: 1rem 1rem 1.5rem !important;
+                    margin-bottom: 1rem !important;
+                }
+                
+                .progress-bar-track {
+                    top: 28px !important;
+                    height: 3px !important;
+                }
+                
+                .step-dot-bar {
+                    width: 32px !important;
+                    height: 32px !important;
+                }
+                
+                .step-num-bar {
+                    font-size: 0.8125rem !important;
+                }
+                
+                .step-check-bar {
+                    font-size: 0.875rem !important;
+                }
+                
+                .step-card-bar {
+                    padding: 0.75rem !important;
+                    max-width: 100% !important;
+                }
+                
+                .step-icon-bar {
+                    width: 40px !important;
+                    height: 40px !important;
+                    margin-bottom: 0.5rem !important;
+                }
+                
+                .step-icon-bar i {
+                    font-size: 1.25rem !important;
+                }
+                
+                .step-title-bar {
+                    font-size: 0.8125rem !important;
+                }
+                
+                .step-status-bar {
+                    font-size: 0.6875rem !important;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .wizard-progress-bar-style {
+                    padding: 0.75rem 0.75rem 1.25rem !important;
+                }
+                
+                .progress-bar-track {
+                    top: 24px !important;
+                    height: 2px !important;
+                }
+                
+                .step-dot-bar {
+                    width: 28px !important;
+                    height: 28px !important;
+                }
+                
+                .step-num-bar {
+                    font-size: 0.75rem !important;
+                }
+                
+                .step-card-bar {
+                    padding: 0.625rem !important;
+                }
+                
+                .step-icon-bar {
+                    width: 36px !important;
+                    height: 36px !important;
+                }
+                
+                .step-icon-bar i {
+                    font-size: 1.125rem !important;
+                }
+                
+                .step-title-bar {
+                    font-size: 0.75rem !important;
+                }
+                
+                .step-status-bar {
+                    font-size: 0.625rem !important;
+                }
+                
+                .wizard-steps-bar {
+                    gap: 0.5rem !important;
+                }
+            }
+            
+            /* ============================================
                BACKGROUND MODERNE POUR LE MODULE CANDIDAT
                Design élégant avec dégradés subtils et effets visuels
                ============================================ */
