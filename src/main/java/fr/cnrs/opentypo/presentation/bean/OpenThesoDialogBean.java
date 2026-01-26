@@ -7,6 +7,7 @@ import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatWizardBean;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -67,7 +68,7 @@ public class OpenThesoDialogBean implements Serializable {
     private List<PactolsConcept> searchResults = new ArrayList<>();
     private PactolsConcept selectedConcept;
 
-    private CandidatBean candidatBean;
+    private CandidatWizardBean candidatWizardBean;
 
     @PostConstruct
     public void init() {
@@ -80,8 +81,8 @@ public class OpenThesoDialogBean implements Serializable {
      * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
      * @param entityId ID de l'entité à mettre à jour
      */
-    public void loadThesaurus(CandidatBean candidatBean, String code, Long entityId) {
-        this.candidatBean = candidatBean;
+    public void loadThesaurus(CandidatWizardBean candidatWizardBean, String code, Long entityId) {
+        this.candidatWizardBean = candidatWizardBean;
         this.referenceCode = code != null ? code : "PRODUCTION";
         this.entityId = entityId;
         
@@ -98,7 +99,7 @@ public class OpenThesoDialogBean implements Serializable {
      * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
      */
     public void loadThesaurus(String code) {
-        loadThesaurus(candidatBean, code, null);
+        loadThesaurus(candidatWizardBean, code, null);
     }
 
     /**
@@ -106,7 +107,7 @@ public class OpenThesoDialogBean implements Serializable {
      * Utilise "PRODUCTION" par défaut
      */
     public void loadThesaurus() {
-        loadThesaurus(candidatBean, "PRODUCTION", null);
+        loadThesaurus(candidatWizardBean, "PRODUCTION", null);
     }
 
     /**
@@ -294,7 +295,7 @@ public class OpenThesoDialogBean implements Serializable {
                         }
                         
                         // Sauvegarder l'entité mise à jour
-                        candidatBean.setCurrentEntity(entityRepository.save(entity));
+                        candidatWizardBean.setCurrentEntity(entityRepository.save(entity));
                         log.info("Entité ID={} mise à jour avec la référence {} (code: {})", 
                             entityId, createdReference.getId(), code);
                     } else {

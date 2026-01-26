@@ -55,7 +55,7 @@
                                                itemLabel="#{candidatBean.getDirectEntityLabel(entity)}"
                                                itemValue="#{entity.id}" />
                                 <p:ajax event="change"
-                                        listener="#{candidatBean.onDirectEntityChange}"
+                                        listener="#{candidatReferenceTreeBean.onDirectEntityChange}"
                                         process="@this" ajax="true"
                                         update=":createCandidatForm:referenceTreeContainer"
                                         onstart="showLoading('Chargement des référentiels...', 'spinner');"
@@ -87,7 +87,7 @@
                                 </p:treeNode>
                             </p:tree>
                             <p:message for="referenceTree"
-                                       rendered="#{candidatBean.isStep2() and empty candidatBean.selectedTreeNode}"
+                                       rendered="#{candidatWizardBean.isStep2() and empty candidatBean.selectedTreeNode}"
                                        severity="error"
                                        summary="L'entité parent est requise"/>
                         </p:outputPanel>

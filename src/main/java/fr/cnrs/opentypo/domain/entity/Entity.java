@@ -94,6 +94,9 @@ public class Entity implements Serializable {
     @Column(name = "image_principale_url", length = 500)
     private String imagePrincipaleUrl;
 
+    @Column(name = "ateliers", columnDefinition = "TEXT")
+    private String ateliers;
+
     // Relations avec EntityType
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_type_id", nullable = false)
