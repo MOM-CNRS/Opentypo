@@ -1209,7 +1209,7 @@
                 position: fixed !important;
                 bottom: 2rem !important;
                 right: 2rem !important;
-                z-index: 1000 !important;
+                z-index: 9999 !important;
                 cursor: pointer !important;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 opacity: 0 !important;
@@ -1234,19 +1234,22 @@
             }
             
             /* Effet hover - Design élégant */
-            .ui-scrolltop:hover {
+            .ui-scrolltop:hover,
+            .scroll-top-button:hover {
                 background: linear-gradient(135deg, rgba(71, 98, 77, 0.95) 0%, var(--color-action-main, #47624D) 100%) !important;
                 box-shadow: 0 6px 20px rgba(71, 98, 77, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2) !important;
                 transform: translateY(-4px) scale(1.05) !important;
                 border-color: rgba(255, 255, 255, 0.3) !important;
             }
             
-            .ui-scrolltop:hover .ui-scrolltop-icon {
+            .ui-scrolltop:hover .ui-scrolltop-icon,
+            .scroll-top-button:hover .ui-scrolltop-icon {
                 transform: translateY(-2px) !important;
             }
             
             /* Effet actif (clic) */
-            .ui-scrolltop:active {
+            .ui-scrolltop:active,
+            .scroll-top-button:active {
                 transform: translateY(-2px) scale(1.02) !important;
                 box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
             }
