@@ -2105,14 +2105,12 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 
 /* Navigation du wizard - Design amélioré */
 .wizard-navigation {
-    display: flex !important;
-    justify-content: space-between !important;
     align-items: center !important;
     padding: 2rem 2.5rem !important;
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
     border-top: 2px solid rgba(71, 98, 77, 0.1) !important;
-    gap: 1rem !important;
-    position: relative !important;
+    gap: 2rem !important;
+    text-align: right;
 }
 
 .wizard-nav-left,

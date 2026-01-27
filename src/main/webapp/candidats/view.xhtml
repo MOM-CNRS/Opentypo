@@ -6,61 +6,167 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
-        <div class="users-form-panel wizard-form-panel summary-panel">
-            <div class="summary-content">
-                <div class="summary-section">
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <span class="summary-label">Type d'entité :</span>
-                            <span class="summary-value">
-                                    <i class="pi pi-tag summary-value-icon" />
-                                    #{candidatBean.getEntityTypeName(candidatBean.candidatSelectionne)}
-                                </span>
+        <div class="wizard-content">
+            <div class="wizard-step-content">
+                <div class="users-header">
+                    <div class="users-header-content">
+                        <div>
+                            <h1 class="users-title">
+                                <i class="pi pi-plus-circle users-title-icon" />
+                                #{candidatBean.entityCode}
+                            </h1>
                         </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Code :</span>
-                            <span class="summary-value">
-                                    <i class="pi pi-code summary-value-icon" />
-                                    #{candidatBean.getEntityCodeFromCandidat()}
-                                </span>
+                        <h:form>
+                            <p:commandButton value="Retour à la liste"
+                                             icon="pi pi-arrow-left"
+                                             styleClass="users-create-button"
+                                             action="/candidats/candidats.xhtml?faces-redirect=true"
+                                             process="@this"
+                                             update="@none"/>
+                        </h:form>
+                    </div>
+                </div>
+                <!-- 1ère partie : Récapitulatif des informations des étapes 1 et 2 -->
+                <div class="users-form-panel wizard-form-panel summary-panel">
+                    <div class="summary-content">
+                        <div class="summary-section">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Type d'entité :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-tag summary-value-icon" />
+                                        #{candidatBean.getEntityTypeName(candidatBean.selectedEntityType)}
+                                    </span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Code :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-code summary-value-icon" />
+                                        #{candidatBean.entityCode}
+                                    </span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Label :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-tag summary-value-icon" />
+                                        #{candidatBean.entityLabel}
+                                    </span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Langue :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-globe summary-value-icon" />
+                                        #{candidatBean.getSelectedLangueName()}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Label :</span>
-                            <span class="summary-value">
-                                    <i class="pi pi-tag summary-value-icon" />
-                                    #{candidatBean.candidatSelectionne.label}
-                                </span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Langue :</span>
-                            <span class="summary-value">
-                                <i class="pi pi-globe summary-value-icon" />
-                                #{candidatBean.getSelectedLangueName()}
-                            </span>
+
+                        <div class="summary-section">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Collection :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-folder summary-value-icon" />
+                                        #{candidatBean.selectedCollection != null ? candidatBean.getCollectionLabel(candidatBean.selectedCollection) : 'Aucune collection'}
+                                    </span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Élément parent :</span>
+                                    <span class="summary-value">
+                                        <i class="pi pi-sitemap summary-value-icon" />
+                                        #{candidatBean.selectedParentEntity != null ? candidatBean.selectedParentEntity.code : 'Non sélectionné'}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="summary-section">
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <span class="summary-label">Collection :</span>
-                            <span class="summary-value">
-                                    <i class="pi pi-folder summary-value-icon" />
-                                    #{candidatBean.getCollectionLabel(candidatBean.candidatSelectionne)}
-                                </span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Élément parent :</span>
-                            <span class="summary-value">
-                                    <i class="pi pi-sitemap summary-value-icon" />
-                                    #{candidatBean.getParentCodeFromCandidat()}
-                                </span>
+                <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
+                <h:form id="createCandidatForm">
+                    <div class="users-form-panel wizard-form-panel">
+                        <!-- Formulaire pour CATEGORY -->
+                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 2}">
+                            <ui:include src="form/category-form.xhtml"/>
+                        </ui:fragment>
+
+                        <!-- Formulaire pour GROUP -->
+                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 3}">
+                            <ui:include src="form/group-form.xhtml"/>
+                        </ui:fragment>
+
+                        <!-- Formulaire pour SERIES -->
+                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 4}">
+                            <ui:include src="form/serie-form.xhtml"/>
+                        </ui:fragment>
+
+                        <!-- Formulaire pour TYPE -->
+                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
+
+                        </ui:fragment>
+
+                        <!-- Formulaire pour COLLECTION -->
+                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 6}">
+
+                        </ui:fragment>
+                    </div>
+
+                    <!-- Boîte de dialogue OpenTheso -->
+                    <ui:include src="openthesoDialog.xhtml"/>
+                    
+                    <!-- Champ Auteurs -->
+                    <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
+                        <div class="users-form-group users-form-group-full">
+                            <p:outputLabel value="Auteurs" />
+                            <div class="auteurs-list">
+                                <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
+                                    <div class="auteur-item">
+                                        <i class="pi pi-user auteur-icon" />
+                                        <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
+                                        <span class="auteur-email">(#{auteur.email})</span>
+                                    </div>
+                                </ui:repeat>
+                                <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
+                                    <p class="auteurs-empty">Aucun auteur assigné</p>
+                                </ui:fragment>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
+                        <div class="wizard-navigation" style="gap: 30px;">
+                            <p:commandButton value="Enregistrer"
+                                             icon="pi pi-save"
+                                             styleClass="candidat-btn-add"
+                                             action="#{candidatBean.enregistrerModifications}"
+                                             process="@form"
+                                             update="@none"/>
+                            
+                            <p:commandButton value="Refuser"
+                                             icon="pi pi-times"
+                                             styleClass="candidat-btn-add"
+                                             style="background-color: #dc3545 !important; border-color: #dc3545 !important; color: #ffffff !important;"
+                                             action="#{candidatBean.refuserCandidatFromView}"
+                                             process="@form"
+                                             update="@none"/>
+
+                            <p:commandButton value="Valider"
+                                             icon="pi pi-check"
+                                             styleClass="candidat-btn-add"
+                                             style="background-color: #28a745; border-color: #28a745;"
+                                             action="#{candidatBean.validerCandidatFromView}"
+                                             process="@form"
+                                             update="@none"/>
+                        </div>
+                    </div>
+                </h:form>
             </div>
         </div>
+
+        <!-- Styles pour l'arbre de sélection et le récapitulatif -->
+        <h:outputStylesheet library="css" name="candidats/candidats-create.css"/>
     </ui:define>
 </ui:composition>
 

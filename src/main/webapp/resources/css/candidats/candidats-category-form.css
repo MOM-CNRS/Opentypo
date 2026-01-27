@@ -320,7 +320,7 @@
         .candidat-labels-table .ui-datatable-header {
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
             border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
-            padding: 1rem !important;
+            padding: 0.5rem !important;
             font-weight: 600 !important;
             color: var(--color-action-main, #47624D) !important;
         }
@@ -441,7 +441,7 @@
         .candidat-descriptions-table .ui-datatable-header {
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
             border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
-            padding: 1rem !important;
+            padding: 0.5rem !important;
             font-weight: 600 !important;
             color: var(--color-action-main, #47624D) !important;
         }

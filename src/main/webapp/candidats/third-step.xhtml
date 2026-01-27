@@ -75,17 +75,17 @@
 
                 <!-- Formulaire pour CATEGORY -->
                 <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 2}">
-                    <ui:include src="category-form.xhtml"/>
+                    <ui:include src="form/category-form.xhtml"/>
                 </ui:fragment>
 
                 <!-- Formulaire pour GROUP -->
                 <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 3}">
-                    <ui:include src="group-form.xhtml"/>
+                    <ui:include src="form/group-form.xhtml"/>
                 </ui:fragment>
 
                 <!-- Formulaire pour SERIES -->
                 <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 4}">
-                    <ui:include src="serie-form.xhtml"/>
+                    <ui:include src="form/serie-form.xhtml"/>
                 </ui:fragment>
 
 

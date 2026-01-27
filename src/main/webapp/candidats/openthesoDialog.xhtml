@@ -20,7 +20,8 @@
               responsive="true"
               onShow="initializeOpenThesoDialog()">
 
-        <h:panelGroup id="openThesoForm2">
+        <h:panelGroup id="openThesoForm">
+            <h:panelGroup id="openThesoForm2">
             <!-- 1ère ligne : Liste des thésaurus + bouton rechercher -->
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field">
@@ -128,26 +129,27 @@
                     </p:dataTable>
                 </div>
             </div>
+            </h:panelGroup>
+
+            <div class="category-form-actions">
+                <p:commandButton value="Annuler"
+                                 icon="pi pi-times"
+                                 styleClass="category-btn category-btn-cancel"
+                                 onclick="PF('openthesoDialog').hide(); return false;"
+                                 process="@this"
+                                 update="@none"/>
+
+                <p:commandButton value="Valider"
+                                 icon="pi pi-check"
+                                 styleClass="category-btn category-btn-validate"
+                                 action="#{openThesoDialogBean.validateSelection}"
+                                 process="conceptsTable"
+                                 update=":createCandidatForm :growl"
+                                 onstart="var btn = this; showButtonLoading(btn);"
+                                 oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading();}, 100);"
+                                 onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
+            </div>
         </h:panelGroup>
-
-        <div class="category-form-actions">
-            <p:commandButton value="Annuler"
-                             icon="pi pi-times"
-                             styleClass="category-btn category-btn-cancel"
-                             onclick="PF('createCategoryDialog').hide(); return false;"
-                             process="@this"
-                             update="@none"/>
-
-            <p:commandButton value="Valider"
-                             icon="pi pi-check"
-                             styleClass="category-btn category-btn-validate"
-                             action="#{openThesoDialogBean.validateSelection}"
-                             process="conceptsTable"
-                             update=":createCandidatForm :growl"
-                             onstart="var btn = this; showButtonLoading(btn);"
-                             oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading();}, 100);"
-                             onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
-        </div>
     </p:dialog>
 
     <!-- Styles pour la boîte de dialogue -->

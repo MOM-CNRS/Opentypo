@@ -9,8 +9,5 @@ public enum EntityStatusEnum {
     ACCEPTED,
     REFUSED,
     AUTOMATIC;
-
-    EntityStatusEnum() {
-
-    }
+    
 }

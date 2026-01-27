@@ -20,10 +20,13 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
+import lombok.Builder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -88,6 +91,9 @@ public class CandidatBean implements Serializable {
 
     @Inject
     private ReferenceOpenthesoRepository referenceOpenthesoRepository;
+
+    @Inject
+    private UtilisateurRepository utilisateurRepository;
 
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
@@ -1078,6 +1084,204 @@ public class CandidatBean implements Serializable {
         }
     }
     
+    /**
+     * Charge les données d'une entité pour l'affichage en mode visualisation
+     * Similaire à loadExistingStep3Data mais adapté pour la visualisation
+     */
+    private void loadEntityDataForView(Entity entity) {
+        if (entity == null || entity.getId() == null) {
+            return;
+        }
+        
+        // Recharger l'entité depuis la base avec toutes ses relations
+        Entity refreshedEntity = entityRepository.findById(entity.getId()).orElse(null);
+        if (refreshedEntity == null) {
+            return;
+        }
+        
+        // Charger les labels existants
+        candidatLabels = new ArrayList<>();
+        if (refreshedEntity.getLabels() != null) {
+            for (Label label : refreshedEntity.getLabels()) {
+                if (label.getLangue() != null) {
+                    CategoryLabelItem item = new CategoryLabelItem(
+                        label.getNom(),
+                        label.getLangue().getCode(),
+                        label.getLangue()
+                    );
+                    candidatLabels.add(item);
+                }
+            }
+        }
+        
+        // Charger les descriptions existantes
+        descriptions = new ArrayList<>();
+        if (refreshedEntity.getDescriptions() != null) {
+            for (Description desc : refreshedEntity.getDescriptions()) {
+                CategoryDescriptionItem item = new CategoryDescriptionItem(
+                    desc.getValeur(),
+                    desc.getLangue() != null ? desc.getLangue().getCode() : null,
+                    desc.getLangue()
+                );
+                descriptions.add(item);
+            }
+        }
+        
+        // Charger les champs de texte
+        candidatCommentaire = refreshedEntity.getCommentaire();
+        candidatBibliographie = refreshedEntity.getBibliographie();
+        
+        // Charger les références bibliographiques
+        if (refreshedEntity.getRereferenceBibliographique() != null && 
+            !refreshedEntity.getRereferenceBibliographique().isEmpty()) {
+            String[] refs = refreshedEntity.getRereferenceBibliographique().split("; ");
+            referencesBibliographiques = new ArrayList<>(Arrays.asList(refs));
+        } else {
+            referencesBibliographiques = new ArrayList<>();
+        }
+        
+        // Charger les ateliers
+        if (refreshedEntity.getAteliers() != null && 
+            !refreshedEntity.getAteliers().isEmpty()) {
+            String[] ateliersArray = refreshedEntity.getAteliers().split("; ");
+            ateliers = new ArrayList<>(Arrays.asList(ateliersArray));
+        } else {
+            ateliers = new ArrayList<>();
+        }
+        
+        // Charger la production
+        if (refreshedEntity.getProduction() != null) {
+            refreshedEntity.getProduction().getValeur(); // Forcer le chargement
+            candidatProduction = refreshedEntity.getProduction().getValeur();
+        } else {
+            candidatProduction = null;
+        }
+        
+        // Charger les aires de circulation depuis la relation OneToMany
+        if (refreshedEntity.getAiresCirculation() != null) {
+            airesCirculation = refreshedEntity.getAiresCirculation().stream()
+                .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
+                .collect(Collectors.toList());
+        } else {
+            airesCirculation = new ArrayList<>();
+        }
+        
+        // Charger les données de DescriptionDetail
+        DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+        if (descDetail != null) {
+            decors = descDetail.getDecors();
+            
+            // Charger les marques/estampilles
+            if (descDetail.getMarques() != null && !descDetail.getMarques().isEmpty()) {
+                String[] marquesArray = descDetail.getMarques().split("; ");
+                marquesEstampilles = new ArrayList<>(Arrays.asList(marquesArray));
+            } else {
+                marquesEstampilles = new ArrayList<>();
+            }
+            
+            // Charger la fonction/usage (forcer le chargement de la relation LAZY)
+            ReferenceOpentheso fonction = descDetail.getFonction();
+            if (fonction != null) {
+                fonction.getValeur(); // Forcer le chargement
+                fonctionUsage = fonction;
+            } else {
+                fonctionUsage = null;
+            }
+        } else {
+            decors = null;
+            marquesEstampilles = new ArrayList<>();
+            fonctionUsage = null;
+        }
+        
+        // Charger les données de CaracteristiquePhysique
+        CaracteristiquePhysique carPhysique = refreshedEntity.getCaracteristiquePhysique();
+        if (carPhysique != null) {
+            // Charger la métrologie (relation LAZY)
+            ReferenceOpentheso metrologieRef = carPhysique.getMetrologie();
+            if (metrologieRef != null) {
+                metrologieRef.getValeur(); // Forcer le chargement
+                metrologie = metrologieRef;
+            } else {
+                metrologie = null;
+            }
+            
+            // Charger la fabrication (relation LAZY)
+            ReferenceOpentheso fabricationRef = carPhysique.getFabrication();
+            if (fabricationRef != null) {
+                fabricationRef.getValeur(); // Forcer le chargement
+                fabricationFaconnage = fabricationRef;
+            } else {
+                fabricationFaconnage = null;
+            }
+        } else {
+            metrologie = null;
+            fabricationFaconnage = null;
+        }
+        
+        // Charger les données de DescriptionPate
+        DescriptionPate descPate = refreshedEntity.getDescriptionPate();
+        if (descPate != null) {
+            descriptionPate = descPate.getDescription();
+            
+            // Charger la couleur (relation LAZY)
+            ReferenceOpentheso couleurRef = descPate.getCouleur();
+            if (couleurRef != null) {
+                couleurRef.getValeur(); // Forcer le chargement
+                couleurPate = couleurRef;
+            } else {
+                couleurPate = null;
+            }
+            
+            // Charger la nature (relation LAZY)
+            ReferenceOpentheso natureRef = descPate.getNature();
+            if (natureRef != null) {
+                natureRef.getValeur(); // Forcer le chargement
+                naturePate = natureRef;
+            } else {
+                naturePate = null;
+            }
+            
+            // Charger l'inclusion (relation LAZY)
+            ReferenceOpentheso inclusionRef = descPate.getInclusion();
+            if (inclusionRef != null) {
+                inclusionRef.getValeur(); // Forcer le chargement
+                inclusions = inclusionRef;
+            } else {
+                inclusions = null;
+            }
+            
+            // Charger la cuisson (relation LAZY)
+            ReferenceOpentheso cuissonRef = descPate.getCuisson();
+            if (cuissonRef != null) {
+                cuissonRef.getValeur(); // Forcer le chargement
+                cuissonPostCuisson = cuissonRef;
+            } else {
+                cuissonPostCuisson = null;
+            }
+        } else {
+            descriptionPate = null;
+            couleurPate = null;
+            naturePate = null;
+            inclusions = null;
+            cuissonPostCuisson = null;
+        }
+        
+        // Charger les champs spécifiques au groupe
+        groupTpq = refreshedEntity.getTpq();
+        groupTaq = refreshedEntity.getTaq();
+        if (refreshedEntity.getPeriode() != null) {
+            groupPeriode = refreshedEntity.getPeriode().getValeur();
+        }
+        
+        // Charger les auteurs
+        if (refreshedEntity.getAuteurs() != null) {
+            refreshedEntity.getAuteurs().size(); // Forcer le chargement
+            selectedAuteurs = new ArrayList<>(refreshedEntity.getAuteurs());
+        } else {
+            selectedAuteurs = new ArrayList<>();
+        }
+    }
+    
     // Champs pour l'étape 2 selon le type
     private String typeDescription;
     private String serieDescription;
@@ -1103,11 +1307,16 @@ public class CandidatBean implements Serializable {
     private Integer groupTpq;
     private Integer groupTaq;
     
+    // Propriétés pour les auteurs
+    private List<Utilisateur> selectedAuteurs = new ArrayList<>();
+    private List<Utilisateur> availableAuteurs = new ArrayList<>();
+    
     /**
      * Classe interne pour représenter un label de catégorie avec sa langue
      */
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CategoryLabelItem implements Serializable {
@@ -1122,6 +1331,7 @@ public class CandidatBean implements Serializable {
      */
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CategoryDescriptionItem implements Serializable {
@@ -1615,8 +1825,41 @@ public class CandidatBean implements Serializable {
     /**
      * Prépare la validation d'un candidat (stocke le candidat et ouvre le dialogue)
      */
-    public void prepareValidateCandidat(Candidat candidat) {
+    public void prepareValidateCandidat(Candidat candidat) throws Exception {
+
+        Entity entitySelected = entityRepository.findById(candidat.getId()).orElse(null);
+        if (entitySelected == null) {
+            throw new Exception("Le candidat n'existe pas");
+        }
+
         this.candidatAValider = candidat;
+        this.selectedEntityTypeId = entitySelected.getEntityType().getId();
+
+        if (CollectionUtils.isEmpty(entitySelected.getLabels())) {
+            candidatLabels = new ArrayList<>();
+        } else {
+            candidatLabels = entitySelected.getLabels().stream()
+                    .map(label -> CategoryLabelItem.builder()
+                            .nom(label.getNom())
+                            .langueCode(label.getLangue().getCode())
+                            .langueCode(label.getLangue().getNom())
+                            .build())
+                    .toList();
+        }
+
+        if (CollectionUtils.isEmpty(entitySelected.getDescriptions())) {
+            descriptions = new ArrayList<>();
+        } else {
+            descriptions = entitySelected.getDescriptions().stream()
+                    .map(description -> CategoryDescriptionItem.builder()
+                            .valeur(description.getValeur())
+                            .langueCode(description.getLangue().getCode())
+                            .langueCode(description.getLangue().getNom())
+                            .build())
+                    .toList();
+        }
+
+        groupPeriode = entitySelected.getPeriode() == null ? null : entitySelected.getPeriode().getValeur();
     }
     
     /**
@@ -1911,11 +2154,356 @@ public class CandidatBean implements Serializable {
     }
 
     public String visualiserCandidat(Candidat candidat) {
-        candidatSelectionne = candidat;
-        return "/candidats/view.xhtml?faces-redirect=true";
+        try {
+            candidatSelectionne = candidat;
+            
+            // Charger l'entité depuis la base de données
+            Entity entitySelected = entityRepository.findById(candidat.getId()).orElse(null);
+            if (entitySelected == null) {
+                log.error("L'entité avec l'ID {} n'existe pas", candidat.getId());
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "L'entité sélectionnée n'existe pas"));
+                return null;
+            }
+            
+            // Charger les relations lazy
+            if (entitySelected.getLabels() != null) {
+                entitySelected.getLabels().size(); // Force le chargement
+            }
+            if (entitySelected.getEntityType() != null) {
+                entitySelected.getEntityType().getCode(); // Force le chargement
+            }
+            
+            // Définir les propriétés de base
+            this.selectedEntityTypeId = entitySelected.getEntityType().getId();
+            this.entityCode = entitySelected.getCode();
+            
+            // Trouver le label dans la langue sélectionnée ou utiliser le nom par défaut
+            String langueCode = candidat.getLangue() != null ? candidat.getLangue() : searchBean.getLangSelected();
+            this.selectedLangueCode = langueCode;
+            
+            Optional<Label> labelOpt = entitySelected.getLabels().stream()
+                    .filter(l -> l.getLangue() != null && langueCode.equalsIgnoreCase(l.getLangue().getCode()))
+                    .findFirst();
+            
+            if (labelOpt.isPresent()) {
+                this.entityLabel = labelOpt.get().getNom();
+            } else {
+                // Utiliser le nom de l'entité ou le code si aucun label n'est trouvé
+                this.entityLabel = entitySelected.getNom() != null ? entitySelected.getNom() : entitySelected.getCode();
+            }
+            
+            // Trouver la collection parente
+            List<Entity> parents = entityRelationRepository.findParentsByChild(entitySelected);
+            Entity collection = null;
+            Entity parentEntity = null;
+            
+            if (parents != null && !parents.isEmpty()) {
+                // Chercher d'abord la collection
+                for (Entity parent : parents) {
+                    if (parent.getEntityType() != null &&
+                        EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                        collection = parent;
+                        // Charger les labels de la collection
+                        if (collection.getLabels() != null) {
+                            collection.getLabels().size(); // Force le chargement
+                        }
+                        break;
+                    }
+                }
+                
+                // Chercher l'entité parente (non-collection)
+                for (Entity parent : parents) {
+                    if (parent.getEntityType() != null &&
+                        !EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
+                        parentEntity = parent;
+                        break;
+                    }
+                }
+            }
+            
+            // Définir la collection et l'entité parente
+            if (collection != null) {
+                this.selectedCollectionId = collection.getId();
+            } else {
+                this.selectedCollectionId = null;
+            }
+            this.selectedParentEntity = parentEntity;
+            
+            // Charger les données spécifiques au type d'entité (comme dans prepareValidateCandidat)
+            if (CollectionUtils.isEmpty(entitySelected.getLabels())) {
+                candidatLabels = new ArrayList<>();
+            } else {
+                candidatLabels = entitySelected.getLabels().stream()
+                        .map(label -> CategoryLabelItem.builder()
+                                .nom(label.getNom())
+                                .langueCode(label.getLangue().getCode())
+                                .build())
+                        .toList();
+            }
+
+            if (CollectionUtils.isEmpty(entitySelected.getDescriptions())) {
+                descriptions = new ArrayList<>();
+            } else {
+                descriptions = entitySelected.getDescriptions().stream()
+                        .map(description -> CategoryDescriptionItem.builder()
+                                .valeur(description.getValeur())
+                                .langueCode(description.getLangue().getCode())
+                                .build())
+                        .toList();
+            }
+
+            groupPeriode = entitySelected.getPeriode() == null ? null : entitySelected.getPeriode().getValeur();
+            
+            // Définir currentEntity pour que les formulaires puissent y accéder
+            this.currentEntity = entitySelected;
+            
+            // Charger les données supplémentaires nécessaires pour les formulaires
+            loadEntityDataForView(entitySelected);
+            
+            // Charger la liste de tous les utilisateurs disponibles
+            loadAvailableAuteurs();
+            
+            log.info("Navigation vers view.xhtml pour l'entité ID: {}, Code: {}", entitySelected.getId(), entitySelected.getCode());
+            return "/candidats/view.xhtml?faces-redirect=true";
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la préparation de la visualisation du candidat", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la préparation de la visualisation : " + e.getMessage()));
+            return null;
+        }
+    }
+    
+    /**
+     * Charge la liste de tous les utilisateurs disponibles pour la sélection des auteurs
+     */
+    public void loadAvailableAuteurs() {
+        try {
+            availableAuteurs = utilisateurRepository.findAll();
+            // Trier par nom puis prénom
+            availableAuteurs.sort((u1, u2) -> {
+                int nomCompare = u1.getNom().compareToIgnoreCase(u2.getNom());
+                if (nomCompare != 0) {
+                    return nomCompare;
+                }
+                return u1.getPrenom().compareToIgnoreCase(u2.getPrenom());
+            });
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement des utilisateurs disponibles", e);
+            availableAuteurs = new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Enregistre toutes les modifications effectuées sur le candidat
+     */
+    public String enregistrerModifications() {
+        try {
+            if (currentEntity == null || currentEntity.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Aucune entité à enregistrer."));
+                return null;
+            }
+            
+            // Recharger l'entité depuis la base
+            Entity entity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                return null;
+            }
+            
+            // Sauvegarder toutes les modifications (via les méthodes existantes)
+            // Les modifications sont déjà sauvegardées au fur et à mesure via les listeners AJAX
+            // Ici, on sauvegarde principalement les auteurs
+            
+            // Mettre à jour les auteurs
+            if (selectedAuteurs != null) {
+                // Forcer le chargement des auteurs existants
+                if (entity.getAuteurs() != null) {
+                    entity.getAuteurs().size();
+                }
+                entity.setAuteurs(new ArrayList<>(selectedAuteurs));
+            }
+            
+            entityRepository.save(entity);
+            
+            // Recharger les candidats
+            candidatsLoaded = false;
+            chargerCandidats();
+            
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Les modifications ont été enregistrées avec succès."));
+            
+            return "/candidats/candidats.xhtml?faces-redirect=true";
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de l'enregistrement des modifications", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de l'enregistrement : " + e.getMessage()));
+            return null;
+        }
+    }
+    
+    /**
+     * Valide le candidat depuis la page de visualisation (change le statut à ACCEPTED)
+     */
+    public String validerCandidatFromView() {
+        try {
+            if (currentEntity == null || currentEntity.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Aucune entité à valider."));
+                return null;
+            }
+            
+            // Recharger l'entité depuis la base
+            Entity entity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                return null;
+            }
+            
+            // Mettre à jour les auteurs avant de changer le statut
+            if (selectedAuteurs != null) {
+                if (entity.getAuteurs() != null) {
+                    entity.getAuteurs().size();
+                }
+                entity.setAuteurs(new ArrayList<>(selectedAuteurs));
+            }
+            
+            // Changer le statut
+            entity.setStatut(EntityStatusEnum.ACCEPTED.name());
+            
+            // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                if (entity.getAuteurs() == null) {
+                    entity.setAuteurs(new ArrayList<>());
+                }
+                boolean userAlreadyAuthor = entity.getAuteurs().stream()
+                    .anyMatch(auteur -> auteur.getId().equals(currentUser.getId()));
+                if (!userAlreadyAuthor) {
+                    entity.getAuteurs().add(currentUser);
+                }
+            }
+            
+            entityRepository.save(entity);
+            
+            // Recharger les candidats
+            candidatsLoaded = false;
+            chargerCandidats();
+            
+            String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le candidat a été validé par " + userName + "."));
+            
+            return "/candidats/candidats.xhtml?faces-redirect=true";
+            
+        } catch (Exception e) {
+            log.error("Erreur lors de la validation du candidat", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors de la validation : " + e.getMessage()));
+            return null;
+        }
+    }
+    
+    /**
+     * Refuse le candidat depuis la page de visualisation (change le statut à REFUSED)
+     */
+    public String refuserCandidatFromView() {
+        try {
+            if (currentEntity == null || currentEntity.getId() == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Aucune entité à refuser."));
+                return null;
+            }
+            
+            // Recharger l'entité depuis la base
+            Entity entity = entityRepository.findById(currentEntity.getId()).orElse(null);
+            if (entity == null) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Entité introuvable."));
+                return null;
+            }
+            
+            // Mettre à jour les auteurs avant de changer le statut
+            if (selectedAuteurs != null) {
+                if (entity.getAuteurs() != null) {
+                    entity.getAuteurs().size();
+                }
+                entity.setAuteurs(new ArrayList<>(selectedAuteurs));
+            }
+            
+            // Changer le statut
+            entity.setStatut(EntityStatusEnum.REFUSED.name());
+            
+            // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                if (entity.getAuteurs() == null) {
+                    entity.setAuteurs(new ArrayList<>());
+                }
+                boolean userAlreadyAuthor = entity.getAuteurs().stream()
+                    .anyMatch(auteur -> auteur.getId().equals(currentUser.getId()));
+                if (!userAlreadyAuthor) {
+                    entity.getAuteurs().add(currentUser);
+                }
+            }
+            
+            entityRepository.save(entity);
+            
+            // Recharger les candidats
+            candidatsLoaded = false;
+            chargerCandidats();
+            
+            String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le candidat a été refusé par " + userName + "."));
+            
+            return "/candidats/candidats.xhtml?faces-redirect=true";
+            
+        } catch (Exception e) {
+            log.error("Erreur lors du refus du candidat", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Une erreur est survenue lors du refus : " + e.getMessage()));
+            return null;
+        }
     }
 
     public String getCollectionLabel(Entity collection) {
+        if (collection == null) {
+            return "Aucune collection";
+        }
         Optional<Label> existingLabel = collection.getLabels().stream()
                 .filter(l -> l.getLangue() != null && l.getLangue().getCode().equalsIgnoreCase(searchBean.getLangSelected()))
                 .findFirst();
