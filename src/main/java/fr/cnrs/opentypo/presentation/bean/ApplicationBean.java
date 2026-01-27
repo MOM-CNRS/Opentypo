@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
@@ -392,8 +393,8 @@ public class ApplicationBean implements Serializable {
                     // Trouver la catégorie parente
                     for (Entity parent : parents) {
                         if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) ||
-                             "CATEGORIE".equals(parent.getEntityType().getCode()))) {
+                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) || 
+                                    ReferenceOpenthesoEnum.CATEGORIE.name().equals(parent.getEntityType().getCode()))) {
                             this.selectedCategory = parent;
                             break;
                         }
@@ -481,7 +482,7 @@ public class ApplicationBean implements Serializable {
                     // Forcer le chargement de la liste des aires de circulation
                     if (this.selectedSerie.getAiresCirculation() != null) {
                         this.selectedSerie.getAiresCirculation().forEach(ref -> {
-                            if (ref != null && "AIRE_CIRCULATION".equals(ref.getCode())) {
+                            if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) {
                                 ref.getValeur(); // Force le chargement
                             }
                         });
@@ -619,7 +620,7 @@ public class ApplicationBean implements Serializable {
                     // Forcer le chargement de la liste des aires de circulation
                     if (this.selectedType.getAiresCirculation() != null) {
                         this.selectedType.getAiresCirculation().forEach(ref -> {
-                            if (ref != null && "AIRE_CIRCULATION".equals(ref.getCode())) {
+                            if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) {
                                 ref.getValeur(); // Force le chargement
                             }
                         });
@@ -703,8 +704,8 @@ public class ApplicationBean implements Serializable {
                 if (parents != null && !parents.isEmpty()) {
                     for (Entity parent : parents) {
                         if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) ||
-                             "CATEGORIE".equals(parent.getEntityType().getCode()))) {
+                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) || 
+                                    ReferenceOpenthesoEnum.CATEGORIE.name().equals(parent.getEntityType().getCode()))) {
                             this.selectedCategory = parent;
                             break;
                         }

@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.candidats;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -723,7 +724,7 @@ public class CandidatBean implements Serializable {
         String aireCirculationStr = "";
         if (entity.getAiresCirculation() != null && !entity.getAiresCirculation().isEmpty()) {
             aireCirculationStr = entity.getAiresCirculation().stream()
-                .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                 .map(ReferenceOpentheso::getValeur)
                 .filter(v -> v != null && !v.isEmpty())
                 .collect(Collectors.joining("; "));
@@ -949,7 +950,7 @@ public class CandidatBean implements Serializable {
         // Charger les aires de circulation depuis la relation OneToMany
         if (refreshedEntity.getAiresCirculation() != null) {
             airesCirculation = refreshedEntity.getAiresCirculation().stream()
-                .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                 .collect(Collectors.toList());
         } else {
             airesCirculation = new ArrayList<>();
@@ -1554,7 +1555,7 @@ public class CandidatBean implements Serializable {
                     
                     // Vérifier le code pour déterminer quel champ de l'entité mettre à jour
                     String code = createdReference.getCode();
-                    if ("PRODUCTION".equals(code)) {
+                    if (ReferenceOpenthesoEnum.PRODUCTION.name().equals(code)) {
                         newEntity.setProduction(createdReference);
                         log.info("Référence Production associée à l'entité: {}", createdReference.getId());
                     }
@@ -1682,7 +1683,7 @@ public class CandidatBean implements Serializable {
             if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
                 // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
                 return refreshedEntity.getAiresCirculation().stream()
-                    .anyMatch(ref -> "AIRE_CIRCULATION".equals(ref.getCode()));
+                    .anyMatch(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()));
             }
             return false;
         } catch (Exception e) {
@@ -1706,7 +1707,7 @@ public class CandidatBean implements Serializable {
             if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
                 // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
                 airesCirculation = refreshedEntity.getAiresCirculation().stream()
-                    .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                    .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                     .collect(Collectors.toList());
             } else {
                 airesCirculation = new ArrayList<>();
@@ -3561,25 +3562,14 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        
-        try {
-            // Recharger l'entité depuis la base de données pour avoir la référence production à jour
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getProduction() != null) {
-                // Mettre à jour le champ candidatProduction avec la valeur de la référence
-                candidatProduction = refreshedEntity.getProduction().getValeur();
-                // Mettre à jour currentEntity pour garder la synchronisation
-                currentEntity = refreshedEntity;
-                log.info("Champ production mis à jour pour l'entité ID={}: {}", currentEntity.getId(), candidatProduction);
-            } else if (openThesoDialogBean.getCreatedReference() != null) {
-                // Fallback : utiliser la référence créée si l'entité n'a pas encore été rechargée
-                candidatProduction = openThesoDialogBean.getCreatedReference().getValeur();
-            } else if (openThesoDialogBean.getSelectedConcept() != null) {
-                // Fallback : utiliser le concept sélectionné
-                candidatProduction = openThesoDialogBean.getSelectedConcept().getSelectedTerm();
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour du champ production depuis OpenTheso", e);
+
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getProduction() != null) {
+            // Mettre à jour le champ candidatProduction avec la valeur de la référence
+            candidatProduction = refreshedEntity.getProduction().getValeur();
+            // Mettre à jour currentEntity pour garder la synchronisation
+            currentEntity = refreshedEntity;
+            log.info("Champ production mis à jour pour l'entité ID={}: {}", currentEntity.getId(), candidatProduction);
         }
     }
 
@@ -3600,7 +3590,7 @@ public class CandidatBean implements Serializable {
                 // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
                 if (currentEntity.getAiresCirculation() != null) {
                     airesCirculation = currentEntity.getAiresCirculation().stream()
-                        .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                        .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                         .collect(Collectors.toList());
                 } else {
                     airesCirculation = new ArrayList<>();
@@ -3642,7 +3632,7 @@ public class CandidatBean implements Serializable {
             if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
                 // Trouver la référence à supprimer
                 ReferenceOpentheso referenceToDelete = refreshedEntity.getAiresCirculation().stream()
-                    .filter(ref -> ref.getId().equals(referenceId) && "AIRE_CIRCULATION".equals(ref.getCode()))
+                    .filter(ref -> ref.getId().equals(referenceId) && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                     .findFirst()
                     .orElse(null);
                 
@@ -3654,7 +3644,7 @@ public class CandidatBean implements Serializable {
                     // Mettre à jour currentEntity et la liste locale
                     currentEntity = refreshedEntity;
                     airesCirculation = currentEntity.getAiresCirculation().stream()
-                        .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                        .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                         .collect(Collectors.toList());
                     
                     FacesContext.getCurrentInstance().addMessage(null,

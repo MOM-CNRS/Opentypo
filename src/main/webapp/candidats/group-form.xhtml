@@ -306,13 +306,11 @@
                                  update=":openThesoForm :growl"
                                  oncomplete="hideLoading(); PF('openthesoDialog').show();"
                                  onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
-                <p:commandButton value=""
-                                 icon="pi pi-trash"
+                <p:commandButton icon="pi pi-trash"
                                  styleClass="candidat-btn-delete-production"
                                  title="Supprimer la production"
                                  rendered="#{candidatBean.hasProduction()}"
                                  onclick="PF('confirmDeleteProductionDialog').show(); return false;"
-                                 type="button"
                                  process="@none"
                                  update="@none"/>
             </div>
@@ -497,7 +495,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'METROLOGIE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'METROLOGIE', candidatBean.currentEntity.id)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"

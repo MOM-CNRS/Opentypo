@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.converter;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Label;
@@ -81,7 +82,7 @@ public class CandidatConverter {
         String aireCirculationStr = "";
         if (entity.getAiresCirculation() != null && !entity.getAiresCirculation().isEmpty()) {
             aireCirculationStr = entity.getAiresCirculation().stream()
-                .filter(ref -> "AIRE_CIRCULATION".equals(ref.getCode()))
+                .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                 .map(ref -> ref.getValeur())
                 .filter(v -> v != null && !v.isEmpty())
                 .collect(java.util.stream.Collectors.joining("; "));

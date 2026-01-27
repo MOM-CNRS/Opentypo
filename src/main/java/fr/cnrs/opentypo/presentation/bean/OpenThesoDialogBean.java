@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.*;
 import fr.cnrs.opentypo.application.service.PactolsService;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,7 +57,7 @@ public class OpenThesoDialogBean implements Serializable {
     private String dialogWidgetVar;
     private String targetFieldId; // ID du champ cible où insérer la valeur
     private Consumer<String> onValidateCallback; // Callback appelé lors de la validation
-    private String referenceCode; // Code pour la référence (PRODUCTION, PERIODE, etc.)
+    private ReferenceOpenthesoEnum referenceCode; // Code pour la référence (PRODUCTION, PERIODE, etc.)
     private Long entityId; // ID de l'entité à mettre à jour
     private ReferenceOpentheso createdReference; // Référence créée lors de la validation
 
@@ -84,8 +86,9 @@ public class OpenThesoDialogBean implements Serializable {
      * @param entityId ID de l'entité à mettre à jour
      */
     public void loadThesaurus(CandidatBean candidatBean, String code, Long entityId) {
+
         this.candidatBean = candidatBean;
-        this.referenceCode = code != null ? code : "PRODUCTION";
+        this.referenceCode = ReferenceOpenthesoEnum.fromString(code);
         this.entityId = entityId;
         
         // Recharger les thésaurus avec la langue sélectionnée
@@ -109,7 +112,7 @@ public class OpenThesoDialogBean implements Serializable {
      * Utilise "PRODUCTION" par défaut
      */
     public void loadThesaurus() {
-        loadThesaurus(candidatBean, "PRODUCTION", null);
+        loadThesaurus(candidatBean, ReferenceOpenthesoEnum.PRODUCTION.name(), null);
     }
 
     /**
@@ -246,244 +249,199 @@ public class OpenThesoDialogBean implements Serializable {
             return;
         }
 
+        if (referenceCode == null) {
+            log.error("referenceCode est null, impossible de créer la référence");
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Code de référence non défini."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        if (entityId == null) {
+            log.error("entityId est null, impossible de lier la référence à une entité");
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "ID d'entité non défini."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
         String selectedTerm = selectedConcept.getSelectedTerm();
         if (selectedTerm == null || selectedTerm.trim().isEmpty()) {
             selectedTerm = selectedConcept.getIdConcept();
         }
 
-        try {
-            // Créer l'instance de ReferenceOpentheso avec toutes les informations
-            String conceptId = selectedConcept.getIdConcept();
-            String thesaurusId = selectedThesaurusId;
-            String collectionId = selectedCollectionId != null ? selectedCollectionId : "";
-            
-            // Construire l'URL au format base_URL/?idc={id_concept}&idt={id_thesaurus}
-            String baseUrl = "https://pactols.frantiq.fr";
-            String url = baseUrl + "/?idc=" + conceptId + "&idt=" + thesaurusId;
-            
-            // Déterminer le code de la référence (par défaut PRODUCTION)
-            String code = (referenceCode != null && !referenceCode.trim().isEmpty()) 
-                ? referenceCode.trim() 
-                : "PRODUCTION";
-            
-            // Créer la nouvelle entrée ReferenceOpentheso
-            ReferenceOpentheso referenceOpentheso = new ReferenceOpentheso();
-            referenceOpentheso.setCode(code);
-            referenceOpentheso.setValeur(selectedTerm);
-            referenceOpentheso.setConceptId(conceptId);
-            referenceOpentheso.setThesaurusId(thesaurusId);
-            referenceOpentheso.setCollectionId(collectionId);
-            referenceOpentheso.setUrl(url);
-            
-            // Lier la référence à l'entité si entityId est fourni
-            if (entityId != null) {
-                try {
-                    Entity entity = entityRepository.findById(entityId).orElse(null);
-                    if (entity != null) {
-                        // Pour les codes qui utilisent une seule référence (PRODUCTION, PERIODE, etc.)
-                        // on met à jour directement la colonne dans Entity
-                        if ("PRODUCTION".equals(code)) {
-                            entity.setProduction(referenceOpentheso);
-                            referenceOpentheso.setEntity(entity);
-                            // Sauvegarder l'entité (cascade sauvegardera aussi la référence)
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("PERIODE".equals(code)) {
-                            entity.setPeriode(referenceOpentheso);
-                            referenceOpentheso.setEntity(entity);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("CATEGORIE_FONCTIONNELLE".equals(code) || "CATEGORIE".equals(code)) {
-                            entity.setCategorieFonctionnelle(referenceOpentheso);
-                            referenceOpentheso.setEntity(entity);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("AIRE_CIRCULATION".equals(code)) {
-                            // Pour AIRE_CIRCULATION, on utilise la relation @OneToMany dans Entity
-                            referenceOpentheso.setEntity(entity);
-                            // Initialiser la liste si elle est null
-                            if (entity.getAiresCirculation() == null) {
-                                entity.setAiresCirculation(new java.util.ArrayList<>());
-                            }
-                            // Ajouter la référence à la liste
-                            entity.getAiresCirculation().add(referenceOpentheso);
-                            // Sauvegarder l'entité (cascade sauvegardera aussi la référence)
-                            Entity savedEntity = entityRepository.save(entity);
-                            // Récupérer la référence sauvegardée depuis l'entité
-                            if (savedEntity.getAiresCirculation() != null) {
-                                createdReference = savedEntity.getAiresCirculation().stream()
-                                    .filter(ref -> ref.getCode().equals(code) && ref.getConceptId() != null && ref.getConceptId().equals(referenceOpentheso.getConceptId()))
-                                    .findFirst()
-                                    .orElse(referenceOpentheso);
-                            } else {
-                                createdReference = referenceOpentheso;
-                            }
-                        } else if ("FONCTION_USAGE".equals(code)) {
-                            // Pour FONCTION_USAGE, on met à jour DescriptionDetail
-                            referenceOpentheso.setEntity(entity);
-                            // Récupérer ou créer DescriptionDetail
-                            DescriptionDetail descDetail = entity.getDescriptionDetail();
-                            if (descDetail == null) {
-                                descDetail = new DescriptionDetail();
-                                descDetail.setEntity(entity);
-                                entity.setDescriptionDetail(descDetail);
-                                log.info("DescriptionDetail créé pour l'entité ID={}", entity.getId());
-                            }
-                            descDetail.setFonction(referenceOpentheso);
-                            // Sauvegarder l'entité (cascade sauvegardera aussi DescriptionDetail et la référence)
-                            Entity savedEntity = entityRepository.save(entity);
-                            log.info("Fonction/usage sauvegardée pour l'entité ID={}, fonction={}", 
-                                savedEntity.getId(), referenceOpentheso.getValeur());
-                            // Recharger pour s'assurer que les relations sont bien chargées
-                            savedEntity = entityRepository.findById(savedEntity.getId()).orElse(savedEntity);
-                            createdReference = referenceOpentheso;
-                        } else if ("METROLOGIE".equals(code)) {
-                            // Pour METROLOGIE, on met à jour CaracteristiquePhysique
-                            referenceOpentheso.setEntity(entity);
-                            // Récupérer ou créer CaracteristiquePhysique
-                            CaracteristiquePhysique carPhysique = entity.getCaracteristiquePhysique();
-                            if (carPhysique == null) {
-                                carPhysique = new CaracteristiquePhysique();
-                                carPhysique.setEntity(entity);
-                                entity.setCaracteristiquePhysique(carPhysique);
-                                log.info("CaracteristiquePhysique créé pour l'entité ID={}", entity.getId());
-                            }
-                            carPhysique.setMetrologie(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("FABRICATION_FACONNAGE".equals(code)) {
-                            // Pour FABRICATION_FACONNAGE, on met à jour CaracteristiquePhysique
-                            referenceOpentheso.setEntity(entity);
-                            CaracteristiquePhysique carPhysique = entity.getCaracteristiquePhysique();
-                            if (carPhysique == null) {
-                                carPhysique = new CaracteristiquePhysique();
-                                carPhysique.setEntity(entity);
-                                entity.setCaracteristiquePhysique(carPhysique);
-                            }
-                            carPhysique.setFabrication(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("COULEUR_PATE".equals(code)) {
-                            // Pour COULEUR_PATE, on met à jour DescriptionPate
-                            referenceOpentheso.setEntity(entity);
-                            DescriptionPate descPate = entity.getDescriptionPate();
-                            if (descPate == null) {
-                                descPate = new DescriptionPate();
-                                descPate.setEntity(entity);
-                                descPate.setDescription(""); // Valeur par défaut requise
-                                entity.setDescriptionPate(descPate);
-                            }
-                            descPate.setCouleur(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("NATURE_PATE".equals(code)) {
-                            // Pour NATURE_PATE, on met à jour DescriptionPate
-                            referenceOpentheso.setEntity(entity);
-                            DescriptionPate descPate = entity.getDescriptionPate();
-                            if (descPate == null) {
-                                descPate = new DescriptionPate();
-                                descPate.setEntity(entity);
-                                descPate.setDescription("");
-                                entity.setDescriptionPate(descPate);
-                            }
-                            descPate.setNature(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("INCLUSIONS".equals(code)) {
-                            // Pour INCLUSIONS, on met à jour DescriptionPate
-                            referenceOpentheso.setEntity(entity);
-                            DescriptionPate descPate = entity.getDescriptionPate();
-                            if (descPate == null) {
-                                descPate = new DescriptionPate();
-                                descPate.setEntity(entity);
-                                descPate.setDescription("");
-                                entity.setDescriptionPate(descPate);
-                            }
-                            descPate.setInclusion(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else if ("CUISSON_POST_CUISSON".equals(code)) {
-                            // Pour CUISSON_POST_CUISSON, on met à jour DescriptionPate
-                            referenceOpentheso.setEntity(entity);
-                            DescriptionPate descPate = entity.getDescriptionPate();
-                            if (descPate == null) {
-                                descPate = new DescriptionPate();
-                                descPate.setEntity(entity);
-                                descPate.setDescription("");
-                                entity.setDescriptionPate(descPate);
-                            }
-                            descPate.setCuisson(referenceOpentheso);
-                            entityRepository.save(entity);
-                            createdReference = referenceOpentheso;
-                        } else {
-                            // Pour les autres codes, on définit simplement la relation
-                            referenceOpentheso.setEntity(entity);
-                            createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                        }
-                    } else {
-                        log.warn("Entité avec ID={} non trouvée, impossible de lier la référence", entityId);
-                        // Sauvegarder quand même la référence sans lien
-                        createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                    }
-                } catch (Exception e) {
-                    log.error("Erreur lors de la liaison de la référence à l'entité", e);
-                    // Sauvegarder quand même la référence sans lien
-                    createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                }
-            } else {
-                // Pas d'entityId fourni, sauvegarder simplement la référence
+        // Créer l'instance de ReferenceOpentheso avec toutes les informations
+        String conceptId = selectedConcept.getIdConcept();
+        String thesaurusId = selectedThesaurusId;
+        String collectionId = selectedCollectionId != null ? selectedCollectionId : "";
+
+        // Construire l'URL au format base_URL/?idc={id_concept}&idt={id_thesaurus}
+        String baseUrl = "https://pactols.frantiq.fr";
+        String url = baseUrl + "/?idc=" + conceptId + "&idt=" + thesaurusId;
+
+        // Créer la nouvelle entrée ReferenceOpentheso
+        ReferenceOpentheso referenceOpentheso = new ReferenceOpentheso();
+        referenceOpentheso.setCode(referenceCode.name());
+        referenceOpentheso.setValeur(selectedTerm);
+        referenceOpentheso.setConceptId(conceptId);
+        referenceOpentheso.setThesaurusId(thesaurusId);
+        referenceOpentheso.setCollectionId(collectionId);
+        referenceOpentheso.setUrl(url);
+
+        // Lier la référence à l'entité
+        Entity entity = entityRepository.findById(entityId).orElse(null);
+
+        // Pour les codes qui utilisent une seule référence (PRODUCTION, PERIODE, etc.)
+        // on met à jour directement la colonne dans Entity
+        switch (referenceCode) {
+            case ReferenceOpenthesoEnum.PRODUCTION:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-            }
-            
-            log.info("Référence ReferenceOpentheso créée avec le code '{}' pour le concept: {} (entity_id: {})", 
-                code, conceptId, entityId);
-            
-            // Appeler le callback si défini avec le terme sélectionné
-            if (onValidateCallback != null) {
-                onValidateCallback.accept(selectedTerm);
-            }
-
-            // Appeler le remote command pour mettre à jour le champ correspondant
-            if ("PRODUCTION".equals(code)) {
-                PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
-            } else if ("AIRE_CIRCULATION".equals(code) || "AIRE".equals(code)) {
-                PrimeFaces.current().executeScript("updateAireCirculationFromOpenTheso();");
-            } else if ("FONCTION_USAGE".equals(code)) {
-                PrimeFaces.current().executeScript("updateFonctionUsageFromOpenTheso();");
-            } else if ("METROLOGIE".equals(code)) {
-                PrimeFaces.current().executeScript("updateMetrologieFromOpenTheso();");
-            } else if ("FABRICATION_FACONNAGE".equals(code)) {
-                PrimeFaces.current().executeScript("updateFabricationFaconnageFromOpenTheso();");
-            } else if ("COULEUR_PATE".equals(code)) {
-                PrimeFaces.current().executeScript("updateCouleurPateFromOpenTheso();");
-            } else if ("NATURE_PATE".equals(code)) {
-                PrimeFaces.current().executeScript("updateNaturePateFromOpenTheso();");
-            } else if ("INCLUSIONS".equals(code)) {
-                PrimeFaces.current().executeScript("updateInclusionsFromOpenTheso();");
-            } else if ("CUISSON_POST_CUISSON".equals(code)) {
-                PrimeFaces.current().executeScript("updateCuissonPostCuissonFromOpenTheso();");
-            } else {
-                // Par défaut, utiliser updateProductionFromOpenTheso pour compatibilité
-                PrimeFaces.current().executeScript("updateProductionFromOpenTheso();");
-            }
-
-            // Fermer la boîte de dialogue
-            PrimeFaces.current().executeScript("setTimeout(function() { PF('openthesoDialog').hide(); }, 100);");
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", 
-                    "Référence créée avec succès (Code: " + code + ")."));
-            
-            // Mettre à jour le formulaire pour afficher le nom du concept
-            PrimeFaces.current().ajax().update(":createCandidatForm :growl");
-            
-        } catch (Exception e) {
-            log.error("Erreur lors de la création de la référence ReferenceOpentheso", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", 
-                    "Une erreur est survenue lors de la création de la référence."));
-            PrimeFaces.current().ajax().update(":growl");
+                entity.setProduction(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateProductionFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.PERIODE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                entity.setPeriode(createdReference);
+                entityRepository.save(entity);
+                break;
+            case ReferenceOpenthesoEnum.CATEGORIE,
+                 ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                entity.setCategorieFonctionnelle(createdReference);
+                entityRepository.save(entity);
+                break;
+            case ReferenceOpenthesoEnum.AIRE_CIRCULATION:
+                referenceOpentheso.setEntity(entity);
+                if (CollectionUtils.isEmpty(entity.getAiresCirculation())) {
+                    entity.setAiresCirculation(new ArrayList<>());
+                }
+                entity.getAiresCirculation().add(referenceOpentheso);
+                // Sauvegarder l'entité (cascade ALL sauvegardera aussi la référence)
+                Entity savedEntity = entityRepository.save(entity);
+                // Récupérer la référence sauvegardée depuis l'entité
+                if (savedEntity.getAiresCirculation() != null && !savedEntity.getAiresCirculation().isEmpty()) {
+                    createdReference = savedEntity.getAiresCirculation().stream()
+                            .filter(ref -> ref.getConceptId() != null && ref.getConceptId().equals(conceptId))
+                            .findFirst()
+                            .orElse(referenceOpentheso);
+                } else {
+                    createdReference = referenceOpentheso;
+                }
+                candidatBean.updateAireCirculationFromOpenTheso();
+                log.info("Référence AIRE_CIRCULATION sauvegardée avec ID: {}", createdReference.getId());
+                break;
+            case ReferenceOpenthesoEnum.FONCTION_USAGE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getDescriptionDetail() == null) {
+                    entity.setDescriptionDetail(new DescriptionDetail());
+                    entity.getDescriptionDetail().setEntity(entity);
+                }
+                entity.getDescriptionDetail().setFonction(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateFonctionUsageFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.METROLOGIE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getCaracteristiquePhysique() == null) {
+                    entity.setCaracteristiquePhysique(new CaracteristiquePhysique());
+                    entity.getCaracteristiquePhysique().setEntity(entity);
+                }
+                entity.getCaracteristiquePhysique().setMetrologie(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateMetrologieFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.FABRICATION_FACONNAGE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getCaracteristiquePhysique() == null) {
+                    entity.setCaracteristiquePhysique(new CaracteristiquePhysique());
+                    entity.getCaracteristiquePhysique().setEntity(entity);
+                }
+                entity.getCaracteristiquePhysique().setFabrication(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateFabricationFaconnageFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.COULEUR_PATE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getDescriptionPate() == null) {
+                    entity.setDescriptionPate(new DescriptionPate());
+                    entity.getDescriptionPate().setEntity(entity);
+                }
+                entity.getDescriptionPate().setCouleur(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateCouleurPateFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.NATURE_PATE:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getDescriptionPate() == null) {
+                    entity.setDescriptionPate(new DescriptionPate());
+                    entity.getDescriptionPate().setEntity(entity);
+                }
+                entity.getDescriptionPate().setNature(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateNaturePateFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.INCLUSIONS:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getDescriptionPate() == null) {
+                    entity.setDescriptionPate(new DescriptionPate());
+                    entity.getDescriptionPate().setEntity(entity);
+                }
+                entity.getDescriptionPate().setInclusion(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateInclusionsFromOpenTheso();
+                break;
+            case ReferenceOpenthesoEnum.CUISSON_POST_CUISSON:
+                referenceOpentheso.setEntity(entity);
+                // Sauvegarder la référence d'abord
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getDescriptionPate() == null) {
+                    entity.setDescriptionPate(new DescriptionPate());
+                    entity.getDescriptionPate().setEntity(entity);
+                }
+                entity.getDescriptionPate().setCuisson(createdReference);
+                entityRepository.save(entity);
+                candidatBean.updateCuissonPostCuissonFromOpenTheso();
+                break;
+            default:
+                log.warn("Code de référence non géré: {}", referenceCode);
+                // Sauvegarder la référence sans lien spécifique
+                referenceOpentheso.setEntity(entity);
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                break;
         }
+        // Appeler le callback si défini avec le terme sélectionné
+        if (onValidateCallback != null) {
+            onValidateCallback.accept(selectedTerm);
+        }
+
+        // Fermer la boîte de dialogue
+        PrimeFaces.current().executeScript("setTimeout(function() { PF('openthesoDialog').hide(); }, 100);");
+
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                        "Référence créée avec succès (Code: " + referenceCode + ")."));
+
+        log.info("Référence ReferenceOpentheso créée avec succès - ID: {}, Code: '{}', Concept: {}, Entity ID: {}",
+                createdReference.getId(), referenceCode, conceptId, entityId);
     }
 
     /**
