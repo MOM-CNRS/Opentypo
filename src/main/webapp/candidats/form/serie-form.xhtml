@@ -5,7 +5,763 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <div class="wizard-content">
+        <!-- Traductions du label (multilingues) -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel value="Traductions du label" />
+            <p class="users-form-hint" style="margin-bottom: 1rem;">
+                <i class="pi pi-info-circle" />
+                Ajoutez des traductions du label pour d'autres langues. La langue définie à l'étape 1 est exclue.
+            </p>
 
+            <!-- Formulaire pour ajouter une nouvelle traduction de label -->
+            <div class="candidat-label-input-section">
+                <div class="candidat-label-input-row">
+                    <div class="candidat-label-input-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-tag input-icon" />
+                            <p:inputText value="#{candidatBean.newLabelValue}"
+                                         placeholder="Saisissez la traduction du label..."
+                                         styleClass="users-input"
+                                         maxlength="255"/>
+                        </div>
+                    </div>
+                    <div class="candidat-label-select-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-globe input-icon" />
+                            <p:selectOneMenu id="newSerieLabelLangue"
+                                             value="#{candidatBean.newLabelLangueCode}"
+                                             styleClass="users-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewLabel()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <p:commandButton value="Ajouter"
+                                     icon="pi pi-plus"
+                                     styleClass="candidat-btn-add"
+                                     actionListener="#{candidatBean.addLabelFromInput()}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":createCandidatForm :growl"/>
+                </div>
+            </div>
+
+            <!-- Liste des traductions de label ajoutées -->
+            <h:panelGroup id="serieLabelsTable">
+                <p:dataTable value="#{candidatBean.candidatLabels}"
+                             var="labelItem"
+                             styleClass="candidat-labels-table"
+                             emptyMessage="Aucune traduction ajoutée"
+                             rendered="#{not empty candidatBean.candidatLabels}">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                        <div class="candidat-table-langue-cell">
+                            <h:panelGroup rendered="#{labelItem.langueCode != null}">
+                                <h:graphicImage library="img"
+                                                name="flag/#{labelItem.langueCode}.png"
+                                                styleClass="candidat-table-flag"
+                                                alt="#{labelItem.langue.nom}"
+                                                title="#{labelItem.langue.nom}"/>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{labelItem.langue != null}">
+                                            <span class="candidat-table-langue-name">
+                                                #{labelItem.langue.nom}
+                                            </span>
+                            </h:panelGroup>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Label" styleClass="candidat-table-label-column" width="70">
+                        <div class="candidat-table-label-cell">
+                            <h:outputText value="#{labelItem.nom}" styleClass="candidat-table-label-text" />
+                        </div>
+                    </p:column>
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                        <div class="candidat-table-action-cell">
+                            <p:commandButton icon="pi pi-trash"
+                                             styleClass="candidat-btn-remove"
+                                             action="#{candidatBean.removeCandidatLabel(labelItem)}"
+                                             process="@form"
+                                             ajax="true"
+                                             update=":createCandidatForm:serieLabelsTable :createCandidatForm:newSerieLabelLangue"
+                                             title="Supprimer cette traduction"/>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+
+                <ui:fragment rendered="#{empty candidatBean.candidatLabels}">
+                    <div class="candidat-no-labels">
+                        <div class="candidat-no-labels-content">
+                            <div class="candidat-no-labels-icon">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <div class="candidat-no-labels-text">
+                                <h4 class="candidat-no-labels-title">Aucune traduction ajoutée</h4>
+                                <p class="candidat-no-labels-message">Utilisez le formulaire ci-dessus pour ajouter une traduction du label dans une autre langue.</p>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
+        </div>
+
+        <!-- Descriptions multilingues -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Descriptions" />
+            <p class="users-form-hint" style="margin-bottom: 1rem;">
+                <i class="pi pi-info-circle" />
+                Ajoutez une description pour chaque langue. Chaque langue ne peut être utilisée qu'une seule fois.
+            </p>
+
+            <!-- Formulaire pour ajouter une nouvelle description -->
+            <div class="candidat-description-input-section">
+                <div class="candidat-description-input-row">
+                    <div class="candidat-description-textarea-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-align-left input-icon input-icon-textarea" />
+                            <p:inputTextarea id="newSerieDescriptionInput"
+                                             value="#{candidatBean.newDescriptionValue}"
+                                             placeholder="Saisissez une description détaillée de la catégorie..."
+                                             rows="4"
+                                             styleClass="users-textarea"
+                                             maxlength="2000"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="candidat-description-input-row">
+                    <div class="candidat-description-select-wrapper">
+                        <div class="input-wrapper">
+                            <i class="pi pi-globe input-icon" />
+                            <p:selectOneMenu id="newSerieDescriptionLangue"
+                                             value="#{candidatBean.newDescriptionLangueCode}"
+                                             styleClass="users-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewDescription()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    <p:commandButton value="Ajouter"
+                                     icon="pi pi-plus"
+                                     styleClass="candidat-btn-add"
+                                     actionListener="#{candidatBean.addCandidatDescriptionFromInput()}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":createCandidatForm:serieDescriptionsTable :createCandidatForm:newSerieDescriptionInput :createCandidatForm:newSerieDescriptionLangue :growl"/>
+                </div>
+            </div>
+
+            <!-- Liste des descriptions ajoutées -->
+            <h:panelGroup id="serieDescriptionsTable">
+                <p:dataTable value="#{candidatBean.descriptions}"
+                             var="descriptionItem"
+                             styleClass="candidat-descriptions-table"
+                             emptyMessage="Aucune description ajoutée"
+                             rendered="#{not empty candidatBean.descriptions}">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                        <div class="candidat-table-langue-cell">
+                            <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
+                                <h:graphicImage library="img"
+                                                name="flag/#{descriptionItem.langueCode}.png"
+                                                styleClass="candidat-table-flag"
+                                                alt="#{descriptionItem.langue.nom}"
+                                                title="#{descriptionItem.langue.nom}"/>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{descriptionItem.langue != null}">
+                                            <span class="candidat-table-langue-name">
+                                                #{descriptionItem.langue.nom}
+                                            </span>
+                            </h:panelGroup>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Description" styleClass="candidat-table-description-column" width="70">
+                        <div class="candidat-table-description-cell">
+                            <h:outputText value="#{descriptionItem.valeur}"
+                                          styleClass="candidat-table-description-text" />
+                        </div>
+                    </p:column>
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                        <div class="candidat-table-action-cell">
+                            <p:commandButton icon="pi pi-trash"
+                                             styleClass="candidat-btn-remove"
+                                             action="#{candidatBean.removeCandidatDescription(descriptionItem)}"
+                                             process="@form"
+                                             ajax="true"
+                                             update=":createCandidatForm:serieDescriptionsTable :createCandidatForm:newSerieDescriptionLangue"
+                                             title="Supprimer cette description"/>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+
+                <ui:fragment rendered="#{empty candidatBean.descriptions}">
+                    <div class="candidat-no-descriptions">
+                        <div class="candidat-no-descriptions-content">
+                            <div class="candidat-no-descriptions-icon">
+                                <i class="pi pi-info-circle" />
+                            </div>
+                            <div class="candidat-no-descriptions-text">
+                                <h4 class="candidat-no-descriptions-title">Aucune description ajoutée</h4>
+                                <p class="candidat-no-descriptions-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
+            </h:panelGroup>
+        </div>
+
+        <!-- Période, TPQ et TAQ -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <div class="users-form-grid">
+                <div class="users-form-group">
+                    <p:outputLabel for="seriePeriode" value="Période" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-calendar input-icon" />
+                        <p:inputText id="seriePeriode"
+                                     value="#{candidatBean.seriePeriode}"
+                                     styleClass="users-input"
+                                     placeholder="Saisissez la période..."
+                                     maxlength="255"/>
+                    </div>
+                    <p:message for="seriePeriode" display="icon"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- TPQ et TAQ sur la même ligne -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <div class="users-form-grid">
+                <div class="users-form-group">
+                    <p:outputLabel for="serieTpq" value="TPQ (Terminus Post Quem)" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-calendar-plus input-icon" />
+                        <p:inputNumber id="serieTpq"
+                                       value="#{candidatBean.tpq}"
+                                       styleClass="users-input"
+                                       placeholder="Ex: 1500"
+                                       minValue="0"
+                                       maxValue="9999"
+                                       decimalPlaces="0">
+                            <p:ajax event="blur" listener="#{candidatBean.saveGroupFields}" process="@this" update="@none"/>
+                        </p:inputNumber>
+                    </div>
+                    <p class="users-form-hint">
+                        <i class="pi pi-info-circle" />
+                        Année la plus ancienne possible
+                    </p>
+                    <p:message for="serieTpq" display="icon"/>
+                </div>
+
+                <div class="users-form-group">
+                    <p:outputLabel for="serieTaq" value="TAQ (Terminus Ante Quem)" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-calendar-plus input-icon" />
+                        <p:inputNumber id="serieTaq"
+                                       value="#{candidatBean.taq}"
+                                       styleClass="users-input"
+                                       placeholder="Ex: 1500"
+                                       minValue="0"
+                                       maxValue="9999"
+                                       decimalPlaces="0">
+                            <p:ajax event="blur" listener="#{candidatBean.saveGroupFields}" process="@this" update="@none"/>
+                        </p:inputNumber>
+                    </div>
+                    <p class="users-form-hint">
+                        <i class="pi pi-info-circle" />
+                        Année la plus récente possible
+                    </p>
+                    <p:message for="serieTaq" display="icon"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production -->
+        <div class="users-form-group users-form-group-full" id="productionGroup">
+            <p:outputLabel value="Production" />
+            <div class="candidat-production-wrapper  candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.currentEntity.production.valeur}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune production sélectionnée"
+                                 rendered="#{candidatBean.hasProduction()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune production sélectionnée"
+                                 rendered="#{!candidatBean.hasProduction()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'PRODUCTION', candidatBean.currentEntity.id)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la production"
+                                 rendered="#{candidatBean.hasProduction()}"
+                                 onclick="PF('confirmDeleteProductionDialog').show(); return false;"
+                                 process="@none"
+                                 update="@none"/>
+            </div>
+        </div>
+
+        <!-- Atelier(s) (Saisie libre avec tags) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="serieAteliers" value="Atelier(s)" />
+            <div class="input-wrapper">
+                <i class="pi pi-wrench input-icon" />
+                <p:chips id="serieAteliers"
+                         value="#{candidatBean.ateliers}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez un atelier et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="change" listener="#{candidatBean.saveAteliers}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Saisissez chaque atelier et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
+            </p>
+            <p:message for="serieAteliers" display="icon"/>
+        </div>
+
+        <!-- Aire de circulation -->
+        <h:panelGroup id="aireCirculationSerie" styleClass="users-form-group users-form-group-full">
+            <p:outputLabel value="Aire de circulation" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper" style="flex: 1;">
+                    <i class="pi pi-map-marker input-icon" />
+                    <div class="candidat-aires-circulation-chips">
+                        <ui:repeat value="#{candidatBean.airesCirculation}" var="aire" varStatus="status">
+                            <span class="candidat-aire-chip">
+                                <span class="candidat-aire-chip-label">#{aire.valeur}</span>
+                                <p:commandButton value=""
+                                                 icon="pi pi-times"
+                                                 styleClass="candidat-aire-chip-delete"
+                                                 title="Supprimer cette aire de circulation"
+                                                 actionListener="#{candidatBean.prepareDeleteAireCirculation(aire.id)}"
+                                                 process="@this"
+                                                 ajax="true"
+                                                 update=":createCandidatForm :growl"
+                                                 oncomplete="PF('confirmDeleteAireCirculationDialog').show();"
+                                                 type="button"/>
+                            </span>
+                        </ui:repeat>
+                        <p:outputLabel value="Aucune aire de circulation sélectionnée"
+                                       styleClass="candidat-no-aires-message"
+                                       rendered="#{empty candidatBean.airesCirculation}"/>
+                    </div>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'AIRE_CIRCULATION', candidatBean.currentEntity.id)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Cliquez sur "Ajouter" pour sélectionner une aire de circulation depuis OpenTheso. Vous pouvez ajouter plusieurs valeurs.
+            </p>
+            <p:message for="aireCirculationSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Caractéristiques physiques -->
+        <div style="margin-top: 1rem">
+            <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title"
+                              style="padding-left: 15px !important;"/></b>
+        </div>
+
+        <!-- Décors -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel for="serieDecors" value="Décors" />
+            <div class="input-wrapper">
+                <i class="pi pi-palette input-icon" />
+                <p:inputText id="serieDecors"
+                             value="#{candidatBean.decors}"
+                             styleClass="users-input"
+                             placeholder="Saisissez le décors..."
+                             maxlength="255"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Ce champ sera enregistré lorsque vous cliquerez sur "Terminer".
+            </p>
+            <p:message for="serieDecors" display="icon"/>
+        </div>
+
+        <!-- Marques/estampilles -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel for="serieMarquesEstampilles" value="Marques/estampilles" />
+            <div class="input-wrapper">
+                <i class="pi pi-tag input-icon" />
+                <p:chips id="serieMarquesEstampilles"
+                         value="#{candidatBean.marquesEstampilles}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Saisissez chaque marque/estampille et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer. Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="serieMarquesEstampilles" display="icon"/>
+        </div>
+
+        <!-- Fonction/usage -->
+        <h:panelGroup id="fonctionUsageSerie" styleClass="users-form-group users-form-group-full">
+            <p:outputLabel value="Fonction/usage" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.fonctionUsage != null ? candidatBean.fonctionUsage.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fonction/usage sélectionnée"
+                                 rendered="#{candidatBean.hasFonctionUsage()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fonction/usage sélectionnée"
+                                 rendered="#{!candidatBean.hasFonctionUsage()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FONCTION_USAGE', candidatBean.currentEntity.id)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la fonction/usage"
+                                 rendered="#{candidatBean.hasFonctionUsage()}"
+                                 onclick="PF('confirmDeleteFonctionUsageDialog').show(); return false;"
+                                 type="button"
+                                 process="@none"
+                                 update="@none"/>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Cliquez sur "Ajouter" pour sélectionner une fonction/usage depuis OpenTheso. Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="fonctionUsageSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Caractéristiques physiques -->
+        <div style="margin-top: 1rem">
+            <b><p:outputLabel value="Caractéristiques physiques" styleClass="caracteristiques-physiques-title"
+                              style="padding-left: 15px !important;"/></b>
+        </div>
+
+        <!-- Métrologie -->
+        <h:panelGroup id="metrologieSerie" styleClass="users-form-group users-form-group-full">
+            <p:outputLabel value="Métrologie" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-ruler input-icon" />
+                    <p:inputText value="#{candidatBean.metrologie != null ? candidatBean.metrologie.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune métrologie sélectionnée"
+                                 rendered="#{candidatBean.hasMetrologie()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune métrologie sélectionnée"
+                                 rendered="#{!candidatBean.hasMetrologie()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'METROLOGIE', candidatBean.currentEntity.id)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la métrologie"
+                                 rendered="#{candidatBean.hasMetrologie()}"
+                                 actionListener="#{candidatBean.deleteMetrologie}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="metrologieSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Fabrication/façonnage -->
+        <h:panelGroup id="fabricationFaconnageSerie" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Fabrication/façonnage" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-wrench input-icon" />
+                    <p:inputText value="#{candidatBean.fabricationFaconnage != null ? candidatBean.fabricationFaconnage.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fabrication/façonnage sélectionnée"
+                                 rendered="#{candidatBean.hasFabricationFaconnage()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune fabrication/façonnage sélectionnée"
+                                 rendered="#{!candidatBean.hasFabricationFaconnage()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FABRICATION_FACONNAGE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la fabrication/façonnage"
+                                 rendered="#{candidatBean.hasFabricationFaconnage()}"
+                                 actionListener="#{candidatBean.deleteFabricationFaconnage}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="fabricationFaconnageSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Description pâte (champ texte) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="serieDescriptionPate" value="Description pâte" />
+            <div class="input-wrapper">
+                <i class="pi pi-align-left input-icon" />
+                <p:inputText id="serieDescriptionPate"
+                             value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             placeholder="Saisissez la description de la pâte..."
+                             maxlength="255">
+                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
+                </p:inputText>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="serieDescriptionPate" display="icon"/>
+        </div>
+
+        <!-- Couleur de pâte -->
+        <h:panelGroup id="couleurPateSerie" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Couleur de pâte" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-palette input-icon" />
+                    <p:inputText value="#{candidatBean.couleurPate != null ? candidatBean.couleurPate.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune couleur sélectionnée"
+                                 rendered="#{candidatBean.hasCouleurPate()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune couleur sélectionnée"
+                                 rendered="#{!candidatBean.hasCouleurPate()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'COULEUR_PATE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la couleur de pâte"
+                                 rendered="#{candidatBean.hasCouleurPate()}"
+                                 actionListener="#{candidatBean.deleteCouleurPate}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="couleurPateSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Nature de pâte -->
+        <h:panelGroup id="naturePateSerie" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Nature de pâte" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-th-large input-icon" />
+                    <p:inputText value="#{candidatBean.naturePate != null ? candidatBean.naturePate.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune nature sélectionnée"
+                                 rendered="#{candidatBean.hasNaturePate()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune nature sélectionnée"
+                                 rendered="#{!candidatBean.hasNaturePate()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'NATURE_PATE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la nature de pâte"
+                                 rendered="#{candidatBean.hasNaturePate()}"
+                                 actionListener="#{candidatBean.deleteNaturePate}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="naturePateSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Inclusions -->
+        <h:panelGroup id="inclusionsSerie" styleClass="users-form-group users-form-group-full">
+            <p:outputLabel value="Inclusions" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-circle input-icon" />
+                    <p:inputText value="#{candidatBean.inclusions != null ? candidatBean.inclusions.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune inclusion sélectionnée"
+                                 rendered="#{candidatBean.hasInclusions()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune inclusion sélectionnée"
+                                 rendered="#{!candidatBean.hasInclusions()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'INCLUSIONS', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer les inclusions"
+                                 rendered="#{candidatBean.hasInclusions()}"
+                                 actionListener="#{candidatBean.deleteInclusions}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="inclusionsSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Cuisson/post-cuisson -->
+        <h:panelGroup id="cuissonPostCuissonSerie" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel value="Cuisson/post-cuisson" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-fire input-icon" />
+                    <p:inputText value="#{candidatBean.cuissonPostCuisson != null ? candidatBean.cuissonPostCuisson.valeur : ''}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune cuisson/post-cuisson sélectionnée"
+                                 rendered="#{candidatBean.hasCuissonPostCuisson()}"/>
+                    <p:inputText value=""
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Aucune cuisson/post-cuisson sélectionnée"
+                                 rendered="#{!candidatBean.hasCuissonPostCuisson()}"/>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add-production"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'CUISSON_POST_CUISSON', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":openThesoForm :growl"
+                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
+                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <p:commandButton value=""
+                                 icon="pi pi-trash"
+                                 styleClass="candidat-btn-delete-production"
+                                 title="Supprimer la cuisson/post-cuisson"
+                                 rendered="#{candidatBean.hasCuissonPostCuisson()}"
+                                 actionListener="#{candidatBean.deleteCuissonPostCuisson}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"
+                                 type="button"/>
+            </div>
+            <p:message for="cuissonPostCuissonSerie" display="icon"/>
+        </h:panelGroup>
+
+        <!-- Commentaire -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="serieCommentaire" value="Commentaire" />
+            <div class="input-wrapper">
+                <i class="pi pi-comment input-icon input-icon-textarea" />
+                <p:inputTextarea id="serieCommentaire"
+                                 value="#{candidatBean.candidatCommentaire}"
+                                 rows="5"
+                                 styleClass="users-textarea"
+                                 placeholder="Ajoutez un commentaire sur cette catégorie..."
+                                 maxlength="1000"/>
+            </div>
+            <p:message for="serieCommentaire" display="icon"/>
+        </div>
+
+        <!-- Bibliographie -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="serieBibliographie" value="Bibliographie" />
+            <div class="input-wrapper">
+                <i class="pi pi-book input-icon input-icon-textarea" />
+                <p:inputTextarea id="serieBibliographie"
+                                 value="#{candidatBean.candidatBibliographie}"
+                                 rows="5"
+                                 styleClass="users-textarea"
+                                 placeholder="Saisissez des informations bibliographiques complémentaires..."
+                                 maxlength="2000"/>
+            </div>
+            <p:message for="serieBibliographie" display="icon"/>
+        </div>
     </div>
 
     <!-- Styles personnalisés pour le formulaire de catégorie -->

@@ -97,6 +97,12 @@ public class Entity implements Serializable {
     @Column(name = "ateliers", columnDefinition = "TEXT")
     private String ateliers;
 
+    @Column(name = "attestations", columnDefinition = "TEXT")
+    private String attestations;
+
+    @Column(name = "sites_archeologiques", columnDefinition = "TEXT")
+    private String sitesArcheologiques;
+
     // Relations avec EntityType
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_type_id", nullable = false)

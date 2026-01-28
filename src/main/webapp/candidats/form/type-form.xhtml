@@ -28,7 +28,7 @@
                     <div class="candidat-label-select-wrapper">
                         <div class="input-wrapper">
                             <i class="pi pi-globe input-icon" />
-                            <p:selectOneMenu id="newGroupLabelLangue"
+                            <p:selectOneMenu id="newTypeLabelLangue"
                                              value="#{candidatBean.newLabelLangueCode}"
                                              styleClass="users-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
@@ -50,7 +50,7 @@
             </div>
 
             <!-- Liste des traductions de label ajoutées -->
-            <h:panelGroup id="groupLabelsTable">
+            <h:panelGroup id="typeLabelsTable">
                 <p:dataTable value="#{candidatBean.candidatLabels}"
                              var="labelItem"
                              styleClass="candidat-labels-table"
@@ -84,7 +84,7 @@
                                              action="#{candidatBean.removeCandidatLabel(labelItem)}"
                                              process="@form"
                                              ajax="true"
-                                             update=":createCandidatForm:groupLabelsTable :createCandidatForm:newGroupLabelLangue"
+                                             update=":createCandidatForm:typeLabelsTable :createCandidatForm:newTypeLabelLangue"
                                              title="Supprimer cette traduction"/>
                         </div>
                     </p:column>
@@ -120,7 +120,7 @@
                     <div class="candidat-description-textarea-wrapper">
                         <div class="input-wrapper">
                             <i class="pi pi-align-left input-icon input-icon-textarea" />
-                            <p:inputTextarea id="newGroupDescriptionInput"
+                            <p:inputTextarea id="newTypeDescriptionInput"
                                              value="#{candidatBean.newDescriptionValue}"
                                              placeholder="Saisissez une description détaillée de la catégorie..."
                                              rows="4"
@@ -134,7 +134,7 @@
                     <div class="candidat-description-select-wrapper">
                         <div class="input-wrapper">
                             <i class="pi pi-globe input-icon" />
-                            <p:selectOneMenu id="newGroupDescriptionLangue"
+                            <p:selectOneMenu id="newTypeDescriptionLangue"
                                              value="#{candidatBean.newDescriptionLangueCode}"
                                              styleClass="users-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
@@ -151,12 +151,12 @@
                                      actionListener="#{candidatBean.addCandidatDescriptionFromInput()}"
                                      process="@form"
                                      ajax="true"
-                                     update=":createCandidatForm:groupDescriptionsTable :createCandidatForm:newGroupDescriptionInput :createCandidatForm:newGroupDescriptionLangue :growl"/>
+                                     update=":createCandidatForm:typeDescriptionsTable :createCandidatForm:newTypeDescriptionInput :createCandidatForm:newTypeDescriptionLangue :growl"/>
                 </div>
             </div>
 
             <!-- Liste des descriptions ajoutées -->
-            <h:panelGroup id="groupDescriptionsTable">
+            <h:panelGroup id="typeDescriptionsTable">
                 <p:dataTable value="#{candidatBean.descriptions}"
                              var="descriptionItem"
                              styleClass="candidat-descriptions-table"
@@ -191,7 +191,7 @@
                                              action="#{candidatBean.removeCandidatDescription(descriptionItem)}"
                                              process="@form"
                                              ajax="true"
-                                             update=":createCandidatForm:groupDescriptionsTable :createCandidatForm:newGroupDescriptionLangue"
+                                             update=":createCandidatForm:typeDescriptionsTable :createCandidatForm:newTypeDescriptionLangue"
                                              title="Supprimer cette description"/>
                         </div>
                     </p:column>
@@ -217,16 +217,16 @@
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
             <div class="users-form-grid">
                 <div class="users-form-group">
-                    <p:outputLabel for="groupPeriode" value="Période" />
+                    <p:outputLabel for="typePeriode" value="Période" />
                     <div class="input-wrapper">
                         <i class="pi pi-calendar input-icon" />
-                        <p:inputText id="groupPeriode"
-                                     value="#{candidatBean.groupPeriode}"
+                        <p:inputText id="typePeriode"
+                                     value="#{candidatBean.periode}"
                                      styleClass="users-input"
                                      placeholder="Saisissez la période..."
                                      maxlength="255"/>
                     </div>
-                    <p:message for="groupPeriode" display="icon"/>
+                    <p:message for="typePeriode" display="icon"/>
                 </div>
             </div>
         </div>
@@ -235,10 +235,10 @@
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
             <div class="users-form-grid">
                 <div class="users-form-group">
-                    <p:outputLabel for="groupTpq" value="TPQ (Terminus Post Quem)" />
+                    <p:outputLabel for="typeTpq" value="TPQ (Terminus Post Quem)" />
                     <div class="input-wrapper">
                         <i class="pi pi-calendar-plus input-icon" />
-                        <p:inputNumber id="groupTpq"
+                        <p:inputNumber id="typeTpq"
                                        value="#{candidatBean.tpq}"
                                        styleClass="users-input"
                                        placeholder="Ex: 1500"
@@ -252,14 +252,14 @@
                         <i class="pi pi-info-circle" />
                         Année la plus ancienne possible
                     </p>
-                    <p:message for="groupTpq" display="icon"/>
+                    <p:message for="typeTpq" display="icon"/>
                 </div>
 
                 <div class="users-form-group">
-                    <p:outputLabel for="groupTaq" value="TAQ (Terminus Ante Quem)" />
+                    <p:outputLabel for="typeTaq" value="TAQ (Terminus Ante Quem)" />
                     <div class="input-wrapper">
                         <i class="pi pi-calendar-plus input-icon" />
-                        <p:inputNumber id="groupTaq"
+                        <p:inputNumber id="typeTaq"
                                        value="#{candidatBean.taq}"
                                        styleClass="users-input"
                                        placeholder="Ex: 1500"
@@ -273,7 +273,7 @@
                         <i class="pi pi-info-circle" />
                         Année la plus récente possible
                     </p>
-                    <p:message for="groupTaq" display="icon"/>
+                    <p:message for="typeTaq" display="icon"/>
                 </div>
             </div>
         </div>
@@ -316,10 +316,10 @@
 
         <!-- Atelier(s) (Saisie libre avec tags) -->
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupAteliers" value="Atelier(s)" />
+            <p:outputLabel for="typeAteliers" value="Atelier(s)" />
             <div class="input-wrapper">
                 <i class="pi pi-wrench input-icon" />
-                <p:chips id="groupAteliers"
+                <p:chips id="typeAteliers"
                          value="#{candidatBean.ateliers}"
                          styleClass="users-chips"
                          placeholder="Saisissez un atelier et appuyez sur Entrée..."
@@ -332,11 +332,11 @@
                 <i class="pi pi-info-circle" />
                 Saisissez chaque atelier et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
             </p>
-            <p:message for="groupAteliers" display="icon"/>
+            <p:message for="typeAteliers" display="icon"/>
         </div>
 
         <!-- Aire de circulation -->
-        <h:panelGroup id="aireCirculationGroup" styleClass="users-form-group users-form-group-full">
+        <h:panelGroup id="aireCirculationType" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Aire de circulation" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper" style="flex: 1;">
@@ -376,7 +376,7 @@
                 <i class="pi pi-info-circle" />
                 Cliquez sur "Ajouter" pour sélectionner une aire de circulation depuis OpenTheso. Vous pouvez ajouter plusieurs valeurs.
             </p>
-            <p:message for="aireCirculationGroup" display="icon"/>
+            <p:message for="aireCirculationType" display="icon"/>
         </h:panelGroup>
 
         <!-- Caractéristiques physiques -->
@@ -384,13 +384,13 @@
             <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title"
                               style="padding-left: 15px !important;"/></b>
         </div>
-        
+
         <!-- Décors -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel for="groupDecors" value="Décors" />
+            <p:outputLabel for="typeDecors" value="Décors" />
             <div class="input-wrapper">
                 <i class="pi pi-palette input-icon" />
-                <p:inputText id="groupDecors"
+                <p:inputText id="typeDecors"
                              value="#{candidatBean.decors}"
                              styleClass="users-input"
                              placeholder="Saisissez le décors..."
@@ -400,15 +400,15 @@
                 <i class="pi pi-info-circle" />
                 Ce champ sera enregistré lorsque vous cliquerez sur "Terminer".
             </p>
-            <p:message for="groupDecors" display="icon"/>
+            <p:message for="typeDecors" display="icon"/>
         </div>
-        
+
         <!-- Marques/estampilles -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel for="groupMarquesEstampilles" value="Marques/estampilles" />
+            <p:outputLabel for="typeMarquesEstampilles" value="Marques/estampilles" />
             <div class="input-wrapper">
                 <i class="pi pi-tag input-icon" />
-                <p:chips id="groupMarquesEstampilles"
+                <p:chips id="typeMarquesEstampilles"
                          value="#{candidatBean.marquesEstampilles}"
                          styleClass="users-chips"
                          placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
@@ -421,11 +421,11 @@
                 <i class="pi pi-info-circle" />
                 Saisissez chaque marque/estampille et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer. Les modifications sont enregistrées automatiquement.
             </p>
-            <p:message for="groupMarquesEstampilles" display="icon"/>
+            <p:message for="typeMarquesEstampilles" display="icon"/>
         </div>
-        
+
         <!-- Fonction/usage -->
-        <h:panelGroup id="fonctionUsageGroup" styleClass="users-form-group users-form-group-full">
+        <h:panelGroup id="fonctionUsageType" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Fonction/usage" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -464,7 +464,7 @@
                 <i class="pi pi-info-circle" />
                 Cliquez sur "Ajouter" pour sélectionner une fonction/usage depuis OpenTheso. Les modifications sont enregistrées automatiquement.
             </p>
-            <p:message for="fonctionUsageGroup" display="icon"/>
+            <p:message for="fonctionUsageType" display="icon"/>
         </h:panelGroup>
 
         <!-- Caractéristiques physiques -->
@@ -472,9 +472,9 @@
             <b><p:outputLabel value="Caractéristiques physiques" styleClass="caracteristiques-physiques-title"
                               style="padding-left: 15px !important;"/></b>
         </div>
-        
+
         <!-- Métrologie -->
-        <h:panelGroup id="metrologieGroup" styleClass="users-form-group users-form-group-full">
+        <h:panelGroup id="metrologieType" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Métrologie" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -510,11 +510,11 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="metrologieGroup" display="icon"/>
+            <p:message for="metrologieType" display="icon"/>
         </h:panelGroup>
-        
+
         <!-- Fabrication/façonnage -->
-        <h:panelGroup id="fabricationFaconnageGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup id="fabricationFaconnageType" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
             <p:outputLabel value="Fabrication/façonnage" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -550,11 +550,31 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="fabricationFaconnageGroup" display="icon"/>
+            <p:message for="fabricationFaconnageType" display="icon"/>
         </h:panelGroup>
-        
+
+        <!-- Description pâte (champ texte) -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
+            <p:outputLabel for="typeDescriptionPate" value="Description pâte" />
+            <div class="input-wrapper">
+                <i class="pi pi-align-left input-icon" />
+                <p:inputText id="typeDescriptionPate"
+                             value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             placeholder="Saisissez la description de la pâte..."
+                             maxlength="255">
+                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
+                </p:inputText>
+            </div>
+            <p class="users-form-hint">
+                <i class="pi pi-info-circle" />
+                Les modifications sont enregistrées automatiquement.
+            </p>
+            <p:message for="typeDescriptionPate" display="icon"/>
+        </div>
+
         <!-- Couleur de pâte -->
-        <h:panelGroup id="couleurPateGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup id="couleurPateType" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
             <p:outputLabel value="Couleur de pâte" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -590,11 +610,11 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="couleurPateGroup" display="icon"/>
+            <p:message for="couleurPateType" display="icon"/>
         </h:panelGroup>
-        
+
         <!-- Nature de pâte -->
-        <h:panelGroup id="naturePateGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup id="naturePateType" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
             <p:outputLabel value="Nature de pâte" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -630,31 +650,11 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="naturePateGroup" display="icon"/>
+            <p:message for="naturePateType" display="icon"/>
         </h:panelGroup>
 
-        <!-- Description pâte (champ texte) -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupDescriptionPate" value="Description pâte" />
-            <div class="input-wrapper">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText id="groupDescriptionPate"
-                             value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Les modifications sont enregistrées automatiquement.
-            </p>
-            <p:message for="groupDescriptionPate" display="icon"/>
-        </div>
-        
         <!-- Inclusions -->
-        <h:panelGroup id="inclusionsGroup" styleClass="users-form-group users-form-group-full">
+        <h:panelGroup id="inclusionsType" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Inclusions" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -690,11 +690,11 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="inclusionsGroup" display="icon"/>
+            <p:message for="inclusionsType" display="icon"/>
         </h:panelGroup>
-        
+
         <!-- Cuisson/post-cuisson -->
-        <h:panelGroup id="cuissonPostCuissonGroup" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup id="cuissonPostCuissonType" styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
             <p:outputLabel value="Cuisson/post-cuisson" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -730,173 +730,40 @@
                                  update=":createCandidatForm :growl"
                                  type="button"/>
             </div>
-            <p:message for="cuissonPostCuissonGroup" display="icon"/>
+            <p:message for="cuissonPostCuissonType" display="icon"/>
         </h:panelGroup>
-
-        <!-- Références bibliographiques (Saisie libre avec tags) -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupReferencesBibliographiques" value="Références bibliographiques" />
-            <div class="input-wrapper">
-                <i class="pi pi-book input-icon" />
-                <p:chips id="groupReferencesBibliographiques"
-                         value="#{candidatBean.referencesBibliographiques}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez une référence bibliographique et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                    <p:ajax event="change" listener="#{candidatBean.saveReferencesBibliographiques}" process="@this" update="@none"/>
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque référence bibliographique et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupReferencesBibliographiques" display="icon"/>
-        </div>
 
         <!-- Commentaire -->
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupeCommentaire" value="Commentaire" />
+            <p:outputLabel for="typeCommentaire" value="Commentaire" />
             <div class="input-wrapper">
                 <i class="pi pi-comment input-icon input-icon-textarea" />
-                <p:inputTextarea id="groupeCommentaire"
+                <p:inputTextarea id="typeCommentaire"
                                  value="#{candidatBean.candidatCommentaire}"
                                  rows="5"
                                  styleClass="users-textarea"
                                  placeholder="Ajoutez un commentaire sur cette catégorie..."
                                  maxlength="1000"/>
             </div>
-            <p:message for="groupeCommentaire" display="icon"/>
-        </div>
-
-        <!-- Attestations -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupAttestations" value="Attestations" />
-            <div class="input-wrapper">
-                <i class="pi pi-check-circle input-icon" />
-                <p:chips id="groupAttestations"
-                         value="#{candidatBean.attestations}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque attestation et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupAttestations" display="icon"/>
-        </div>
-
-        <!-- Sites archéologiques -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupSitesArcheologiques" value="Sites archéologiques" />
-            <div class="input-wrapper">
-                <i class="pi pi-map-marker input-icon" />
-                <p:chips id="groupSitesArcheologiques"
-                         value="#{candidatBean.sitesArcheologiques}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque site archéologique et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupSitesArcheologiques" display="icon"/>
-        </div>
-
-        <!-- Référentiel -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupReferentiel" value="Référentiel" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-book input-icon" />
-                        <p:inputText id="groupReferentiel"
-                                     value="#{candidatBean.referentiel}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez le référentiel..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupReferentiel" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Typologie scientifique -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupTypologieScientifique" value="Typologie scientifique" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-tag input-icon" />
-                        <p:inputText id="groupTypologieScientifique"
-                                     value="#{candidatBean.typologieScientifique}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez la typologie scientifique..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupTypologieScientifique" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Identifiant pérenne -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupIdentifiantPerenne" value="Identifiant pérenne" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-id-card input-icon" />
-                        <p:inputText id="groupIdentifiantPerenne"
-                                     value="#{candidatBean.identifiantPerenne}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez l'identifiant pérenne..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupIdentifiantPerenne" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ancienne version -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupAncienneVersion" value="Ancienne version" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-history input-icon" />
-                        <p:inputText id="groupAncienneVersion"
-                                     value="#{candidatBean.ancienneVersion}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez l'ancienne version..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupAncienneVersion" display="icon"/>
-                </div>
-            </div>
+            <p:message for="typeCommentaire" display="icon"/>
         </div>
 
         <!-- Bibliographie -->
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupBibliographie" value="Bibliographie" />
+            <p:outputLabel for="typeBibliographie" value="Bibliographie" />
             <div class="input-wrapper">
                 <i class="pi pi-book input-icon input-icon-textarea" />
-                <p:inputTextarea id="groupBibliographie"
+                <p:inputTextarea id="typeBibliographie"
                                  value="#{candidatBean.candidatBibliographie}"
                                  rows="5"
                                  styleClass="users-textarea"
                                  placeholder="Saisissez des informations bibliographiques complémentaires..."
                                  maxlength="2000"/>
             </div>
-            <p:message for="groupBibliographie" display="icon"/>
+            <p:message for="typeBibliographie" display="icon"/>
         </div>
     </div>
 
-    <!-- Styles personnalisés pour le formulaire de groupe -->
-    <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
+    <!-- Styles personnalisés pour le formulaire de catégorie -->
+    <h:outputStylesheet library="css" name="candidats/candidats-serie-form.css"/>
 </ui:composition>

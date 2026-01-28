@@ -103,12 +103,7 @@
 
                         <!-- Formulaire pour TYPE -->
                         <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
-
-                        </ui:fragment>
-
-                        <!-- Formulaire pour COLLECTION -->
-                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 6}">
-
+                            <ui:include src="form/type-form.xhtml"/>
                         </ui:fragment>
                     </div>
 

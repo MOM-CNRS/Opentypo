@@ -90,63 +90,7 @@
 
 
                 <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
-                    <div class="form-section">
-                        <div class="form-section-header">
-                            <i class="pi pi-tag form-section-icon" />
-                            <h4 class="form-section-title">Description du type</h4>
-                        </div>
-                        <div class="users-form-grid">
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="typeDescription" value="Description" />
-                                <div class="input-wrapper">
-                                    <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                    <p:inputTextarea id="typeDescription"
-                                                     value="#{candidatBean.typeDescription}"
-                                                     rows="6"
-                                                     styleClass="users-textarea"
-                                                     placeholder="Saisissez une description détaillée du type...">
-                                        <p:ajax event="blur" listener="#{candidatBean.saveTypeDescription}" process="@this" update="@none"/>
-                                    </p:inputTextarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </ui:fragment>
-
-                <!-- Formulaire pour COLLECTION -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 6}">
-                    <div class="form-section">
-                        <div class="form-section-header">
-                            <i class="pi pi-folder form-section-icon" />
-                            <h4 class="form-section-title">Paramètres de la collection</h4>
-                        </div>
-                        <div class="users-form-grid">
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="collectionDescription" value="Description" />
-                                <div class="input-wrapper">
-                                    <i class="pi pi-align-left input-icon input-icon-textarea" />
-                                    <p:inputTextarea id="collectionDescription"
-                                                     value="#{candidatBean.collectionDescription}"
-                                                     rows="6"
-                                                     styleClass="users-textarea"
-                                                     placeholder="Saisissez une description détaillée de la collection...">
-                                        <p:ajax event="blur" listener="#{candidatBean.saveCollectionDescription}" process="@this" update="@none"/>
-                                    </p:inputTextarea>
-                                </div>
-                            </div>
-                            <div class="users-form-group">
-                                <p:outputLabel for="collectionPublique" value="Collection publique" />
-                                <div class="checkbox-wrapper-enhanced">
-                                    <p:selectBooleanCheckbox id="collectionPublique"
-                                                             value="#{candidatBean.collectionPublique}"
-                                                             styleClass="users-checkbox">
-                                        <p:ajax event="change" listener="#{candidatBean.saveCollectionPublique}" process="@this" update="@none"/>
-                                    </p:selectBooleanCheckbox>
-                                    <span class="checkbox-label">Rendre cette collection visible publiquement</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ui:include src="form/type-form.xhtml"/>
                 </ui:fragment>
             </div>
         </div>
