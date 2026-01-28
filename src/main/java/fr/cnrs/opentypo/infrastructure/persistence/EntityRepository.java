@@ -65,5 +65,60 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
            "WHERE e.statut = :statut " +
            "ORDER BY e.createDate DESC")
     List<Entity> findByStatut(@Param("statut") String statut);
+
+    /**
+     * Recherche des entités par code ou label selon la langue (contient)
+     * Recherche sur le code de l'entité OU sur les labels dans la langue spécifiée
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels l " +
+           "LEFT JOIN FETCH e.entityType " +
+           "WHERE (" +
+           "  LOWER(e.code) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+           "  OR EXISTS (" +
+           "    SELECT 1 FROM Label lbl " +
+           "    WHERE lbl.entity.id = e.id " +
+           "    AND lbl.langue.code = :langCode " +
+           "    AND LOWER(lbl.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%'))" +
+           "  )" +
+           ")")
+    List<Entity> searchByCodeOrLabelContains(@Param("searchTerm") String searchTerm, 
+                                             @Param("langCode") String langCode);
+
+    /**
+     * Recherche des entités par code ou label selon la langue (commence par)
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels l " +
+           "LEFT JOIN FETCH e.entityType " +
+           "WHERE (" +
+           "  LOWER(e.code) LIKE LOWER(CONCAT(:searchTerm, '%')) " +
+           "  OR EXISTS (" +
+           "    SELECT 1 FROM Label lbl " +
+           "    WHERE lbl.entity.id = e.id " +
+           "    AND lbl.langue.code = :langCode " +
+           "    AND LOWER(lbl.nom) LIKE LOWER(CONCAT(:searchTerm, '%'))" +
+           "  )" +
+           ")")
+    List<Entity> searchByCodeOrLabelStartsWith(@Param("searchTerm") String searchTerm, 
+                                                @Param("langCode") String langCode);
+
+    /**
+     * Recherche des entités par code ou label selon la langue (chaîne exacte)
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels l " +
+           "LEFT JOIN FETCH e.entityType " +
+           "WHERE (" +
+           "  LOWER(e.code) = LOWER(:searchTerm) " +
+           "  OR EXISTS (" +
+           "    SELECT 1 FROM Label lbl " +
+           "    WHERE lbl.entity.id = e.id " +
+           "    AND lbl.langue.code = :langCode " +
+           "    AND LOWER(lbl.nom) = LOWER(:searchTerm)" +
+           "  )" +
+           ")")
+    List<Entity> searchByCodeOrLabelExact(@Param("searchTerm") String searchTerm, 
+                                          @Param("langCode") String langCode);
 }
 

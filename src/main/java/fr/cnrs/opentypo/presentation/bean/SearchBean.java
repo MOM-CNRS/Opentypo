@@ -2,9 +2,11 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -39,6 +41,9 @@ public class SearchBean implements Serializable {
     private EntityRelationRepository entityRelationRepository;
 
     @Inject
+    private EntityTypeRepository entityTypeRepository;
+
+    @Inject
     private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
@@ -51,6 +56,12 @@ public class SearchBean implements Serializable {
     private String collectionSelected;
     private String langSelected = "fr"; // Français sélectionné par défaut
     private String searchTerm; // Terme de recherche
+    
+    // Nouveaux filtres de recherche
+    private String typeFilter = ""; // Type d'entité (code de EntityType ou "" pour tous)
+    private String statutFilter = ""; // Statut : "", "public", "prive"
+    private String etatFilter = ""; // État : "", "publie", "proposition"
+    private String searchTypeFilter = "CONTAINS"; // Type de recherche : "STARTS_WITH", "CONTAINS", "EXACT"
     
     private List<Entity> references;
     private List<Entity> collections;
@@ -326,6 +337,13 @@ public class SearchBean implements Serializable {
     }
 
     /**
+     * Valide que le terme de recherche a au moins 2 caractères
+     */
+    public boolean isValidSearchTerm() {
+        return searchTerm != null && searchTerm.trim().length() >= 2;
+    }
+
+    /**
      * Effectue la recherche dans les entités
      */
     public void applySearch() {
@@ -333,98 +351,135 @@ public class SearchBean implements Serializable {
             // Initialiser la liste des résultats
             searchResults = new ArrayList<>();
             
-            // Vérifier que le terme de recherche n'est pas vide
+            // Vérifier que le terme de recherche n'est pas vide et a au moins 2 caractères
             if (searchTerm == null || searchTerm.trim().isEmpty()) {
                 log.warn("Terme de recherche vide");
                 return;
             }
             
             String trimmedSearchTerm = searchTerm.trim();
-            log.debug("Début de la recherche avec le terme: '{}'", trimmedSearchTerm);
             
-            // Si une collection est sélectionnée, rechercher uniquement dans cette collection
-            if (collectionSelected != null && !collectionSelected.isEmpty()) {
-                log.debug("Recherche dans la collection: {}", collectionSelected);
-                
-                // Vérifier que la liste des collections est chargée
-                if (collections == null) {
-                    loadCollections();
-                }
-                
-                // Parser la valeur sélectionnée pour déterminer si c'est une collection ou une référence
-                Entity selectedCollection = null;
-                String collectionCode;
-                
-                if (collectionSelected.startsWith("COL:")) {
-                    // C'est une collection
-                    collectionCode = collectionSelected.substring(4);
-                } else if (collectionSelected.startsWith("REF:")) {
-                    // C'est une référence : format "REF:collectionCode:referenceCode"
-                    String[] parts = collectionSelected.split(":", 3);
-                    if (parts.length == 3) {
-                        collectionCode = parts[1];
-                    } else {
-                        collectionCode = null;
-                    }
-                } else {
-                    // Format ancien (compatibilité)
-                    collectionCode = collectionSelected;
-                }
-                
-                // Trouver la collection sélectionnée
-                if (collectionCode != null) {
-                    selectedCollection = collections.stream()
-                        .filter(c -> c != null && c.getCode() != null && c.getCode().equals(collectionCode))
-                        .findFirst()
-                        .orElse(null);
-                }
-                
-                if (selectedCollection != null) {
-                    log.debug("Collection trouvée: {}", selectedCollection.getNom());
-                    
-                    // Récupérer toutes les entités de la collection (récursivement)
-                    Set<Entity> collectionEntities = getAllEntitiesInCollection(selectedCollection);
-                    log.debug("Nombre d'entités dans la collection: {}", collectionEntities.size());
-                    
-                    // Filtrer les entités dont le nom contient le terme de recherche
-                    List<Entity> filtered = collectionEntities.stream()
-                        .filter(e -> e != null && e.getNom() != null && 
-                                     e.getNom().toLowerCase().contains(trimmedSearchTerm.toLowerCase()))
-                        .collect(Collectors.toList());
-                    
-                    // Trier par ordre alphabétique décroissant (Z à A)
-                    filtered.sort(Comparator.comparing((Entity e) -> 
-                        e.getNom() != null ? e.getNom().toLowerCase() : "").reversed());
-                    searchResults = filtered;
-                    
-                    log.info("Recherche effectuée dans la collection '{}' : {} résultats trouvés", 
-                             selectedCollection.getNom(), searchResults.size());
-                } else {
-                    log.warn("Collection sélectionnée non trouvée : {}", collectionSelected);
-                }
-            } else {
-                log.debug("Recherche dans toutes les collections");
-                
-                // Rechercher dans toutes les collections publiques
-                // Récupérer toutes les entités publiques dont le nom contient le terme
-                List<Entity> allMatchingEntities = entityRepository.findByNomContainingIgnoreCaseQuery(trimmedSearchTerm);
-                log.debug("Nombre d'entités trouvées par la requête: {}", allMatchingEntities != null ? allMatchingEntities.size() : 0);
-                
-                // Filtrer pour ne garder que les entités publiques
-                if (allMatchingEntities != null) {
-                    List<Entity> filtered = allMatchingEntities.stream()
-                        .filter(e -> e != null && e.getPublique() != null && e.getPublique())
-                        .collect(Collectors.toList());
-                    
-                    // Trier par ordre alphabétique décroissant (Z à A)
-                    filtered.sort(Comparator.comparing((Entity e) -> 
-                        e.getNom() != null ? e.getNom().toLowerCase() : "").reversed());
-                    searchResults = filtered;
-                }
-                
-                log.info("Recherche effectuée dans toutes les collections : {} résultats trouvés", 
-                         searchResults != null ? searchResults.size() : 0);
+            // Validation : minimum 2 caractères
+            if (trimmedSearchTerm.length() < 2) {
+                log.warn("Terme de recherche trop court (minimum 2 caractères requis)");
+                return;
             }
+            
+            log.debug("Début de la recherche avec le terme: '{}', type: '{}', statut: '{}', état: '{}', typeFilter: '{}'", 
+                     trimmedSearchTerm, searchTypeFilter, statutFilter, etatFilter, typeFilter);
+            
+            // Effectuer la recherche selon le type de recherche (code + labels selon langue)
+            List<Entity> allMatchingEntities;
+            
+            switch (searchTypeFilter != null ? searchTypeFilter : "CONTAINS") {
+                case "STARTS_WITH":
+                    allMatchingEntities = entityRepository.searchByCodeOrLabelStartsWith(trimmedSearchTerm, langSelected);
+                    break;
+                case "EXACT":
+                    allMatchingEntities = entityRepository.searchByCodeOrLabelExact(trimmedSearchTerm, langSelected);
+                    break;
+                case "CONTAINS":
+                default:
+                    allMatchingEntities = entityRepository.searchByCodeOrLabelContains(trimmedSearchTerm, langSelected);
+                    break;
+            }
+            
+            log.debug("Nombre d'entités trouvées par la requête: {}", allMatchingEntities != null ? allMatchingEntities.size() : 0);
+            
+            // Filtrer selon les critères
+            List<Entity> filtered = new ArrayList<>();
+            if (allMatchingEntities != null) {
+                filtered = allMatchingEntities.stream()
+                    .filter(e -> e != null)
+                    // Filtre par type d'entité
+                    .filter(e -> {
+                        if (typeFilter == null || typeFilter.isEmpty()) {
+                            return true; // Tous les types
+                        }
+                        return e.getEntityType() != null && typeFilter.equals(e.getEntityType().getCode());
+                    })
+                    // Filtre par statut (public/privé)
+                    .filter(e -> {
+                        if (statutFilter == null || statutFilter.isEmpty()) {
+                            return true; // Tous
+                        }
+                        if ("public".equals(statutFilter)) {
+                            return e.getPublique() != null && e.getPublique();
+                        }
+                        if ("prive".equals(statutFilter)) {
+                            return e.getPublique() == null || !e.getPublique();
+                        }
+                        return true;
+                    })
+                    // Filtre par état (publié/proposition)
+                    .filter(e -> {
+                        if (etatFilter == null || etatFilter.isEmpty()) {
+                            return true; // Tous
+                        }
+                        if ("publie".equals(etatFilter)) {
+                            // Publié = ACCEPTED ou AUTOMATIC
+                            String statut = e.getStatut();
+                            return statut != null && ("ACCEPTED".equals(statut) || "AUTOMATIC".equals(statut));
+                        }
+                        if ("proposition".equals(etatFilter)) {
+                            // Proposition = PROPOSITION
+                            return "PROPOSITION".equals(e.getStatut());
+                        }
+                        return true;
+                    })
+                    // Filtre par collection si sélectionnée
+                    .filter(e -> {
+                        if (collectionSelected == null || collectionSelected.isEmpty()) {
+                            return true; // Toutes les collections
+                        }
+                        // Si une collection est sélectionnée, vérifier si l'entité appartient à cette collection
+                        try {
+                            if (collections == null) {
+                                loadCollections();
+                            }
+                            
+                            final String collectionCode;
+                            if (collectionSelected.startsWith("COL:")) {
+                                collectionCode = collectionSelected.substring(4);
+                            } else if (collectionSelected.startsWith("REF:")) {
+                                String[] parts = collectionSelected.split(":", 3);
+                                if (parts.length == 3) {
+                                    collectionCode = parts[1];
+                                } else {
+                                    collectionCode = null;
+                                }
+                            } else {
+                                collectionCode = collectionSelected;
+                            }
+                            
+                            if (collectionCode != null) {
+                                final String finalCollectionCode = collectionCode;
+                                Entity selectedCollection = collections.stream()
+                                    .filter(c -> c != null && c.getCode() != null && c.getCode().equals(finalCollectionCode))
+                                    .findFirst()
+                                    .orElse(null);
+                                
+                                if (selectedCollection != null) {
+                                    Set<Entity> collectionEntities = getAllEntitiesInCollection(selectedCollection);
+                                    return collectionEntities.contains(e);
+                                }
+                            }
+                            return false;
+                        } catch (Exception ex) {
+                            log.error("Erreur lors du filtrage par collection", ex);
+                            return true; // En cas d'erreur, inclure l'entité
+                        }
+                    })
+                    .collect(Collectors.toList());
+            }
+            
+            // Trier par ordre alphabétique décroissant (Z à A)
+            filtered.sort(Comparator.comparing((Entity e) -> 
+                e.getNom() != null ? e.getNom().toLowerCase() : "").reversed());
+            
+            searchResults = filtered;
+            
+            log.info("Recherche effectuée : {} résultats trouvés", searchResults.size());
             
         } catch (Exception e) {
             log.error("Erreur lors de la recherche", e);
@@ -593,6 +648,95 @@ public class SearchBean implements Serializable {
         }
         
         return "Entité";
+    }
+
+    /**
+     * Retourne la liste des types d'entités pour le filtre
+     */
+    public List<SelectItem> getEntityTypeFilterItems() {
+        List<SelectItem> items = new ArrayList<>();
+        
+        // Option "Tous les types"
+        items.add(new SelectItem("", "Tous les types"));
+        
+        try {
+            // Récupérer tous les types d'entités depuis la base de données
+            List<EntityType> entityTypes = entityTypeRepository.findAll();
+            
+            // Trier par code
+            entityTypes.sort(Comparator.comparing(EntityType::getCode));
+            
+            // Ajouter chaque type avec son label
+            for (EntityType entityType : entityTypes) {
+                if (entityType != null && entityType.getCode() != null) {
+                    String label = getEntityTypeDisplayLabel(entityType.getCode());
+                    items.add(new SelectItem(entityType.getCode(), label));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement des types d'entités", e);
+        }
+        
+        return items;
+    }
+
+    /**
+     * Retourne le label d'affichage pour un code de type d'entité
+     */
+    private String getEntityTypeDisplayLabel(String code) {
+        if (code == null) {
+            return "Inconnu";
+        }
+        
+        // Utiliser if-else pour éviter les problèmes avec les constantes et les valeurs littérales
+        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
+            return "Collection";
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)) {
+            return "Référentiel";
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
+            return "Catégorie";
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code)) {
+            return "Groupe";
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code) || "SERIE".equals(code)) {
+            return "Série";
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
+            return "Type";
+        } else {
+            return code;
+        }
+    }
+
+    /**
+     * Retourne la liste des statuts pour le filtre
+     */
+    public List<SelectItem> getStatutFilterItems() {
+        List<SelectItem> items = new ArrayList<>();
+        items.add(new SelectItem("", "Tous"));
+        items.add(new SelectItem("public", "Public"));
+        items.add(new SelectItem("prive", "Privé"));
+        return items;
+    }
+
+    /**
+     * Retourne la liste des états pour le filtre
+     */
+    public List<SelectItem> getEtatFilterItems() {
+        List<SelectItem> items = new ArrayList<>();
+        items.add(new SelectItem("", "Tous"));
+        items.add(new SelectItem("publie", "Publié"));
+        items.add(new SelectItem("proposition", "Proposition"));
+        return items;
+    }
+
+    /**
+     * Retourne la liste des types de recherche pour le filtre
+     */
+    public List<SelectItem> getSearchTypeFilterItems() {
+        List<SelectItem> items = new ArrayList<>();
+        items.add(new SelectItem("CONTAINS", "Contient"));
+        items.add(new SelectItem("STARTS_WITH", "Commence par"));
+        items.add(new SelectItem("EXACT", "Chaîne exacte"));
+        return items;
     }
 }
 

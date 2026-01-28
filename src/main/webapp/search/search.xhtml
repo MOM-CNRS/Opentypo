@@ -48,20 +48,24 @@
             <div class="search-input-compact-wrapper">
                 <p:inputText id="searchInput" 
                              value="#{searchBean.searchTerm}"
-                             placeholder="Rechercher..." 
+                             placeholder="Rechercher (min. 2 caractères)..." 
                              styleClass="search-input-compact"
-                             autocomplete="off">
+                             autocomplete="off"
+                             maxlength="255">
                     <p:ajax event="keypress" 
                             onkeypress="if(event.keyCode === 13) {PF('searchButton').click(); return false;}"/>
+                    <f:validateLength minimum="2" />
                 </p:inputText>
+                <p:message for="searchInput" display="icon" />
                 <p:commandButton id="searchButton"
                                  icon="pi pi-search"
                                  styleClass="search-button-compact"
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
                                  update="@all"
-                                 oncomplete="showResultsPanel();"
-                                 title="Rechercher"/>
+                                 oncomplete="if(#{searchBean.searchTerm != null and searchBean.searchTerm.length() ge 2}) {showResultsPanel();}"
+                                 disabled="#{searchBean.searchTerm == null or searchBean.searchTerm.length() lt 2}"
+                                 title="Rechercher (minimum 2 caractères requis)"/>
             </div>
 
             <!-- Bouton recherche avancée - Compact -->
@@ -84,26 +88,43 @@
         <!-- Section recherche avancée - Positionnée en dessous de la barre principale -->
         <div id="advanced-search-options" class="advanced-search-section-compact">
             <div class="advanced-filters-compact">
+                <!-- Filtre Type -->
                 <div class="filter-group-compact">
                     <p:outputLabel for="typeFilter" value="Type" styleClass="filter-label-compact"/>
-                    <p:selectOneMenu id="typeFilter" styleClass="filter-select-compact">
-                        <f:selectItem itemLabel="Tous" itemValue=""/>
-                        <f:selectItem itemLabel="Collection" itemValue="collection"/>
-                        <f:selectItem itemLabel="Référence" itemValue="reference"/>
-                        <f:selectItem itemLabel="Groupe" itemValue="groupe"/>
-                        <f:selectItem itemLabel="Série" itemValue="serie"/>
-                        <f:selectItem itemLabel="Type" itemValue="type"/>
+                    <p:selectOneMenu id="typeFilter" 
+                                     value="#{searchBean.typeFilter}" 
+                                     styleClass="filter-select-compact">
+                        <f:selectItems value="#{searchBean.entityTypeFilterItems}"/>
                     </p:selectOneMenu>
                 </div>
 
+                <!-- Filtre Statut -->
                 <div class="filter-group-compact">
-                    <p:outputLabel for="statusFilter" value="Statut" styleClass="filter-label-compact"/>
-                    <p:selectOneMenu id="statusFilter" 
-                                     value="#{searchBean.searchSelected}" 
+                    <p:outputLabel for="statutFilter" value="Statut" styleClass="filter-label-compact"/>
+                    <p:selectOneMenu id="statutFilter" 
+                                     value="#{searchBean.statutFilter}" 
                                      styleClass="filter-select-compact">
-                        <f:selectItem itemLabel="Tous" itemValue=""/>
-                        <f:selectItem itemLabel="Actif" itemValue="active"/>
-                        <f:selectItem itemLabel="Inactif" itemValue="inactive"/>
+                        <f:selectItems value="#{searchBean.statutFilterItems}"/>
+                    </p:selectOneMenu>
+                </div>
+
+                <!-- Filtre État -->
+                <div class="filter-group-compact">
+                    <p:outputLabel for="etatFilter" value="État" styleClass="filter-label-compact"/>
+                    <p:selectOneMenu id="etatFilter" 
+                                     value="#{searchBean.etatFilter}" 
+                                     styleClass="filter-select-compact">
+                        <f:selectItems value="#{searchBean.etatFilterItems}"/>
+                    </p:selectOneMenu>
+                </div>
+
+                <!-- Filtre Type de recherche -->
+                <div class="filter-group-compact">
+                    <p:outputLabel for="searchTypeFilter" value="Type de recherche" styleClass="filter-label-compact"/>
+                    <p:selectOneMenu id="searchTypeFilter" 
+                                     value="#{searchBean.searchTypeFilter}" 
+                                     styleClass="filter-select-compact">
+                        <f:selectItems value="#{searchBean.searchTypeFilterItems}"/>
                     </p:selectOneMenu>
                 </div>
             </div>
