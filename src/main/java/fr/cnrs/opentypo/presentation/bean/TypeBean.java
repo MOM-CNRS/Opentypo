@@ -99,7 +99,6 @@ public class TypeBean implements Serializable {
             // Créer la nouvelle entité type
             Entity newType = new Entity();
             newType.setCode(codeTrimmed);
-            newType.setNom(labelTrimmed);
             newType.setCommentaire(descriptionTrimmed);
             newType.setEntityType(typeEntityType);
             newType.setPublique(true);

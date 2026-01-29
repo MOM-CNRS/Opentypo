@@ -4,10 +4,13 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -18,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -48,6 +52,12 @@ public class GroupBean implements Serializable {
 
     @Inject
     private EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private SearchBean searchBean;
+
+    @Inject
+    private LangueRepository langueRepository;
 
     private String groupCode;
     private String groupLabel;
@@ -101,11 +111,21 @@ public class GroupBean implements Serializable {
             // Créer la nouvelle entité groupe
             Entity newGroup = new Entity();
             newGroup.setCode(codeTrimmed);
-            newGroup.setNom(labelTrimmed);
             newGroup.setCommentaire(descriptionTrimmed);
             newGroup.setEntityType(groupType);
             newGroup.setPublique(true);
             newGroup.setCreateDate(LocalDateTime.now());
+
+            Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
+            if (!StringUtils.isEmpty(labelTrimmed)) {
+                Label labelPrincipal = new Label();
+                labelPrincipal.setNom(labelTrimmed.trim());
+                labelPrincipal.setLangue(languePrincipale);
+                labelPrincipal.setEntity(newGroup);
+                List<Label> labels = new ArrayList<>();
+                labels.add(labelPrincipal);
+                newGroup.setLabels(labels);
+            }
 
             Utilisateur currentUser = loginBean.getCurrentUser();
             if (currentUser != null) {

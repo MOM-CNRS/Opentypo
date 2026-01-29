@@ -9,15 +9,15 @@
     <h:panelGroup class="image-container">
         <!-- Afficher l'image si disponible -->
         <p:graphicImage
-                value="#{applicationBean.selectedReference.image.url}"
+                value="#{applicationBean.selectedReference.imagePrincipaleUrl}"
                 styleClass="research-image clickable-image"
                 alt="Image du référentiel"
-                onclick="showFullscreenImage('#{applicationBean.selectedReference.image.url}'); return false;"
-                rendered="#{not empty applicationBean.selectedReference.image and not empty applicationBean.selectedReference.image.url}"/>
+                onclick="showFullscreenImage('#{applicationBean.selectedReference.imagePrincipaleUrl}'); return false;"
+                rendered="#{not empty not empty applicationBean.selectedReference.imagePrincipaleUrl}"/>
 
         <!-- Afficher le texte "OpenTypo" si pas d'image -->
         <h:panelGroup class="reference-image-placeholder"
-             rendered="#{empty applicationBean.selectedReference.image or empty applicationBean.selectedReference.image.url}">
+             rendered="#{empty applicationBean.selectedReference.imagePrincipaleUrl}">
             <span class="reference-placeholder-text">OpenTypo</span>
         </h:panelGroup>
     </h:panelGroup>
@@ -32,35 +32,7 @@
         </div>
     </div>
 
-    <script>
-        function showFullscreenImage(imageUrl) {
-            const overlay = document.getElementById('fullscreenImageOverlay');
-            const imageElement = document.getElementById('fullscreenImageElement');
-            
-            if (overlay) {
-                if (imageElement) {
-                    imageElement.src = imageUrl;
-                    overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-        }
-
-        function hideFullscreenImage() {
-            const overlay = document.getElementById('fullscreenImageOverlay');
-            
-            if (overlay) {
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                hideFullscreenImage();
-            }
-        });
-    </script>
+    <h:outputScript library="js" name="fullscreen-image.js"/>
 
     <h:panelGroup class="row">
         <div class="col-md-12">
@@ -84,7 +56,7 @@
                                            styleClass="collection-panel-title-link">
                                 <h3 class="collection-panel-title">#{applicationBean.selectedReference.code}</h3>
                             </p:commandLink>
-                            <span class="collection-panel-subtitle">#{applicationBean.selectedReference.nom}</span>
+                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedReference)}</span>
                         </div>
                     </div>
                     <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
@@ -125,12 +97,7 @@
                             </div>
                             <ui:fragment rendered="#{not applicationBean.editingReference}">
                                 <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedReference.commentaire}">
-                                        #{applicationBean.selectedReference.commentaire}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedReference.commentaire}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+                                    #{applicationBean.getEntityDescription(applicationBean.selectedReference)}
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{applicationBean.editingReference}">

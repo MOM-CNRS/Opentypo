@@ -17,14 +17,16 @@ import java.util.Optional;
 public interface EntityRepository extends JpaRepository<Entity, Long> {
 
     /**
-     * Trouve une entité par son code
+     * Trouve une entité par son code (via metadata)
      */
-    Optional<Entity> findByCode(String code);
+    @Query("SELECT e FROM Entity e JOIN e.metadata m WHERE m.code = :code")
+    Optional<Entity> findByCode(@Param("code") String code);
 
     /**
-     * Vérifie si une entité existe avec le code donné
+     * Vérifie si une entité existe avec le code donné (via metadata)
      */
-    boolean existsByCode(String code);
+    @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.metadata m WHERE m.code = :code")
+    boolean existsByCode(@Param("code") String code);
 
     /**
      * Trouve toutes les entités d'un type donné
@@ -47,13 +49,20 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
 
     /**
      * Trouve toutes les entités par nom (insensible à la casse)
+     * Recherche dans les labels de toutes les langues
      */
-    List<Entity> findByNomContainingIgnoreCase(String nom);
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "JOIN e.labels l " +
+           "WHERE LOWER(l.nom) LIKE LOWER(CONCAT('%', :nom, '%'))")
+    List<Entity> findByNomContainingIgnoreCase(@Param("nom") String nom);
 
     /**
      * Trouve toutes les entités par nom contenant le terme de recherche (insensible à la casse)
+     * Recherche dans les labels de toutes les langues
      */
-    @Query("SELECT e FROM Entity e WHERE LOWER(e.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "JOIN e.labels l " +
+           "WHERE LOWER(l.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Entity> findByNomContainingIgnoreCaseQuery(@Param("searchTerm") String searchTerm);
 
     /**
@@ -68,13 +77,14 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
 
     /**
      * Recherche des entités par code ou label selon la langue (contient)
-     * Recherche sur le code de l'entité OU sur les labels dans la langue spécifiée
+     * Recherche sur le code de l'entité (via metadata) OU sur les labels dans la langue spécifiée
      */
     @Query("SELECT DISTINCT e FROM Entity e " +
            "LEFT JOIN FETCH e.labels l " +
            "LEFT JOIN FETCH e.entityType " +
+           "LEFT JOIN FETCH e.metadata m " +
            "WHERE (" +
-           "  LOWER(e.code) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+           "  LOWER(m.code) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "  OR EXISTS (" +
            "    SELECT 1 FROM Label lbl " +
            "    WHERE lbl.entity.id = e.id " +
@@ -91,8 +101,9 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     @Query("SELECT DISTINCT e FROM Entity e " +
            "LEFT JOIN FETCH e.labels l " +
            "LEFT JOIN FETCH e.entityType " +
+           "LEFT JOIN FETCH e.metadata m " +
            "WHERE (" +
-           "  LOWER(e.code) LIKE LOWER(CONCAT(:searchTerm, '%')) " +
+           "  LOWER(m.code) LIKE LOWER(CONCAT(:searchTerm, '%')) " +
            "  OR EXISTS (" +
            "    SELECT 1 FROM Label lbl " +
            "    WHERE lbl.entity.id = e.id " +
@@ -109,8 +120,9 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     @Query("SELECT DISTINCT e FROM Entity e " +
            "LEFT JOIN FETCH e.labels l " +
            "LEFT JOIN FETCH e.entityType " +
+           "LEFT JOIN FETCH e.metadata m " +
            "WHERE (" +
-           "  LOWER(e.code) = LOWER(:searchTerm) " +
+           "  LOWER(m.code) = LOWER(:searchTerm) " +
            "  OR EXISTS (" +
            "    SELECT 1 FROM Label lbl " +
            "    WHERE lbl.entity.id = e.id " +

@@ -52,7 +52,6 @@ public class CandidatEntityService {
         // Créer la nouvelle entité avec seulement les données de l'étape 1
         Entity newEntity = new Entity();
         newEntity.setCode(code.trim());
-        newEntity.setNom(label.trim());
         newEntity.setEntityType(entityType);
         newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
         newEntity.setPublique(true);

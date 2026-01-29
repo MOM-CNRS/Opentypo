@@ -208,7 +208,7 @@
                                          styleClass="collection-panel-title-link">
                                 <h3 class="collection-panel-title">#{reference.code}</h3>
                             </p:commandLink>
-                            <span class="collection-panel-subtitle">#{reference.nom}</span>
+                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
                         </div>
                     </div>
                     <h:panelGroup class="collection-panel-actions" rendered="#{loginBean.canCreateOrEdit()}">
@@ -232,13 +232,13 @@
                     <div class="collection-panel-image">
                         <!-- Afficher l'image si disponible -->
                         <p:graphicImage
-                            value="#{reference.image.url}"
+                            value="#{reference.imagePrincipaleUrl}"
                             styleClass="collection-image"
                             alt="Image du référentiel"
-                            rendered="#{not empty reference.image and not empty reference.image.url}"/>
+                            rendered="#{not empty reference.imagePrincipaleUrl}"/>
                         
                         <!-- Afficher le texte "OpenTypo" si pas d'image -->
-                        <h:panelGroup rendered="#{empty reference.image or reference.image.url}">
+                        <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
                             <div class="collection-image-placeholder">
                                 <span class="collection-placeholder-text">OpenTypo</span>
                             </div>
@@ -253,7 +253,7 @@
                                 <span>Description</span>
                             </div>
                             <div class="collection-info-value collection-info-description">
-                                #{reference.commentaire}
+                                #{applicationBean.getEntityDescription(reference)}
                             </div>
                         </div>
 

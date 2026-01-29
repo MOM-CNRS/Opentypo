@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -1077,6 +1078,26 @@ public class ApplicationBean implements Serializable {
         collectionBean.startEditingCollection();
         
         log.debug("Mode édition activé pour la collection: {}", collection.getCode());
+    }
+
+    public String getEntityLabel(Entity entitySelected) {
+
+        String codeLang = searchBean.getLangSelected();
+        return entitySelected.getLabels().stream()
+                .filter(label -> codeLang.equalsIgnoreCase(label.getLangue().getCode()))
+                .findFirst()
+                .map(Label::getNom)
+                .orElse("Non renseigné");
+    }
+
+    public String getEntityDescription(Entity entitySelected) {
+
+        String codeLang = searchBean.getLangSelected();
+        return entitySelected.getDescriptions().stream()
+                .filter(description -> codeLang.equalsIgnoreCase(description.getLangue().getCode()))
+                .findFirst()
+                .map(Description::getValeur)
+                .orElse("Non renseigné");
     }
     
     /**

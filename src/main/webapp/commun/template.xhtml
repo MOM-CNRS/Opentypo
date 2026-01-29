@@ -46,6 +46,9 @@
     
     <!-- Script pour gérer l'arbre -->
     <h:outputScript library="js" name="treeUtils.js"/>
+    
+    <!-- Script pour le paginateur -->
+    <h:outputScript library="js" name="paginator.js"/>
 
     <!-- Fonction pour afficher le dialog de login avec vérification -->
     <!-- NOTE: Le script a été déplacé dans template_scripts.js -->
@@ -87,52 +90,5 @@
 
     <ui:include src="../user/login.xhtml" />
     <ui:include src="../user/logout.xhtml" />
-
-    <script>
-        // Remplacer "of" par "sur" dans le paginateur
-        function replacePaginatorText() {
-            const paginatorCurrents = document.querySelectorAll('.ui-paginator-current');
-            paginatorCurrents.forEach(function(element) {
-                if (element.textContent) {
-                    element.textContent = element.textContent.replace(/\s+of\s+/gi, ' sur ');
-                }
-            });
-        }
-
-        // Exécuter au chargement de la page
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                replacePaginatorText();
-                observePaginatorChanges();
-            });
-        } else {
-            replacePaginatorText();
-            observePaginatorChanges();
-        }
-
-        // Observer les changements dans le paginateur (pour les mises à jour AJAX)
-        function observePaginatorChanges() {
-            const paginatorContainers = document.querySelectorAll('.ui-paginator');
-            paginatorContainers.forEach(function(container) {
-                if (typeof MutationObserver !== 'undefined') {
-                    const observer = new MutationObserver(function(mutations) {
-                        mutations.forEach(function(mutation) {
-                            if (mutation.addedNodes.length > 0 || mutation.type === 'childList') {
-                                setTimeout(replacePaginatorText, 100);
-                            }
-                        });
-                    });
-                    observer.observe(container, { childList: true, subtree: true });
-                }
-            });
-        }
-
-        // Écouter les événements AJAX de PrimeFaces
-        if (typeof PrimeFaces !== 'undefined') {
-            PrimeFaces.ajax.addOnComplete(function() {
-                setTimeout(replacePaginatorText, 100);
-            });
-        }
-    </script>
 </h:body>
 </html>

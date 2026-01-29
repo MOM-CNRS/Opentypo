@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,57 +37,14 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Entity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nom", nullable = false, length = 255)
-    private String nom;
-
-    @Column(name = "code", nullable = false, length = 100)
-    private String code;
-
-    @Column(name = "commentaire", columnDefinition = "TEXT")
-    private String commentaire;
-
-    @Column(name = "bibliographie", columnDefinition = "TEXT")
-    private String bibliographie;
-
-    @Column(name = "appellation", length = 255)
-    private String appellation;
-
-    @Column(name = "rereference_bibliographique", columnDefinition = "TEXT")
-    private String rereferenceBibliographique;
-
-    @Column(name = "alignement_externe", columnDefinition = "TEXT")
-    private String alignementExterne;
-
-    @Column(name = "reference", length = 255)
-    private String reference;
-
-    @Column(name = "typologie_scientifique", length = 255)
-    private String typologieScientifique;
-
-    @Column(name = "identifiant_perenne", length = 255)
-    private String identifiantPerenne;
-
-    @Column(name = "ancienne_version", length = 255)
-    private String ancienneVersion;
-
     @Column(name = "statut", length = 50)
     private String statut;
-
-    @Column(name = "tpq")
-    private Integer tpq;
-
-    @Column(name = "taq")
-    private Integer taq;
-
-    @Column(name = "relation_externe", columnDefinition = "TEXT")
-    private String relationExterne;
 
     @Column(name = "publique", nullable = false)
     private Boolean publique = true; // Par défaut, l'entité est publique
@@ -94,14 +52,12 @@ public class Entity implements Serializable {
     @Column(name = "image_principale_url", length = 500)
     private String imagePrincipaleUrl;
 
-    @Column(name = "ateliers", columnDefinition = "TEXT")
-    private String ateliers;
-
-    @Column(name = "attestations", columnDefinition = "TEXT")
-    private String attestations;
-
-    @Column(name = "sites_archeologiques", columnDefinition = "TEXT")
-    private String sitesArcheologiques;
+    // Relation OneToOne avec EntityMetadata (mappedBy côté EntityMetadata)
+    // Exclure les getters/setters automatiques car on utilise des méthodes personnalisées
+    @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private EntityMetadata metadata;
 
     // Relations avec EntityType
     @ManyToOne(fetch = FetchType.LAZY)
@@ -179,5 +135,311 @@ public class Entity implements Serializable {
     @CreatedBy
     @Column(name = "create_by", length = 100, updatable = false)
     private String createBy;
-}
 
+    // ============================================
+    // Méthodes personnalisées pour les métadonnées
+    // ============================================
+
+    /**
+     * Obtient les métadonnées de l'entité
+     */
+    public EntityMetadata getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Définit les métadonnées de l'entité
+     */
+    public void setMetadata(EntityMetadata metadata) {
+        this.metadata = metadata;
+        if (metadata != null && metadata.getEntity() != this) {
+            metadata.setEntity(this);
+        }
+    }
+
+    /**
+     * Obtient le nom de l'entité depuis les labels selon la langue
+     * @param langueCode Code de la langue (ex: "fr", "en"). Si null, retourne le premier label disponible
+     * @return Le nom de l'entité dans la langue demandée, ou le premier label disponible, ou null
+     */
+    public String getNom(String langueCode) {
+        if (labels == null || labels.isEmpty()) {
+            return null;
+        }
+        
+        if (langueCode != null) {
+            return labels.stream()
+                .filter(label -> label.getLangue() != null && langueCode.equals(label.getLangue().getCode()))
+                .map(Label::getNom)
+                .findFirst()
+                .orElse(null);
+        }
+        
+        // Si aucune langue spécifiée, retourner le premier label disponible
+        return labels.stream()
+            .map(Label::getNom)
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Obtient le nom de l'entité (premier label disponible)
+     * Méthode de compatibilité pour le code existant
+     * @return Le nom de l'entité ou null
+     */
+    public String getNom() {
+        return getNom(null);
+    }
+
+    /**
+     * Obtient le code de l'entité depuis les métadonnées
+     * @return Le code de l'entité ou null
+     */
+    public String getCode() {
+        return metadata != null ? metadata.getCode() : null;
+    }
+
+    /**
+     * Définit le code de l'entité dans les métadonnées
+     * Crée les métadonnées si elles n'existent pas
+     */
+    public void setCode(String code) {
+        ensureMetadata();
+        metadata.setCode(code);
+    }
+
+    /**
+     * Obtient le commentaire depuis les métadonnées
+     */
+    public String getCommentaire() {
+        return metadata != null ? metadata.getCommentaire() : null;
+    }
+
+    /**
+     * Définit le commentaire dans les métadonnées
+     */
+    public void setCommentaire(String commentaire) {
+        ensureMetadata();
+        metadata.setCommentaire(commentaire);
+    }
+
+    /**
+     * Obtient la bibliographie depuis les métadonnées
+     */
+    public String getBibliographie() {
+        return metadata != null ? metadata.getBibliographie() : null;
+    }
+
+    /**
+     * Définit la bibliographie dans les métadonnées
+     */
+    public void setBibliographie(String bibliographie) {
+        ensureMetadata();
+        metadata.setBibliographie(bibliographie);
+    }
+
+    /**
+     * Obtient l'appellation depuis les métadonnées
+     */
+    public String getAppellation() {
+        return metadata != null ? metadata.getAppellation() : null;
+    }
+
+    /**
+     * Définit l'appellation dans les métadonnées
+     */
+    public void setAppellation(String appellation) {
+        ensureMetadata();
+        metadata.setAppellation(appellation);
+    }
+
+    /**
+     * Obtient la référence bibliographique depuis les métadonnées
+     */
+    public String getRereferenceBibliographique() {
+        return metadata != null ? metadata.getRereferenceBibliographique() : null;
+    }
+
+    /**
+     * Définit la référence bibliographique dans les métadonnées
+     */
+    public void setRereferenceBibliographique(String rereferenceBibliographique) {
+        ensureMetadata();
+        metadata.setRereferenceBibliographique(rereferenceBibliographique);
+    }
+
+    /**
+     * Obtient l'alignement externe depuis les métadonnées
+     */
+    public String getAlignementExterne() {
+        return metadata != null ? metadata.getAlignementExterne() : null;
+    }
+
+    /**
+     * Définit l'alignement externe dans les métadonnées
+     */
+    public void setAlignementExterne(String alignementExterne) {
+        ensureMetadata();
+        metadata.setAlignementExterne(alignementExterne);
+    }
+
+    /**
+     * Obtient la référence depuis les métadonnées
+     */
+    public String getReference() {
+        return metadata != null ? metadata.getReference() : null;
+    }
+
+    /**
+     * Définit la référence dans les métadonnées
+     */
+    public void setReference(String reference) {
+        ensureMetadata();
+        metadata.setReference(reference);
+    }
+
+    /**
+     * Obtient la typologie scientifique depuis les métadonnées
+     */
+    public String getTypologieScientifique() {
+        return metadata != null ? metadata.getTypologieScientifique() : null;
+    }
+
+    /**
+     * Définit la typologie scientifique dans les métadonnées
+     */
+    public void setTypologieScientifique(String typologieScientifique) {
+        ensureMetadata();
+        metadata.setTypologieScientifique(typologieScientifique);
+    }
+
+    /**
+     * Obtient l'identifiant pérenne depuis les métadonnées
+     */
+    public String getIdentifiantPerenne() {
+        return metadata != null ? metadata.getIdentifiantPerenne() : null;
+    }
+
+    /**
+     * Définit l'identifiant pérenne dans les métadonnées
+     */
+    public void setIdentifiantPerenne(String identifiantPerenne) {
+        ensureMetadata();
+        metadata.setIdentifiantPerenne(identifiantPerenne);
+    }
+
+    /**
+     * Obtient l'ancienne version depuis les métadonnées
+     */
+    public String getAncienneVersion() {
+        return metadata != null ? metadata.getAncienneVersion() : null;
+    }
+
+    /**
+     * Définit l'ancienne version dans les métadonnées
+     */
+    public void setAncienneVersion(String ancienneVersion) {
+        ensureMetadata();
+        metadata.setAncienneVersion(ancienneVersion);
+    }
+
+    /**
+     * Obtient TPQ depuis les métadonnées
+     */
+    public Integer getTpq() {
+        return metadata != null ? metadata.getTpq() : null;
+    }
+
+    /**
+     * Définit TPQ dans les métadonnées
+     */
+    public void setTpq(Integer tpq) {
+        ensureMetadata();
+        metadata.setTpq(tpq);
+    }
+
+    /**
+     * Obtient TAQ depuis les métadonnées
+     */
+    public Integer getTaq() {
+        return metadata != null ? metadata.getTaq() : null;
+    }
+
+    /**
+     * Définit TAQ dans les métadonnées
+     */
+    public void setTaq(Integer taq) {
+        ensureMetadata();
+        metadata.setTaq(taq);
+    }
+
+    /**
+     * Obtient la relation externe depuis les métadonnées
+     */
+    public String getRelationExterne() {
+        return metadata != null ? metadata.getRelationExterne() : null;
+    }
+
+    /**
+     * Définit la relation externe dans les métadonnées
+     */
+    public void setRelationExterne(String relationExterne) {
+        ensureMetadata();
+        metadata.setRelationExterne(relationExterne);
+    }
+
+    /**
+     * Obtient les ateliers depuis les métadonnées
+     */
+    public String getAteliers() {
+        return metadata != null ? metadata.getAteliers() : null;
+    }
+
+    /**
+     * Définit les ateliers dans les métadonnées
+     */
+    public void setAteliers(String ateliers) {
+        ensureMetadata();
+        metadata.setAteliers(ateliers);
+    }
+
+    /**
+     * Obtient les attestations depuis les métadonnées
+     */
+    public String getAttestations() {
+        return metadata != null ? metadata.getAttestations() : null;
+    }
+
+    /**
+     * Définit les attestations dans les métadonnées
+     */
+    public void setAttestations(String attestations) {
+        ensureMetadata();
+        metadata.setAttestations(attestations);
+    }
+
+    /**
+     * Obtient les sites archéologiques depuis les métadonnées
+     */
+    public String getSitesArcheologiques() {
+        return metadata != null ? metadata.getSitesArcheologiques() : null;
+    }
+
+    /**
+     * Définit les sites archéologiques dans les métadonnées
+     */
+    public void setSitesArcheologiques(String sitesArcheologiques) {
+        ensureMetadata();
+        metadata.setSitesArcheologiques(sitesArcheologiques);
+    }
+
+    /**
+     * S'assure que les métadonnées existent, les crée si nécessaire
+     */
+    private void ensureMetadata() {
+        if (metadata == null) {
+            metadata = new EntityMetadata();
+            metadata.setEntity(this);
+        }
+    }
+}

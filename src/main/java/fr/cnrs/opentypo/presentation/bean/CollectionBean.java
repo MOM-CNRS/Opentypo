@@ -29,6 +29,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -70,6 +71,9 @@ public class CollectionBean implements Serializable {
     @Inject
     private transient Provider<TreeBean> treeBeanProvider;
 
+    @Inject
+    private SearchBean searchBean;
+
     // Propriétés pour le formulaire de création de collection
     private String collectionDescription;
     private List<Langue> availableLanguages;
@@ -100,7 +104,7 @@ public class CollectionBean implements Serializable {
     private String editingDescriptionValue;
     private String editingLanguageCode; // Langue sélectionnée en mode édition
     private Boolean editingStatus;
-    
+
     /**
      * Classe interne pour gérer les noms multilingues
      */
@@ -886,11 +890,21 @@ public class CollectionBean implements Serializable {
     private Entity createNewCollection(String code, String nomPrincipal, EntityType type) {
         Entity nouvelleCollection = new Entity();
         nouvelleCollection.setCode(code);
-        nouvelleCollection.setNom(nomPrincipal);
         nouvelleCollection.setEntityType(type);
         nouvelleCollection.setStatut(EntityStatusEnum.AUTOMATIC.name());
         nouvelleCollection.setPublique(collectionPublique != null ? collectionPublique : true);
         nouvelleCollection.setCreateDate(LocalDateTime.now());
+
+        Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
+        if (!StringUtils.isEmpty(nomPrincipal)) {
+            Label labelPrincipal = new Label();
+            labelPrincipal.setNom(nomPrincipal.trim());
+            labelPrincipal.setLangue(languePrincipale);
+            labelPrincipal.setEntity(nouvelleCollection);
+            List<Label> labels = new ArrayList<>();
+            labels.add(labelPrincipal);
+            nouvelleCollection.setLabels(labels);
+        }
 
         Utilisateur currentUser = loginBean.getCurrentUser();
         if (currentUser != null) {

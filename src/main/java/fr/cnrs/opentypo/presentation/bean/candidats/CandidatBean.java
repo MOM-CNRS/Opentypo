@@ -1426,7 +1426,6 @@ public class CandidatBean implements Serializable {
         // Créer la nouvelle entité avec seulement les données de l'étape 1
         Entity newEntity = new Entity();
         newEntity.setCode(entityCode.trim());
-        newEntity.setNom(entityLabel.trim());
         newEntity.setEntityType(entityType);
         newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
         newEntity.setPublique(true);
@@ -1660,7 +1659,6 @@ public class CandidatBean implements Serializable {
 
                 newEntity = new Entity();
                 newEntity.setCode(entityCode.trim());
-                newEntity.setNom(entityLabel.trim());
                 newEntity.setEntityType(entityType);
                 newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
                 newEntity.setPublique(true);

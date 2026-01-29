@@ -2,12 +2,16 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
+import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
@@ -19,7 +23,9 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.util.StringUtil;
 import org.primefaces.PrimeFaces;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -62,6 +68,9 @@ public class ReferenceBean implements Serializable {
 
     @Inject
     private EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private LangueRepository langueRepository;
 
 
     // Propriétés pour le formulaire de création de référentiel
@@ -147,12 +156,31 @@ public class ReferenceBean implements Serializable {
     private Entity createNewReference(String code, String label, EntityType type) {
         Entity newReference = new Entity();
         newReference.setCode(code);
-        newReference.setNom(label);
-        newReference.setCommentaire(referenceDescription != null ? referenceDescription.trim() : null);
         newReference.setBibliographie(referenceBibliographique != null ? referenceBibliographique.trim() : null);
         newReference.setEntityType(type);
         newReference.setPublique(true);
         newReference.setCreateDate(LocalDateTime.now());
+
+        Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
+        if (!StringUtils.isEmpty(label)) {
+            Label labelPrincipal = new Label();
+            labelPrincipal.setNom(label.trim());
+            labelPrincipal.setLangue(languePrincipale);
+            labelPrincipal.setEntity(newReference);
+            List<Label> labels = new ArrayList<>();
+            labels.add(labelPrincipal);
+            newReference.setLabels(labels);
+        }
+
+        if (!StringUtils.isEmpty(referenceDescription)) {
+            Description description = new Description();
+            description.setValeur(referenceDescription);
+            description.setLangue(languePrincipale);
+            description.setEntity(newReference);
+            List<Description> descriptions = new ArrayList<>();
+            descriptions.add(description);
+            newReference.setDescriptions(descriptions);
+        }
 
         Utilisateur currentUser = loginBean.getCurrentUser();
         if (currentUser != null) {

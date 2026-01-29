@@ -49,11 +49,11 @@
                                              onstart="showLoading('Chargement de la collection...', 'spinner');"
                                              oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                                              onerror="forceHideLoading();">
-                                    <span style="font-size: 0.8125rem !important;">#{element.nom}</span>
+                                    <span style="font-size: 0.8125rem !important;">#{element.code}</span>
                                 </p:commandLink>
                             </ui:fragment>
                             <ui:fragment rendered="#{status.last}">
-                                <span class="modern-breadcrumb-current">#{element.nom}</span>
+                                <span class="modern-breadcrumb-current">#{element.code}</span>
                             </ui:fragment>
                         </li>
                     </ui:repeat>
