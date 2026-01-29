@@ -349,10 +349,10 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedType.aireCirculation}">
-                                            #{applicationBean.selectedType.aireCirculation.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedType.airesCirculation}">
+                                            #{applicationBean.selectedType.airesCirculation[0].valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedType.aireCirculation}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedType.airesCirculation}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>

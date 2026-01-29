@@ -19,10 +19,18 @@
                                                alt="Français"
                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">
-                                <span class="concept-info-title-name">#{applicationBean.selectedGroup.nom}</span>
-                                <span class="concept-info-title-code">#{applicationBean.selectedGroup.code}</span>
-                            </h2>
+                            <div class="collection-panel-title-wrapper">
+                                <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                               process="@this"
+                                               update=":centerContent, :treeContainer, :breadcrumbContent"
+                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                               onerror="forceHideLoading();"
+                                               styleClass="collection-panel-title-link">
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedGroup.code}</h3>
+                                </p:commandLink>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedGroup)}</span>
+                            </div>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -44,7 +52,7 @@
                                 <span>Période</span>
                             </div>
                             <div class="concept-info-value">
-                                <h:outputText value="#{applicationBean.selectedGroup.periode.nom}" 
+                                <h:outputText value="#{applicationBean.selectedGroup.periode.valeur}" 
                                              rendered="#{not empty applicationBean.selectedGroup.periode}"/>
                                 <h:outputText value="Non spécifiée" 
                                              rendered="#{empty applicationBean.selectedGroup.periode}"
@@ -326,10 +334,10 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.aireCirculation.nom}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.aireCirculation}"/>
+                                        <h:outputText value="#{applicationBean.selectedGroup.airesCirculation[0].valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedGroup.airesCirculation}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.aireCirculation}"
+                                                     rendered="#{empty applicationBean.selectedGroup.airesCirculation}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -384,7 +392,7 @@
                                         <span>Catégorie fonctionnelle</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.categorieFonctionnelle.nom}" 
+                                        <h:outputText value="#{applicationBean.selectedGroup.categorieFonctionnelle.valeur}" 
                                                      rendered="#{not empty applicationBean.selectedGroup.categorieFonctionnelle}"/>
                                         <h:outputText value="Non spécifiée" 
                                                      rendered="#{empty applicationBean.selectedGroup.categorieFonctionnelle}"
@@ -428,7 +436,7 @@
                                         <span>Forme</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.forme.nom}" 
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.forme.valeur}" 
                                                      rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"/>
                                         <h:outputText value="Non spécifiée" 
                                                      rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"
@@ -442,7 +450,7 @@
                                         <span>Dimensions</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.dimensions.nom}" 
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.dimensions.valeur}" 
                                                      rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"/>
                                         <h:outputText value="Non spécifiée" 
                                                      rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"
@@ -456,7 +464,7 @@
                                         <span>Technique</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.technique.nom}" 
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.technique.valeur}" 
                                                      rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"/>
                                         <h:outputText value="Non spécifiée" 
                                                      rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"
@@ -470,7 +478,7 @@
                                         <span>Fabrication</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.fabrication.nom}" 
+                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.fabrication.valeur}" 
                                                      rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"/>
                                         <h:outputText value="Non spécifiée" 
                                                      rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"

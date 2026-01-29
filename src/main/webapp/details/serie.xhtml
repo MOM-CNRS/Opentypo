@@ -18,14 +18,18 @@
                                                alt="Français"
                                                title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.nom}">
-                                    #{applicationBean.selectedSerie.nom}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.nom}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </h2>
+                            <div class="collection-panel-title-wrapper">
+                                <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                               process="@this"
+                                               update=":centerContent, :treeContainer, :breadcrumbContent"
+                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                               onerror="forceHideLoading();"
+                                               styleClass="collection-panel-title-link">
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedSerie.code}</h3>
+                                </p:commandLink>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedSerie)}</span>
+                            </div>
                         </div>
                         <div class="concept-info-actions">
                             <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
@@ -241,10 +245,10 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.aireCirculation}">
-                                            #{applicationBean.selectedSerie.aireCirculation.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.airesCirculation}">
+                                            #{applicationBean.selectedSerie.airesCirculation[0].valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.aireCirculation}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.airesCirculation}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
