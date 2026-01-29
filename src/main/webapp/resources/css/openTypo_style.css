@@ -2843,6 +2843,169 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     overflow: hidden !important;
 }
 
+/* ============================================
+   ARBRE CLASSIQUE - SIMPLE, ERGONOMIQUE, RESPONSIVE
+   ============================================ */
+
+.simple-tree-container {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    box-sizing: border-box;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.simple-tree {
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    font-size: 0.9375rem !important;
+    font-family: inherit !important;
+}
+
+.simple-tree .ui-tree-container {
+    padding: 0.5rem 0 !important;
+    overflow: visible !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    min-height: 2.5rem !important;
+    margin: 0.125rem 0 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    border: none !important;
+    border-left: 3px solid transparent !important; /* réserve la place pour l'état sélectionné */
+    box-sizing: border-box !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content:hover {
+    background-color: rgba(71, 98, 77, 0.08) !important;
+}
+
+/* Nœud sélectionné - design soigné et lisible */
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight {
+    background: linear-gradient(90deg, rgba(71, 98, 77, 0.18) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 600 !important;
+    border-left-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 1px 4px rgba(71, 98, 77, 0.15) !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content.ui-state-highlight:hover {
+    background: linear-gradient(90deg, rgba(71, 98, 77, 0.22) 0%, rgba(71, 98, 77, 0.1) 100%) !important;
+}
+
+/* Toggler (flèche) - visible pour les nœuds avec enfants */
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 4px !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    font-size: 0.65rem !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode.ui-treenode-leaf .ui-treenode-content .ui-tree-toggler {
+    visibility: hidden !important;
+    width: 1.5rem !important;
+    min-width: 1.5rem !important;
+}
+
+.simple-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler:hover {
+    background-color: rgba(71, 98, 77, 0.1) !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+/* Icône feuille masquée */
+.simple-tree .ui-treenode-leaf-icon {
+    display: none !important;
+}
+
+.simple-tree-node-icon {
+    font-size: 0.875rem !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    flex-shrink: 0 !important;
+    width: 1rem !important;
+    text-align: center !important;
+}
+
+.simple-tree .ui-treenode-content.ui-state-highlight .simple-tree-node-icon {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+/* Toggler du nœud sélectionné */
+.simple-tree .ui-treenode-content.ui-state-highlight .ui-tree-toggler {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.simple-tree-node-label {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+}
+
+.simple-tree .ui-treenode-content.ui-state-highlight .simple-tree-node-label {
+    color: var(--color-action-main, #47624D) !important;
+    font-weight: 600 !important;
+}
+
+/* Indentation des niveaux */
+.simple-tree .ui-tree-container .ui-treenode-children {
+    margin-left: 1rem !important;
+    padding-left: 0.5rem !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Responsive : zones tactiles plus grandes sur mobile */
+@media (max-width: 768px) {
+    .simple-tree-container {
+        min-height: 180px;
+    }
+
+    .simple-tree .ui-tree-container .ui-treenode .ui-treenode-content {
+        min-height: 2.75rem !important;
+        padding: 0.625rem 0.75rem !important;
+    }
+
+    .simple-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-tree-toggler {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+        min-width: 1.75rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .simple-tree .ui-tree-container .ui-treenode.ui-treenode-leaf .ui-treenode-content .ui-tree-toggler {
+        width: 1.75rem !important;
+        min-width: 1.75rem !important;
+    }
+
+    .simple-tree-node-label {
+        font-size: 0.9375rem !important;
+    }
+}
+
 /* CSS pour le Tree - Ancien style conservé pour compatibilité */
 .left-tree {
     flex: 0 0 25%;

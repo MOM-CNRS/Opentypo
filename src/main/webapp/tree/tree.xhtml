@@ -3,33 +3,25 @@
              xmlns:p="http://primefaces.org/ui"
              xmlns:h="http://xmlns.jcp.org/jsf/html">
 
-    <h:panelGroup id="treeContainer" layout="block" styleClass="modern-tree-container">
-        <p:tree id="treeComponent" 
+    <h:panelGroup id="treeContainer" layout="block" styleClass="simple-tree-container">
+        <p:tree id="treeComponent"
                 value="#{treeBean.root}"
                 dynamic="true"
                 var="nodetree"
-                styleClass="modern-tree tree-padding-none"
+                styleClass="simple-tree"
                 selectionMode="single"
                 selection="#{treeBean.selectedNode}"
                 widgetVar="treeWidget">
 
-            <p:ajax event="expand" listener="#{treeBean.onNodeExpand}"
-                    update=":treeContainer"
-                    onstart="showPanelLoading('rightTreePanel', 'Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hidePanelLoading(); ensureRootTogglerVisible();}, 500);"
-                    onerror="hidePanelLoading();"/>
+            <p:ajax event="expand" listener="#{treeBean.onNodeExpand}" />
 
-            <p:ajax event="select" listener="#{treeBean.onNodeSelect}" 
+            <p:ajax event="select" listener="#{treeBean.onNodeSelect}"
                     process="@this"
-                    partialSubmit="true"
-                    update=":contentPanels, :breadcrumbContent, @this"
-                    onstart="showPanelLoading('rightTreePanel', 'Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hidePanelLoading(); ensureRootTogglerVisible(); restoreTreeSelection();}, 600);"
-                    onerror="hidePanelLoading();"/>
+                    update=":contentPanels, :breadcrumbContent"/>
 
             <p:treeNode>
-                <i class="#{treeBean.getEntityIcon(nodetree)} tree-node-icon" />
-                <span class="modern-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
+                <i class="#{treeBean.getEntityIcon(nodetree)} simple-tree-node-icon"></i>
+                <span class="simple-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
                     #{treeBean.getNodeLabel(nodetree)}
                 </span>
             </p:treeNode>

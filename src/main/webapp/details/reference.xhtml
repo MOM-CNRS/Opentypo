@@ -333,22 +333,14 @@
                                                     <i class="pi pi-tag" />
                                                 </div>
                                                 <div class="reference-card-title-wrapper">
-                                                    <h3 class="reference-card-title">#{category.nom}</h3>
-                                                    <span class="reference-card-code">#{category.code}</span>
+                                                    <h3 class="reference-card-title">#{category.code}</h3>
+                                                    <span class="reference-card-code">#{category.getNom(searchBean.getLangSelected())}</span>
                                                 </div>
                                             </div>
                                             <div class="reference-card-description-wrapper">
-                                                <ui:fragment rendered="#{not empty category.commentaire}">
-                                                    <p class="reference-card-description">
-                                                        #{category.commentaire}
-                                                    </p>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{empty category.commentaire}">
-                                                    <div class="reference-card-description-empty">
-                                                        <i class="pi pi-info-circle" />
-                                                        <span>Aucune description disponible</span>
-                                                    </div>
-                                                </ui:fragment>
+                                                <p class="reference-card-description">
+                                                    #{applicationBean.getEntityDescription(category)}
+                                                </p>
                                             </div>
                                         </div>
                                     </p:commandLink>
