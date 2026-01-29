@@ -1,0 +1,97 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <h:outputStylesheet library="css" name="history.css"/>
+        <div class="history-detail-container">
+            <!-- En-tête -->
+            <div class="history-detail-header">
+                <div class="history-detail-title-section">
+                    <h2 class="history-detail-title">
+                        <i class="pi pi-info-circle" style="margin-right: 10px;"></i>
+                        Détails de la révision ##{historyBean.selectedRevision.revisionNumber}
+                    </h2>
+                    <div class="history-detail-meta">
+                        <span class="revision-type-badge #{historyBean.selectedRevision.revisionTypeClass}">
+                            <i class="#{historyBean.selectedRevision.revisionTypeIcon}"></i>
+                            <span>#{historyBean.selectedRevision.revisionTypeLabel}</span>
+                        </span>
+                        <span class="history-meta-item">
+                            <i class="pi pi-calendar"></i>
+                            #{historyBean.selectedRevision.revisionDate != null ? historyBean.selectedRevision.revisionDate : 'N/A'}
+                        </span>
+                        <span class="history-meta-item">
+                            <i class="pi pi-user"></i>
+                            #{historyBean.selectedRevision.modifiedBy != null ? historyBean.selectedRevision.modifiedBy : 'Système'}
+                        </span>
+                    </div>
+                </div>
+                <div class="history-detail-actions">
+                    <p:commandButton value="Retour à la liste"
+                                    icon="pi pi-arrow-left"
+                                    styleClass="history-btn-back"
+                                    action="#{historyBean.backToList()}"
+                                    process="@this"
+                                    update="@none"/>
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="history-detail-content">
+                <ui:fragment rendered="#{empty historyBean.changedFields}">
+                    <div class="history-detail-empty">
+                        <i class="pi pi-info-circle" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <p>Aucun changement détecté pour cette révision.</p>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{not empty historyBean.changedFields}">
+                    <h3 class="history-section-title">Changements détectés</h3>
+                    
+                    <div class="history-changes-list">
+                        <ui:repeat value="#{historyBean.changedFields}" var="change">
+                            <div class="history-change-item">
+                                <div class="change-field-name">
+                                    <strong>#{historyBean.getFieldLabel(change.key)}</strong>
+                                </div>
+                                <div class="change-values">
+                                    <div class="change-value change-old">
+                                        <span class="change-label">Ancienne valeur :</span>
+                                        <span class="change-content">#{historyBean.formatValue(change.value['old'])}</span>
+                                    </div>
+                                    <div class="change-arrow">
+                                        <i class="pi pi-arrow-right"></i>
+                                    </div>
+                                    <div class="change-value change-new">
+                                        <span class="change-label">Nouvelle valeur :</span>
+                                        <span class="change-content">#{historyBean.formatValue(change.value['new'])}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </ui:fragment>
+
+                <!-- Données complètes de la révision -->
+                <h3 class="history-section-title" style="margin-top: 40px;">Données complètes à cette révision</h3>
+                <div class="history-full-data">
+                    <p:dataTable value="#{historyBean.selectedRevision.entityData}" 
+                                 var="data"
+                                 styleClass="history-data-table"
+                                 emptyMessage="Aucune donnée">
+                        <p:column headerText="Champ" style="width: 200px;">
+                            <strong>#{historyBean.getFieldLabel(data.key)}</strong>
+                        </p:column>
+                        <p:column headerText="Valeur">
+                            <span>#{historyBean.formatValue(data.value)}</span>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

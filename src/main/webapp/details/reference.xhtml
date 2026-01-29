@@ -89,6 +89,16 @@
                     </div>
                     <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
                         <ui:fragment rendered="#{not applicationBean.editingReference}">
+                            <!-- Bouton Historique -->
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedReference)}"
+                                         process="@this"
+                                         update="@none"
+                                         styleClass="concept-action-button"
+                                         immediate="true"
+                                         rendered="#{applicationBean.selectedReference != null}">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
+                            </p:commandLink>
                             <p:commandLink action="#{applicationBean.startEditingReference()}"
                                          process="@this"
                                          update=":referenceEditForm"

@@ -1,0 +1,89 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <h:outputStylesheet library="css" name="history.css"/>
+        <div class="history-container">
+            <!-- En-tête -->
+            <div class="history-header">
+                <div class="history-title-section">
+                    <h2 class="history-title">
+                        <i class="pi pi-history" style="margin-right: 10px;"></i>
+                        Historique des modifications
+                    </h2>
+                    <p class="history-subtitle">
+                        #{historyBean.selectedEntity != null ? historyBean.selectedEntity.code : 'Entité'} - 
+                        #{historyBean.selectedEntity != null ? historyBean.selectedEntity.nom : ''}
+                    </p>
+                </div>
+                <div class="history-actions">
+                    <p:commandButton value="Retour"
+                                    icon="pi pi-arrow-left"
+                                    styleClass="history-btn-back"
+                                    action="#{historyBean.backToEntity()}"
+                                    process="@this"
+                                    update="@none"/>
+                </div>
+            </div>
+
+            <!-- Liste des révisions -->
+            <div class="history-content">
+                <ui:fragment rendered="#{empty historyBean.revisions}">
+                    <div class="history-empty">
+                        <i class="pi pi-info-circle" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <p>Aucune modification enregistrée pour cette entité.</p>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{not empty historyBean.revisions}">
+                    <p:dataTable value="#{historyBean.revisions}" 
+                                 var="revision"
+                                 styleClass="history-table"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,20,50"
+                                 emptyMessage="Aucune révision trouvée">
+                        
+                        <!-- Colonne Type -->
+                        <p:column headerText="Type" style="width: 120px;">
+                            <div class="revision-type-badge #{revision.revisionTypeClass}">
+                                <i class="#{revision.revisionTypeIcon}"></i>
+                                <span>#{revision.revisionTypeLabel}</span>
+                            </div>
+                        </p:column>
+
+                        <!-- Colonne Date -->
+                        <p:column headerText="Date" style="width: 180px;">
+                            <span>#{revision.revisionDate != null ? revision.revisionDate : 'N/A'}</span>
+                        </p:column>
+
+                        <!-- Colonne Révision -->
+                        <p:column headerText="Révision" style="width: 100px;">
+                            <span class="revision-number">##{revision.revisionNumber}</span>
+                        </p:column>
+
+                        <!-- Colonne Modifié par -->
+                        <p:column headerText="Modifié par" style="width: 150px;">
+                            <span>#{revision.modifiedBy != null ? revision.modifiedBy : 'Système'}</span>
+                        </p:column>
+
+                        <!-- Colonne Actions -->
+                        <p:column headerText="Actions" style="width: 120px; text-align: center;">
+                            <p:commandButton icon="pi pi-eye"
+                                           styleClass="history-btn-view"
+                                           title="Voir les détails"
+                                           action="#{historyBean.viewRevision(revision.revisionNumber)}"
+                                           process="@this"
+                                           update="@none"/>
+                        </p:column>
+                    </p:dataTable>
+                </ui:fragment>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

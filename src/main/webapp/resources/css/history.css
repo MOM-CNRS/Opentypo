@@ -1,0 +1,235 @@
+/* Styles pour les pages d'historique */
+
+/* Container principal */
+.history-container,
+.history-detail-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* En-tête */
+.history-header,
+.history-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.history-title-section,
+.history-detail-title-section {
+    flex: 1;
+}
+
+.history-title,
+.history-detail-title {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.history-subtitle {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.history-detail-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.history-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.history-actions,
+.history-detail-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Contenu */
+.history-content,
+.history-detail-content {
+    margin-top: 20px;
+}
+
+.history-section-title {
+    color: #333;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Tableau des révisions */
+.history-table {
+    width: 100%;
+}
+
+.history-table .ui-datatable-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 15px;
+    font-weight: 600;
+}
+
+.history-table .ui-datatable-data tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.history-table .ui-datatable-data tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Liste des changements */
+.history-changes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.history-change-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.change-field-name {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.change-values {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.change-value {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.change-old {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.change-new {
+    background-color: #d4edda;
+    border: 1px solid #28a745;
+}
+
+.change-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.change-content {
+    display: block;
+    color: #333;
+    word-break: break-word;
+}
+
+.change-arrow {
+    color: #47624D;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Données complètes */
+.history-full-data {
+    margin-top: 20px;
+}
+
+.history-data-table {
+    width: 100%;
+}
+
+/* États vides */
+.history-empty,
+.history-detail-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+/* Badges de type de révision */
+.revision-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.revision-type-badge.revision-add {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.revision-type-badge.revision-modify {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.revision-type-badge.revision-delete {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Boutons */
+.history-btn-back {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.history-btn-back:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Numéro de révision */
+.revision-number {
+    font-weight: 600;
+    color: #47624D;
+    font-family: monospace;
+}
+
+/* Bouton voir les détails */
+.history-btn-view {
+    background-color: #47624D;
+    border-color: #47624D;
+    color: white;
+    padding: 6px 12px;
+}
+
+.history-btn-view:hover {
+    background-color: #3a4f3e;
+    border-color: #3a4f3e;
+}

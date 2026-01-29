@@ -661,7 +661,7 @@ public class TreeBean implements Serializable {
         // Si c'est directement une Entity
         if (node instanceof Entity) {
             Entity entity = (Entity) node;
-            return entity.getNom() != null ? entity.getNom() : "";
+            return entity.getCode() != null ? entity.getCode() : "";
         }
 
         // Si c'est un TreeNode
@@ -670,7 +670,7 @@ public class TreeBean implements Serializable {
             // Si le node a des données (Entity), récupérer le nom
             if (treeNode.getData() != null && treeNode.getData() instanceof Entity) {
                 Entity entity = (Entity) treeNode.getData();
-                return entity.getNom() != null ? entity.getNom() : "";
+                return entity.getCode() != null ? entity.getCode() : "";
             }
             // Sinon, utiliser le label du TreeNode (toString())
             return treeNode.toString();

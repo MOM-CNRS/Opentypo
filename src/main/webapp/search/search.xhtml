@@ -64,7 +64,6 @@
                                  process="@form" 
                                  update="@all"
                                  oncomplete="if(#{searchBean.searchTerm != null and searchBean.searchTerm.length() ge 2}) {showResultsPanel();}"
-                                 disabled="#{searchBean.searchTerm == null or searchBean.searchTerm.length() lt 2}"
                                  title="Rechercher (minimum 2 caractères requis)"/>
             </div>
 
