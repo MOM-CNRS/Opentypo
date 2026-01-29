@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.EntityRevisionDTO;
+import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -30,9 +31,8 @@ public class HistoryBean implements Serializable {
     @Inject
     private transient ApplicationBean applicationBean;
 
-    // TODO: Injecter AuditService quand il sera créé
-    // @Inject
-    // private transient fr.cnrs.opentypo.application.service.AuditService auditService;
+    @Inject
+    private transient fr.cnrs.opentypo.application.service.AuditService auditService;
 
     // Entité sélectionnée pour laquelle on affiche l'historique
     private Entity selectedEntity;
@@ -57,14 +57,12 @@ public class HistoryBean implements Serializable {
         
         try {
             this.selectedEntity = entity;
-            // TODO: Utiliser AuditService quand il sera créé
-            // this.revisions = auditService.getEntityRevisions(entity.getId());
-            this.revisions = new ArrayList<>(); // Temporaire : liste vide jusqu'à ce qu'AuditService soit créé
+            this.revisions = auditService.getEntityRevisions(entity.getId());
             this.selectedRevision = null;
             this.changedFields = null;
             
-            log.warn("Historique chargé pour l'entité {} : AuditService non disponible, retour d'une liste vide", 
-                    entity.getCode());
+            log.info("Historique chargé pour l'entité {} : {} révisions trouvées", 
+                    entity.getCode(), revisions.size());
             
             return "/history/history-list.xhtml?faces-redirect=true";
         } catch (Exception e) {
