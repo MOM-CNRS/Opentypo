@@ -3,65 +3,38 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <div class="modern-breadcrumb-container">
-        <!-- En-tête du breadcrumb -->
-        <div class="modern-breadcrumb-header" onclick="toggleBreadcrumb()">
-            <div class="breadcrumb-header-content">
-                <div class="breadcrumb-header-icon">
-                    <i class="pi pi-sitemap" />
-                </div>
-                <h3 class="breadcrumb-header-title">Fil d'Ariane</h3>
-            </div>
-            <div class="breadcrumb-toggle-icon" id="breadcrumbToggleIcon">
-                <i class="pi pi-chevron-down" />
-            </div>
-        </div>
+    <nav class="breadcrumb-nav" id="breadcrumbContent" aria-label="Fil d'Ariane">
+        <ol class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <h:form id="breadcrumbForm" styleClass="breadcrumb-form">
+                    <p:commandLink styleClass="breadcrumb-link breadcrumb-link-home"
+                                   action="#{applicationBean.showCollections()}"
+                                   process="@this"
+                                   update=":centerContent, :selectedEntityLabel, :breadcrumbContent, :treeContainer">
+                        <i class="pi pi-home" aria-hidden="true"></i>
+                        <span class="breadcrumb-link-text">Accueil</span>
+                    </p:commandLink>
+                </h:form>
+            </li>
 
-        <!-- Contenu du breadcrumb -->
-        <div class="modern-breadcrumb-content" id="breadcrumbContent">
-            <nav class="modern-breadcrumb-nav" aria-label="Breadcrumb">
-                <ol class="modern-breadcrumb-list">
-                    <li class="modern-breadcrumb-item">
-                        <h:form id="breadcrumbForm" styleClass="form-inline">
-                            <p:commandLink styleClass="modern-breadcrumb-link breadcrumb-link"
-                                         action="#{applicationBean.showCollections()}"
-                                         process="@this"
-                                         update=":centerContent :selectedEntityLabel"
-                                         onstart="showLoading('Chargement des collections...', 'spinner');"
-                                         oncomplete="setTimeout(function(){hideLoading(); showOnlyCardsContainer();}, 500);"
-                                         onerror="forceHideLoading();">
-                                <i class="pi pi-home" />
-                                <span class="breadcrumb-text" style="font-size: 0.8125rem !important;">Accueil</span>
-                            </p:commandLink>
-                        </h:form>
-                    </li>
-
-                    <ui:repeat value="#{applicationBean.beadCrumbElements}" var="element" varStatus="status">
-                        <li class="modern-breadcrumb-separator">
-                            <i class="pi pi-angle-right" />
-                        </li>
-                        <li class="modern-breadcrumb-item #{status.last ? 'modern-breadcrumb-item-active' : ''}">
-                            <ui:fragment rendered="#{not status.last}">
-                                <p:commandLink styleClass="modern-breadcrumb-link"
-                                             action="#{applicationBean.showCollectionDetail(element)}"
-                                             process="@this"
-                                             update=":centerContent, :breadcrumbContent, :treeContainer"
-                                             onstart="showLoading('Chargement de la collection...', 'spinner');"
-                                             oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
-                                             onerror="forceHideLoading();">
-                                    <span style="font-size: 0.8125rem !important;">#{element.code}</span>
-                                </p:commandLink>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{status.last}">
-                                <span class="modern-breadcrumb-current">#{element.code}</span>
-                            </ui:fragment>
-                        </li>
-                    </ui:repeat>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
-    <h:outputScript library="js" name="breadcrumbUtils.js" target="body"/>
-
+            <ui:repeat value="#{applicationBean.beadCrumbElements}" var="element" varStatus="status">
+                <li class="breadcrumb-sep" aria-hidden="true">
+                    <span class="breadcrumb-sep-icon" aria-hidden="true"></span>
+                </li>
+                <li class="breadcrumb-item #{status.last ? 'breadcrumb-item-current' : ''}">
+                    <ui:fragment rendered="#{not status.last}">
+                        <p:commandLink styleClass="breadcrumb-link"
+                                       action="#{applicationBean.navigateToBreadcrumbElement(element)}"
+                                       process="@this"
+                                       update=":centerContent, :breadcrumbContent, :treeContainer">
+                            <span class="breadcrumb-link-text">#{element.code}</span>
+                        </p:commandLink>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{status.last}">
+                        <span class="breadcrumb-current" aria-current="page">#{element.code}</span>
+                    </ui:fragment>
+                </li>
+            </ui:repeat>
+        </ol>
+    </nav>
 </ui:composition>

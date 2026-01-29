@@ -3322,319 +3322,159 @@ body .ui-panel .ui-panel-titlebar {
     font-weight: normal !important;
 }
 
-/** panel private pour le fil d'ariane **/
+/** Fil d'Ariane - design standard, ergonomique, charte couleur, responsive **/
 /* ============================================
-   BREADCRUMB MODERNE - DESIGN ERGONOMIQUE COMPACT
-   Responsive, Dynamique, Attractif
+   BREADCRUMB - STANDARD, ERGONOMIQUE, RESPONSIVE
    ============================================ */
 
-.modern-breadcrumb-container {
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid rgba(71, 98, 77, 0.12);
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    margin-bottom: 0.75rem;
-    transition: all 0.3s ease;
-}
-
-.modern-breadcrumb-container:hover {
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-    border-color: rgba(71, 98, 77, 0.2);
-}
-
-/* En-tête du breadcrumb - Compact */
-.modern-breadcrumb-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.625rem 1rem;
-    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.03) 100%);
-    border-bottom: 1px solid rgba(71, 98, 77, 0.1);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    user-select: none;
-}
-
-.modern-breadcrumb-header:hover {
-    background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.05) 100%);
-}
-
-.breadcrumb-header-content {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    flex: 1;
-}
-
-.breadcrumb-header-icon {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%);
-    border-radius: 6px;
-    color: #ffffff;
-    font-size: 0.9375rem;
-    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.2);
-    transition: all 0.3s ease;
-}
-
-.modern-breadcrumb-header:hover .breadcrumb-header-icon {
-    transform: scale(1.05);
-    box-shadow: 0 3px 10px rgba(71, 98, 77, 0.3);
-}
-
-.breadcrumb-header-title {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--color-text-primary, #333);
-    margin: 0;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-}
-
-.breadcrumb-toggle-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-action-main, #47624D);
-    font-size: 0.875rem;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.modern-breadcrumb-header:hover .breadcrumb-toggle-icon {
-    color: var(--color-action-main, #47624D);
-    transform: scale(1.1);
-}
-
-/* Contenu du breadcrumb - Compact */
-.modern-breadcrumb-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
-    padding: 0 1rem;
-}
-
-.modern-breadcrumb-content.breadcrumb-expanded {
-    max-height: 400px;
-    padding: 1rem;
-}
-
-/* Navigation breadcrumb */
-.modern-breadcrumb-nav {
-    width: 100%;
-}
-
-.modern-breadcrumb-list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.375rem;
-    list-style: none;
+.breadcrumb-form {
+    display: inline;
     margin: 0;
     padding: 0;
 }
 
-/* Item du breadcrumb - Compact */
-.modern-breadcrumb-item {
+.breadcrumb-nav {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 0.75rem;
+}
+
+.breadcrumb-list {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9375rem;
+}
+
+.breadcrumb-item {
+    display: inline-flex;
     align-items: center;
 }
 
-.modern-breadcrumb-link {
-    display: flex;
+/* Liens du fil d'Ariane */
+.breadcrumb-link {
+    display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     padding: 0.375rem 0.625rem;
-    background: rgba(71, 98, 77, 0.06);
-    border: 1px solid rgba(71, 98, 77, 0.12);
     border-radius: 6px;
     color: var(--color-text-primary, #333);
     text-decoration: none;
-    font-size: 0.8125rem;
     font-weight: 500;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s ease, color 0.2s ease;
     white-space: nowrap;
-    position: relative;
-    overflow: hidden;
 }
 
-.modern-breadcrumb-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s ease;
-}
-
-.modern-breadcrumb-link:hover {
-    background: var(--color-hover, #A7C1A8);
-    border-color: var(--color-action-main, #47624D);
+.breadcrumb-link:hover {
+    background-color: rgba(71, 98, 77, 0.1);
     color: var(--color-action-main, #47624D);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(71, 98, 77, 0.2);
     text-decoration: none;
 }
 
-.modern-breadcrumb-link:hover::before {
-    left: 100%;
+.breadcrumb-link-home .breadcrumb-link-text {
+    margin-left: 0.125rem;
 }
 
-.modern-breadcrumb-link i {
-    font-size: 0.8125rem;
-    transition: transform 0.3s ease;
+.breadcrumb-link i {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
 }
 
-.modern-breadcrumb-link:hover i {
-    transform: scale(1.1);
+.breadcrumb-link:hover i {
+    color: var(--color-action-main, #47624D);
 }
 
-/* Item actif (dernier élément) - Compact */
-.modern-breadcrumb-item-active .modern-breadcrumb-current {
-    display: flex;
+.breadcrumb-link-text {
+    max-width: 12em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Séparateur */
+.breadcrumb-sep {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    color: var(--color-text-secondary, #819A91);
+    user-select: none;
+}
+
+.breadcrumb-sep-icon::after {
+    content: '\203a';
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* Élément actuel (page courante) */
+.breadcrumb-item-current .breadcrumb-current {
+    display: inline-flex;
     align-items: center;
     padding: 0.375rem 0.625rem;
-    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.85) 100%);
-    border: 1px solid var(--color-action-main, #47624D);
     border-radius: 6px;
-    color: #ffffff;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.25);
-}
-
-/* Séparateur - Compact */
-.modern-breadcrumb-separator {
-    display: flex;
-    align-items: center;
-    color: var(--color-text-secondary, #819A91);
-    font-size: 0.75rem;
-    padding: 0 0.1875rem;
-    transition: all 0.3s ease;
-}
-
-.modern-breadcrumb-item:hover + .modern-breadcrumb-separator {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.14) 0%, rgba(71, 98, 77, 0.06) 100%);
     color: var(--color-action-main, #47624D);
-    transform: translateX(1px);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    max-width: 14em;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Responsive - Compact */
+/* Responsive */
 @media (max-width: 768px) {
-    .modern-breadcrumb-container {
-        border-radius: 8px;
-        margin-bottom: 0.625rem;
+    .breadcrumb-nav {
+        padding: 0.625rem 0.875rem;
+        margin-bottom: 0.5rem;
     }
 
-    .modern-breadcrumb-header {
-        padding: 0.5rem 0.875rem;
-    }
-
-    .breadcrumb-header-icon {
-        width: 26px;
-        height: 26px;
-        min-width: 26px;
+    .breadcrumb-list {
         font-size: 0.875rem;
+        gap: 0.125rem;
     }
 
-    .breadcrumb-header-title {
-        font-size: 0.8125rem;
+    .breadcrumb-link,
+    .breadcrumb-item-current .breadcrumb-current {
+        padding: 0.3125rem 0.5rem;
     }
 
-    .breadcrumb-toggle-icon {
-        width: 22px;
-        height: 22px;
-        font-size: 0.8125rem;
+    .breadcrumb-link-text {
+        max-width: 8em;
     }
 
-    .modern-breadcrumb-content.breadcrumb-expanded {
-        padding: 0.875rem;
+    .breadcrumb-item-current .breadcrumb-current {
+        max-width: 10em;
     }
 
-    .modern-breadcrumb-list {
-        gap: 0.3125rem;
-    }
-
-    .modern-breadcrumb-link,
-    .modern-breadcrumb-item-active .modern-breadcrumb-current {
-        padding: 0.3125rem 0.625rem;
-        font-size: 0.75rem;
-    }
-
-    .modern-breadcrumb-separator {
-        font-size: 0.6875rem;
-        padding: 0 0.125rem;
-    }
-
-    /* Sur mobile, réduire le nombre d'éléments visibles */
-    .modern-breadcrumb-item:not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)) {
-        display: none;
-    }
-
-    .modern-breadcrumb-item:not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)) + .modern-breadcrumb-separator {
-        display: none;
-    }
-
-    /* Afficher un indicateur "..." pour les éléments masqués */
-    .modern-breadcrumb-list::before {
-        content: '...';
-        color: var(--color-text-secondary, #819A91);
-        padding: 0.3125rem 0.1875rem;
-        display: flex;
-        align-items: center;
-        font-size: 0.75rem;
+    .breadcrumb-sep-icon::after {
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .modern-breadcrumb-header {
+    .breadcrumb-nav {
         padding: 0.5rem 0.75rem;
     }
 
-    .breadcrumb-header-icon {
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
+    .breadcrumb-list {
         font-size: 0.8125rem;
     }
 
-    .breadcrumb-header-title {
-        font-size: 0.75rem;
+    .breadcrumb-link-text {
+        max-width: 6em;
     }
 
-    .breadcrumb-toggle-icon {
-        width: 20px;
-        height: 20px;
-        font-size: 0.75rem;
-    }
-
-    .modern-breadcrumb-content.breadcrumb-expanded {
-        padding: 0.75rem;
-    }
-
-    .modern-breadcrumb-link,
-    .modern-breadcrumb-item-active .modern-breadcrumb-current {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.6875rem;
-        gap: 0.3125rem;
-    }
-
-    .modern-breadcrumb-link i {
-        font-size: 0.6875rem;
-    }
-
-    .modern-breadcrumb-separator {
-        font-size: 0.625rem;
-        padding: 0 0.125rem;
+    .breadcrumb-item-current .breadcrumb-current {
+        max-width: 8em;
     }
 }
 

@@ -335,6 +335,29 @@ public class ApplicationBean implements Serializable {
         }
     }
 
+    /**
+     * Navigation depuis le fil d'Ariane : affiche le détail correspondant au type d'entité.
+     */
+    public void navigateToBreadcrumbElement(Entity entity) {
+        if (entity == null || entity.getEntityType() == null) {
+            return;
+        }
+        String code = entity.getEntityType().getCode();
+        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
+            collectionBean.showCollectionDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)) {
+            showReferenceDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
+            showCategoryDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code)) {
+            showGroupe(entity);
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code) || "SERIE".equals(code)) {
+            showSerie(entity);
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
+            showType(entity);
+        }
+    }
+
     public boolean isShowDetail() {
         return panelState.isShowDetail();
     }
