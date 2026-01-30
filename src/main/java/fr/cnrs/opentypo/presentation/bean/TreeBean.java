@@ -12,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ import java.util.List;
 public class TreeBean implements Serializable {
 
     @Inject
-    private transient ApplicationBean applicationBean;
+    private transient Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
     private transient CategoryService categoryService;
@@ -64,6 +65,11 @@ public class TreeBean implements Serializable {
         // L'arbre sera initialisé dynamiquement quand une collection est sélectionnée
     }
 
+    /** Résout ApplicationBean à la demande pour éviter dépendance circulaire / scope non actif au démarrage. */
+    private ApplicationBean getApplicationBean() {
+        return applicationBeanProvider != null ? applicationBeanProvider.get() : null;
+    }
+
     /**
      * Initialise l'arbre avec la collection sélectionnée et charge récursivement tous les éléments
      * (référentiels, catégories, groupes, séries, types) en une fois pour de meilleures perfs.
@@ -76,8 +82,9 @@ public class TreeBean implements Serializable {
         }
 
         Entity selectedCollection = null;
-        if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
-            selectedCollection = applicationBean.getSelectedCollection();
+        ApplicationBean appBean = getApplicationBean();
+        if (appBean != null && appBean.getSelectedCollection() != null) {
+            selectedCollection = appBean.getSelectedCollection();
         }
 
         selectedNode = null;
@@ -263,8 +270,9 @@ public class TreeBean implements Serializable {
                 else if (entity.getEntityType() != null &&
                     EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
                     // Afficher la page référentiel
-                    if (applicationBean != null) {
-                        applicationBean.showReferenceDetail(entity);
+                    ApplicationBean appBean = getApplicationBean();
+                    if (appBean != null) {
+                        appBean.showReferenceDetail(entity);
                     }
                 }
                 // Vérifier si c'est une catégorie
@@ -272,8 +280,9 @@ public class TreeBean implements Serializable {
                     (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entity.getEntityType().getCode()) ||
                      "CATEGORIE".equals(entity.getEntityType().getCode()))) {
                     // Afficher la page catégorie
-                    if (applicationBean != null) {
-                        applicationBean.showCategoryDetail(entity);
+                    ApplicationBean appBean = getApplicationBean();
+                    if (appBean != null) {
+                        appBean.showCategoryDetail(entity);
                     }
                 }
                 // Vérifier si c'est un groupe
@@ -281,8 +290,9 @@ public class TreeBean implements Serializable {
                     (EntityConstants.ENTITY_TYPE_GROUP.equals(entity.getEntityType().getCode()) ||
                      "GROUPE".equals(entity.getEntityType().getCode()))) {
                     // Afficher la page groupe
-                    if (applicationBean != null) {
-                        applicationBean.showGroupe(entity);
+                    ApplicationBean appBean = getApplicationBean();
+                    if (appBean != null) {
+                        appBean.showGroupe(entity);
                     }
                 }
                 // Vérifier si c'est une série
@@ -290,16 +300,18 @@ public class TreeBean implements Serializable {
                     (EntityConstants.ENTITY_TYPE_SERIES.equals(entity.getEntityType().getCode()) ||
                      "SERIE".equals(entity.getEntityType().getCode()))) {
                     // Afficher la page série
-                    if (applicationBean != null) {
-                        applicationBean.showSerie(entity);
+                    ApplicationBean appBean = getApplicationBean();
+                    if (appBean != null) {
+                        appBean.showSerie(entity);
                     }
                 }
                 // Vérifier si c'est un type
                 else if (entity.getEntityType() != null &&
                     EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode())) {
                     // Afficher la page type
-                    if (applicationBean != null) {
-                        applicationBean.showType(entity);
+                    ApplicationBean appBean = getApplicationBean();
+                    if (appBean != null) {
+                        appBean.showType(entity);
                     }
                 }
             }
@@ -383,14 +395,15 @@ public class TreeBean implements Serializable {
      * Recherche les référentiels rattachés et les ajoute comme enfants du nœud collection
      */
     private void loadReferencesForCollection(TreeNode collectionNode, Entity collection) {
-        if (applicationBean == null) {
+        ApplicationBean appBean = getApplicationBean();
+        if (appBean == null) {
             return;
         }
 
         try {
             // Rechercher les référentiels rattachés à la collection dans la base de données
-            applicationBean.refreshCollectionReferencesList();
-            var references = applicationBean.getCollectionReferences();
+            appBean.refreshCollectionReferencesList();
+            var references = appBean.getCollectionReferences();
 
             if (references != null && !references.isEmpty()) {
                 for (Entity reference : references) {

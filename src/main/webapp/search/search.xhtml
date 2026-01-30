@@ -31,16 +31,16 @@
                         onerror="forceHideLoading();"/>
             </p:selectOneMenu>
 
-            <!-- Langue - Compact sans label -->
+            <!-- Langue - Compact avec icône drapeau (comme le select Collection avec 📁 📖) -->
             <p:selectOneMenu id="langueSelect"
                              value="#{searchBean.langSelected}"
                              styleClass="search-compact-select"
                              title="#{langueBean.getMsg('search.change_thesaurus_language')}">
-                <f:selectItems value="#{applicationBean.languages}" var="lang" 
-                               itemLabel="#{lang.value}" itemValue="#{lang.code}"/>
-                <p:ajax event="change" 
+                <f:selectItems value="#{applicationBean.languages}" var="lang"
+                               itemValue="#{lang.code}" itemLabel="#{lang.flagEmoji} #{lang.value}"/>
+                <p:ajax event="change"
                         listener="#{applicationBean.onLanguageChange()}"
-                        update=":centerContent" 
+                        update=":centerContent"
                         process="@this"/>
             </p:selectOneMenu>
 

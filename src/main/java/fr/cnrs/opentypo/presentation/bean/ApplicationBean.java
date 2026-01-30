@@ -861,6 +861,15 @@ public class ApplicationBean implements Serializable {
             beadCrumbElements.add(selectedReference);
         }
         beadCrumbElements.add(category);
+
+        // Sélectionner le nœud correspondant dans l'arbre
+        if (treeBeanProvider != null) {
+            try {
+                treeBeanProvider.get().selectReferenceNode(category);
+            } catch (Exception e) {
+                log.debug("Impossible de sélectionner le nœud catégorie dans l'arbre", e);
+            }
+        }
     }
 
     public void refreshCollectionReferencesList() {

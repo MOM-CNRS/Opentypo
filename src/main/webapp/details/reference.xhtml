@@ -323,7 +323,7 @@
                                     <p:commandLink action="#{applicationBean.showCategoryDetail(category)}"
                                                 styleClass="reference-card"
                                                 process="@this"
-                                                update=":centerContent"
+                                                update=":centerContent, :treeContainer"
                                                 onstart="showLoading('Chargement de la catégorie...', 'spinner');"
                                                 oncomplete="setTimeout(function(){hideLoading();}, 500);"
                                                 onerror="forceHideLoading();">

@@ -40,7 +40,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        show_sql: true
+        show_sql: false
         # Configuration Hibernate Envers pour l'audit
         envers:
           audit_table_suffix: _aud
