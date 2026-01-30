@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedBy;
@@ -109,7 +110,8 @@ public class Entity implements Serializable {
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Description> descriptions = new ArrayList<>();
 
-    // Relations avec Label
+    // Relations avec Label (BatchSize évite N+1 lors du chargement en masse pour l'arbre)
+    @BatchSize(size = 50)
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Label> labels = new ArrayList<>();
 

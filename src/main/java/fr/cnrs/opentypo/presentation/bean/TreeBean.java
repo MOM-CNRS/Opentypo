@@ -3,7 +3,9 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.SerieService;
+import fr.cnrs.opentypo.application.service.TreeService;
 import fr.cnrs.opentypo.application.service.TypeService;
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import jakarta.annotation.PostConstruct;
@@ -46,6 +48,9 @@ public class TreeBean implements Serializable {
     @Inject
     private transient CollectionBean collectionBean;
 
+    @Inject
+    private transient TreeService treeService;
+
     private TreeNode selectedNode;
     private TreeNode root;
 
@@ -60,8 +65,8 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Initialise l'arbre avec les référentiels de la collection sélectionnée
-     * Charge uniquement le premier niveau (référentiels) - les enfants seront chargés à la demande
+     * Initialise l'arbre avec la collection sélectionnée et charge récursivement tous les éléments
+     * (référentiels, catégories, groupes, séries, types) en une fois pour de meilleures perfs.
      */
     public void initializeTreeWithCollection() {
         // Sauvegarder l'entité sélectionnée avant la réinitialisation
@@ -70,45 +75,31 @@ public class TreeBean implements Serializable {
             previouslySelectedEntity = (Entity) selectedNode.getData();
         }
 
-        // Réinitialiser la racine avec le nom de la collection
         Entity selectedCollection = null;
         if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
             selectedCollection = applicationBean.getSelectedCollection();
-            String collectionName = selectedCollection.getNom() != null ? selectedCollection.getNom() : "Collection";
-            DefaultTreeNode collectionRoot = new DefaultTreeNode(collectionName, null);
-            // Stocker l'entité collection dans le nœud racine
-            collectionRoot.setData(selectedCollection);
-            // Ne pas étendre la racine - l'arbre reste replié par défaut
-            root = collectionRoot;
-        } else {
-            root = new DefaultTreeNode("root", null);
         }
 
-        selectedNode = null; // Réinitialiser la sélection
+        selectedNode = null;
 
-        if (selectedCollection != null) {
+        if (selectedCollection != null && treeService != null) {
             try {
-                // Charger uniquement les référentiels de la collection (niveau 1)
-                // Les catégories seront chargées quand on dépliera un référentiel
-                applicationBean.refreshCollectionReferencesList();
-                var references = applicationBean.getCollectionReferences();
-
-                if (references != null && !references.isEmpty()) {
-                    for (Entity reference : references) {
-                        DefaultTreeNode referenceNode = new DefaultTreeNode(reference.getNom(), root);
-                        // Stocker l'entité dans le nœud pour pouvoir la récupérer lors du clic
-                        referenceNode.setData(reference);
-                        // Ne pas charger les catégories maintenant - elles seront chargées à la demande
-
-                        // Restaurer la sélection si c'est la même entité
-                        if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && previouslySelectedEntity.getId().equals(reference.getId())) {
-                            selectedNode = referenceNode;
-                        }
+                root = treeService.buildFullSubtree(selectedCollection);
+                if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && root != null) {
+                    TreeNode found = findNodeByEntity(root, previouslySelectedEntity);
+                    if (found != null) {
+                        selectedNode = found;
                     }
                 }
             } catch (Exception e) {
                 log.error("Erreur lors de l'initialisation de l'arbre avec la collection", e);
+                String collectionName = selectedCollection.getNom() != null ? selectedCollection.getNom() : "Collection";
+                DefaultTreeNode fallback = new DefaultTreeNode(collectionName, null);
+                fallback.setData(selectedCollection);
+                root = fallback;
             }
+        } else {
+            root = new DefaultTreeNode("root", null);
         }
     }
 
@@ -678,6 +669,76 @@ public class TreeBean implements Serializable {
 
         // Sinon, utiliser toString()
         return node.toString();
+    }
+
+    /**
+     * Retourne l'entité associée à un nœud (TreeNode ou Entity), ou null.
+     */
+    public Entity getEntityFromNode(Object node) {
+        if (node == null) return null;
+        if (node instanceof Entity e) return e;
+        if (node instanceof TreeNode tn && tn.getData() != null && tn.getData() instanceof Entity e) return e;
+        return null;
+    }
+
+    /**
+     * Indique si l'élément du nœud est public (true) ou privé (false).
+     * Par défaut true si pas d'entité.
+     */
+    public boolean isEntityPublic(Object node) {
+        Entity e = getEntityFromNode(node);
+        return e == null || Boolean.TRUE.equals(e.getPublique());
+    }
+
+    /**
+     * Classe CSS pour l'indicateur public/privé du nœud (tree-node-public ou tree-node-private).
+     */
+    public String getEntityPublicCssClass(Object node) {
+        return isEntityPublic(node) ? "tree-node-public" : "tree-node-private";
+    }
+
+    /**
+     * Titre (tooltip) pour l'indicateur public/privé.
+     */
+    public String getEntityPublicTitle(Object node) {
+        return isEntityPublic(node) ? "Public" : "Privé";
+    }
+
+    /**
+     * Indique si le statut de l'entité est "candidat en cours de validation" (PROPOSITION).
+     */
+    public boolean isEntityStatusProposition(Object node) {
+        Entity e = getEntityFromNode(node);
+        return e != null && EntityStatusEnum.PROPOSITION.name().equals(e.getStatut());
+    }
+
+    /**
+     * Indique si le statut de l'entité est validé (ACCEPTED ou AUTOMATIC).
+     */
+    public boolean isEntityStatusValidated(Object node) {
+        Entity e = getEntityFromNode(node);
+        if (e == null || e.getStatut() == null) return false;
+        String s = e.getStatut();
+        return EntityStatusEnum.ACCEPTED.name().equals(s) || EntityStatusEnum.AUTOMATIC.name().equals(s);
+    }
+
+    /**
+     * Classe CSS pour l'indicateur de statut (tree-node-status-proposition ou tree-node-status-validated).
+     * Retourne une chaîne vide si le statut n'est ni PROPOSITION ni ACCEPTED/AUTOMATIC.
+     */
+    public String getEntityStatusCssClass(Object node) {
+        if (isEntityStatusProposition(node)) return "tree-node-status-proposition";
+        if (isEntityStatusValidated(node)) return "tree-node-status-validated";
+        return "";
+    }
+
+    /**
+     * Titre (tooltip) pour l'indicateur de statut.
+     */
+    public String getEntityStatusTitle(Object node) {
+        if (isEntityStatusProposition(node)) return "Candidat en cours de validation";
+        if (isEntityStatusValidated(node)) return "Validée";
+        return "";
     }
 
     /**

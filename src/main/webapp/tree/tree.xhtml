@@ -17,13 +17,28 @@
 
             <p:ajax event="select" listener="#{treeBean.onNodeSelect}"
                     process="@this"
-                    update=":contentPanels, :breadcrumbContent"/>
+                    update=":contentPanels, :breadcrumbContent"
+                    onstart="showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
+                    oncomplete="setTimeout(function(){hidePanelLoading();}, 250);"
+                    onerror="hidePanelLoading();"/>
 
             <p:treeNode>
-                <i class="#{treeBean.getEntityIcon(nodetree)} simple-tree-node-icon"></i>
+                <i class="#{treeBean.getEntityIcon(nodetree)} simple-tree-node-icon" />
                 <span class="simple-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
                     #{treeBean.getNodeLabel(nodetree)}
                 </span>
+                <!-- Indicateurs public/privé et statut (candidat en validation / validée) -->
+                <h:panelGroup class="simple-tree-node-indicators" rendered="#{treeBean.getEntityFromNode(nodetree) != null}">
+                    <span class="tree-node-badge tree-node-badge-visibility #{treeBean.getEntityPublicCssClass(nodetree)}"
+                          title="#{treeBean.getEntityPublicTitle(nodetree)}">
+                        <i class="pi #{treeBean.isEntityPublic(nodetree) ? 'pi-globe' : 'pi-lock'}"/>
+                    </span>
+                    <h:panelGroup class="tree-node-badge tree-node-badge-status #{treeBean.getEntityStatusCssClass(nodetree)}"
+                          title="#{treeBean.getEntityStatusTitle(nodetree)}"
+                          rendered="#{treeBean.getEntityStatusCssClass(nodetree) != ''}">
+                        <i class="pi #{treeBean.isEntityStatusProposition(nodetree) ? 'pi-clock' : 'pi-check-circle'}"/>
+                    </h:panelGroup>
+                </h:panelGroup>
             </p:treeNode>
         </p:tree>
     </h:panelGroup>

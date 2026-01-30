@@ -48,4 +48,19 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
      */
     @Query("SELECT COUNT(er) > 0 FROM EntityRelation er WHERE er.parent.id = :parentId AND er.child.id = :childId")
     boolean existsByParentAndChild(@Param("parentId") Long parentId, @Param("childId") Long childId);
+
+    /**
+     * Retourne toutes les relations (parent_id, child_id) du sous-arbre dont la racine est l'entité donnée.
+     * Utilise une CTE récursive (PostgreSQL). Chaque ligne est (parent_id, child_id).
+     */
+    @Query(value = """
+        WITH RECURSIVE subtree AS (
+            SELECT parent_id, child_id FROM entity_relation WHERE parent_id = :rootId
+            UNION ALL
+            SELECT r.parent_id, r.child_id FROM entity_relation r
+            INNER JOIN subtree s ON r.parent_id = s.child_id
+        )
+        SELECT parent_id, child_id FROM subtree
+        """, nativeQuery = true)
+    List<Object[]> findAllDescendantRelations(@Param("rootId") Long rootId);
 }

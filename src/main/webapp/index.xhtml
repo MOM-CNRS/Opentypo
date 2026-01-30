@@ -132,6 +132,7 @@
                     <ui:include src="dialogs/collectionDialog.xhtml"/>
                 </h:panelGroup>
 
+                <div id="contentPanelsWrapper" class="content-panels-wrapper">
                 <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
 
                     <h:panelGroup rendered="#{applicationBean.showBreadCrumbPanel}">
@@ -168,6 +169,7 @@
                         <ui:include src="details/type.xhtml"/>
                     </h:panelGroup>
                 </h:panelGroup>
+                </div>
             </h:panelGroup>
 
             <!-- Panneau droit pour les résultats de recherche -->

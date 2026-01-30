@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,5 +133,12 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
            ")")
     List<Entity> searchByCodeOrLabelExact(@Param("searchTerm") String searchTerm, 
                                           @Param("langCode") String langCode);
+
+    /**
+     * Charge toutes les entités dont l'id est dans la liste, avec entityType chargé (évite N+1).
+     * Ne pas appeler avec une liste vide.
+     */
+    @Query("SELECT DISTINCT e FROM Entity e JOIN FETCH e.entityType WHERE e.id IN :ids")
+    List<Entity> findByIdInWithEntityType(@Param("ids") Collection<Long> ids);
 }
 
