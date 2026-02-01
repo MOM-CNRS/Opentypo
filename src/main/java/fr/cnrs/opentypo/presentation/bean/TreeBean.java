@@ -2,14 +2,17 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
+import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.application.service.TreeService;
 import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
@@ -21,7 +24,12 @@ import org.primefaces.model.TreeNode;
 import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.event.NodeExpandEvent;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Getter
@@ -52,8 +60,26 @@ public class TreeBean implements Serializable {
     @Inject
     private transient TreeService treeService;
 
+    @Inject
+    private transient ReferenceService referenceService;
+
+    @Inject
+    private transient EntityRelationRepository entityRelationRepository;
+
     private TreeNode selectedNode;
     private TreeNode root;
+
+    /** ID d'entité pour la sélection via formulaire (hidden input + commandButton). */
+    private Long selectedEntityIdForAjax;
+
+    /** ID d'entité pour le chargement des enfants au dépliage (hidden input + commandButton). */
+    private Long expandEntityIdForAjax;
+
+    /** Nœud dont on vient de charger les enfants : utilisé pour rendre uniquement le fragment HTML (préserve l'état de l'arbre). */
+    private transient TreeNode pendingChildrenTreeNode;
+
+    /** IDs des entités pour lesquelles on a chargé les enfants et le résultat était 0 (masquer le toggler). */
+    private Set<Long> entityIdsWithNoChildren = new HashSet<>();
 
     private static final long serialVersionUID = 1L;
 
@@ -88,10 +114,13 @@ public class TreeBean implements Serializable {
         }
 
         selectedNode = null;
+        if (entityIdsWithNoChildren != null) {
+            entityIdsWithNoChildren.clear();
+        }
 
         if (selectedCollection != null && treeService != null) {
             try {
-                root = treeService.buildFullSubtree(selectedCollection);
+                root = treeService.buildRootWithDirectChildrenOnly(selectedCollection);
                 if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && root != null) {
                     TreeNode found = findNodeByEntity(root, previouslySelectedEntity);
                     if (found != null) {
@@ -252,70 +281,78 @@ public class TreeBean implements Serializable {
                      selectedNode.getChildCount() - childCountBefore);
         }
 
-        // Récupérer l'entité stockée dans le nœud
-        if (selectedNode != null && selectedNode.getData() != null) {
-            Object data = selectedNode.getData();
-            if (data instanceof Entity) {
-                Entity entity = (Entity) data;
+        if (selectedNode != null && selectedNode.getData() != null && selectedNode.getData() instanceof Entity entity) {
+            navigateToEntity(entity);
+        }
+    }
 
-                // Vérifier si c'est une collection (racine)
-                if (entity.getEntityType() != null &&
-                    EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
-                    // Si on clique sur la collection, afficher les détails de la collection
-                    if (collectionBean != null) {
-                        collectionBean.showCollectionDetail(entity);
-                    }
-                }
-                // Vérifier si c'est un référentiel
-                else if (entity.getEntityType() != null &&
-                    EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
-                    // Afficher la page référentiel
-                    ApplicationBean appBean = getApplicationBean();
-                    if (appBean != null) {
-                        appBean.showReferenceDetail(entity);
-                    }
-                }
-                // Vérifier si c'est une catégorie
-                else if (entity.getEntityType() != null &&
-                    (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entity.getEntityType().getCode()) ||
-                     "CATEGORIE".equals(entity.getEntityType().getCode()))) {
-                    // Afficher la page catégorie
-                    ApplicationBean appBean = getApplicationBean();
-                    if (appBean != null) {
-                        appBean.showCategoryDetail(entity);
-                    }
-                }
-                // Vérifier si c'est un groupe
-                else if (entity.getEntityType() != null &&
-                    (EntityConstants.ENTITY_TYPE_GROUP.equals(entity.getEntityType().getCode()) ||
-                     "GROUPE".equals(entity.getEntityType().getCode()))) {
-                    // Afficher la page groupe
-                    ApplicationBean appBean = getApplicationBean();
-                    if (appBean != null) {
-                        appBean.showGroupe(entity);
-                    }
-                }
-                // Vérifier si c'est une série
-                else if (entity.getEntityType() != null &&
-                    (EntityConstants.ENTITY_TYPE_SERIES.equals(entity.getEntityType().getCode()) ||
-                     "SERIE".equals(entity.getEntityType().getCode()))) {
-                    // Afficher la page série
-                    ApplicationBean appBean = getApplicationBean();
-                    if (appBean != null) {
-                        appBean.showSerie(entity);
-                    }
-                }
-                // Vérifier si c'est un type
-                else if (entity.getEntityType() != null &&
-                    EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode())) {
-                    // Afficher la page type
-                    ApplicationBean appBean = getApplicationBean();
-                    if (appBean != null) {
-                        appBean.showType(entity);
-                    }
+    /**
+     * Sélectionne un nœud par ID d'entité (appel AJAX depuis le client).
+     */
+    public void selectEntityById() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String idStr = params != null ? params.get("entityId") : null;
+        if ((idStr == null || idStr.isBlank()) && selectedEntityIdForAjax != null) {
+            idStr = String.valueOf(selectedEntityIdForAjax);
+        }
+        if (idStr == null || idStr.isBlank()) return;
+        Long entityId;
+        try {
+            entityId = Long.parseLong(idStr.trim());
+        } catch (NumberFormatException e) {
+            log.warn("selectEntityById: entityId invalide: {}", idStr);
+            return;
+        }
+        if (root == null) return;
+        TreeNode foundNode = findNodeByEntityId(root, entityId);
+        if (foundNode == null) {
+            log.warn("selectEntityById: nœud non trouvé pour entityId={}", entityId);
+            return;
+        }
+        this.selectedNode = foundNode;
+        int childCountBefore = foundNode.getChildCount();
+        loadChildrenIfNeeded(foundNode);
+        if (foundNode.getChildCount() > childCountBefore) {
+            foundNode.setExpanded(true);
+        }
+        Object data = foundNode.getData();
+        if (data == null || !(data instanceof Entity entity)) return;
+        navigateToEntity(entity);
+    }
+
+    private void navigateToEntity(Entity entity) {
+        if (entity.getEntityType() == null) return;
+        String code = entity.getEntityType().getCode();
+        ApplicationBean appBean = getApplicationBean();
+        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
+            if (collectionBean != null) collectionBean.showCollectionDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)) {
+            if (appBean != null) appBean.showReferenceDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
+            if (appBean != null) appBean.showCategoryDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code)) {
+            if (appBean != null) appBean.showGroupe(entity);
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code) || "SERIE".equals(code)) {
+            if (appBean != null) appBean.showSerie(entity);
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
+            if (appBean != null) appBean.showType(entity);
+        }
+    }
+
+    private TreeNode findNodeByEntityId(TreeNode node, Long entityId) {
+        if (node == null || entityId == null) return null;
+        if (node.getData() != null && node.getData() instanceof Entity nodeEntity) {
+            if (entityId.equals(nodeEntity.getId())) return node;
+        }
+        if (node.getChildren() != null) {
+            for (Object childObj : node.getChildren()) {
+                if (childObj instanceof TreeNode child) {
+                    TreeNode found = findNodeByEntityId(child, entityId);
+                    if (found != null) return found;
                 }
             }
         }
+        return null;
     }
 
     /**
@@ -375,6 +412,9 @@ public class TreeBean implements Serializable {
                 int childCountAfter = node.getChildCount();
                 log.debug("Après chargement, le nœud {} a maintenant {} enfants (avant: {})", 
                          entity.getNom(), childCountAfter, childCountBefore);
+                if (childCountAfter == 0 && entity.getId() != null) {
+                    entityIdsWithNoChildren.add(entity.getId());
+                }
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement des enfants du nœud : {}", entity.getNom(), e);
@@ -386,8 +426,43 @@ public class TreeBean implements Serializable {
      */
     public void onNodeExpand(NodeExpandEvent event) {
         TreeNode expandedNode = event.getTreeNode();
-        // Charger les enfants si nécessaire
         loadChildrenIfNeeded(expandedNode);
+    }
+
+    /**
+     * Charge les enfants directs d'un nœud identifié par son entityId (appel AJAX au dépliage).
+     * Stocke le nœud dans pendingChildrenTreeNode pour que la vue ne rende que le fragment (ul des enfants),
+     * sans remplacer tout l'arbre, afin de préserver l'état déplié/empilé des autres nœuds.
+     */
+    public void loadChildrenForEntity() {
+        pendingChildrenTreeNode = null;
+        entityIdsWithNoChildren = entityIdsWithNoChildren != null ? entityIdsWithNoChildren : new HashSet<>();
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String idStr = params != null ? params.get("entityId") : null;
+        if ((idStr == null || idStr.isBlank()) && expandEntityIdForAjax != null) {
+            idStr = String.valueOf(expandEntityIdForAjax);
+        }
+        if (idStr == null || idStr.isBlank() || root == null) return;
+        Long entityId;
+        try {
+            entityId = Long.parseLong(idStr.trim());
+        } catch (NumberFormatException e) {
+            log.warn("loadChildrenForEntity: entityId invalide: {}", idStr);
+            return;
+        }
+        TreeNode node = findNodeByEntityId(root, entityId);
+        if (node == null) {
+            log.warn("loadChildrenForEntity: nœud non trouvé pour entityId={}", entityId);
+            return;
+        }
+        loadChildrenIfNeeded(node);
+        node.setExpanded(true);
+        pendingChildrenTreeNode = node;
+    }
+
+    /** Nœud dont les enfants viennent d'être chargés ; utilisé pour rendre uniquement le fragment (ul) à injecter dans l'arbre. */
+    public TreeNode getPendingChildrenTreeNode() {
+        return pendingChildrenTreeNode;
     }
 
     /**
@@ -395,15 +470,12 @@ public class TreeBean implements Serializable {
      * Recherche les référentiels rattachés et les ajoute comme enfants du nœud collection
      */
     private void loadReferencesForCollection(TreeNode collectionNode, Entity collection) {
-        ApplicationBean appBean = getApplicationBean();
-        if (appBean == null) {
+        if (referenceService == null) {
             return;
         }
 
         try {
-            // Rechercher les référentiels rattachés à la collection dans la base de données
-            appBean.refreshCollectionReferencesList();
-            var references = appBean.getCollectionReferences();
+            List<Entity> references = referenceService.loadReferencesByCollection(collection);
 
             if (references != null && !references.isEmpty()) {
                 for (Entity reference : references) {
@@ -695,6 +767,52 @@ public class TreeBean implements Serializable {
     }
 
     /**
+     * Indique si le nœud peut avoir des enfants (types collection, référentiel, catégorie, groupe).
+     * Utilisé pour afficher le toggler même quand les enfants ne sont pas encore chargés (lazy load).
+     */
+    public boolean canHaveChildren(Object node) {
+        Entity entity = getEntityFromNode(node);
+        if (entity == null || entity.getEntityType() == null) return false;
+        String code = entity.getEntityType().getCode();
+        return EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)
+                || EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)
+                || EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)
+                || EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code);
+    }
+
+    /**
+     * Indique si on sait que ce nœud n'a aucun enfant (chargement déjà fait, résultat 0).
+     * Permet de masquer le toggler quand l'élément est déplié et n'a pas d'enfant.
+     */
+    public boolean isKnownToHaveNoChildren(Object node) {
+        Entity entity = getEntityFromNode(node);
+        return entity != null && entity.getId() != null
+                && entityIdsWithNoChildren != null
+                && entityIdsWithNoChildren.contains(entity.getId());
+    }
+
+    /** Retourne l'ID de l'entité du nœud (pour data-entity-id côté client). */
+    public String getEntityIdFromNode(Object node) {
+        Entity e = getEntityFromNode(node);
+        return e != null && e.getId() != null ? String.valueOf(e.getId()) : "";
+    }
+
+    /** Retourne le code de l'entité du nœud (pour data-code côté client). */
+    public String getEntityCodeFromNode(Object node) {
+        Entity e = getEntityFromNode(node);
+        return e != null && e.getCode() != null ? e.getCode() : "";
+    }
+
+    /** Indique si le nœud est actuellement sélectionné (surbrillance au rendu). */
+    public boolean isNodeSelected(Object node) {
+        if (selectedNode == null || node == null) return false;
+        Entity nodeEntity = getEntityFromNode(node);
+        Entity selectedEntity = getEntityFromNode(selectedNode);
+        return nodeEntity != null && selectedEntity != null
+                && nodeEntity.getId() != null && nodeEntity.getId().equals(selectedEntity.getId());
+    }
+
+    /**
      * Indique si l'élément du nœud est public (true) ou privé (false).
      * Par défaut true si pas d'entité.
      */
@@ -759,20 +877,69 @@ public class TreeBean implements Serializable {
      * @param reference La référence à sélectionner
      */
     public void selectReferenceNode(Entity reference) {
-        if (reference == null || root == null) {
+        expandPathAndSelectEntity(reference);
+    }
+
+    /**
+     * Déplie le chemin depuis la racine jusqu'à l'entité donnée et la sélectionne dans l'arbre.
+     * Charge les enfants à chaque niveau si nécessaire (lazy load). À appeler quand on clique
+     * sur une carte (catégorie, groupe, etc.) pour que l'arbre affiche le même élément sélectionné (même code).
+     *
+     * @param entity L'entité à atteindre et sélectionner (catégorie, groupe, référence, série, type, etc.)
+     */
+    public void expandPathAndSelectEntity(Entity entity) {
+        if (entity == null || entity.getId() == null || root == null || entityRelationRepository == null) {
             return;
         }
 
-        // Parcourir récursivement l'arbre pour trouver le nœud correspondant
-        var foundNode = findNodeByEntity(root, reference);
-        if (foundNode != null) {
-            this.selectedNode = foundNode;
-            // S'assurer que le nœud parent est étendu pour que le nœud soit visible
-            expandNodePath(foundNode);
-            log.debug("Nœud de référence sélectionné : {}", reference.getNom());
-        } else {
-            log.warn("Nœud de référence non trouvé pour : {}", reference.getNom());
+        // Construire le chemin de l'entité vers la racine (ex. [catégorie, référentiel, collection])
+        List<Entity> pathToRoot = new ArrayList<>();
+        Entity e = entity;
+        while (e != null) {
+            pathToRoot.add(e);
+            List<Entity> parents = entityRelationRepository.findParentsByChild(e);
+            e = (parents == null || parents.isEmpty()) ? null : parents.get(0);
         }
+        if (pathToRoot.isEmpty()) return;
+        List<Entity> pathFromRoot = new ArrayList<>(pathToRoot);
+        Collections.reverse(pathFromRoot);
+
+        // La racine de l'arbre doit correspondre au premier élément du chemin (collection)
+        if (root.getData() == null || !(root.getData() instanceof Entity rootEntity) ||
+                !pathFromRoot.get(0).getId().equals(rootEntity.getId())) {
+            log.debug("expandPathAndSelectEntity: racine de l'arbre ne correspond pas au chemin");
+            return;
+        }
+
+        TreeNode current = root;
+        for (int i = 1; i < pathFromRoot.size(); i++) {
+            loadChildrenIfNeeded(current);
+            Entity targetEntity = pathFromRoot.get(i);
+            TreeNode child = findChildNodeByEntityId(current, targetEntity.getId());
+            if (child == null) {
+                log.warn("expandPathAndSelectEntity: nœud non trouvé pour l'entité {} (id={})", targetEntity.getCode(), targetEntity.getId());
+                return;
+            }
+            current.setExpanded(true);
+            current = child;
+        }
+        current.setExpanded(true);
+        this.selectedNode = current;
+        expandNodePath(current);
+        log.debug("expandPathAndSelectEntity: nœud sélectionné : {} (id={})", entity.getCode(), entity.getId());
+    }
+
+    /** Trouve un enfant direct du nœud dont l'entité a l'ID donné. */
+    private TreeNode findChildNodeByEntityId(TreeNode node, Long entityId) {
+        if (node == null || entityId == null || node.getChildren() == null) return null;
+        for (Object childObj : node.getChildren()) {
+            if (childObj instanceof TreeNode child) {
+                if (child.getData() != null && child.getData() instanceof Entity entity) {
+                    if (entityId.equals(entity.getId())) return child;
+                }
+            }
+        }
+        return null;
     }
 
     /**

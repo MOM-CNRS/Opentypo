@@ -2,7 +2,8 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <ui:define name="mainContent">
 
@@ -133,44 +134,69 @@
                 </h:panelGroup>
 
                 <div id="contentPanelsWrapper" class="content-panels-wrapper">
-                <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
+                    <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
 
-                    <h:panelGroup rendered="#{applicationBean.showBreadCrumbPanel}">
                         <ui:include src="details/breadCrumb.xhtml"/>
-                    </h:panelGroup>
 
-                    <!-- Panneau référentiel -->
-                    <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
-                        <ui:include src="details/collection.xhtml"/>
-                    </h:panelGroup>
+                        <!-- Panneau référentiel -->
+                        <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
+                            <ui:include src="details/collection.xhtml"/>
+                        </h:panelGroup>
 
-                    <!-- Panneau référentiel -->
-                    <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
-                        <ui:include src="details/reference.xhtml"/>
-                    </h:panelGroup>
+                        <!-- Panneau référentiel -->
+                        <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
+                            <ui:include src="details/reference.xhtml"/>
+                        </h:panelGroup>
 
-                    <!-- Panneau catégorie -->
-                    <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
-                        <ui:include src="details/category.xhtml"/>
-                    </h:panelGroup>
+                        <!-- Panneau catégorie -->
+                        <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
+                            <ui:include src="details/category.xhtml"/>
+                        </h:panelGroup>
 
-                    <!-- Panneau groupe -->
-                    <h:panelGroup rendered="#{applicationBean.isShowGroupePanel()}">
-                        <ui:include src="details/groupe.xhtml"/>
-                    </h:panelGroup>
+                        <!-- Panneau groupe -->
+                        <h:panelGroup rendered="#{applicationBean.isShowGroupePanel()}">
+                            <ui:include src="details/groupe.xhtml"/>
+                        </h:panelGroup>
 
-                    <!-- Panneau série -->
-                    <h:panelGroup rendered="#{applicationBean.showSeriePanel}">
-                        <ui:include src="details/serie.xhtml"/>
-                    </h:panelGroup>
+                        <!-- Panneau série -->
+                        <h:panelGroup rendered="#{applicationBean.showSeriePanel}">
+                            <ui:include src="details/serie.xhtml"/>
+                        </h:panelGroup>
 
-                    <!-- Panneau série -->
-                    <h:panelGroup rendered="#{applicationBean.showTypePanel}">
-                        <ui:include src="details/type.xhtml"/>
+                        <!-- Panneau série -->
+                        <h:panelGroup rendered="#{applicationBean.showTypePanel}">
+                            <ui:include src="details/type.xhtml"/>
+                        </h:panelGroup>
                     </h:panelGroup>
-                </h:panelGroup>
                 </div>
             </h:panelGroup>
+
+            <!-- Formulaire pour sélection dans l'arbre : view state requis pour l'AJAX -->
+            <h:form id="treeSelectForm" style="display:none;">
+                <h:inputHidden id="treeEntityId" value="#{treeBean.selectedEntityIdForAjax}"/>
+                <p:commandButton id="selectTreeEntityBtn"
+                                style="display:none"
+                                action="#{treeBean.selectEntityById}"
+                                process="@this treeEntityId"
+                                update=":contentPanels, :breadcrumbContent"
+                                ajax="true"
+                                onstart="showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
+                                oncomplete="setTimeout(function(){ hidePanelLoading(); if(typeof applyTreeSelectionHighlight === 'function'){ applyTreeSelectionHighlight(); } }, 250);"
+                                onerror="hidePanelLoading();"/>
+            </h:form>
+            <!-- Formulaire pour chargement des enfants au dépliage : mise à jour uniquement du panel contenu et du panel arbre -->
+            <h:form id="treeExpandForm" style="display:none;">
+                <h:inputHidden id="treeExpandEntityId" value="#{treeBean.expandEntityIdForAjax}"/>
+                <p:commandButton id="loadTreeChildrenBtn"
+                                style="display:none"
+                                action="#{treeBean.loadChildrenForEntity}"
+                                process="@this treeExpandEntityId"
+                                update=":contentPanels, :leftTreePanel"
+                                ajax="true"
+                                onstart="if(typeof showLoading === 'function') showLoading('Chargement des éléments...', 'spinner');"
+                                oncomplete="if(typeof hideLoading === 'function') hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();"
+                                onerror="if(typeof forceHideLoading === 'function') forceHideLoading();"/>
+            </h:form>
 
             <!-- Panneau droit pour les résultats de recherche -->
             <h:panelGroup id="panelRight" styleClass="search-result">

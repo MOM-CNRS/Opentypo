@@ -19,7 +19,7 @@
 
             <ui:repeat value="#{applicationBean.beadCrumbElements}" var="element" varStatus="status">
                 <li class="breadcrumb-sep" aria-hidden="true">
-                    <span class="breadcrumb-sep-icon" aria-hidden="true"></span>
+                    <span class="breadcrumb-sep-icon" aria-hidden="true" />
                 </li>
                 <li class="breadcrumb-item #{status.last ? 'breadcrumb-item-current' : ''}">
                     <ui:fragment rendered="#{not status.last}">
@@ -27,10 +27,12 @@
                                        action="#{applicationBean.navigateToBreadcrumbElement(element)}"
                                        process="@this"
                                        update=":centerContent, :breadcrumbContent, :treeContainer">
+                            <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
                             <span class="breadcrumb-link-text">#{element.code}</span>
                         </p:commandLink>
                     </ui:fragment>
                     <ui:fragment rendered="#{status.last}">
+                        <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
                         <span class="breadcrumb-current" aria-current="page">#{element.code}</span>
                     </ui:fragment>
                 </li>

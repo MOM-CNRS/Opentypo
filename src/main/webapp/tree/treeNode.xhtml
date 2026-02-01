@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <li class="simple-tree-node #{node.expanded ? 'expanded' : ''}"
+        data-entity-id="#{treeBean.getEntityIdFromNode(node)}"
+        data-has-children="#{node.childCount > 0}"
+        data-can-have-children="#{treeBean.canHaveChildren(node)}">
+
+        <div class="simple-tree-node-content ui-treenode-content #{treeBean.isNodeSelected(node) ? 'ui-state-highlight' : ''}"
+             role="button"
+             tabindex="0"
+             data-entity-id="#{treeBean.getEntityIdFromNode(node)}"
+             data-code="#{treeBean.getEntityCodeFromNode(node)}">
+
+            <!-- Toggler : état initial droite, au clic vers le bas. Style : .simple-tree-toggler ou variables tree-toggler dans openTypo_style.css -->
+            <h:panelGroup rendered="#{node.childCount > 0 or (treeBean.canHaveChildren(node) and not treeBean.isKnownToHaveNoChildren(node))}">
+                <span class="simple-tree-toggler ui-tree-toggler"
+                      data-tree-toggler="true"
+                      aria-label="#{node.expanded ? 'Réduire' : 'Développer'}"
+                      title="#{node.expanded ? 'Réduire' : 'Développer'}">
+                    <i class="pi pi-chevron-right simple-tree-toggler-icon-collapsed" aria-hidden="true"/>
+                    <i class="pi pi-chevron-down simple-tree-toggler-icon-expanded" aria-hidden="true"/>
+                </span>
+            </h:panelGroup>
+
+            <i class="#{treeBean.getEntityIcon(node)} simple-tree-node-icon"/>
+            <span class="simple-tree-node-label" title="#{treeBean.getNodeLabel(node)}">
+                #{treeBean.getNodeLabel(node)}
+            </span>
+
+            <!-- Indicateurs public/privé et statut -->
+            <h:panelGroup class="simple-tree-node-indicators" rendered="#{treeBean.getEntityFromNode(node) != null}">
+                <h:panelGroup class="tree-node-badge tree-node-badge-status #{treeBean.getEntityStatusCssClass(node)}"
+                              title="#{treeBean.getEntityStatusTitle(node)}"
+                              rendered="#{treeBean.getEntityStatusCssClass(node) != ''}">
+                    <i class="pi #{treeBean.isEntityStatusProposition(node) ? 'pi-clock' : 'pi-check-circle'}"/>
+                </h:panelGroup>
+                <span class="tree-node-badge tree-node-badge-visibility #{treeBean.getEntityPublicCssClass(node)}"
+                      title="#{treeBean.getEntityPublicTitle(node)}">
+                    <i class="pi #{treeBean.isEntityPublic(node) ? 'pi-globe' : 'pi-lock'}"/>
+                </span>
+            </h:panelGroup>
+        </div>
+
+        <!-- Enfants (récursion) : ui:fragment pour que rendered soit pris en compte (sur un <ul> HTML il ne l'est pas) -->
+        <ui:fragment rendered="#{node.children != null and node.childCount > 0}">
+            <ul class="simple-tree-children ui-treenode-children">
+                <c:forEach items="#{node.children}" var="childNode">
+                    <ui:include src="treeNode.xhtml">
+                        <ui:param name="node" value="#{childNode}"/>
+                        <ui:param name="treeBean" value="#{treeBean}"/>
+                    </ui:include>
+                </c:forEach>
+            </ul>
+        </ui:fragment>
+    </li>
+</ui:composition>

@@ -37,6 +37,62 @@ public class TreeService implements Serializable {
     private EntityRepository entityRepository;
 
     /**
+     * Construit l'arbre avec uniquement la collection et ses enfants directs (un niveau).
+     * Les enfants des nœuds seront chargés à la demande lors du dépliage.
+     *
+     * @param collection la collection racine (doit avoir un id)
+     * @return le nœud racine PrimeFaces (avec data = collection), ou un nœud vide si erreur
+     */
+    public TreeNode buildRootWithDirectChildrenOnly(Entity collection) {
+        if (collection == null || collection.getId() == null) {
+            DefaultTreeNode empty = new DefaultTreeNode("root", null);
+            return empty;
+        }
+        Long rootId = collection.getId();
+
+        try {
+            List<Entity> directChildren = entityRelationRepository.findChildrenByParent(collection);
+            Set<Long> childIds = directChildren.stream()
+                    .map(Entity::getId)
+                    .filter(id -> id != null)
+                    .collect(Collectors.toSet());
+
+            List<Entity> childrenWithType = childIds.isEmpty()
+                    ? new ArrayList<>()
+                    : entityRepository.findByIdInWithEntityType(new ArrayList<>(childIds));
+
+            Entity rootEntity = collection;
+            if (rootEntity.getEntityType() == null) {
+                List<Entity> rootList = entityRepository.findByIdInWithEntityType(List.of(rootId));
+                if (!rootList.isEmpty()) rootEntity = rootList.get(0);
+            }
+
+            String rootLabel = rootEntity.getNom() != null ? rootEntity.getNom() : "Collection";
+            DefaultTreeNode rootNode = new DefaultTreeNode(rootLabel, null);
+            rootNode.setData(rootEntity);
+
+            List<Entity> sorted = new ArrayList<>(childrenWithType);
+            sorted.sort(Comparator.comparing(TreeService::getEntitySortLabel, String.CASE_INSENSITIVE_ORDER));
+
+            for (Entity childEntity : sorted) {
+                String label = childEntity.getNom() != null ? childEntity.getNom() : childEntity.getCode();
+                if (label == null) label = "?";
+                DefaultTreeNode childNode = new DefaultTreeNode(label, rootNode);
+                childNode.setData(childEntity);
+            }
+
+            log.debug("Arbre (enfants directs uniquement) chargé pour la collection {} : {} enfants",
+                    rootId, sorted.size());
+            return rootNode;
+        } catch (Exception e) {
+            log.error("Erreur lors du chargement de l'arbre (enfants directs) pour la collection {}", rootId, e);
+            DefaultTreeNode fallback = new DefaultTreeNode(collection.getNom() != null ? collection.getNom() : "Collection", null);
+            fallback.setData(collection);
+            return fallback;
+        }
+    }
+
+    /**
      * Construit l'arbre complet (collection + tous les descendants) pour la collection donnée.
      * 1 requête récursive pour les relations, 1 requête pour toutes les entités.
      *

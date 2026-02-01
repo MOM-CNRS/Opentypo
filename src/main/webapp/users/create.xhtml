@@ -37,14 +37,11 @@
                                 <p:inputText id="email"
                                            value="#{userManagementBean.newUser.email}"
                                            required="true"
-                                           requiredMessage="L'email est obligatoire"
+                                           requiredMessage="Le nom d'utilisateur est obligatoire"
                                            disabled="#{userManagementBean.editMode}"
                                            styleClass="users-input"
-                                           placeholder="exemple@domaine.com"
-                                           maxlength="255">
-                                    <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-                                                   message="Le format de l'email est invalide. Veuillez saisir une adresse email valide (exemple: utilisateur@domaine.com)"/>
-                                </p:inputText>
+                                           placeholder="nom d'utilisateur"
+                                           maxlength="255" />
                                 <p:message for="email" display="icon"/>
                             </div>
 

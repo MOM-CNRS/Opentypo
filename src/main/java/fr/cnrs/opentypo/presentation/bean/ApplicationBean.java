@@ -15,10 +15,12 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,6 +55,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private transient LangueRepository langueRepository;
+
+    @Inject
+    private transient UtilisateurRepository utilisateurRepository;
 
     @Inject
     private transient EntityRepository entityRepository;
@@ -117,11 +123,6 @@ public class ApplicationBean implements Serializable {
     // Type actuellement sélectionné
     private Entity selectedType;
     
-    // État d'édition pour le référentiel
-    private boolean editingReference = false;
-    private String editingReferenceDescription;
-    private String editingReferenceBibliographie;
-    
     // Référentiels de la collection sélectionnée
     private List<Entity> collectionReferences;
     
@@ -142,10 +143,12 @@ public class ApplicationBean implements Serializable {
 
     // Titre de l'écran
     private String selectedEntityLabel;
+    @Named("treeBean")
+    @Inject
+    private TreeBean treeBean;
 
 
     // Getters pour compatibilité avec XHTML
-    public boolean isShowBreadCrumbPanel() { return panelState.isShowBreadCrumb(); }
     public boolean isShowCollectionsPanel() { return panelState.isShowCollections(); }
     public boolean isShowReferencesPanel() { return panelState.isShowReferencesPanel(); }
     public boolean isShowReferencePanel() { return panelState.isShowReferencePanel(); }
@@ -206,7 +209,7 @@ public class ApplicationBean implements Serializable {
             languages.add(new Language(2, "en", "Anglais", "en"));
         }
     }
-    
+
     /**
      * Charge les référentiels depuis la base de données
      */
@@ -215,8 +218,8 @@ public class ApplicationBean implements Serializable {
         try {
             references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
             references = references.stream()
-                .filter(r -> r.getPublique() != null && r.getPublique())
-                .collect(Collectors.toList());
+                    .filter(r -> r.getPublique() != null && r.getPublique())
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
             references = new ArrayList<>();
@@ -482,6 +485,46 @@ public class ApplicationBean implements Serializable {
         if (selectedGroup != null) {
             beadCrumbElements.add(selectedGroup);
         }
+
+        // Déplier l'arbre jusqu'au groupe et le sélectionner
+        if (treeBeanProvider != null) {
+            try {
+                treeBeanProvider.get().expandPathAndSelectEntity(selectedGroup);
+            } catch (Exception ex) {
+                log.debug("Impossible de déplier/sélectionner le nœud groupe dans l'arbre", ex);
+            }
+        }
+    }
+
+    /**
+     * Affiche les détails d'un référentiel spécifique
+     */
+    public void showReferenceDetail(Entity reference) {
+        this.selectedReference = reference;
+        panelState.showReference();
+
+        beadCrumbElements = new ArrayList<>();
+        beadCrumbElements.add(selectedCollection);
+        beadCrumbElements.add(reference);
+
+        // Charger les catégories du référentiel
+        refreshReferenceCategoriesList();
+
+        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
+        TreeBean treeBean = treeBeanProvider.get();
+        if (treeBean != null) {
+            treeBean.selectReferenceNode(reference);
+            // Charger les catégories dans l'arbre
+            treeBean.loadCategoriesForReference(reference);
+        }
+    }
+
+    public void refreshCollectionReferencesList() {
+        this.collectionReferences = referenceService.loadReferencesByCollection(selectedCollection);
+    }
+
+    public void refreshReferenceCategoriesList() {
+        referenceCategories = categoryService.loadCategoriesByReference(selectedReference);
     }
 
     public void showSerie() {
@@ -618,6 +661,15 @@ public class ApplicationBean implements Serializable {
         }
         if (selectedSerie != null) {
             beadCrumbElements.add(selectedSerie);
+        }
+
+        // Déplier l'arbre jusqu'à la série et la sélectionner
+        if (treeBeanProvider != null) {
+            try {
+                treeBeanProvider.get().expandPathAndSelectEntity(selectedSerie);
+            } catch (Exception ex) {
+                log.debug("Impossible de déplier/sélectionner le nœud série dans l'arbre", ex);
+            }
         }
     }
 
@@ -797,28 +849,14 @@ public class ApplicationBean implements Serializable {
         if (selectedType != null) {
             beadCrumbElements.add(selectedType);
         }
-    }
 
-    /**
-     * Affiche les détails d'un référentiel spécifique
-     */
-    public void showReferenceDetail(Entity reference) {
-        this.selectedReference = reference;
-        panelState.showReference();
-
-        beadCrumbElements = new ArrayList<>();
-        beadCrumbElements.add(selectedCollection);
-        beadCrumbElements.add(reference);
-
-        // Charger les catégories du référentiel
-        refreshReferenceCategoriesList();
-
-        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.selectReferenceNode(reference);
-            // Charger les catégories dans l'arbre
-            treeBean.loadCategoriesForReference(reference);
+        // Déplier l'arbre jusqu'au type et le sélectionner
+        if (treeBeanProvider != null) {
+            try {
+                treeBeanProvider.get().expandPathAndSelectEntity(selectedType);
+            } catch (Exception ex) {
+                log.debug("Impossible de déplier/sélectionner le nœud type dans l'arbre", ex);
+            }
         }
     }
 
@@ -862,22 +900,14 @@ public class ApplicationBean implements Serializable {
         }
         beadCrumbElements.add(category);
 
-        // Sélectionner le nœud correspondant dans l'arbre
+        // Déplier l'arbre jusqu'à la catégorie et la sélectionner (même code que dans l'arbre)
         if (treeBeanProvider != null) {
             try {
-                treeBeanProvider.get().selectReferenceNode(category);
-            } catch (Exception e) {
-                log.debug("Impossible de sélectionner le nœud catégorie dans l'arbre", e);
+                treeBeanProvider.get().expandPathAndSelectEntity(category);
+            } catch (Exception ex) {
+                log.debug("Impossible de déplier/sélectionner le nœud catégorie dans l'arbre", ex);
             }
         }
-    }
-
-    public void refreshCollectionReferencesList() {
-        this.collectionReferences = referenceService.loadReferencesByCollection(selectedCollection);
-    }
-
-    public void refreshReferenceCategoriesList() {
-        referenceCategories = categoryService.loadCategoriesByReference(selectedReference);
     }
 
     public void refreshCategoryGroupsList() {
@@ -887,82 +917,10 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
-     * Active le mode édition pour le référentiel sélectionné
-     */
-    public void startEditingReference() {
-        if (selectedReference != null) {
-            editingReference = true;
-            editingReferenceDescription = selectedReference.getCommentaire();
-            editingReferenceBibliographie = selectedReference.getBibliographie();
-        }
-    }
-
-    /**
-     * Annule l'édition du référentiel
-     */
-    public void cancelEditingReference() {
-        editingReference = false;
-        editingReferenceDescription = null;
-        editingReferenceBibliographie = null;
-    }
-
-    /**
-     * Sauvegarde les modifications du référentiel
-     */
-    public void saveReference() {
-        if (selectedReference == null) {
-            return;
-        }
-
-        try {
-            // Recharger l'entité depuis la base pour éviter les problèmes de détachement
-            Entity referenceToUpdate = entityRepository.findById(selectedReference.getId())
-                .orElse(selectedReference);
-
-            // Mettre à jour les champs
-            referenceToUpdate.setCommentaire(editingReferenceDescription != null 
-                ? editingReferenceDescription.trim() : null);
-            referenceToUpdate.setBibliographie(editingReferenceBibliographie != null 
-                ? editingReferenceBibliographie.trim() : null);
-
-            // Sauvegarder dans la base de données
-            entityRepository.save(referenceToUpdate);
-
-            // Mettre à jour la référence sélectionnée
-            selectedReference = referenceToUpdate;
-
-            // Désactiver le mode édition
-            editingReference = false;
-            editingReferenceDescription = null;
-            editingReferenceBibliographie = null;
-
-            // Afficher un message de succès
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "Les modifications ont été enregistrées avec succès."));
-            }
-
-            log.info("Référentiel mis à jour avec succès: {}", selectedReference.getCode());
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde du référentiel", e);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
-            }
-        }
-    }
-
-    /**
      * Supprime récursivement une entité et toutes ses entités enfants
      * @param entity L'entité à supprimer
      */
-    private void deleteEntityRecursively(Entity entity) {
+    public void deleteEntityRecursively(Entity entity) {
         if (entity == null || entity.getId() == null) {
             return;
         }
@@ -998,75 +956,6 @@ public class ApplicationBean implements Serializable {
         }
     }
 
-    /**
-     * Supprime le référentiel sélectionné et toutes ses entités rattachées
-     */
-    @Transactional
-    public void deleteReference() {
-        if (selectedReference == null || selectedReference.getId() == null) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun référentiel sélectionné."));
-            }
-            return;
-        }
-
-        try {
-            String referenceCode = selectedReference.getCode();
-            String referenceName = selectedReference.getNom();
-            Long referenceId = selectedReference.getId();
-            
-            // Supprimer récursivement le référentiel et toutes ses entités enfants
-            deleteEntityRecursively(selectedReference);
-            
-            // Réinitialiser la sélection
-            selectedReference = null;
-            referenceCategories = new ArrayList<>();
-            
-            // Recharger les référentiels de la collection
-            if (selectedCollection != null) {
-                refreshCollectionReferencesList();
-            }
-            
-            // Mettre à jour l'arbre
-            if (treeBeanProvider != null) {
-                TreeBean treeBean = treeBeanProvider.get();
-                if (treeBean != null) {
-                    treeBean.initializeTreeWithCollection();
-                }
-            }
-            
-            // Afficher un message de succès
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "Le référentiel '" + referenceName + "' et toutes ses entités rattachées ont été supprimés avec succès."));
-            }
-            
-            // Afficher le panel de la collection
-            if (selectedCollection != null) {
-                panelState.showCollectionDetail();
-            } else {
-                panelState.showCollections();
-            }
-            
-            log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression du référentiel", e);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
-            }
-        }
-    }
 
     /**
      * Recharge la liste des séries du groupe sélectionné depuis la table entity_relation

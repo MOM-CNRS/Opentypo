@@ -92,10 +92,6 @@ public class PanelStateManager implements Serializable {
         return showReferencesPanel || showReferencePanel || showCategoryPanel || showGroupePanel || showSeriePanel || showTypePanel;
     }
 
-    public boolean isShowBreadCrumb() {
-        return showReferencePanel || showCategoryPanel || showGroupePanel || showSeriePanel || showTypePanel;
-    }
-
     /**
      * Réinitialise tous les panneaux
      */

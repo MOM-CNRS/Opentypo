@@ -1,45 +1,22 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:p="http://primefaces.org/ui"
-             xmlns:h="http://xmlns.jcp.org/jsf/html">
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <h:panelGroup id="treeContainer" layout="block" styleClass="simple-tree-container">
-        <p:tree id="treeComponent"
-                value="#{treeBean.root}"
-                dynamic="true"
-                var="nodetree"
-                styleClass="simple-tree"
-                selectionMode="single"
-                selection="#{treeBean.selectedNode}"
-                widgetVar="treeWidget">
-
-            <p:ajax event="expand" listener="#{treeBean.onNodeExpand}" />
-
-            <p:ajax event="select" listener="#{treeBean.onNodeSelect}"
-                    process="@this"
-                    update=":contentPanels, :breadcrumbContent"
-                    onstart="showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
-                    oncomplete="setTimeout(function(){hidePanelLoading();}, 250);"
-                    onerror="hidePanelLoading();"/>
-
-            <p:treeNode>
-                <i class="#{treeBean.getEntityIcon(nodetree)} simple-tree-node-icon" />
-                <span class="simple-tree-node-label" title="#{treeBean.getNodeLabel(nodetree)}">
-                    #{treeBean.getNodeLabel(nodetree)}
-                </span>
-                <!-- Indicateurs public/privé et statut (candidat en validation / validée) -->
-                <h:panelGroup class="simple-tree-node-indicators" rendered="#{treeBean.getEntityFromNode(nodetree) != null}">
-                    <h:panelGroup class="tree-node-badge tree-node-badge-status #{treeBean.getEntityStatusCssClass(nodetree)}"
-                                  title="#{treeBean.getEntityStatusTitle(nodetree)}"
-                                  rendered="#{treeBean.getEntityStatusCssClass(nodetree) != ''}">
-                        <i class="pi #{treeBean.isEntityStatusProposition(nodetree) ? 'pi-clock' : 'pi-check-circle'}"/>
-                    </h:panelGroup>
-                    <span class="tree-node-badge tree-node-badge-visibility #{treeBean.getEntityPublicCssClass(nodetree)}"
-                          title="#{treeBean.getEntityPublicTitle(nodetree)}">
-                        <i class="pi #{treeBean.isEntityPublic(nodetree) ? 'pi-globe' : 'pi-lock'}"/>
-                    </span>
-                </h:panelGroup>
-            </p:treeNode>
-        </p:tree>
+        <div class="simple-tree" id="simpleTree">
+            <ul class="simple-tree-list">
+                <!-- Pas de nœud racine (collection) : l'arbre commence directement par les référentiels -->
+                <c:forEach items="#{treeBean.root != null ? treeBean.root.children : null}" var="childNode">
+                    <ui:include src="treeNode.xhtml">
+                        <ui:param name="node" value="#{childNode}"/>
+                        <ui:param name="treeBean" value="#{treeBean}"/>
+                    </ui:include>
+                </c:forEach>
+            </ul>
+        </div>
     </h:panelGroup>
+
+    <h:outputScript library="js" name="tree.js" target="body"/>
 </ui:fragment>
