@@ -114,10 +114,10 @@ public class HistoryBean implements Serializable {
             // Retourner à la page de référence si c'est une référence
             if (applicationBean.getSelectedReference() != null && 
                 applicationBean.getSelectedReference().getId().equals(selectedEntity.getId())) {
-                return "/details/reference.xhtml?faces-redirect=true";
+                return "/details/references/reference.xhtml?faces-redirect=true";
             }
             // Sinon, retourner à la page de l'entité (à adapter selon votre navigation)
-            return "/details/reference.xhtml?faces-redirect=true";
+            return "/details/references/reference.xhtml?faces-redirect=true";
         }
         return "/index.xhtml?faces-redirect=true";
     }

@@ -322,7 +322,7 @@ public class ApplicationBean implements Serializable {
         loadPublicCollections();
         
         // Mettre à jour le label et la description de la collection sélectionnée si elle existe
-        if (selectedCollection != null && collectionBean != null) {
+        if (selectedCollection != null) {
             collectionBean.updateCollectionLanguage();
         }
     }
