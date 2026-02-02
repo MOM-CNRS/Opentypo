@@ -52,9 +52,7 @@
                              styleClass="search-input-compact"
                              autocomplete="off"
                              maxlength="255">
-                    <p:ajax event="keypress" 
-                            onkeypress="if(event.keyCode === 13) {PF('searchButton').click(); return false;}"/>
-                    <f:validateLength minimum="2" />
+                    <f:validator validatorId="searchTermMinLengthValidator" />
                 </p:inputText>
                 <p:message for="searchInput" display="icon" />
                 <p:commandButton id="searchButton"
@@ -63,21 +61,21 @@
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
                                  update="@all"
-                                 oncomplete="if(#{searchBean.searchTerm != null and searchBean.searchTerm.length() ge 2}) {showResultsPanel();}"
+                                 oncomplete="if(typeof SearchPage !== 'undefined' &amp;&amp; SearchPage.onSearchComplete) SearchPage.onSearchComplete();"
                                  title="Rechercher (minimum 2 caractères requis)"/>
             </div>
 
             <!-- Bouton recherche avancée - Compact -->
             <p:commandButton icon="pi pi-sliders-h"
                              styleClass="search-advanced-compact"
-                             onclick="toggleAdvancedSearch(); return false;"
+                             onclick="SearchPage.toggleAdvancedSearch(); return false;"
                              process="@this" 
                              update="@none"/>
 
             <!-- Bouton afficher/cacher les résultats - Compact -->
             <p:commandButton id="toggleResultsPanelBtn"
                              icon="pi pi-chevron-right"
-                             onclick="toggleRightPanel(); return false;"
+                             onclick="SearchPage.toggleRightPanel(); return false;"
                              styleClass="search-advanced-compact"
                              process="@this" 
                              update="@none"
@@ -130,6 +128,7 @@
         </div>
     </h:form>
 
+    <h:outputScript library="js" name="search.js"/>
 
     <!-- Bouton toggle arbre, visible uniquement sur mobile, centré sous la barre -->
     <div class="tree-toggle-button" id="treeToggleButton">
@@ -138,180 +137,5 @@
                          onclick="toggleTreePanel(); return false;"
                          title="Afficher / Cacher l'arbre" />
     </div>
-
-    <script>
-        function toggleAdvancedSearch() {
-            const section = document.getElementById('advanced-search-options');
-            if (section) {
-                section.classList.toggle('advanced-search-visible');
-            }
-        }
-
-        /**
-         * Met à jour l'icône du bouton selon l'état du panel
-         */
-        function updateToggleButtonIcon() {
-            const panel = document.getElementById('panelRight');
-            const button = document.getElementById('toggleResultsPanelBtn');
-            
-            if (!panel || !button) return;
-            
-            const iconSpan = button.querySelector('.ui-button-icon-left, .ui-button-icon');
-            if (!iconSpan) return;
-            
-            // Vérifier si le panel est visible
-            const isVisible = panel.classList.contains('visible');
-            
-            if (isVisible) {
-                // Panel visible : icône chevron-left (pour cacher)
-                iconSpan.classList.remove('pi-chevron-right');
-                iconSpan.classList.add('pi-chevron-left');
-            } else {
-                // Panel caché : icône chevron-right (pour afficher)
-                iconSpan.classList.remove('pi-chevron-left');
-                iconSpan.classList.add('pi-chevron-right');
-            }
-        }
-
-        function showResultsPanel() {
-            const panel = document.getElementById('panelRight');
-            
-            if (!panel) return;
-            
-            // Afficher le panel
-            panel.classList.add('visible');
-            
-            // Mettre à jour l'icône du bouton
-            updateToggleButtonIcon();
-        }
-
-        function toggleRightPanel() {
-            const panel = document.getElementById('panelRight');
-            
-            if (!panel) return;
-            
-            // Toggle la classe visible
-            panel.classList.toggle('visible');
-            
-            // Mettre à jour l'icône du bouton selon l'état
-            updateToggleButtonIcon();
-        }
-
-        // Synchroniser l'icône au chargement de la page
-        document.addEventListener('DOMContentLoaded', function() {
-            updateToggleButtonIcon();
-        });
-
-        // Synchroniser l'icône après le chargement complet (au cas où)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', updateToggleButtonIcon);
-        } else {
-            // Le DOM est déjà chargé
-            setTimeout(updateToggleButtonIcon, 100);
-        }
-
-        // Fonction pour distinguer visuellement les collections et références dans le menu
-        function styleCollectionMenuItems() {
-            const menuItems = document.querySelectorAll('.search-compact-select .ui-selectonemenu-items .ui-selectonemenu-item');
-            menuItems.forEach(function(item) {
-                const label = item.querySelector('.ui-selectonemenu-item-label');
-                if (label) {
-                    const text = label.textContent || label.innerText;
-                    // Si c'est une collection (commence par 📁 sans beaucoup d'espaces)
-                    if (text.trim().startsWith('📁')) {
-                        item.classList.add('collection-menu-item');
-                        item.classList.remove('reference-menu-item');
-                    }
-                    // Si c'est une référence (contient 📖 avec indentation)
-                    else if (text.includes('📖')) {
-                        var hasIndentation = text.startsWith(' ') || text.startsWith('\u00A0');
-                        if (hasIndentation) {
-                            item.classList.add('reference-menu-item');
-                            item.classList.remove('collection-menu-item');
-                        }
-                    }
-                }
-            });
-        }
-
-        // Appliquer les styles après le chargement et après chaque ouverture du menu
-        document.addEventListener('DOMContentLoaded', function() {
-            styleCollectionMenuItems();
-        });
-
-        // Observer les changements dans le DOM pour réappliquer les styles
-        if (typeof MutationObserver !== 'undefined') {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length > 0) {
-                        setTimeout(styleCollectionMenuItems, 100);
-                    }
-                });
-            });
-
-            // Observer le conteneur du menu
-            const menuContainer = document.querySelector('.search-compact-select');
-            if (menuContainer) {
-                observer.observe(menuContainer, { childList: true, subtree: true });
-            }
-        }
-
-        // Réappliquer les styles quand le menu s'ouvre
-        // Utiliser addEventListener si jQuery n'est pas disponible
-        document.addEventListener('click', function(e) {
-            if (e.target) {
-                var isTrigger = e.target.classList.contains('ui-selectonemenu-trigger') || 
-                                e.target.closest('.ui-selectonemenu-trigger');
-                if (isTrigger) {
-                    const selectMenu = e.target.closest('.search-compact-select');
-                    if (selectMenu) {
-                        setTimeout(styleCollectionMenuItems, 200);
-                    }
-                }
-            }
-        });
-
-        // Alternative avec jQuery si disponible
-        if (typeof jQuery !== 'undefined') {
-            jQuery(document).on('click', '.search-compact-select .ui-selectonemenu-trigger', function() {
-                setTimeout(styleCollectionMenuItems, 200);
-            });
-        }
-    </script>
-
-
-    <!-- Permet de réinitialiser l'affichage en mode bureau -->
-    <script>
-        function resetTreeOnResize() {
-            const tree = document.getElementById('leftTreePanel');
-            const iconSpan = document.querySelector('#treeToggleButton .ui-button-icon-left');
-
-            if (!tree || !iconSpan) return;
-
-            if (window.innerWidth >= 769) {
-                // Mode bureau : on réinitialise l'arbre
-                tree.style.display = '';
-                tree.style.position = '';
-                tree.style.top = '';
-                tree.style.left = '';
-                tree.style.width = '';
-                tree.style.height = '';
-                tree.style.backgroundColor = '';
-                tree.style.zIndex = '';
-                tree.style.overflowY = '';
-
-                // Icône du bouton remise à "ouvrir arbre"
-                iconSpan.classList.remove('pi-times');
-                iconSpan.classList.add('pi-sitemap');
-            }
-        }
-
-        // Exécute une première fois au chargement (au cas où)
-        resetTreeOnResize();
-
-        // Surveille les changements de taille de la fenêtre
-        window.addEventListener('resize', resetTreeOnResize);
-    </script>
-
 
 </ui:composition>
