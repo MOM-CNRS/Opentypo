@@ -33,7 +33,7 @@
             <div class="collection-delete-message-content">
                 <p class="collection-delete-message-text">
                     <strong>Attention !</strong> Vous êtes sur le point de supprimer la collection
-                    <strong>"#{applicationBean.selectedCollection.nom}"</strong> ainsi que <strong>toutes les entités</strong> qui lui sont rattachées :
+                    <strong>"#{applicationBean.selectedEntity.nom}"</strong> ainsi que <strong>toutes les entités</strong> qui lui sont rattachées :
                 </p>
                 <ul class="collection-delete-list">
                     <li>Tous les référentiels</li>
@@ -57,7 +57,7 @@
 
             <p:commandButton value="Oui, supprimer"
                              icon="pi pi-trash"
-                             action="#{applicationBean.deleteCollection(applicationBean.selectedCollection)}"
+                             action="#{applicationBean.deleteCollection(applicationBean.selectedEntity)}"
                              process="@this"
                              ajax="true"
                              update=":centerContent, :treeContainer, :growl"

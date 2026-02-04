@@ -27,9 +27,9 @@
                                                oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                                onerror="forceHideLoading();"
                                                styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedGroup.code}</h3>
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 </p:commandLink>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedGroup)}</span>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
                         <div class="concept-info-actions">
@@ -52,10 +52,10 @@
                                 <span>Période</span>
                             </div>
                             <div class="concept-info-value">
-                                <h:outputText value="#{applicationBean.selectedGroup.periode.valeur}" 
-                                             rendered="#{not empty applicationBean.selectedGroup.periode}"/>
+                                <h:outputText value="#{applicationBean.selectedEntity.periode.valeur}" 
+                                             rendered="#{not empty applicationBean.selectedEntity.periode}"/>
                                 <h:outputText value="Non spécifiée" 
-                                             rendered="#{empty applicationBean.selectedGroup.periode}"
+                                             rendered="#{empty applicationBean.selectedEntity.periode}"
                                              styleClass="text-muted"/>
                             </div>
                         </div>
@@ -66,10 +66,10 @@
                                 <span>TPQ</span>
                             </div>
                             <div class="concept-info-value">
-                                <h:outputText value="#{applicationBean.selectedGroup.tpq}" 
-                                             rendered="#{not empty applicationBean.selectedGroup.tpq}"/>
+                                <h:outputText value="#{applicationBean.selectedEntity.tpq}" 
+                                             rendered="#{not empty applicationBean.selectedEntity.tpq}"/>
                                 <h:outputText value="Non spécifié" 
-                                             rendered="#{empty applicationBean.selectedGroup.tpq}"
+                                             rendered="#{empty applicationBean.selectedEntity.tpq}"
                                              styleClass="text-muted"/>
                             </div>
                         </div>
@@ -80,10 +80,10 @@
                                 <span>TAQ</span>
                             </div>
                             <div class="concept-info-value">
-                                <h:outputText value="#{applicationBean.selectedGroup.taq}" 
-                                             rendered="#{not empty applicationBean.selectedGroup.taq}"/>
+                                <h:outputText value="#{applicationBean.selectedEntity.taq}" 
+                                             rendered="#{not empty applicationBean.selectedEntity.taq}"/>
                                 <h:outputText value="Non spécifié" 
-                                             rendered="#{empty applicationBean.selectedGroup.taq}"
+                                             rendered="#{empty applicationBean.selectedEntity.taq}"
                                              styleClass="text-muted"/>
                             </div>
                         </div>
@@ -94,10 +94,10 @@
                                 <span>Alignement externe</span>
                             </div>
                             <div class="concept-info-value">
-                                <h:outputText value="#{applicationBean.selectedGroup.alignementExterne}" 
-                                             rendered="#{not empty applicationBean.selectedGroup.alignementExterne}"/>
+                                <h:outputText value="#{applicationBean.selectedEntity.alignementExterne}" 
+                                             rendered="#{not empty applicationBean.selectedEntity.alignementExterne}"/>
                                 <h:outputText value="Non spécifié" 
-                                             rendered="#{empty applicationBean.selectedGroup.alignementExterne}"
+                                             rendered="#{empty applicationBean.selectedEntity.alignementExterne}"
                                              styleClass="text-muted"/>
                             </div>
                         </div>
@@ -108,10 +108,10 @@
                                 <span>Description</span>
                             </div>
                             <div class="concept-info-value concept-info-description">
-                                <h:outputText value="#{applicationBean.selectedGroup.commentaire}" 
-                                             rendered="#{not empty applicationBean.selectedGroup.commentaire}"/>
+                                <h:outputText value="#{applicationBean.selectedEntity.commentaire}" 
+                                             rendered="#{not empty applicationBean.selectedEntity.commentaire}"/>
                                 <h:outputText value="Aucune description disponible" 
-                                             rendered="#{empty applicationBean.selectedGroup.commentaire}"
+                                             rendered="#{empty applicationBean.selectedEntity.commentaire}"
                                              styleClass="text-muted"/>
                             </div>
                         </div>
@@ -122,15 +122,15 @@
                                 <span>Auteur(s)</span>
                             </div>
                             <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedGroup.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedGroup.auteurs}" var="auteur" varStatus="status">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
                                         <span class="bibliographie-badge">
                                             <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                         </span>
                                     </ui:repeat>
                                 </ui:fragment>
                                 <h:outputText value="Aucun auteur disponible" 
-                                             rendered="#{empty applicationBean.selectedGroup.auteurs}"
+                                             rendered="#{empty applicationBean.selectedEntity.auteurs}"
                                              styleClass="bibliographie-empty" />
                             </div>
                         </div>
@@ -148,7 +148,7 @@
                                     </div>
                                     <div class="collection-references-title-wrapper">
                                         <h3 class="collection-references-title">Liste des séries</h3>
-                                        <span class="collection-references-subtitle">#{applicationBean.selectedGroup.nom}</span>
+                                        <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
                                     </div>
                                 </div>
                                 <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
@@ -165,7 +165,7 @@
                             <h:panelGroup id="seriesContainer" class="reference-cards-container">
                                 <h:form>
                                     <div class="reference-cards-grid">
-                                        <ui:repeat value="#{applicationBean.groupSeries}" var="serie" varStatus="status">
+                                        <ui:repeat value="#{applicationBean.childsSeries}" var="serie" varStatus="status">
                                             <p:commandLink action="#{applicationBean.showSerie(serie)}"
                                                            styleClass="reference-card"
                                                            process="@this"
@@ -195,7 +195,7 @@
                                         </ui:repeat>
 
                                         <!-- Message si aucune catégorie -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.groupSeries}">
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsSeries}">
                                             <div class="empty-categories-icon">
                                                 <i class="pi pi-inbox" />
                                             </div>
@@ -226,7 +226,7 @@
                                     </div>
                                     <div class="collection-references-title-wrapper">
                                         <h3 class="collection-references-title">Liste des types</h3>
-                                        <span class="collection-references-subtitle">#{applicationBean.selectedGroup.nom}</span>
+                                        <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
                                     </div>
                                 </div>
                                 <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
@@ -243,7 +243,7 @@
                             <h:panelGroup id="typesContainer" class="reference-cards-container">
                                 <h:form>
                                     <div class="reference-cards-grid">
-                                        <ui:repeat value="#{applicationBean.groupTypes}" var="type" varStatus="status">
+                                        <ui:repeat value="#{applicationBean.childsTypes}" var="type" varStatus="status">
                                             <p:commandLink action="#{applicationBean.showType(type)}"
                                                            styleClass="typologie-card"
                                                            process="@this"
@@ -272,7 +272,7 @@
                                         </ui:repeat>
                                         
                                         <!-- Message si aucun type disponible -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.groupTypes}">
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsTypes}">
                                             <div class="empty-categories-icon">
                                                 <i class="pi pi-inbox" />
                                             </div>
@@ -310,10 +310,10 @@
                                         <span>Production</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.production.valeur}"
-                                                     rendered="#{not empty applicationBean.selectedGroup.production}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.production.valeur}"
+                                                     rendered="#{not empty applicationBean.selectedEntity.production}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.production}"
+                                                     rendered="#{empty applicationBean.selectedEntity.production}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -334,10 +334,10 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.airesCirculation[0].valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.airesCirculation}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.airesCirculation[0].valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.airesCirculation}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.airesCirculation}"
+                                                     rendered="#{empty applicationBean.selectedEntity.airesCirculation}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -364,10 +364,10 @@
                                         <span>Décors</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.descriptionDetail.decors}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.descriptionDetail and not empty applicationBean.selectedGroup.descriptionDetail.decors}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.descriptionDetail.decors}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.descriptionDetail and not empty applicationBean.selectedEntity.descriptionDetail.decors}"/>
                                         <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedGroup.descriptionDetail or empty applicationBean.selectedGroup.descriptionDetail.decors}"
+                                                     rendered="#{empty applicationBean.selectedEntity.descriptionDetail or empty applicationBean.selectedEntity.descriptionDetail.decors}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -378,10 +378,10 @@
                                         <span>Marques/estampilles</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.descriptionDetail.marques}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.descriptionDetail and not empty applicationBean.selectedGroup.descriptionDetail.marques}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.descriptionDetail.marques}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.descriptionDetail and not empty applicationBean.selectedEntity.descriptionDetail.marques}"/>
                                         <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedGroup.descriptionDetail or empty applicationBean.selectedGroup.descriptionDetail.marques}"
+                                                     rendered="#{empty applicationBean.selectedEntity.descriptionDetail or empty applicationBean.selectedEntity.descriptionDetail.marques}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -392,10 +392,10 @@
                                         <span>Catégorie fonctionnelle</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.categorieFonctionnelle.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.categorieFonctionnelle}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.categorieFonctionnelle.valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.categorieFonctionnelle}"
+                                                     rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -422,10 +422,10 @@
                                         <span>Matériaux</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.materiaux}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.materiaux}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.materiaux}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}"/>
                                         <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.materiaux}"
+                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -436,10 +436,10 @@
                                         <span>Forme</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.forme.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.forme}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.forme}"
+                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.forme}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -450,10 +450,10 @@
                                         <span>Dimensions</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.dimensions.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.dimensions}"
+                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -464,10 +464,10 @@
                                         <span>Technique</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.technique.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.technique}"
+                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.technique}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -478,10 +478,10 @@
                                         <span>Fabrication</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.caracteristiquePhysique.fabrication.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.caracteristiquePhysique and not empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}"/>
                                         <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedGroup.caracteristiquePhysique or empty applicationBean.selectedGroup.caracteristiquePhysique.fabrication}"
+                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -501,10 +501,10 @@
                                         <span>Commentaire</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedGroup.commentaire}" 
-                                                     rendered="#{not empty applicationBean.selectedGroup.commentaire}"/>
+                                        <h:outputText value="#{applicationBean.selectedEntity.commentaire}" 
+                                                     rendered="#{not empty applicationBean.selectedEntity.commentaire}"/>
                                         <h:outputText value="Aucun commentaire disponible" 
-                                                     rendered="#{empty applicationBean.selectedGroup.commentaire}"
+                                                     rendered="#{empty applicationBean.selectedEntity.commentaire}"
                                                      styleClass="text-muted"/>
                                     </div>
                                 </div>
@@ -515,8 +515,8 @@
                                         <span>Bibliographie</span>
                                     </div>
                                     <div class="concept-info-value bibliographie-container">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedGroup.bibliographie}">
-                                            <ui:repeat value="#{fn:split(applicationBean.selectedGroup.bibliographie, ';')}" var="ref" varStatus="status">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
+                                            <ui:repeat value="#{fn:split(applicationBean.selectedEntity.bibliographie, ';')}" var="ref" varStatus="status">
                                                 <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                                     <span class="bibliographie-badge">
                                                         <i class="pi pi-book bibliographie-badge-icon" />
@@ -526,7 +526,7 @@
                                             </ui:repeat>
                                         </ui:fragment>
                                         <h:outputText value="Aucune référence bibliographique disponible" 
-                                                     rendered="#{empty applicationBean.selectedGroup.bibliographie}"
+                                                     rendered="#{empty applicationBean.selectedEntity.bibliographie}"
                                                      styleClass="bibliographie-empty" />
                                     </div>
                                 </div>

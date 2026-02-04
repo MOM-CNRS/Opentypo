@@ -1,3 +1,151 @@
+/* ============================================
+   BOUTON SCROLL TO TOP - DESIGN PROFESSIONNEL
+   Respect de la charte graphique du site
+   ============================================ */
+
+/* Container du bouton scrollTop */
+.ui-scrolltop,
+.scroll-top-button {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: fixed !important;
+    bottom: 2rem !important;
+    right: 2rem !important;
+    z-index: 9999 !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: scale(0.8) translateY(20px) !important;
+}
+
+/* Affichage du bouton quand il est visible */
+.ui-scrolltop.ui-scrolltop-visible,
+.scroll-top-button.ui-scrolltop-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) translateY(0) !important;
+}
+
+/* Icône du bouton */
+.ui-scrolltop .ui-scrolltop-icon {
+    font-size: 1.25rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Effet hover - Design élégant */
+.ui-scrolltop:hover,
+.scroll-top-button:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.95) 0%, var(--color-action-main, #47624D) 100%) !important;
+    box-shadow: 0 6px 20px rgba(71, 98, 77, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-4px) scale(1.05) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.ui-scrolltop:hover .ui-scrolltop-icon,
+.scroll-top-button:hover .ui-scrolltop-icon {
+    transform: translateY(-2px) !important;
+}
+
+/* Effet actif (clic) */
+.ui-scrolltop:active,
+.scroll-top-button:active {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Animation d'apparition */
+@keyframes scrollTopFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.ui-scrolltop.ui-scrolltop-visible {
+    animation: scrollTopFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Responsive Design - Tablettes */
+@media (max-width: 768px) {
+    .ui-scrolltop {
+        width: 44px !important;
+        height: 44px !important;
+        bottom: 1.5rem !important;
+        right: 1.5rem !important;
+    }
+
+    .ui-scrolltop .ui-scrolltop-icon {
+        font-size: 1.125rem !important;
+    }
+}
+
+/* Responsive Design - Mobiles */
+@media (max-width: 480px) {
+    .ui-scrolltop {
+        width: 40px !important;
+        height: 40px !important;
+        bottom: 1.25rem !important;
+        right: 1.25rem !important;
+        box-shadow: 0 3px 10px rgba(71, 98, 77, 0.25), 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .ui-scrolltop .ui-scrolltop-icon {
+        font-size: 1rem !important;
+    }
+
+    .ui-scrolltop:hover {
+        box-shadow: 0 5px 16px rgba(71, 98, 77, 0.35), 0 3px 8px rgba(0, 0, 0, 0.18) !important;
+    }
+}
+
+/* Responsive Design - Très petits écrans */
+@media (max-width: 360px) {
+    .ui-scrolltop {
+        width: 36px !important;
+        height: 36px !important;
+        bottom: 1rem !important;
+        right: 1rem !important;
+    }
+
+    .ui-scrolltop .ui-scrolltop-icon {
+        font-size: 0.9375rem !important;
+    }
+}
+
+/* Focus pour l'accessibilité */
+.ui-scrolltop:focus {
+    outline: 3px solid rgba(71, 98, 77, 0.4) !important;
+    outline-offset: 3px !important;
+}
+
+/* Amélioration pour les écrans tactiles */
+@media (hover: none) and (pointer: coarse) {
+    .ui-scrolltop {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    .ui-scrolltop:active {
+        background: linear-gradient(135deg, rgba(71, 98, 77, 0.9) 0%, var(--color-action-main, #47624D) 100%) !important;
+        transform: scale(0.95) !important;
+    }
+}
+
 /* Styles pour site-presentation - garantis pour persister même si le CSS externe n'est pas chargé */
 .site-presentation-container {
     width: 100% !important;
@@ -3018,5 +3166,62 @@ body .ui-menu.ui-menu-dynamic .ui-menu-separator + .ui-menuitem .ui-menuitem-ico
         padding: 0.5rem !important;
         min-width: 36px !important;
         width: 36px !important;
+    }
+}
+
+/* Indicateur de statut sur les cartes de collection */
+.collection-card-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.collection-status-public {
+    background: rgba(71, 98, 77, 0.1);
+    color: var(--color-action-main, #47624D);
+    border: 2px solid rgba(71, 98, 77, 0.2);
+}
+
+.collection-status-private {
+    background: rgba(184, 74, 60, 0.1);
+    color: var(--color-danger, #B84A3C);
+    border: 2px solid rgba(184, 74, 60, 0.2);
+}
+
+.modern-card:hover .collection-card-status-badge {
+    transform: scale(1.1);
+}
+
+.modern-card:hover .collection-status-public {
+    background: rgba(71, 98, 77, 0.15);
+    border-color: var(--color-action-main, #47624D);
+}
+
+.modern-card:hover .collection-status-private {
+    background: rgba(184, 74, 60, 0.15);
+    border-color: var(--color-danger, #B84A3C);
+}
+
+/* Responsive pour l'indicateur de statut */
+@media (max-width: 768px) {
+    .collection-card-status-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .collection-card-status-badge {
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
     }
 }

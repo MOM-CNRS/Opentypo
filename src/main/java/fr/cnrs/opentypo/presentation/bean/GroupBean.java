@@ -152,9 +152,7 @@ public class GroupBean implements Serializable {
 
             // Ajouter le groupe à l'arbre
             TreeBean treeBean = treeBeanProvider.get();
-            if (treeBean != null) {
-                treeBean.addGroupToTree(savedGroup, applicationBean.getSelectedCategory());
-            }
+            treeBean.addEntityToTree(savedGroup, applicationBean.getSelectedCategory());
 
             // Message de succès
             facesContext.addMessage(null,

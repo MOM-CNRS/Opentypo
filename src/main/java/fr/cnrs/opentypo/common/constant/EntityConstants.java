@@ -12,9 +12,9 @@ public final class EntityConstants {
     // Types d'entités
     public static final String ENTITY_TYPE_COLLECTION = "COLLECTION";
     public static final String ENTITY_TYPE_REFERENCE = "REFERENTIEL";
-    public static final String ENTITY_TYPE_CATEGORY = "CATEGORY";
-    public static final String ENTITY_TYPE_GROUP = "GROUP";
-    public static final String ENTITY_TYPE_SERIES = "SERIES";
+    public static final String ENTITY_TYPE_CATEGORY = "CATEGORIE";
+    public static final String ENTITY_TYPE_GROUP = "GROUPE";
+    public static final String ENTITY_TYPE_SERIES = "SERIE";
     public static final String ENTITY_TYPE_TYPE = "TYPE";
 
     // Longueurs maximales

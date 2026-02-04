@@ -44,12 +44,7 @@
                             <h2 class="concept-info-title">
                                 <ui:fragment rendered="#{not collectionBean.editingCollection}">
                                 <span class="concept-info-title-name">
-                                    <ui:fragment rendered="#{not empty collectionBean.labelSelected}">
-                                        #{collectionBean.labelSelected.nom}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty collectionBean.labelSelected and not empty applicationBean.selectedCollection}">
-                                        #{applicationBean.selectedCollection.nom}
-                                    </ui:fragment>
+                                    #{collectionBean.labelSelected.nom}
                                 </span>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{collectionBean.editingCollection}">
@@ -81,7 +76,7 @@
                         </div>
                         <!-- Actions pour l'administrateur technique -->
                         <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
-                            <p:commandLink action="#{applicationBean.editCollection(applicationBean.selectedCollection)}"
+                            <p:commandLink action="#{applicationBean.editCollection(applicationBean.selectedEntity)}"
                                            process="@form"
                                            update=":collectionDetailPanel, :collectionEditForm"
                                            ajax="true"
@@ -113,10 +108,10 @@
                                         #{collectionBean.descriptionSelected.valeur}
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty collectionBean.descriptionSelected or empty collectionBean.descriptionSelected.valeur}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedCollection.commentaire}">
-                                            #{applicationBean.selectedCollection.commentaire}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
+                                            #{applicationBean.selectedEntity.commentaire}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedCollection.commentaire}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </ui:fragment>
@@ -174,7 +169,7 @@
             <div class="collection-references-title-wrapper">
                 <h3 class="collection-references-title">Liste des référentiels</h3>
                 <span class="collection-references-subtitle">
-                    #{applicationBean.getCollectionNameForLanguage(applicationBean.selectedCollection)}
+                    #{applicationBean.getCollectionNameForLanguage(applicationBean.selectedEntity)}
                 </span>
             </div>
         </div>
@@ -189,7 +184,7 @@
     </div>
     <!-- Liste des référentiels de la collection -->
     <h:panelGroup id="collectionReferencesContainer" class="collections-grid">
-        <ui:repeat value="#{applicationBean.collectionReferences}" var="reference">
+        <ui:repeat value="#{applicationBean.childs}" var="reference">
             <!-- Panel de référentiel compact et ergonomique -->
             <div class="collection-panel">
                 <!-- En-tête compacte -->
@@ -303,7 +298,7 @@
         
         <!-- Message si aucune référence disponible -->
         <h:outputText value="Aucune référence disponible pour cette collection"
-             rendered="#{empty applicationBean.collectionReferences}"
+             rendered="#{empty applicationBean.childs}"
              styleClass="no-categories-message" />
     </h:panelGroup>
 

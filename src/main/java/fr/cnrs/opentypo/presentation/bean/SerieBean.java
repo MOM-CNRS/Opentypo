@@ -154,7 +154,7 @@ public class SerieBean implements Serializable {
             // Ajouter la série à l'arbre
             TreeBean treeBean = treeBeanProvider.get();
             if (treeBean != null) {
-                treeBean.addSerieToTree(savedSerie, applicationBean.getSelectedGroup());
+                treeBean.addEntityToTree(savedSerie, applicationBean.getSelectedGroup());
             }
 
             // Message de succès

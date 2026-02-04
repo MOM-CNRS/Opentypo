@@ -237,6 +237,13 @@ public class LoginBean implements Serializable {
             && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
+    public boolean isAdmin() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom())
+                    || GroupEnum.ADMINISTRATEUR_REFERENTIEL.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
+    }
+
     /**
      * Vérifie si l'utilisateur actuel est un éditeur
      * 
@@ -254,7 +261,7 @@ public class LoginBean implements Serializable {
      * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
      */
     public boolean canCreateOrEdit() {
-        return authenticated && currentUser != null && isAdminTechnique();
+        return authenticated && isAdmin();
     }
 }
 

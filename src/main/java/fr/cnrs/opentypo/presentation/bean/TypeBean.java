@@ -130,7 +130,7 @@ public class TypeBean implements Serializable {
             // Ajouter le type à l'arbre
             TreeBean treeBean = treeBeanProvider.get();
             if (treeBean != null) {
-                treeBean.addTypeToTree(savedType, applicationBean.getSelectedGroup());
+                treeBean.addEntityToTree(savedType, applicationBean.getSelectedGroup());
             }
 
             // Message de succès

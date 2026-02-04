@@ -5213,6 +5213,20 @@ body .reference-card a {
     min-width: 0;
 }
 
+/* Badge type d'entité (ex. Référentiel) dans l'en-tête des pages de détail */
+.reference-entity-type-badge {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 .concept-info-title {
     font-size: 1.2rem;
     font-weight: 700;

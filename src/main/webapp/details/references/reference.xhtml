@@ -9,15 +9,15 @@
     <h:panelGroup class="image-container">
         <!-- Afficher l'image si disponible -->
         <p:graphicImage
-                value="#{applicationBean.selectedReference.imagePrincipaleUrl}"
+                value="#{applicationBean.selectedEntity.imagePrincipaleUrl}"
                 styleClass="research-image clickable-image"
                 alt="Image du référentiel"
-                onclick="showFullscreenImage('#{applicationBean.selectedReference.imagePrincipaleUrl}'); return false;"
-                rendered="#{not empty not empty applicationBean.selectedReference.imagePrincipaleUrl}"/>
+                onclick="showFullscreenImage('#{applicationBean.selectedEntity.imagePrincipaleUrl}'); return false;"
+                rendered="#{not empty applicationBean.selectedEntity.imagePrincipaleUrl}"/>
 
         <!-- Afficher le texte "OpenTypo" si pas d'image -->
         <h:panelGroup class="reference-image-placeholder"
-             rendered="#{empty applicationBean.selectedReference.imagePrincipaleUrl}">
+             rendered="#{empty applicationBean.selectedEntity.imagePrincipaleUrl}">
             <span class="reference-placeholder-text">OpenTypo</span>
         </h:panelGroup>
     </h:panelGroup>
@@ -40,6 +40,7 @@
                 <!-- En-tête avec titre et actions -->
                 <div class="concept-info-header">
                     <div class="concept-info-title-section">
+                        <span class="reference-entity-type-badge">Référentiel</span>
                         <div class="concept-info-language-flag">
                             <h:graphicImage library="img" name="flag/fr.png"
                                             styleClass="language-flag"
@@ -54,36 +55,33 @@
                                            oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                            onerror="forceHideLoading();"
                                            styleClass="collection-panel-title-link">
-                                <h3 class="collection-panel-title">#{applicationBean.selectedReference.code}</h3>
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                             </p:commandLink>
-                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedReference)}</span>
+                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                         </div>
                     </div>
                     <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                        <ui:fragment rendered="#{not referenceBean.editingReference}">
-                            <!-- Bouton Historique -->
-                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedReference)}"
-                                         process="@this"
-                                         update="@none"
-                                         styleClass="concept-action-button"
-                                         immediate="true"
-                                         rendered="#{applicationBean.selectedReference != null}">
-                                <i class="pi pi-history" />
-                                <p:tooltip value="Voir l'historique" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
-                                         process="@this"
-                                         update=":referenceEditForm"
-                                         styleClass="concept-action-button">
-                                <i class="pi pi-file-edit" />
-                                <p:tooltip value="Modifier" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink onclick="PF('confirmDeleteReferenceDialog').show(); return false;"
-                                         styleClass="concept-action-button">
-                                <i class="pi pi-trash" />
-                                <p:tooltip value="Supprimer" position="top"/>
-                            </p:commandLink>
-                        </ui:fragment>
+                        <!-- Bouton Historique -->
+                        <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                       process="@this"
+                                       update="@none"
+                                       styleClass="concept-action-button"
+                                       immediate="true">
+                            <i class="pi pi-history" />
+                            <p:tooltip value="Voir l'historique" position="top"/>
+                        </p:commandLink>
+                        <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
+                                       process="@this"
+                                       update=":referenceEditForm"
+                                       styleClass="concept-action-button">
+                            <i class="pi pi-file-edit" />
+                            <p:tooltip value="Modifier" position="top"/>
+                        </p:commandLink>
+                        <p:commandLink onclick="PF('confirmDeleteReferenceDialog').show(); return false;"
+                                       styleClass="concept-action-button">
+                            <i class="pi pi-trash" />
+                            <p:tooltip value="Supprimer" position="top"/>
+                        </p:commandLink>
                     </h:panelGroup>
                 </div>
 
@@ -105,7 +103,7 @@
                                       rendered="#{referenceBean.editingReference}">
                             <div class="concept-info-label">
                                 <i class="pi pi-tag concept-info-icon" />
-                                <span>Nom</span>
+                                <span>Label</span>
                             </div>
                             <div class="reference-edit-lang-row">
                                 <p:selectOneMenu value="#{referenceBean.editingLabelLangueCode}"
@@ -132,7 +130,12 @@
                             </div>
                             <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value concept-info-description">
-                                    #{applicationBean.getEntityDescription(applicationBean.selectedReference)}
+                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{referenceBean.editingReference}">
@@ -149,7 +152,6 @@
                                                 update=":referenceEditForm:descriptionUpdatePanel"/>
                                     </p:selectOneMenu>
                                     <p:inputTextarea value="#{referenceBean.editingReferenceDescription}"
-                                                     id="editingDescriptionTextarea"
                                                      rows="5"
                                                      cols="50"
                                                      styleClass="reference-edit-textarea reference-edit-textarea-flex"
@@ -164,15 +166,15 @@
                                 <span>Auteur(s)</span>
                             </div>
                             <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedReference.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedReference.auteurs}" var="auteur" varStatus="status">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
                                         <span class="bibliographie-badge">
                                             <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                         </span>
                                     </ui:repeat>
                                 </ui:fragment>
                                 <h:outputText value="Aucun auteur disponible" 
-                                             rendered="#{empty applicationBean.selectedReference.auteurs}"
+                                             rendered="#{empty applicationBean.selectedEntity.auteurs}"
                                              styleClass="bibliographie-empty" />
                             </div>
                         </h:panelGroup>
@@ -184,8 +186,8 @@
                             </div>
                             <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedReference.bibliographie}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedReference.bibliographie, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.rereferenceBibliographique}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.rereferenceBibliographique, ';')}" var="ref" varStatus="status">
                                             <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                                 <span class="bibliographie-badge">
                                                     <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
@@ -194,7 +196,7 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Aucune référence bibliographique disponible" 
-                                                 rendered="#{empty applicationBean.selectedReference.bibliographie}"
+                                                 rendered="#{empty applicationBean.selectedEntity.rereferenceBibliographique}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </ui:fragment>
@@ -241,7 +243,7 @@
                             <div class="collection-references-title-wrapper">
                                 <h3 class="collection-references-title">Catégories du référentiel</h3>
                                 <span class="collection-references-subtitle">
-                                    #{applicationBean.selectedReference.nom}
+                                    #{applicationBean.selectedEntity.nom}
                                 </span>
                             </div>
                         </div>
@@ -258,9 +260,9 @@
 
                     <!-- Liste des catégories -->
                     <h:panelGroup id="categoriesContainer" class="reference-cards-container">
-                        <h:form>
+                        <h:form style="margin: 13px;">
                             <div class="reference-cards-grid">
-                                <ui:repeat value="#{applicationBean.referenceCategories}" var="category" varStatus="status">
+                                <ui:repeat value="#{applicationBean.childs}" var="category" varStatus="status">
                                     <p:commandLink action="#{applicationBean.showCategoryDetail(category)}"
                                                 styleClass="reference-card"
                                                 process="@this"
@@ -275,7 +277,7 @@
                                                 </div>
                                                 <div class="reference-card-title-wrapper">
                                                     <h3 class="reference-card-title">#{category.code}</h3>
-                                                    <span class="reference-card-code">#{category.getNom(searchBean.getLangSelected())}</span>
+                                                    <span class="reference-card-code">#{applicationBean.getEntityLabel(category)}</span>
                                                 </div>
                                                 <!-- Indicateurs public/privé et statut (candidat en validation / validée) -->
                                                 <span class="reference-card-indicators">
@@ -283,11 +285,12 @@
                                                           title="#{treeBean.getEntityPublicTitle(category)}">
                                                         <i class="pi #{treeBean.isEntityPublic(category) ? 'pi-globe' : 'pi-lock'}"/>
                                                     </span>
-                                                    <span class="reference-card-status-badge #{treeBean.getEntityStatusCssClass(category)}"
-                                                          title="#{treeBean.getEntityStatusTitle(category)}"
-                                                          rendered="#{treeBean.getEntityStatusCssClass(category) != ''}">
-                                                        <i class="pi #{treeBean.isEntityStatusProposition(category) ? 'pi-clock' : 'pi-check-circle'}"/>
-                                                    </span>
+                                                    <h:panelGroup rendered="#{treeBean.getEntityStatusCssClass(category) != ''}">
+                                                        <span class="reference-card-status-badge #{treeBean.getEntityStatusCssClass(category)}"
+                                                              title="#{treeBean.getEntityStatusTitle(category)}">
+                                                            <i class="pi #{treeBean.isEntityStatusProposition(category) ? 'pi-clock' : 'pi-check-circle'}"/>
+                                                        </span>
+                                                    </h:panelGroup>
                                                 </span>
                                             </div>
                                             <div class="reference-card-description-wrapper">
@@ -300,7 +303,7 @@
                                 </ui:repeat>
                                 
                                 <!-- Message si aucune catégorie -->
-                                <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.referenceCategories}">
+                                <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childs}">
                                     <div class="empty-categories-icon">
                                         <i class="pi pi-inbox" />
                                     </div>

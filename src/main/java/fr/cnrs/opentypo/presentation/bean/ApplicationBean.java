@@ -15,7 +15,6 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
-import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -37,8 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,8 +44,6 @@ import java.util.stream.Collectors;
 @SessionScoped
 @Named("applicationBean")
 public class ApplicationBean implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
 
     @Inject
     private transient Provider<SearchBean> searchBeanProvider;
@@ -67,9 +62,6 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private transient EntityRelationRepository entityRelationRepository;
-
-    @Inject
-    private transient Provider<TreeBean> treeBeanProvider;
 
     @Inject
     private transient ReferenceService referenceService;
@@ -101,48 +93,110 @@ public class ApplicationBean implements Serializable {
     private List<Language> languages;
 
     private List<Entity> beadCrumbElements;
-    
     private List<Entity> references;
     private List<Entity> collections;
     
-    // Collection actuellement sélectionnée
-    private Entity selectedCollection;
-    
-    // Référentiel actuellement sélectionné
-    private Entity selectedReference;
-    
-    // Catégorie actuellement sélectionnée
-    private Entity selectedCategory;
-    
-    // Groupe actuellement sélectionné
-    private Entity selectedGroup;
-    
-    // Série actuellement sélectionnée
-    private Entity selectedSerie;
-    
-    // Type actuellement sélectionné
-    private Entity selectedType;
-    
-    // Référentiels de la collection sélectionnée
-    private List<Entity> collectionReferences;
-    
-    // Catégories du référentiel sélectionné
-    private List<Entity> referenceCategories;
-    
-    // Groupes de la catégorie sélectionnée
-    private List<Entity> categoryGroups;
-    
-    // Séries du groupe sélectionné
-    private List<Entity> groupSeries;
-    
-    // Types du groupe sélectionné
-    private List<Entity> groupTypes;
-    
-    // Types de la série sélectionnée
-    private List<Entity> serieTypes;
+    /** Entité actuellement sélectionnée (collection, référentiel, catégorie, groupe, série ou type). */
+    private Entity selectedEntity;
+
+    /** Enfants directs de l'entité sélectionnée (référentiels, catégories, groupes, séries ou types selon le niveau). */
+    private List<Entity> childs = new ArrayList<>();
 
     // Titre de l'écran
     private String selectedEntityLabel;
+
+    /**
+     * Retourne l'ancêtre de type donné en remontant l'arbre des relations parent-enfant.
+     */
+    private Entity findAncestorOfType(Entity entity, String typeCode) {
+        if (entity == null || typeCode == null) return null;
+        Entity current = entity;
+        while (current != null) {
+            if (current.getEntityType() != null && typeCode.equals(current.getEntityType().getCode())) {
+                return current;
+            }
+            List<Entity> parents = entityRelationRepository.findParentsByChild(current);
+            if (parents == null || parents.isEmpty()) break;
+            current = parents.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * Construit le fil d'Ariane (collection → ... → selectedEntity) à partir de selectedEntity.
+     */
+    public List<Entity> buildBreadcrumbFromSelectedEntity() {
+        if (selectedEntity == null) return new ArrayList<>();
+        List<Entity> pathToRoot = new ArrayList<>();
+        Entity current = selectedEntity;
+        while (current != null) {
+            pathToRoot.add(0, current);
+            List<Entity> parents = entityRelationRepository.findParentsByChild(current);
+            if (parents == null || parents.isEmpty()) break;
+            current = parents.get(0);
+        }
+        return pathToRoot;
+    }
+
+    /**
+     * Recharge la liste des enfants directs de selectedEntity selon son type.
+     */
+    private void refreshChilds() {
+
+        if (selectedEntity == null) {
+            childs = new ArrayList<>();
+            return;
+        }
+
+        switch(selectedEntity.getEntityType().getCode()) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION:
+                childs = referenceService.loadReferencesByCollection(selectedEntity);
+                break;
+            case EntityConstants.ENTITY_TYPE_REFERENCE:
+                childs = categoryService.loadCategoriesByReference(selectedEntity);
+                break;
+            case EntityConstants.ENTITY_TYPE_CATEGORY:
+                childs = groupService.loadCategoryGroups(selectedEntity);
+                break;
+            case EntityConstants.ENTITY_TYPE_GROUP:
+                List<Entity> series = serieService.loadGroupSeries(selectedEntity);
+                List<Entity> types = typeService.loadGroupTypes(selectedEntity);
+                childs = new ArrayList<>();
+                if (series != null) childs.addAll(series);
+                if (types != null) childs.addAll(types);
+            case EntityConstants.ENTITY_TYPE_SERIES:
+                childs = typeService.loadSerieTypes(selectedEntity);
+                break;
+            default:
+                childs = new ArrayList<>();
+        }
+    }
+
+    public Entity getSelectedCollection() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_COLLECTION); }
+    public Entity getSelectedReference() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_REFERENCE); }
+    public Entity getSelectedCategory() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_CATEGORY); }
+    public Entity getSelectedGroup() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_GROUP); }
+    public Entity getSelectedSerie() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_SERIES); }
+    public Entity getSelectedType() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_TYPE); }
+
+    /** Enfants de type Série (quand selectedEntity est un groupe). */
+    public List<Entity> getChildsSeries() {
+        if (childs == null) return new ArrayList<>();
+        if (selectedEntity == null || selectedEntity.getEntityType() == null) return new ArrayList<>();
+        if (!EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) return new ArrayList<>();
+        return childs.stream()
+                .filter(e -> e.getEntityType() != null && EntityConstants.ENTITY_TYPE_SERIES.equals(e.getEntityType().getCode()))
+                .collect(Collectors.toList());
+    }
+    /** Enfants de type Type (quand selectedEntity est un groupe). */
+    public List<Entity> getChildsTypes() {
+        if (childs == null) return new ArrayList<>();
+        if (selectedEntity == null || selectedEntity.getEntityType() == null) return new ArrayList<>();
+        if (!EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) return new ArrayList<>();
+        return childs.stream()
+                .filter(e -> e.getEntityType() != null && EntityConstants.ENTITY_TYPE_TYPE.equals(e.getEntityType().getCode()))
+                .collect(Collectors.toList());
+    }
     @Named("treeBean")
     @Inject
     private TreeBean treeBean;
@@ -160,7 +214,6 @@ public class ApplicationBean implements Serializable {
 
     @PostConstruct
     public void initialization() {
-        this.selectedEntityLabel = "";
         checkSessionExpiration();
         loadLanguages();
         loadPublicCollections();
@@ -322,7 +375,7 @@ public class ApplicationBean implements Serializable {
         loadPublicCollections();
         
         // Mettre à jour le label et la description de la collection sélectionnée si elle existe
-        if (selectedCollection != null) {
+        if (getSelectedCollection() != null) {
             collectionBean.updateCollectionLanguage();
         }
     }
@@ -367,8 +420,9 @@ public class ApplicationBean implements Serializable {
 
     public void showCollections() {
         this.selectedEntityLabel = "";
-        this.selectedCollection = null; // Réinitialiser la collection sélectionnée
-        this.beadCrumbElements = new ArrayList<>(); // Réinitialiser le breadcrumb
+        this.selectedEntity = null;
+        this.beadCrumbElements = new ArrayList<>();
+        this.childs = new ArrayList<>();
         searchBean.setCollectionSelected(null);
         panelState.showCollections();
     }
@@ -389,142 +443,44 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un groupe spécifique
      */
     public void showGroupe(Entity group) {
-        // Recharger le groupe depuis la base de données pour avoir toutes les données complètes
         if (group != null && group.getId() != null) {
             try {
-                this.selectedGroup = entityRepository.findById(group.getId())
-                    .orElse(group); // Fallback sur le groupe passé en paramètre si non trouvé
+                this.selectedEntity = entityRepository.findById(group.getId()).orElse(group);
             } catch (Exception e) {
                 log.error("Erreur lors du rechargement du groupe depuis la base de données", e);
-                this.selectedGroup = group; // Fallback sur le groupe passé en paramètre
+                this.selectedEntity = group;
             }
         } else {
-            this.selectedGroup = group;
+            this.selectedEntity = group;
         }
-        
         panelState.showGroupe();
-        
-        // Charger les séries du groupe depuis la table entity_relation
-        // Les séries sont des entités de type "SERIE" rattachées au groupe via entity_relation
-        groupSeries = serieService.loadGroupSeries(selectedGroup);
-        
-        // Charger les types du groupe depuis la table entity_relation
-        // Les types sont des entités de type "TYPE" rattachées au groupe via entity_relation
-        groupTypes = typeService.loadGroupTypes(selectedGroup);
-        
-        // Trouver la catégorie parente de ce groupe pour le breadcrumb
-        if (selectedCategory == null && selectedGroup != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedGroup);
-                if (parents != null && !parents.isEmpty()) {
-                    // Trouver la catégorie parente
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) || 
-                                    ReferenceOpenthesoEnum.CATEGORIE.name().equals(parent.getEntityType().getCode()))) {
-                            this.selectedCategory = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche de la catégorie parente du groupe", e);
-            }
-        }
-        
-        // Si on a la catégorie, trouver le référentiel parent
-        if (selectedCategory != null && selectedReference == null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedCategory);
-                if (parents != null && !parents.isEmpty()) {
-                    // Trouver le référentiel parent
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
-                             "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
-                            this.selectedReference = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
-            }
-        }
-        
-        // Si on a le référentiel, trouver la collection parente
-        if (selectedReference != null && selectedCollection == null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedReference);
-                if (parents != null && !parents.isEmpty()) {
-                    // Trouver la collection parente
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
-                            this.selectedCollection = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche de la collection parente du référentiel", e);
-            }
-        }
-        
-        // Mettre à jour le breadcrumb
-        beadCrumbElements = new ArrayList<>();
-        if (selectedCollection != null) {
-            beadCrumbElements.add(selectedCollection);
-        }
-        if (selectedReference != null) {
-            beadCrumbElements.add(selectedReference);
-        }
-        if (selectedCategory != null) {
-            beadCrumbElements.add(selectedCategory);
-        }
-        if (selectedGroup != null) {
-            beadCrumbElements.add(selectedGroup);
-        }
-
-        // Déplier l'arbre jusqu'au groupe et le sélectionner
-        if (treeBeanProvider != null) {
-            try {
-                treeBeanProvider.get().expandPathAndSelectEntity(selectedGroup);
-            } catch (Exception ex) {
-                log.debug("Impossible de déplier/sélectionner le nœud groupe dans l'arbre", ex);
-            }
-        }
+        refreshChilds();
+        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        treeBean.expandPathAndSelectEntity(selectedEntity);
     }
 
     /**
      * Affiche les détails d'un référentiel spécifique
      */
     public void showReferenceDetail(Entity reference) {
-        this.selectedReference = reference;
+        this.selectedEntity = reference;
         panelState.showReference();
-
-        beadCrumbElements = new ArrayList<>();
-        beadCrumbElements.add(selectedCollection);
-        beadCrumbElements.add(reference);
-
-        // Charger les catégories du référentiel
-        refreshReferenceCategoriesList();
-
-        // Sélectionner le nœud correspondant dans l'arbre et charger les catégories
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.selectReferenceNode(reference);
-            // Charger les catégories dans l'arbre
-            treeBean.loadCategoriesForReference(reference);
-        }
+        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        refreshChilds();
+        treeBean.selectReferenceNode(reference);
+        treeBean.loadChildForEntity(reference);
     }
 
     public void refreshCollectionReferencesList() {
-        this.collectionReferences = referenceService.loadReferencesByCollection(selectedCollection);
+        if (getSelectedCollection() != null) {
+            childs = referenceService.loadReferencesByCollection(getSelectedCollection());
+        } else {
+            childs = new ArrayList<>();
+        }
     }
 
     public void refreshReferenceCategoriesList() {
-        referenceCategories = categoryService.loadCategoriesByReference(selectedReference);
+        refreshChilds();
     }
 
     public void showSerie() {
@@ -535,142 +491,35 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'une série spécifique
      */
     public void showSerie(Entity serie) {
-        // Recharger la série depuis la base de données pour avoir toutes les données complètes
         if (serie != null && serie.getId() != null) {
             try {
-                this.selectedSerie = entityRepository.findById(serie.getId())
-                    .orElse(serie); // Fallback sur la série passée en paramètre si non trouvée
-                
-                if (this.selectedSerie != null) {
-                    // Force loading of lazy relations if needed
-                    if (this.selectedSerie.getProduction() != null) {
-                        this.selectedSerie.getProduction().getValeur();
-                    }
-                    // Forcer le chargement de la liste des aires de circulation
-                    if (this.selectedSerie.getAiresCirculation() != null) {
-                        this.selectedSerie.getAiresCirculation().forEach(ref -> {
-                            if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) {
-                                ref.getValeur(); // Force le chargement
-                            }
-                        });
-                    }
-                    if (this.selectedSerie.getCategorieFonctionnelle() != null) {
-                        this.selectedSerie.getCategorieFonctionnelle().getValeur();
-                    }
-                    if (this.selectedSerie.getCaracteristiquePhysique() != null) {
-                        CaracteristiquePhysique cp = this.selectedSerie.getCaracteristiquePhysique();
-                        if (cp.getForme() != null) {
-                            cp.getForme().getValeur();
-                        }
-                        if (cp.getDimensions() != null) {
-                            cp.getDimensions().getValeur();
-                        }
-                        if (cp.getTechnique() != null) {
-                            cp.getTechnique().getValeur();
-                        }
-                        if (cp.getFabrication() != null) {
-                            cp.getFabrication().getValeur();
-                        }
+                Entity loaded = entityRepository.findById(serie.getId()).orElse(serie);
+                if (loaded != null) {
+                    if (loaded.getProduction() != null) loaded.getProduction().getValeur();
+                    if (loaded.getAiresCirculation() != null) loaded.getAiresCirculation().forEach(ref -> {
+                        if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) ref.getValeur();
+                    });
+                    if (loaded.getCategorieFonctionnelle() != null) loaded.getCategorieFonctionnelle().getValeur();
+                    if (loaded.getCaracteristiquePhysique() != null) {
+                        CaracteristiquePhysique cp = loaded.getCaracteristiquePhysique();
+                        if (cp.getForme() != null) cp.getForme().getValeur();
+                        if (cp.getDimensions() != null) cp.getDimensions().getValeur();
+                        if (cp.getTechnique() != null) cp.getTechnique().getValeur();
+                        if (cp.getFabrication() != null) cp.getFabrication().getValeur();
                     }
                 }
+                this.selectedEntity = loaded;
             } catch (Exception e) {
                 log.error("Erreur lors du rechargement de la série depuis la base de données", e);
-                this.selectedSerie = serie; // Fallback sur la série passée en paramètre
+                this.selectedEntity = serie;
             }
         } else {
-            this.selectedSerie = serie;
+            this.selectedEntity = serie;
         }
-        
         panelState.showSerie();
-        
-        // Charger les types de la série depuis la table entity_relation
-        // Les types sont des entités de type "TYPE" rattachées à la série via entity_relation
-        serieTypes = typeService.loadSerieTypes(selectedSerie);
-        
-        // Trouver le groupe parent de cette série pour le breadcrumb
-        if (selectedGroup == null && selectedSerie != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedSerie);
-                if (parents != null && !parents.isEmpty()) {
-                    // Trouver le parent qui est un groupe
-                    for (Entity parent : parents) {
-                        if (parent != null && parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode()))) {
-                            selectedGroup = parent;
-                            // Trouver la catégorie parente du groupe
-                            if (selectedCategory == null) {
-                                List<Entity> groupParents = entityRelationRepository.findParentsByChild(selectedGroup);
-                                if (groupParents != null && !groupParents.isEmpty()) {
-                                    for (Entity groupParent : groupParents) {
-                                        if (groupParent != null && groupParent.getEntityType() != null &&
-                                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(groupParent.getEntityType().getCode()))) {
-                                            selectedCategory = groupParent;
-                                            // Trouver la référence parente de la catégorie
-                                            if (selectedReference == null) {
-                                                List<Entity> categoryParents = entityRelationRepository.findParentsByChild(selectedCategory);
-                                                if (categoryParents != null && !categoryParents.isEmpty()) {
-                                                    for (Entity categoryParent : categoryParents) {
-                                                        if (categoryParent != null && categoryParent.getEntityType() != null &&
-                                                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(categoryParent.getEntityType().getCode()))) {
-                                                            selectedReference = categoryParent;
-                                                            // Trouver la collection parente de la référence
-                                                            if (selectedCollection == null) {
-                                                                List<Entity> referenceParents = entityRelationRepository.findParentsByChild(selectedReference);
-                                                                if (referenceParents != null && !referenceParents.isEmpty()) {
-                                                                    for (Entity referenceParent : referenceParents) {
-                                                                        if (referenceParent != null && referenceParent.getEntityType() != null &&
-                                                                            (EntityConstants.ENTITY_TYPE_COLLECTION.equals(referenceParent.getEntityType().getCode()))) {
-                                                                            selectedCollection = referenceParent;
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche du groupe parent de la série", e);
-            }
-        }
-        
-        // Construire le breadcrumb : série -> groupe -> catégorie -> référence -> collection
-        beadCrumbElements = new ArrayList<>();
-        if (selectedCollection != null) {
-            beadCrumbElements.add(selectedCollection);
-        }
-        if (selectedReference != null) {
-            beadCrumbElements.add(selectedReference);
-        }
-        if (selectedCategory != null) {
-            beadCrumbElements.add(selectedCategory);
-        }
-        if (selectedGroup != null) {
-            beadCrumbElements.add(selectedGroup);
-        }
-        if (selectedSerie != null) {
-            beadCrumbElements.add(selectedSerie);
-        }
-
-        // Déplier l'arbre jusqu'à la série et la sélectionner
-        if (treeBeanProvider != null) {
-            try {
-                treeBeanProvider.get().expandPathAndSelectEntity(selectedSerie);
-            } catch (Exception ex) {
-                log.debug("Impossible de déplier/sélectionner le nœud série dans l'arbre", ex);
-            }
-        }
+        refreshChilds();
+        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        treeBean.expandPathAndSelectEntity(selectedEntity);
     }
 
     public void showType() {
@@ -681,239 +530,50 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un type spécifique
      */
     public void showType(Entity type) {
-        // Recharger le type depuis la base de données pour avoir toutes les données complètes
         if (type != null && type.getId() != null) {
             try {
-                this.selectedType = entityRepository.findById(type.getId())
-                    .orElse(type); // Fallback sur le type passé en paramètre si non trouvé
-                
-                // Initialiser les relations lazy si nécessaire
-                if (this.selectedType != null) {
-                    // Accéder aux relations pour forcer leur chargement (si elles existent)
-                    if (this.selectedType.getProduction() != null) {
-                        this.selectedType.getProduction().getValeur(); // Force le chargement
-                    }
-                    // Forcer le chargement de la liste des aires de circulation
-                    if (this.selectedType.getAiresCirculation() != null) {
-                        this.selectedType.getAiresCirculation().forEach(ref -> {
-                            if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) {
-                                ref.getValeur(); // Force le chargement
-                            }
-                        });
-                    }
-                    if (this.selectedType.getCategorieFonctionnelle() != null) {
-                        this.selectedType.getCategorieFonctionnelle().getValeur(); // Force le chargement
-                    }
-                    if (this.selectedType.getCaracteristiquePhysique() != null) {
-                        CaracteristiquePhysique cp = this.selectedType.getCaracteristiquePhysique();
-                        if (cp.getForme() != null) {
-                            cp.getForme().getValeur(); // Force le chargement
-                        }
-                        if (cp.getDimensions() != null) {
-                            cp.getDimensions().getValeur(); // Force le chargement
-                        }
-                        if (cp.getTechnique() != null) {
-                            cp.getTechnique().getValeur(); // Force le chargement
-                        }
-                        if (cp.getFabrication() != null) {
-                            cp.getFabrication().getValeur(); // Force le chargement
-                        }
+                Entity loaded = entityRepository.findById(type.getId()).orElse(type);
+                if (loaded != null) {
+                    if (loaded.getProduction() != null) loaded.getProduction().getValeur();
+                    if (loaded.getAiresCirculation() != null) loaded.getAiresCirculation().forEach(ref -> {
+                        if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) ref.getValeur();
+                    });
+                    if (loaded.getCategorieFonctionnelle() != null) loaded.getCategorieFonctionnelle().getValeur();
+                    if (loaded.getCaracteristiquePhysique() != null) {
+                        CaracteristiquePhysique cp = loaded.getCaracteristiquePhysique();
+                        if (cp.getForme() != null) cp.getForme().getValeur();
+                        if (cp.getDimensions() != null) cp.getDimensions().getValeur();
+                        if (cp.getTechnique() != null) cp.getTechnique().getValeur();
+                        if (cp.getFabrication() != null) cp.getFabrication().getValeur();
                     }
                 }
+                this.selectedEntity = loaded;
             } catch (Exception e) {
                 log.error("Erreur lors du rechargement du type depuis la base de données", e);
-                this.selectedType = type; // Fallback sur le type passé en paramètre
+                this.selectedEntity = type;
             }
         } else {
-            this.selectedType = type;
+            this.selectedEntity = type;
         }
-        
         panelState.showType();
-        
-        // Trouver le groupe parent de ce type pour le breadcrumb
-        if (selectedGroup == null && selectedType != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedType);
-                if (parents != null && !parents.isEmpty()) {
-                    // Chercher d'abord un groupe parent
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode()) ||
-                             "GROUPE".equals(parent.getEntityType().getCode()))) {
-                            this.selectedGroup = parent;
-                            break;
-                        }
-                    }
-                    // Si pas de groupe trouvé, chercher une série parente
-                    if (this.selectedGroup == null) {
-                        for (Entity parent : parents) {
-                            if (parent.getEntityType() != null &&
-                                (EntityConstants.ENTITY_TYPE_SERIES.equals(parent.getEntityType().getCode()) ||
-                                 "SERIE".equals(parent.getEntityType().getCode()))) {
-                                this.selectedSerie = parent;
-                                // Chercher le groupe parent de la série
-                                List<Entity> serieParents = entityRelationRepository.findParentsByChild(this.selectedSerie);
-                                if (serieParents != null && !serieParents.isEmpty()) {
-                                    for (Entity serieParent : serieParents) {
-                                        if (serieParent.getEntityType() != null &&
-                                            (EntityConstants.ENTITY_TYPE_GROUP.equals(serieParent.getEntityType().getCode()) ||
-                                             "GROUPE".equals(serieParent.getEntityType().getCode()))) {
-                                            this.selectedGroup = serieParent;
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche du groupe parent du type", e);
-            }
-        }
-        
-        // Trouver la catégorie parente si nécessaire
-        if (selectedCategory == null && selectedGroup != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedGroup);
-                if (parents != null && !parents.isEmpty()) {
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_CATEGORY.equals(parent.getEntityType().getCode()) || 
-                                    ReferenceOpenthesoEnum.CATEGORIE.name().equals(parent.getEntityType().getCode()))) {
-                            this.selectedCategory = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche de la catégorie parente du groupe", e);
-            }
-        }
-        
-        // Trouver le référentiel parent si nécessaire
-        if (selectedReference == null && selectedCategory != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedCategory);
-                if (parents != null && !parents.isEmpty()) {
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
-                             "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
-                            this.selectedReference = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
-            }
-        }
-        
-        // Trouver la collection parente si nécessaire
-        if (selectedCollection == null && selectedReference != null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(selectedReference);
-                if (parents != null && !parents.isEmpty()) {
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
-                            this.selectedCollection = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche de la collection parente du référentiel", e);
-            }
-        }
-        
-        // Mettre à jour le breadcrumb : collection -> référence -> catégorie -> groupe -> série -> type
-        beadCrumbElements = new ArrayList<>();
-        if (selectedCollection != null) {
-            beadCrumbElements.add(selectedCollection);
-        }
-        if (selectedReference != null) {
-            beadCrumbElements.add(selectedReference);
-        }
-        if (selectedCategory != null) {
-            beadCrumbElements.add(selectedCategory);
-        }
-        if (selectedGroup != null) {
-            beadCrumbElements.add(selectedGroup);
-        }
-        if (selectedSerie != null) {
-            beadCrumbElements.add(selectedSerie);
-        }
-        if (selectedType != null) {
-            beadCrumbElements.add(selectedType);
-        }
-
-        // Déplier l'arbre jusqu'au type et le sélectionner
-        if (treeBeanProvider != null) {
-            try {
-                treeBeanProvider.get().expandPathAndSelectEntity(selectedType);
-            } catch (Exception ex) {
-                log.debug("Impossible de déplier/sélectionner le nœud type dans l'arbre", ex);
-            }
-        }
+        refreshChilds();
+        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        treeBean.expandPathAndSelectEntity(selectedEntity);
     }
 
     /**
      * Affiche les détails d'une catégorie spécifique
      */
     public void showCategoryDetail(Entity category) {
-        this.selectedCategory = category;
+        this.selectedEntity = category;
         panelState.showCategory();
-
-        // Charger les groupes de la catégorie depuis la base de données
-        categoryGroups = groupService.loadCategoryGroups(selectedCategory);
-
-        // Trouver le référentiel parent de cette catégorie pour le breadcrumb
-        if (selectedReference == null) {
-            try {
-                List<Entity> parents = entityRelationRepository.findParentsByChild(category);
-                if (parents != null && !parents.isEmpty()) {
-                    // Trouver le référentiel parent
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                                (EntityConstants.ENTITY_TYPE_REFERENCE.equals(parent.getEntityType().getCode()) ||
-                                        "REFERENTIEL".equals(parent.getEntityType().getCode()))) {
-                            this.selectedReference = parent;
-                            break;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Erreur lors de la recherche du référentiel parent de la catégorie", e);
-            }
-        }
-
-        // Mettre à jour le breadcrumb
-        beadCrumbElements = new ArrayList<>();
-        if (selectedCollection != null) {
-            beadCrumbElements.add(selectedCollection);
-        }
-        if (selectedReference != null) {
-            beadCrumbElements.add(selectedReference);
-        }
-        beadCrumbElements.add(category);
-
-        // Déplier l'arbre jusqu'à la catégorie et la sélectionner (même code que dans l'arbre)
-        if (treeBeanProvider != null) {
-            try {
-                treeBeanProvider.get().expandPathAndSelectEntity(category);
-            } catch (Exception ex) {
-                log.debug("Impossible de déplier/sélectionner le nœud catégorie dans l'arbre", ex);
-            }
-        }
+        refreshChilds();
+        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        treeBean.expandPathAndSelectEntity(category);
     }
 
     public void refreshCategoryGroupsList() {
-        if (selectedCategory != null) {
-            categoryGroups = groupService.loadCategoryGroups(selectedCategory);
-        }
+        refreshChilds();
     }
 
     /**
@@ -961,20 +621,14 @@ public class ApplicationBean implements Serializable {
      * Recharge la liste des séries du groupe sélectionné depuis la table entity_relation
      */
     public void refreshGroupSeriesList() {
-        if (selectedGroup != null) {
-            // Recharger depuis entity_relation les séries (entités de type SERIE) rattachées au groupe
-            groupSeries = serieService.loadGroupSeries(selectedGroup);
-        }
+        refreshChilds();
     }
 
     /**
      * Recharge la liste des types du groupe sélectionné depuis la table entity_relation
      */
     public void refreshGroupTypesList() {
-        if (selectedGroup != null) {
-            // Recharger depuis entity_relation les types (entités de type TYPE) rattachées au groupe
-            groupTypes = typeService.loadGroupTypes(selectedGroup);
-        }
+        refreshChilds();
     }
     
     /**
@@ -1018,7 +672,7 @@ public class ApplicationBean implements Serializable {
                 .filter(description -> codeLang.equalsIgnoreCase(description.getLangue().getCode()))
                 .findFirst()
                 .map(Description::getValeur)
-                .orElse("Non renseigné");
+                .orElse("");
     }
     
     /**
@@ -1027,13 +681,8 @@ public class ApplicationBean implements Serializable {
     @Transactional
     public void deleteCollection(Entity collection) {
         if (collection == null || collection.getId() == null) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucune collection sélectionnée."));
-            }
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune collection sélectionnée."));
             return;
         }
 
@@ -1046,22 +695,17 @@ public class ApplicationBean implements Serializable {
             deleteEntityRecursively(collection);
             
             // Réinitialiser la sélection si c'était la collection sélectionnée
-            if (selectedCollection != null && selectedCollection.getId().equals(collectionId)) {
-                selectedCollection = null;
+            if (selectedEntity != null && selectedEntity.getId().equals(collectionId)) {
+                selectedEntity = null;
                 selectedEntityLabel = "";
-                collectionReferences = new ArrayList<>();
+                childs = new ArrayList<>();
             }
             
             // Recharger les collections
             loadPublicCollections();
             
             // Mettre à jour l'arbre
-            if (treeBeanProvider != null) {
-                TreeBean treeBean = treeBeanProvider.get();
-                if (treeBean != null) {
-                    treeBean.initializeTreeWithCollection();
-                }
-            }
+            treeBean.initializeTreeWithCollection();
             
             // Afficher un message de succès
             FacesContext facesContext = FacesContext.getCurrentInstance();

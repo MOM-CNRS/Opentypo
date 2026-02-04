@@ -150,7 +150,7 @@
 
                         <!-- Panneau catégorie -->
                         <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
-                            <ui:include src="details/category.xhtml"/>
+                            <ui:include src="details/categories/category.xhtml"/>
                         </h:panelGroup>
 
                         <!-- Panneau groupe -->
@@ -204,63 +204,4 @@
             </h:panelGroup>
         </h:panelGroup>
     </ui:define>
-
-    <style>
-        /* Indicateur de statut sur les cartes de collection */
-        .collection-card-status-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-            margin-left: auto;
-        }
-
-        .collection-status-public {
-            background: rgba(71, 98, 77, 0.1);
-            color: var(--color-action-main, #47624D);
-            border: 2px solid rgba(71, 98, 77, 0.2);
-        }
-
-        .collection-status-private {
-            background: rgba(184, 74, 60, 0.1);
-            color: var(--color-danger, #B84A3C);
-            border: 2px solid rgba(184, 74, 60, 0.2);
-        }
-
-        .modern-card:hover .collection-card-status-badge {
-            transform: scale(1.1);
-        }
-
-        .modern-card:hover .collection-status-public {
-            background: rgba(71, 98, 77, 0.15);
-            border-color: var(--color-action-main, #47624D);
-        }
-
-        .modern-card:hover .collection-status-private {
-            background: rgba(184, 74, 60, 0.15);
-            border-color: var(--color-danger, #B84A3C);
-        }
-
-        /* Responsive pour l'indicateur de statut */
-        @media (max-width: 768px) {
-            .collection-card-status-badge {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8125rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .collection-card-status-badge {
-                width: 26px;
-                height: 26px;
-                font-size: 0.75rem;
-            }
-        }
-    </style>
 </ui:composition>

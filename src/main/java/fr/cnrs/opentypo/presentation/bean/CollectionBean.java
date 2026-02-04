@@ -1,5 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.DescriptionItem;
+import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
@@ -22,9 +24,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
@@ -105,33 +105,6 @@ public class CollectionBean implements Serializable {
     private String editingLanguageCode; // Langue sélectionnée en mode édition
     private Boolean editingStatus;
 
-    /**
-     * Classe interne pour gérer les noms multilingues
-     */
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NameItem implements Serializable {
-        private static final long serialVersionUID = 1L;
-        private String nom;
-        private String langueCode;
-        private Langue langue;
-    }
-    
-    /**
-     * Classe interne pour gérer les descriptions multilingues
-     */
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DescriptionItem implements Serializable {
-        private static final long serialVersionUID = 1L;
-        private String valeur;
-        private String langueCode;
-        private Langue langue;
-    }
 
     @PostConstruct
     public void init() {
@@ -142,42 +115,12 @@ public class CollectionBean implements Serializable {
      * Affiche les détails d'une collection spécifique
      */
     public void showCollectionDetail(Entity collection) {
-        ApplicationBean appBean = applicationBeanProvider.get();
         
         // Recharger la collection depuis la base de données pour avoir toutes les données à jour
-        Entity refreshedCollection = collection;
-        if (collection != null && collection.getId() != null) {
-            try {
-                refreshedCollection = entityRepository.findById(collection.getId())
-                    .orElse(collection);
-            } catch (Exception e) {
-                log.error("Erreur lors du rechargement de la collection depuis la base de données", e);
-                refreshedCollection = collection;
-            }
-        }
-        
-        appBean.setSelectedCollection(refreshedCollection);
+        Entity refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
+        applicationBeanProvider.get().setSelectedEntity(refreshedCollection);
 
-        // Initialiser les collections lazy avant d'y accéder
-        if (refreshedCollection.getLabels() != null) {
-            refreshedCollection.getLabels().size();
-            refreshedCollection.getLabels().forEach(l -> {
-                if (l.getLangue() != null) {
-                    l.getLangue().getCode();
-                }
-            });
-        }
-        if (refreshedCollection.getDescriptions() != null) {
-            refreshedCollection.getDescriptions().size();
-            refreshedCollection.getDescriptions().forEach(d -> {
-                if (d.getLangue() != null) {
-                    d.getLangue().getCode();
-                }
-            });
-        }
-
-        SearchBean searchBean = searchBeanProvider.get();
-        String langSelected = (searchBean != null && searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty())
+        String langSelected = (searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty())
             ? searchBean.getLangSelected()
             : "fr";
 
@@ -186,41 +129,33 @@ public class CollectionBean implements Serializable {
                 .findFirst();
         if (label.isPresent()) {
             labelSelected = label.get();
-            appBean.setSelectedEntityLabel(labelSelected.getNom().toUpperCase());
+            applicationBeanProvider.get().setSelectedEntityLabel(labelSelected.getNom().toUpperCase());
         } else {
             labelSelected = null;
-            appBean.setSelectedEntityLabel(refreshedCollection.getNom() != null ? refreshedCollection.getNom().toUpperCase() : "");
+            applicationBeanProvider.get().setSelectedEntityLabel("");
         }
 
-        Optional<Description> description = refreshedCollection.getDescriptions().stream()
+        descriptionSelected = refreshedCollection.getDescriptions().stream()
                 .filter(element -> element.getLangue() != null && element.getLangue().getCode().equalsIgnoreCase(langSelected))
-                .findFirst();
-        if (description.isPresent()) {
-            descriptionSelected = description.get();
-        } else {
-            descriptionSelected = null;
-        }
+                .findFirst()
+                .orElse(null);
 
         editingStatus = refreshedCollection.getPublique();
 
-        appBean.refreshCollectionReferencesList();
+        applicationBeanProvider.get().refreshCollectionReferencesList();
 
-        if (searchBean != null && refreshedCollection.getCode() != null) {
+        if (refreshedCollection.getCode() != null) {
             // Utiliser le format "COL:" + code pour correspondre au format attendu par hierarchicalCollectionItems
             searchBean.setCollectionSelected("COL:" + refreshedCollection.getCode());
         }
 
-        // Initialiser le breadcrumb avec la collection
-        appBean.setBeadCrumbElements(new ArrayList<>());
-        appBean.getBeadCrumbElements().add(refreshedCollection);
+        // Mettre à jour le breadcrumb à partir de selectedEntity
+        applicationBeanProvider.get().setBeadCrumbElements(applicationBeanProvider.get().buildBreadcrumbFromSelectedEntity());
 
         // Initialiser l'arbre avec les référentiels de la collection
-        TreeBean treeBean = treeBeanProvider.get();
-        if (treeBean != null) {
-            treeBean.initializeTreeWithCollection();
-        }
+        treeBeanProvider.get().initializeTreeWithCollection();
 
-        appBean.showCollectionDetail();
+        applicationBeanProvider.get().showCollectionDetail();
     }
 
     /**
@@ -239,24 +174,6 @@ public class CollectionBean implements Serializable {
             ? searchBean.getLangSelected() 
             : "fr";
         
-        // Initialiser les relations si nécessaire
-        if (collection.getLabels() != null) {
-            collection.getLabels().size();
-            collection.getLabels().forEach(l -> {
-                if (l.getLangue() != null) {
-                    l.getLangue().getCode();
-                }
-            });
-        }
-        if (collection.getDescriptions() != null) {
-            collection.getDescriptions().size();
-            collection.getDescriptions().forEach(d -> {
-                if (d.getLangue() != null) {
-                    d.getLangue().getCode();
-                }
-            });
-        }
-        
         // Mettre à jour le label sélectionné
         Optional<Label> label = collection.getLabels().stream()
                 .filter(element -> element.getLangue() != null && 
@@ -271,15 +188,11 @@ public class CollectionBean implements Serializable {
         }
         
         // Mettre à jour la description sélectionnée
-        Optional<Description> description = collection.getDescriptions().stream()
-                .filter(element -> element.getLangue() != null && 
-                       element.getLangue().getCode().equalsIgnoreCase(langCode))
-                .findFirst();
-        if (description.isPresent()) {
-            descriptionSelected = description.get();
-        } else {
-            descriptionSelected = null;
-        }
+        descriptionSelected = collection.getDescriptions().stream()
+                .filter(element -> element.getLangue() != null &&
+                        element.getLangue().getCode().equalsIgnoreCase(langCode))
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -320,29 +233,11 @@ public class CollectionBean implements Serializable {
             try {
                 refreshedCollection = entityRepository.findById(collection.getId())
                     .orElse(collection);
-                appBean.setSelectedCollection(refreshedCollection);
+                appBean.setSelectedEntity(refreshedCollection);
             } catch (Exception e) {
                 log.error("Erreur lors du rechargement de la collection pour l'édition", e);
                 refreshedCollection = collection;
             }
-        }
-        
-        // Initialiser les relations lazy si nécessaire
-        if (refreshedCollection.getLabels() != null) {
-            refreshedCollection.getLabels().size();
-            refreshedCollection.getLabels().forEach(l -> {
-                if (l.getLangue() != null) {
-                    l.getLangue().getCode();
-                }
-            });
-        }
-        if (refreshedCollection.getDescriptions() != null) {
-            refreshedCollection.getDescriptions().size();
-            refreshedCollection.getDescriptions().forEach(d -> {
-                if (d.getLangue() != null) {
-                    d.getLangue().getCode();
-                }
-            });
         }
         
         // Chercher le label pour la langue sélectionnée
@@ -361,7 +256,6 @@ public class CollectionBean implements Serializable {
         Optional<Description> description = refreshedCollection.getDescriptions().stream()
                 .filter(d -> d.getLangue() != null && d.getLangue().getCode().equalsIgnoreCase(langCode))
                 .findFirst();
-        
         if (description.isPresent() && description.get().getValeur() != null) {
             editingDescriptionValue = description.get().getValeur();
         } else {
@@ -457,7 +351,7 @@ public class CollectionBean implements Serializable {
                 try {
                     refreshedCollection = entityRepository.findById(collection.getId())
                         .orElse(collection);
-                    appBean.setSelectedCollection(refreshedCollection);
+                    appBean.setSelectedEntity(refreshedCollection);
                 } catch (Exception e) {
                     log.error("Erreur lors du rechargement de la collection pour la sauvegarde", e);
                     refreshedCollection = collection;
@@ -526,7 +420,7 @@ public class CollectionBean implements Serializable {
             
             // Sauvegarder la collection
             Entity savedCollection = entityRepository.save(refreshedCollection);
-            appBean.setSelectedCollection(savedCollection);
+            appBean.setSelectedEntity(savedCollection);
             
             // Mettre à jour les valeurs sélectionnées selon la langue actuelle
             updateCollectionLanguage();

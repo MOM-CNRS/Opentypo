@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -13,6 +14,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -23,12 +25,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Getter
@@ -68,9 +73,22 @@ public class CategoryBean implements Serializable {
     @Inject
     private SearchBean searchBean;
 
+    @Inject
+    private TreeBean treeBean;
+
+
     private String categoryCode;
     private String categoryLabel;
     private String categoryDescription;
+
+    private boolean editingCategory = false;
+    private String editingCategoryCode;
+    private String editingLabelLangueCode;
+    private String editingCategoryLabel;
+    private String editingDescriptionLangueCode;
+    private String editingCategoryDescription;
+    private String editingCategoryBibliographie;
+    private String editingCategoryCommentaire;
 
 
     public void resetCategoryForm() {
@@ -162,7 +180,7 @@ public class CategoryBean implements Serializable {
             // Ajouter la catégorie à l'arbre
             TreeBean treeBean = treeBeanProvider.get();
             if (treeBean != null) {
-                treeBean.addCategoryToTree(savedCategory, applicationBean.getSelectedReference());
+                treeBean.addEntityToTree(savedCategory, applicationBean.getSelectedReference());
             }
 
             // Message de succès
@@ -190,6 +208,220 @@ public class CategoryBean implements Serializable {
                             "Erreur",
                             "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :categoryForm");
+        }
+    }
+
+    /**
+     * Active le mode édition pour le référentiel sélectionné.
+     * Charge le code, la description, le label et la référence bibliographique.
+     * Les langues d'édition label/description sont initialisées avec la langue sélectionnée (SearchBean).
+     */
+    public void startEditingCategory(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedEntity() == null) {
+            return;
+        }
+        String codeLang = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+        editingCategory = true;
+        editingCategoryCode = applicationBean.getSelectedEntity().getCode() != null ? applicationBean.getSelectedEntity().getCode() : "";
+        editingLabelLangueCode = codeLang;
+        editingDescriptionLangueCode = codeLang;
+        editingCategoryCommentaire = applicationBean.getSelectedEntity().getCommentaire() != null ? applicationBean.getSelectedEntity().getCommentaire() : "";
+        editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
+        editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
+        editingCategoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
+    }
+
+    /**
+     * Appelé lorsque l'utilisateur change la langue du label dans le menu déroulant.
+     * Recharge la valeur du label pour la nouvelle langue depuis l'entité.
+     */
+    public void onLabelLanguageChange(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedReference() != null && editingLabelLangueCode != null) {
+            editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), editingLabelLangueCode);
+        }
+    }
+
+    /**
+     * Appelé lorsque l'utilisateur change la langue de la description dans le menu déroulant.
+     * Recharge la valeur de la description pour la nouvelle langue depuis l'entité.
+     */
+    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedReference() != null && editingDescriptionLangueCode != null) {
+            editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), editingDescriptionLangueCode);
+        }
+    }
+
+    /**
+     * Supprime la category sélectionnée et toutes ses entités rattachées
+     */
+    @Transactional
+    public void deleteReference(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune category sélectionnée."));
+            return;
+        }
+
+        try {
+            String referenceCode = applicationBean.getSelectedEntity().getCode();
+            Long referenceId = applicationBean.getSelectedEntity().getId();
+
+            // Supprimer récursivement le référentiel et toutes ses entités enfants
+            applicationBean.deleteEntityRecursively(applicationBean.getSelectedEntity());
+
+            // Réinitialiser la sélection
+            applicationBean.setSelectedEntity(null);
+            applicationBean.setChilds(new ArrayList<>());
+            int index = applicationBean.getBeadCrumbElements().size() - 1;
+            applicationBean.getBeadCrumbElements().remove(index);
+
+            // Mettre à jour l'arbre
+            treeBean.initializeTreeWithCollection();
+
+            // Afficher un message de succès
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès", "Le référentiel '" + referenceCode + "' et toutes ses entités rattachées ont été supprimés avec succès."));
+
+            // Afficher le panel de la collection
+            if (applicationBean.getSelectedReference() != null) {
+                applicationBean.getPanelState().showCollectionDetail();
+            } else {
+                applicationBean.getPanelState().showCollections();
+            }
+
+            log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression du référentiel", e);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Sauvegarde les modifications du référentiel.
+     * Enregistre : code, label (selon langue choisie), description (selon langue choisie),
+     * référence bibliographique ; ajoute l'utilisateur courant aux auteurs s'il n'y figure pas.
+     */
+    @Transactional
+    public void saveCategory(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedEntity() == null) {
+            return;
+        }
+
+        try {
+            Entity categoryToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
+
+            // Mettre à jour le code uniquement si modifié
+            String newCode = editingCategoryCode != null ? editingCategoryCode.trim() : null;
+            if (!Objects.equals(newCode, categoryToUpdate.getCode()) && newCode != null && !newCode.isEmpty()) {
+                categoryToUpdate.setCode(newCode);
+            }
+
+            // Langue pour le label (celle choisie dans le menu)
+            String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
+            Langue labelLangue = langueRepository.findByCode(labelLangueCode);
+            // Mettre à jour le label (selon la langue choisie) uniquement si modifié
+            String newLabel = editingCategoryLabel != null ? editingCategoryLabel.trim() : "";
+            String currentLabelValue = EntityUtils.getLabelValueForLanguage(categoryToUpdate, labelLangueCode);
+            if (!Objects.equals(newLabel, currentLabelValue) && labelLangue != null) {
+                Optional<Label> labelOpt = categoryToUpdate.getLabels() != null
+                        ? categoryToUpdate.getLabels().stream()
+                        .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
+                        .findFirst()
+                        : Optional.empty();
+                if (labelOpt.isPresent()) {
+                    labelOpt.get().setNom(newLabel);
+                } else {
+                    Label newLabelEntity = new Label();
+                    newLabelEntity.setNom(newLabel);
+                    newLabelEntity.setEntity(categoryToUpdate);
+                    newLabelEntity.setLangue(labelLangue);
+                    if (categoryToUpdate.getLabels() == null) {
+                        categoryToUpdate.setLabels(new ArrayList<>());
+                    }
+                    categoryToUpdate.getLabels().add(newLabelEntity);
+                }
+            }
+
+            // Langue pour la description (celle choisie dans le menu)
+            String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
+            Langue descLangue = langueRepository != null ? langueRepository.findByCode(descLangueCode) : null;
+            // Mettre à jour la description (selon la langue choisie) uniquement si modifiée
+            String newDesc = editingCategoryDescription != null ? editingCategoryDescription.trim() : "";
+            String currentDescValue = EntityUtils.getDescriptionValueForLanguage(categoryToUpdate, descLangueCode);
+            if (!Objects.equals(newDesc, currentDescValue) && descLangue != null) {
+                Optional<Description> descOpt = categoryToUpdate.getDescriptions() != null
+                        ? categoryToUpdate.getDescriptions().stream()
+                        .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
+                        .findFirst()
+                        : Optional.empty();
+                if (descOpt.isPresent()) {
+                    descOpt.get().setValeur(newDesc);
+                } else {
+                    Description newDescription = new Description();
+                    newDescription.setValeur(newDesc);
+                    newDescription.setEntity(categoryToUpdate);
+                    newDescription.setLangue(descLangue);
+                    if (categoryToUpdate.getDescriptions() == null) {
+                        categoryToUpdate.setDescriptions(new ArrayList<>());
+                    }
+                    categoryToUpdate.getDescriptions().add(newDescription);
+                }
+            }
+
+            // Mettre à jour la bibliographique uniquement si modifiée
+            String newBib = editingCategoryBibliographie != null ? editingCategoryBibliographie.trim() : null;
+            String currentBib = categoryToUpdate.getBibliographie();
+            if (!Objects.equals(newBib, currentBib)) {
+                categoryToUpdate.setBibliographie(newBib);
+            }
+
+            // Mettre à jour la bibliographique uniquement si modifiée
+            String newCom = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
+            String currentCom = categoryToUpdate.getCommentaire();
+            if (!Objects.equals(newCom, currentCom)) {
+                categoryToUpdate.setCommentaire(newCom);
+            }
+
+            // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
+            Utilisateur currentUser = loginBean != null ? loginBean.getCurrentUser() : null;
+            if (currentUser != null && currentUser.getId() != null && utilisateurRepository != null) {
+                Utilisateur managedUser = utilisateurRepository.findById(currentUser.getId()).orElse(null);
+                if (managedUser != null) {
+                    List<Utilisateur> auteurs = categoryToUpdate.getAuteurs();
+                    if (auteurs == null) {
+                        categoryToUpdate.setAuteurs(new ArrayList<>());
+                        auteurs = categoryToUpdate.getAuteurs();
+                    }
+                    boolean alreadyAuthor = auteurs.stream()
+                            .anyMatch(u -> u.getId() != null && u.getId().equals(managedUser.getId()));
+                    if (!alreadyAuthor) {
+                        auteurs.add(managedUser);
+                    }
+                }
+            }
+
+            applicationBean.setSelectedEntity(entityRepository.save(categoryToUpdate));
+
+            applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
+
+            editingCategory = false;
+            editingCategoryCode = null;
+            editingLabelLangueCode = null;
+            editingCategoryLabel = null;
+            editingDescriptionLangueCode = null;
+            editingCategoryDescription = null;
+            editingCategoryBibliographie = null;
+            editingCategoryCommentaire = null;
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès", "Les modifications ont été enregistrées avec succès."));
+
+            log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
+        } catch (Exception e) {
+            log.error("Erreur lors de la sauvegarde du référentiel", e);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
         }
     }
 }

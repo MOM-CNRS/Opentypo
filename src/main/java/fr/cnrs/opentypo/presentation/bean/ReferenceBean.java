@@ -23,8 +23,8 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.envers.Audited;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -45,34 +45,34 @@ public class ReferenceBean implements Serializable {
 
     private static final String reference_FORM = ":referenceForm";
 
-    @Audited
+    @Autowired
     private EntityRepository entityRepository;
 
-    @Audited
+    @Autowired
     private EntityTypeRepository entityTypeRepository;
 
-    @Audited
+    @Autowired
     private ReferenceOpenthesoRepository referenceOpenthesoRepository;
 
-    @Audited
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Audited
+    @Autowired
     private LoginBean loginBean;
 
-    @Audited
+    @Autowired
     private TreeBean treeBean;
     
-    @Audited
+    @Autowired
     private ApplicationBean applicationBean;
     
-    @Audited
+    @Autowired
     private SearchBean searchBean;
 
-    @Audited
+    @Autowired
     private EntityRelationRepository entityRelationRepository;
 
-    @Audited
+    @Autowired
     private LangueRepository langueRepository;
 
 
@@ -83,8 +83,6 @@ public class ReferenceBean implements Serializable {
     private String periodeId; // ID de la période (referenceOpentheso)
     private String referenceBibliographique;
     private String categorieIds; // IDs des catégories (Entity de type Catégorie)
-
-
 
     // État d'édition pour le référentiel
     private boolean editingReference = false;
@@ -255,7 +253,7 @@ public class ReferenceBean implements Serializable {
             String newBib = editingReferenceBibliographie != null ? editingReferenceBibliographie.trim() : null;
             String currentBib = referenceToUpdate.getBibliographie();
             if (!Objects.equals(newBib, currentBib)) {
-                referenceToUpdate.setBibliographie(newBib);
+                referenceToUpdate.setRereferenceBibliographique(newBib);
             }
 
             // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
@@ -276,7 +274,7 @@ public class ReferenceBean implements Serializable {
                 }
             }
 
-            applicationBean.setSelectedReference(entityRepository.save(referenceToUpdate));
+            applicationBean.setSelectedEntity(entityRepository.save(referenceToUpdate));
 
             applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
 
@@ -334,8 +332,8 @@ public class ReferenceBean implements Serializable {
             applicationBean.deleteEntityRecursively(applicationBean.getSelectedReference());
 
             // Réinitialiser la sélection
-            applicationBean.setSelectedReference(null);
-            applicationBean.setReferenceCategories(new ArrayList<>());
+            applicationBean.setSelectedEntity(null);
+            applicationBean.setChilds(new ArrayList<>());
 
             // Recharger les référentiels de la collection
             if (applicationBean.getSelectedCollection() != null) {
@@ -343,12 +341,7 @@ public class ReferenceBean implements Serializable {
             }
 
             // Mettre à jour l'arbre
-            if (applicationBean.getTreeBeanProvider() != null) {
-                TreeBean treeBean = applicationBean.getTreeBeanProvider().get();
-                if (treeBean != null) {
-                    treeBean.initializeTreeWithCollection();
-                }
-            }
+            treeBean.initializeTreeWithCollection();
 
             // Afficher un message de succès
             FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -388,9 +381,7 @@ public class ReferenceBean implements Serializable {
         if (applicationBean.getSelectedReference() == null) {
             return;
         }
-        String codeLang = searchBean != null && searchBean.getLangSelected() != null
-                ? searchBean.getLangSelected()
-                : "fr";
+        String codeLang = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
         editingReference = true;
         editingReferenceCode = applicationBean.getSelectedReference().getCode() != null ? applicationBean.getSelectedReference().getCode() : "";
         editingLabelLangueCode = codeLang;
@@ -399,7 +390,7 @@ public class ReferenceBean implements Serializable {
         editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
         // Label selon la langue choisie
         editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        editingReferenceBibliographie = applicationBean.getSelectedReference().getBibliographie() != null
+        editingReferenceBibliographie = applicationBean.getSelectedReference().getRereferenceBibliographique() != null
                 ? applicationBean.getSelectedReference().getBibliographie()
                 : "";
     }
@@ -423,7 +414,6 @@ public class ReferenceBean implements Serializable {
             editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), editingDescriptionLangueCode);
         }
     }
-
 
     /**
      * Crée une nouvelle entité référentiel
@@ -503,7 +493,7 @@ public class ReferenceBean implements Serializable {
      */
     private void updateTree(Entity reference) {
         if (treeBean != null) {
-            treeBean.addreferenceToTree(reference);
+            treeBean.addReferenceToTree(reference);
         }
     }
 

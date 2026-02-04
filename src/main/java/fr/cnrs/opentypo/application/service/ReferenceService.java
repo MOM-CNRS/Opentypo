@@ -39,4 +39,15 @@ public class ReferenceService implements Serializable {
         }
         return collectionReferences;
     }
+
+    /**
+     * Charge les référentiels rattachés à la collection sélectionnée
+     */
+    public List<Entity> loadChildOfEntity(Entity parent) {
+
+        if (parent != null) {
+            return entityRelationRepository.findChildrenByParent(parent);
+        }
+        return new ArrayList<>();
+    }
 }

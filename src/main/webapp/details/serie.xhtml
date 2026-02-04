@@ -26,9 +26,9 @@
                                                oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                                onerror="forceHideLoading();"
                                                styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedSerie.code}</h3>
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 </p:commandLink>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedSerie)}</span>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
                         <div class="concept-info-actions">
@@ -51,10 +51,10 @@
                                 <span>Série</span>
                             </div>
                             <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.code}">
-                                    #{applicationBean.selectedSerie.code}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.code}">
+                                    #{applicationBean.selectedEntity.code}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.code}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.code}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -66,10 +66,10 @@
                                 <span>Appellation usuelle</span>
                             </div>
                             <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.appellation}">
-                                    #{applicationBean.selectedSerie.appellation}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.appellation}">
+                                    #{applicationBean.selectedEntity.appellation}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.appellation}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.appellation}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -81,10 +81,10 @@
                                 <span>Période</span>
                             </div>
                             <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.statut}">
-                                    #{applicationBean.selectedSerie.statut}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.statut}">
+                                    #{applicationBean.selectedEntity.statut}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.statut}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -96,10 +96,10 @@
                                 <span>TPQ</span>
                             </div>
                             <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.tpq}">
-                                    #{applicationBean.selectedSerie.tpq}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
+                                    #{applicationBean.selectedEntity.tpq}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.tpq}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -111,10 +111,10 @@
                                 <span>TAQ</span>
                             </div>
                             <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.taq}">
-                                    #{applicationBean.selectedSerie.taq}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
+                                    #{applicationBean.selectedEntity.taq}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.taq}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -126,10 +126,10 @@
                                 <span>Description</span>
                             </div>
                             <div class="concept-info-value concept-info-description">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedSerie.commentaire}">
-                                    #{applicationBean.selectedSerie.commentaire}
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
+                                    #{applicationBean.selectedEntity.commentaire}
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedSerie.commentaire}">
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
                                     <span class="empty-field-message">Non renseigné</span>
                                 </ui:fragment>
                             </div>
@@ -145,10 +145,10 @@
                                 <div class="concept-info-title-section">
                                     <h2 class="concept-info-title fs-1rem">
                                         Types de la série 
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.nom}">
-                                            #{applicationBean.selectedSerie.nom}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.nom}">
+                                            #{applicationBean.selectedEntity.nom}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.nom}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.nom}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </h2>
@@ -159,7 +159,7 @@
                             <div class="typologie-cards-container">
                                 <h:form>
                                     <div class="typologie-cards-grid">
-                                        <ui:repeat value="#{applicationBean.serieTypes}" var="type" varStatus="status">
+                                        <ui:repeat value="#{applicationBean.childs}" var="type" varStatus="status">
                                             <p:commandLink action="#{applicationBean.showType(type)}"
                                                            styleClass="typologie-card"
                                                            process="@this"
@@ -182,7 +182,7 @@
                                         </ui:repeat>
                                         
                                         <!-- Message si aucun type disponible -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.serieTypes}">
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childs}">
                                             <div class="empty-categories-icon">
                                                 <i class="pi pi-inbox" />
                                             </div>
@@ -220,10 +220,10 @@
                                         <span>Production</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.production}">
-                                            #{applicationBean.selectedSerie.production.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production}">
+                                            #{applicationBean.selectedEntity.production.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.production}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.production}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -245,10 +245,10 @@
                                         <span>Aire de circulation</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.airesCirculation}">
-                                            #{applicationBean.selectedSerie.airesCirculation[0].valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.airesCirculation}">
+                                            #{applicationBean.selectedEntity.airesCirculation[0].valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.airesCirculation}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.airesCirculation}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -296,10 +296,10 @@
                                         <span>Catégorie fonctionnelle</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.categorieFonctionnelle}">
-                                            #{applicationBean.selectedSerie.categorieFonctionnelle.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle}">
+                                            #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.categorieFonctionnelle}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -327,10 +327,10 @@
                                         <span>Matériaux</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.materiaux}">
-                                            #{applicationBean.selectedSerie.caracteristiquePhysique.materiaux}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}">
+                                            #{applicationBean.selectedEntity.caracteristiquePhysique.materiaux}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.materiaux}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -342,10 +342,10 @@
                                         <span>Forme</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.forme}">
-                                            #{applicationBean.selectedSerie.caracteristiquePhysique.forme.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
+                                            #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.forme}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -357,10 +357,10 @@
                                         <span>Dimensions</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.dimensions}">
-                                            #{applicationBean.selectedSerie.caracteristiquePhysique.dimensions.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
+                                            #{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.dimensions}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -372,10 +372,10 @@
                                         <span>Technique</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.technique}">
-                                            #{applicationBean.selectedSerie.caracteristiquePhysique.technique.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
+                                            #{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.technique}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -387,10 +387,10 @@
                                         <span>Fabrication</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedSerie.caracteristiquePhysique and not empty applicationBean.selectedSerie.caracteristiquePhysique.fabrication}">
-                                            #{applicationBean.selectedSerie.caracteristiquePhysique.fabrication.valeur}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
+                                            #{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedSerie.caracteristiquePhysique or empty applicationBean.selectedSerie.caracteristiquePhysique.fabrication}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
