@@ -45,6 +45,11 @@
                                         #{candidatBean.entityCode}
                                     </span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="summary-section">
+                            <div class="summary-grid">
                                 <div class="summary-item">
                                     <span class="summary-label">Label :</span>
                                     <span class="summary-value">
@@ -112,7 +117,7 @@
                     
                     <!-- Champ Auteurs -->
                     <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
-                        <div class="users-form-group users-form-group-full">
+                        <div class="users-form-group users-form-group-full" style="margin: 10px">
                             <p:outputLabel value="Auteurs" />
                             <div class="auteurs-list">
                                 <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">

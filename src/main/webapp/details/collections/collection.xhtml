@@ -6,8 +6,8 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <!-- Section d'informations de la collection - Version améliorée -->
-    <h:panelGroup id="collectionDetailPanel" class="row">
-        <div class="col-md-12">
+    <h:panelGroup id="collectionDetailPanel" class="row collection-page-wrapper">
+        <div class="col-md-12 collection-page-content">
             <div class="concept-info-panel #{collectionBean.editingCollection ? 'collection-edit-mode' : ''}">
                 <!-- Grille d'informations -->
                 <h:form id="collectionEditForm">
@@ -58,24 +58,26 @@
                                 </ui:fragment>
                             </h2>
                         </div>
-                        <div class="collection-visibility-section">
-                            <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
-                                <h:outputText value="Publique"
-                                              styleClass="collection-switch-text-public"
-                                              rendered="#{collectionBean.editingStatus}"/>
-                                <h:outputText value="Privée"
-                                              styleClass="collection-switch-text-private"
-                                              rendered="#{not collectionBean.editingStatus}"/>
-                            </h:panelGroup>
-                            <p:selectBooleanCheckbox value="#{collectionBean.editingStatus}"
-                                                     disabled="#{!collectionBean.editingCollection}"
-                                                     styleClass="collection-switch"
-                                                     id="collectionPublique">
-                                <p:ajax event="change" process="@form" ajax="true" update=":collectionDetailPanel"/>
-                            </p:selectBooleanCheckbox>
-                        </div>
                         <!-- Actions pour l'administrateur technique -->
                         <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
+                            <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
+                                           process="@form"
+                                           update=":collectionParametrageForm"
+                                           styleClass="concept-action-button"
+                                           title="Paramétrage OpenTheso"
+                                           oncomplete="PF('collectionParametrageDialog').show();">
+                                <i class="pi pi-cog" />
+                                <p:tooltip value="Paramétrage" position="top"/>
+                            </p:commandLink>
+                            <!-- Bouton Historique -->
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                           process="@this"
+                                           update="@none"
+                                           styleClass="concept-action-button"
+                                           immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
+                            </p:commandLink>
                             <p:commandLink action="#{applicationBean.editCollection(applicationBean.selectedEntity)}"
                                            process="@form"
                                            update=":collectionDetailPanel, :collectionEditForm"
@@ -95,6 +97,23 @@
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
                         </h:panelGroup>
+
+                        <div class="collection-visibility-section">
+                            <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
+                                <h:outputText value="Publique"
+                                              styleClass="collection-switch-text-public"
+                                              rendered="#{collectionBean.editingStatus}"/>
+                                <h:outputText value="Privée"
+                                              styleClass="collection-switch-text-private"
+                                              rendered="#{not collectionBean.editingStatus}"/>
+                            </h:panelGroup>
+                            <p:selectBooleanCheckbox value="#{collectionBean.editingStatus}"
+                                                     disabled="#{!collectionBean.editingCollection}"
+                                                     styleClass="collection-switch"
+                                                     id="collectionPublique">
+                                <p:ajax event="change" process="@form" ajax="true" update=":collectionDetailPanel"/>
+                            </p:selectBooleanCheckbox>
+                        </div>
                     </div>
                     <div class="concept-info-grid">
                         <h:panelGroup class="concept-info-item concept-info-item-full">
@@ -303,9 +322,11 @@
     </h:panelGroup>
 
     <h:outputStylesheet library="css" name="collection.css"/>
+    <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
 
     <h:outputScript library="js" name="treeUtils.js"/>
 
     <ui:include src="../../dialogs/referenceDialog.xhtml"/>
     <ui:include src="confirmDeleteCollectionDialog.xhtml"/>
+    <ui:include src="collectionParametrageDialog.xhtml"/>
 </ui:composition>

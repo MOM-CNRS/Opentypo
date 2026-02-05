@@ -1,0 +1,124 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="collectionParametrageDialog"
+              widgetVar="collectionParametrageDialog"
+              header="Paramétrage OpenTheso"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="true"
+              width="500"
+              height="auto"
+              styleClass="opentheso-dialog"
+              showEffect="fade"
+              hideEffect="fade"
+              responsive="true">
+
+        <h:form id="collectionParametrageForm">
+            <div class="opentheso-dialog-row opentheso-dialog-row-url">
+                <div class="opentheso-dialog-field opentheso-dialog-field-url">
+                    <p:outputLabel for="paramBaseUrl" value="Url Serveur" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-link input-icon" />
+                        <p:inputText id="paramBaseUrl"
+                                     value="#{collectionParametrageBean.baseUrl}"
+                                     styleClass="users-input"
+                                     placeholder="https://pactols.frantiq.fr/openapi/v1"/>
+                    </div>
+                </div>
+                <div class="opentheso-dialog-button opentheso-dialog-button-url">
+                    <p:commandButton value="Actualiser"
+                                    icon="pi pi-refresh"
+                                    action="#{collectionParametrageBean.loadThesaurusFromUrl}"
+                                    process="@this"
+                                     ajax="true"
+                                    update=":collectionParametrageForm :growl"
+                                    styleClass="parametrage-btn-refresh"
+                                    title="Charger les thésaurus avec cette URL"
+                                    onstart="showLoading('Chargement...', 'spinner');"
+                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field">
+                    <p:outputLabel for="paramThesaurusSelect" value="Liste des thésaurus" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-book input-icon" />
+                        <p:selectOneMenu id="paramThesaurusSelect"
+                                         value="#{collectionParametrageBean.selectedThesaurusId}"
+                                         styleClass="users-select"
+                                         filter="true"
+                                         filterMatchMode="contains">
+                            <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
+                            <f:selectItems value="#{collectionParametrageBean.availableThesaurus}" var="thesaurus"
+                                           itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
+                            <p:ajax event="valueChange"
+                                    listener="#{collectionParametrageBean.onThesaurusSearch}"
+                                    process="paramThesaurusSelect"
+                                    update=":collectionParametrageForm :growl"
+                                    onstart="showLoading('Chargement...', 'spinner');"
+                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field">
+                    <p:outputLabel for="paramLanguageSelect" value="Liste des langues" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-book input-icon" />
+                        <p:selectOneMenu id="paramLanguageSelect"
+                                         value="#{collectionParametrageBean.selectedLanguageId}"
+                                         styleClass="users-select">
+                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
+                            <f:selectItems value="#{collectionParametrageBean.availableLanguages}" var="langue"
+                                           itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="paramCollectionSelect" value="Liste des collections" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-sitemap input-icon" />
+                        <p:selectOneMenu id="paramCollectionSelect"
+                                         value="#{collectionParametrageBean.selectedCollectionId}"
+                                         styleClass="users-select"
+                                         filter="true"
+                                         filterMatchMode="contains">
+                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                            <f:selectItems value="#{collectionParametrageBean.availableCollections}" var="collection"
+                                           itemLabel="#{collection.selectedLabel}" itemValue="#{collection.idGroup}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer">
+                <div class="opentheso-dialog-actions-buttons category-form-actions parametrage-form-actions">
+                    <p:button value="Annuler"
+                              icon="pi pi-times"
+                              onclick="PF('collectionParametrageDialog').hide(); return false;"
+                              styleClass="category-btn category-btn-cancel"/>
+                    <p:commandButton value="Valider"
+                                    icon="pi pi-check"
+                                    action="#{collectionParametrageBean.saveParametrage}"
+                                    process="@form"
+                                    update=":growl"
+                                    styleClass="category-btn category-btn-validate"
+                                    onstart="showLoading('Enregistrement...', 'spinner');"
+                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                    onerror="forceHideLoading();"/>
+                </div>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

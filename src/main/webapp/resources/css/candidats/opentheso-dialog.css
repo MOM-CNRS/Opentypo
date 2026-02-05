@@ -650,3 +650,69 @@ body .ui-widget-overlay[aria-hidden="false"] {
         font-size: 0.875rem !important;
     }
 }
+
+/* ============================================
+   PARAMÉTRAGE COLLECTION - Ligne URL + bouton, footer
+   ============================================ */
+
+/* Ligne Url Serveur : champ flexible + bouton Actualiser aligné */
+.opentheso-dialog .opentheso-dialog-row-url {
+    align-items: flex-end !important;
+    gap: 1rem !important;
+}
+
+.opentheso-dialog .opentheso-dialog-field-url {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+.opentheso-dialog .opentheso-dialog-button-url {
+    flex-shrink: 0 !important;
+    align-self: flex-end !important;
+}
+
+.opentheso-dialog .parametrage-btn-refresh {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+    border: 2px solid rgba(71, 98, 77, 0.25) !important;
+    color: var(--color-action-main, #47624D) !important;
+    padding: 0.75rem 1.25rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 0.875rem !important;
+    white-space: nowrap !important;
+}
+
+.opentheso-dialog .parametrage-btn-refresh:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.18) 0%, rgba(71, 98, 77, 0.12) 100%) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.2) !important;
+}
+
+.opentheso-dialog .parametrage-btn-refresh:active {
+    transform: translateY(0) !important;
+}
+
+/* Footer du dialog paramétrage : Annuler + Valider sur une ligne */
+.opentheso-dialog .parametrage-dialog-footer {
+    margin-top: 2rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 2px solid rgba(71, 98, 77, 0.1) !important;
+}
+
+.opentheso-dialog .parametrage-form-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+}
+
+.opentheso-dialog .parametrage-form-actions .category-btn {
+    min-width: 110px !important;
+}

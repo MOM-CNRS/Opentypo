@@ -22,8 +22,8 @@ import java.util.Optional;
 @Slf4j
 public class PactolsService {
 
-    private static final String PACTOLS_BASE_URL = "https://pactols.frantiq.fr/openapi/v1";
-    
+    public static final String PACTOLS_BASE_URL = "https://pactols.frantiq.fr/openapi/v1";
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
