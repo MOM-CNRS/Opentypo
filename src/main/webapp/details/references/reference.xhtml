@@ -248,7 +248,7 @@
                             </div>
                         </div>
                         
-                        <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                        <h:panelGroup class="collection-references-actions" rendered="#{loginBean.isAdmin()}">
                             <p:commandButton value="Créer une catégorie"
                                              icon="pi pi-plus"
                                              styleClass="collection-create-btn"

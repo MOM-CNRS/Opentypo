@@ -534,7 +534,7 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Indique si le statut de l'entité est "candidat en cours de validation" (PROPOSITION).
+     * Indique si le statut de l'entité est "brouillon en cours de validation" (PROPOSITION).
      */
     public boolean isEntityStatusProposition(Object node) {
         Entity e = getEntityFromNode(node);
@@ -565,7 +565,7 @@ public class TreeBean implements Serializable {
      * Titre (tooltip) pour l'indicateur de statut.
      */
     public String getEntityStatusTitle(Object node) {
-        if (isEntityStatusProposition(node)) return "Candidat en cours de validation";
+        if (isEntityStatusProposition(node)) return "Brouillon en cours de validation";
         if (isEntityStatusValidated(node)) return "Validée";
         return "";
     }

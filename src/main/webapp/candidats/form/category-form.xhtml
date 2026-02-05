@@ -57,7 +57,7 @@
                              styleClass="candidat-labels-table"
                              emptyMessage="Aucune traduction ajoutée"
                              rendered="#{not empty candidatBean.candidatLabels}">
-                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="5">
                         <div class="candidat-table-langue-cell">
                             <h:panelGroup rendered="#{labelItem.langueCode != null}">
                                 <h:graphicImage library="img"
@@ -66,20 +66,15 @@
                                                 alt="#{labelItem.langue.nom}"
                                                 title="#{labelItem.langue.nom}"/>
                             </h:panelGroup>
-                            <h:panelGroup rendered="#{labelItem.langue != null}">
-                                            <span class="candidat-table-langue-name">
-                                                #{labelItem.langue.nom}
-                                            </span>
-                            </h:panelGroup>
                         </div>
                     </p:column>
-                    <p:column headerText="Label" styleClass="candidat-table-label-column" width="70">
+                    <p:column headerText="Label" styleClass="candidat-table-label-column" width="90">
                         <div class="candidat-table-label-cell">
                             <h:outputText value="#{labelItem.nom}"
                                           styleClass="candidat-table-label-text" />
                         </div>
                     </p:column>
-                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="5">
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"
@@ -164,7 +159,7 @@
                              styleClass="candidat-descriptions-table"
                              emptyMessage="Aucune description ajoutée"
                              rendered="#{not empty candidatBean.descriptions}">
-                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="5">
                         <div class="candidat-table-langue-cell">
                             <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
                                 <h:graphicImage library="img"
@@ -173,20 +168,15 @@
                                                 alt="#{descriptionItem.langue.nom}"
                                                 title="#{descriptionItem.langue.nom}"/>
                             </h:panelGroup>
-                            <h:panelGroup rendered="#{descriptionItem.langue != null}">
-                                            <span class="candidat-table-langue-name">
-                                                #{descriptionItem.langue.nom}
-                                            </span>
-                            </h:panelGroup>
                         </div>
                     </p:column>
-                    <p:column headerText="Description" styleClass="candidat-table-description-column" width="70">
+                    <p:column headerText="Description" styleClass="candidat-table-description-column" width="90">
                         <div class="candidat-table-description-cell">
                             <h:outputText value="#{descriptionItem.valeur}"
                                           styleClass="candidat-table-description-text" />
                         </div>
                     </p:column>
-                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="5">
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"

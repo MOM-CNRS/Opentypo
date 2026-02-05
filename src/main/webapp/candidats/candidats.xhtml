@@ -13,7 +13,7 @@
                     <div>
                         <h1 class="users-title">
                             <i class="pi pi-users users-title-icon" />
-                            Gestion des Candidats
+                            Gestion des brouillons
                         </h1>
                         <p class="users-subtitle">Gérez et suivez les propositions de types</p>
                     </div>
@@ -37,13 +37,13 @@
                               cache="false">
                         
                         <!-- Onglet : Candidats en cours -->
-                        <p:tab title="Candidats en cours" titleStyleClass="users-tab-title">
+                        <p:tab title="Brouillons en cours" titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableEnCours"
                                            value="#{candidatBean.candidatsEnCours}"
                                            var="candidat"
                                            styleClass="modern-users-table"
-                                           emptyMessage="Aucun candidat en cours"
+                                           emptyMessage="Aucun brouillon en cours"
                                            paginator="true"
                                            rows="10"
                                            rowsPerPageTemplate="10,20,50"
@@ -115,7 +115,7 @@
                         </p:tab>
                         
                         <!-- Onglet : Candidats validés -->
-                        <p:tab title="Candidats validés" 
+                        <p:tab title="Brouillon validés"
                                titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableValides"
@@ -174,8 +174,8 @@
                             </div>
                         </p:tab>
                         
-                        <!-- Onglet : Candidats refusés -->
-                        <p:tab title="Candidats refusés" 
+                        <!-- Onglet : Brouillon refusés -->
+                        <p:tab title="Brouillons refusés"
                                titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableRefuses"

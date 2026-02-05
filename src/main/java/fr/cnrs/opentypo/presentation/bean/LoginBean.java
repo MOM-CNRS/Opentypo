@@ -261,7 +261,7 @@ public class LoginBean implements Serializable {
      * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
      */
     public boolean canCreateOrEdit() {
-        return authenticated && isAdmin();
+        return authenticated && (isAdmin() || isEditor());
     }
 }
 

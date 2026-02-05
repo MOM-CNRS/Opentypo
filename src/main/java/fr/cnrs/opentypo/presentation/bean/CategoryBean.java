@@ -308,120 +308,118 @@ public class CategoryBean implements Serializable {
             return;
         }
 
-        try {
-            Entity categoryToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
+        Entity categoryToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
 
-            // Mettre à jour le code uniquement si modifié
-            String newCode = editingCategoryCode != null ? editingCategoryCode.trim() : null;
-            if (!Objects.equals(newCode, categoryToUpdate.getCode()) && newCode != null && !newCode.isEmpty()) {
-                categoryToUpdate.setCode(newCode);
-            }
-
-            // Langue pour le label (celle choisie dans le menu)
-            String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
-            Langue labelLangue = langueRepository.findByCode(labelLangueCode);
-            // Mettre à jour le label (selon la langue choisie) uniquement si modifié
-            String newLabel = editingCategoryLabel != null ? editingCategoryLabel.trim() : "";
-            String currentLabelValue = EntityUtils.getLabelValueForLanguage(categoryToUpdate, labelLangueCode);
-            if (!Objects.equals(newLabel, currentLabelValue) && labelLangue != null) {
-                Optional<Label> labelOpt = categoryToUpdate.getLabels() != null
-                        ? categoryToUpdate.getLabels().stream()
-                        .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
-                        .findFirst()
-                        : Optional.empty();
-                if (labelOpt.isPresent()) {
-                    labelOpt.get().setNom(newLabel);
-                } else {
-                    Label newLabelEntity = new Label();
-                    newLabelEntity.setNom(newLabel);
-                    newLabelEntity.setEntity(categoryToUpdate);
-                    newLabelEntity.setLangue(labelLangue);
-                    if (categoryToUpdate.getLabels() == null) {
-                        categoryToUpdate.setLabels(new ArrayList<>());
-                    }
-                    categoryToUpdate.getLabels().add(newLabelEntity);
-                }
-            }
-
-            // Langue pour la description (celle choisie dans le menu)
-            String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
-            Langue descLangue = langueRepository != null ? langueRepository.findByCode(descLangueCode) : null;
-            // Mettre à jour la description (selon la langue choisie) uniquement si modifiée
-            String newDesc = editingCategoryDescription != null ? editingCategoryDescription.trim() : "";
-            String currentDescValue = EntityUtils.getDescriptionValueForLanguage(categoryToUpdate, descLangueCode);
-            if (!Objects.equals(newDesc, currentDescValue) && descLangue != null) {
-                Optional<Description> descOpt = categoryToUpdate.getDescriptions() != null
-                        ? categoryToUpdate.getDescriptions().stream()
-                        .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
-                        .findFirst()
-                        : Optional.empty();
-                if (descOpt.isPresent()) {
-                    descOpt.get().setValeur(newDesc);
-                } else {
-                    Description newDescription = new Description();
-                    newDescription.setValeur(newDesc);
-                    newDescription.setEntity(categoryToUpdate);
-                    newDescription.setLangue(descLangue);
-                    if (categoryToUpdate.getDescriptions() == null) {
-                        categoryToUpdate.setDescriptions(new ArrayList<>());
-                    }
-                    categoryToUpdate.getDescriptions().add(newDescription);
-                }
-            }
-
-            // Mettre à jour la bibliographique uniquement si modifiée
-            String newBib = editingCategoryBibliographie != null ? editingCategoryBibliographie.trim() : null;
-            String currentBib = categoryToUpdate.getBibliographie();
-            if (!Objects.equals(newBib, currentBib)) {
-                categoryToUpdate.setBibliographie(newBib);
-            }
-
-            // Mettre à jour la bibliographique uniquement si modifiée
-            String newCom = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
-            String currentCom = categoryToUpdate.getCommentaire();
-            if (!Objects.equals(newCom, currentCom)) {
-                categoryToUpdate.setCommentaire(newCom);
-            }
-
-            // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
-            Utilisateur currentUser = loginBean != null ? loginBean.getCurrentUser() : null;
-            if (currentUser != null && currentUser.getId() != null && utilisateurRepository != null) {
-                Utilisateur managedUser = utilisateurRepository.findById(currentUser.getId()).orElse(null);
-                if (managedUser != null) {
-                    List<Utilisateur> auteurs = categoryToUpdate.getAuteurs();
-                    if (auteurs == null) {
-                        categoryToUpdate.setAuteurs(new ArrayList<>());
-                        auteurs = categoryToUpdate.getAuteurs();
-                    }
-                    boolean alreadyAuthor = auteurs.stream()
-                            .anyMatch(u -> u.getId() != null && u.getId().equals(managedUser.getId()));
-                    if (!alreadyAuthor) {
-                        auteurs.add(managedUser);
-                    }
-                }
-            }
-
-            applicationBean.setSelectedEntity(entityRepository.save(categoryToUpdate));
-
-            applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
-
-            editingCategory = false;
-            editingCategoryCode = null;
-            editingLabelLangueCode = null;
-            editingCategoryLabel = null;
-            editingDescriptionLangueCode = null;
-            editingCategoryDescription = null;
-            editingCategoryBibliographie = null;
-            editingCategoryCommentaire = null;
-
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès", "Les modifications ont été enregistrées avec succès."));
-
-            log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde du référentiel", e);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
+        // Mettre à jour le code uniquement si modifié
+        String newCode = editingCategoryCode != null ? editingCategoryCode.trim() : null;
+        if (!Objects.equals(newCode, categoryToUpdate.getCode()) && newCode != null && !newCode.isEmpty()) {
+            categoryToUpdate.setCode(newCode);
         }
+
+        // Langue pour le label (celle choisie dans le menu)
+        String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
+        Langue labelLangue = langueRepository.findByCode(labelLangueCode);
+        // Mettre à jour le label (selon la langue choisie) uniquement si modifié
+        String newLabel = editingCategoryLabel != null ? editingCategoryLabel.trim() : "";
+        String currentLabelValue = EntityUtils.getLabelValueForLanguage(categoryToUpdate, labelLangueCode);
+        if (!Objects.equals(newLabel, currentLabelValue) && labelLangue != null) {
+            Optional<Label> labelOpt = categoryToUpdate.getLabels() != null
+                    ? categoryToUpdate.getLabels().stream()
+                    .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
+                    .findFirst()
+                    : Optional.empty();
+            if (labelOpt.isPresent()) {
+                labelOpt.get().setNom(newLabel);
+            } else {
+                Label newLabelEntity = new Label();
+                newLabelEntity.setNom(newLabel);
+                newLabelEntity.setEntity(categoryToUpdate);
+                newLabelEntity.setLangue(labelLangue);
+                if (categoryToUpdate.getLabels() == null) {
+                    categoryToUpdate.setLabels(new ArrayList<>());
+                }
+                categoryToUpdate.getLabels().add(newLabelEntity);
+            }
+        }
+
+        // Langue pour la description (celle choisie dans le menu)
+        String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
+        Langue descLangue = langueRepository != null ? langueRepository.findByCode(descLangueCode) : null;
+        // Mettre à jour la description (selon la langue choisie) uniquement si modifiée
+        String newDesc = editingCategoryDescription != null ? editingCategoryDescription.trim() : "";
+        String currentDescValue = EntityUtils.getDescriptionValueForLanguage(categoryToUpdate, descLangueCode);
+        if (!Objects.equals(newDesc, currentDescValue) && descLangue != null) {
+            Optional<Description> descOpt = categoryToUpdate.getDescriptions() != null
+                    ? categoryToUpdate.getDescriptions().stream()
+                    .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
+                    .findFirst()
+                    : Optional.empty();
+            if (descOpt.isPresent()) {
+                descOpt.get().setValeur(newDesc);
+            } else {
+                Description newDescription = new Description();
+                newDescription.setValeur(newDesc);
+                newDescription.setEntity(categoryToUpdate);
+                newDescription.setLangue(descLangue);
+                if (categoryToUpdate.getDescriptions() == null) {
+                    categoryToUpdate.setDescriptions(new ArrayList<>());
+                }
+                categoryToUpdate.getDescriptions().add(newDescription);
+            }
+        }
+
+        // Mettre à jour la bibliographique uniquement si modifiée
+        String newBib = editingCategoryBibliographie != null ? editingCategoryBibliographie.trim() : null;
+        String currentBib = categoryToUpdate.getBibliographie();
+        if (!Objects.equals(newBib, currentBib)) {
+            categoryToUpdate.setBibliographie(newBib);
+        }
+
+        // Mettre à jour la bibliographique uniquement si modifiée
+        String newCom = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
+        String currentCom = categoryToUpdate.getCommentaire();
+        if (!Objects.equals(newCom, currentCom)) {
+            categoryToUpdate.setCommentaire(newCom);
+        }
+
+        // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
+        Utilisateur currentUser = loginBean != null ? loginBean.getCurrentUser() : null;
+        if (currentUser != null && currentUser.getId() != null && utilisateurRepository != null) {
+            Utilisateur managedUser = utilisateurRepository.findById(currentUser.getId()).orElse(null);
+            if (managedUser != null) {
+                List<Utilisateur> auteurs = categoryToUpdate.getAuteurs();
+                if (auteurs == null) {
+                    categoryToUpdate.setAuteurs(new ArrayList<>());
+                    auteurs = categoryToUpdate.getAuteurs();
+                }
+                boolean alreadyAuthor = auteurs.stream()
+                        .anyMatch(u -> u.getId() != null && u.getId().equals(managedUser.getId()));
+                if (!alreadyAuthor) {
+                    auteurs.add(managedUser);
+                }
+            }
+        }
+
+        Entity categorySaved = entityRepository.save(categoryToUpdate);
+        applicationBean.setSelectedEntity(categorySaved);
+
+        applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, categorySaved);
+
+        // Actualiser l'arbre : déplier le chemin et sélectionner la catégorie sauvegardée
+        treeBean.expandPathAndSelectEntity(categorySaved);
+
+        editingCategory = false;
+        editingCategoryCode = null;
+        editingLabelLangueCode = null;
+        editingCategoryLabel = null;
+        editingDescriptionLangueCode = null;
+        editingCategoryDescription = null;
+        editingCategoryBibliographie = null;
+        editingCategoryCommentaire = null;
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                "Succès", "Les modifications ont été enregistrées avec succès."));
+
+        log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
     }
 }

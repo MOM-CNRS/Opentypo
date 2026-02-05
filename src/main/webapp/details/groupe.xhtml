@@ -13,6 +13,7 @@
                     <!-- En-tête avec titre et actions -->
                     <div class="concept-info-header">
                         <div class="concept-info-title-section">
+                            <span class="reference-entity-type-badge">Groupe</span>
                             <div class="concept-info-language-flag">
                                 <h:graphicImage library="img" name="flag/fr.png" 
                                                styleClass="language-flag"
@@ -32,16 +33,29 @@
                                 <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
-                        <div class="concept-info-actions">
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                            <!-- Bouton Historique -->
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                           process="@this"
+                                           update="@none"
+                                           styleClass="concept-action-button"
+                                           immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#{groupBean.startEditingCategory(applicationBean)}"
+                                           process="@this"
+                                           update=":categoryEditForm"
+                                           styleClass="concept-action-button">
                                 <i class="pi pi-file-edit" />
-                                <p:tooltip value="Paramètres" position="top"/>
+                                <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-trash"  />
-                                <p:tooltip value="Marquer" position="top"/>
+                            <p:commandLink onclick="PF('confirmDeleteReferenceDialog').show(); return false;"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
-                        </div>
+                        </h:panelGroup>
                     </div>
 
                     <!-- Grille d'informations -->

@@ -70,7 +70,7 @@
                     <!-- Section d'action pour créer une collection -->
                     <h:panelGroup id="create-collection-section" class="create-collection-section"
                          style="width: 100%; text-align: right; padding-top: 20px; padding-right: 20px"
-                         rendered="#{loginBean.canCreateOrEdit()}">
+                         rendered="#{loginBean.isAdmin()}">
                         <p:commandButton value="Créer une nouvelle collection"
                                          icon="pi pi-plus"
                                          styleClass="collection-btn collection-btn-validate"
@@ -85,12 +85,12 @@
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
                                     <div class="modern-card-wrapper">
                                         <p:commandLink action="#{collectionBean.showCollectionDetail(applicationBean, collection)}"
-                                                     styleClass="modern-card"
-                                                     process="@this" ajax="true"
-                                                     update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer :collectionSelect"
-                                                     onstart="showLoading('Chargement de la collection...', 'spinner');"
-                                                     oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
-                                                     onerror="forceHideLoading();">
+                                                       styleClass="modern-card"
+                                                       process="@this" ajax="true"
+                                                       update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer :collectionSelect"
+                                                       onstart="showLoading('Chargement de la collection...', 'spinner');"
+                                                       oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
+                                                       onerror="forceHideLoading();">
                                             <div class="modern-card-content">
                                                 <div class="modern-card-header">
                                                     <div class="modern-card-icon">
@@ -98,10 +98,12 @@
                                                     </div>
                                                     <h3 class="modern-card-title">#{applicationBean.getCollectionNameForLanguage(collection)}</h3>
                                                     <!-- Indicateur de statut privé/public -->
-                                                    <div class="collection-card-status-badge #{collection.publique ? 'collection-status-public' : 'collection-status-private'}"
-                                                         title="#{collection.publique ? 'Collection publique' : 'Collection privée'}">
-                                                        <i class="pi #{collection.publique ? 'pi-globe' : 'pi-lock'}" />
-                                                    </div>
+                                                    <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                                        <div class="collection-card-status-badge #{collection.publique ? 'collection-status-public' : 'collection-status-private'}"
+                                                             title="#{collection.publique ? 'Collection publique' : 'Collection privée'}">
+                                                            <i class="pi #{collection.publique ? 'pi-globe' : 'pi-lock'}" />
+                                                        </div>
+                                                    </h:panelGroup>
                                                 </div>
                                                 <p class="modern-card-description">
                                                     #{empty applicationBean.getCollectionDescriptionForLanguage(collection) ? 'Aucune description disponible' : applicationBean.getCollectionDescriptionForLanguage(collection)}

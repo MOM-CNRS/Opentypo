@@ -56,7 +56,7 @@
                              styleClass="candidat-labels-table"
                              emptyMessage="Aucune traduction ajoutée"
                              rendered="#{not empty candidatBean.candidatLabels}">
-                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="5">
                         <div class="candidat-table-langue-cell">
                             <h:panelGroup rendered="#{labelItem.langueCode != null}">
                                 <h:graphicImage library="img"
@@ -65,19 +65,14 @@
                                                 alt="#{labelItem.langue.nom}"
                                                 title="#{labelItem.langue.nom}"/>
                             </h:panelGroup>
-                            <h:panelGroup rendered="#{labelItem.langue != null}">
-                                            <span class="candidat-table-langue-name">
-                                                #{labelItem.langue.nom}
-                                            </span>
-                            </h:panelGroup>
                         </div>
                     </p:column>
-                    <p:column headerText="Label" styleClass="candidat-table-label-column" width="70">
+                    <p:column headerText="Label" styleClass="candidat-table-label-column" width="90">
                         <div class="candidat-table-label-cell">
                             <h:outputText value="#{labelItem.nom}" styleClass="candidat-table-label-text" />
                         </div>
                     </p:column>
-                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="5">
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"
@@ -122,7 +117,7 @@
                             <i class="pi pi-align-left input-icon input-icon-textarea" />
                             <p:inputTextarea id="newGroupDescriptionInput"
                                              value="#{candidatBean.newDescriptionValue}"
-                                             placeholder="Saisissez une description détaillée de la catégorie..."
+                                             placeholder="Saisissez une description détaillée du groupe..."
                                              rows="4"
                                              styleClass="users-textarea"
                                              maxlength="2000"/>
@@ -162,7 +157,7 @@
                              styleClass="candidat-descriptions-table"
                              emptyMessage="Aucune description ajoutée"
                              rendered="#{not empty candidatBean.descriptions}">
-                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="20">
+                    <p:column headerText="Langue" styleClass="candidat-table-langue-column" width="2">
                         <div class="candidat-table-langue-cell">
                             <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
                                 <h:graphicImage library="img"
@@ -171,20 +166,15 @@
                                                 alt="#{descriptionItem.langue.nom}"
                                                 title="#{descriptionItem.langue.nom}"/>
                             </h:panelGroup>
-                            <h:panelGroup rendered="#{descriptionItem.langue != null}">
-                                            <span class="candidat-table-langue-name">
-                                                #{descriptionItem.langue.nom}
-                                            </span>
-                            </h:panelGroup>
                         </div>
                     </p:column>
-                    <p:column headerText="Description" styleClass="candidat-table-description-column" width="70">
+                    <p:column headerText="Description" styleClass="candidat-table-description-column" width="95">
                         <div class="candidat-table-description-cell">
                             <h:outputText value="#{descriptionItem.valeur}"
                                           styleClass="candidat-table-description-text" />
                         </div>
                     </p:column>
-                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="10">
+                    <p:column headerText="Action" styleClass="candidat-table-action-column" width="3">
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"
@@ -242,7 +232,7 @@
                                        value="#{candidatBean.tpq}"
                                        styleClass="users-input"
                                        placeholder="Ex: 1500"
-                                       minValue="0"
+                                       minValue="-9999"
                                        maxValue="9999"
                                        decimalPlaces="0">
                             <p:ajax event="blur" listener="#{candidatBean.saveGroupFields}" process="@this" update="@none"/>
@@ -263,7 +253,7 @@
                                        value="#{candidatBean.taq}"
                                        styleClass="users-input"
                                        placeholder="Ex: 1500"
-                                       minValue="0"
+                                       minValue="-9999"
                                        maxValue="9999"
                                        decimalPlaces="0">
                             <p:ajax event="blur" listener="#{candidatBean.saveGroupFields}" process="@this" update="@none"/>
@@ -388,19 +378,19 @@
         <!-- Décors -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel for="groupDecors" value="Décors" />
-            <div class="input-wrapper">
-                <i class="pi pi-palette input-icon" />
-                <p:inputText id="groupDecors"
-                             value="#{candidatBean.decors}"
-                             styleClass="users-input"
-                             placeholder="Saisissez le décors..."
-                             maxlength="255"/>
+            <div class="candidat-description-input-row">
+                <div class="candidat-description-textarea-wrapper">
+                    <div class="input-wrapper">
+                        <i class="pi pi-palette input-icon"  />
+                        <p:inputTextarea id="groupDecors"
+                                         value="#{candidatBean.decors}"
+                                         placeholder="Saisissez le décors du groupe..."
+                                         rows="4"
+                                         styleClass="users-textarea"
+                                         maxlength="2000"/>
+                    </div>
+                </div>
             </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Ce champ sera enregistré lorsque vous cliquerez sur "Terminer".
-            </p>
-            <p:message for="groupDecors" display="icon"/>
         </div>
         
         <!-- Marques/estampilles -->
@@ -733,27 +723,6 @@
             <p:message for="cuissonPostCuissonGroup" display="icon"/>
         </h:panelGroup>
 
-        <!-- Références bibliographiques (Saisie libre avec tags) -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupReferencesBibliographiques" value="Références bibliographiques" />
-            <div class="input-wrapper">
-                <i class="pi pi-book input-icon" />
-                <p:chips id="groupReferencesBibliographiques"
-                         value="#{candidatBean.referencesBibliographiques}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez une référence bibliographique et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                    <p:ajax event="change" listener="#{candidatBean.saveReferencesBibliographiques}" process="@this" update="@none"/>
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque référence bibliographique et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupReferencesBibliographiques" display="icon"/>
-        </div>
-
         <!-- Commentaire -->
         <div class="users-form-group users-form-group-full" style="margin-top: 20px">
             <p:outputLabel for="groupeCommentaire" value="Commentaire" />
@@ -763,122 +732,10 @@
                                  value="#{candidatBean.candidatCommentaire}"
                                  rows="5"
                                  styleClass="users-textarea"
-                                 placeholder="Ajoutez un commentaire sur cette catégorie..."
+                                 placeholder="Ajoutez un commentaire sur ce groupe..."
                                  maxlength="1000"/>
             </div>
             <p:message for="groupeCommentaire" display="icon"/>
-        </div>
-
-        <!-- Attestations -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupAttestations" value="Attestations" />
-            <div class="input-wrapper">
-                <i class="pi pi-check-circle input-icon" />
-                <p:chips id="groupAttestations"
-                         value="#{candidatBean.attestations}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque attestation et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupAttestations" display="icon"/>
-        </div>
-
-        <!-- Sites archéologiques -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <p:outputLabel for="groupSitesArcheologiques" value="Sites archéologiques" />
-            <div class="input-wrapper">
-                <i class="pi pi-map-marker input-icon" />
-                <p:chips id="groupSitesArcheologiques"
-                         value="#{candidatBean.sitesArcheologiques}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                </p:chips>
-            </div>
-            <p class="users-form-hint">
-                <i class="pi pi-info-circle" />
-                Saisissez chaque site archéologique et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
-            </p>
-            <p:message for="groupSitesArcheologiques" display="icon"/>
-        </div>
-
-        <!-- Référentiel -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupReferentiel" value="Référentiel" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-book input-icon" />
-                        <p:inputText id="groupReferentiel"
-                                     value="#{candidatBean.referentiel}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez le référentiel..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupReferentiel" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Typologie scientifique -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupTypologieScientifique" value="Typologie scientifique" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-tag input-icon" />
-                        <p:inputText id="groupTypologieScientifique"
-                                     value="#{candidatBean.typologieScientifique}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez la typologie scientifique..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupTypologieScientifique" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Identifiant pérenne -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupIdentifiantPerenne" value="Identifiant pérenne" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-id-card input-icon" />
-                        <p:inputText id="groupIdentifiantPerenne"
-                                     value="#{candidatBean.identifiantPerenne}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez l'identifiant pérenne..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupIdentifiantPerenne" display="icon"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ancienne version -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 20px">
-            <div class="users-form-grid">
-                <div class="users-form-group">
-                    <p:outputLabel for="groupAncienneVersion" value="Ancienne version" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-history input-icon" />
-                        <p:inputText id="groupAncienneVersion"
-                                     value="#{candidatBean.ancienneVersion}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez l'ancienne version..."
-                                     maxlength="255"/>
-                    </div>
-                    <p:message for="groupAncienneVersion" display="icon"/>
-                </div>
-            </div>
         </div>
 
         <!-- Bibliographie -->
