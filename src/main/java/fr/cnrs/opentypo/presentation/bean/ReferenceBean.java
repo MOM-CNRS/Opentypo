@@ -463,10 +463,10 @@ public class ReferenceBean implements Serializable {
      */
     private void refreshReferencesList() {
         if (applicationBean != null) {
-            applicationBean.loadreferences();
+            applicationBean.loadReferences();
         }
         if (searchBean != null) {
-            searchBean.loadreferences();
+            searchBean.loadReferences();
         }
     }
 

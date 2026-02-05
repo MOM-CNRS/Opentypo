@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
@@ -15,10 +16,13 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.UserPermission;
+import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
@@ -35,7 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -85,6 +91,9 @@ public class ApplicationBean implements Serializable {
     private transient LoginBean loginBean;
 
     @Inject
+    private UserPermissionRepository userPermissionRepository;
+
+    @Inject
     private CollectionBean collectionBean;
 
 
@@ -104,6 +113,98 @@ public class ApplicationBean implements Serializable {
 
     // Titre de l'écran
     private String selectedEntityLabel;
+
+    /**
+     * Retourne l'ensemble des IDs de collections que l'utilisateur connecté est autorisé à consulter
+     * (via la table user_permission). Pour un utilisateur non connecté, l'ensemble est vide.
+     */
+    private Set<Long> getAllowedCollectionIdsForCurrentUser() {
+        if (loginBean == null || !loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return new HashSet<>();
+        }
+        Utilisateur current = loginBean.getCurrentUser();
+        List<UserPermission> permissions = userPermissionRepository.findByUtilisateur(current);
+        Set<Long> ids = new HashSet<>();
+        if (permissions == null) {
+            return ids;
+        }
+        for (UserPermission permission : permissions) {
+            if (permission == null || permission.getEntity() == null) {
+                continue;
+            }
+            Entity e = permission.getEntity();
+            if (e.getEntityType() != null
+                    && EntityConstants.ENTITY_TYPE_COLLECTION.equals(e.getEntityType().getCode())
+                    && e.getId() != null) {
+                ids.add(e.getId());
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * Indique si une entité est visible pour l'utilisateur connecté, selon les règles métier :
+     * - Jamais d'entités avec statut REFUSED.
+     * - Utilisateur non connecté : uniquement les entités publiques.
+     * - Administrateur technique : toutes les entités sauf REFUSED.
+     * - Autres groupes : uniquement les collections autorisées et les entités rattachées
+     *   à ces collections (via les relations), quel que soit le statut public/privé.
+     */
+    public boolean isEntityVisibleForCurrentUser(Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+
+        // 1) Ne jamais afficher les entités au statut REFUSED
+        if (EntityStatusEnum.REFUSED.name().equals(entity.getStatut())) {
+            return false;
+        }
+
+        // 2) Règle globale : toutes les collections publiques et tous leurs éléments
+        //    sont visibles pour tout le monde (connecté ou non).
+        Entity collectionAncestorForPublicRule = null;
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
+            collectionAncestorForPublicRule = entity;
+        } else {
+            collectionAncestorForPublicRule = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_COLLECTION);
+        }
+        if (collectionAncestorForPublicRule != null
+                && Boolean.TRUE.equals(collectionAncestorForPublicRule.getPublique())) {
+            return true;
+        }
+
+        boolean authenticated = loginBean != null && loginBean.isAuthenticated();
+        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
+
+        // 3) Utilisateur non connecté : ne voit que le contenu public
+        if (!authenticated) {
+            return Boolean.TRUE.equals(entity.getPublique());
+        }
+
+        // 4) Administrateur technique : tout voir (sauf REFUSED déjà filtré)
+        if (isAdminTechnique) {
+            return true;
+        }
+
+        // 5) Autres groupes connectés : filtrer par collections autorisées
+        Set<Long> allowedCollectionIds = getAllowedCollectionIdsForCurrentUser();
+        if (allowedCollectionIds == null || allowedCollectionIds.isEmpty()) {
+            return false;
+        }
+
+        Entity collectionAncestor = null;
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
+            collectionAncestor = entity;
+        } else {
+            collectionAncestor = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_COLLECTION);
+        }
+
+        return collectionAncestor != null
+                && collectionAncestor.getId() != null
+                && allowedCollectionIds.contains(collectionAncestor.getId());
+    }
 
     /**
      * Retourne l'ancêtre de type donné en remontant l'arbre des relations parent-enfant.
@@ -266,12 +367,13 @@ public class ApplicationBean implements Serializable {
     /**
      * Charge les référentiels depuis la base de données
      */
-    public void loadreferences() {
+    public void loadReferences() {
         references = new ArrayList<>();
         try {
             references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
+            // Filtrer selon les droits de l'utilisateur (publique / groupe / user_permission / statut REFUSED)
             references = references.stream()
-                    .filter(r -> r.getPublique() != null && r.getPublique())
+                    .filter(this::isEntityVisibleForCurrentUser)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
@@ -280,9 +382,9 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
-     * Charge les collections depuis la base de données
-     * Si l'utilisateur est déconnecté, affiche uniquement les collections publiques
-     * Trie par ordre alphabétique décroissant
+     * Charge les collections depuis la base de données et les filtre
+     * selon les droits de l'utilisateur (publique / groupe / user_permission / statut REFUSED),
+     * puis les trie par ordre alphabétique décroissant.
      */
     public void loadPublicCollections() {
         collections = new ArrayList<>();
@@ -298,10 +400,9 @@ public class ApplicationBean implements Serializable {
                 }
             }
             
-            // Filtrer selon l'authentification et trier par ordre alphabétique décroissant (Z à A)
-            boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
             collections = collections.stream()
-                .filter(c -> isAuthenticated || (c.getPublique() != null && c.getPublique()))
+                // Filtrer selon les droits et le statut
+                .filter(this::isEntityVisibleForCurrentUser)
                 .sorted((c1, c2) -> {
                     String nom1 = getCollectionNameForLanguage(c1);
                     String nom2 = getCollectionNameForLanguage(c2);

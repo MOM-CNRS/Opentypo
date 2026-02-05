@@ -69,7 +69,7 @@ public class SearchBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        loadreferences();
+        loadReferences();
         loadCollections();
     }
     
@@ -124,7 +124,7 @@ public class SearchBean implements Serializable {
                     
                     // S'assurer que les références sont chargées
                     if (references == null || references.isEmpty()) {
-                        loadreferences();
+                        loadReferences();
                     }
                     // Trouver la référence et afficher ses détails
                     selectedEntity = references.stream()
@@ -197,33 +197,19 @@ public class SearchBean implements Serializable {
     /**
      * Charge les référentiels depuis la base de données
      */
-    public void loadreferences() {
-        references = new ArrayList<>();
-        try {
-            references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
-            references = references.stream()
-                .filter(r -> r.getPublique() != null && r.getPublique())
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des référentiels depuis la base de données", e);
-            references = new ArrayList<>();
-        }
+    public void loadReferences() {
+        // Chargement brut depuis la base ; le filtrage par droits est appliqué plus tard
+        // (dans applySearch et dans les méthodes qui exposent les données à la vue).
+        references = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_REFERENCE);
     }
 
     /**
      * Charge les collections depuis la base de données
      */
     public void loadCollections() {
-        collections = new ArrayList<>();
-        try {
-            collections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
-            collections = collections.stream()
-                .filter(c -> c.getPublique() != null && c.getPublique())
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des collections depuis la base de données", e);
-            collections = new ArrayList<>();
-        }
+        // Chargement brut depuis la base ; le filtrage par droits est appliqué plus tard
+        // (dans applySearch et dans les méthodes qui exposent les données à la vue).
+        collections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
     }
 
     /**
@@ -236,6 +222,8 @@ public class SearchBean implements Serializable {
         
         // Ajouter l'option "Toutes les collections"
         items.add(new SelectItem("", "Toutes les collections"));
+
+        ApplicationBean appBean = applicationBeanProvider != null ? applicationBeanProvider.get() : null;
         
         try {
             // S'assurer que les collections sont chargées
@@ -246,6 +234,11 @@ public class SearchBean implements Serializable {
             // Pour chaque collection
             for (Entity collection : collections) {
                 if (collection == null || collection.getCode() == null) {
+                    continue;
+                }
+
+                // Ne proposer que les collections visibles pour l'utilisateur
+                if (appBean != null && !appBean.isEntityVisibleForCurrentUser(collection)) {
                     continue;
                 }
                 
@@ -267,10 +260,12 @@ public class SearchBean implements Serializable {
                 List<Entity> collectionReferences = entityRelationRepository.findChildrenByParentAndType(
                     collection, EntityConstants.ENTITY_TYPE_REFERENCE);
                 
-                // Filtrer pour ne garder que les références publiques
-                collectionReferences = collectionReferences.stream()
-                    .filter(r -> r != null && r.getPublique() != null && r.getPublique())
-                    .collect(Collectors.toList());
+                // Filtrer selon les droits de l'utilisateur (publique / groupe / user_permission / REFUSED)
+                if (appBean != null) {
+                    collectionReferences = collectionReferences.stream()
+                            .filter(r -> r != null && appBean.isEntityVisibleForCurrentUser(r))
+                            .toList();
+                }
                 
                 // Ajouter les références comme items sélectionnables avec indentation visuelle importante
                 for (Entity reference : collectionReferences) {
@@ -391,6 +386,8 @@ public class SearchBean implements Serializable {
             if (allMatchingEntities != null) {
                 filtered = allMatchingEntities.stream()
                     .filter(e -> e != null)
+                    // Filtre global d'autorisation (publique / groupe / user_permission / REFUSED)
+                    .filter(e -> applicationBeanProvider.get() == null || applicationBeanProvider.get().isEntityVisibleForCurrentUser(e))
                     // Filtre par type d'entité
                     .filter(e -> {
                         if (typeFilter == null || typeFilter.isEmpty()) {

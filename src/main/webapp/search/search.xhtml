@@ -40,7 +40,7 @@
                                itemValue="#{lang.code}" itemLabel="#{lang.flagEmoji} #{lang.value}"/>
                 <p:ajax event="change"
                         listener="#{applicationBean.onLanguageChange()}"
-                        update=":centerContent"
+                        update=":centerContent collectionSelect"
                         process="@this"/>
             </p:selectOneMenu>
 
