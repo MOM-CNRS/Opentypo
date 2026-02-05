@@ -251,7 +251,7 @@ public class TreeBean implements Serializable {
         ApplicationBean appBean = getApplicationBean();
         switch(entity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
-                collectionBean.showCollectionDetail(entity);
+                collectionBean.showCollectionDetail(appBean, entity);
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 appBean.showCategoryDetail(entity);

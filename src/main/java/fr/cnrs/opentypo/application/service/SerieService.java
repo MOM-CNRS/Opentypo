@@ -39,17 +39,11 @@ public class SerieService implements Serializable {
                 // SELECT er.child FROM EntityRelation er 
                 // WHERE er.parent = :parent AND er.child.entityType.code = :typeCode
                 // Essayer d'abord avec "SERIES" puis "SERIE" pour compatibilité
-                groupSeries = entityRelationRepository.findChildrenByParentAndType(
-                        selectedGroup,
-                        EntityConstants.ENTITY_TYPE_SERIES
-                );
+                groupSeries = entityRelationRepository.findChildrenByParentAndType(selectedGroup, EntityConstants.ENTITY_TYPE_SERIES);
 
                 // Si aucune série trouvée avec "SERIES", essayer avec "SERIE"
                 if (groupSeries.isEmpty()) {
-                    groupSeries = entityRelationRepository.findChildrenByParentAndType(
-                            selectedGroup,
-                            "SERIE"
-                    );
+                    groupSeries = entityRelationRepository.findChildrenByParentAndType(selectedGroup, "SERIE");
                 }
             } catch (Exception e) {
                 log.error("Erreur lors du chargement des séries du groupe depuis entity_relation", e);

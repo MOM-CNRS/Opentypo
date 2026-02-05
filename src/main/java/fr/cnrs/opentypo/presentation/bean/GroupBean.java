@@ -104,7 +104,7 @@ public class GroupBean implements Serializable {
             // Récupérer le type d'entité GROUP
             // Essayer d'abord avec "GROUP" puis "GROUPE" pour compatibilité
             EntityType groupType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
-                    .orElse(entityTypeRepository.findByCode("GROUPE")
+                    .orElse(entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
                             .orElseThrow(() -> new IllegalStateException(
                                     "Le type d'entité 'GROUP' ou 'GROUPE' n'existe pas dans la base de données.")));
 

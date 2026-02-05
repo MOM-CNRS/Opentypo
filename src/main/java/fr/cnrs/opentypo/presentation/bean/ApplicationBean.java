@@ -477,14 +477,14 @@ public class ApplicationBean implements Serializable {
         
         // Mettre à jour le label et la description de la collection sélectionnée si elle existe
         if (getSelectedCollection() != null) {
-            collectionBean.updateCollectionLanguage();
+            collectionBean.updateCollectionLanguage(this);
         }
     }
 
     public void showSelectedPanel(Entity entity) {
         switch (entity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
-                collectionBean.showCollectionDetail(entity);
+                collectionBean.showCollectionDetail(this, entity);
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 showReferenceDetail(entity);
@@ -501,14 +501,14 @@ public class ApplicationBean implements Serializable {
         }
         String code = entity.getEntityType().getCode();
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
-            collectionBean.showCollectionDetail(entity);
-        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)) {
+            collectionBean.showCollectionDetail(this, entity);
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code)) {
             showReferenceDetail(entity);
-        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code)) {
             showCategoryDetail(entity);
-        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code)) {
             showGroupe(entity);
-        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code) || "SERIE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code)) {
             showSerie(entity);
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
             showType(entity);
@@ -748,10 +748,10 @@ public class ApplicationBean implements Serializable {
         }
         
         // Afficher les détails de la collection pour édition
-        collectionBean.showCollectionDetail(collection);
+        collectionBean.showCollectionDetail(this, collection);
         
         // Activer le mode édition
-        collectionBean.startEditingCollection();
+        collectionBean.startEditingCollection(this);
         
         log.debug("Mode édition activé pour la collection: {}", collection.getCode());
     }

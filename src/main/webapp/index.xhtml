@@ -84,7 +84,7 @@
                             <div class="modern-cards-grid">
                                 <ui:repeat value="#{applicationBean.collections}" var="collection">
                                     <div class="modern-card-wrapper">
-                                        <p:commandLink action="#{collectionBean.showCollectionDetail(collection)}"
+                                        <p:commandLink action="#{collectionBean.showCollectionDetail(applicationBean, collection)}"
                                                      styleClass="modern-card"
                                                      process="@this" ajax="true"
                                                      update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer :collectionSelect"

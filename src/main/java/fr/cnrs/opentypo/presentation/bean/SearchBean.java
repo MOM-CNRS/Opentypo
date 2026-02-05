@@ -105,7 +105,7 @@ public class SearchBean implements Serializable {
                             .findFirst();
                     label.ifPresent(value -> appBean.setSelectedEntityLabel(value.getNom().toUpperCase()));
 
-                    collectionBeanProvider.get().showCollectionDetail(selectedEntity);
+                    collectionBeanProvider.get().showCollectionDetail(appBean, selectedEntity);
                     // Initialiser l'arbre avec la collection comme racine
                     treeBean.initializeTreeWithEntity(selectedEntity);
                 }
@@ -167,7 +167,7 @@ public class SearchBean implements Serializable {
                         .orElse(null);
                 
                 if (selectedEntity != null) {
-                    collectionBeanProvider.get().showCollectionDetail(selectedEntity);
+                    collectionBeanProvider.get().showCollectionDetail(appBean, selectedEntity);
                     // Initialiser l'arbre avec la collection comme racine
                     treeBean.initializeTreeWithEntity(selectedEntity);
                 }
@@ -517,13 +517,12 @@ public class SearchBean implements Serializable {
         
         // Appeler la méthode appropriée selon le type d'entité
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
-            collectionBeanProvider.get().showCollectionDetail(entity);
+            collectionBeanProvider.get().showCollectionDetail(appBean, entity);
             // Initialiser l'arbre avec la collection comme racine
             if (treeBean != null) {
                 treeBean.initializeTreeWithEntity(entity);
             }
-        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) || 
-                   "REFERENTIEL".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
             // Pour une référence, trouver la collection parente et construire l'arbre à partir de celle-ci
             Entity parentCollection = null;
             try {
@@ -571,14 +570,11 @@ public class SearchBean implements Serializable {
                     }
                 }
             }
-        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) || 
-                   "CATEGORIE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode)) {
             appBean.showCategoryDetail(entity);
-        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode) || 
-                   "GROUPE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)) {
             appBean.showGroupe(entity);
-        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) || 
-                   "SERIE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)) {
             appBean.showSerie(entity);
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
             appBean.showType(entity);
@@ -597,17 +593,13 @@ public class SearchBean implements Serializable {
         
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
             return "pi pi-folder";
-        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) || 
-                   "REFERENTIEL".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
             return "pi pi-book";
-        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) || 
-                   "CATEGORIE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode)) {
             return "pi pi-tags";
-        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode) || 
-                   "GROUPE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)) {
             return "pi pi-users";
-        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) || 
-                   "SERIE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)) {
             return "pi pi-list";
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
             return "pi pi-tag";
@@ -628,17 +620,14 @@ public class SearchBean implements Serializable {
         
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
             return "Collection";
-        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode) || 
-                   "REFERENTIEL".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
             return "Référentiel";
         } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) || 
                    "CATEGORIE".equals(entityTypeCode)) {
             return "Catégorie";
-        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode) || 
-                   "GROUPE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)) {
             return "Groupe";
-        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) || 
-                   "SERIE".equals(entityTypeCode)) {
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)) {
             return "Série";
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
             return "Type";
@@ -688,13 +677,13 @@ public class SearchBean implements Serializable {
         // Utiliser if-else pour éviter les problèmes avec les constantes et les valeurs littérales
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
             return "Collection";
-        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code) || "REFERENTIEL".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code)) {
             return "Référentiel";
-        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code)) {
             return "Catégorie";
-        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code) || "GROUPE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code)) {
             return "Groupe";
-        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code) || "SERIE".equals(code)) {
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code)) {
             return "Série";
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
             return "Type";

@@ -1747,13 +1747,11 @@ public class CandidatBean implements Serializable {
                 if (typeDescription != null && !typeDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(typeDescription.trim());
                 }
-            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_SERIES.equals(entityType.getCode()) ||
-                       "SERIE".equals(entityType.getCode()))) {
+            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_SERIES.equals(entityType.getCode()))) {
                 if (serieDescription != null && !serieDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(serieDescription.trim());
                 }
-            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType.getCode()) ||
-                       "GROUPE".equals(entityType.getCode()))) {
+            } else if (entityType != null && (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType.getCode()))) {
                 // Construire le commentaire avec description et période
                 StringBuilder commentaireBuilder = new StringBuilder();
                 if (groupDescription != null && !groupDescription.trim().isEmpty()) {

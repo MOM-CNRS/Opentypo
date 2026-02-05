@@ -226,7 +226,7 @@
                 <p:commandButton value="Valider" 
                                icon="pi pi-check"
                                styleClass="collection-btn collection-btn-validate"
-                               action="#{collectionBean.creerCollection}"
+                               action="#{collectionBean.createCollection(applicationBean)}"
                                process="@form"
                                update="@form :growl :cardsContainer :searchForm"
                                oncomplete="if(!args.validationFailed) {PF('addCollectionDialog').hide();}"/>

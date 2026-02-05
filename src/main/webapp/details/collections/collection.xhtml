@@ -32,7 +32,7 @@
                                                        itemLabel="#{langue.nom}"
                                                        itemValue="#{langue.code}" />
                                         <p:ajax event="change"
-                                                listener="#{collectionBean.changeEditingLanguage()}"
+                                                listener="#{collectionBean.changeEditingLanguage(applicationBean)}"
                                                 process="@form"
                                                 update=":collectionEditForm:collectionEditLabelInput, :collectionEditForm:collectionEditDescriptionInput"
                                                 onstart="showLoading('Chargement...', 'spinner');"
@@ -146,7 +146,7 @@
                                              immediate="true"/>
                             <p:commandButton value="Valider"
                                            icon="pi pi-check"
-                                           action="#{collectionBean.saveCollectionChanges}"
+                                           action="#{collectionBean.saveCollectionChanges(applicationBean)}"
                                            process="@form" ajax="true"
                                            update=":collectionDetailPanel, :growl, :centerContent"
                                            styleClass="collection-edit-btn collection-edit-btn-validate"

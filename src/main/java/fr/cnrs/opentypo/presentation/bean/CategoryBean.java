@@ -132,7 +132,7 @@ public class CategoryBean implements Serializable {
             // Récupérer le type d'entité CATEGORY
             // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
             EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
-                    .orElse(entityTypeRepository.findByCode("CATEGORIE")
+                    .orElse(entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
                             .orElseThrow(() -> new IllegalStateException(
                                     "Le type d'entité 'CATEGORY' ou 'CATEGORIE' n'existe pas dans la base de données.")));
 

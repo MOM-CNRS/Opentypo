@@ -27,17 +27,7 @@ public class ReferenceService implements Serializable {
      */
     public List<Entity> loadReferencesByCollection(Entity collectionSelected) {
 
-        List<Entity> collectionReferences = new ArrayList<>();
-        if (collectionSelected != null) {
-            try {
-                collectionReferences = entityRelationRepository.findChildrenByParentAndType(
-                        collectionSelected, EntityConstants.ENTITY_TYPE_REFERENCE);
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des référentiels de la collection", e);
-                collectionReferences = new ArrayList<>();
-            }
-        }
-        return collectionReferences;
+        return entityRelationRepository.findChildrenByParentAndType(collectionSelected, EntityConstants.ENTITY_TYPE_REFERENCE);
     }
 
     /**

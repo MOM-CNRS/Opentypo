@@ -3,13 +3,12 @@ package fr.cnrs.opentypo.application.service;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
-import jakarta.inject.Inject;
+
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,7 +17,7 @@ import java.util.List;
 @Transactional
 public class TypeService implements Serializable {
 
-    @Inject
+    @Autowired
     private EntityRelationRepository entityRelationRepository;
 
 
@@ -31,24 +30,8 @@ public class TypeService implements Serializable {
      * @return Liste des entités de type TYPE rattachées au groupe via entity_relation
      */
     public List<Entity> loadGroupTypes(Entity selectedGroup) {
-        List<Entity> groupTypes = new ArrayList<>();
-        if (selectedGroup != null) {
-            try {
-                // Recherche dans la table entity_relation les enfants (types) du groupe parent
-                // La requête SQL générée est : 
-                // SELECT er.child FROM EntityRelation er 
-                // WHERE er.parent = :parent AND er.child.entityType.code = :typeCode
-                groupTypes = entityRelationRepository.findChildrenByParentAndType(
-                        selectedGroup,
-                        EntityConstants.ENTITY_TYPE_TYPE
-                );
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des types du groupe depuis entity_relation", e);
-                groupTypes = new ArrayList<>();
-            }
-        }
 
-        return groupTypes;
+        return entityRelationRepository.findChildrenByParentAndType(selectedGroup, EntityConstants.ENTITY_TYPE_TYPE);
     }
 
     /**
@@ -60,23 +43,6 @@ public class TypeService implements Serializable {
      * @return Liste des entités de type TYPE rattachées à la série via entity_relation
      */
     public List<Entity> loadSerieTypes(Entity selectedSerie) {
-        List<Entity> serieTypes = new ArrayList<>();
-        if (selectedSerie != null) {
-            try {
-                // Recherche dans la table entity_relation les enfants (types) de la série parente
-                // La requête SQL générée est : 
-                // SELECT er.child FROM EntityRelation er 
-                // WHERE er.parent = :parent AND er.child.entityType.code = :typeCode
-                serieTypes = entityRelationRepository.findChildrenByParentAndType(
-                        selectedSerie,
-                        EntityConstants.ENTITY_TYPE_TYPE
-                );
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des types de la série depuis entity_relation", e);
-                serieTypes = new ArrayList<>();
-            }
-        }
-
-        return serieTypes;
+        return entityRelationRepository.findChildrenByParentAndType(selectedSerie, EntityConstants.ENTITY_TYPE_TYPE);
     }
 }

@@ -484,7 +484,6 @@
             /* Zone wizard-content avec fond blanc pur */
             .wizard-content {
                 background: #ffffff !important;
-                padding: 2rem !important;
                 position: relative !important;
             }
 
@@ -503,8 +502,8 @@
                 z-index: 1 !important;
             }
 
-            /* Navigation du wizard avec fond élégant */
-            .wizard-navigation {
+            /* Navigation du wizard avec fond élégant (bloc spécifique au formulaire candidat) */
+            .wizard-navigation--candidat {
                 background: linear-gradient(135deg, 
                     rgba(255, 255, 255, 0.98) 0%, 
                     rgba(248, 249, 250, 0.98) 100%) !important;
@@ -1395,10 +1394,6 @@
 
                 .custom-wizard {
                     border-radius: 12px !important;
-                }
-
-                .wizard-content {
-                    padding: 1.5rem !important;
                 }
 
                 .users-header {
