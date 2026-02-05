@@ -4,47 +4,85 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <!-- Contenu dynamique -->
     <h:panelGroup id="contentTypePanels" layout="block">
         <div class="row">
             <div class="col-md-12">
                 <div class="concept-info-panel">
-                    <!-- En-tête avec titre et actions -->
                     <div class="concept-info-header">
                         <div class="concept-info-title-section">
+                            <span class="reference-entity-type-badge">Type</span>
                             <div class="concept-info-language-flag">
                                 <h:graphicImage library="img" name="flag/fr.png"
                                                 styleClass="language-flag"
                                                 alt="Français"
                                                 title="Français"/>
                             </div>
-                            <h2 class="concept-info-title">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.nom}">
-                                    #{applicationBean.selectedEntity.nom}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.nom}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </h2>
+                            <div class="collection-panel-title-wrapper">
+                                <p:commandLink action="#{applicationBean.showSerie(applicationBean.selectedSerie)}"
+                                               process="@this"
+                                               update=":centerContent, :treeContainer, :breadcrumbContent"
+                                               onstart="showLoading('Chargement de la série...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                               onerror="forceHideLoading();"
+                                               styleClass="collection-panel-title-link">
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                </p:commandLink>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                            </div>
                         </div>
-                        <div class="concept-info-actions">
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-cog" />
-                                <p:tooltip value="Paramètres" position="top"/>
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                           process="@this" update="@none" styleClass="concept-action-button" immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
-                            <p:commandLink action="#" process="@this" update="@none" styleClass="concept-action-button">
-                                <i class="pi pi-flag" />
-                                <p:tooltip value="Marquer" position="top"/>
+                            <p:commandLink action="#{typeBean.startEditingType(applicationBean)}"
+                                           process="@this" update=":typeEditForm" styleClass="concept-action-button">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
-                        </div>
+                            <p:commandLink onclick="PF('confirmDeleteTypeDialog').show(); return false;"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
+                            </p:commandLink>
+                        </h:panelGroup>
                     </div>
 
-                    <!-- Grille d'informations -->
+                    <h:form id="typeEditForm">
                     <div class="concept-info-grid">
-                        <div class="concept-info-item concept-info-item-full">
+                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{typeBean.editingType}">
+                            <div class="concept-info-label">
+                                <i class="pi pi-code concept-info-icon" />
+                                <span>Code</span>
+                            </div>
+                            <p:inputText value="#{typeBean.editingTypeCode}"
+                                         styleClass="reference-edit-input" placeholder="Code (unique)"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup id="typeLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{typeBean.editingType}">
                             <div class="concept-info-label">
                                 <i class="pi pi-tag concept-info-icon" />
-                                <span>Type</span>
+                                <span>Label</span>
+                            </div>
+                            <div class="reference-edit-lang-row">
+                                <p:selectOneMenu value="#{typeBean.editingLabelLangueCode}"
+                                                 styleClass="reference-edit-lang-select" required="true">
+                                    <f:selectItems value="#{applicationBean.languages}" var="lang"
+                                                   itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
+                                    <p:ajax process="@this" listener="#{typeBean.onLabelLanguageChange(applicationBean)}"
+                                            update=":typeEditForm:typeLabelUpdatePanel"/>
+                                </p:selectOneMenu>
+                                <p:inputText value="#{typeBean.editingTypeLabel}"
+                                             styleClass="reference-edit-input reference-edit-input-flex"
+                                             placeholder="Nom pour la langue choisie..."/>
+                            </div>
+                        </h:panelGroup>
+
+                        <div class="concept-info-item concept-info-item-full" rendered="#{!typeBean.editingType}">
+                            <div class="concept-info-label">
+                                <i class="pi pi-tag concept-info-icon" />
+                                <span>Code type</span>
                             </div>
                             <div class="concept-info-value">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.code}">
@@ -59,16 +97,22 @@
                         <div class="concept-info-item">
                             <div class="concept-info-label">
                                 <i class="pi pi-calendar concept-info-icon" />
-                                <span>Période</span>
+                                <span>Période / Statut</span>
                             </div>
-                            <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.statut}">
-                                    #{applicationBean.selectedEntity.statut}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
+                            <ui:fragment rendered="#{!typeBean.editingType}">
+                                <div class="concept-info-value">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.statut}">
+                                        #{applicationBean.selectedEntity.statut}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{typeBean.editingType}">
+                                <p:inputText value="#{typeBean.editingTypeStatut}"
+                                             styleClass="reference-edit-input" placeholder="Statut / Période"/>
+                            </ui:fragment>
                         </div>
 
                         <div class="concept-info-item">
@@ -76,14 +120,19 @@
                                 <i class="pi pi-calendar-minus concept-info-icon" />
                                 <span>TPQ</span>
                             </div>
-                            <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
-                                    #{applicationBean.selectedEntity.tpq}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
+                            <ui:fragment rendered="#{!typeBean.editingType}">
+                                <div class="concept-info-value">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
+                                        #{applicationBean.selectedEntity.tpq}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{typeBean.editingType}">
+                                <p:inputNumber value="#{typeBean.editingTypeTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
+                            </ui:fragment>
                         </div>
 
                         <div class="concept-info-item">
@@ -91,31 +140,89 @@
                                 <i class="pi pi-calendar-plus concept-info-icon" />
                                 <span>TAQ</span>
                             </div>
-                            <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
-                                    #{applicationBean.selectedEntity.taq}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
+                            <ui:fragment rendered="#{!typeBean.editingType}">
+                                <div class="concept-info-value">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
+                                        #{applicationBean.selectedEntity.taq}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{typeBean.editingType}">
+                                <p:inputNumber value="#{typeBean.editingTypeTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
+                            </ui:fragment>
                         </div>
+
+                        <h:panelGroup id="typeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-file concept-info-icon" />
+                                <span>Description</span>
+                            </div>
+                            <ui:fragment rendered="#{!typeBean.editingType}">
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{typeBean.editingType}">
+                                <div class="reference-edit-lang-row">
+                                    <p:selectOneMenu value="#{typeBean.editingDescriptionLangueCode}"
+                                                     styleClass="reference-edit-lang-select" required="true">
+                                        <f:selectItems value="#{applicationBean.languages}" var="lang"
+                                                       itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
+                                        <p:ajax listener="#{typeBean.onDescriptionLanguageChange(applicationBean)}"
+                                                process="@this" update=":typeEditForm:typeDescUpdatePanel"/>
+                                    </p:selectOneMenu>
+                                    <p:inputTextarea value="#{typeBean.editingTypeDescription}"
+                                                     rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                     placeholder="Description pour la langue choisie..."/>
+                                </div>
+                            </ui:fragment>
+                        </h:panelGroup>
 
                         <div class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
                                 <i class="pi pi-comment concept-info-icon" />
                                 <span>Commentaire datation</span>
                             </div>
-                            <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                    #{applicationBean.selectedEntity.commentaire}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
+                            <ui:fragment rendered="#{!typeBean.editingType}">
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
+                                        #{applicationBean.selectedEntity.commentaire}
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{typeBean.editingType}">
+                                <p:inputTextarea value="#{typeBean.editingTypeCommentaire}"
+                                                 rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                 placeholder="Commentaire..."/>
+                            </ui:fragment>
                         </div>
+
+                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{typeBean.editingType}">
+                            <div class="reference-edit-actions">
+                                <p:commandButton value="Annuler" icon="pi pi-times"
+                                                 action="#{typeBean.cancelEditingType()}"
+                                                 process="@this" update=":typeEditForm"
+                                                 styleClass="reference-edit-btn reference-edit-btn-cancel"/>
+                                <p:commandButton value="Valider" icon="pi pi-check"
+                                                 onclick="PF('confirmSaveTypeDialog').show(); return false;"
+                                                 styleClass="reference-edit-btn reference-edit-btn-validate"/>
+                            </div>
+                        </h:panelGroup>
                     </div>
+                    <ui:include src="confirmSaveTypeDialog.xhtml"/>
+                    <ui:include src="confirmDeleteTypeDialog.xhtml"/>
+                    </h:form>
                 </div>
 
                 <div class="row mt-20" style="margin-top: 15px">

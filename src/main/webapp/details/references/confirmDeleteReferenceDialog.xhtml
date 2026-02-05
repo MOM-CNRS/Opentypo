@@ -54,7 +54,7 @@
                              action="#{referenceBean.deleteReference(applicationBean)}"
                              process="@this"
                              ajax="true"
-                             update=":centerContent, :treeContainer, :growl"
+                             update=":centerContent, :treeContainer, :breadcrumbContent, :growl"
                              styleClass="reference-delete-btn reference-delete-btn-confirm"
                              oncomplete="setTimeout(function(){PF('confirmDeleteReferenceDialog').hide();}, 100);"/>
             <p:commandButton value="Annuler"

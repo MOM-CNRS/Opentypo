@@ -242,7 +242,7 @@ public class ApplicationBean implements Serializable {
     /**
      * Recharge la liste des enfants directs de selectedEntity selon son type.
      */
-    private void refreshChilds() {
+    public void refreshChilds() {
 
         if (selectedEntity == null) {
             childs = new ArrayList<>();

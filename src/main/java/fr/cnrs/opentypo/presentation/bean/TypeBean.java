@@ -1,13 +1,18 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -18,11 +23,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -49,9 +57,26 @@ public class TypeBean implements Serializable {
     @Inject
     private EntityRelationRepository entityRelationRepository;
 
+    @Inject
+    private LangueRepository langueRepository;
+
+    @Inject
+    private SearchBean searchBean;
+
     private String typeCode;
     private String typeLabel;
     private String typeDescription;
+
+    private boolean editingType = false;
+    private String editingTypeCode;
+    private String editingLabelLangueCode;
+    private String editingTypeLabel;
+    private String editingDescriptionLangueCode;
+    private String editingTypeDescription;
+    private String editingTypeCommentaire;
+    private String editingTypeStatut;
+    private Integer editingTypeTpq;
+    private Integer editingTypeTaq;
 
     public void resetTypeForm() {
         typeCode = null;
@@ -158,6 +183,187 @@ public class TypeBean implements Serializable {
                             "Erreur",
                             "Une erreur est survenue lors de la création du type : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
+        }
+    }
+
+    public void startEditingType(ApplicationBean applicationBean) {
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null) {
+            return;
+        }
+        Entity type = applicationBean.getSelectedEntity();
+        String codeLang = searchBean != null && searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+        editingType = true;
+        editingTypeCode = type.getCode() != null ? type.getCode() : "";
+        editingLabelLangueCode = codeLang;
+        editingDescriptionLangueCode = codeLang;
+        editingTypeLabel = EntityUtils.getLabelValueForLanguage(type, codeLang);
+        editingTypeDescription = EntityUtils.getDescriptionValueForLanguage(type, codeLang);
+        editingTypeCommentaire = type.getCommentaire() != null ? type.getCommentaire() : "";
+        editingTypeStatut = type.getStatut() != null ? type.getStatut() : "";
+        editingTypeTpq = type.getTpq();
+        editingTypeTaq = type.getTaq();
+    }
+
+    public void cancelEditingType() {
+        editingType = false;
+        editingTypeCode = null;
+        editingLabelLangueCode = null;
+        editingDescriptionLangueCode = null;
+        editingTypeLabel = null;
+        editingTypeDescription = null;
+        editingTypeCommentaire = null;
+        editingTypeStatut = null;
+        editingTypeTpq = null;
+        editingTypeTaq = null;
+    }
+
+    public void onLabelLanguageChange(ApplicationBean applicationBean) {
+        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingLabelLangueCode != null) {
+            editingTypeLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), editingLabelLangueCode);
+        }
+    }
+
+    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
+        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingDescriptionLangueCode != null) {
+            editingTypeDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), editingDescriptionLangueCode);
+        }
+    }
+
+    @Transactional
+    public void saveType(ApplicationBean applicationBean) {
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null) {
+            return;
+        }
+        Entity typeToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).orElse(null);
+        if (typeToUpdate == null) {
+            return;
+        }
+
+        String newCode = editingTypeCode != null ? editingTypeCode.trim() : null;
+        if (newCode != null && !newCode.isEmpty() && !Objects.equals(newCode, typeToUpdate.getCode())) {
+            typeToUpdate.setCode(newCode);
+        }
+
+        String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
+        Langue labelLangue = langueRepository.findByCode(labelLangueCode);
+        String newLabel = editingTypeLabel != null ? editingTypeLabel.trim() : "";
+        String currentLabelValue = EntityUtils.getLabelValueForLanguage(typeToUpdate, labelLangueCode);
+        if (labelLangue != null && !Objects.equals(newLabel, currentLabelValue)) {
+            Optional<Label> labelOpt = typeToUpdate.getLabels() != null
+                    ? typeToUpdate.getLabels().stream()
+                    .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
+                    .findFirst()
+                    : Optional.empty();
+            if (labelOpt.isPresent()) {
+                labelOpt.get().setNom(newLabel);
+            } else {
+                Label newLabelEntity = new Label();
+                newLabelEntity.setNom(newLabel);
+                newLabelEntity.setEntity(typeToUpdate);
+                newLabelEntity.setLangue(labelLangue);
+                if (typeToUpdate.getLabels() == null) {
+                    typeToUpdate.setLabels(new ArrayList<>());
+                }
+                typeToUpdate.getLabels().add(newLabelEntity);
+            }
+        }
+
+        String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
+        Langue descLangue = langueRepository.findByCode(descLangueCode);
+        String newDesc = editingTypeDescription != null ? editingTypeDescription.trim() : "";
+        String currentDescValue = EntityUtils.getDescriptionValueForLanguage(typeToUpdate, descLangueCode);
+        if (descLangue != null && !Objects.equals(newDesc, currentDescValue)) {
+            Optional<Description> descOpt = typeToUpdate.getDescriptions() != null
+                    ? typeToUpdate.getDescriptions().stream()
+                    .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
+                    .findFirst()
+                    : Optional.empty();
+            if (descOpt.isPresent()) {
+                descOpt.get().setValeur(newDesc);
+            } else {
+                Description newDescEntity = new Description();
+                newDescEntity.setValeur(newDesc);
+                newDescEntity.setEntity(typeToUpdate);
+                newDescEntity.setLangue(descLangue);
+                if (typeToUpdate.getDescriptions() == null) {
+                    typeToUpdate.setDescriptions(new ArrayList<>());
+                }
+                typeToUpdate.getDescriptions().add(newDescEntity);
+            }
+        }
+
+        if (editingTypeCommentaire != null) {
+            typeToUpdate.setCommentaire(editingTypeCommentaire.trim().isEmpty() ? null : editingTypeCommentaire.trim());
+        }
+        if (editingTypeStatut != null) {
+            typeToUpdate.setStatut(editingTypeStatut.trim().isEmpty() ? null : editingTypeStatut.trim());
+        }
+        if (editingTypeTpq != null) {
+            typeToUpdate.setTpq(editingTypeTpq);
+        }
+        if (editingTypeTaq != null) {
+            typeToUpdate.setTaq(editingTypeTaq);
+        }
+
+        Entity saved = entityRepository.save(typeToUpdate);
+        applicationBean.setSelectedEntity(saved);
+        int idx = applicationBean.getBeadCrumbElements().size() - 1;
+        if (idx >= 0) {
+            applicationBean.getBeadCrumbElements().set(idx, saved);
+        }
+        TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
+        if (tb != null) {
+            tb.expandPathAndSelectEntity(saved);
+        }
+        cancelEditingType();
+        applicationBean.refreshGroupTypesList();
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Les modifications du type ont été enregistrées."));
+    }
+
+    /**
+     * Supprime le type sélectionné (et ses éventuels enfants) de manière récursive.
+     */
+    @Transactional
+    public void deleteType(ApplicationBean applicationBean) {
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun type sélectionné."));
+            return;
+        }
+        try {
+            Entity type = applicationBean.getSelectedEntity();
+            String typeCode = type.getCode();
+            Long typeId = type.getId();
+            Entity parentSerie = applicationBean.getSelectedSerie();
+
+            applicationBean.deleteEntityRecursively(type);
+
+            applicationBean.setSelectedEntity(parentSerie);
+            applicationBean.setChilds(parentSerie != null ? new ArrayList<>() : new ArrayList<>());
+            if (applicationBean.getBeadCrumbElements().size() > 0) {
+                applicationBean.getBeadCrumbElements().remove(applicationBean.getBeadCrumbElements().size() - 1);
+            }
+            if (parentSerie != null) {
+                applicationBean.refreshChilds();
+                applicationBean.getPanelState().showSerie();
+            } else {
+                applicationBean.getPanelState().showCollections();
+            }
+            TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
+            if (tb != null) {
+                tb.initializeTreeWithCollection();
+            }
+            cancelEditingType();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                            "Le type '" + typeCode + "' et toutes les entités rattachées ont été supprimés."));
+            log.info("Type supprimé avec succès: {} (ID: {})", typeCode, typeId);
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression du type", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                            "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
     }
 }

@@ -3,9 +3,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <!-- Dialog de confirmation de suppression -->
-    <p:dialog id="confirmDeleteCategoryDialog"
-              widgetVar="confirmDeleteCategoryDialog"
+    <p:dialog id="confirmDeleteSerieDialog"
+              widgetVar="confirmDeleteSerieDialog"
               header="Confirmer la suppression"
               modal="true"
               closable="true"
@@ -21,7 +20,7 @@
                     <i class="pi pi-trash reference-delete-header-icon" />
                 </div>
                 <div class="reference-delete-header-content">
-                    <h3 class="reference-delete-header-title">Confirmer la suppression</h3>
+                    <h3 class="reference-delete-header-title">Confirmer la suppression de la série</h3>
                     <p class="reference-delete-header-subtitle">Cette action est irréversible</p>
                 </div>
             </div>
@@ -33,13 +32,11 @@
             </div>
             <div class="reference-delete-message-content">
                 <p class="reference-delete-message-text">
-                    <strong>Attention !</strong> Vous êtes sur le point de supprimer la catégorie
+                    <strong>Attention !</strong> Vous êtes sur le point de supprimer la série
                     <strong>"#{applicationBean.selectedEntity.code}"</strong> ainsi que <strong>toutes les entités</strong> qui lui sont rattachées :
                 </p>
                 <ul class="reference-delete-list">
-                    <li>Tous les groupes</li>
-                    <li>Toutes les séries</li>
-                    <li>Tous les types</li>
+                    <li>Tous les types de cette série</li>
                 </ul>
                 <p class="reference-delete-warning-text">
                     Cette action est <strong>définitive et irréversible</strong>. Êtes-vous sûr de vouloir continuer ?
@@ -50,17 +47,17 @@
         <div class="reference-delete-actions">
             <p:commandButton value="Annuler"
                              icon="pi pi-times"
-                             onclick="PF('confirmDeleteCategoryDialog').hide(); return false;"
+                             onclick="PF('confirmDeleteSerieDialog').hide(); return false;"
                              type="button"
                              styleClass="reference-delete-btn reference-delete-btn-cancel"/>
             <p:commandButton value="Oui, supprimer"
                              icon="pi pi-trash"
-                             action="#{categoryBean.deleteReference(applicationBean)}"
+                             action="#{serieBean.deleteSerie(applicationBean)}"
                              process="@this"
                              ajax="true"
                              update=":centerContent, :treeContainer, :breadcrumbContent, :growl"
                              styleClass="reference-delete-btn reference-delete-btn-confirm"
-                             oncomplete="setTimeout(function(){PF('confirmDeleteCategoryDialog').hide();}, 100);"/>
+                             oncomplete="setTimeout(function(){PF('confirmDeleteSerieDialog').hide();}, 100);"/>
         </div>
     </p:dialog>
 </ui:composition>
