@@ -21,7 +21,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.event.NodeExpandEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -117,20 +116,12 @@ public class TreeBean implements Serializable {
         }
 
         if (selectedCollection != null && treeService != null) {
-            try {
-                root = treeService.buildRootWithDirectChildrenOnly(selectedCollection);
-                if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && root != null) {
-                    TreeNode found = findNodeByEntity(root, previouslySelectedEntity);
-                    if (found != null) {
-                        selectedNode = found;
-                    }
+            root = treeService.buildRootWithDirectChildrenOnly(selectedCollection);
+            if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && root != null) {
+                TreeNode found = findNodeByEntity(root, previouslySelectedEntity);
+                if (found != null) {
+                    selectedNode = found;
                 }
-            } catch (Exception e) {
-                log.error("Erreur lors de l'initialisation de l'arbre avec la collection", e);
-                String collectionName = selectedCollection.getNom() != null ? selectedCollection.getNom() : "Collection";
-                DefaultTreeNode fallback = new DefaultTreeNode(collectionName, null);
-                fallback.setData(selectedCollection);
-                root = fallback;
             }
         } else {
             root = new DefaultTreeNode("root", null);
@@ -191,26 +182,6 @@ public class TreeBean implements Serializable {
         }
     }
 
-    public void onNodeSelect(NodeSelectEvent event) {
-        this.selectedNode = event.getTreeNode();
-
-        // Charger les enfants de l'élément sélectionné s'ils ne sont pas déjà chargés
-        int childCountBefore = selectedNode != null ? selectedNode.getChildCount() : 0;
-        loadChildrenIfNeeded(selectedNode);
-        
-        // Si des enfants ont été chargés, étendre le nœud pour les afficher
-        if (selectedNode != null && selectedNode.getChildCount() > childCountBefore) {
-            selectedNode.setExpanded(true);
-            log.debug("Nœud {} étendu automatiquement après chargement de {} enfants", 
-                     selectedNode.getData() instanceof Entity ? ((Entity) selectedNode.getData()).getNom() : "unknown",
-                     selectedNode.getChildCount() - childCountBefore);
-        }
-
-        if (selectedNode != null && selectedNode.getData() != null && selectedNode.getData() instanceof Entity entity) {
-            navigateToEntity(entity);
-        }
-    }
-
     /**
      * Sélectionne un nœud par ID d'entité (appel AJAX depuis le client).
      */
@@ -221,14 +192,8 @@ public class TreeBean implements Serializable {
             idStr = String.valueOf(selectedEntityIdForAjax);
         }
         if (idStr == null || idStr.isBlank()) return;
-        Long entityId;
-        try {
-            entityId = Long.parseLong(idStr.trim());
-        } catch (NumberFormatException e) {
-            log.warn("selectEntityById: entityId invalide: {}", idStr);
-            return;
-        }
-        if (root == null) return;
+        Long entityId = Long.parseLong(idStr.trim());
+
         TreeNode foundNode = findNodeByEntityId(root, entityId);
         if (foundNode == null) {
             log.warn("selectEntityById: nœud non trouvé pour entityId={}", entityId);
@@ -240,8 +205,8 @@ public class TreeBean implements Serializable {
         if (foundNode.getChildCount() > childCountBefore) {
             foundNode.setExpanded(true);
         }
-        Object data = foundNode.getData();
-        if (data == null || !(data instanceof Entity entity)) return;
+
+        if (foundNode.getData() == null || !(foundNode.getData() instanceof Entity entity)) return;
         navigateToEntity(entity);
     }
 
@@ -249,15 +214,19 @@ public class TreeBean implements Serializable {
         if (entity.getEntityType() == null) return;
 
         ApplicationBean appBean = getApplicationBean();
+        assert appBean != null;
         switch(entity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
                 collectionBean.showCollectionDetail(appBean, entity);
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
+                appBean.showReferenceDetail(entity);
+                break;
+            case EntityConstants.ENTITY_TYPE_CATEGORY:
                 appBean.showCategoryDetail(entity);
                 break;
             case EntityConstants.ENTITY_TYPE_GROUP:
-                appBean.showReferenceDetail(entity);
+                appBean.showGroupe(entity);
                 break;
             case EntityConstants.ENTITY_TYPE_SERIES:
                 appBean.showSerie(entity);
