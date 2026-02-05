@@ -46,10 +46,10 @@ public class Utilisateur implements Serializable {
     @Column(name = "prenom", nullable = false, length = 100)
     private String prenom;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
     @ManyToOne(fetch = FetchType.LAZY)

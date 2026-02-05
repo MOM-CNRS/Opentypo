@@ -1,7 +1,10 @@
 package fr.cnrs.opentypo.presentation.bean.users;
 
+import fr.cnrs.opentypo.application.dto.CollectionReferenceItem;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
+import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Groupe;
@@ -12,24 +15,26 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.GroupeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
+import fr.cnrs.opentypo.presentation.bean.UserBean;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.primefaces.model.DualListModel;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,10 +46,10 @@ import java.util.stream.Collectors;
 public class UserManagementBean implements Serializable {
 
     @Inject
-    private fr.cnrs.opentypo.presentation.bean.UserBean currentUserBean;
+    private UserBean currentUserBean;
 
     @Inject
-    private fr.cnrs.opentypo.presentation.bean.LoginBean loginBean;
+    private LoginBean loginBean;
 
     @Inject
     private UtilisateurRepository utilisateurRepository;
@@ -65,11 +70,11 @@ public class UserManagementBean implements Serializable {
     private EntityRelationRepository entityRelationRepository;
 
     @Inject
-    private fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository userPermissionRepository;
+    private UserPermissionRepository userPermissionRepository;
 
-    private List<User> users = new ArrayList<>();
-    private User selectedUser;
-    private User newUser;
+    private List<Utilisateur> users = new ArrayList<>();
+    private Utilisateur selectedUser;
+    private Utilisateur newUser;
     private boolean isEditMode = false;
     private List<Groupe> availableGroups = new ArrayList<>(); // Liste des groupes disponibles depuis la base
     private Long selectedGroupeId; // ID du groupe sélectionné dans le formulaire
@@ -89,20 +94,7 @@ public class UserManagementBean implements Serializable {
     // Liste des référentiels uniquement (pour administrateur référentiel)
     private List<Entity> allReferences = new ArrayList<>(); // Tous les référentiels publics
     private List<String> selectedReferenceCodesOnly = new ArrayList<>(); // Codes des référentiels sélectionnés (sans collections)
-    
-    /**
-     * Classe interne pour représenter une collection avec ses référentiels
-     */
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CollectionReferenceItem implements Serializable {
-        private Entity collection;
-        private List<Entity> references = new ArrayList<>();
-        private boolean collectionSelected = false;
-        private List<Boolean> referencesSelected = new ArrayList<>();
-    }
+
 
     @PostConstruct
     public void init() {
@@ -126,11 +118,10 @@ public class UserManagementBean implements Serializable {
         collectionReferenceItems = new ArrayList<>();
         allReferences = new ArrayList<>();
         try {
-            // Charger les collections
-            List<Entity> collections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
-            collections = collections.stream()
-                .filter(c -> c != null && c.getPublique() != null && c.getPublique())
-                .collect(Collectors.toList());
+            // Charger les collections (liste complète, tous statuts)
+            List<Entity> collections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION).stream()
+                .filter(Objects::nonNull)
+                .toList();
             
             // Pour chaque collection
             for (Entity collection : collections) {
@@ -193,103 +184,17 @@ public class UserManagementBean implements Serializable {
     }
     
     /**
-     * Retourne la liste filtrée des collections et référentiels pour le dataTable
+     * Affiche le panel des collections pour tout groupe sauf "Administrateur technique".
      */
-    public List<CollectionReferenceItem> getFilteredCollectionReferenceItems() {
-        if (searchFilter == null || searchFilter.trim().isEmpty()) {
-            return collectionReferenceItems;
-        }
-        
-        String filterLower = searchFilter.toLowerCase().trim();
-        List<CollectionReferenceItem> filtered = new ArrayList<>();
-        
-        for (CollectionReferenceItem item : collectionReferenceItems) {
-            if (item.getCollection() == null) {
-                continue;
-            }
-            
-            // Vérifier si la collection correspond au filtre
-            boolean collectionMatches = item.getCollection().getCode() != null &&
-                item.getCollection().getCode().toLowerCase().contains(filterLower);
-            
-            // Vérifier si au moins une référence correspond au filtre
-            boolean hasMatchingReference = false;
-            if (item.getReferences() != null) {
-                for (Entity ref : item.getReferences()) {
-                    if (ref != null && ref.getCode() != null &&
-                        ref.getCode().toLowerCase().contains(filterLower)) {
-                        hasMatchingReference = true;
-                        break;
-                    }
-                }
-            }
-            
-            // Si la collection ou une référence correspond, inclure l'item
-            if (collectionMatches || hasMatchingReference) {
-                filtered.add(item);
-            }
-        }
-        
-        return filtered;
-    }
-    
-    /**
-     * Retourne le message à afficher quand le dataTable est vide
-     */
-    public String getEmptyTableMessage() {
-        if (searchFilter == null || searchFilter.trim().isEmpty()) {
-            return "Aucune collection disponible";
-        } else {
-            return "Aucun résultat trouvé pour votre recherche : \"" + searchFilter + "\"";
-        }
-    }
-    
-    /**
-     * Retourne le message à afficher quand le dataTable des référentiels est vide
-     */
-    public String getEmptyReferencesTableMessage() {
-        if (searchFilter == null || searchFilter.trim().isEmpty()) {
-            return "Aucun référentiel disponible";
-        } else {
-            return "Aucun résultat trouvé pour votre recherche : \"" + searchFilter + "\"";
-        }
-    }
-    
-    /**
-     * Vérifie si le groupe sélectionné est "Administrateur technique"
-     */
-    public boolean isAdministrateurTechnique() {
+    public boolean showCollectionsPanel() {
         if (selectedGroupe == null) {
             return false;
         }
-        boolean isAdminTech = "Administrateur technique".equalsIgnoreCase(selectedGroupe.getNom()) ||
-                "Administrateur".equalsIgnoreCase(selectedGroupe.getNom());
-        log.debug("Vérification groupe '{}' -> isAdministrateurTechnique: {}", selectedGroupe.getNom(), isAdminTech);
-        return isAdminTech;
+        return !"Administrateur technique".equalsIgnoreCase(selectedGroupe.getNom());
     }
-    
+
     /**
-     * Getter pour l'expression EL (isAdministrateurTechnique -> administrateurTechnique)
-     */
-    public boolean isAdministrateurTechniqueGetter() {
-        return isAdministrateurTechnique();
-    }
-    
-    /**
-     * Vérifie si le panel des référentiels doit être visible
-     * Visible uniquement pour "Éditeur" et "Lecteur"
-     */
-    public boolean isReferencesPanelVisible() {
-        if (selectedGroupe == null) {
-            return false;
-        }
-        boolean visible = "Éditeur".equalsIgnoreCase(selectedGroupe.getNom()) || "Lecteur".equalsIgnoreCase(selectedGroupe.getNom());
-        log.debug("Vérification groupe '{}' -> isReferencesPanelVisible: {}", selectedGroupe.getNom(), visible);
-        return visible;
-    }
-    
-    /**
-     * Vérifie si le groupe sélectionné est "Administrateur Référentiel"
+     * Indique si le groupe sélectionné est "Administrateur Référentiel".
      */
     public boolean isAdministrateurReferentiel() {
         if (selectedGroupe == null) {
@@ -297,14 +202,35 @@ public class UserManagementBean implements Serializable {
         }
         return "Administrateur Référentiel".equalsIgnoreCase(selectedGroupe.getNom());
     }
-    
+
     /**
-     * Getter pour l'expression EL (isAdministrateurReferentiel -> administrateurReferentiel)
+     * Retourne la liste des collections pour le dataTable (avec filtre de recherche optionnel).
+     * Charge la liste depuis la base si nécessaire (liste complète, tous statuts).
      */
-    public boolean isAdministrateurReferentielGetter() {
-        return isAdministrateurReferentiel();
+    public List<CollectionReferenceItem> getFilteredCollectionReferenceItems() {
+        if (collectionReferenceItems.isEmpty()) {
+            chargerCollectionsEtReferences();
+        }
+        if (searchFilter == null || searchFilter.trim().isEmpty()) {
+            return collectionReferenceItems;
+        }
+        String filterLower = searchFilter.toLowerCase().trim();
+        List<CollectionReferenceItem> filtered = new ArrayList<>();
+        for (CollectionReferenceItem item : collectionReferenceItems) {
+            if (item == null || item.getCollection() == null) {
+                continue;
+            }
+            String code = item.getCollection().getCode();
+            String nom = item.getCollection().getNom();
+            boolean codeMatch = code != null && code.toLowerCase().contains(filterLower);
+            boolean nomMatch = nom != null && nom.toLowerCase().contains(filterLower);
+            if (codeMatch || nomMatch) {
+                filtered.add(item);
+            }
+        }
+        return filtered;
     }
-    
+
     /**
      * Retourne la liste filtrée des référentiels uniquement (pour administrateur référentiel)
      */
@@ -344,6 +270,59 @@ public class UserManagementBean implements Serializable {
             return false;
         }
         return selectedReferenceCodesOnly.contains(reference.getCode());
+    }
+    
+    /**
+     * Appelé lors du clic sur la case à cocher d'une collection (panel commun à tous les groupes sauf Admin technique).
+     * Délègue à la logique Admin Référentiel ou Éditeur/Lecteur selon le groupe.
+     */
+    public void onCollectionToggle(CollectionReferenceItem item) {
+        if (isAdministrateurReferentiel()) {
+            toggleCollectionSelectionForAdminRef(item);
+        } else {
+            toggleCollectionSelection(item);
+        }
+    }
+
+    /**
+     * Gère la sélection/désélection d'une collection pour le groupe Administrateur Référentiel.
+     * Sélectionner une collection ajoute tous ses référentiels à selectedReferenceCodesOnly ;
+     * désélectionner retire tous ses référentiels.
+     */
+    public void toggleCollectionSelectionForAdminRef(CollectionReferenceItem item) {
+        if (item == null || item.getCollection() == null || item.getCollection().getCode() == null) {
+            return;
+        }
+        CollectionReferenceItem originalItem = null;
+        for (CollectionReferenceItem original : collectionReferenceItems) {
+            if (original != null && original.getCollection() != null
+                && original.getCollection().getCode() != null
+                && original.getCollection().getCode().equals(item.getCollection().getCode())) {
+                originalItem = original;
+                break;
+            }
+        }
+        if (originalItem == null) {
+            return;
+        }
+        boolean newValue = !originalItem.isCollectionSelected();
+        originalItem.setCollectionSelected(newValue);
+        if (originalItem.getReferences() == null) {
+            return;
+        }
+        if (newValue) {
+            for (Entity ref : originalItem.getReferences()) {
+                if (ref != null && ref.getCode() != null && !selectedReferenceCodesOnly.contains(ref.getCode())) {
+                    selectedReferenceCodesOnly.add(ref.getCode());
+                }
+            }
+        } else {
+            for (Entity ref : originalItem.getReferences()) {
+                if (ref != null && ref.getCode() != null) {
+                    selectedReferenceCodesOnly.remove(ref.getCode());
+                }
+            }
+        }
     }
     
     /**
@@ -429,25 +408,19 @@ public class UserManagementBean implements Serializable {
         boolean newValue = !originalItem.getReferencesSelected().get(referenceIndex);
         originalItem.getReferencesSelected().set(referenceIndex, newValue);
         
-        // Si toutes les références sont sélectionnées, sélectionner la collection
-        // Sinon, désélectionner la collection
-        if (originalItem.getReferences() != null && originalItem.getReferencesSelected() != null) {
-            boolean allSelected = true;
-            for (Boolean selected : originalItem.getReferencesSelected()) {
-                if (!selected) {
-                    allSelected = false;
-                    break;
-                }
-            }
-            originalItem.setCollectionSelected(allSelected);
-        }
-        
+        // Si au moins une référence est sélectionnée, sélectionner la collection automatiquement
+        // Si aucune référence n'est sélectionnée, désélectionner la collection
+        boolean atLeastOneSelected = originalItem.getReferencesSelected().stream().anyMatch(Boolean::booleanValue);
+        originalItem.setCollectionSelected(atLeastOneSelected);
+
         // Mettre à jour selectedReferenceCodes
         updateSelectedReferenceCodes();
     }
     
     /**
-     * Met à jour selectedReferenceCodes à partir des sélections dans collectionReferenceItems
+     * Met à jour selectedReferenceCodes à partir des sélections dans collectionReferenceItems.
+     * - Collection cochée et tous les référentiels cochés → on enregistre "COL:" (accès à toute la collection).
+     * - Sinon → on enregistre uniquement les "REF:col:ref" pour les référentiels cochés.
      */
     private void updateSelectedReferenceCodes() {
         selectedReferenceCodes = new ArrayList<>();
@@ -457,11 +430,15 @@ public class UserManagementBean implements Serializable {
                 continue;
             }
             
-            if (item.isCollectionSelected()) {
-                // Si la collection est sélectionnée, ajouter la collection
+            boolean allRefsSelected = item.getReferences() != null && item.getReferencesSelected() != null
+                && !item.getReferencesSelected().isEmpty()
+                && item.getReferencesSelected().stream().allMatch(Boolean::booleanValue);
+            
+            if (item.isCollectionSelected() && allRefsSelected) {
+                // Collection explicitement sélectionnée (tous les référentiels cochés)
                 selectedReferenceCodes.add("COL:" + item.getCollection().getCode());
             } else if (item.getReferences() != null && item.getReferencesSelected() != null) {
-                // Sinon, ajouter uniquement les références sélectionnées individuellement
+                // Références sélectionnées individuellement (la collection peut être cochée visuellement)
                 for (int i = 0; i < item.getReferences().size() && i < item.getReferencesSelected().size(); i++) {
                     if (item.getReferencesSelected().get(i) && item.getReferences().get(i) != null) {
                         Entity reference = item.getReferences().get(i);
@@ -529,31 +506,8 @@ public class UserManagementBean implements Serializable {
      * Listener appelé quand le groupe est changé
      */
     public void onGroupeChange() {
-        log.info("=== onGroupeChange appelé ===");
-        log.info("selectedGroupeId: {}", selectedGroupeId);
-        
-        // Mettre à jour selectedGroupe à partir de selectedGroupeId
-        if (selectedGroupeId != null && selectedGroupeId > 0) {
-            try {
-                Optional<Groupe> groupeOpt = groupeRepository.findById(selectedGroupeId);
-                if (groupeOpt.isPresent()) {
-                    selectedGroupe = groupeOpt.get();
-                    log.info("Groupe mis à jour: {} (ID: {})", selectedGroupe.getNom(), selectedGroupeId);
-                } else {
-                    selectedGroupe = null;
-                    log.warn("Aucun groupe trouvé avec l'ID: {}", selectedGroupeId);
-                }
-            } catch (Exception e) {
-                selectedGroupe = null;
-                log.error("Erreur lors de la recherche du groupe", e);
-            }
-        } else {
-            selectedGroupe = null;
-            log.info("selectedGroupeId est null ou 0 - selectedGroupe mis à null");
-        }
-        
-        // Forcer la mise à jour des panels
-        PrimeFaces.current().ajax().update(":userForm:referencesPanel");
+        selectedGroupe = groupeRepository.findById(selectedGroupeId).orElse(null);
+        // Ne pas vider collectionReferenceItems : la liste des collections reste celle chargée en base
     }
 
     /**
@@ -573,18 +527,11 @@ public class UserManagementBean implements Serializable {
             redirectToUnauthorized();
             return;
         }
-        try {
-            List<Utilisateur> utilisateurs = utilisateurRepository.findAll();
-            users = utilisateurs.stream()
-                .map(this::convertToUser)
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            users = new ArrayList<>();
-            notificationBean.showError("Erreur", "Erreur lors du chargement des utilisateurs : " + e.getMessage());
-        }
+
+        users = utilisateurRepository.findAll();
     }
 
-    public void initNouveauUser() {
+    public void initNouveauUser() throws IOException {
         if (!isAdminTechnique()) {
             redirectToUnauthorized();
             return;
@@ -593,22 +540,18 @@ public class UserManagementBean implements Serializable {
         if (facesContext != null) {
             String userIdParam = facesContext.getExternalContext().getRequestParameterMap().get("userId");
             if (userIdParam != null && !userIdParam.isEmpty()) {
-                try {
-                    Long userId = Long.parseLong(userIdParam);
-                    Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(userId);
-                    if (utilisateurOpt.isPresent()) {
-                        initEditUser(convertToUser(utilisateurOpt.get()));
-                        return;
-                    }
-                } catch (NumberFormatException e) {
-                    // Ignore
+                Long userId = Long.parseLong(userIdParam);
+                Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(userId);
+                if (utilisateurOpt.isPresent()) {
+                    initEditUser(utilisateurOpt.get());
+                    return;
                 }
             }
         }
-        newUser = new User();
-        newUser.setCreatedBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
+        newUser = new Utilisateur();
+        newUser.setCreateBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
         newUser.setActive(true);
-        newUser.setRole(User.Role.VIEWER);
+        newUser.setGroupe(null);
         selectedGroupeId = null; // Réinitialiser la sélection du groupe
         selectedGroupe = null;
         selectedReferenceCodes = new ArrayList<>(); // Réinitialiser les référentiels sélectionnés
@@ -622,20 +565,13 @@ public class UserManagementBean implements Serializable {
         chargerCollectionsEtReferences();
         // Réinitialiser le PickList
         initialiserPickList();
+
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/users/create.xhtml");
     }
 
-    public void initEditUser(User user) {
-        newUser = new User();
-        newUser.setId(user.getId());
-        newUser.setUsername(user.getUsername());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(""); // Ne pas afficher le mot de passe
-        newUser.setFirstName(user.getFirstName());
-        newUser.setLastName(user.getLastName());
-        newUser.setRole(user.getRole());
-        newUser.setActive(user.isActive());
-        newUser.setDateCreation(user.getDateCreation());
-        newUser.setCreatedBy(user.getCreatedBy());
+    public void initEditUser(Utilisateur utilisateur) throws IOException {
+        newUser = utilisateur;
         isEditMode = true;
         // S'assurer que les groupes sont chargés
         if (availableGroups.isEmpty()) {
@@ -643,7 +579,7 @@ public class UserManagementBean implements Serializable {
         }
         // Charger le groupe actuel de l'utilisateur pour la modification
         try {
-            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(user.getId());
+            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(utilisateur.getId());
             if (utilisateurOpt.isPresent() && utilisateurOpt.get().getGroupe() != null) {
                 selectedGroupeId = utilisateurOpt.get().getGroupe().getId();
                 selectedGroupe = utilisateurOpt.get().getGroupe();
@@ -658,13 +594,16 @@ public class UserManagementBean implements Serializable {
         // Charger les collections et référentiels
         chargerCollectionsEtReferences();
         // Charger les référentiels sélectionnés depuis la base de données
-        chargerPermissionsUtilisateur(user.getId());
-        // Appliquer les permissions chargées aux items du dataTable (seulement si ce n'est pas un admin référentiel)
-        if (!isAdministrateurReferentiel() && selectedReferenceCodes != null && !selectedReferenceCodes.isEmpty()) {
+        chargerPermissionsUtilisateur(utilisateur.getId());
+        if (selectedReferenceCodes != null && !selectedReferenceCodes.isEmpty()) {
             appliquerPermissionsAuxItems();
         }
         // Réinitialiser le PickList (ancien système)
         initialiserPickList();
+
+
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/users/create.xhtml");
     }
 
     public void sauvegarderUser() {
@@ -678,9 +617,9 @@ public class UserManagementBean implements Serializable {
 
         // Validation complète des champs
         String email = newUser.getEmail() != null ? newUser.getEmail().trim() : "";
-        String firstName = newUser.getFirstName() != null ? newUser.getFirstName().trim() : "";
-        String lastName = newUser.getLastName() != null ? newUser.getLastName().trim() : "";
-        String password = newUser.getPassword() != null ? newUser.getPassword().trim() : "";
+        String firstName = newUser.getPrenom() != null ? newUser.getPrenom().trim() : "";
+        String lastName = newUser.getNom() != null ? newUser.getNom().trim() : "";
+        String password = newUser.getPasswordHash() != null ? newUser.getPasswordHash().trim() : "";
 
         // Validation email
         if (email.isEmpty()) {
@@ -775,6 +714,19 @@ public class UserManagementBean implements Serializable {
             return;
         }
 
+        // Si le groupe n'est pas Administrateur technique, au moins une collection doit être sélectionnée
+        if (showCollectionsPanel()) {
+            boolean atLeastOneCollectionSelected = collectionReferenceItems != null
+                && collectionReferenceItems.stream()
+                    .anyMatch(item -> item != null && item.isCollectionSelected());
+            if (!atLeastOneCollectionSelected) {
+                notificationBean.showErrorWithUpdate("Erreur de validation",
+                    "Vous devez sélectionner au moins une collection pour ce groupe.",
+                    ":growl, :userForm");
+                return;
+            }
+        }
+
         try {
             if (!isEditMode) {
                 // Création d'un nouvel utilisateur
@@ -785,7 +737,7 @@ public class UserManagementBean implements Serializable {
                     return;
                 }
 
-                if (newUser.getPassword() == null || newUser.getPassword().trim().isEmpty()) {
+                if (newUser.getPasswordHash() == null || newUser.getPasswordHash().trim().isEmpty()) {
                     notificationBean.showErrorWithUpdate("Erreur", 
                         "Le mot de passe est requis pour un nouvel utilisateur.", 
                         ":growl, :userForm");
@@ -794,12 +746,12 @@ public class UserManagementBean implements Serializable {
 
                 // Créer l'entité Utilisateur
                 Utilisateur utilisateur = new Utilisateur();
-                utilisateur.setNom(newUser.getLastName().trim());
-                utilisateur.setPrenom(newUser.getFirstName().trim());
+                utilisateur.setNom(newUser.getNom().trim());
+                utilisateur.setPrenom(newUser.getPrenom().trim());
                 utilisateur.setEmail(newUser.getEmail().trim());
-                utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPassword()));
+                utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPasswordHash()));
                 utilisateur.setGroupe(selectedGroupe);
-                utilisateur.setActive(newUser.isActive());
+                utilisateur.setActive(newUser.getActive());
                 utilisateur.setCreateBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
                 utilisateur.setCreateDate(LocalDateTime.now());
 
@@ -835,15 +787,15 @@ public class UserManagementBean implements Serializable {
                 }
 
                 // Mettre à jour les champs
-                utilisateur.setNom(newUser.getLastName().trim());
-                utilisateur.setPrenom(newUser.getFirstName().trim());
+                utilisateur.setNom(newUser.getNom().trim());
+                utilisateur.setPrenom(newUser.getPrenom().trim());
                 utilisateur.setEmail(newUser.getEmail().trim());
                 utilisateur.setGroupe(selectedGroupe);
-                utilisateur.setActive(newUser.isActive());
+                utilisateur.setActive(newUser.getActive());
 
                 // Mettre à jour le mot de passe seulement si un nouveau mot de passe est fourni
-                if (newUser.getPassword() != null && !newUser.getPassword().trim().isEmpty()) {
-                    utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPassword()));
+                if (newUser.getPasswordHash() != null && !newUser.getPasswordHash().trim().isEmpty()) {
+                    utilisateur.setPasswordHash(utilisateurService.encodePassword(newUser.getPasswordHash()));
                 }
 
                 utilisateur = utilisateurRepository.save(utilisateur);
@@ -869,7 +821,7 @@ public class UserManagementBean implements Serializable {
         }
     }
 
-    public void supprimerUser(User user) {
+    public void supprimerUser(Utilisateur utilisateur) {
         // Vérifier que l'utilisateur est administrateur
         if (!isAdminTechnique()) {
             notificationBean.showErrorWithUpdate("Accès refusé", 
@@ -878,28 +830,26 @@ public class UserManagementBean implements Serializable {
             return;
         }
 
-        if (user == null || user.getId() == null) {
+        if (utilisateur == null || utilisateur.getId() == null) {
             notificationBean.showErrorWithUpdate("Erreur", "Aucun utilisateur sélectionné pour la suppression.", ":growl, :usersForm");
             return;
         }
 
         try {
-            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(user.getId());
+            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(utilisateur.getId());
             if (utilisateurOpt.isPresent()) {
-                Utilisateur utilisateur = utilisateurOpt.get();
+                Utilisateur user = utilisateurOpt.get();
                 
                 // Vérifier si l'utilisateur n'est pas l'utilisateur actuellement connecté
-                if (currentUserBean.getUsername() != null && 
-                    utilisateur.getEmail().equals(currentUserBean.getUsername())) {
-                    notificationBean.showErrorWithUpdate("Erreur", 
-                        "Vous ne pouvez pas supprimer votre propre compte.", 
+                if (currentUserBean.getUsername() != null && user.getEmail().equals(currentUserBean.getUsername())) {
+                    notificationBean.showErrorWithUpdate("Erreur", "Vous ne pouvez pas supprimer votre propre compte.",
                         ":growl, :usersForm");
                     return;
                 }
 
-                utilisateurRepository.delete(utilisateur);
-                notificationBean.showSuccessWithUpdate("Succès", 
-                    "L'utilisateur " + utilisateur.getPrenom() + " " + utilisateur.getNom() + " a été supprimé avec succès.", 
+                utilisateurRepository.delete(user);
+                notificationBean.showSuccessWithUpdate("Succès",
+                        "L'utilisateur " + user.getPrenom() + " " + user.getNom() + " a été supprimé avec succès.",
                     ":growl, :usersForm");
                 
                 // Recharger la liste des utilisateurs
@@ -917,7 +867,7 @@ public class UserManagementBean implements Serializable {
         PrimeFaces.current().ajax().update(":growl, :usersForm");
     }
 
-    public void toggleUserActive(User user) {
+    public void toggleUserActive(Utilisateur user) {
         // Vérifier que l'utilisateur est administrateur
         if (!isAdminTechnique()) {
             notificationBean.showErrorWithUpdate("Accès refusé", 
@@ -964,65 +914,6 @@ public class UserManagementBean implements Serializable {
         }
     }
 
-    public String getRoleLabel(User.Role role) {
-        if (role == null) return "";
-        switch (role) {
-            case ADMIN: return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel();
-            case EDITOR: return GroupEnum.EDITEUR.getLabel();
-            case VIEWER: return GroupEnum.LECTEUR.getLabel();
-            default: return role.toString();
-        }
-    }
-
-    /**
-     * Convertit une entité Utilisateur en DTO User
-     */
-    private User convertToUser(Utilisateur utilisateur) {
-        if (utilisateur == null) {
-            return null;
-        }
-        User user = new User();
-        user.setId(utilisateur.getId());
-        user.setEmail(utilisateur.getEmail() != null ? utilisateur.getEmail() : "");
-        user.setUsername(utilisateur.getEmail() != null ? utilisateur.getEmail() : ""); // Utiliser l'email comme username
-        user.setFirstName(utilisateur.getPrenom() != null ? utilisateur.getPrenom() : "");
-        user.setLastName(utilisateur.getNom() != null ? utilisateur.getNom() : "");
-        user.setPassword(""); // Ne pas exposer le mot de passe
-        user.setRole(getRoleFromGroupe(utilisateur.getGroupe()));
-        user.setActive(utilisateur.getActive() != null ? utilisateur.getActive() : true); // Utiliser le champ actif de l'entité
-        user.setDateCreation(utilisateur.getCreateDate());
-        user.setCreatedBy(utilisateur.getCreateBy() != null ? utilisateur.getCreateBy() : "SYSTEM");
-        return user;
-    }
-
-    /**
-     * Convertit un rôle User.Role en nom de groupe
-     */
-    private String getGroupeNomFromRole(User.Role role) {
-        if (role == null) return GroupEnum.LECTEUR.getLabel();
-        switch (role) {
-            case ADMIN: return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel();
-            case EDITOR: return GroupEnum.EDITEUR.getLabel();
-            case VIEWER: return GroupEnum.LECTEUR.getLabel();
-            default: return GroupEnum.LECTEUR.getLabel();
-        }
-    }
-
-    /**
-     * Convertit un groupe en rôle User.Role
-     */
-    private User.Role getRoleFromGroupe(Groupe groupe) {
-        if (groupe == null || groupe.getNom() == null) return User.Role.VIEWER;
-        String nom = groupe.getNom();
-        if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(nom)) {
-            return User.Role.ADMIN;
-        } else if (GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(nom)) {
-            return User.Role.EDITOR;
-        } else {
-            return User.Role.VIEWER;
-        }
-    }
-
     /**
      * Charge les permissions existantes d'un utilisateur et les met dans selectedReferenceCodes ou selectedReferenceCodesOnly
      */
@@ -1034,42 +925,13 @@ public class UserManagementBean implements Serializable {
             if (utilisateurOpt.isPresent()) {
                 Utilisateur utilisateur = utilisateurOpt.get();
                 List<UserPermission> permissions = userPermissionRepository.findByUtilisateur(utilisateur);
-                
-                // Vérifier si l'utilisateur est administrateur référentiel
-                boolean isAdminRef = utilisateur.getGroupe() != null && 
-                    "Administrateur Référentiel".equalsIgnoreCase(utilisateur.getGroupe().getNom());
-                
-                if (isAdminRef) {
-                    // Pour administrateur référentiel, charger uniquement les codes des référentiels
-                    for (UserPermission permission : permissions) {
-                        if (permission.getEntity() != null) {
-                            Entity entity = permission.getEntity();
-                            if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode()) &&
-                                entity.getCode() != null) {
-                                selectedReferenceCodesOnly.add(entity.getCode());
-                            }
-                        }
-                    }
-                } else {
-                    // Pour les autres groupes, utiliser le format avec collections
-                    for (UserPermission permission : permissions) {
-                        if (permission.getEntity() != null) {
-                            Entity entity = permission.getEntity();
-                            if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
-                                // C'est une collection
-                                selectedReferenceCodes.add("COL:" + entity.getCode());
-                            } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
-                                // C'est une référence - trouver sa collection parente
-                                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
-                                Entity parentCollection = parents.stream()
-                                    .filter(p -> EntityConstants.ENTITY_TYPE_COLLECTION.equals(p.getEntityType().getCode()))
-                                    .findFirst()
-                                    .orElse(null);
-                                
-                                if (parentCollection != null) {
-                                    selectedReferenceCodes.add("REF:" + parentCollection.getCode() + ":" + entity.getCode());
-                                }
-                            }
+                // Une ligne user_permission par collection sélectionnée : on charge les codes collection (COL:)
+                for (UserPermission permission : permissions) {
+                    if (permission.getEntity() != null) {
+                        Entity entity = permission.getEntity();
+                        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())
+                            && entity.getCode() != null) {
+                            selectedReferenceCodes.add("COL:" + entity.getCode());
                         }
                     }
                 }
@@ -1112,141 +974,92 @@ public class UserManagementBean implements Serializable {
                     }
                 }
                 
-                // Si toutes les références sont sélectionnées, sélectionner aussi la collection
+                // Si au moins une référence est sélectionnée, afficher la collection comme cochée
                 if (!collectionSelected) {
-                    boolean allRefsSelected = true;
-                    for (Boolean selected : item.getReferencesSelected()) {
-                        if (!selected) {
-                            allRefsSelected = false;
-                            break;
-                        }
-                    }
-                    if (allRefsSelected && !item.getReferencesSelected().isEmpty()) {
+                    boolean atLeastOneRefSelected = item.getReferencesSelected().stream().anyMatch(Boolean::booleanValue);
+                    if (atLeastOneRefSelected) {
                         item.setCollectionSelected(true);
                     }
                 }
             }
         }
     }
+    
+    /**
+     * Applique les permissions chargées (selectedReferenceCodesOnly) aux cases à cocher
+     * des collections pour le groupe Administrateur Référentiel : une collection est
+     * cochée si tous ses référentiels sont dans selectedReferenceCodesOnly.
+     */
+    private void appliquerPermissionsAuxItemsForAdminRef() {
+        if (selectedReferenceCodesOnly == null) {
+            selectedReferenceCodesOnly = new ArrayList<>();
+        }
+        for (CollectionReferenceItem item : collectionReferenceItems) {
+            if (item == null) {
+                continue;
+            }
+            if (item.getCollection() == null || item.getReferences() == null || item.getReferences().isEmpty()) {
+                item.setCollectionSelected(false);
+                continue;
+            }
+            boolean allRefsSelected = true;
+            for (Entity ref : item.getReferences()) {
+                if (ref == null || ref.getCode() == null || !selectedReferenceCodesOnly.contains(ref.getCode())) {
+                    allRefsSelected = false;
+                    break;
+                }
+            }
+            item.setCollectionSelected(allRefsSelected);
+        }
+    }
 
     /**
-     * Sauvegarde les permissions (référentiels autorisés) pour un utilisateur
+     * Sauvegarde les permissions pour un utilisateur.
+     * - Administrateur technique : aucune ligne dans user_permission pour les collections.
+     * - Autres groupes : une ligne dans user_permission par collection sélectionnée (entité collection).
      */
     private void sauvegarderPermissions(Utilisateur utilisateur) {
-        try {
-            // Supprimer les anciennes permissions
-            List<UserPermission> existingPermissions = userPermissionRepository.findByUtilisateur(utilisateur);
-            for (UserPermission permission : existingPermissions) {
-                userPermissionRepository.delete(permission);
-            }
+        // Supprimer les anciennes permissions
+        List<UserPermission> existingPermissions = userPermissionRepository.findByUtilisateur(utilisateur);
+        for (UserPermission permission : existingPermissions) {
+            userPermissionRepository.delete(permission);
+        }
 
-            // Vérifier si l'utilisateur est administrateur référentiel
-            boolean isAdminRef = utilisateur.getGroupe() != null && 
-                "Administrateur Référentiel".equalsIgnoreCase(utilisateur.getGroupe().getNom());
-            
-            if (isAdminRef) {
-                // Pour administrateur référentiel, utiliser selectedReferenceCodesOnly
-                if (selectedReferenceCodesOnly != null && !selectedReferenceCodesOnly.isEmpty()) {
-                    for (String referenceCode : selectedReferenceCodesOnly) {
-                        if (referenceCode == null || referenceCode.trim().isEmpty()) {
-                            continue;
-                        }
-                        
-                        Optional<Entity> entityOpt = entityRepository.findByCode(referenceCode.trim());
-                        if (entityOpt.isPresent()) {
-                            Entity entity = entityOpt.get();
-                            // Vérifier que c'est bien une référence
-                            if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entity.getEntityType().getCode())) {
-                                UserPermission permission = new UserPermission();
-                                permission.setUtilisateur(utilisateur);
-                                permission.setEntity(entity);
-                                UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
-                                id.setUserId(utilisateur.getId());
-                                id.setEntityId(entity.getId());
-                                permission.setId(id);
-                                userPermissionRepository.save(permission);
-                            }
-                        }
-                    }
+        // Administrateur technique : pas de permissions collections à enregistrer
+        if (utilisateur.getGroupe() != null
+                && "Administrateur technique".equalsIgnoreCase(utilisateur.getGroupe().getNom())) {
+            return;
+        }
+
+        // Pour tout autre groupe : une ligne dans user_permission par collection sélectionnée
+        if (collectionReferenceItems != null) {
+            for (CollectionReferenceItem item : collectionReferenceItems) {
+                if (item == null || !item.isCollectionSelected() || item.getCollection() == null) {
+                    continue;
                 }
-                return; // Sortir de la méthode pour les administrateurs référentiels
-            }
-
-            // Pour les autres groupes, utiliser selectedReferenceCodes (format avec collections)
-            if (selectedReferenceCodes != null && !selectedReferenceCodes.isEmpty()) {
-                for (String referenceCode : selectedReferenceCodes) {
-                    if (referenceCode == null || referenceCode.trim().isEmpty()) {
-                        continue;
-                    }
-                    
-                    Entity entity = null;
-                    
-                    // Parser le code pour déterminer si c'est une collection ou une référence
-                    if (referenceCode.startsWith("COL:")) {
-                        // C'est une collection
-                        String collectionCode = referenceCode.substring(4);
-                        entity = entityRepository.findByCode(collectionCode).orElse(null);
-                        
-                        // Si une collection est sélectionnée, ajouter aussi toutes ses références
-                        if (entity != null) {
-                            // Créer la permission pour la collection
-                            UserPermission permission = new UserPermission();
-                            permission.setUtilisateur(utilisateur);
-                            permission.setEntity(entity);
-                            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
-                            id.setUserId(utilisateur.getId());
-                            id.setEntityId(entity.getId());
-                            permission.setId(id);
-                            userPermissionRepository.save(permission);
-                            
-                            // Ajouter les permissions pour toutes les références de cette collection
-                            List<Entity> references = entityRelationRepository.findChildrenByParentAndType(
-                                entity, EntityConstants.ENTITY_TYPE_REFERENCE);
-                            for (Entity reference : references) {
-                                if (reference != null && reference.getPublique() != null && reference.getPublique()) {
-                                    // Vérifier si la permission n'existe pas déjà
-                                    UserPermission.UserPermissionId refId = new UserPermission.UserPermissionId();
-                                    refId.setUserId(utilisateur.getId());
-                                    refId.setEntityId(reference.getId());
-                                    
-                                    if (!userPermissionRepository.existsById(refId)) {
-                                        UserPermission refPermission = new UserPermission();
-                                        refPermission.setUtilisateur(utilisateur);
-                                        refPermission.setEntity(reference);
-                                        refPermission.setId(refId);
-                                        userPermissionRepository.save(refPermission);
-                                    }
-                                }
-                            }
-                        }
-                    } else if (referenceCode.startsWith("REF:")) {
-                        // C'est une référence : format "REF:collectionCode:referenceCode"
-                        String[] parts = referenceCode.split(":", 3);
-                        if (parts.length == 3) {
-                            String referenceCodeOnly = parts[2];
-                            entity = entityRepository.findByCode(referenceCodeOnly).orElse(null);
-                            
-                            if (entity != null) {
-                                UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
-                                id.setUserId(utilisateur.getId());
-                                id.setEntityId(entity.getId());
-                                
-                                // Vérifier si la permission n'existe pas déjà
-                                if (!userPermissionRepository.existsById(id)) {
-                                    UserPermission permission = new UserPermission();
-                                    permission.setUtilisateur(utilisateur);
-                                    permission.setEntity(entity);
-                                    permission.setId(id);
-                                    userPermissionRepository.save(permission);
-                                }
-                            }
-                        }
-                    }
+                Entity collection = item.getCollection();
+                UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+                id.setUserId(utilisateur.getId());
+                id.setEntityId(collection.getId());
+                if (!userPermissionRepository.existsById(id)) {
+                    UserPermission permission = new UserPermission();
+                    permission.setUtilisateur(utilisateur);
+                    permission.setEntity(collection);
+                    permission.setId(id);
+                    permission.setCreateDate(LocalDateTime.now());
+                    userPermissionRepository.save(permission);
                 }
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde des permissions pour l'utilisateur : {}", utilisateur.getEmail(), e);
-            // Ne pas bloquer la sauvegarde de l'utilisateur si les permissions échouent
+        }
+    }
+
+    public String getGroupeEtiquette(Groupe groupe) {
+        if (GroupEnum.LECTEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
+            return "role-badge-viewer";
+        } else if (GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
+            return "role-badge-editor";
+        } else {
+            return "role-badge-admin";
         }
     }
 

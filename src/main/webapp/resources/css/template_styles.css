@@ -2447,6 +2447,14 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     width: 100% !important;
 }
 
+.users-references-datatable--compact .ui-datatable-thead {
+    display: none !important; /* masque complètement la ligne de titres pour ce tableau uniquement */
+}
+
+.users-references-datatable--compact .ui-datatable-data > tr > td {
+    padding: 0.35rem 0.75rem !important; /* bloc plus compact et léger */
+}
+
 .users-references-datatable .ui-datatable-thead > tr > th {
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
     color: var(--color-action-main, #47624D) !important;

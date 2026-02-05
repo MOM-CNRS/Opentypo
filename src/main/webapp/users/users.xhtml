@@ -16,14 +16,12 @@
                         </h1>
                         <p class="users-subtitle">Gérez les utilisateurs de l'application</p>
                     </div>
-                    <h:form>
-                        <p:commandButton value="Nouvel utilisateur" 
-                                       icon="pi pi-plus"
-                                       styleClass="users-create-button"
-                                       action="/users/create.xhtml?faces-redirect=true"
-                                       process="@this"
-                                       update="@none"/>
-                    </h:form>
+                    <p:commandButton value="Nouvel utilisateur"
+                                     icon="pi pi-plus"
+                                     styleClass="users-create-button"
+                                     actionListener="#{userManagementBean.initNouveauUser()}"
+                                     process="@this"
+                                     update="@none"/>
                 </div>
             </div>
 
@@ -49,15 +47,15 @@
                                         <i class="pi pi-user"/>
                                     </div>
                                     <div class="user-details">
-                                        <div class="user-name">#{user.firstName} #{user.lastName}</div>
+                                        <div class="user-name">#{user.prenom} #{user.nom.toLowerCase()}</div>
                                         <div class="user-email">#{user.email}</div>
                                     </div>
                                 </div>
                             </p:column>
                             
-                            <p:column headerText="Rôle" sortBy="#{user.role}" styleClass="users-col-role">
-                                <span class="role-badge role-badge-#{user.role.toString().toLowerCase()}">
-                                    #{userManagementBean.getRoleLabel(user.role)}
+                            <p:column headerText="Rôle" sortBy="#{user.groupe.nom}" styleClass="users-col-role">
+                                <span class="role-badge #{userManagementBean.getGroupeEtiquette(user.groupe)}">
+                                    #{user.groupe.nom}
                                 </span>
                             </p:column>
                             
@@ -68,10 +66,10 @@
                                 </span>
                             </p:column>
                             
-                            <p:column headerText="Date création" sortBy="#{user.dateCreation}" styleClass="users-col-date">
+                            <p:column headerText="Date création" sortBy="#{user.createDate}" styleClass="users-col-date">
                                 <div class="date-cell">
                                     <i class="pi pi-calendar"/>
-                                    <h:outputText value="#{user.dateCreation}">
+                                    <h:outputText value="#{user.createDate}">
                                         <f:converter converterId="localDateTimeConverter"/>
                                     </h:outputText>
                                 </div>
@@ -79,12 +77,13 @@
                             
                             <p:column headerText="Actions" styleClass="users-col-actions">
                                 <div class="users-actions-modern">
-                                    <h:link outcome="/users/create.xhtml" 
-                                           styleClass="action-btn action-edit" 
-                                           title="Modifier">
-                                        <f:param name="userId" value="#{user.id}"/>
-                                        <i class="pi pi-pencil"/>
-                                    </h:link>
+                                    <p:commandButton icon="pi pi-pencil"
+                                                     styleClass="action-btn action-edit"
+                                                     title="Modifier"
+                                                     action="#{userManagementBean.initEditUser(user)}"
+                                                     process="@this"
+                                                     update=":usersForm"/>
+
                                     <p:commandButton icon="pi pi-trash"
                                                    styleClass="action-btn action-delete"
                                                    title="Supprimer"

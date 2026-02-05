@@ -6,7 +6,6 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
-        <f:event listener="#{userManagementBean.initNouveauUser}" type="preRenderView"/>
         <div class="users-container">
             <div class="users-header">
                 <div class="users-header-content">
@@ -48,49 +47,36 @@
                             <div class="users-form-group">
                                 <p:outputLabel for="firstName" value="Prénom" />
                                 <p:inputText id="firstName"
-                                           value="#{userManagementBean.newUser.firstName}"
+                                           value="#{userManagementBean.newUser.prenom}"
                                            required="true"
                                            requiredMessage="Le prénom est obligatoire"
                                            styleClass="users-input"
                                            placeholder="Prénom"
-                                           maxlength="100">
-                                    <f:validateLength minimum="2" maximum="100"
-                                                    minimumMessage="Le prénom doit contenir au moins 2 caractères"
-                                                    maximumMessage="Le prénom ne peut pas dépasser 100 caractères"/>
-                                </p:inputText>
+                                           maxlength="100" />
                                 <p:message for="firstName" display="icon"/>
                             </div>
 
                             <div class="users-form-group">
                                 <p:outputLabel for="lastName" value="Nom" />
                                 <p:inputText id="lastName"
-                                           value="#{userManagementBean.newUser.lastName}"
+                                           value="#{userManagementBean.newUser.nom}"
                                            required="true"
                                            requiredMessage="Le nom est obligatoire"
                                            styleClass="users-input"
                                            placeholder="Nom"
-                                           maxlength="100">
-                                    <f:validateLength minimum="2" maximum="100"
-                                                    minimumMessage="Le nom doit contenir au moins 2 caractères"
-                                                    maximumMessage="Le nom ne peut pas dépasser 100 caractères"/>
-                                </p:inputText>
+                                           maxlength="100" />
                                 <p:message for="lastName" display="icon"/>
                             </div>
 
                             <div class="users-form-group">
                                 <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'} " />
                                 <p:password id="password"
-                                         value="#{userManagementBean.newUser.password}"
-                                         required="#{!userManagementBean.editMode}"
+                                         value="#{userManagementBean.newUser.passwordHash}"
                                          requiredMessage="Le mot de passe est obligatoire"
                                          feedback="false"
                                          styleClass="users-input"
                                          placeholder="Mot de passe"
-                                         maxlength="255">
-                                    <f:validateLength minimum="6" maximum="255"
-                                                    minimumMessage="Le mot de passe doit contenir au moins 6 caractères"
-                                                    maximumMessage="Le mot de passe ne peut pas dépasser 255 caractères"/>
-                                </p:password>
+                                         maxlength="255" />
                                 <p:message for="password" display="icon"/>
                                 <p:tooltip for="password" value="Le mot de passe doit contenir au moins 6 caractères" position="right"/>
                             </div>
@@ -104,9 +90,10 @@
                                                styleClass="users-select">
                                     <f:selectItem itemLabel="Sélectionner un groupe" itemValue=""/>
                                     <f:selectItems value="#{userManagementBean.availableGroups}" var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
-                                    <p:ajax event="change" process="@form" ajax="true"
-                                          update=":userForm:referencesPanel"
-                                          listener="#{userManagementBean.onGroupeChange}" />
+                                    <p:ajax event="change"
+                                            process="@this"
+                                            update=":userForm:referencesPanelWrapper"
+                                            listener="#{userManagementBean.onGroupeChange}" />
                                 </p:selectOneMenu>
                                 <p:message for="groupe" display="icon"/>
                             </div>
@@ -120,149 +107,56 @@
                         </div>
                     </p:panel>
 
-                    <!-- Panel pour les référentiels autorisés (masqué pour administrateur technique) -->
-                    <h:panelGroup id="referencesPanel"
-                                 rendered="#{userManagementBean.administrateurReferentielGetter or userManagementBean.referencesPanelVisible}">
-                        <!-- Panel pour administrateur référentiel : uniquement les référentiels -->
-                        <p:panel header="Référentiels autorisés"
-                                styleClass="users-form-panel"
-                                rendered="#{userManagementBean.administrateurReferentielGetter}">
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="referencesOnlyTable" value="Sélectionnez les référentiels autorisés" />
+                    <!-- Conteneur toujours rendu pour que la cible AJAX existe au changement de groupe -->
+                    <h:panelGroup id="referencesPanelWrapper">
+                        <h:panelGroup rendered="#{userManagementBean.showCollectionsPanel()}">
+                            <p:panel header="Collections autorisées" styleClass="users-form-panel">
+                                <div class="users-form-group users-form-group-full">
+                                    <p:outputLabel for="collectionsOnlyTable" value="Sélectionnez les collections autorisées" />
 
-                                <!-- Barre de recherche -->
-                                <div class="users-references-search">
-                                    <p:inputText id="referencesOnlySearch"
-                                               value="#{userManagementBean.searchFilter}"
-                                               placeholder="Rechercher un référentiel..."
-                                               styleClass="users-references-search-input">
-                                        <p:ajax event="keyup"
-                                              process="@this"
-                                              update=":userForm:referencesOnlyTable"
-                                              delay="300"/>
-                                    </p:inputText>
-                                    <i class="pi pi-search users-references-search-icon" />
+                                    <!-- Barre de recherche -->
+                                    <div class="users-references-search">
+                                        <p:inputText id="collectionsOnlySearch"
+                                                     value="#{userManagementBean.searchFilter}"
+                                                     placeholder="Rechercher une collection..."
+                                                     styleClass="users-references-search-input">
+                                            <p:ajax event="keyup"
+                                                    process="@this"
+                                                    update=":userForm:collectionsOnlyTable"
+                                                    delay="300"/>
+                                        </p:inputText>
+                                        <i class="pi pi-search users-references-search-icon" />
+                                    </div>
+
+                                    <!-- Tableau : liste complète des collections (tous statuts), sélection par case à cocher -->
+                                    <div class="users-references-table-wrapper">
+                                        <p:dataTable id="collectionsOnlyTable"
+                                                     value="#{userManagementBean.filteredCollectionReferenceItems}"
+                                                     var="item"
+                                                     styleClass="users-references-datatable users-references-datatable--compact"
+                                                     emptyMessage="#{userManagementBean.emptyTableMessage}">
+
+                                            <p:column styleClass="users-references-col-checkbox" width="60">
+                                                <p:selectBooleanCheckbox value="#{item.collectionSelected}" styleClass="users-reference-checkbox">
+                                                    <p:ajax event="change" listener="#{userManagementBean.onCollectionToggle(item)}"/>
+                                                </p:selectBooleanCheckbox>
+                                            </p:column>
+
+                                            <!-- Ligne sans en-tête : simple liste code + icône -->
+                                            <p:column styleClass="users-references-col-code">
+                                                <i class="pi pi-folder users-reference-icon-collection" style="margin-right: 10px" />
+                                                <h:outputText value="#{item.collection.code}" styleClass="users-reference-code"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+
+                                    <p class="users-form-hint">
+                                        <i class="pi pi-info-circle" />
+                                        Sélectionnez une ou plusieurs collections pour autoriser l'accès à tous leurs référentiels.
+                                    </p>
                                 </div>
-
-                                <!-- Tableau avec cases à cocher pour référentiels uniquement -->
-                                <div class="users-references-table-wrapper">
-                                    <p:dataTable id="referencesOnlyTable"
-                                               value="#{userManagementBean.filteredReferences}"
-                                               var="reference"
-                                               styleClass="users-references-datatable"
-                                               emptyMessage="#{userManagementBean.emptyReferencesTableMessage}"
-                                               paginator="true"
-                                               rows="10"
-                                               rowsPerPageTemplate="10,20,50"
-                                               paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                               paginatorPosition="bottom">
-
-                                        <p:column styleClass="users-references-col-checkbox" width="60">
-                                            <p:selectBooleanCheckbox
-                                                value="#{userManagementBean.referenceSelected(reference)}"
-                                                styleClass="users-reference-checkbox">
-                                                <p:ajax event="change" listener="#{userManagementBean.toggleReferenceSelectionOnly(reference)}"/>
-                                            </p:selectBooleanCheckbox>
-                                        </p:column>
-
-                                        <p:column headerText="Type" styleClass="users-references-col-type" width="80">
-                                            <i class="pi pi-book users-reference-icon-reference" />
-                                        </p:column>
-
-                                        <p:column headerText="Code" styleClass="users-references-col-code">
-                                            <h:outputText value="#{reference.code}" styleClass="users-reference-code"/>
-                                        </p:column>
-
-                                        <p:column headerText="Nom" styleClass="users-references-col-name">
-                                            <h:outputText value="#{reference.nom}" styleClass="users-reference-name"/>
-                                        </p:column>
-                                    </p:dataTable>
-                                </div>
-
-                                <p class="users-form-hint">
-                                    <i class="pi pi-info-circle" />
-                                    Sélectionnez un ou plusieurs référentiels pour autoriser l'accès.
-                                </p>
-                            </div>
-                        </p:panel>
-
-                        <!-- Panel pour les autres groupes : collections et référentiels (Éditeur et Lecteur uniquement) -->
-                        <p:panel header="Référentiels autorisés"
-                                styleClass="users-form-panel"
-                                rendered="#{userManagementBean.referencesPanelVisible}">
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="referencesTable" value="Sélectionnez les collections et référentiels autorisés" />
-
-                                <!-- Barre de recherche -->
-                                <div class="users-references-search">
-                                    <p:inputText id="referencesSearch"
-                                               value="#{userManagementBean.searchFilter}"
-                                               placeholder="Rechercher une collection ou un référentiel..."
-                                               styleClass="users-references-search-input">
-                                        <p:ajax event="keyup"
-                                              process="@this"
-                                              update=":userForm:referencesTable"
-                                              delay="300"/>
-                                    </p:inputText>
-                                    <i class="pi pi-search users-references-search-icon" />
-                                </div>
-
-                                <!-- Tableau avec cases à cocher -->
-                                <div class="users-references-table-wrapper">
-                                    <p:dataTable id="referencesTable"
-                                               value="#{userManagementBean.filteredCollectionReferenceItems}"
-                                               var="item"
-                                               styleClass="users-references-datatable"
-                                               emptyMessage="#{userManagementBean.emptyTableMessage}"
-                                               paginator="true"
-                                               rows="10"
-                                               rowsPerPageTemplate="10,20,50"
-                                               paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                               paginatorPosition="bottom">
-
-                                        <p:column styleClass="users-references-col-checkbox" width="60">
-                                            <p:selectBooleanCheckbox value="#{item.collectionSelected}" styleClass="users-reference-checkbox">
-                                                <p:ajax event="change" listener="#{userManagementBean.toggleCollectionSelection(item)}"/>
-                                            </p:selectBooleanCheckbox>
-                                        </p:column>
-
-                                        <p:column headerText="Code" styleClass="users-references-col-code">
-                                            <i class="pi pi-folder users-reference-icon-collection" style="margin-right: 10px" />
-                                            <h:outputText value="#{item.collection.code}" styleClass="users-reference-code"/>
-                                        </p:column>
-
-                                        <p:column headerText="Nom" styleClass="users-references-col-name">
-                                            <h:outputText value="#{item.collection.nom}" styleClass="users-reference-name"/>
-                                        </p:column>
-
-                                        <!-- Référentiels de la collection -->
-                                        <p:column headerText="Référentiels" styleClass="users-references-col-refs">
-                                            <div class="users-references-list">
-                                                <ui:repeat value="#{item.references}" var="reference" varStatus="status">
-                                                    <div class="users-reference-item">
-                                                        <p:selectBooleanCheckbox
-                                                            value="#{item.referencesSelected[status.index]}"
-                                                            styleClass="users-reference-checkbox-small">
-                                                            <p:ajax event="change" listener="#{userManagementBean.toggleReferenceSelection(item, status.index)}" />
-                                                        </p:selectBooleanCheckbox>
-                                                        <i class="pi pi-book users-reference-icon-reference" />
-                                                        <span class="users-reference-item-code" title="#{reference.code}">#{reference.code}</span>
-                                                    </div>
-                                                </ui:repeat>
-                                                <ui:fragment rendered="#{empty item.references}">
-                                                    <span class="users-reference-empty">Aucun référentiel</span>
-                                                </ui:fragment>
-                                            </div>
-                                        </p:column>
-                                    </p:dataTable>
-                                </div>
-
-                                <p class="users-form-hint">
-                                    <i class="pi pi-info-circle" />
-                                    Cochez une collection pour autoriser l'accès à tous ses référentiels, ou sélectionnez des référentiels spécifiques.
-                                </p>
-                            </div>
-                        </p:panel>
+                            </p:panel>
+                        </h:panelGroup>
                     </h:panelGroup>
 
                     <div class="users-form-actions">
@@ -282,57 +176,6 @@
                 </h:form>
             </div>
         </div>
-
-        <!-- Script pour masquer les messages vides -->
-        <script type="text/javascript">
-            <![CDATA[
-            // Masquer les messages vides après le chargement de la page
-            document.addEventListener('DOMContentLoaded', function() {
-                hideEmptyMessages();
-            });
-
-            // Masquer les messages vides après les mises à jour AJAX
-            if (typeof PrimeFaces !== 'undefined') {
-                PrimeFaces.ajax.addOnComplete(function(data) {
-                    setTimeout(function() {
-                        hideEmptyMessages();
-                    }, 100);
-                });
-            }
-
-            function hideEmptyMessages() {
-                // Sélectionner tous les messages dans le formulaire utilisateur
-                var messages = document.querySelectorAll('#userForm .ui-message');
-                messages.forEach(function(message) {
-                    // Vérifier si le message est vide ou n'a pas d'icône d'erreur visible
-                    var hasErrorIcon = message.querySelector('.ui-message-error-icon');
-                    var hasWarnIcon = message.querySelector('.ui-message-warn-icon');
-                    var hasInfoIcon = message.querySelector('.ui-message-info-icon');
-                    var hasSuccessIcon = message.querySelector('.ui-message-success-icon');
-                    var hasText = message.textContent.trim().length > 0;
-
-                    // Si le message n'a ni icône ni texte, le masquer
-                    var hasAnyIcon = hasErrorIcon || hasWarnIcon || hasInfoIcon || hasSuccessIcon;
-                    if (!hasAnyIcon && !hasText) {
-                        message.style.display = 'none';
-                        message.style.visibility = 'hidden';
-                        message.style.height = '0';
-                        message.style.margin = '0';
-                        message.style.padding = '0';
-                        message.style.overflow = 'hidden';
-                    } else {
-                        // S'assurer que le message est visible s'il a du contenu
-                        message.style.display = '';
-                        message.style.visibility = '';
-                        message.style.height = '';
-                        message.style.margin = '';
-                        message.style.padding = '';
-                        message.style.overflow = '';
-                    }
-                });
-            }
-            ]]>
-        </script>
     </ui:define>
 
 </ui:composition>
