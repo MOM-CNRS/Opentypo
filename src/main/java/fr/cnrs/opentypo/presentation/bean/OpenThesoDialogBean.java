@@ -2,25 +2,28 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.*;
+import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.PactolsService;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
-import jakarta.annotation.PostConstruct;
+
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -39,18 +42,16 @@ import java.util.function.Consumer;
 @Slf4j
 public class OpenThesoDialogBean implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
-    @Inject
+    @Autowired
     private PactolsService pactolsService;
 
-    @Inject
-    private SearchBean searchBean;
-
-    @Inject
+    @Autowired
     private ReferenceOpenthesoRepository referenceOpenthesoRepository;
 
-    @Inject
+    @Autowired
+    private ParametrageRepository parametrageRepository;
+
+    @Autowired
     private EntityRepository entityRepository;
 
     // État de la boîte de dialogue
@@ -62,23 +63,13 @@ public class OpenThesoDialogBean implements Serializable {
     private ReferenceOpentheso createdReference; // Référence créée lors de la validation
 
     // Données du formulaire
-    private List<PactolsThesaurus> availableThesaurus = new ArrayList<>();
-    private List<PactolsCollection> availableCollections = new ArrayList<>();
-    private List<PactolsLangue> availableLanguages = new ArrayList<>();
-    private String selectedLanguageId;
-    private String selectedCollectionId;
-    private String selectedThesaurusId;
     private String searchValue = "";
     private List<PactolsConcept> searchResults = new ArrayList<>();
     private PactolsConcept selectedConcept;
-
     private CandidatBean candidatBean;
-
-    @PostConstruct
-    public void init() {
-        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
-    }
+    private Parametrage collectionParametrage;
+    @Autowired
+    private CollectionService collectionService;
 
     /**
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
@@ -92,9 +83,15 @@ public class OpenThesoDialogBean implements Serializable {
         this.entityId = entityId;
         
         // Recharger les thésaurus avec la langue sélectionnée
-        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
-        
+        Entity collectionParent = collectionService.findCollectionIdByEntityId(entityId);
+        collectionParametrage = parametrageRepository.findByEntityId(collectionParent.getId()).orElse(null);
+        if (collectionParametrage == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La collection "
+                            + collectionParent.getCode()
+                            + " n'est pas paramétrée"));
+            return;
+        }
         // Réinitialiser l'état
         resetDialog();
     }
@@ -119,12 +116,6 @@ public class OpenThesoDialogBean implements Serializable {
      * Initialise l'interface du dialog à l'ouverture
      */
     public void initializeDialog() {
-        log.info("=== initializeDialog() appelée ===");
-        
-        // Recharger les thésaurus avec la langue sélectionnée
-        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        availableThesaurus = pactolsService.getThesaurusList(selectedLangue);
-        
         // Réinitialiser tous les champs
         resetDialog();
         
@@ -151,70 +142,29 @@ public class OpenThesoDialogBean implements Serializable {
      * Réinitialise l'état de la boîte de dialogue
      */
     private void resetDialog() {
-        selectedThesaurusId = null;
-        availableCollections = new ArrayList<>();
-        selectedCollectionId = null;
-        availableLanguages = new ArrayList<>();
-        selectedLanguageId = null;
         searchValue = "";
         searchResults = new ArrayList<>();
         selectedConcept = null;
         createdReference = null;
-        // Note: referenceCode et entityId ne sont pas réinitialisés car ils doivent persister
-    }
-
-    /**
-     * Recherche les collections et langues lorsqu'un thésaurus est sélectionné
-     */
-    public void onThesaurusSearch() {
-        log.info("=== onThesaurusSearch() appelée ===");
-        log.info("selectedThesaurusId: {}", selectedThesaurusId);
-        
-        if (selectedThesaurusId == null || selectedThesaurusId.trim().isEmpty()) {
-            log.warn("Aucun thésaurus sélectionné (ID vide)");
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
-            PrimeFaces.current().ajax().update(":growl");
-            return;
-        }
-
-        String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-
-        // Charger les langues disponibles
-        availableLanguages = pactolsService.getThesaurusLanguages(selectedThesaurusId);
-        
-        // Sélectionner la langue par défaut si disponible
-        if (!availableLanguages.isEmpty()) {
-            var langue = availableLanguages.stream()
-                .filter(l -> selectedLangue.equals(l.getIdLang()))
-                .findFirst();
-            langue.ifPresent(pactolsLangue -> selectedLanguageId = pactolsLangue.getIdLang());
-        }
-
-        // Charger les collections
-        availableCollections = pactolsService.getThesaurusCollections(selectedThesaurusId, selectedLangue);
-
-        // Réinitialiser les sélections pour les nouvelles listes
-        selectedCollectionId = null;
     }
 
     /**
      * Recherche les concepts
      */
     public void onConceptSearch() {
-        if (selectedThesaurusId == null) {
+        if (collectionParametrage.getIdTheso() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
             return;
         }
 
-        if (selectedCollectionId == null) {
+        if (collectionParametrage.getIdGroupe() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une collection."));
             return;
         }
 
-        if (selectedLanguageId == null) {
+        if (collectionParametrage.getIdLangue() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une langue."));
             return;
@@ -226,7 +176,9 @@ public class OpenThesoDialogBean implements Serializable {
             return;
         }
         
-        searchResults = pactolsService.searchConcepts(selectedThesaurusId, searchValue.trim(), selectedLanguageId, selectedCollectionId);
+        searchResults = pactolsService.searchConcepts(collectionParametrage.getIdTheso(), searchValue.trim(),
+                collectionParametrage.getIdLangue(),
+                collectionParametrage.getIdGroupe());
 
         PrimeFaces.current().ajax().update(":openThesoForm:conceptsTable :growl");
     }
@@ -242,7 +194,7 @@ public class OpenThesoDialogBean implements Serializable {
             return;
         }
 
-        if (selectedThesaurusId == null || selectedThesaurusId.trim().isEmpty()) {
+        if (collectionParametrage.getIdTheso() == null || collectionParametrage.getIdTheso().trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Thésaurus non sélectionné."));
             PrimeFaces.current().ajax().update(":growl");
@@ -272,24 +224,26 @@ public class OpenThesoDialogBean implements Serializable {
 
         // Créer l'instance de ReferenceOpentheso avec toutes les informations
         String conceptId = selectedConcept.getIdConcept();
-        String thesaurusId = selectedThesaurusId;
-        String collectionId = selectedCollectionId != null ? selectedCollectionId : "";
 
         // Construire l'URL au format base_URL/?idc={id_concept}&idt={id_thesaurus}
         String baseUrl = "https://pactols.frantiq.fr";
-        String url = baseUrl + "/?idc=" + conceptId + "&idt=" + thesaurusId;
+        String url = baseUrl + "/?idc=" + conceptId + "&idt=" + collectionParametrage.getIdTheso();
 
         // Créer la nouvelle entrée ReferenceOpentheso
         ReferenceOpentheso referenceOpentheso = new ReferenceOpentheso();
         referenceOpentheso.setCode(referenceCode.name());
         referenceOpentheso.setValeur(selectedTerm);
         referenceOpentheso.setConceptId(conceptId);
-        referenceOpentheso.setThesaurusId(thesaurusId);
-        referenceOpentheso.setCollectionId(collectionId);
+        referenceOpentheso.setThesaurusId(collectionParametrage.getIdTheso());
+        referenceOpentheso.setCollectionId(collectionParametrage.getIdGroupe());
         referenceOpentheso.setUrl(url);
 
         // Lier la référence à l'entité
         Entity entity = entityRepository.findById(entityId).orElse(null);
+        if (entity == null) {
+            log.error("Aucun element trouvée avec l'id {}", entityId);
+            return;
+        }
 
         // Pour les codes qui utilisent une seule référence (PRODUCTION, PERIODE, etc.)
         // on met à jour directement la colonne dans Entity

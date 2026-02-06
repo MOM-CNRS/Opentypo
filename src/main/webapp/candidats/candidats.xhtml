@@ -52,23 +52,23 @@
                                            sortMode="multiple"
                                            rowStyleClass="modern-users-row">
                                     
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
                                         <div class="candidat-code-cell">
                                             <i class="pi pi-tag"/>
                                             <h:outputText value="#{candidat.typeCode}"/>
+                                        </div>
+                                    </p:column>
+
+                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.code}"/>
                                         </div>
                                     </p:column>
                                     
                                     <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
                                         <div class="candidat-label-cell">
                                             <h:outputText value="#{candidat.label}"/>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.periode}"/>
                                         </div>
                                     </p:column>
                                     
@@ -130,33 +130,39 @@
                                            paginatorPosition="bottom"
                                            sortMode="multiple"
                                            rowStyleClass="modern-users-row">
-                                    
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+
+                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
                                         <div class="candidat-code-cell">
                                             <i class="pi pi-tag"/>
                                             <h:outputText value="#{candidat.typeCode}"/>
                                         </div>
                                     </p:column>
-                                    
+
+                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.code}"/>
+                                        </div>
+                                    </p:column>
+
                                     <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
                                         <div class="candidat-label-cell">
                                             <h:outputText value="#{candidat.label}"/>
                                         </div>
                                     </p:column>
-                                    
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.periode}"/>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Date validation" sortBy="#{candidat.dateModification}" styleClass="users-col-date">
+
+                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
                                         <div class="date-cell">
                                             <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.dateModification}">
+                                            <h:outputText value="#{candidat.dateCreation}">
                                                 <f:converter converterId="localDateTimeConverter"/>
                                             </h:outputText>
+                                        </div>
+                                    </p:column>
+
+                                    <p:column headerText="Validateur" styleClass="users-col-creator">
+                                        <div class="user-info-cell">
+                                            <div class="user-name">#{candidat.validateur}</div>
                                         </div>
                                     </p:column>
                                     
@@ -190,33 +196,39 @@
                                            paginatorPosition="bottom"
                                            sortMode="multiple"
                                            rowStyleClass="modern-users-row">
-                                    
-                                    <p:column headerText="Code" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+
+                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
                                         <div class="candidat-code-cell">
                                             <i class="pi pi-tag"/>
                                             <h:outputText value="#{candidat.typeCode}"/>
                                         </div>
                                     </p:column>
-                                    
+
+                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
+                                        <div class="candidat-period-cell">
+                                            <i class="pi pi-calendar"/>
+                                            <h:outputText value="#{candidat.code}"/>
+                                        </div>
+                                    </p:column>
+
                                     <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
                                         <div class="candidat-label-cell">
                                             <h:outputText value="#{candidat.label}"/>
                                         </div>
                                     </p:column>
-                                    
-                                    <p:column headerText="Période" sortBy="#{candidat.periode}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.periode}"/>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Date refus" sortBy="#{candidat.dateModification}" styleClass="users-col-date">
+
+                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
                                         <div class="date-cell">
                                             <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.dateModification}">
+                                            <h:outputText value="#{candidat.dateCreation}">
                                                 <f:converter converterId="localDateTimeConverter"/>
                                             </h:outputText>
+                                        </div>
+                                    </p:column>
+
+                                    <p:column headerText="Validateur" styleClass="users-col-creator">
+                                        <div class="user-info-cell">
+                                            <div class="user-name">#{candidat.validateur}</div>
                                         </div>
                                     </p:column>
                                     

@@ -21,6 +21,7 @@ public class Candidat implements Serializable {
     }
     
     private Long id;
+    private String code;
     private String typeCode;
     private String label;
     private String langue = "fr";
@@ -50,5 +51,6 @@ public class Candidat implements Serializable {
     private LocalDateTime dateCreation = LocalDateTime.now();
     private LocalDateTime dateModification;
     private String createur;
+    private String validateur;
 }
 

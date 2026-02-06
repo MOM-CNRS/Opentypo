@@ -22,113 +22,49 @@
 
         <h:panelGroup id="openThesoForm">
             <h:panelGroup id="openThesoForm2">
-            <!-- 1ère ligne : Liste des thésaurus + bouton rechercher -->
-            <div class="opentheso-dialog-row">
-                <div class="opentheso-dialog-field">
-                    <p:outputLabel for="thesaurusSelect2" value="Liste des thésaurus" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-book input-icon" />
-                        <p:selectOneMenu id="thesaurusSelect2"
-                                         value="#{openThesoDialogBean.selectedThesaurusId}"
-                                         styleClass="users-select"
-                                         filter="true"
-                                         filterMatchMode="contains">
-                            <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
-                            <f:selectItems value="#{openThesoDialogBean.availableThesaurus}" var="thesaurus"
-                                           itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
-
-                            <p:ajax event="valueChange"
-                                    listener="#{openThesoDialogBean.onThesaurusSearch}"
-                                    process="thesaurusSelect2"
-                                    update=":createCandidatForm:openThesoForm2 :growl"
-                                    onstart="showLoading('Chargement des référentiels...', 'spinner');"
-                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
-                        </p:selectOneMenu>
+                <div class="opentheso-dialog-row">
+                    <div class="opentheso-dialog-field">
+                        <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
+                        <div class="input-wrapper">
+                            <i class="pi pi-search input-icon" />
+                            <p:inputText id="searchValueInput"
+                                         value="#{openThesoDialogBean.searchValue}"
+                                         styleClass="users-input"
+                                         placeholder="Saisissez un terme de recherche..."/>
+                        </div>
+                    </div>
+                    <div class="opentheso-dialog-button">
+                        <p:commandButton id="conceptSearchButton"
+                                         value="Rechercher"
+                                         icon="pi pi-search"
+                                         styleClass="candidat-btn-add"
+                                         action="#{openThesoDialogBean.onConceptSearch}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":createCandidatForm:openThesoForm2 :growl"/>
                     </div>
                 </div>
-            </div>
 
-            <!-- 2ème ligne : Liste des langues du thésaurus sélectionné -->
-            <div class="opentheso-dialog-row">
-                <div class="opentheso-dialog-field">
-                    <p:outputLabel for="thesaurusSelect2" value="Liste des langues" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-book input-icon" />
-                        <p:selectOneMenu id="languageSelect"
-                                         value="#{openThesoDialogBean.selectedLanguageId}"
-                                         styleClass="users-select">
-                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
-                            <f:selectItems value="#{openThesoDialogBean.availableLanguages}" var="langue"
-                                           itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
-                        </p:selectOneMenu>
+                <div class="opentheso-dialog-row">
+                    <div class="opentheso-dialog-field-full">
+                        <p:outputLabel value="Résultats de la recherche" />
+                        <p:dataTable id="conceptsTable"
+                                     value="#{openThesoDialogBean.searchResults}"
+                                     var="concept"
+                                     rowKey="#{concept.idConcept}"
+                                     styleClass="opentheso-concepts-table"
+                                     emptyMessage="Aucun résultat trouvé"
+                                     selection="#{openThesoDialogBean.selectedConcept}"
+                                     selectionMode="single">
+                            <p:column headerText="ID Concept" width="30">
+                                <h:outputText value="#{concept.idConcept}" />
+                            </p:column>
+                            <p:column headerText="Terme" width="70">
+                                <h:outputText value="#{concept.selectedTerm}" />
+                            </p:column>
+                        </p:dataTable>
                     </div>
                 </div>
-            </div>
-
-            <!-- 3ème ligne : Liste des collections du thésaurus sélectionné -->
-            <div class="opentheso-dialog-row">
-                <div class="opentheso-dialog-field-full">
-                    <p:outputLabel for="collectionSelect2" value="Liste des collections" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-sitemap input-icon" />
-                        <p:selectOneMenu id="collectionSelect2"
-                                         value="#{openThesoDialogBean.selectedCollectionId}"
-                                         styleClass="users-select"
-                                         filter="true"
-                                         filterMatchMode="contains">
-                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
-                            <f:selectItems value="#{openThesoDialogBean.availableCollections}" var="collection"
-                                           itemLabel="#{collection.selectedLabel}" itemValue="#{collection.idGroup}"/>
-                        </p:selectOneMenu>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3ème ligne : Champ texte pour la valeur recherchée + liste des langues + bouton rechercher -->
-            <div class="opentheso-dialog-row">
-                <div class="opentheso-dialog-field">
-                    <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
-                    <div class="input-wrapper">
-                        <i class="pi pi-search input-icon" />
-                        <p:inputText id="searchValueInput"
-                                     value="#{openThesoDialogBean.searchValue}"
-                                     styleClass="users-input"
-                                     placeholder="Saisissez un terme de recherche..."/>
-                    </div>
-                </div>
-                <div class="opentheso-dialog-button">
-                    <p:commandButton id="conceptSearchButton"
-                                     value="Rechercher"
-                                     icon="pi pi-search"
-                                     styleClass="candidat-btn-add"
-                                     action="#{openThesoDialogBean.onConceptSearch}"
-                                     process="@form"
-                                     ajax="true"
-                                     update=":createCandidatForm:openThesoForm2 :growl"/>
-                </div>
-            </div>
-
-            <!-- 4ème ligne : Liste des termes trouvés -->
-            <div class="opentheso-dialog-row">
-                <div class="opentheso-dialog-field-full">
-                    <p:outputLabel value="Résultats de la recherche" />
-                    <p:dataTable id="conceptsTable"
-                                 value="#{openThesoDialogBean.searchResults}"
-                                 var="concept"
-                                 rowKey="#{concept.idConcept}"
-                                 styleClass="opentheso-concepts-table"
-                                 emptyMessage="Aucun résultat trouvé"
-                                 selection="#{openThesoDialogBean.selectedConcept}"
-                                 selectionMode="single">
-                        <p:column headerText="ID Concept" width="30">
-                            <h:outputText value="#{concept.idConcept}" />
-                        </p:column>
-                        <p:column headerText="Terme" width="70">
-                            <h:outputText value="#{concept.selectedTerm}" />
-                        </p:column>
-                    </p:dataTable>
-                </div>
-            </div>
             </h:panelGroup>
 
             <div class="category-form-actions">

@@ -714,6 +714,7 @@ public class CandidatBean implements Serializable {
         
         Candidat candidat = new Candidat();
         candidat.setId(entity.getId());
+        candidat.setCode(entity.getCode());
         candidat.setTypeCode(entity.getEntityType() != null ? entity.getEntityType().getCode() : "");
         
         // Récupérer le label principal (premier label disponible ou nom par défaut)
@@ -798,6 +799,11 @@ public class CandidatBean implements Serializable {
             candidat.setStatut(Candidat.Statut.REFUSE);
         } else {
             candidat.setStatut(Candidat.Statut.EN_COURS);
+        }
+
+        if (!CollectionUtils.isEmpty(entity.getAuteurs())) {
+            candidat.setValidateur(entity.getAuteurs().getLast().getPrenom()
+                    + " " + entity.getAuteurs().getLast().getNom().toUpperCase());
         }
         
         return candidat;
@@ -4098,8 +4104,8 @@ public class CandidatBean implements Serializable {
 
         try {
             Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_GROUP.equals(
-                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
+            if (refreshedEntity != null
+                    && EntityConstants.ENTITY_TYPE_GROUP.equals(refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
                 refreshedEntity.setTpq(tpq);
                 refreshedEntity.setTaq(taq);
                 // Note: periode est géré via ReferenceOpentheso, pas directement dans Entity
