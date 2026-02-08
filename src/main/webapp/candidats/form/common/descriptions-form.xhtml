@@ -1,0 +1,101 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Descriptions multilingues -->
+    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+
+        <h6>Descriptions</h6>
+
+        <div class="candidat-description-input-row">
+            <div class="candidat-description-textarea-wrapper">
+                <div class="input-wrapper"
+                     style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important;">
+                    <i class="pi pi-align-left input-icon input-icon-textarea" />
+                    <p:inputTextarea value="#{candidatBean.newDescriptionValue}"
+                                     placeholder="Saisissez une description détaillée..."
+                                     rows="4"
+                                     styleClass="users-textarea"
+                                     maxlength="2000"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="candidat-description-input-section" >
+            <div class="candidat-description-input-row">
+                <div class="candidat-description-select-wrapper">
+                    <div class="input-wrapper">
+                        <i class="pi pi-globe input-icon" />
+                        <p:selectOneMenu value="#{candidatBean.newDescriptionLangueCode}"
+                                         styleClass="users-select">
+                            <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                            <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewDescription()}"
+                                           var="langue"
+                                           itemLabel="#{langue.nom}"
+                                           itemValue="#{langue.code}" />
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="candidat-btn-add"
+                                 actionListener="#{candidatBean.addCandidatDescriptionFromInput()}"
+                                 process="@form"
+                                 ajax="true"
+                                 update=":createCandidatForm :growl"/>
+            </div>
+        </div>
+
+        <p:dataTable value="#{candidatBean.descriptions}"
+                     var="descriptionItem"
+                     styleClass="candidat-descriptions-table"
+                     emptyMessage="Aucune description ajoutée"
+                     rendered="#{not empty candidatBean.descriptions}">
+
+            <p:column headerText="Descriptions" styleClass="candidat-table-label-column" style="padding: 0.3rem 0.5rem;">
+                <div class="candidat-table-label-cell">
+                    <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
+                        <h:graphicImage library="img"
+                                        name="flag/#{descriptionItem.langueCode}.png"
+                                        styleClass="candidat-table-flag"
+                                        alt="#{descriptionItem.langue.nom}"
+                                        title="#{descriptionItem.langue.nom}"/>
+                    </h:panelGroup>
+                    <h:outputText value="#{descriptionItem.valeur}"
+                                  styleClass="candidat-table-description-text" />
+                </div>
+            </p:column>
+
+            <p:column styleClass="candidat-table-action-column">
+                <div class="candidat-table-action-cell">
+                    <p:commandButton icon="pi pi-trash"
+                                     styleClass="candidat-btn-remove"
+                                     action="#{candidatBean.removeCandidatDescription(descriptionItem)}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":createCandidatForm :growl"
+                                     title="Supprimer cette description"/>
+                </div>
+            </p:column>
+        </p:dataTable>
+
+        <ui:fragment rendered="#{empty candidatBean.descriptions}">
+            <div class="candidat-no-descriptions">
+                <div class="candidat-no-descriptions-content">
+                    <div class="candidat-no-descriptions-icon">
+                        <i class="pi pi-info-circle" />
+                    </div>
+                    <div class="candidat-no-descriptions-text">
+                        <h4 class="candidat-no-descriptions-title">Aucune description ajoutée</h4>
+                        <p class="candidat-no-descriptions-message">
+                            Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </ui:fragment>
+    </div>
+</ui:composition>
+

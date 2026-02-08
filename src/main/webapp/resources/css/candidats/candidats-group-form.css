@@ -178,7 +178,7 @@
         .users-chips .ui-chips-input-token input {
             border: none !important;
             outline: none !important;
-            padding: 0.25rem 0.5rem !important;
+            padding: 0.1rem 0.5rem !important;
             font-size: 0.9375rem !important;
             flex: 1 !important;
             min-width: 200px !important;
@@ -241,18 +241,243 @@
 
         /* Hint text */
         .users-form-hint {
-            margin-top: 0.5rem;
             font-size: 0.8125rem;
             color: var(--color-text-secondary, #819A91);
             display: flex;
             align-items: center;
             gap: 0.5rem;
             line-height: 1.4;
+            margin-top: 7px;
         }
 
         .users-form-hint i {
             font-size: 0.875rem;
             color: var(--color-action-main, #47624D);
+        }
+
+        /* ============================================
+           Bloc "Traductions du label" (labels-form.xhtml)
+           Responsive, fluide, charte couleur OpenTypo
+           ============================================ */
+
+        .candidat-label-input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .candidat-label-input-wrapper,
+        .candidat-label-select-wrapper {
+            flex: 1 1 220px;
+            min-width: 0;
+        }
+
+        .candidat-label-input-wrapper .input-wrapper,
+        .candidat-label-select-wrapper .input-wrapper {
+            width: 100%;
+        }
+
+        .candidat-label-input-wrapper .users-input,
+        .candidat-label-select-wrapper .users-select {
+            width: 100% !important;
+        }
+
+        .candidat-btn-add {
+            white-space: nowrap !important;
+            padding: 0.6rem 1.2rem !important;
+            border-radius: 999px !important;
+            background: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.4rem !important;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.25) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .candidat-btn-add .ui-button-icon-left {
+            margin-right: 0.25rem !important;
+            font-size: 0.9rem !important;
+        }
+
+        .candidat-btn-add:hover {
+            background: #3a4f3e !important;
+            border-color: #3a4f3e !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+        }
+
+        /* Tableau des traductions */
+        .candidat-labels-table {
+            width: 100%;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .candidat-labels-table .ui-datatable-header,
+        .candidat-labels-table .ui-datatable-footer {
+            display: none !important;
+            padding: 0px !important;
+        }
+
+        .candidat-labels-table .ui-datatable-tablewrapper table {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
+        .candidat-labels-table .ui-datatable-thead > tr > th {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.1), rgba(71, 98, 77, 0.03)) !important;
+            color: var(--color-text-primary, #333) !important;
+            font-weight: 600 !important;
+            border: none !important;
+            padding: 0.1rem 0.5rem !important;
+        }
+
+        .candidat-labels-table .ui-datatable-data > tr > td {
+            padding: 0.1rem 0.5rem !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.03) !important;
+            background: #ffffff !important;
+        }
+
+        .candidat-table-langue-cell,
+        .candidat-table-label-cell,
+        .candidat-table-action-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .candidat-table-flag {
+            width: 22px;
+            height: 16px;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+            object-fit: cover;
+        }
+
+        .candidat-table-label-text {
+            font-size: 0.95rem;
+            color: var(--color-text-primary, #333);
+            word-break: break-word;
+        }
+
+        /* Bouton supprimer dans le tableau */
+        .candidat-table-action-column {
+            width: 3rem !important;
+            text-align: right !important;
+        }
+
+        .candidat-table-action-cell {
+            justify-content: flex-end;
+        }
+
+        .candidat-btn-remove {
+            padding: 0 !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 999px !important;
+            border: 1px solid #dc3545 !important;
+            background: rgba(220, 53, 69, 0.08) !important;
+            color: #dc3545 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .candidat-btn-remove .ui-button-icon-left {
+            position: static !important;
+            margin: 0 !important;
+            font-size: 0.9rem !important;
+            line-height: 1 !important;
+        }
+
+        .candidat-btn-remove .ui-button-text {
+            display: none !important;
+            padding: 0 !important;
+        }
+
+        .candidat-btn-remove:hover {
+            background: #c82333 !important;
+            border-color: #bd2130 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .candidat-btn-remove:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.35) !important;
+        }
+
+        .candidat-btn-remove:hover .ui-button-icon-left,
+        .candidat-btn-remove:focus .ui-button-icon-left {
+            color: #ffffff !important;
+        }
+
+        /* État vide (aucune traduction) */
+        .candidat-no-labels {
+            margin-top: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03), rgba(71, 98, 77, 0.01));
+            border: 1px dashed rgba(71, 98, 77, 0.25);
+        }
+
+        .candidat-no-labels-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .candidat-no-labels-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: rgba(71, 98, 77, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-action-main, #47624D);
+        }
+
+        .candidat-no-labels-title {
+            font-size: 0.95rem;
+            margin: 0;
+            color: var(--color-text-primary, #333);
+            font-weight: 600;
+        }
+
+        .candidat-no-labels-message {
+            font-size: 0.85rem;
+            margin: 0.1rem 0 0;
+            color: var(--color-text-secondary, #819A91);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .candidat-label-input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .candidat-btn-add {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            .candidat-labels-table .ui-datatable-thead > tr > th,
+            .candidat-labels-table .ui-datatable-data > tr > td {
+                padding: 0.2rem 0.4rem !important;
+            }
+
+            .candidat-table-label-text {
+                font-size: 0.9rem;
+            }
         }
 
         /* Styles pour l'upload d'image */
@@ -372,10 +597,9 @@
         }
 
         /* Styles pour les traductions de label */
-        .candidat-label-input-section {
-            margin-bottom: 1.5rem;
+        z.candidat-label-input-section {
             padding: 1.25rem;
-            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
+            background: white;
             border: 1px solid rgba(71, 98, 77, 0.1);
             border-radius: 8px;
         }
@@ -752,7 +976,7 @@
             display: inline-flex !important;
             align-items: center !important;
             gap: 0.5rem !important;
-            padding: 0.5rem 0.75rem !important;
+            padding: 0.1rem 0.5rem !important;
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
             border: 1px solid rgba(71, 98, 77, 0.2) !important;
             border-radius: 6px !important;
@@ -808,9 +1032,6 @@
             border-radius: 10px;
             border: 1px solid rgba(71, 98, 77, 0.12);
             padding: 0.75rem 0.9rem;
-            background: linear-gradient(135deg,
-                rgba(71, 98, 77, 0.03) 0%,
-                rgba(238, 239, 224, 0.2) 100%);
         }
 
         .periode-header-row {
@@ -937,4 +1158,129 @@
         .periode-save-btn .ui-button-icon {
             font-size: 0.9rem !important;
             margin: 0 !important;
+        }
+
+        /* ============================================
+           Boutons "Enregistrer" (Période & Décors)
+           Deux variantes distinctes, responsive, thème OpenTypo
+        */
+        .candidat-save-btn {
+            font-size: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            transition: background 0.22s ease, border-color 0.22s ease,
+                        transform 0.2s ease, box-shadow 0.22s ease !important;
+        }
+
+        .candidat-save-btn .ui-button-text {
+            display: none !important;
+        }
+
+        .candidat-save-btn .ui-button-icon-left,
+        .candidat-save-btn .ui-button-icon {
+            margin: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        /* Bouton Période : style pill (outline), léger */
+        .candidat-save-btn-period {
+            min-width: 2.25rem !important;
+            height: 2.25rem !important;
+            padding: 0 !important;
+            border-radius: 999px !important;
+            background: transparent !important;
+            border: 1.5px solid rgba(71, 98, 77, 0.35) !important;
+            color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 1px 3px rgba(71, 98, 77, 0.08) !important;
+        }
+
+        .candidat-save-btn-period:hover {
+            background: rgba(71, 98, 77, 0.08) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 10px rgba(71, 98, 77, 0.18) !important;
+        }
+
+        .candidat-save-btn-period:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 1px 3px rgba(71, 98, 77, 0.12) !important;
+        }
+
+        /* Bouton Décors : style filled, plus affirmé */
+        .candidat-save-btn-decors {
+            min-width: 2.25rem !important;
+            height: 2.25rem !important;
+            padding: 0 !important;
+            border-radius: 8px !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.14) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+            border: 1px solid rgba(71, 98, 77, 0.25) !important;
+            color: var(--color-action-main, #47624D) !important;
+            box-shadow: 0 2px 6px rgba(71, 98, 77, 0.12) !important;
+        }
+
+        .candidat-save-btn-decors:hover {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.22) 0%, rgba(71, 98, 77, 0.14) 100%) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.22) !important;
+        }
+
+        .candidat-save-btn-decors:active {
+            transform: translateY(0) !important;
+            background: rgba(71, 98, 77, 0.12) !important;
+            box-shadow: 0 1px 4px rgba(71, 98, 77, 0.15) !important;
+        }
+
+        /* Responsive : boutons plus compacts sur petit écran */
+        @media (max-width: 768px) {
+            .candidat-save-btn-period,
+            .candidat-save-btn-decors {
+                min-width: 2rem !important;
+                height: 2rem !important;
+            }
+
+            .candidat-save-btn-period .ui-button-icon-left,
+            .candidat-save-btn-period .ui-button-icon,
+            .candidat-save-btn-decors .ui-button-icon-left,
+            .candidat-save-btn-decors .ui-button-icon {
+                font-size: 0.9rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .periode-field-row {
+                flex-wrap: wrap;
+            }
+
+            .candidat-save-btn-period,
+            .candidat-save-btn-decors {
+                min-width: 2.1rem !important;
+                height: 2.1rem !important;
+            }
+        }
+
+
+
+        .candidat-btn-save {
+            padding: 0 !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 9px !important;
+            background:  white !important;
+            border-color: #819A91 !important;
+            color: #819A91  !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .candidat-btn-save:hover {
+            border: 1px solid rgba(71, 98, 77, 0.12) !important;
+            background: rgba(71, 98, 77, 0.12) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.12) !important;
+            transform: translateY(-1px) !important;
         }

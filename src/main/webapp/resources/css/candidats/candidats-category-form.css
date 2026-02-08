@@ -156,7 +156,6 @@
 
         /* Hint text */
         .users-form-hint {
-            margin-top: 0.5rem;
             font-size: 0.8125rem;
             color: var(--color-text-secondary, #819A91);
             display: flex;
@@ -288,9 +287,7 @@
 
         /* Styles pour les traductions de label */
         .candidat-label-input-section {
-            margin-bottom: 1.5rem;
             padding: 1.25rem;
-            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, rgba(71, 98, 77, 0.01) 100%);
             border: 1px solid rgba(71, 98, 77, 0.1);
             border-radius: 8px;
         }
@@ -311,6 +308,7 @@
 
         .candidat-labels-table {
             width: 100% !important;
+            margin-top: 15px;
             border: 1px solid rgba(71, 98, 77, 0.15) !important;
             border-radius: 8px !important;
             overflow: hidden !important;
@@ -319,7 +317,6 @@
         .candidat-labels-table .ui-datatable-header {
             background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%) !important;
             border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
-            padding: 0.5rem !important;
             font-weight: 600 !important;
             color: var(--color-action-main, #47624D) !important;
         }
@@ -497,6 +494,17 @@
             padding: 0.75rem 0;
         }
 
+        .candidat-btn-save {
+            width: 30px !important;
+            height: 35px !important;
+            background: transparent !important;
+            border: 2px solid rgba(71, 98, 77, 0.2) !important;
+            color: rgba(71, 98, 77, 0.2) !important;
+            padding: 0.2rem !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
+        }
+
         .candidat-btn-remove {
             background: transparent !important;
             border: 1px solid rgba(220, 53, 69, 0.3) !important;
@@ -510,6 +518,12 @@
             background: rgba(220, 53, 69, 0.1) !important;
             border-color: #dc3545 !important;
             transform: scale(1.1) !important;
+        }
+
+        .candidat-btn-remove.ui-button.ui-button-icon-only:hover {
+            background-color: var(--color-danger)!important;
+            border-color: var(--color-danger) !important;
+            color: white;
         }
 
         /* Message quand aucune description */

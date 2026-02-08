@@ -1706,10 +1706,10 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 .users-select,
 .users-textarea {
     width: 100% !important;
-    border: 1.5px solid #e5e7eb !important;
+    border: 1px solid rgba(71, 98, 77, 0.22) !important;
     border-radius: 10px !important;
     font-size: 0.9375rem !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
     background: #ffffff !important;
     color: var(--color-text-primary, #333) !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
@@ -2596,7 +2596,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 }
 
 .users-form-hint {
-    margin-top: 0.75rem !important;
     padding: 0.75rem 1rem !important;
     background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%) !important;
     border: 1px solid rgba(71, 98, 77, 0.15) !important;

@@ -1,0 +1,42 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <!-- Commentaire et bibliographie (communs) -->
+    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+        <!-- Commentaire -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel value="Commentaire" />
+            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+                <i class="pi pi-comment input-icon input-icon-textarea" />
+                <p:inputTextarea value="#{candidatBean.candidatCommentaire}"
+                                 rows="5"
+                                 styleClass="users-textarea"
+                                 placeholder="Ajoutez un commentaire sur ce #{empty commentContextLabel ? 'brouillon' : commentContextLabel}..."
+                                 maxlength="1000">
+                    <p:ajax event="blur" listener="#{candidatBean.saveCommentaire}" process="@this" update="@none"/>
+                </p:inputTextarea>
+            </div>
+            <p:message for="@previous" display="icon"/>
+        </div>
+
+        <!-- Bibliographie -->
+        <div class="users-form-group users-form-group-full" style="margin-top: 10px">
+            <p:outputLabel value="Bibliographie" />
+            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+                <i class="pi pi-book input-icon input-icon-textarea" />
+                <p:inputTextarea
+                        value="#{candidatBean.candidatBibliographie}"
+                        rows="5"
+                        styleClass="users-textarea"
+                        placeholder="Saisissez des informations bibliographiques complémentaires..."
+                        maxlength="2000">
+                    <p:ajax event="blur" listener="#{candidatBean.saveBibliographie}" process="@this" update="@none"/>
+                </p:inputTextarea>
+            </div>
+            <p:message for="@previous" display="icon"/>
+        </div>
+    </div>
+
+</ui:composition>
+

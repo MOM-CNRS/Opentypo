@@ -3888,7 +3888,8 @@ body .ui-button.ui-button-icon-only .ui-icon {
 
 /* Effet hover pour les boutons */
 body .ui-button.ui-button-icon-only:hover {
-    background-color: #A7C1A8; /* Hover vert clair */
+    background-color: rgba(71, 98, 77, 0.2) !important;
+    border-color: rgba(71, 98, 77, 0.2) !important;
     color: white;
 }
 
@@ -7256,6 +7257,10 @@ a.users-edit-btn:hover {
     grid-column: 1 / -1;
 }
 
+.users-form-group-full h6 {
+    color: var(--color-action-main, #47624D) !important;
+}
+
 .users-form-group label {
     font-weight: 700;
     color: var(--color-text-primary, #333);
@@ -7290,9 +7295,10 @@ a.users-edit-btn:hover {
 .users-select,
 .users-textarea {
     width: 100% !important;
+    border: 1px solid rgba(71, 98, 77, 0.22) !important;
     border-radius: 10px !important;
     font-size: 0.9375rem !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
     background: #ffffff !important;
     color: var(--color-text-primary, #333) !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;

@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean.candidats;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
+import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -26,6 +27,7 @@ import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
 import lombok.Builder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
@@ -177,7 +179,8 @@ public class CandidatBean implements Serializable {
     // Propriétés pour les auteurs
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
     private List<Utilisateur> availableAuteurs = new ArrayList<>();
-
+    @Autowired
+    private CollectionService collectionService;
 
 
     @PostConstruct
@@ -1937,13 +1940,17 @@ public class CandidatBean implements Serializable {
             return false;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            return refreshedEntity != null && refreshedEntity.getProduction() != null;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la production", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        return refreshedEntity != null && refreshedEntity.getProduction() != null;
+    }
+
+    public boolean hasPeriode() {
+        if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
+
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        return refreshedEntity != null && refreshedEntity.getPeriode() != null;
     }
 
     public boolean hasAireCirculation() {
@@ -1951,19 +1958,13 @@ public class CandidatBean implements Serializable {
             return false;
         }
 
-        try {
-            // Recharger l'entité pour avoir la liste à jour
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
-                // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
-                return refreshedEntity.getAiresCirculation().stream()
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
+            // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
+            return refreshedEntity.getAiresCirculation().stream()
                     .anyMatch(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()));
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de l'aire de circulation", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -1975,22 +1976,17 @@ public class CandidatBean implements Serializable {
             return new ArrayList<>();
         }
 
-        try {
-            // Recharger l'entité pour avoir la liste à jour
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
-                // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
-                airesCirculation = refreshedEntity.getAiresCirculation().stream()
+        // Recharger l'entité pour avoir la liste à jour
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
+            // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
+            airesCirculation = refreshedEntity.getAiresCirculation().stream()
                     .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                     .collect(Collectors.toList());
-            } else {
-                airesCirculation = new ArrayList<>();
-            }
-            return airesCirculation != null ? airesCirculation : new ArrayList<>();
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des aires de circulation", e);
-            return new ArrayList<>();
+        } else {
+            airesCirculation = new ArrayList<>();
         }
+        return airesCirculation != null ? airesCirculation : new ArrayList<>();
     }
 
     /**
@@ -3343,19 +3339,15 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                String ateliersStr = null;
-                if (ateliers != null && !ateliers.isEmpty()) {
-                    ateliersStr = String.join("; ", ateliers);
-                }
-                refreshedEntity.setAteliers(ateliersStr);
-                entityRepository.save(refreshedEntity);
-                log.debug("Ateliers sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            String ateliersStr = null;
+            if (ateliers != null && !ateliers.isEmpty()) {
+                ateliersStr = String.join("; ", ateliers);
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde des ateliers", e);
+            refreshedEntity.setAteliers(ateliersStr);
+            entityRepository.save(refreshedEntity);
+            log.debug("Ateliers sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
         }
     }
 
@@ -3402,31 +3394,26 @@ public class CandidatBean implements Serializable {
             return false;
         }
 
-        try {
-            // Utiliser la variable locale si elle est déjà chargée
-            if (fonctionUsage != null) {
-                return true;
-            }
+        // Utiliser la variable locale si elle est déjà chargée
+        if (fonctionUsage != null) {
+            return true;
+        }
 
-            // Sinon, vérifier dans la base de données
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
-                if (descDetail != null) {
-                    ReferenceOpentheso fonction = descDetail.getFonction();
-                    if (fonction != null) {
-                        // Forcer le chargement en accédant à une propriété
-                        fonction.getValeur();
-                        fonctionUsage = fonction; // Mettre en cache
-                        return true;
-                    }
+        // Sinon, vérifier dans la base de données
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+            if (descDetail != null) {
+                ReferenceOpentheso fonction = descDetail.getFonction();
+                if (fonction != null) {
+                    // Forcer le chargement en accédant à une propriété
+                    fonction.getValeur();
+                    fonctionUsage = fonction; // Mettre en cache
+                    return true;
                 }
             }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la fonction/usage", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3441,40 +3428,36 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            // Recharger l'entité depuis la base de données pour avoir la liste à jour
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                // Forcer le chargement de DescriptionDetail (relation LAZY)
-                DescriptionDetail descDetail = currentEntity.getDescriptionDetail();
-                log.debug("DescriptionDetail chargé: {}", descDetail != null ? "oui" : "non");
+        // Recharger l'entité depuis la base de données pour avoir la liste à jour
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            // Forcer le chargement de DescriptionDetail (relation LAZY)
+            DescriptionDetail descDetail = currentEntity.getDescriptionDetail();
+            log.debug("DescriptionDetail chargé: {}", descDetail != null ? "oui" : "non");
 
-                if (descDetail != null) {
-                    // Forcer le chargement de la fonction (relation LAZY)
-                    ReferenceOpentheso fonction = descDetail.getFonction();
-                    log.debug("Fonction chargée: {}", fonction != null ? "oui" : "non");
+            if (descDetail != null) {
+                // Forcer le chargement de la fonction (relation LAZY)
+                ReferenceOpentheso fonction = descDetail.getFonction();
+                log.debug("Fonction chargée: {}", fonction != null ? "oui" : "non");
 
-                    if (fonction != null) {
-                        // Accéder à une propriété pour forcer le chargement
-                        String valeur = fonction.getValeur();
-                        fonctionUsage = fonction;
-                        log.info("Fonction/usage mise à jour pour l'entité ID={}, fonction={}",
+                if (fonction != null) {
+                    // Accéder à une propriété pour forcer le chargement
+                    String valeur = fonction.getValeur();
+                    fonctionUsage = fonction;
+                    log.info("Fonction/usage mise à jour pour l'entité ID={}, fonction={}",
                             currentEntity.getId(), valeur);
-                    } else {
-                        fonctionUsage = null;
-                        log.info("Fonction/usage mise à null pour l'entité ID={}", currentEntity.getId());
-                    }
                 } else {
                     fonctionUsage = null;
-                    log.info("DescriptionDetail est null, fonctionUsage mise à null pour l'entité ID={}",
-                        currentEntity.getId());
+                    log.info("Fonction/usage mise à null pour l'entité ID={}", currentEntity.getId());
                 }
             } else {
-                log.warn("updateFonctionUsageFromOpenTheso() - Entité non trouvée avec ID={}", currentEntity.getId());
+                fonctionUsage = null;
+                log.info("DescriptionDetail est null, fonctionUsage mise à null pour l'entité ID={}",
+                        currentEntity.getId());
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour du champ fonction/usage depuis OpenTheso", e);
+        } else {
+            log.warn("updateFonctionUsageFromOpenTheso() - Entité non trouvée avec ID={}", currentEntity.getId());
         }
     }
 
@@ -3491,37 +3474,28 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionDetail() != null) {
-                DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
-                descDetail.setFonction(null);
-                entityRepository.save(refreshedEntity);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionDetail() != null) {
+            DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+            descDetail.setFonction(null);
+            entityRepository.save(refreshedEntity);
 
-                // Mettre à jour currentEntity et la variable locale
-                currentEntity = refreshedEntity;
-                fonctionUsage = null;
+            // Mettre à jour currentEntity et la variable locale
+            currentEntity = refreshedEntity;
+            fonctionUsage = null;
 
-                FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Succès",
-                        "La fonction/usage a été supprimée avec succès."));
-                PrimeFaces.current().ajax().update(":growl");
-
-                log.info("Fonction/usage supprimée pour l'entité ID={}", currentEntity.getId());
-            } else {
-                FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Aucune fonction/usage à supprimer."));
-                PrimeFaces.current().ajax().update(":growl");
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la fonction/usage", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Succès",
+                            "La fonction/usage a été supprimée avec succès."));
+            PrimeFaces.current().ajax().update(":growl");
+
+            log.info("Fonction/usage supprimée pour l'entité ID={}", currentEntity.getId());
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            "Attention",
+                            "Aucune fonction/usage à supprimer."));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -3534,30 +3508,26 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                // Récupérer ou créer DescriptionPate
-                DescriptionPate descPate = refreshedEntity.getDescriptionPate();
-                if (descPate == null) {
-                    descPate = new DescriptionPate();
-                    descPate.setEntity(refreshedEntity);
-                    refreshedEntity.setDescriptionPate(descPate);
-                }
-
-                // Sauvegarder la description
-                if (descriptionPate != null && !descriptionPate.trim().isEmpty()) {
-                    descPate.setDescription(descriptionPate.trim());
-                } else {
-                    descPate.setDescription(null);
-                }
-
-                // Sauvegarder l'entité (cascade sauvegardera DescriptionPate)
-                entityRepository.save(refreshedEntity);
-                log.debug("Description de pâte sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            // Récupérer ou créer DescriptionPate
+            DescriptionPate descPate = refreshedEntity.getDescriptionPate();
+            if (descPate == null) {
+                descPate = new DescriptionPate();
+                descPate.setEntity(refreshedEntity);
+                refreshedEntity.setDescriptionPate(descPate);
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde de la description de pâte", e);
+
+            // Sauvegarder la description
+            if (descriptionPate != null && !descriptionPate.trim().isEmpty()) {
+                descPate.setDescription(descriptionPate.trim());
+            } else {
+                descPate.setDescription(null);
+            }
+
+            // Sauvegarder l'entité (cascade sauvegardera DescriptionPate)
+            entityRepository.save(refreshedEntity);
+            log.debug("Description de pâte sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
         }
     }
 
@@ -3568,24 +3538,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (metrologie != null) {
+        if (metrologie != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+            ReferenceOpentheso metrologieRef = refreshedEntity.getCaracteristiquePhysique().getMetrologie();
+            if (metrologieRef != null) {
+                metrologieRef.getValeur();
+                metrologie = metrologieRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
-                ReferenceOpentheso metrologieRef = refreshedEntity.getCaracteristiquePhysique().getMetrologie();
-                if (metrologieRef != null) {
-                    metrologieRef.getValeur();
-                    metrologie = metrologieRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la métrologie", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3595,24 +3560,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (fabricationFaconnage != null) {
+        if (fabricationFaconnage != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+            ReferenceOpentheso fabricationRef = refreshedEntity.getCaracteristiquePhysique().getFabrication();
+            if (fabricationRef != null) {
+                fabricationRef.getValeur();
+                fabricationFaconnage = fabricationRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
-                ReferenceOpentheso fabricationRef = refreshedEntity.getCaracteristiquePhysique().getFabrication();
-                if (fabricationRef != null) {
-                    fabricationRef.getValeur();
-                    fabricationFaconnage = fabricationRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la fabrication/façonnage", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3622,24 +3582,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (couleurPate != null) {
+        if (couleurPate != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            ReferenceOpentheso couleurRef = refreshedEntity.getDescriptionPate().getCouleur();
+            if (couleurRef != null) {
+                couleurRef.getValeur();
+                couleurPate = couleurRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                ReferenceOpentheso couleurRef = refreshedEntity.getDescriptionPate().getCouleur();
-                if (couleurRef != null) {
-                    couleurRef.getValeur();
-                    couleurPate = couleurRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la couleur de pâte", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3649,24 +3604,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (naturePate != null) {
+        if (naturePate != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            ReferenceOpentheso natureRef = refreshedEntity.getDescriptionPate().getNature();
+            if (natureRef != null) {
+                natureRef.getValeur();
+                naturePate = natureRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                ReferenceOpentheso natureRef = refreshedEntity.getDescriptionPate().getNature();
-                if (natureRef != null) {
-                    natureRef.getValeur();
-                    naturePate = natureRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la nature de pâte", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3676,24 +3626,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (inclusions != null) {
+        if (inclusions != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            ReferenceOpentheso inclusionRef = refreshedEntity.getDescriptionPate().getInclusion();
+            if (inclusionRef != null) {
+                inclusionRef.getValeur();
+                inclusions = inclusionRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                ReferenceOpentheso inclusionRef = refreshedEntity.getDescriptionPate().getInclusion();
-                if (inclusionRef != null) {
-                    inclusionRef.getValeur();
-                    inclusions = inclusionRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification des inclusions", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3703,24 +3648,19 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return false;
         }
-        try {
-            if (cuissonPostCuisson != null) {
+        if (cuissonPostCuisson != null) {
+            return true;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            ReferenceOpentheso cuissonRef = refreshedEntity.getDescriptionPate().getCuisson();
+            if (cuissonRef != null) {
+                cuissonRef.getValeur();
+                cuissonPostCuisson = cuissonRef;
                 return true;
             }
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                ReferenceOpentheso cuissonRef = refreshedEntity.getDescriptionPate().getCuisson();
-                if (cuissonRef != null) {
-                    cuissonRef.getValeur();
-                    cuissonPostCuisson = cuissonRef;
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            log.error("Erreur lors de la vérification de la cuisson/post-cuisson", e);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -3730,26 +3670,22 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
-                if (carPhysique != null) {
-                    ReferenceOpentheso metrologieRef = carPhysique.getMetrologie();
-                    if (metrologieRef != null) {
-                        metrologieRef.getValeur();
-                        metrologie = metrologieRef;
-                    } else {
-                        metrologie = null;
-                    }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
+            if (carPhysique != null) {
+                ReferenceOpentheso metrologieRef = carPhysique.getMetrologie();
+                if (metrologieRef != null) {
+                    metrologieRef.getValeur();
+                    metrologie = metrologieRef;
                 } else {
                     metrologie = null;
                 }
-                log.info("Métrologie mise à jour pour l'entité ID={}", currentEntity.getId());
+            } else {
+                metrologie = null;
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour de la métrologie depuis OpenTheso", e);
+            log.info("Métrologie mise à jour pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3760,26 +3696,22 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
-                if (carPhysique != null) {
-                    ReferenceOpentheso fabricationRef = carPhysique.getFabrication();
-                    if (fabricationRef != null) {
-                        fabricationRef.getValeur();
-                        fabricationFaconnage = fabricationRef;
-                    } else {
-                        fabricationFaconnage = null;
-                    }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            CaracteristiquePhysique carPhysique = currentEntity.getCaracteristiquePhysique();
+            if (carPhysique != null) {
+                ReferenceOpentheso fabricationRef = carPhysique.getFabrication();
+                if (fabricationRef != null) {
+                    fabricationRef.getValeur();
+                    fabricationFaconnage = fabricationRef;
                 } else {
                     fabricationFaconnage = null;
                 }
-                log.info("Fabrication/façonnage mise à jour pour l'entité ID={}", currentEntity.getId());
+            } else {
+                fabricationFaconnage = null;
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour de la fabrication/façonnage depuis OpenTheso", e);
+            log.info("Fabrication/façonnage mise à jour pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3820,26 +3752,22 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                DescriptionPate descPate = currentEntity.getDescriptionPate();
-                if (descPate != null) {
-                    ReferenceOpentheso natureRef = descPate.getNature();
-                    if (natureRef != null) {
-                        natureRef.getValeur();
-                        naturePate = natureRef;
-                    } else {
-                        naturePate = null;
-                    }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            DescriptionPate descPate = currentEntity.getDescriptionPate();
+            if (descPate != null) {
+                ReferenceOpentheso natureRef = descPate.getNature();
+                if (natureRef != null) {
+                    natureRef.getValeur();
+                    naturePate = natureRef;
                 } else {
                     naturePate = null;
                 }
-                log.info("Nature de pâte mise à jour pour l'entité ID={}", currentEntity.getId());
+            } else {
+                naturePate = null;
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour de la nature de pâte depuis OpenTheso", e);
+            log.info("Nature de pâte mise à jour pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3850,26 +3778,22 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                DescriptionPate descPate = currentEntity.getDescriptionPate();
-                if (descPate != null) {
-                    ReferenceOpentheso inclusionRef = descPate.getInclusion();
-                    if (inclusionRef != null) {
-                        inclusionRef.getValeur();
-                        inclusions = inclusionRef;
-                    } else {
-                        inclusions = null;
-                    }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            DescriptionPate descPate = currentEntity.getDescriptionPate();
+            if (descPate != null) {
+                ReferenceOpentheso inclusionRef = descPate.getInclusion();
+                if (inclusionRef != null) {
+                    inclusionRef.getValeur();
+                    inclusions = inclusionRef;
                 } else {
                     inclusions = null;
                 }
-                log.info("Inclusions mise à jour pour l'entité ID={}", currentEntity.getId());
+            } else {
+                inclusions = null;
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour des inclusions depuis OpenTheso", e);
+            log.info("Inclusions mise à jour pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3880,26 +3804,22 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                DescriptionPate descPate = currentEntity.getDescriptionPate();
-                if (descPate != null) {
-                    ReferenceOpentheso cuissonRef = descPate.getCuisson();
-                    if (cuissonRef != null) {
-                        cuissonRef.getValeur();
-                        cuissonPostCuisson = cuissonRef;
-                    } else {
-                        cuissonPostCuisson = null;
-                    }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            DescriptionPate descPate = currentEntity.getDescriptionPate();
+            if (descPate != null) {
+                ReferenceOpentheso cuissonRef = descPate.getCuisson();
+                if (cuissonRef != null) {
+                    cuissonRef.getValeur();
+                    cuissonPostCuisson = cuissonRef;
                 } else {
                     cuissonPostCuisson = null;
                 }
-                log.info("Cuisson/post-cuisson mise à jour pour l'entité ID={}", currentEntity.getId());
+            } else {
+                cuissonPostCuisson = null;
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour de la cuisson/post-cuisson depuis OpenTheso", e);
+            log.info("Cuisson/post-cuisson mise à jour pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3910,17 +3830,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
-                refreshedEntity.getCaracteristiquePhysique().setMetrologie(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                metrologie = null;
-                log.info("Métrologie supprimée pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la métrologie", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+            refreshedEntity.getCaracteristiquePhysique().setMetrologie(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            metrologie = null;
+            log.info("Métrologie supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3931,17 +3847,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
-                refreshedEntity.getCaracteristiquePhysique().setFabrication(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                fabricationFaconnage = null;
-                log.info("Fabrication/façonnage supprimée pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la fabrication/façonnage", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getCaracteristiquePhysique() != null) {
+            refreshedEntity.getCaracteristiquePhysique().setFabrication(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            fabricationFaconnage = null;
+            log.info("Fabrication/façonnage supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3952,17 +3864,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                refreshedEntity.getDescriptionPate().setCouleur(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                couleurPate = null;
-                log.info("Couleur de pâte supprimée pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la couleur de pâte", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            refreshedEntity.getDescriptionPate().setCouleur(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            couleurPate = null;
+            log.info("Couleur de pâte supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3973,17 +3881,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                refreshedEntity.getDescriptionPate().setNature(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                naturePate = null;
-                log.info("Nature de pâte supprimée pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la nature de pâte", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            refreshedEntity.getDescriptionPate().setNature(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            naturePate = null;
+            log.info("Nature de pâte supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -3994,17 +3898,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                refreshedEntity.getDescriptionPate().setInclusion(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                inclusions = null;
-                log.info("Inclusions supprimées pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression des inclusions", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            refreshedEntity.getDescriptionPate().setInclusion(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            inclusions = null;
+            log.info("Inclusions supprimées pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -4015,17 +3915,13 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
-                refreshedEntity.getDescriptionPate().setCuisson(null);
-                entityRepository.save(refreshedEntity);
-                currentEntity = refreshedEntity;
-                cuissonPostCuisson = null;
-                log.info("Cuisson/post-cuisson supprimée pour l'entité ID={}", currentEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la cuisson/post-cuisson", e);
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getDescriptionPate() != null) {
+            refreshedEntity.getDescriptionPate().setCuisson(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            cuissonPostCuisson = null;
+            log.info("Cuisson/post-cuisson supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 
@@ -4037,17 +3933,10 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_TYPE.equals(
-                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
-                refreshedEntity.setCommentaire(typeDescription);
-                entityRepository.save(refreshedEntity);
-                log.debug("Description du type sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde de la description du type", e);
-        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        refreshedEntity.setCommentaire(typeDescription);
+        entityRepository.save(refreshedEntity);
+        log.debug("Description du type sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
     }
 
     /**
@@ -4058,19 +3947,10 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_COLLECTION.equals(
-                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
-                // Note: collectionDescription pourrait être stocké dans DescriptionDetail ou commentaire
-                // Pour l'instant, on utilise commentaire
-                refreshedEntity.setCommentaire(collectionDescription);
-                entityRepository.save(refreshedEntity);
-                log.debug("Description de la collection sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde de la description de la collection", e);
-        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        refreshedEntity.setCommentaire(collectionDescription);
+        entityRepository.save(refreshedEntity);
+        log.debug("Description de la collection sauvegardée pour l'entité ID: {}", refreshedEntity.getId());
     }
 
     /**
@@ -4081,39 +3961,60 @@ public class CandidatBean implements Serializable {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && EntityConstants.ENTITY_TYPE_COLLECTION.equals(
-                refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
-                refreshedEntity.setPublique(collectionPublique);
-                entityRepository.save(refreshedEntity);
-                log.debug("Statut public de la collection sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde du statut public de la collection", e);
-        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        refreshedEntity.setPublique(collectionPublique);
+        entityRepository.save(refreshedEntity);
+        log.debug("Statut public de la collection sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
     }
 
     /**
      * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
      */
-    public void saveGroupFields() {
+    public void saveTpqFields() {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
 
-        try {
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null
-                    && EntityConstants.ENTITY_TYPE_GROUP.equals(refreshedEntity.getEntityType() != null ? refreshedEntity.getEntityType().getCode() : null)) {
-                refreshedEntity.setTpq(tpq);
-                refreshedEntity.setTaq(taq);
-                // Note: periode est géré via ReferenceOpentheso, pas directement dans Entity
-                entityRepository.save(refreshedEntity);
-                log.debug("Champs du groupe sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        refreshedEntity.setTpq(tpq);
+        // Note: periode est géré via ReferenceOpentheso, pas directement dans Entity
+        entityRepository.save(refreshedEntity);
+        log.debug("Champs du groupe sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
+    }
+
+    /**
+     * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
+     */
+    public void saveTaqFields() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        refreshedEntity.setTaq(taq);
+        // Note: periode est géré via ReferenceOpentheso, pas directement dans Entity
+        entityRepository.save(refreshedEntity);
+        log.debug("Champs du groupe sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
+    }
+
+    /**
+     * Sauvegarde le champ Décors dans la base de données (DescriptionDetail).
+     */
+    public void saveDecors() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
+            if (descDetail == null) {
+                descDetail = new DescriptionDetail();
+                descDetail.setEntity(refreshedEntity);
+                refreshedEntity.setDescriptionDetail(descDetail);
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde des champs du groupe", e);
+            descDetail.setDecors(decors != null && !decors.trim().isEmpty() ? decors.trim() : null);
+            entityRepository.save(refreshedEntity);
+            log.debug("Décors sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
         }
     }
     
@@ -4125,54 +4026,29 @@ public class CandidatBean implements Serializable {
             return "";
         }
         String code = candidat.getTypeCode();
-        switch (code) {
-            case EntityConstants.ENTITY_TYPE_COLLECTION:
-                return "Collection";
-            case EntityConstants.ENTITY_TYPE_CATEGORY:
-                return "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP:
-                return "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES:
-                return "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE:
-                return "Type";
-            default:
-                return code;
-        }
+        return switch (code) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
+            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
+            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
+            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
+            default -> code;
+        };
     }
-    
+
     /**
      * Surcharge de getCollectionLabel pour accepter un Candidat
      */
-    public String getCollectionLabel(Candidat candidat) {
-        if (candidat == null || candidat.getId() == null) {
+    public String getCollectionLabel() {
+        if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
             return "Aucune collection";
         }
-        
-        try {
-            Optional<Entity> entityOpt = entityRepository.findById(candidat.getId());
-            if (entityOpt.isPresent()) {
-                Entity entity = entityOpt.get();
-                
-                // Trouver la collection parente
-                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
-                if (parents != null && !parents.isEmpty()) {
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
-                            EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
-                            // Charger les labels de la collection
-                            if (parent.getLabels() != null) {
-                                parent.getLabels().size(); // Force le chargement
-                            }
-                            return getCollectionLabel(parent);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la récupération de la collection depuis le candidat", e);
+
+        Entity entityOpt = collectionService.findCollectionIdByEntityId(candidatSelectionne.getId());
+        if (entityOpt != null) {
+            return entityOpt.getCode();
         }
-        
+
         return "Aucune collection";
     }
     
@@ -4183,17 +4059,9 @@ public class CandidatBean implements Serializable {
         if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
             return "Non sélectionné";
         }
-        
-        try {
-            Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
-            if (entityOpt.isPresent()) {
-                return entityOpt.get().getCode();
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la récupération du code de l'entité", e);
-        }
-        
-        return "Non sélectionné";
+
+        Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
+        return entityOpt.isPresent() ? entityOpt.get().getCode() : "Non sélectionné";
     }
     
     /**
@@ -4203,27 +4071,21 @@ public class CandidatBean implements Serializable {
         if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
             return "Non sélectionné";
         }
-        
-        try {
-            Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
-            if (entityOpt.isPresent()) {
-                Entity entity = entityOpt.get();
-                
-                // Trouver l'entité parente (non-collection)
-                List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
-                if (parents != null && !parents.isEmpty()) {
-                    for (Entity parent : parents) {
-                        if (parent.getEntityType() != null &&
+
+        Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
+        if (entityOpt.isPresent()) {
+            Entity entity = entityOpt.get();
+            // Trouver l'entité parente (non-collection)
+            List<Entity> parents = entityRelationRepository.findParentsByChild(entity);
+            if (parents != null && !parents.isEmpty()) {
+                for (Entity parent : parents) {
+                    if (parent.getEntityType() != null &&
                             !EntityConstants.ENTITY_TYPE_COLLECTION.equals(parent.getEntityType().getCode())) {
-                            return parent.getCode();
-                        }
+                        return parent.getCode();
                     }
                 }
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la récupération du parent depuis le candidat", e);
         }
-        
         return "Non sélectionné";
     }
 
@@ -4257,25 +4119,21 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             return;
         }
-        
-        try {
-            // Recharger l'entité depuis la base de données pour avoir la liste à jour
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null) {
-                currentEntity = refreshedEntity;
-                // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
-                if (currentEntity.getAiresCirculation() != null) {
-                    airesCirculation = currentEntity.getAiresCirculation().stream()
+
+        // Recharger l'entité depuis la base de données pour avoir la liste à jour
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null) {
+            currentEntity = refreshedEntity;
+            // Filtrer pour ne garder que celles avec le code AIRE_CIRCULATION
+            if (currentEntity.getAiresCirculation() != null) {
+                airesCirculation = currentEntity.getAiresCirculation().stream()
                         .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                         .collect(Collectors.toList());
-                } else {
-                    airesCirculation = new ArrayList<>();
-                }
-                log.info("Liste des aires de circulation mise à jour pour l'entité ID={}: {} valeurs", 
-                    currentEntity.getId(), airesCirculation.size());
+            } else {
+                airesCirculation = new ArrayList<>();
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la mise à jour du champ aire de circulation depuis OpenTheso", e);
+            log.info("Liste des aires de circulation mise à jour pour l'entité ID={}: {} valeurs",
+                    currentEntity.getId(), airesCirculation.size());
         }
     }
 
@@ -4301,56 +4159,42 @@ public class CandidatBean implements Serializable {
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
-        
-        try {
-            // Recharger l'entité depuis la base de données
-            Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-            if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
-                // Trouver la référence à supprimer
-                ReferenceOpentheso referenceToDelete = refreshedEntity.getAiresCirculation().stream()
+
+        // Recharger l'entité depuis la base de données
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getAiresCirculation() != null) {
+            // Trouver la référence à supprimer
+            ReferenceOpentheso referenceToDelete = refreshedEntity.getAiresCirculation().stream()
                     .filter(ref -> ref.getId().equals(referenceId) && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                     .findFirst()
                     .orElse(null);
-                
-                if (referenceToDelete != null) {
-                    // Retirer la référence de la liste (cascade supprimera automatiquement grâce à orphanRemoval)
-                    refreshedEntity.getAiresCirculation().remove(referenceToDelete);
-                    entityRepository.save(refreshedEntity);
-                    
-                    // Mettre à jour currentEntity et la liste locale
-                    currentEntity = refreshedEntity;
-                    airesCirculation = currentEntity.getAiresCirculation().stream()
+
+            if (referenceToDelete != null) {
+                // Retirer la référence de la liste (cascade supprimera automatiquement grâce à orphanRemoval)
+                refreshedEntity.getAiresCirculation().remove(referenceToDelete);
+                entityRepository.save(refreshedEntity);
+
+                // Mettre à jour currentEntity et la liste locale
+                currentEntity = refreshedEntity;
+                airesCirculation = currentEntity.getAiresCirculation().stream()
                         .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                         .collect(Collectors.toList());
-                    
-                    FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Succès",
-                            "L'aire de circulation a été supprimée avec succès."));
-                    PrimeFaces.current().ajax().update(":growl");
-                    
-                    log.info("Aire de circulation supprimée (ID={}) pour l'entité ID={}", 
-                        referenceId, currentEntity.getId());
-                } else {
-                    FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_WARN,
-                            "Attention",
-                            "La référence sélectionnée n'existe pas ou n'appartient pas à cette entité."));
-                    PrimeFaces.current().ajax().update(":growl");
-                }
+
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Succès", "L'aire de circulation a été supprimée avec succès."));
+                PrimeFaces.current().ajax().update(":growl");
+
+                log.info("Aire de circulation supprimée (ID={}) pour l'entité ID={}", referenceId, currentEntity.getId());
             } else {
                 FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Aucune aire de circulation à supprimer."));
+                        new FacesMessage(FacesMessage.SEVERITY_WARN,
+                                "Attention",
+                                "La référence sélectionnée n'existe pas ou n'appartient pas à cette entité."));
                 PrimeFaces.current().ajax().update(":growl");
             }
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de l'aire de circulation", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    "Attention", "Aucune aire de circulation à supprimer."));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -4373,59 +4217,64 @@ public class CandidatBean implements Serializable {
      * Supprime l'entité créée à l'étape 1 et toutes ses relations si l'utilisateur confirme l'abandon
      */
     public void abandonnerProposition() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+
         if (currentEntity == null || currentEntity.getId() == null) {
             // Aucune entité à supprimer
             log.info("Aucune entité à supprimer lors de l'abandon");
             resetWizardForm();
             return;
         }
-        
-        try {
-            Long entityId = currentEntity.getId();
-            log.info("Suppression de l'entité créée à l'étape 1: ID={}", entityId);
-            
-            // Recharger l'entité depuis la base pour éviter les problèmes de détachement
-            Entity entityToDelete = entityRepository.findById(entityId).orElse(null);
-            
-            if (entityToDelete != null) {
-                // Supprimer toutes les relations où cette entité est enfant
-                List<EntityRelation> relationsAsChild = entityRelationRepository.findByChild(entityToDelete);
-                if (relationsAsChild != null && !relationsAsChild.isEmpty()) {
-                    entityRelationRepository.deleteAll(relationsAsChild);
-                    log.debug("{} relations supprimées (entité comme enfant)", relationsAsChild.size());
-                }
-                
-                // Supprimer toutes les relations où cette entité est parent
-                List<EntityRelation> relationsAsParent = entityRelationRepository.findByParent(entityToDelete);
-                if (relationsAsParent != null && !relationsAsParent.isEmpty()) {
-                    entityRelationRepository.deleteAll(relationsAsParent);
-                    log.debug("{} relations supprimées (entité comme parent)", relationsAsParent.size());
-                }
-                
-                // Supprimer l'entité elle-même
-                entityRepository.delete(entityToDelete);
-                log.info("Entité supprimée avec succès: ID={}", entityId);
-                
-                facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Succès",
-                        "La proposition a été abandonnée et supprimée."));
-            } else {
-                log.warn("Entité avec l'ID {} non trouvée pour suppression", entityId);
+
+        Long entityId = currentEntity.getId();
+        log.info("Suppression de l'entité créée à l'étape 1: ID={}", entityId);
+
+        // Recharger l'entité depuis la base pour éviter les problèmes de détachement
+        Entity entityToDelete = entityRepository.findById(entityId).orElse(null);
+        if (entityToDelete != null) {
+            // Supprimer toutes les relations où cette entité est enfant
+            List<EntityRelation> relationsAsChild = entityRelationRepository.findByChild(entityToDelete);
+            if (relationsAsChild != null && !relationsAsChild.isEmpty()) {
+                entityRelationRepository.deleteAll(relationsAsChild);
+                log.debug("{} relations supprimées (entité comme enfant)", relationsAsChild.size());
             }
-            
-            // Réinitialiser le formulaire
-            resetWizardForm();
-            currentEntity = null;
-            
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de l'entité", e);
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+
+            // Supprimer toutes les relations où cette entité est parent
+            List<EntityRelation> relationsAsParent = entityRelationRepository.findByParent(entityToDelete);
+            if (relationsAsParent != null && !relationsAsParent.isEmpty()) {
+                entityRelationRepository.deleteAll(relationsAsParent);
+                log.debug("{} relations supprimées (entité comme parent)", relationsAsParent.size());
+            }
+
+            // Supprimer l'entité elle-même
+            entityRepository.delete(entityToDelete);
+            log.info("Entité supprimée avec succès: ID={}", entityId);
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès", "La proposition a été abandonnée et supprimée."));
+        } else {
+            log.warn("Entité avec l'ID {} non trouvée pour suppression", entityId);
+        }
+
+        // Réinitialiser le formulaire
+        resetWizardForm();
+        currentEntity = null;
+    }
+
+
+
+    /**
+     * Supprime la periode de l'entité
+     */
+    public void deletePeriode() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getPeriode() != null) {
+            referenceOpenthesoRepository.deleteById(refreshedEntity.getPeriode().getId());
+            refreshedEntity.setPeriode(null);
+            currentEntity = refreshedEntity;
+            log.info("Période supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 }

@@ -18,7 +18,7 @@
                         <p class="users-subtitle">Gérez et suivez les propositions de types</p>
                     </div>
                     <h:form>
-                        <p:commandButton value="Nouveau candidat" 
+                        <p:commandButton value="Nouveau brouillon" 
                                        icon="pi pi-plus"
                                        styleClass="users-create-button"
                                        action="/candidats/create.xhtml?faces-redirect=true"
@@ -36,7 +36,7 @@
                               dynamic="true"
                               cache="false">
                         
-                        <!-- Onglet : Candidats en cours -->
+                        <!-- Onglet : Brouillons en cours -->
                         <p:tab title="Brouillons en cours" titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableEnCours"
@@ -114,15 +114,15 @@
                             </div>
                         </p:tab>
                         
-                        <!-- Onglet : Candidats validés -->
-                        <p:tab title="Brouillon validés"
+                        <!-- Onglet : Brouillons validés -->
+                        <p:tab title="Brouillons validés"
                                titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
                                 <p:dataTable id="tableValides"
                                            value="#{candidatBean.candidatsValides}"
                                            var="candidat"
                                            styleClass="modern-users-table"
-                                           emptyMessage="Aucun candidat validé"
+                                      emptyMessage="Aucun brouillon validé"
                                            paginator="true"
                                            rows="10"
                                            rowsPerPageTemplate="10,20,50"
@@ -180,7 +180,7 @@
                             </div>
                         </p:tab>
                         
-                        <!-- Onglet : Brouillon refusés -->
+                        <!-- Onglet : Brouillons refusés -->
                         <p:tab title="Brouillons refusés"
                                titleStyleClass="users-tab-title">
                             <div class="users-table-wrapper">
@@ -188,7 +188,7 @@
                                            value="#{candidatBean.candidatsRefuses}"
                                            var="candidat"
                                            styleClass="modern-users-table"
-                                           emptyMessage="Aucun candidat refusé"
+                                      emptyMessage="Aucun brouillon refusé"
                                            paginator="true"
                                            rows="10"
                                            rowsPerPageTemplate="10,20,50"
@@ -272,7 +272,7 @@
                                 </div>
                                 <div class="candidat-confirm-header-content">
                                     <h3 class="candidat-confirm-header-title">Confirmer la validation</h3>
-                                    <p class="candidat-confirm-header-subtitle">Le candidat sera validé et passera au statut ACCEPTED</p>
+                                    <p class="candidat-confirm-header-subtitle">Le brouillon sera validé et passera au statut ACCEPTED</p>
                                 </div>
                             </div>
                         </f:facet>
@@ -281,7 +281,7 @@
                                 <i class="pi pi-info-circle" />
                             </div>
                             <p class="candidat-confirm-message-text">
-                                Êtes-vous sûr de vouloir valider ce candidat ?<br/>
+                                Êtes-vous sûr de vouloir valider ce brouillon ?<br/>
                                 <strong>#{candidatBean.candidatAValider != null ? candidatBean.candidatAValider.label : ''}</strong>
                             </p>
                         </div>
@@ -331,7 +331,7 @@
                                 <i class="pi pi-info-circle" />
                             </div>
                             <p class="candidat-confirm-message-text">
-                                Êtes-vous sûr de vouloir supprimer ce candidat ?<br/>
+                                Êtes-vous sûr de vouloir supprimer ce brouillon ?<br/>
                                 <strong>#{candidatBean.candidatASupprimer != null ? candidatBean.candidatASupprimer.label : ''}</strong><br/>
                                 <span style="color: #dc3545; font-weight: 600;">Cette action est définitive et ne peut pas être annulée.</span>
                             </p>

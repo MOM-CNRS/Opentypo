@@ -54,6 +54,9 @@ public class OpenThesoDialogBean implements Serializable {
     @Autowired
     private EntityRepository entityRepository;
 
+    @Autowired
+    private CollectionService collectionService;
+
     // État de la boîte de dialogue
     private String dialogWidgetVar;
     private String targetFieldId; // ID du champ cible où insérer la valeur
@@ -68,8 +71,6 @@ public class OpenThesoDialogBean implements Serializable {
     private PactolsConcept selectedConcept;
     private CandidatBean candidatBean;
     private Parametrage collectionParametrage;
-    @Autowired
-    private CollectionService collectionService;
 
     /**
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
