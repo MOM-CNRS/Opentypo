@@ -844,7 +844,65 @@ public class CandidatBean implements Serializable {
             .filter(c -> c.getStatut() == Candidat.Statut.REFUSE)
             .collect(Collectors.toList());
     }
-    
+
+    /**
+     * Indique si l'utilisateur connecté peut valider ou refuser un brouillon.
+     * Seuls les groupes "Administrateur technique" et "Administrateur Référentiel" ont ce droit.
+     */
+    public boolean canValidateOrRefuseBrouillon() {
+        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
+        if (user == null || user.getGroupe() == null) return false;
+        String groupeNom = user.getGroupe().getNom();
+        return "Administrateur technique".equalsIgnoreCase(groupeNom)
+            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom);
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut modifier un brouillon (statut PROPOSITION).
+     * Groupes autorisés : Administrateur technique, Administrateur Référentiel, Éditeur.
+     */
+    public boolean canEditBrouillon(Candidat candidat) {
+        if (candidat == null || candidat.getStatut() != Candidat.Statut.EN_COURS) return false;
+        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
+        if (user == null || user.getGroupe() == null) return false;
+        String groupeNom = user.getGroupe().getNom();
+        return "Administrateur technique".equalsIgnoreCase(groupeNom)
+            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom)
+            || "Éditeur".equalsIgnoreCase(groupeNom);
+    }
+
+    /**
+     * Indique si le brouillon courant (currentEntity) peut être modifié par l'utilisateur connecté.
+     */
+    public boolean canEditCurrentBrouillon() {
+        if (currentEntity == null || currentEntity.getStatut() == null) return false;
+        if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) return false;
+        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
+        if (user == null || user.getGroupe() == null) return false;
+        String groupeNom = user.getGroupe().getNom();
+        return "Administrateur technique".equalsIgnoreCase(groupeNom)
+            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom)
+            || "Éditeur".equalsIgnoreCase(groupeNom);
+    }
+
+    /**
+     * Indique si le brouillon courant est en lecture seule (déjà validé ou refusé).
+     * Dans ce cas, tous les utilisateurs ne peuvent que visualiser.
+     */
+    public boolean isCurrentBrouillonReadOnly() {
+        if (currentEntity == null || currentEntity.getStatut() == null) return true;
+        String s = currentEntity.getStatut();
+        return EntityStatusEnum.ACCEPTED.name().equals(s) || EntityStatusEnum.REFUSED.name().equals(s);
+    }
+
+    /**
+     * Indique si le brouillon courant est en statut PROPOSITION (en cours).
+     */
+    public boolean isCurrentBrouillonProposition() {
+        return currentEntity != null && currentEntity.getStatut() != null
+            && EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut());
+    }
+
     /**
      * Recharge les candidats si nécessaire (lazy loading)
      */

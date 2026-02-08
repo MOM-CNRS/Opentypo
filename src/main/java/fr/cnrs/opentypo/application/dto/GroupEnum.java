@@ -8,7 +8,7 @@ public enum GroupEnum {
     ADMINISTRATEUR_TECHNIQUE("Administrateur technique"),
     ADMINISTRATEUR_REFERENTIEL("Administrateur Référentiel"),
     EDITEUR("Éditeur"),
-    LECTEUR("Lecteur"),;
+    LECTEUR("Lecteur");
 
     private final String label;
 

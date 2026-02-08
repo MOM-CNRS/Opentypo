@@ -98,6 +98,7 @@
                                             <p:commandButton icon="pi pi-check"
                                                            styleClass="action-btn action-validate"
                                                            title="Valider"
+                                                           rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                                            action="#{candidatBean.prepareValidateCandidat(candidat)}"
                                                            process="@this"
                                                            update=":candidatsForm"
@@ -105,6 +106,7 @@
                                             <p:commandButton icon="pi pi-times"
                                                            styleClass="action-btn action-refuse"
                                                            title="Refuser"
+                                                           rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                                            action="#{candidatBean.refuserCandidat(candidat)}"
                                                            process="@this"
                                                            update=":candidatsForm"/>
@@ -240,13 +242,6 @@
                                                            action="#{candidatBean.visualiserCandidat(candidat)}"
                                                            process="@this"
                                                            update="@none"/>
-                                            <p:commandButton icon="pi pi-trash"
-                                                           styleClass="action-btn action-delete"
-                                                           title="Supprimer"
-                                                           action="#{candidatBean.prepareDeleteCandidat(candidat)}"
-                                                           process="@this"
-                                                           update=":candidatsForm"
-                                                           oncomplete="PF('confirmDeleteDialog').show();"/>
                                         </div>
                                     </p:column>
                                 </p:dataTable>

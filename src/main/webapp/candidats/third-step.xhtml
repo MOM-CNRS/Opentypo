@@ -71,25 +71,23 @@
 
             <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
             <div class="users-form-panel wizard-form-panel" style="padding: 10px">
-                <!-- Formulaire pour TYPE -->
-
                 <!-- Formulaire pour CATEGORY -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 2}">
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 2}">
                     <ui:include src="form/category-form.xhtml"/>
                 </ui:fragment>
 
                 <!-- Formulaire pour GROUP -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 3}">
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 3}">
                     <ui:include src="form/group-form.xhtml"/>
                 </ui:fragment>
 
                 <!-- Formulaire pour SERIES -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 4}">
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 4}">
                     <ui:include src="form/serie-form.xhtml"/>
                 </ui:fragment>
 
 
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
+                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 5}">
                     <ui:include src="form/type-form.xhtml"/>
                 </ui:fragment>
             </div>

@@ -26,8 +26,25 @@
                         </h:form>
                     </div>
                 </div>
+
+                <!-- Message lorsque le brouillon est validé ou refusé (lecture seule pour tous) -->
+                <h:panelGroup rendered="#{candidatBean.isCurrentBrouillonReadOnly()}">
+                    <div class="users-form-panel wizard-form-panel brouillon-readonly-message" style="margin-top: 20px">
+                        <div class="summary-content text-justify">
+                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'ACCEPTED'}">
+                                <i class="pi pi-check-circle" style="color: #28a745; margin-right: 0.5rem;"/>
+                                Ce brouillon a été validé. Vous ne pouvez que le visualiser.
+                            </h:panelGroup>
+                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'REFUSED'}">
+                                <i class="pi pi-times-circle" style="color: #dc3545; margin-right: 0.5rem;"/>
+                                Ce brouillon a été refusé. Vous ne pouvez que le visualiser.
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                </h:panelGroup>
+
                 <!-- 1ère partie : Récapitulatif des informations des étapes 1 et 2 -->
-                <div class="users-form-panel wizard-form-panel summary-panel">
+                <div class="users-form-panel wizard-form-panel summary-panel text-justify">
                     <div class="summary-content">
                         <div class="summary-section">
                             <div class="summary-grid">
@@ -88,54 +105,58 @@
                     </div>
                 </div>
 
-                <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
-                <h:form id="createCandidatForm">
-                    <div class="users-form-panel wizard-form-panel">
-                        <!-- Formulaire pour CATEGORY -->
-                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 2}">
-                            <ui:include src="form/category-form.xhtml"/>
-                        </ui:fragment>
+                <!-- 2ème partie : Formulaire / Consultation (visible pour modification OU pour consultation si validé/refusé) -->
+                <h:form id="createCandidatForm" rendered="#{candidatBean.canEditCurrentBrouillon() or candidatBean.isCurrentBrouillonReadOnly()}">
+                    <div class="#{candidatBean.isCurrentBrouillonReadOnly() ? 'brouillon-consultation-only' : ''}">
+                        <div class="users-form-panel wizard-form-panel">
+                            <!-- Formulaire pour CATEGORY -->
+                            <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 2}">
+                                <ui:include src="form/category-form.xhtml"/>
+                            </ui:fragment>
 
-                        <!-- Formulaire pour GROUP -->
-                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 3}">
-                            <ui:include src="form/group-form.xhtml"/>
-                        </ui:fragment>
+                            <!-- Formulaire pour GROUP -->
+                            <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 3}">
+                                <ui:include src="form/group-form.xhtml"/>
+                            </ui:fragment>
 
-                        <!-- Formulaire pour SERIES -->
-                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 4}">
-                            <ui:include src="form/serie-form.xhtml"/>
-                        </ui:fragment>
+                            <!-- Formulaire pour SERIES -->
+                            <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 4}">
+                                <ui:include src="form/serie-form.xhtml"/>
+                            </ui:fragment>
 
-                        <!-- Formulaire pour TYPE -->
-                        <ui:fragment rendered="#{candidatBean.selectedEntityTypeId != null and candidatBean.selectedEntityTypeId == 5}">
-                            <ui:include src="form/type-form.xhtml"/>
-                        </ui:fragment>
-                    </div>
+                            <!-- Formulaire pour TYPE -->
+                            <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                                <ui:include src="form/type-form.xhtml"/>
+                            </ui:fragment>
+                        </div>
 
-                    <!-- Boîte de dialogue OpenTheso -->
-                    <ui:include src="openthesoDialog.xhtml"/>
-                    
-                    <!-- Champ Auteurs -->
-                    <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
-                        <div class="users-form-group users-form-group-full" style="margin: 10px">
-                            <p:outputLabel value="Auteurs" />
-                            <div class="auteurs-list">
-                                <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
-                                    <div class="auteur-item">
-                                        <i class="pi pi-user auteur-icon" />
-                                        <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
-                                        <span class="auteur-email">(#{auteur.email})</span>
-                                    </div>
-                                </ui:repeat>
-                                <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
-                                    <p class="auteurs-empty">Aucun auteur assigné</p>
-                                </ui:fragment>
+                        <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
+                        <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                            <ui:include src="openthesoDialog.xhtml"/>
+                        </ui:fragment>
+                        
+                        <!-- Champ Auteurs -->
+                        <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
+                            <div class="users-form-group users-form-group-full" style="margin: 10px">
+                                <p:outputLabel value="Auteurs" />
+                                <div class="auteurs-list">
+                                    <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
+                                        <div class="auteur-item">
+                                            <i class="pi pi-user auteur-icon" />
+                                            <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
+                                            <span class="auteur-email">(#{auteur.email})</span>
+                                        </div>
+                                    </ui:repeat>
+                                    <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
+                                        <p class="auteurs-empty">Aucun auteur assigné</p>
+                                    </ui:fragment>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Boutons d'action -->
-                    <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
+                    <!-- Boutons d'action (uniquement en mode édition) -->
+                    <h:panelGroup class="users-form-panel wizard-form-panel" style="margin-top: 20px" rendered="#{candidatBean.canEditCurrentBrouillon()}">
                         <div class="wizard-navigation" style="gap: 30px;">
                             <p:commandButton value="Enregistrer"
                                              icon="pi pi-save"
@@ -148,6 +169,7 @@
                                              icon="pi pi-times"
                                              styleClass="candidat-btn-add"
                                              style="background-color: #dc3545 !important; border-color: #dc3545 !important; color: #ffffff !important;"
+                                             rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                              action="#{candidatBean.refuserCandidatFromView}"
                                              process="@form"
                                              update="@none"/>
@@ -156,11 +178,12 @@
                                              icon="pi pi-check"
                                              styleClass="candidat-btn-add"
                                              style="background-color: #28a745; border-color: #28a745;"
+                                             rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                              action="#{candidatBean.validerCandidatFromView}"
                                              process="@form"
                                              update="@none"/>
                         </div>
-                    </div>
+                    </h:panelGroup>
                 </h:form>
             </div>
         </div>
