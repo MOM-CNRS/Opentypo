@@ -71,25 +71,27 @@
 
             <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
             <div class="users-form-panel wizard-form-panel" style="padding: 10px">
-                <!-- Formulaire pour CATEGORY -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 2}">
-                    <ui:include src="form/category-form.xhtml"/>
-                </ui:fragment>
+                <div class="wizard-content" style="padding: 20px">
+                    <ui:include src="form/labels-form.xhtml"/>
 
-                <!-- Formulaire pour GROUP -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 3}">
-                    <ui:include src="form/group-form.xhtml"/>
-                </ui:fragment>
+                    <ui:include src="form/descriptions-form.xhtml"/>
 
-                <!-- Formulaire pour SERIES -->
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 4}">
-                    <ui:include src="form/serie-form.xhtml"/>
-                </ui:fragment>
+                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
+                        <ui:include src="form/periode-tpq-taq.xhtml"/>
 
+                        <ui:include src="form/divers.xhtml"/>
 
-                <ui:fragment rendered="#{candidatBean.selectedEntityTypeId == 5}">
-                    <ui:include src="form/type-form.xhtml"/>
-                </ui:fragment>
+                        <ui:include src="form/details.xhtml"/>
+
+                        <ui:include src="form/caracteristiques-physiques.xhtml"/>
+                    </h:panelGroup>
+
+                    <ui:include src="form/commentaire-bibliographie.xhtml" />
+                </div>
+
+                <!-- Styles personnalisés pour le formulaire de groupe -->
+                <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
+                <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
             </div>
         </div>
     </div>

@@ -1197,67 +1197,6 @@
             .summary-content {
                 padding: 20px;
             }
-
-            /* Alignement du texte justifié (brouillons) */
-            .text-justify,
-            .text-justify .summary-value,
-            .text-justify .summary-label {
-                text-align: justify !important;
-            }
-
-            .brouillon-readonly-message .brouillon-status-info {
-                margin: 0;
-                display: flex;
-                align-items: center;
-                font-size: 1rem;
-            }
-
-            /* Mode consultation : brouillon validé/refusé, tout le contenu est en lecture seule */
-            .brouillon-consultation-only input,
-            .brouillon-consultation-only textarea,
-            .brouillon-consultation-only button.ui-button,
-            .brouillon-consultation-only .ui-selectonemenu,
-            .brouillon-consultation-only .ui-chips-container,
-            .brouillon-consultation-only [role="button"] {
-                pointer-events: none !important;
-                cursor: default !important;
-            }
-
-            .brouillon-consultation-only {
-                opacity: 0.97;
-            }
-
-            /* En mode visualisation seule : masquer tous les boutons de modification */
-            .brouillon-consultation-only .candidat-btn-add,
-            .brouillon-consultation-only .candidat-btn-remove,
-            .brouillon-consultation-only .candidat-btn-save,
-            .brouillon-consultation-only .candidat-save-btn,
-            .brouillon-consultation-only .candidat-save-btn-period,
-            .brouillon-consultation-only .candidat-save-btn-decors,
-            .brouillon-consultation-only .candidat-btn-add-production,
-            .brouillon-consultation-only .candidat-table-action-column .ui-button,
-            .brouillon-consultation-only .candidat-table-action-cell .ui-button {
-                display: none !important;
-            }
-
-            /* Masquer la colonne Action des tableaux (labels, descriptions, etc.) en mode consultation */
-            .brouillon-consultation-only .candidat-table-action-column,
-            .brouillon-consultation-only .candidat-table-action-cell {
-                display: none !important;
-            }
-
-            /* Masquer les formulaires d'ajout (labels, descriptions) en mode consultation */
-            .brouillon-consultation-only .candidat-label-input-row,
-            .brouillon-consultation-only .candidat-description-input-section,
-            .brouillon-consultation-only .candidat-description-input-row {
-                display: none !important;
-            }
-
-            /* Masquer les messages "Aucune traduction / Aucune description ajoutée" en mode consultation */
-            .brouillon-consultation-only .candidat-no-labels,
-            .brouillon-consultation-only .candidat-no-descriptions {
-                display: none !important;
-            }
             
             .summary-section {
                 margin-bottom: 1.5rem;
