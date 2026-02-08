@@ -4271,6 +4271,103 @@ public class CandidatBean implements Serializable {
         aireCirculationToDeleteId = null;
     }
 
+    /** Type d'élément à supprimer pour la boîte de dialogue de confirmation unique */
+    private String confirmDeleteType;
+    /** Message affiché dans la boîte de dialogue de confirmation */
+    private String confirmDeleteMessage;
+    /** Composants à mettre à jour après la suppression (ex: :createCandidatForm :growl) */
+    private String confirmDeleteUpdate;
+
+    public String getConfirmDeleteMessage() { return confirmDeleteMessage; }
+    public String getConfirmDeleteUpdate() { return confirmDeleteUpdate; }
+
+    /** Prépare l'affichage de la boîte de confirmation pour la suppression de la période */
+    public void prepareConfirmDeletePeriode() {
+        confirmDeleteType = "PERIODE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la période sélectionnée ? "
+            + "Cette action supprimera définitivement la référence de la base de données et retirera la période de l'entité.";
+        confirmDeleteUpdate = ":createCandidatForm:periode :growl";
+    }
+
+    /** Prépare l'affichage de la boîte de confirmation pour la suppression de la production */
+    public void prepareConfirmDeleteProduction() {
+        confirmDeleteType = "PRODUCTION";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la production sélectionnée ? "
+            + "Cette action supprimera définitivement la référence de la base de données et retirera la production de l'entité.";
+        confirmDeleteUpdate = ":createCandidatForm:productionGroup :growl";
+    }
+
+    /** Prépare l'affichage de la boîte de confirmation pour la suppression d'une aire de circulation */
+    public void prepareConfirmDeleteAireCirculation(Long referenceId) {
+        prepareDeleteAireCirculation(referenceId);
+        confirmDeleteType = "AIRE_CIRCULATION";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer cette aire de circulation ? "
+            + "Cette action supprimera définitivement la référence de la base de données et retirera l'aire de circulation de l'entité.";
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+
+    /** Prépare l'affichage de la boîte de confirmation pour la suppression de la fonction/usage */
+    public void prepareConfirmDeleteFonctionUsage() {
+        confirmDeleteType = "FONCTION_USAGE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer cette fonction/usage ? "
+            + "Cette action supprimera définitivement la référence de la base de données et retirera la fonction/usage de l'entité.";
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+
+    private static final String CONFIRM_MSG_REF = "Cette action supprimera définitivement la référence de la base de données.";
+
+    public void prepareConfirmDeleteMetrologie() {
+        confirmDeleteType = "METROLOGIE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la métrologie sélectionnée ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+    public void prepareConfirmDeleteFabricationFaconnage() {
+        confirmDeleteType = "FABRICATION_FACONNAGE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la fabrication/façonnage sélectionné ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+    public void prepareConfirmDeleteCouleurPate() {
+        confirmDeleteType = "COULEUR_PATE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la couleur de pâte sélectionnée ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+    public void prepareConfirmDeleteNaturePate() {
+        confirmDeleteType = "NATURE_PATE";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la nature de pâte sélectionnée ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+    public void prepareConfirmDeleteInclusions() {
+        confirmDeleteType = "INCLUSIONS";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer les inclusions sélectionnées ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+    public void prepareConfirmDeleteCuissonPostCuisson() {
+        confirmDeleteType = "CUISSON_POST_CUISSON";
+        confirmDeleteMessage = "Êtes-vous sûr de vouloir supprimer la cuisson/post-cuisson sélectionnée ? " + CONFIRM_MSG_REF;
+        confirmDeleteUpdate = ":createCandidatForm :growl";
+    }
+
+    /** Exécute la suppression selon le type préparé (appelé depuis la boîte de confirmation unique) */
+    public void executeConfirmDelete() {
+        if (confirmDeleteType == null) return;
+        switch (confirmDeleteType) {
+            case "PERIODE" -> deletePeriode();
+            case "PRODUCTION" -> deleteProduction();
+            case "AIRE_CIRCULATION" -> deleteAireCirculation();
+            case "FONCTION_USAGE" -> deleteFonctionUsage();
+            case "METROLOGIE" -> deleteMetrologie();
+            case "FABRICATION_FACONNAGE" -> deleteFabricationFaconnage();
+            case "COULEUR_PATE" -> deleteCouleurPate();
+            case "NATURE_PATE" -> deleteNaturePate();
+            case "INCLUSIONS" -> deleteInclusions();
+            case "CUISSON_POST_CUISSON" -> deleteCuissonPostCuisson();
+            default -> { }
+        }
+        confirmDeleteType = null;
+        confirmDeleteMessage = null;
+        confirmDeleteUpdate = null;
+    }
+
     /**
      * Supprime l'entité créée à l'étape 1 et toutes ses relations si l'utilisateur confirme l'abandon
      */
@@ -4321,7 +4418,7 @@ public class CandidatBean implements Serializable {
 
 
     /**
-     * Supprime la periode de l'entité
+     * Supprime la période de l'entité
      */
     public void deletePeriode() {
         if (currentEntity == null || currentEntity.getId() == null) {
@@ -4331,8 +4428,27 @@ public class CandidatBean implements Serializable {
         if (refreshedEntity != null && refreshedEntity.getPeriode() != null) {
             referenceOpenthesoRepository.deleteById(refreshedEntity.getPeriode().getId());
             refreshedEntity.setPeriode(null);
+            entityRepository.save(refreshedEntity);
             currentEntity = refreshedEntity;
             log.info("Période supprimée pour l'entité ID={}", currentEntity.getId());
+        }
+    }
+
+    /**
+     * Supprime la production de l'entité
+     */
+    public void deleteProduction() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity != null && refreshedEntity.getProduction() != null) {
+            referenceOpenthesoRepository.deleteById(refreshedEntity.getProduction().getId());
+            refreshedEntity.setProduction(null);
+            entityRepository.save(refreshedEntity);
+            currentEntity = refreshedEntity;
+            candidatProduction = null;
+            log.info("Production supprimée pour l'entité ID={}", currentEntity.getId());
         }
     }
 }

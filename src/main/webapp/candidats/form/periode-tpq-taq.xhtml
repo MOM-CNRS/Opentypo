@@ -84,11 +84,12 @@
                 <div class="candidat-table-action-cell" style="margin-right: -5px">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la production"
+                                     title="Supprimer la période"
                                      rendered="#{candidatBean.hasPeriode()}"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"
-                                     process="@none"
-                                     update="@none"/>
+                                     actionListener="#{candidatBean.prepareConfirmDeletePeriode()}"
+                                     process="@this"
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -111,21 +112,24 @@
                     <p:inputText value="#{candidatBean.currentEntity.periode.valeur}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune production sélectionnée"
+                                 placeholder="Aucune période sélectionnée"
                                  rendered="#{candidatBean.hasPeriode()}"/>
 
                     <p:inputText styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune production sélectionnée"
+                                 placeholder="Aucune période sélectionnée"
                                  rendered="#{!candidatBean.hasPeriode()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell" style="margin-right: -5px">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la production"
+                                     title="Supprimer la période"
                                      rendered="#{candidatBean.hasPeriode()}"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"
+                                     actionListener="#{candidatBean.prepareConfirmDeletePeriode()}"
+                                     process="@this"
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"
                                      process="@none"
                                      update="@none"/>
                 </div>

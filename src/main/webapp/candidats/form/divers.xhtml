@@ -27,10 +27,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la production"
                                      rendered="#{candidatBean.hasProduction()}"
-                                     action="#{candidatBean.removeCandidatLabel(labelItem)}"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"
-                                     process="@none"
-                                     update="@none"/>
+                                     actionListener="#{candidatBean.prepareConfirmDeleteProduction()}"
+                                     process="@this"
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -82,11 +82,11 @@
                                                  icon="pi pi-times"
                                                  styleClass="candidat-aire-chip-delete"
                                                  title="Supprimer cette aire de circulation"
-                                                 actionListener="#{candidatBean.prepareDeleteAireCirculation(aire.id)}"
+                                                 actionListener="#{candidatBean.prepareConfirmDeleteAireCirculation(aire.id)}"
                                                  process="@this"
                                                  ajax="true"
-                                                 update=":createCandidatForm :growl"
-                                                 oncomplete="PF('confirmDeleteAireCirculationDialog').show();"
+                                                 update="@none"
+                                                 oncomplete="PF('confirmDeleteReferenceDialog').show();"
                                                  type="button"/>
                             </span>
                         </ui:repeat>

@@ -134,6 +134,9 @@
                         <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
                             <ui:include src="openthesoDialog.xhtml"/>
                         </ui:fragment>
+
+                        <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
+                        <ui:include src="confirmDeleteReferenceDialog.xhtml"/>
                         
                         <!-- Champ Auteurs -->
                         <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">

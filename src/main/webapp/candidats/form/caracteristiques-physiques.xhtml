@@ -36,11 +36,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la métrologie"
                                      rendered="#{candidatBean.hasMetrologie()}"
-                                     actionListener="#{candidatBean.deleteMetrologie}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteMetrologie()}"
                                      process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -79,11 +78,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la fabrication/façonnage"
                                      rendered="#{candidatBean.hasFabricationFaconnage()}"
-                                     actionListener="#{candidatBean.deleteFabricationFaconnage}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteFabricationFaconnage()}"
                                      process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -137,11 +135,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la couleur de pâte"
                                      rendered="#{candidatBean.hasCouleurPate()}"
-                                     actionListener="#{candidatBean.deleteCouleurPate}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteCouleurPate()}"
                                      process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -180,11 +177,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la nature de pâte"
                                      rendered="#{candidatBean.hasNaturePate()}"
-                                     actionListener="#{candidatBean.deleteNaturePate}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteNaturePate()}"
                                      process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -223,11 +219,10 @@
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer les inclusions"
                                      rendered="#{candidatBean.hasInclusions()}"
-                                     actionListener="#{candidatBean.deleteInclusions}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteInclusions()}"
                                      process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"
@@ -263,13 +258,12 @@
                 <div class="candidat-table-action-cell" style="margin-right: -5px">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     process="@this"
-                                     ajax="true"
-                                     update=":createCandidatForm :growl"
                                      title="Supprimer la cuisson/post-cuisson"
                                      rendered="#{candidatBean.hasCuissonPostCuisson()}"
-                                     actionListener="#{candidatBean.deleteCuissonPostCuisson}"
-                                     onclick="PF('confirmDeleteProductionDialog').show(); return false;"/>
+                                     actionListener="#{candidatBean.prepareConfirmDeleteCuissonPostCuisson()}"
+                                     process="@this"
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
 
                 <p:commandButton value="Ajouter"

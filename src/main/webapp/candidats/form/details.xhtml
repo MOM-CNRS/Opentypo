@@ -78,10 +78,10 @@
                                  styleClass="candidat-btn-remove"
                                  title="Supprimer la fonction/usage"
                                  rendered="#{candidatBean.hasFonctionUsage()}"
-                                 onclick="PF('confirmDeleteFonctionUsageDialog').show(); return false;"
-                                 type="button"
-                                 process="@none"
-                                 update="@none"/>
+                                 actionListener="#{candidatBean.prepareConfirmDeleteFonctionUsage()}"
+                                 process="@this"
+                                 update="@none"
+                                 oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
 
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
