@@ -119,17 +119,17 @@
                         <h:panelGroup id="wizardContent">
                             <!-- Contenu de l'étape 1 : Type et identification -->
                             <ui:fragment rendered="#{candidatBean.isStep1()}">
-                                <ui:include src="first-step.xhtml"/>
+                                <ui:include src="create/first-step.xhtml"/>
                             </ui:fragment>
 
                             <!-- Contenu de l'étape 2 : Collection et référentiel -->
                             <ui:fragment rendered="#{candidatBean.isStep2()}">
-                                <ui:include src="second-step.xhtml"/>
+                                <ui:include src="create/second-step.xhtml"/>
                             </ui:fragment>
 
                             <!-- Contenu de l'étape 3 : Détails -->
                             <ui:fragment rendered="#{candidatBean.isStep3()}">
-                                <ui:include src="third-step.xhtml"/>
+                                <ui:include src="create/third-step.xhtml"/>
                             </ui:fragment>
                         </h:panelGroup>
 
@@ -179,13 +179,13 @@
                         </h:panelGroup>
                     </div>
 
-                    <ui:include src="confirmCreateCandidatDialog.xhtml"/>
+                    <ui:include src="dialogs/confirmCreateCandidatDialog.xhtml"/>
 
                     <!-- Boîte de dialogue de confirmation d'abandon -->
-                    <ui:include src="confirmAbandonDialog.xhtml"/>
+                    <ui:include src="dialogs/confirmAbandonDialog.xhtml"/>
 
                     <!-- Boîte de dialogue de confirmation de suppression (référence : période, production, aire de circulation, fonction/usage) -->
-                    <ui:include src="confirmDeleteReferenceDialog.xhtml"/>
+                    <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
 
                     <!-- Boîte de dialogue OpenTheso -->
                     <ui:include src="openthesoDialog.xhtml"/>

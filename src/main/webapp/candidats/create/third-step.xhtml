@@ -72,21 +72,31 @@
             <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
             <div class="users-form-panel wizard-form-panel" style="padding: 10px">
                 <div class="wizard-content" style="padding: 20px">
-                    <ui:include src="form/labels-form.xhtml"/>
+                    <ui:include src="../form/labels-form.xhtml"/>
 
-                    <ui:include src="form/descriptions-form.xhtml"/>
+                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                        <ui:include src="../form/appelation_type.xhtml"/>
 
-                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
-                        <ui:include src="form/periode-tpq-taq.xhtml"/>
-
-                        <ui:include src="form/divers.xhtml"/>
-
-                        <ui:include src="form/details.xhtml"/>
-
-                        <ui:include src="form/caracteristiques-physiques.xhtml"/>
+                        <ui:include src="../form/relations_type.xhtml"/>
                     </h:panelGroup>
 
-                    <ui:include src="form/commentaire-bibliographie.xhtml" />
+                    <ui:include src="../form/descriptions-form.xhtml"/>
+
+                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
+                        <ui:include src="../form/periode-tpq-taq.xhtml"/>
+
+                        <ui:include src="../form/divers.xhtml"/>
+
+                        <ui:include src="../form/details.xhtml"/>
+
+                        <ui:include src="../form/caracteristiques-physiques.xhtml"/>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                        <ui:include src="../form/details_type.xhtml"/>
+                    </h:panelGroup>
+
+                    <ui:include src="../form/commentaire-bibliographie.xhtml" />
                 </div>
 
                 <!-- Styles personnalisés pour le formulaire de groupe -->
