@@ -77,6 +77,13 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- Bouncy Castle (requis pour Argon2PasswordEncoder / Argon2id) -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.78.1</version>
+        </dependency>
+
         <!-- Hibernate Envers pour l'audit -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>

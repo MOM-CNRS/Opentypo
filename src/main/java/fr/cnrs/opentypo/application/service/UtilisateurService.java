@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,8 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * Service pour la gestion des utilisateurs
+ * Service pour la gestion des utilisateurs.
+ * Les mots de passe sont hashés avec Argon2id. Les hash BCrypt existants restent acceptés à la vérification.
  */
 @Slf4j
 @Service
@@ -21,7 +23,10 @@ public class UtilisateurService implements Serializable {
     @Inject
     private UtilisateurRepository utilisateurRepository;
 
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    /** Encodeur principal : Argon2id (recommandé OWASP). */
+    private final PasswordEncoder argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+    /** Pour vérifier les anciens mots de passe hashés en BCrypt. */
+    private final PasswordEncoder bcryptEncoder = new BCryptPasswordEncoder();
 
     /**
      * Authentifie un utilisateur par son email et son mot de passe
@@ -52,8 +57,8 @@ public class UtilisateurService implements Serializable {
             return Optional.empty();
         }
         
-        // Vérifier le mot de passe avec BCrypt
-        if (passwordEncoder.matches(password, utilisateur.getPasswordHash())) {
+        // Vérifier le mot de passe (Argon2id ou BCrypt pour les anciens hash)
+        if (matchesPassword(password, utilisateur.getPasswordHash())) {
             log.info("Authentification réussie pour l'utilisateur: {}", email);
             return Optional.of(utilisateur);
         } else {
@@ -89,23 +94,29 @@ public class UtilisateurService implements Serializable {
     }
 
     /**
-     * Encode un mot de passe avec BCrypt
-     * 
+     * Encode un mot de passe avec Argon2id.
+     *
      * @param rawPassword Le mot de passe en clair
-     * @return Le hash du mot de passe
+     * @return Le hash du mot de passe (format Argon2id)
      */
     public String encodePassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
+        return argon2Encoder.encode(rawPassword);
     }
 
     /**
-     * Vérifie si un mot de passe correspond à un hash
-     * 
+     * Vérifie si un mot de passe correspond à un hash (Argon2id ou BCrypt).
+     *
      * @param rawPassword Le mot de passe en clair
-     * @param encodedPassword Le hash du mot de passe
+     * @param encodedPassword Le hash stocké (Argon2id ou BCrypt)
      * @return true si le mot de passe correspond, false sinon
      */
     public boolean matchesPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+        if (encodedPassword == null || encodedPassword.isEmpty()) {
+            return false;
+        }
+        if (encodedPassword.startsWith("$2a$") || encodedPassword.startsWith("$2b$")) {
+            return bcryptEncoder.matches(rawPassword, encodedPassword);
+        }
+        return argon2Encoder.matches(rawPassword, encodedPassword);
     }
 }
