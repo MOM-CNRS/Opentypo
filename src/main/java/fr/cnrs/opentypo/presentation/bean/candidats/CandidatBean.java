@@ -619,9 +619,23 @@ public class CandidatBean implements Serializable {
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La langue est requise."));
             isValid = false;
         }
-        
-        // Ne pas appeler validationFailed() car cela empêche la mise à jour des composants
-        // On retourne simplement false et on laisse nextStep() gérer la mise à jour
+
+        if (isValid && entityCode != null && !entityCode.trim().isEmpty()) {
+            if (entityRepository.existsByCode(entityCode.trim())) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Ce code existe déjà. Veuillez en choisir un autre."));
+                isValid = false;
+            }
+        }
+
+        if (isValid && entityLabel != null && !entityLabel.trim().isEmpty() && selectedLangueCode != null) {
+            if (entityRepository.existsByLabelNomAndLangueCode(entityLabel.trim(), selectedLangueCode)) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                        "Un élément avec ce label dans cette langue existe déjà. Veuillez modifier le label ou la langue."));
+                isValid = false;
+            }
+        }
         
         return isValid;
     }
@@ -1065,48 +1079,52 @@ public class CandidatBean implements Serializable {
         }
     }
 
+    /**
+     * Appelé à l'affichage de la page de création (preRenderView).
+     * Réinitialise tout le formulaire de création lorsqu'on arrive via "Nouveau brouillon".
+     */
     public void initNouveauCandidat() {
-        // Ne réinitialiser que lors du premier chargement de la page, pas lors des requêtes AJAX
         FacesContext facesContext = FacesContext.getCurrentInstance();
         if (facesContext != null && facesContext.isPostback()) {
-            // C'est une requête AJAX, ne pas réinitialiser
             return;
         }
-        
         nouveauCandidat = new Candidat();
         nouveauCandidat.setCreateur(userBean.getUsername());
         nouveauCandidat.setStatut(Candidat.Statut.EN_COURS);
-        // Réinitialiser les champs du wizard
-        resetWizardForm();
-        // Charger les collections disponibles depuis la base de données
+        resetWizardFormCompletely();
         availableCollections = entityRepository.findByEntityTypeCode(EntityConstants.ENTITY_TYPE_COLLECTION);
     }
     
     /**
-     * Réinitialise le formulaire du wizard
+     * Réinitialise le formulaire du wizard (utilisé en interne après soumission, etc.).
+     * Ne réinitialise pas si le formulaire est déjà vide pour éviter de tout effacer lors des AJAX.
      */
     public void resetWizardForm() {
-        // Ne réinitialiser currentStep que si on n'est pas déjà dans le wizard
-        // Cela évite de réinitialiser l'étape lors des mises à jour AJAX
         if (currentStep == 0 && selectedEntityTypeId == null && entityCode == null) {
-            // Seulement réinitialiser si le formulaire est vraiment vide
+            // Formulaire déjà vide, pas besoin de réinitialiser
         } else {
-            // Ne pas réinitialiser currentStep si on est déjà dans le wizard
             return;
         }
+        resetWizardFormCompletely();
+    }
+
+    /**
+     * Réinitialise intégralement tous les champs du formulaire de création.
+     * Appelé lors de l'ouverture de la page create (Nouveau brouillon) et après terminer/abandon.
+     */
+    public void resetWizardFormCompletely() {
         currentStep = 0;
-        currentEntity = null; // Réinitialiser l'entité créée
+        currentEntity = null;
         selectedEntityTypeId = null;
         entityCode = null;
         entityLabel = null;
-        selectedLangueCode = searchBean.getLangSelected();
+        selectedLangueCode = searchBean != null ? searchBean.getLangSelected() : null;
         selectedCollectionId = null;
         selectedDirectEntityId = null;
         availableReferences = new ArrayList<>();
         availableDirectEntities = new ArrayList<>();
         referenceTreeRoot = null;
         selectedTreeNode = null;
-        // Réinitialiser les champs de l'étape 2
         typeDescription = null;
         serieDescription = null;
         groupDescription = null;
@@ -1792,8 +1810,7 @@ public class CandidatBean implements Serializable {
             // Recharger la liste des candidats pour avoir les données à jour
             chargerCandidats();
 
-            // Réinitialiser le formulaire
-            resetWizardForm();
+            resetWizardFormCompletely();
             currentStep = 0;
 
             // Rediriger vers la liste des candidats avec un paramètre de succès
@@ -2053,8 +2070,7 @@ public class CandidatBean implements Serializable {
                     "Succès",
                     "Le candidat a été créé avec succès avec le statut PROPOSITION."));
 
-            // Réinitialiser le formulaire
-            resetWizardForm();
+            resetWizardFormCompletely();
             currentStep = 0;
 
             // Mettre à jour le growl et le formulaire
@@ -4547,7 +4563,7 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) {
             // Aucune entité à supprimer
             log.info("Aucune entité à supprimer lors de l'abandon");
-            resetWizardForm();
+            resetWizardFormCompletely();
             return;
         }
 
@@ -4581,8 +4597,7 @@ public class CandidatBean implements Serializable {
             log.warn("Entité avec l'ID {} non trouvée pour suppression", entityId);
         }
 
-        // Réinitialiser le formulaire
-        resetWizardForm();
+        resetWizardFormCompletely();
         currentEntity = null;
     }
 

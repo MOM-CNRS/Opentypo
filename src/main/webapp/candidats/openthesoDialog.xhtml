@@ -4,17 +4,16 @@
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <!-- Dialog pour créer une nouvelle catégorie -->
     <p:dialog id="openthesoDialog"
               widgetVar="openthesoDialog"
-              header="Recherche dans OpenTheso"
+              header="Recherche dans le thésaurus"
               modal="true"
               closable="true"
               resizable="false"
               draggable="true"
-              width="600"
+              width="640"
               height="auto"
-              styleClass="opentheso-dialog"
+              styleClass="opentheso-dialog opentheso-dialog-research"
               showEffect="fade"
               hideEffect="fade"
               responsive="true"
@@ -22,76 +21,92 @@
 
         <h:panelGroup id="openThesoForm">
             <h:panelGroup id="openThesoForm2">
-                <div class="opentheso-dialog-row">
-                    <div class="opentheso-dialog-field">
-                        <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
-                        <div class="input-wrapper">
-                            <i class="pi pi-search input-icon" />
+                <p class="opentheso-dialog-subtitle">
+                    Interrogez les thésaurus Pactols pour sélectionner un concept.
+                </p>
+
+                <section class="opentheso-dialog-search">
+                    <p:outputLabel for="searchValueInput" value="Valeur recherchée" />
+                    <div class="opentheso-dialog-search-row">
+                        <div class="opentheso-dialog-search-input-wrap">
+                            <i class="pi pi-search opentheso-dialog-search-icon" aria-hidden="true"/>
                             <p:inputText id="searchValueInput"
                                          value="#{openThesoDialogBean.searchValue}"
-                                         styleClass="users-input"
-                                         placeholder="Saisissez un terme de recherche..."/>
+                                         styleClass="opentheso-dialog-input"
+                                         placeholder="Saisir un terme (ex. céramique, période…)"/>
                         </div>
-                    </div>
-                    <div class="opentheso-dialog-button">
                         <p:commandButton id="conceptSearchButton"
                                          value="Rechercher"
                                          icon="pi pi-search"
-                                         styleClass="candidat-btn-add"
+                                         iconPos="left"
+                                         styleClass="opentheso-dialog-btn-search"
                                          action="#{openThesoDialogBean.onConceptSearch}"
                                          process="@form"
                                          ajax="true"
                                          update=":createCandidatForm:openThesoForm2 :growl"/>
                     </div>
-                </div>
+                </section>
 
-                <div class="opentheso-dialog-row">
-                    <div class="opentheso-dialog-field-full">
-                        <p:outputLabel value="Résultats de la recherche" />
+                <section class="opentheso-dialog-results" aria-label="Résultats">
+                    <p:outputLabel value="Résultats" />
+                    <div class="opentheso-dialog-table-wrap">
                         <p:dataTable id="conceptsTable"
                                      value="#{openThesoDialogBean.searchResults}"
                                      var="concept"
                                      rowKey="#{concept.idConcept}"
                                      styleClass="opentheso-concepts-table"
-                                     emptyMessage="Aucun résultat trouvé"
+                                     emptyMessage="Aucun concept trouvé. Saisissez un terme et cliquez sur Rechercher, ou utilisez la saisie manuelle ci‑dessous."
                                      selection="#{openThesoDialogBean.selectedConcept}"
                                      selectionMode="single">
-                            <p:column headerText="ID Concept" width="30">
+                            <p:column headerText="ID" width="25">
                                 <h:outputText value="#{concept.idConcept}" />
                             </p:column>
-                            <p:column headerText="Terme" width="70">
+                            <p:column headerText="Terme" width="75">
                                 <h:outputText value="#{concept.selectedTerm}" />
                             </p:column>
                         </p:dataTable>
                     </div>
-                </div>
+                </section>
+
+                <section class="opentheso-dialog-manual" aria-label="Saisie manuelle">
+                    <p:outputLabel for="manualValueInput" value="Ou saisir une valeur manuelle" />
+                    <p class="opentheso-dialog-manual-hint">
+                        Si la recherche ne retourne aucun résultat, vous pouvez enregistrer une valeur libre.</p>
+                    <div class="opentheso-dialog-search-input-wrap">
+                        <i class="pi pi-pencil opentheso-dialog-search-icon" aria-hidden="true"/>
+                        <p:inputText id="manualValueInput"
+                                     value="#{openThesoDialogBean.manualValue}"
+                                     styleClass="opentheso-dialog-input"
+                                     placeholder="Ex. valeur personnalisée"
+                                     maxlength="500"/>
+                    </div>
+                </section>
             </h:panelGroup>
 
-            <div class="category-form-actions">
+            <footer class="opentheso-dialog-footer">
                 <p:commandButton value="Annuler"
                                  icon="pi pi-times"
-                                 styleClass="category-btn category-btn-cancel"
+                                 iconPos="left"
+                                 styleClass="opentheso-dialog-btn opentheso-dialog-btn-cancel"
                                  onclick="PF('openthesoDialog').hide(); return false;"
                                  process="@this"
                                  update="@none"/>
-
                 <p:commandButton value="Valider"
                                  icon="pi pi-check"
-                                 styleClass="category-btn category-btn-validate"
+                                 iconPos="left"
+                                 styleClass="opentheso-dialog-btn opentheso-dialog-btn-validate"
                                  action="#{openThesoDialogBean.validateSelection}"
-                                 process="conceptsTable"
+                                 process="@form"
                                  update=":createCandidatForm :growl"
-                                 onstart="var btn = this; showButtonLoading(btn);"
-                                 oncomplete="var btn = this; setTimeout(function(){hideButtonLoading(btn); forceHideLoading();}, 100);"
-                                 onerror="var btn = this; hideButtonLoading(btn); forceHideLoading();"/>
-            </div>
+                                 onstart="showButtonLoading(this);"
+                                 oncomplete="setTimeout(function(){hideButtonLoading(this); forceHideLoading();}, 100);"
+                                 onerror="hideButtonLoading(this); forceHideLoading();"/>
+            </footer>
         </h:panelGroup>
     </p:dialog>
 
-    <!-- Styles pour la boîte de dialogue -->
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
 
-    <!-- Remote command pour initialiser le dialog -->
     <p:remoteCommand name="initializeOpenThesoDialog"
                      action="#{openThesoDialogBean.initializeDialog}"
                      process="@none"

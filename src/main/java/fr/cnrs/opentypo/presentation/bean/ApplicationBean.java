@@ -96,14 +96,13 @@ public class ApplicationBean implements Serializable {
     @Inject
     private CollectionBean collectionBean;
 
+    @Inject
+    private TreeBean treeBean;
+
 
     private final PanelStateManager panelState = new PanelStateManager();
-
     private List<Language> languages;
-
-    private List<Entity> beadCrumbElements;
-    private List<Entity> references;
-    private List<Entity> collections;
+    private List<Entity> beadCrumbElements, references, collections;
     
     /** Entité actuellement sélectionnée (collection, référentiel, catégorie, groupe, série ou type). */
     private Entity selectedEntity;
@@ -298,9 +297,6 @@ public class ApplicationBean implements Serializable {
                 .filter(e -> e.getEntityType() != null && EntityConstants.ENTITY_TYPE_TYPE.equals(e.getEntityType().getCode()))
                 .collect(Collectors.toList());
     }
-    @Named("treeBean")
-    @Inject
-    private TreeBean treeBean;
 
 
     // Getters pour compatibilité avec XHTML
@@ -526,6 +522,14 @@ public class ApplicationBean implements Serializable {
         this.childs = new ArrayList<>();
         searchBean.setCollectionSelected(null);
         panelState.showCollections();
+    }
+
+    /**
+     * Appelé au clic sur le menu Accueil. Réinitialise l'interface (panelState.showCollections) puis redirige vers l'Accueil.
+     */
+    public String goToAccueil() {
+        showCollections();
+        return "/index.xhtml?faces-redirect=true";
     }
     
     public void showCollectionDetail() {
@@ -787,50 +791,39 @@ public class ApplicationBean implements Serializable {
             return;
         }
 
-        try {
-            String collectionCode = collection.getCode();
-            String collectionName = collection.getNom();
-            Long collectionId = collection.getId();
-            
-            // Supprimer récursivement la collection et toutes ses entités enfants
-            deleteEntityRecursively(collection);
-            
-            // Réinitialiser la sélection si c'était la collection sélectionnée
-            if (selectedEntity != null && selectedEntity.getId().equals(collectionId)) {
-                selectedEntity = null;
-                selectedEntityLabel = "";
-                childs = new ArrayList<>();
-            }
-            
-            // Recharger les collections
-            loadPublicCollections();
-            
-            // Mettre à jour l'arbre
-            treeBean.initializeTreeWithCollection();
-            
-            // Afficher un message de succès
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
+        String collectionCode = collection.getCode();
+        String collectionName = collection.getNom();
+        Long collectionId = collection.getId();
+
+        // Supprimer récursivement la collection et toutes ses entités enfants
+        deleteEntityRecursively(collection);
+
+        // Réinitialiser la sélection si c'était la collection sélectionnée
+        if (selectedEntity != null && selectedEntity.getId().equals(collectionId)) {
+            selectedEntity = null;
+            selectedEntityLabel = "";
+            childs = new ArrayList<>();
+        }
+
+        // Recharger les collections
+        loadPublicCollections();
+
+        // Mettre à jour l'arbre
+        treeBean.initializeTreeWithCollection();
+
+        // Afficher un message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null, new FacesMessage(
                     FacesMessage.SEVERITY_INFO,
                     "Succès",
                     "La collection '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
-            }
-            
-            // Afficher le panel des collections
-            panelState.showCollections();
-            
-            log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de la collection", e);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Une erreur est survenue lors de la suppression : " + e.getMessage()));
-            }
         }
+
+        // Afficher le panel des collections
+        panelState.showCollections();
+
+        log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
     }
 }
 

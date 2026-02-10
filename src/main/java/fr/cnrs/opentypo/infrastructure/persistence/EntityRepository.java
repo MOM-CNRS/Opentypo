@@ -30,6 +30,12 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     boolean existsByCode(@Param("code") String code);
 
     /**
+     * Vérifie si une entité existe avec un label ayant le même nom et la même langue (unicité label + langue).
+     */
+    @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.labels l JOIN l.langue lang WHERE l.nom = :nom AND lang.code = :langueCode")
+    boolean existsByLabelNomAndLangueCode(@Param("nom") String nom, @Param("langueCode") String langueCode);
+
+    /**
      * Trouve toutes les entités d'un type donné
      */
     List<Entity> findByEntityType(EntityType entityType);
