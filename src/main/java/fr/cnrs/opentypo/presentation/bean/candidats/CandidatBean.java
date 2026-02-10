@@ -651,6 +651,159 @@ public class CandidatBean implements Serializable {
     }
     
     /**
+     * Valide les champs obligatoires selon le type d'entité
+     * Utilisé lors de la finalisation du wizard et lors de la validation d'un candidat.
+     *
+     * Règles :
+     * - CATEGORIE : au moins une description
+     * - GROUPE    : période obligatoire + au moins une description
+     * - SERIE     : période obligatoire + au moins une description
+     * - TYPE      : période, TPQ, TAQ, au moins une description, production,
+     *               au moins une aire de circulation, fonction/usage,
+     *               identifiant pérenne et bibliographie
+     */
+    private boolean validateRequiredFieldsForEntity(Entity entity) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (entity == null || entity.getEntityType() == null) {
+            return true; // Rien à valider dans ce cas
+        }
+
+        String typeCode = entity.getEntityType().getCode();
+        boolean isValid = true;
+
+        boolean hasAtLeastOneDescription =
+            entity.getDescriptions() != null && !entity.getDescriptions().isEmpty();
+
+        boolean hasPeriode = entity.getPeriode() != null;
+        boolean hasTpq = entity.getTpq() != null;
+        boolean hasTaq = entity.getTaq() != null;
+        boolean hasProduction = entity.getProduction() != null;
+
+        boolean hasAireCirculation = entity.getAiresCirculation() != null
+            && entity.getAiresCirculation().stream()
+                .anyMatch(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()));
+
+        DescriptionDetail descDetail = entity.getDescriptionDetail();
+        boolean hasFonctionUsage = descDetail != null && descDetail.getFonction() != null;
+
+        String identifiant = entity.getIdentifiantPerenne();
+        boolean hasIdentifiantPerenne = identifiant != null && !identifiant.trim().isEmpty();
+
+        String biblio = entity.getBibliographie();
+        boolean hasBibliographie = biblio != null && !biblio.trim().isEmpty();
+
+        if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(typeCode)) {
+            if (!hasAtLeastOneDescription) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Catégorie\", au moins une description est obligatoire."));
+                isValid = false;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode)) {
+            if (!hasPeriode) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Groupe\", le champ \"Période\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasAtLeastOneDescription) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Groupe\", au moins une description est obligatoire."));
+                isValid = false;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)) {
+            if (!hasPeriode) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Série\", le champ \"Période\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasAtLeastOneDescription) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Série\", au moins une description est obligatoire."));
+                isValid = false;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)) {
+            if (!hasPeriode) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"Période\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasTpq) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"TPQ\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasTaq) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"TAQ\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasAtLeastOneDescription) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", au moins une description est obligatoire."));
+                isValid = false;
+            }
+            if (!hasProduction) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"Production\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasAireCirculation) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", au moins une \"Aire de circulation\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasFonctionUsage) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"Fonction/usage\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasIdentifiantPerenne) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"Identifiant pérenne\" est obligatoire."));
+                isValid = false;
+            }
+            if (!hasBibliographie) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur",
+                        "Pour une entité de type \"Type\", le champ \"Bibliographie\" est obligatoire."));
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            PrimeFaces.current().ajax().update(":growl");
+        }
+
+        return isValid;
+    }
+    
+    /**
      * Retourne le nom du type d'entité pour l'affichage
      */
     public String getEntityTypeName(EntityType entityType) {
@@ -1626,6 +1779,12 @@ public class CandidatBean implements Serializable {
                 descDetail.setDecors(null);
             }
 
+            // Validation des champs obligatoires selon le type d'entité
+            if (!validateRequiredFieldsForEntity(refreshedEntity)) {
+                // Ne pas sauvegarder ni rediriger si la validation échoue
+                return null;
+            }
+
             // Sauvegarder l'entité mise à jour (cascade sauvegardera DescriptionDetail)
             entityRepository.save(refreshedEntity);
             log.info("Entité mise à jour avec les valeurs finales: ID={}", refreshedEntity.getId());
@@ -2073,6 +2232,12 @@ public class CandidatBean implements Serializable {
                 return;
             }
 
+            // Validation des champs obligatoires selon le type d'entité
+            if (!validateRequiredFieldsForEntity(entity)) {
+                // Ne pas changer le statut si la validation échoue
+                return;
+            }
+
             // Initialiser la liste des auteurs pour éviter les problèmes de lazy loading
             if (entity.getAuteurs() != null) {
                 entity.getAuteurs().size(); // Force le chargement
@@ -2510,6 +2675,12 @@ public class CandidatBean implements Serializable {
             entity.setTypologieScientifique(typologieScientifique);
             entity.setIdentifiantPerenne(identifiantPerenne);
             entity.setAncienneVersion(ancienneVersion);
+
+            // Validation des champs obligatoires selon le type d'entité
+            if (!validateRequiredFieldsForEntity(entity)) {
+                // Rester sur la même page si la validation échoue
+                return null;
+            }
 
             // Changer le statut
             entity.setStatut(EntityStatusEnum.ACCEPTED.name());
