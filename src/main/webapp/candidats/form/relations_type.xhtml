@@ -3,16 +3,16 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
         <b>
-            <p:outputLabel value="Relations" styleClass="caracteristiques-physiques-title" style="padding-left: 15px !important;"/>
+            <p:outputLabel value="Relations" styleClass="caracteristiques-physiques-title candidats-label-pl"/>
         </b>
 
         <!-- Alignement opentypo, appartient à -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Alignement opentypo, appartient à" />
-            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+            <div class="input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
@@ -25,9 +25,9 @@
         </div>
 
         <!-- Alignement opentypo, associé à -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 10px">
+        <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Alignement opentypo, associé à" />
-            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+            <div class="input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
@@ -40,9 +40,9 @@
         </div>
 
         <!-- Relations externes -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 10px">
+        <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Relations externes" />
-            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+            <div class="input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"

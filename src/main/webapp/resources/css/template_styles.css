@@ -2495,6 +2495,7 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
 .users-reference-icon-collection {
     color: var(--color-action-main, #47624D) !important;
     font-size: 1.25rem !important;
+    margin-right: 10px;
 }
 
 .users-reference-icon-reference {
@@ -3232,4 +3233,47 @@ body .ui-menu.ui-menu-dynamic .ui-menu-separator + .ui-menuitem .ui-menuitem-ico
         height: 26px;
         font-size: 0.75rem;
     }
+}
+
+/* ============================================
+   BANDEAU HAUT DE PAGE (template)
+   ============================================ */
+.template-top-bandeau {
+    width: 100%;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.template-top-bandeau-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.template-top-bandeau-spacer {
+    height: 50px;
+}
+
+/* ============================================
+   UTILITAIRES GÉNÉRAUX
+   ============================================ */
+.utility-hidden {
+    display: none !important;
+}
+
+/* ============================================
+   INDEX - SECTION CRÉATION COLLECTION
+   ============================================ */
+.index-create-section-bar {
+    width: 100%;
+    text-align: right;
+    padding-top: 20px;
+    padding-right: 20px;
 }

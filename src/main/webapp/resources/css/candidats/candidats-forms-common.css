@@ -1,0 +1,76 @@
+/* ============================================
+   CANDIDATS - STYLES COMMUNS FORMULAIRES
+   Classes utilitaires pour remplacer les styles inline
+   ============================================ */
+
+/* Marges */
+.candidats-mt-20 { margin-top: 20px; }
+.candidats-mt-10 { margin-top: 10px; }
+.candidats-mt-15 { margin-top: 15px; }
+.candidats-m-10 { margin: 10px; }
+
+/* Padding */
+.candidats-p-20 { padding: 20px; }
+.candidats-p-10 { padding: 10px; }
+
+/* Gap */
+.candidats-gap-30 { gap: 30px; }
+
+/* Wrapper champs (border + radius) */
+.candidats-input-wrapper-border {
+    border: 1px solid rgba(71, 98, 77, 0.15) !important;
+    border-radius: 10px !important;
+}
+
+/* Labels section (padding-left) */
+.candidats-label-pl {
+    padding-left: 15px !important;
+}
+
+/* Icônes statut brouillon */
+.candidats-icon-success {
+    color: #28a745;
+    margin-right: 0.5rem;
+}
+
+.candidats-icon-danger {
+    color: #dc3545;
+    margin-right: 0.5rem;
+}
+
+.candidats-icon-danger-only {
+    color: #dc3545;
+}
+
+/* Boutons action view (Refuser / Valider) */
+.candidats-btn-refuse {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.candidats-btn-validate {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Colonne label table (padding cellule) */
+.candidats-table-label-padding {
+    padding: 0.3rem 0.5rem;
+}
+
+/* Cellule action (margin-right pour alignement) */
+.candidats-cell-action-mr {
+    margin-right: -5px;
+}
+
+/* Wrapper production flex */
+.candidats-production-flex {
+    flex: 1;
+}
+
+/* Texte avertissement dialog confirmation */
+.candidats-confirm-warning-text {
+    color: #dc3545;
+    font-weight: 600;
+}

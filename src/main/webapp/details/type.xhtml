@@ -41,7 +41,10 @@
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
-                            <p:commandLink onclick="PF('confirmDeleteTypeDialog').show(); return false;"
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
                                            styleClass="concept-action-button">
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
@@ -215,17 +218,18 @@
                                                  process="@this" update=":typeEditForm"
                                                  styleClass="reference-edit-btn reference-edit-btn-cancel"/>
                                 <p:commandButton value="Valider" icon="pi pi-check"
-                                                 onclick="PF('confirmSaveTypeDialog').show(); return false;"
+                                                 action="#{confirmSaveBean.prepareSave('TYPE')}"
+                                                 process="@this"
+                                                 update=":confirmSaveDialogContent"
+                                                 oncomplete="PF('confirmSaveDialog').show();"
                                                  styleClass="reference-edit-btn reference-edit-btn-validate"/>
                             </div>
                         </h:panelGroup>
                     </div>
-                    <ui:include src="confirmSaveTypeDialog.xhtml"/>
-                    <ui:include src="confirmDeleteTypeDialog.xhtml"/>
                     </h:form>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre -->
@@ -322,7 +326,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -383,7 +387,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -484,7 +488,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- En-tête avec titre et actions -->
@@ -575,7 +579,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- Grille d'informations -->
@@ -594,7 +598,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- Grille d'informations -->
@@ -613,7 +617,7 @@
                     </div>
                 </div>
 
-                <div class="row mt-20" style="margin-top: 15px">
+                <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
                         <div class="concept-info-panel">
                             <!-- Grille d'informations -->

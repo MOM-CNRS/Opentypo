@@ -7,12 +7,13 @@
 
     <ui:define name="mainContent">
         <h:outputStylesheet library="css" name="history.css"/>
+        <!-- Page détail d'une révision : en-tête + changements + données complètes -->
         <div class="history-detail-container">
-            <!-- En-tête -->
+            <!-- En-tête (numéro révision + métadonnées + Retour) -->
             <div class="history-detail-header">
                 <div class="history-detail-title-section">
                     <h2 class="history-detail-title">
-                        <i class="pi pi-info-circle" style="margin-right: 10px;"></i>
+                        <i class="pi pi-info-circle history-title-icon"></i>
                         Détails de la révision ##{historyBean.selectedRevision.revisionNumber}
                     </h2>
                     <div class="history-detail-meta">
@@ -44,7 +45,7 @@
             <div class="history-detail-content">
                 <ui:fragment rendered="#{empty historyBean.changedFields}">
                     <div class="history-detail-empty">
-                        <i class="pi pi-info-circle" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <i class="pi pi-info-circle history-detail-empty-icon"></i>
                         <p>Aucun changement détecté pour cette révision.</p>
                     </div>
                 </ui:fragment>
@@ -77,13 +78,13 @@
                 </ui:fragment>
 
                 <!-- Données complètes de la révision -->
-                <h3 class="history-section-title" style="margin-top: 40px;">Données complètes à cette révision</h3>
+                <h3 class="history-section-title history-section-title-mt">Données complètes à cette révision</h3>
                 <div class="history-full-data">
                     <p:dataTable value="#{historyBean.selectedRevision.entityData}" 
                                  var="data"
                                  styleClass="history-data-table"
                                  emptyMessage="Aucune donnée">
-                        <p:column headerText="Champ" style="width: 200px;">
+                        <p:column headerText="Champ" styleClass="history-col-field">
                             <strong>#{historyBean.getFieldLabel(data.key)}</strong>
                         </p:column>
                         <p:column headerText="Valeur">

@@ -2,6 +2,7 @@
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:p="http://primefaces.org/ui"
              xmlns:ui="http://java.sun.com/jsf/facelets">
+    <!-- En-tête : burger (mobile), logo, zone centrale (label entité sélectionnée), actions -->
 
     <header class="app-header">
         <div class="header-left">
@@ -9,9 +10,9 @@
                 <!-- Barre mobile avec bouton burger -->
                 <p:commandButton icon="pi pi-bars text-white"
                                  styleClass="mobile-burger-button"
-                                 onclick="toggleSidebar()"
                                  type="button"
-                                 title="Menu" />
+                                 title="Menu"
+                                 onclick="toggleSidebar(); return false;" />
             </div>
 
             <!-- Logo texte : Opentypo -->
@@ -46,8 +47,8 @@
                     <p:commandButton icon="pi pi-user text-white"
                                      styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
                                      title="Se connecter"
-                                     onclick="showLoginDialog(); return false;"
-                                     type="button" />
+                                     type="button"
+                                     onclick="showLoginDialog(); return false;" />
                 </h:panelGroup>
                 <h:panelGroup rendered="#{loginBean.authenticated}" id="header">
                     <p:menuButton value="#{loginBean.userDisplayName}"
@@ -59,8 +60,8 @@
                         <p:separator />
                         <p:menuitem value="Déconnexion"
                                     icon="pi pi-sign-out"
-                                    onclick="PF('confirmLogoutDialog').show(); return false;"
-                                    type="button" />
+                                    type="button"
+                                    onclick="PF('confirmLogoutDialog').show(); return false;" />
                     </p:menuButton>
                 </h:panelGroup>
             </h:form>

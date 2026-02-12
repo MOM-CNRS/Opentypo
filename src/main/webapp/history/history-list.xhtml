@@ -7,12 +7,13 @@
 
     <ui:define name="mainContent">
         <h:outputStylesheet library="css" name="history.css"/>
+        <!-- Page liste des révisions : en-tête + tableau des révisions -->
         <div class="history-container">
-            <!-- En-tête -->
+            <!-- En-tête (titre entité + bouton Retour) -->
             <div class="history-header">
                 <div class="history-title-section">
                     <h2 class="history-title">
-                        <i class="pi pi-history" style="margin-right: 10px;"></i>
+                        <i class="pi pi-history history-title-icon"></i>
                         Historique des modifications
                     </h2>
                     <p class="history-subtitle">
@@ -34,7 +35,7 @@
             <div class="history-content">
                 <ui:fragment rendered="#{empty historyBean.revisions}">
                     <div class="history-empty">
-                        <i class="pi pi-info-circle" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <i class="pi pi-info-circle history-empty-icon"></i>
                         <p>Aucune modification enregistrée pour cette entité.</p>
                     </div>
                 </ui:fragment>
@@ -50,7 +51,7 @@
                                  emptyMessage="Aucune révision trouvée">
                         
                         <!-- Colonne Type -->
-                        <p:column headerText="Type" style="width: 120px;">
+                        <p:column headerText="Type" styleClass="history-col-type">
                             <div class="revision-type-badge #{revision.revisionTypeClass}">
                                 <i class="#{revision.revisionTypeIcon}"></i>
                                 <span>#{revision.revisionTypeLabel}</span>
@@ -58,22 +59,22 @@
                         </p:column>
 
                         <!-- Colonne Date -->
-                        <p:column headerText="Date" style="width: 180px;">
+                        <p:column headerText="Date" styleClass="history-col-date">
                             <span>#{revision.revisionDate != null ? revision.revisionDate : 'N/A'}</span>
                         </p:column>
 
                         <!-- Colonne Révision -->
-                        <p:column headerText="Révision" style="width: 100px;">
+                        <p:column headerText="Révision" styleClass="history-col-revision">
                             <span class="revision-number">##{revision.revisionNumber}</span>
                         </p:column>
 
                         <!-- Colonne Modifié par -->
-                        <p:column headerText="Modifié par" style="width: 150px;">
+                        <p:column headerText="Modifié par" styleClass="history-col-modified">
                             <span>#{revision.modifiedBy != null ? revision.modifiedBy : 'Système'}</span>
                         </p:column>
 
                         <!-- Colonne Actions -->
-                        <p:column headerText="Actions" style="width: 120px; text-align: center;">
+                        <p:column headerText="Actions" styleClass="history-col-actions">
                             <p:commandButton icon="pi pi-eye"
                                            styleClass="history-btn-view"
                                            title="Voir les détails"

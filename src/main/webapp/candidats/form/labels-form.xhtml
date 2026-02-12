@@ -11,7 +11,7 @@
         <!-- Formulaire pour ajouter une nouvelle traduction de label -->
         <div class="candidat-label-input-row">
             <div class="candidat-label-input-wrapper">
-                <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+                <div class="input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-tag input-icon" />
                     <p:inputText value="#{candidatBean.newLabelValue}"
                                  placeholder="Saisissez la traduction du label..."
@@ -48,7 +48,7 @@
                      emptyMessage="Aucune traduction ajoutée"
                      rendered="#{not empty candidatBean.candidatLabels}">
 
-            <p:column headerText="Labels" styleClass="candidat-table-label-column" style="padding: 0.3rem 0.5rem;">
+            <p:column headerText="Labels" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
                         <h:graphicImage library="img"

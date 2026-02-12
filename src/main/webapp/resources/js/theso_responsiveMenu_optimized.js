@@ -235,7 +235,7 @@
         });
         
         treeHeader.innerHTML = `
-            <button onclick="toggleTreePanel()" 
+            <button type="button" onclick="toggleTreePanel(); return false;"
                     style="
                         display: flex;
                         align-items: center;

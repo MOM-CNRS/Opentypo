@@ -3,17 +3,18 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
+    <!-- Page recherche : barre principale + options avancées + script search.js -->
 
     <h:form id="searchForm">
-        <!-- Barre de recherche compacte et ergonomique - Une seule ligne -->
+        <!-- 1. Barre de recherche compacte (collection, langue, champ recherche, boutons) -->
         <div class="search-bar-compact">
             <!-- Burger pour options (mobile) -->
             <div class="burger-search-control">
                 <p:commandButton icon="pi pi-sliders-h"
                                  styleClass="search-burger-button p-button-rounded p-button-text"
-                                 onclick="PF('searchOptionsPanel').show();"
                                  title="Options de recherche"
-                                 process="@this" update="@none"/>
+                                 process="@this" update="@none"
+                                 onclick="PF('searchOptionsPanel').show();"/>
             </div>
 
             <!-- Collection - Compact sans label -->
@@ -68,21 +69,21 @@
             <!-- Bouton recherche avancée - Compact -->
             <p:commandButton icon="pi pi-sliders-h"
                              styleClass="search-advanced-compact"
-                             onclick="SearchPage.toggleAdvancedSearch(); return false;"
                              process="@this" 
-                             update="@none"/>
+                             update="@none"
+                             onclick="SearchPage.toggleAdvancedSearch(); return false;"/>
 
             <!-- Bouton afficher/cacher les résultats - Compact -->
             <p:commandButton id="toggleResultsPanelBtn"
                              icon="pi pi-chevron-right"
-                             onclick="SearchPage.toggleRightPanel(); return false;"
                              styleClass="search-advanced-compact"
                              process="@this" 
                              update="@none"
-                             title="Afficher / Cacher les résultats"/>
+                             title="Afficher / Cacher les résultats"
+                             onclick="SearchPage.toggleRightPanel(); return false;"/>
         </div>
 
-        <!-- Section recherche avancée - Positionnée en dessous de la barre principale -->
+        <!-- 2. Options avancées (filtres type, statut, état, type de recherche) -->
         <div id="advanced-search-options" class="advanced-search-section-compact">
             <div class="advanced-filters-compact">
                 <!-- Filtre Type -->
@@ -130,12 +131,12 @@
 
     <h:outputScript library="js" name="search.js"/>
 
-    <!-- Bouton toggle arbre, visible uniquement sur mobile, centré sous la barre -->
+    <!-- 3. Bouton toggle arbre (mobile) -->
     <div class="tree-toggle-button" id="treeToggleButton">
         <p:commandButton icon="pi pi-sitemap"
                          styleClass="rounded-button ui-button-success"
-                         onclick="toggleTreePanel(); return false;"
-                         title="Afficher / Cacher l'arbre" />
+                         title="Afficher / Cacher l'arbre"
+                         onclick="toggleTreePanel(); return false;" />
     </div>
 
 </ui:composition>

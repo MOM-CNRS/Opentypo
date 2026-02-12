@@ -5,7 +5,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Période, TPQ et TAQ -->
-    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- TPQ et TAQ sur la même ligne -->
         <div class="users-form-group users-form-group-full">
             <div class="users-form-grid">
@@ -14,7 +14,7 @@
                         <p:outputLabel for="groupTpq" value="TPQ (Terminus Post Quem)" />
                     </div>
                     <div class="periode-field-row">
-                        <div class="input-wrapper periode-input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15); border-radius: 10px;">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-calendar-plus input-icon" />
                             <p:inputNumber id="groupTpq"
                                            value="#{candidatBean.tpq}"
@@ -41,7 +41,7 @@
                         <p:outputLabel for="groupTaq" value="TAQ (Terminus Ante Quem)" />
                     </div>
                     <div class="periode-field-row">
-                        <div class="input-wrapper periode-input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15); border-radius: 10px;">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-calendar-plus input-icon" />
                             <p:inputNumber id="groupTaq"
                                            value="#{candidatBean.taq}"
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <div class="users-form-group users-form-group-full" id="periode" style="margin-top: 15px">
+        <div class="users-form-group users-form-group-full candidats-mt-15" id="periode">
             <p:outputLabel value="Période" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -81,7 +81,7 @@
                                  rendered="#{!candidatBean.hasPeriode()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la période"
@@ -104,7 +104,7 @@
             </div>
         </div>
 
-        <div class="users-form-group users-form-group-full" id="periode" style="margin-top: 15px">
+        <div class="users-form-group users-form-group-full candidats-mt-15" id="periode">
             <p:outputLabel value="Corpus externe" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -121,7 +121,7 @@
                                  rendered="#{!candidatBean.hasPeriode()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la période"

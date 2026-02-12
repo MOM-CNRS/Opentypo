@@ -6,7 +6,9 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
+        <!-- Page création/édition utilisateur : en-tête + formulaire + groupes -->
         <div class="users-container">
+            <!-- En-tête (titre + bouton Retour) -->
             <div class="users-header">
                 <div class="users-header-content">
                     <div>
@@ -27,6 +29,7 @@
                 </div>
             </div>
 
+            <!-- Formulaire utilisateur -->
             <div class="users-content">
                 <h:form id="userForm">
                     <p:panel header="Informations de l'utilisateur" styleClass="users-form-panel">
@@ -144,7 +147,7 @@
 
                                             <!-- Ligne sans en-tête : simple liste code + icône -->
                                             <p:column styleClass="users-references-col-code">
-                                                <i class="pi pi-folder users-reference-icon-collection" style="margin-right: 10px" />
+                                                <i class="pi pi-folder users-reference-icon-collection" />
                                                 <h:outputText value="#{item.collection.code}" styleClass="users-reference-code"/>
                                             </p:column>
                                         </p:dataTable>

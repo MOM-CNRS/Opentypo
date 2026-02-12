@@ -1,6 +1,11 @@
 /target/
 /.idea/
 /.vscode/
+node_modules/
+
+# PurgeCSS output
+scripts/output/
+scripts/purgecss-report.txt
 
 # Logs
 logs/

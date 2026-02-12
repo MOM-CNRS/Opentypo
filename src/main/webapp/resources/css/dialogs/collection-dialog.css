@@ -1,0 +1,428 @@
+/* ============================================
+   DIALOG CRÉATION COLLECTION
+   Styles extraits de dialogs/collectionDialog.xhtml
+   ============================================ */
+
+.collection-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.collection-form-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+}
+
+.collection-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.collection-form-group-flex {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+.collection-dialog .ui-datatable thead th {
+    padding: 0rem !important;
+}
+
+.collection-form-group label {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9rem;
+}
+
+.collection-input,
+.collection-textarea,
+.collection-select {
+    width: 100% !important;
+    border: 1px solid rgba(71, 98, 77, 0.3) !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.collection-input:focus,
+.collection-textarea:focus,
+.collection-select:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.collection-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.collection-name-input-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.collection-names-table {
+    width: 100%;
+    border: none !important;
+}
+
+.collection-names-table .ui-datatable {
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.08) !important;
+}
+
+.collection-names-table .ui-datatable-header {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
+    font-weight: 600 !important;
+    color: var(--color-text-primary, #333) !important;
+    border-bottom: 2px solid rgba(71, 98, 77, 0.15) !important;
+    font-size: 0.9375rem !important;
+}
+
+.collection-names-table .ui-datatable-thead th {
+    background: transparent !important;
+    border: none !important;
+    font-weight: 600 !important;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.collection-names-table .ui-datatable-data tr {
+    border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+    transition: all 0.2s ease !important;
+}
+
+.collection-names-table .ui-datatable-data tr:last-child {
+    border-bottom: none !important;
+}
+
+.collection-names-table .ui-datatable-data tr:hover {
+    background: rgba(71, 98, 77, 0.04) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(71, 98, 77, 0.05);
+}
+
+.collection-names-table .ui-datatable-data td {
+    vertical-align: middle !important;
+    border: none !important;
+}
+
+.collection-table-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.collection-table-name-inner {
+    height: auto;
+}
+
+.collection-table-name-text {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+}
+
+.collection-table-langue-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collection-table-flag {
+    width: 32px !important;
+    height: 24px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+    object-fit: cover !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.collection-table-action-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collection-no-names {
+    padding: 1rem 1rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.25);
+    border-radius: 8px;
+}
+
+.collection-no-names-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+}
+
+.collection-no-names-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: rgba(71, 98, 77, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collection-no-names-icon i {
+    font-size: 1.5rem;
+    color: var(--color-action-main, #47624D);
+}
+
+.collection-no-names-text {
+    flex: 1;
+}
+
+.collection-no-names-title {
+    color: var(--color-text-primary, #333);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.collection-no-names-message {
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.collection-btn-remove-small {
+    padding: 0.5rem !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2) !important;
+}
+
+.collection-btn-remove-small:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3) !important;
+}
+
+.collection-btn-remove-small:active {
+    transform: translateY(0) !important;
+}
+
+.collection-btn-add {
+    font-size: 0.875rem !important;
+    background-color: var(--color-action-main, #47624D) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.collection-btn-add:hover {
+    background-color: #3a4f3f !important;
+}
+
+.collection-btn-remove {
+    padding: 0.5rem !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.collection-btn-remove:hover {
+    background-color: #c82333 !important;
+}
+
+.collection-message {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    color: #dc3545;
+}
+
+.collection-visibility-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+.collection-visibility-label {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+    margin: 0 !important;
+}
+
+.collection-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.collection-switch {
+    position: relative;
+    width: 56px !important;
+    height: 32px !important;
+}
+
+.collection-switch .ui-chkbox-box {
+    width: 56px !important;
+    height: 32px !important;
+    border-radius: 16px !important;
+    background: #6C757D !important;
+    border: 2px solid #6C757D !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    cursor: pointer !important;
+}
+
+.collection-switch .ui-chkbox-box:before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.collection-switch .ui-chkbox-box.ui-state-active {
+    background: var(--color-action-main, #47624D) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.collection-switch .ui-chkbox-box.ui-state-active:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.4);
+}
+
+.collection-switch .ui-chkbox-icon {
+    display: none !important;
+}
+
+.collection-switch-label {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+}
+
+.collection-switch-text-public {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+}
+
+.collection-switch-text-private {
+    color: #6C757D;
+    font-weight: 600;
+}
+
+.collection-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(71, 98, 77, 0.15);
+}
+
+.collection-btn {
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.collection-btn-cancel {
+    background-color: var(--color-action-secondary, #6C757D) !important;
+    color: white !important;
+}
+
+.collection-btn-cancel:hover {
+    background-color: #5a6268 !important;
+}
+
+.collection-btn-validate {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: white !important;
+}
+
+.collection-btn-validate:hover {
+    background-color: #3a4f3f !important;
+}
+
+@media (max-width: 768px) {
+    .collection-dialog .ui-dialog {
+        width: 90% !important;
+        max-width: 500px !important;
+    }
+
+    .collection-form-row {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .collection-form-group-flex {
+        flex: 1 1 auto;
+    }
+
+    .collection-name-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .collection-btn-add {
+        width: 100% !important;
+    }
+
+    .collection-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .collection-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

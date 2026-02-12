@@ -29,14 +29,14 @@
 
                 <!-- Message lorsque le brouillon est validé ou refusé (lecture seule pour tous) -->
                 <h:panelGroup rendered="#{candidatBean.isCurrentBrouillonReadOnly()}">
-                    <div class="users-form-panel wizard-form-panel brouillon-readonly-message" style="margin-top: 20px">
+                    <div class="users-form-panel wizard-form-panel brouillon-readonly-message candidats-mt-20">
                         <div class="summary-content text-justify">
                             <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'ACCEPTED'}">
-                                <i class="pi pi-check-circle" style="color: #28a745; margin-right: 0.5rem;"/>
+                                <i class="pi pi-check-circle candidats-icon-success"/>
                                 Ce brouillon a été validé. Vous ne pouvez que le visualiser.
                             </h:panelGroup>
                             <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'REFUSED'}">
-                                <i class="pi pi-times-circle" style="color: #dc3545; margin-right: 0.5rem;"/>
+                                <i class="pi pi-times-circle candidats-icon-danger"/>
                                 Ce brouillon a été refusé. Vous ne pouvez que le visualiser.
                             </h:panelGroup>
                         </div>
@@ -108,7 +108,7 @@
                 <!-- 2ème partie : Formulaire / Consultation (visible pour modification OU pour consultation si validé/refusé) -->
                 <h:form id="createCandidatForm" rendered="#{candidatBean.canEditCurrentBrouillon() or candidatBean.isCurrentBrouillonReadOnly()}">
                     <div class="#{candidatBean.isCurrentBrouillonReadOnly() ? 'brouillon-consultation-only' : ''}">
-                        <div class="wizard-content" style="padding: 20px">
+                        <div class="wizard-content candidats-p-20">
                             <ui:include src="form/labels-form.xhtml"/>
 
                             <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
@@ -137,6 +137,7 @@
                         </div>
 
                         <!-- Styles personnalisés pour le formulaire de groupe -->
+                        <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
                         <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
                         <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
 
@@ -149,8 +150,8 @@
                         <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
                         
                         <!-- Champ Auteurs -->
-                        <div class="users-form-panel wizard-form-panel" style="margin-top: 20px">
-                            <div class="users-form-group users-form-group-full" style="margin: 10px">
+                        <div class="users-form-panel wizard-form-panel candidats-mt-20">
+                            <div class="users-form-group users-form-group-full candidats-m-10">
                                 <p:outputLabel value="Auteurs" />
                                 <div class="auteurs-list">
                                     <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
@@ -169,8 +170,8 @@
                     </div>
                     
                     <!-- Boutons d'action (uniquement en mode édition) -->
-                    <h:panelGroup class="users-form-panel wizard-form-panel" style="margin-top: 20px" rendered="#{candidatBean.canEditCurrentBrouillon()}">
-                        <div class="wizard-navigation" style="gap: 30px;">
+                    <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                        <div class="wizard-navigation candidats-gap-30">
                             <p:commandButton value="Enregistrer"
                                              icon="pi pi-save"
                                              styleClass="candidat-btn-add"
@@ -180,8 +181,7 @@
                             
                             <p:commandButton value="Refuser"
                                              icon="pi pi-times"
-                                             styleClass="candidat-btn-add"
-                                             style="background-color: #dc3545 !important; border-color: #dc3545 !important; color: #ffffff !important;"
+                                             styleClass="candidat-btn-add candidats-btn-refuse"
                                              rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                              action="#{candidatBean.refuserCandidatFromView}"
                                              process="@form"
@@ -189,8 +189,7 @@
 
                             <p:commandButton value="Valider"
                                              icon="pi pi-check"
-                                             styleClass="candidat-btn-add"
-                                             style="background-color: #28a745; border-color: #28a745;"
+                                             styleClass="candidat-btn-add candidats-btn-validate"
                                              rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                              action="#{candidatBean.validerCandidatFromView}"
                                              process="@form"

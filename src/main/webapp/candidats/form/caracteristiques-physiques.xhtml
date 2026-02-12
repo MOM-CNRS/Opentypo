@@ -5,12 +5,11 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Caractéristiques physiques (communes à tous les types de brouillons) -->
-    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Titre -->
         <b>
             <p:outputLabel value="Caractéristiques physiques"
-                           styleClass="caracteristiques-physiques-title"
-                           style="padding-left: 15px !important;"/>
+                           styleClass="caracteristiques-physiques-title candidats-label-pl"/>
         </b>
 
         <!-- Métrologie -->
@@ -31,7 +30,7 @@
                                  rendered="#{!candidatBean.hasMetrologie()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la métrologie"
@@ -56,7 +55,7 @@
         </h:panelGroup>
 
         <!-- Fabrication/façonnage -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full" style="margin-top: 10px">
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Fabrication/façonnage" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -73,7 +72,7 @@
                                  rendered="#{!candidatBean.hasFabricationFaconnage()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la fabrication/façonnage"
@@ -98,9 +97,9 @@
         </h:panelGroup>
 
         <!-- Description pâte (champ texte, valeur simple) -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 10px">
+        <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Description pâte" />
-            <div class="input-wrapper" style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important">
+            <div class="input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
@@ -113,7 +112,7 @@
         </div>
 
         <!-- Couleur de pâte -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full" style="margin-top: 20px">
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-20">
             <p:outputLabel value="Couleur de pâte" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -130,7 +129,7 @@
                                  rendered="#{!candidatBean.hasCouleurPate()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la couleur de pâte"
@@ -155,7 +154,7 @@
         </h:panelGroup>
 
         <!-- Nature de pâte -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full" style="margin-top: 10px">
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Nature de pâte" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -172,7 +171,7 @@
                                  rendered="#{!candidatBean.hasNaturePate()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la nature de pâte"
@@ -197,7 +196,7 @@
         </h:panelGroup>
 
         <!-- Inclusions -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full" style="margin-top: 10px">
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Inclusions" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -214,7 +213,7 @@
                                  rendered="#{!candidatBean.hasInclusions()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer les inclusions"
@@ -239,7 +238,7 @@
         </h:panelGroup>
 
         <!-- Cuisson/post-cuisson -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full" style="margin-top: 10px">
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Cuisson/post-cuisson" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
@@ -255,7 +254,7 @@
                                  rendered="#{!candidatBean.hasCuissonPostCuisson()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la cuisson/post-cuisson"

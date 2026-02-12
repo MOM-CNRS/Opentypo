@@ -30,6 +30,12 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     boolean existsByCode(@Param("code") String code);
 
     /**
+     * Vérifie si une entité existe avec le code donné, en excluant une entité (pour mode édition).
+     */
+    @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.metadata m WHERE m.code = :code AND e.id != :excludeEntityId")
+    boolean existsByCodeExcludingEntityId(@Param("code") String code, @Param("excludeEntityId") Long excludeEntityId);
+
+    /**
      * Vérifie si une entité existe avec un label ayant le même nom et la même langue (unicité label + langue).
      */
     @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.labels l JOIN l.langue lang WHERE l.nom = :nom AND lang.code = :langueCode")
@@ -146,5 +152,15 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
      */
     @Query("SELECT DISTINCT e FROM Entity e JOIN FETCH e.entityType WHERE e.id IN :ids")
     List<Entity> findByIdInWithEntityType(@Param("ids") Collection<Long> ids);
+
+    /**
+     * Charge une entité par ID avec labels et descriptions (pour édition).
+     * Metadata est chargé à la demande (lazy) ; labels et descriptions sont fetchees.
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue " +
+           "LEFT JOIN FETCH e.descriptions d LEFT JOIN FETCH d.langue " +
+           "WHERE e.id = :id")
+    Optional<Entity> findByIdWithLabelsAndDescriptions(@Param("id") Long id);
 }
 

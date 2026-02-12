@@ -3,7 +3,7 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Production -->
         <div class="users-form-group users-form-group-full" id="productionGroup">
             <p:outputLabel value="Production" />
@@ -22,7 +22,7 @@
                                  rendered="#{!candidatBean.hasProduction()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell" style="margin-right: -5px">
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer la production"
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Atelier(s) (Saisie libre avec tags) -->
-        <div class="users-form-group users-form-group-full" style="margin-top: 10px">
+        <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel for="groupAteliers" value="Atelier(s)" />
             <div class="input-wrapper">
                 <i class="pi pi-wrench input-icon" />
@@ -72,7 +72,7 @@
         <h:panelGroup id="aireCirculationGroup" styleClass="users-form-group users-form-group-full">
             <p:outputLabel value="Aire de circulation" />
             <div class="candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper candidat-production-input-wrapper" style="flex: 1;">
+                <div class="input-wrapper candidat-production-input-wrapper candidats-production-flex">
                     <i class="pi pi-map-marker input-icon" />
                     <div class="candidat-aires-circulation-chips">
                         <ui:repeat value="#{candidatBean.airesCirculation}" var="aire" varStatus="status">

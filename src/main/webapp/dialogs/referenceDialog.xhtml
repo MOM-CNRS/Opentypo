@@ -1,28 +1,35 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
-             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
              xmlns:p="http://primefaces.org/ui"
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <!-- Dialog pour créer un nouveau référentiel -->
+    <!-- Dialog pour créer ou modifier un référentiel -->
     <p:dialog id="referenceDialog"
+              header="#{referenceBean.editModeInDialog ? 'Modifier le référentiel' : 'Créer un nouveau référentiel'}"
               widgetVar="referenceDialog"
-              header="Créer un nouveau référentiel"
               modal="true"
               draggable="false"
               resizable="false"
               styleClass="reference-dialog"
-              width="700"
+              width="600"
               height="auto"
               closable="true"
               responsive="true"
               position="center">
-        
-        <h:form id="referenceForm">
-            <f:event listener="#{referenceBean.resetReferenceForm}" type="preRenderView"/>
+
+        <h:form id="referenceDialogForm">
+            <p:remoteCommand name="resetReferenceFormCommand"
+                           action="#{referenceBean.resetReferenceForm}"
+                           update="@form"
+                           process="@this"/>
             <div class="reference-form-content">
-                <div class="reference-form-group">
-                    <p:outputLabel for="referenceCode" value="Code du référentiel" />
+                <!-- Code -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-key reference-section-icon"/>
+                        <span>Code du référentiel</span>
+                    </div>
                     <p:inputText id="referenceCode"
                                value="#{referenceBean.referenceCode}"
                                required="true"
@@ -31,43 +38,205 @@
                                placeholder="Ex: REF001"/>
                 </div>
 
-                <div class="reference-form-group">
-                    <p:outputLabel for="referenceLabel" value="Label" />
-                    <p:inputText id="referenceLabel"
-                               value="#{referenceBean.referenceLabel}"
-                               required="true"
-                               requiredMessage="Le label est requis"
-                               styleClass="reference-input"
-                               placeholder="Nom du référentiel"/>
+                <!-- Section Labels -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-tag reference-section-icon"/>
+                        <span>Labels</span>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="reference-form-group reference-form-group-flex">
+                            <p:inputText id="newNameInput"
+                                       value="#{referenceBean.newNameValue}"
+                                       placeholder="Nom"
+                                       styleClass="reference-input"/>
+                        </div>
+                        <div class="collection-form-group collection-form-group-flex">
+                            <p:selectOneMenu id="newNameLangue"
+                                             value="#{referenceBean.newNameLangueCode}"
+                                             styleClass="collection-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{referenceBean.availableLanguagesForNewName}"
+                                             var="langue"
+                                             itemLabel="#{langue.nom}"
+                                             itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:commandButton value="Ajouter"
+                                       icon="pi pi-plus"
+                                       styleClass="reference-btn-add"
+                                       actionListener="#{referenceBean.addNameFromInput()}"
+                                       process="@form"
+                                       ajax="true"
+                                       update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameInput :referenceDialogForm:newNameLangue growl"/>
+                    </div>
+                    <h:panelGroup id="referenceNamesTable" class="reference-names-table-container">
+                        <p:dataTable value="#{referenceBean.referenceNames}"
+                                   var="nameItem"
+                                   styleClass="reference-names-table"
+                                   rendered="#{not empty referenceBean.referenceNames}">
+                            <p:column styleClass="reference-table-name-column">
+                                <div class="reference-table-name-cell">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{nameItem.langueCode}.png"
+                                                    styleClass="reference-table-flag"
+                                                    alt="#{nameItem.langue.nom}"
+                                                    title="#{nameItem.langue.nom}" />
+                                    <div class="reference-table-name-inner">
+                                        <h:outputText value="#{nameItem.nom}" styleClass="reference-table-name-text" />
+                                    </div>
+                                </div>
+                            </p:column>
+                            <p:column styleClass="reference-table-action-column">
+                                <div class="reference-table-action-cell">
+                                    <p:commandButton icon="pi pi-trash"
+                                                     styleClass="reference-btn-remove"
+                                                     action="#{referenceBean.removeName(nameItem)}"
+                                                     process="@form"
+                                                     ajax="true"
+                                                     update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameLangue"
+                                                     title="Supprimer ce nom"/>
+                                </div>
+                            </p:column>
+                        </p:dataTable>
+                        <h:panelGroup rendered="#{empty referenceBean.referenceNames}">
+                            <div class="reference-no-names">
+                                <div class="reference-no-names-content">
+                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                    <div class="reference-no-names-text">
+                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
                 </div>
 
-                <div class="reference-form-group">
-                    <p:outputLabel for="referenceDescription" value="Description" />
-                    <p:inputTextarea id="referenceDescription"
-                                    value="#{referenceBean.referenceDescription}"
-                                    rows="4"
-                                    styleClass="reference-textarea"
-                                    placeholder="Description du référentiel"/>
+                <!-- Section Descriptions -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-align-left reference-section-icon"/>
+                        <span>Descriptions</span>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="reference-form-group reference-form-group-flex">
+                            <p:inputTextarea id="newDescriptionInput"
+                                           value="#{referenceBean.newDescriptionValue}"
+                                           placeholder="Description"
+                                           rows="3"
+                                           styleClass="reference-textarea"/>
+                        </div>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="collection-form-group collection-form-group-flex">
+                            <p:selectOneMenu id="newDescriptionLangue"
+                                             value="#{referenceBean.newDescriptionLangueCode}"
+                                             styleClass="collection-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{referenceBean.availableLanguagesForNewDescription}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:commandButton value="Ajouter"
+                                         icon="pi pi-plus"
+                                         styleClass="reference-btn-add"
+                                         actionListener="#{referenceBean.addDescriptionFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":referenceDialogForm:referenceDescriptionsTable :referenceDialogForm:newDescriptionInput :referenceDialogForm:newDescriptionLangue growl"/>
+                    </div>
+                    <h:panelGroup id="referenceDescriptionsTable" class="reference-names-table-container">
+                        <p:dataTable value="#{referenceBean.referenceDescriptions}"
+                                   var="descriptionItem"
+                                   styleClass="reference-names-table"
+                                   emptyMessage="Aucune description ajoutée"
+                                   rendered="#{not empty referenceBean.referenceDescriptions}">
+                            <p:column styleClass="reference-table-name-column">
+                                <div class="reference-table-name-cell">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{descriptionItem.langueCode}.png"
+                                                    styleClass="reference-table-flag"
+                                                    alt="#{descriptionItem.langue.nom}"
+                                                    title="#{descriptionItem.langue.nom}"/>
+                                    <div class="reference-table-name-inner">
+                                        <h:outputText value="#{descriptionItem.valeur}" styleClass="reference-table-name-text" />
+                                    </div>
+                                </div>
+                            </p:column>
+                            <p:column styleClass="reference-table-action-column">
+                                <div class="reference-table-action-cell">
+                                    <p:commandButton icon="pi pi-trash"
+                                                     styleClass="reference-btn-remove"
+                                                     action="#{referenceBean.removeDescription(descriptionItem)}"
+                                                     process="@form"
+                                                     ajax="true"
+                                                     update=":referenceDialogForm:referenceDescriptionsTable :referenceDialogForm:newDescriptionLangue"
+                                                     title="Supprimer cette description"/>
+                                </div>
+                            </p:column>
+                        </p:dataTable>
+                        <h:panelGroup rendered="#{empty referenceBean.referenceDescriptions}">
+                            <div class="reference-no-names">
+                                <div class="reference-no-names-content">
+                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                    <div class="reference-no-names-text">
+                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
                 </div>
 
-                <div class="reference-form-group">
-                    <p:outputLabel for="referenceBibliographique" value="Référence bibliographique" />
-                    <p:inputTextarea id="referenceBibliographique" 
-                                    value="#{referenceBean.referenceBibliographique}"
-                                    rows="3"
-                                    styleClass="reference-textarea"
-                                    placeholder="Référence bibliographique"/>
+                <!-- Références bibliographiques -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-book reference-section-icon"/>
+                        <span>Référence(s) bibliographique(s)</span>
+                    </div>
+                    <p:chips id="referenceBibliographique"
+                             value="#{referenceBean.referenceBibliographiqueList}"
+                             styleClass="reference-chips"
+                             style="width: 100%"
+                             placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
+                             separator=";"/>
+                </div>
+
+                <!-- Section Visibilité -->
+                <div class="collection-form-group">
+                    <div class="collection-visibility-section">
+                        <p:outputLabel value="Visibilité de la collection" styleClass="collection-visibility-label" />
+                        <div class="collection-switch-wrapper">
+                            <h:panelGroup id="referenceSwitchLabel" class="collection-switch-label">
+                                <h:outputText value="Public"
+                                              styleClass="reference-switch-text-public"
+                                              rendered="#{referenceBean.referencePublique}"/>
+                                <h:outputText value="Privé"
+                                              styleClass="reference-switch-text-private"
+                                              rendered="#{not referenceBean.referencePublique}"/>
+                            </h:panelGroup>
+                            <p:selectBooleanCheckbox value="#{referenceBean.referencePublique}"
+                                                     styleClass="collection-switch"
+                                                     id="referencePublique">
+                                <p:ajax event="change" process="@this" update=":referenceDialogForm:referenceSwitchLabel"/>
+                            </p:selectBooleanCheckbox>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="reference-form-actions">
-                <p:commandButton value="Annuler" 
+                <p:commandButton value="Annuler"
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"
                                onclick="PF('referenceDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Valider" 
+                <p:commandButton value="#{referenceBean.editModeInDialog ? 'Enregistrer' : 'Valider'}"
                                icon="pi pi-check"
                                styleClass="reference-btn reference-btn-validate"
                                action="#{referenceBean.createReference}"
@@ -77,104 +246,4 @@
             </div>
         </h:form>
     </p:dialog>
-
-    <style>
-        .reference-form-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .reference-form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .reference-form-group label {
-            font-weight: 500;
-            color: var(--color-text-primary, #333);
-            font-size: 0.9rem;
-        }
-
-        .reference-input,
-        .reference-textarea {
-            width: 100% !important;
-            padding: 0.625rem 0.75rem !important;
-            border: 1px solid rgba(71, 98, 77, 0.3) !important;
-            border-radius: 0.25rem !important;
-            font-size: 0.9rem !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .reference-input:focus,
-        .reference-textarea:focus {
-            border-color: var(--color-action-main, #47624D) !important;
-            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
-            outline: none !important;
-        }
-
-        .reference-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .reference-form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(71, 98, 77, 0.15);
-        }
-
-        .reference-btn {
-            padding: 0.625rem 1.25rem !important;
-            border-radius: 0.25rem !important;
-            font-size: 0.9rem !important;
-            font-weight: 500 !important;
-            border: none !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 0.5rem !important;
-        }
-
-        .reference-btn-cancel {
-            background-color: var(--color-action-secondary, #6C757D) !important;
-            color: white !important;
-        }
-
-        .reference-btn-cancel:hover {
-            background-color: #5a6268 !important;
-        }
-
-        .reference-btn-validate {
-            background-color: var(--color-action-main, #47624D) !important;
-            color: white !important;
-        }
-
-        .reference-btn-validate:hover {
-            background-color: #3a4f3f !important;
-        }
-
-        /* Responsive pour le dialog */
-        @media (max-width: 768px) {
-            .reference-dialog {
-                width: 90% !important;
-                max-width: 500px !important;
-            }
-
-            .reference-form-actions {
-                flex-direction: column-reverse;
-            }
-
-            .reference-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
 </ui:fragment>
-

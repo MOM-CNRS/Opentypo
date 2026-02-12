@@ -233,3 +233,35 @@
     background-color: #3a4f3e;
     border-color: #3a4f3e;
 }
+
+/* Icônes titres et états vides */
+.history-title-icon {
+    margin-right: 10px;
+}
+
+.history-empty-icon {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.history-detail-empty-icon {
+    font-size: 2rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.history-section-title-mt {
+    margin-top: 40px;
+}
+
+/* Colonnes tableaux (largeurs fixes) */
+.history-col-type { width: 120px; }
+.history-col-date { width: 180px; }
+.history-col-revision { width: 100px; }
+.history-col-modified { width: 150px; }
+.history-col-actions {
+    width: 120px;
+    text-align: center;
+}
+.history-col-field { width: 200px; }

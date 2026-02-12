@@ -5,14 +5,13 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Descriptions multilingues -->
-    <div class="users-form-group users-form-group-full periode-group" style="margin-top: 20px">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
         <h6>Descriptions</h6>
 
         <div class="candidat-description-input-row">
             <div class="candidat-description-textarea-wrapper">
-                <div class="input-wrapper"
-                     style="border: 1px solid rgba(71, 98, 77, 0.15) !important; border-radius: 10px !important;">
+                <div class="input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-align-left input-icon input-icon-textarea" />
                     <p:inputTextarea value="#{candidatBean.newDescriptionValue}"
                                      placeholder="Saisissez une description détaillée..."
@@ -54,7 +53,7 @@
                      emptyMessage="Aucune description ajoutée"
                      rendered="#{not empty candidatBean.descriptions}">
 
-            <p:column headerText="Descriptions" styleClass="candidat-table-label-column" style="padding: 0.3rem 0.5rem;">
+            <p:column headerText="Descriptions" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{descriptionItem.langueCode != null}">
                         <h:graphicImage library="img"

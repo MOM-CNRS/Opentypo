@@ -7,6 +7,8 @@
 
     <ui:define name="mainContent">
         <f:event type="preRenderView" listener="#{candidatBean.loadCandidatsPage()}"/>
+
+        <!-- En-tête de page -->
         <div class="users-container">
             <div class="users-header">
                 <div class="users-header-content">
@@ -18,7 +20,7 @@
                         <p class="users-subtitle">Gérez et suivez les propositions de types</p>
                     </div>
                     <h:form>
-                        <p:commandButton value="Nouveau brouillon" 
+                        <p:commandButton value="Nouveau brouillon"
                                        icon="pi pi-plus"
                                        styleClass="users-create-button"
                                        action="/candidats/create.xhtml?faces-redirect=true"
@@ -28,332 +30,28 @@
                 </div>
             </div>
 
+            <!-- Contenu principal : formulaire et onglets -->
             <div class="users-content">
                 <h:form id="candidatsForm">
-                    <p:tabView id="candidatsTabs" 
+                    <p:tabView id="candidatsTabs"
                               activeIndex="#{candidatBean.activeTabIndex}"
                               styleClass="users-tabview"
                               dynamic="true"
                               cache="false">
-                        
-                        <!-- Onglet : Brouillons en cours -->
-                        <p:tab title="Brouillons en cours" titleStyleClass="users-tab-title">
-                            <div class="users-table-wrapper">
-                                <p:dataTable id="tableEnCours"
-                                           value="#{candidatBean.candidatsEnCours}"
-                                           var="candidat"
-                                           styleClass="modern-users-table"
-                                           emptyMessage="Aucun brouillon en cours"
-                                           paginator="true"
-                                           rows="10"
-                                           rowsPerPageTemplate="10,20,50"
-                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                           paginatorPosition="bottom"
-                                           sortMode="multiple"
-                                           rowStyleClass="modern-users-row">
-                                    
-                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
-                                        <div class="candidat-code-cell">
-                                            <i class="pi pi-tag"/>
-                                            <h:outputText value="#{candidat.typeCode}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.code}"/>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
-                                        <div class="candidat-label-cell">
-                                            <h:outputText value="#{candidat.label}"/>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
-                                        <div class="date-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.dateCreation}">
-                                                <f:converter converterId="localDateTimeConverter"/>
-                                            </h:outputText>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Créateur" styleClass="users-col-creator">
-                                        <div class="user-info-cell">
-                                            <div class="user-name">#{candidat.createur}</div>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Actions" styleClass="users-col-actions">
-                                        <div class="users-actions-modern">
-                                            <p:commandButton icon="pi pi-eye"
-                                                           styleClass="action-btn action-view"
-                                                           title="Visualiser"
-                                                           action="#{candidatBean.visualiserCandidat(candidat)}"
-                                                           process="@this"
-                                                           update="@none"/>
-                                            <p:commandButton icon="pi pi-check"
-                                                           styleClass="action-btn action-validate"
-                                                           title="Valider"
-                                                           rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
-                                                           action="#{candidatBean.prepareValidateCandidat(candidat)}"
-                                                           process="@this"
-                                                           update=":candidatsForm"
-                                                           oncomplete="PF('confirmValidateDialog').show();"/>
-                                            <p:commandButton icon="pi pi-times"
-                                                           styleClass="action-btn action-refuse"
-                                                           title="Refuser"
-                                                           rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
-                                                           action="#{candidatBean.refuserCandidat(candidat)}"
-                                                           process="@this"
-                                                           update=":candidatsForm"/>
-                                        </div>
-                                    </p:column>
-                                </p:dataTable>
-                            </div>
-                        </p:tab>
-                        
-                        <!-- Onglet : Brouillons validés -->
-                        <p:tab title="Brouillons validés"
-                               titleStyleClass="users-tab-title">
-                            <div class="users-table-wrapper">
-                                <p:dataTable id="tableValides"
-                                           value="#{candidatBean.candidatsValides}"
-                                           var="candidat"
-                                           styleClass="modern-users-table"
-                                      emptyMessage="Aucun brouillon validé"
-                                           paginator="true"
-                                           rows="10"
-                                           rowsPerPageTemplate="10,20,50"
-                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                           paginatorPosition="bottom"
-                                           sortMode="multiple"
-                                           rowStyleClass="modern-users-row">
-
-                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
-                                        <div class="candidat-code-cell">
-                                            <i class="pi pi-tag"/>
-                                            <h:outputText value="#{candidat.typeCode}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.code}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
-                                        <div class="candidat-label-cell">
-                                            <h:outputText value="#{candidat.label}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
-                                        <div class="date-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.dateCreation}">
-                                                <f:converter converterId="localDateTimeConverter"/>
-                                            </h:outputText>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Validateur" styleClass="users-col-creator">
-                                        <div class="user-info-cell">
-                                            <div class="user-name">#{candidat.validateur}</div>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Actions" styleClass="users-col-actions">
-                                        <div class="users-actions-modern">
-                                            <p:commandButton icon="pi pi-eye"
-                                                           styleClass="action-btn action-view"
-                                                           title="Visualiser"
-                                                           action="#{candidatBean.visualiserCandidat(candidat)}"
-                                                           process="@this"
-                                                           update="@none"/>
-                                        </div>
-                                    </p:column>
-                                </p:dataTable>
-                            </div>
-                        </p:tab>
-                        
-                        <!-- Onglet : Brouillons refusés -->
-                        <p:tab title="Brouillons refusés"
-                               titleStyleClass="users-tab-title">
-                            <div class="users-table-wrapper">
-                                <p:dataTable id="tableRefuses"
-                                           value="#{candidatBean.candidatsRefuses}"
-                                           var="candidat"
-                                           styleClass="modern-users-table"
-                                      emptyMessage="Aucun brouillon refusé"
-                                           paginator="true"
-                                           rows="10"
-                                           rowsPerPageTemplate="10,20,50"
-                                           paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                           paginatorPosition="bottom"
-                                           sortMode="multiple"
-                                           rowStyleClass="modern-users-row">
-
-                                    <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
-                                        <div class="candidat-code-cell">
-                                            <i class="pi pi-tag"/>
-                                            <h:outputText value="#{candidat.typeCode}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
-                                        <div class="candidat-period-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.code}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
-                                        <div class="candidat-label-cell">
-                                            <h:outputText value="#{candidat.label}"/>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
-                                        <div class="date-cell">
-                                            <i class="pi pi-calendar"/>
-                                            <h:outputText value="#{candidat.dateCreation}">
-                                                <f:converter converterId="localDateTimeConverter"/>
-                                            </h:outputText>
-                                        </div>
-                                    </p:column>
-
-                                    <p:column headerText="Validateur" styleClass="users-col-creator">
-                                        <div class="user-info-cell">
-                                            <div class="user-name">#{candidat.validateur}</div>
-                                        </div>
-                                    </p:column>
-                                    
-                                    <p:column headerText="Actions" styleClass="users-col-actions">
-                                        <div class="users-actions-modern">
-                                            <p:commandButton icon="pi pi-eye"
-                                                           styleClass="action-btn action-view"
-                                                           title="Visualiser"
-                                                           action="#{candidatBean.visualiserCandidat(candidat)}"
-                                                           process="@this"
-                                                           update="@none"/>
-                                        </div>
-                                    </p:column>
-                                </p:dataTable>
-                            </div>
-                        </p:tab>
+                        <ui:include src="tabs/tab-en-cours.xhtml"/>
+                        <ui:include src="tabs/tab-valides.xhtml"/>
+                        <ui:include src="tabs/tab-refuses.xhtml"/>
                     </p:tabView>
-                    
-                    <!-- Dialog de confirmation de validation -->
-                    <p:dialog id="confirmValidateDialog"
-                              widgetVar="confirmValidateDialog"
-                              header="Confirmer la validation"
-                              modal="true"
-                              closable="true"
-                              resizable="false"
-                              draggable="false"
-                              width="500"
-                              height="auto"
-                              styleClass="candidat-confirm-dialog">
-                        <f:facet name="header">
-                            <div class="candidat-confirm-header">
-                                <div class="candidat-confirm-header-icon-wrapper">
-                                    <i class="pi pi-check-circle candidat-confirm-header-icon" />
-                                </div>
-                                <div class="candidat-confirm-header-content">
-                                    <h3 class="candidat-confirm-header-title">Confirmer la validation</h3>
-                                    <p class="candidat-confirm-header-subtitle">Le brouillon sera validé et passera au statut ACCEPTED</p>
-                                </div>
-                            </div>
-                        </f:facet>
-                        <div class="candidat-confirm-message-wrapper">
-                            <div class="candidat-confirm-icon-info">
-                                <i class="pi pi-info-circle" />
-                            </div>
-                            <p class="candidat-confirm-message-text">
-                                Êtes-vous sûr de vouloir valider ce brouillon ?<br/>
-                                <strong>#{candidatBean.candidatAValider != null ? candidatBean.candidatAValider.label : ''}</strong>
-                            </p>
-                        </div>
-                        <f:facet name="footer">
-                            <div class="candidat-confirm-footer">
-                                <p:commandButton value="Annuler"
-                                               icon="pi pi-times"
-                                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
-                                               onclick="PF('confirmValidateDialog').hide(); return false;"
-                                               process="@this"
-                                               update="@none"/>
-                                <p:commandButton value="Oui, valider"
-                                               icon="pi pi-check"
-                                               styleClass="candidat-confirm-btn candidat-confirm-btn-confirm"
-                                               action="#{candidatBean.validerCandidatConfirm()}"
-                                               process=":candidatsForm"
-                                               update=":candidatsForm :growl"
-                                               oncomplete="PF('confirmValidateDialog').hide();"/>
-                            </div>
-                        </f:facet>
-                    </p:dialog>
-                    
-                    <!-- Dialog de confirmation de suppression -->
-                    <p:dialog id="confirmDeleteDialog"
-                              widgetVar="confirmDeleteDialog"
-                              header="Confirmer la suppression"
-                              modal="true"
-                              closable="true"
-                              resizable="false"
-                              draggable="false"
-                              width="500"
-                              height="auto"
-                              styleClass="candidat-confirm-dialog">
-                        <f:facet name="header">
-                            <div class="candidat-confirm-header">
-                                <div class="candidat-confirm-header-icon-wrapper">
-                                    <i class="pi pi-exclamation-triangle candidat-confirm-header-icon" style="color: #dc3545;" />
-                                </div>
-                                <div class="candidat-confirm-header-content">
-                                    <h3 class="candidat-confirm-header-title">Confirmer la suppression</h3>
-                                    <p class="candidat-confirm-header-subtitle">Cette action est irréversible</p>
-                                </div>
-                            </div>
-                        </f:facet>
-                        <div class="candidat-confirm-message-wrapper">
-                            <div class="candidat-confirm-icon-info">
-                                <i class="pi pi-info-circle" />
-                            </div>
-                            <p class="candidat-confirm-message-text">
-                                Êtes-vous sûr de vouloir supprimer ce brouillon ?<br/>
-                                <strong>#{candidatBean.candidatASupprimer != null ? candidatBean.candidatASupprimer.label : ''}</strong><br/>
-                                <span style="color: #dc3545; font-weight: 600;">Cette action est définitive et ne peut pas être annulée.</span>
-                            </p>
-                        </div>
-                        <f:facet name="footer">
-                            <div class="candidat-confirm-footer">
-                                <p:commandButton value="Annuler"
-                                               icon="pi pi-times"
-                                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
-                                               onclick="PF('confirmDeleteDialog').hide(); return false;"
-                                               process="@this"
-                                               update="@none"/>
-                                <p:commandButton value="Oui, supprimer"
-                                               icon="pi pi-trash"
-                                               styleClass="candidat-confirm-btn candidat-confirm-btn-delete"
-                                               action="#{candidatBean.supprimerCandidatConfirm()}"
-                                               process=":candidatsForm"
-                                               update=":candidatsForm :growl"
-                                               oncomplete="PF('confirmDeleteDialog').hide();"/>
-                            </div>
-                        </f:facet>
-                    </p:dialog>
+
+                    <!-- Dialogs de confirmation -->
+                    <ui:include src="dialogs/confirmValidateDialog.xhtml"/>
+                    <ui:include src="dialogs/confirmDeleteDialog.xhtml"/>
                 </h:form>
             </div>
         </div>
     </ui:define>
 
+    <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
     <h:outputStylesheet library="css" name="candidats/candidats-list.css"/>
     <h:outputScript library="js" name="candidats/candidats-list.js"/>
 

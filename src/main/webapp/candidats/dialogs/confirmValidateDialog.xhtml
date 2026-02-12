@@ -1,0 +1,55 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="confirmValidateDialog"
+              widgetVar="confirmValidateDialog"
+              header="Confirmer la validation"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="500"
+              height="auto"
+              styleClass="candidat-confirm-dialog">
+        <f:facet name="header">
+            <div class="candidat-confirm-header">
+                <div class="candidat-confirm-header-icon-wrapper">
+                    <i class="pi pi-check-circle candidat-confirm-header-icon" />
+                </div>
+                <div class="candidat-confirm-header-content">
+                    <h3 class="candidat-confirm-header-title">Confirmer la validation</h3>
+                    <p class="candidat-confirm-header-subtitle">Le brouillon sera validé et passera au statut ACCEPTED</p>
+                </div>
+            </div>
+        </f:facet>
+        <div class="candidat-confirm-message-wrapper">
+            <div class="candidat-confirm-icon-info">
+                <i class="pi pi-info-circle" />
+            </div>
+            <p class="candidat-confirm-message-text">
+                Êtes-vous sûr de vouloir valider ce brouillon ?<br/>
+                <strong>#{candidatBean.candidatAValider != null ? candidatBean.candidatAValider.label : ''}</strong>
+            </p>
+        </div>
+        <f:facet name="footer">
+            <div class="candidat-confirm-footer">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
+                               process="@this"
+                               update="@none"
+                               onclick="PF('confirmValidateDialog').hide(); return false;"/>
+                <p:commandButton value="Oui, valider"
+                               icon="pi pi-check"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-confirm"
+                               action="#{candidatBean.validerCandidatConfirm()}"
+                               process=":candidatsForm"
+                               update=":candidatsForm :growl"
+                               oncomplete="PF('confirmValidateDialog').hide();"/>
+            </div>
+        </f:facet>
+    </p:dialog>
+</ui:fragment>

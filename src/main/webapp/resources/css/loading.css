@@ -179,28 +179,6 @@
     vertical-align: middle;
 }
 
-/* Loader pour les zones de contenu */
-.content-loader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    min-height: 200px;
-}
-
-.content-loader .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border-width: 3px;
-}
-
-.content-loader .loading-text {
-    margin-top: 1rem;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary, #819A91);
-}
-
 /* Loader inline pour les petits éléments */
 .inline-loader {
     display: inline-block;

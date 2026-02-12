@@ -3,11 +3,12 @@
              xmlns:p="http://primefaces.org/ui"
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <!-- Arbre de navigation : référentiels → catégories → groupes (nœuds via treeNode.xhtml) -->
 
     <h:panelGroup id="treeContainer" layout="block" styleClass="simple-tree-container">
         <div class="simple-tree" id="simpleTree">
             <ul class="simple-tree-list">
-                <!-- Pas de nœud racine (collection) : l'arbre commence directement par les référentiels -->
+                <!-- Racine : enfants du nœud collection (référentiels) -->
                 <c:forEach items="#{treeBean.root != null ? treeBean.root.children : null}" var="childNode">
                     <ui:include src="treeNode.xhtml">
                         <ui:param name="node" value="#{childNode}"/>

@@ -5,7 +5,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <!-- Section d'informations de la collection - Version améliorée -->
+    <!-- 1. Panneau détail collection : en-tête (titre, langue, actions), visibilité, grille (description), boutons édition -->
     <h:panelGroup id="collectionDetailPanel" class="row collection-page-wrapper">
         <div class="col-md-12 collection-page-content">
             <div class="concept-info-panel #{collectionBean.editingCollection ? 'collection-edit-mode' : ''}">
@@ -90,7 +90,10 @@
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
-                            <p:commandLink onclick="PF('confirmDeleteCollectionDialog').show(); return false;"
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
                                            styleClass="concept-action-button"
                                            title="Supprimer la collection">
                                 <i class="pi pi-trash" />
@@ -115,6 +118,7 @@
                             </p:selectBooleanCheckbox>
                         </div>
                     </div>
+                    <!-- Grille d'informations (description, etc.) -->
                     <div class="concept-info-grid">
                         <h:panelGroup class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
@@ -179,8 +183,9 @@
         </div>
     </h:panelGroup>
 
-    <!-- Section header pour les référentiels -->
-    <div class="collection-references-header" style="margin-top: 20px">
+    <!-- 2. En-tête liste des référentiels + bouton Créer une référence -->
+    <h:form id="collectionReferencesForm">
+    <div class="collection-references-header details-mt-20">
         <div class="collection-references-title-section">
             <div class="collection-references-icon">
                 <i class="pi pi-database" />
@@ -196,9 +201,10 @@
             <p:commandButton value="Créer une nouvelle référence"
                              icon="pi pi-plus"
                              styleClass="collection-create-btn"
-                             onclick="PF('referenceDialog').show(); return false;"
+                             action="#{referenceBean.prepareCreateReference}"
                              process="@this"
-                             update="@none"/>
+                             update=":referenceDialog :referenceDialogForm"
+                             oncomplete="PF('referenceDialog').show();"/>
         </h:panelGroup>
     </div>
     <!-- Liste des référentiels de la collection -->
@@ -226,7 +232,10 @@
                         </div>
                     </div>
                     <h:panelGroup class="collection-panel-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                        <p:commandLink action="#" process="@this" update="@none"
+                        <p:commandLink action="#{referenceBean.prepareEditReferenceInDialogById(reference.id)}"
+                                       process="@this"
+                                       update=":referenceDialog :referenceDialogForm"
+                                       oncomplete="PF('referenceDialog').show();"
                                        styleClass="collection-action-btn"
                                        title="Modifier">
                             <i class="pi pi-file-edit" />
@@ -320,6 +329,7 @@
              rendered="#{empty applicationBean.childs}"
              styleClass="no-categories-message" />
     </h:panelGroup>
+    </h:form>
 
     <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
@@ -327,6 +337,5 @@
     <h:outputScript library="js" name="treeUtils.js"/>
 
     <ui:include src="../../dialogs/referenceDialog.xhtml"/>
-    <ui:include src="confirmDeleteCollectionDialog.xhtml"/>
     <ui:include src="collectionParametrageDialog.xhtml"/>
 </ui:composition>

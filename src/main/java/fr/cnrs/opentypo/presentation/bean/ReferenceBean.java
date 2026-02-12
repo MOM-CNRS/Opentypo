@@ -1,5 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.DescriptionItem;
+import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -43,7 +46,7 @@ import java.util.Optional;
 @Slf4j
 public class ReferenceBean implements Serializable {
 
-    private static final String reference_FORM = ":referenceForm";
+    private static final String reference_FORM = ":referenceDialogForm";
 
     @Autowired
     private EntityRepository entityRepository;
@@ -78,11 +81,27 @@ public class ReferenceBean implements Serializable {
 
     // Propriétés pour le formulaire de création de référentiel
     private String referenceCode;
-    private String referenceLabel;
-    private String referenceDescription;
     private String periodeId; // ID de la période (referenceOpentheso)
-    private String referenceBibliographique;
+    private List<String> referenceBibliographiqueList = new ArrayList<>();
     private String categorieIds; // IDs des catégories (Entity de type Catégorie)
+
+    // Liste des noms (labels) multilingues
+    private List<NameItem> referenceNames = new ArrayList<>();
+    // Liste des descriptions multilingues
+    private List<DescriptionItem> referenceDescriptions = new ArrayList<>();
+    // Champs temporaires pour la saisie d'un nouveau nom
+    private String newNameValue;
+    private String newNameLangueCode;
+    // Champs temporaires pour la saisie d'une nouvelle description
+    private String newDescriptionValue;
+    private String newDescriptionLangueCode;
+    // Référentiel public ou privé
+    private Boolean referencePublique = true;
+    // Langues disponibles (chargées à la demande)
+    private List<Langue> availableLanguages;
+
+    /** ID du référentiel en cours d'édition dans le dialog (null = mode création). */
+    private Long editingReferenceId;
 
     // État d'édition pour le référentiel
     private boolean editingReference = false;
@@ -97,35 +116,233 @@ public class ReferenceBean implements Serializable {
 
     
     public void resetReferenceForm() {
+        editingReferenceId = null;
         referenceCode = null;
-        referenceLabel = null;
-        referenceDescription = null;
         periodeId = null;
-        referenceBibliographique = null;
+        referenceBibliographiqueList = new ArrayList<>();
         categorieIds = null;
+        referenceNames = new ArrayList<>();
+        referenceDescriptions = new ArrayList<>();
+        newNameValue = null;
+        newNameLangueCode = null;
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+        referencePublique = true;
+    }
+
+    /**
+     * Prépare le dialog pour la création : réinitialise le formulaire et passe en mode création.
+     */
+    public void prepareCreateReference() {
+        resetReferenceForm();
+    }
+
+    /**
+     * Prépare le dialog pour l'édition à partir de l'ID du référentiel.
+     * Utilisé lorsque le passage direct de l'entité depuis ui:repeat pose problème.
+     */
+    public void prepareEditReferenceInDialogById(Long referenceId) {
+        if (referenceId == null) {
+            return;
+        }
+        loadReferenceIntoForm(referenceId);
+    }
+
+    /**
+     * Prépare le dialog pour l'édition : charge les données du référentiel sélectionné.
+     */
+    public void prepareEditReferenceInDialog(Entity reference) {
+        if (reference == null || reference.getId() == null) {
+            return;
+        }
+        loadReferenceIntoForm(reference.getId());
+    }
+
+    /**
+     * Charge les données du référentiel dans le formulaire du dialog.
+     */
+    private void loadReferenceIntoForm(Long referenceId) {
+        Entity refLoaded = entityRepository.findByIdWithLabelsAndDescriptions(referenceId)
+                .orElseThrow(() -> new IllegalStateException("Référentiel introuvable (id: " + referenceId + ")"));
+        editingReferenceId = refLoaded.getId();
+        referenceCode = refLoaded.getCode();
+        referencePublique = refLoaded.getPublique() != null ? refLoaded.getPublique() : true;
+
+        referenceNames = new ArrayList<>();
+        if (refLoaded.getLabels() != null) {
+            for (Label l : refLoaded.getLabels()) {
+                if (l != null && l.getLangue() != null && StringUtils.hasText(l.getNom())) {
+                    referenceNames.add(new NameItem(l.getNom(), l.getLangue().getCode(), l.getLangue()));
+                }
+            }
+        }
+
+        referenceDescriptions = new ArrayList<>();
+        if (refLoaded.getDescriptions() != null) {
+            for (Description d : refLoaded.getDescriptions()) {
+                if (d != null && d.getLangue() != null && StringUtils.hasText(d.getValeur())) {
+                    referenceDescriptions.add(new DescriptionItem(d.getValeur(), d.getLangue().getCode(), d.getLangue()));
+                }
+            }
+        }
+
+        referenceBibliographiqueList = new ArrayList<>();
+        String bib = refLoaded.getBibliographie();
+        if (StringUtils.hasText(bib)) {
+            for (String part : bib.split(";")) {
+                String t = part != null ? part.trim() : "";
+                if (!t.isEmpty()) {
+                    referenceBibliographiqueList.add(t);
+                }
+            }
+        }
+
+        newNameValue = null;
+        newNameLangueCode = null;
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+    }
+
+    /**
+     * Indique si le dialog est en mode édition (true) ou création (false).
+     */
+    public boolean isEditModeInDialog() {
+        return editingReferenceId != null;
+    }
+
+    private void loadAvailableLanguages() {
+        if (availableLanguages == null) {
+            try {
+                availableLanguages = langueRepository.findAllByOrderByNomAsc();
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des langues", e);
+                availableLanguages = new ArrayList<>();
+            }
+        }
+    }
+
+    public void addNameFromInput() {
+        if (newNameValue == null || newNameValue.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+            return;
+        }
+        if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+            return;
+        }
+        if (isLangueAlreadyUsedInNames(newNameLangueCode, null)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+            return;
+        }
+        if (referenceNames == null) referenceNames = new ArrayList<>();
+        Langue langue = langueRepository.findByCode(newNameLangueCode);
+        referenceNames.add(new NameItem(newNameValue.trim(), newNameLangueCode, langue));
+        newNameValue = null;
+        newNameLangueCode = null;
+    }
+
+    public void removeName(NameItem item) {
+        if (referenceNames != null) referenceNames.remove(item);
+    }
+
+    public boolean isLangueAlreadyUsedInNames(String code, NameItem exclude) {
+        if (referenceNames == null || code == null) return false;
+        return referenceNames.stream()
+            .filter(i -> i != exclude && i.getLangueCode() != null)
+            .anyMatch(i -> i.getLangueCode().equals(code));
+    }
+
+    public List<Langue> getAvailableLanguagesForNewName() {
+        loadAvailableLanguages();
+        if (availableLanguages == null) return new ArrayList<>();
+        return availableLanguages.stream()
+            .filter(l -> !isLangueAlreadyUsedInNames(l.getCode(), null))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    public void addDescriptionFromInput() {
+        if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+            return;
+        }
+        if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+            return;
+        }
+        if (isLangueAlreadyUsedInDescriptions(newDescriptionLangueCode, null)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+            return;
+        }
+        if (referenceDescriptions == null) referenceDescriptions = new ArrayList<>();
+        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
+        referenceDescriptions.add(new DescriptionItem(newDescriptionValue.trim(), newDescriptionLangueCode, langue));
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+    }
+
+    public void removeDescription(DescriptionItem item) {
+        if (referenceDescriptions != null) referenceDescriptions.remove(item);
+    }
+
+    public boolean isLangueAlreadyUsedInDescriptions(String code, DescriptionItem exclude) {
+        if (referenceDescriptions == null || code == null) return false;
+        return referenceDescriptions.stream()
+            .filter(i -> i != exclude && i.getLangueCode() != null)
+            .anyMatch(i -> i.getLangueCode().equals(code));
+    }
+
+    public List<Langue> getAvailableLanguagesForNewDescription() {
+        loadAvailableLanguages();
+        if (availableLanguages == null) return new ArrayList<>();
+        return availableLanguages.stream()
+            .filter(l -> !isLangueAlreadyUsedInDescriptions(l.getCode(), null))
+            .collect(java.util.stream.Collectors.toList());
     }
     
     public void createReference() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
-        // Validation des champs
-        if (!EntityValidator.validateCode(referenceCode, entityRepository, reference_FORM)) {
+
+        boolean validCode;
+        if (editingReferenceId != null) {
+            validCode = EntityValidator.validateCodeForEdit(referenceCode, editingReferenceId, entityRepository, reference_FORM);
+        } else {
+            validCode = EntityValidator.validateCode(referenceCode, entityRepository, reference_FORM);
+        }
+        if (!validCode) {
             return;
         }
-        
-        if (!EntityValidator.validateLabel(referenceLabel, reference_FORM)) {
+
+        if (referenceNames == null || referenceNames.isEmpty()) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
             return;
         }
-        
+
+        for (NameItem item : referenceNames) {
+            if (item.getNom() == null || item.getNom().trim().isEmpty()) {
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
+                return;
+            }
+        }
+
         String codeTrimmed = referenceCode.trim();
-        String labelTrimmed = referenceLabel.trim();
-        
+
+        if (editingReferenceId != null) {
+            updateReferenceFromDialog(facesContext, codeTrimmed);
+            return;
+        }
+
         try {
             EntityType referenceType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
                 .orElseThrow(() -> new IllegalStateException(
                     "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
-            
-            Entity newReference = createNewReference(codeTrimmed, labelTrimmed, referenceType);
+
+            Entity newReference = createNewReference(codeTrimmed, referenceType);
             entityRepository.save(newReference);
             
             // Rattacher le référentiel à la collection courante si une collection est sélectionnée
@@ -142,8 +359,9 @@ public class ReferenceBean implements Serializable {
 
             updateTree(newReference);
             
+            String labelPrincipal = referenceNames.get(0).getNom();
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le référentiel '" + labelTrimmed + "' a été créé avec succès."));
+                    "Le référentiel '" + labelPrincipal + "' a été créé avec succès."));
 
             resetReferenceForm();
             
@@ -416,34 +634,140 @@ public class ReferenceBean implements Serializable {
     }
 
     /**
-     * Crée une nouvelle entité référentiel
+     * Met à jour le référentiel à partir des données du dialog (mode édition).
      */
-    private Entity createNewReference(String code, String label, EntityType type) {
+    @Transactional
+    private void updateReferenceFromDialog(FacesContext facesContext, String codeTrimmed) {
+        try {
+            Entity referenceToUpdate = entityRepository.findById(editingReferenceId)
+                    .orElseThrow(() -> new IllegalStateException("Référentiel introuvable."));
+
+            referenceToUpdate.setCode(codeTrimmed);
+            referenceToUpdate.setPublique(referencePublique != null ? referencePublique : true);
+
+            String bibJoined = null;
+            if (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty()) {
+                bibJoined = referenceBibliographiqueList.stream()
+                        .filter(s -> s != null && !s.trim().isEmpty())
+                        .map(String::trim)
+                        .collect(Collectors.joining("; "));
+                if (bibJoined.isEmpty()) bibJoined = null;
+            }
+            referenceToUpdate.setRereferenceBibliographique(bibJoined);
+
+            // Mise à jour des labels
+            if (referenceToUpdate.getLabels() == null) {
+                referenceToUpdate.setLabels(new ArrayList<>());
+            }
+            referenceToUpdate.getLabels().clear();
+            if (referenceNames != null) {
+                for (NameItem item : referenceNames) {
+                    if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
+                        Label lbl = new Label();
+                        lbl.setNom(item.getNom().trim());
+                        lbl.setLangue(item.getLangue());
+                        lbl.setEntity(referenceToUpdate);
+                        referenceToUpdate.getLabels().add(lbl);
+                    }
+                }
+            }
+
+            // Mise à jour des descriptions
+            if (referenceToUpdate.getDescriptions() == null) {
+                referenceToUpdate.setDescriptions(new ArrayList<>());
+            }
+            referenceToUpdate.getDescriptions().clear();
+            if (referenceDescriptions != null) {
+                for (DescriptionItem item : referenceDescriptions) {
+                    if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
+                        Description desc = new Description();
+                        desc.setValeur(item.getValeur().trim());
+                        desc.setLangue(item.getLangue());
+                        desc.setEntity(referenceToUpdate);
+                        referenceToUpdate.getDescriptions().add(desc);
+                    }
+                }
+            }
+
+            entityRepository.save(referenceToUpdate);
+
+            if (applicationBean != null && applicationBean.getSelectedEntity() != null
+                    && editingReferenceId.equals(applicationBean.getSelectedEntity().getId())) {
+                applicationBean.setSelectedEntity(referenceToUpdate);
+            }
+            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+                applicationBean.refreshCollectionReferencesList();
+            }
+
+            refreshReferencesList();
+            if (treeBean != null) {
+                treeBean.initializeTreeWithCollection();
+            }
+
+            String labelPrincipal = (referenceNames != null && !referenceNames.isEmpty())
+                    ? referenceNames.get(0).getNom() : codeTrimmed;
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                    "Le référentiel '" + labelPrincipal + "' a été modifié avec succès."));
+
+            resetReferenceForm();
+            PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
+            PrimeFaces.current().ajax().update(
+                    ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
+                            + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
+
+        } catch (IllegalStateException e) {
+            log.error("Erreur lors de la modification du référentiel", e);
+            addErrorMessage(e.getMessage());
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la modification du référentiel", e);
+            addErrorMessage("Une erreur est survenue lors de la modification : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Crée une nouvelle entité référentiel à partir des listes noms/descriptions
+     */
+    private Entity createNewReference(String code, EntityType type) {
         Entity newReference = new Entity();
         newReference.setCode(code);
-        newReference.setBibliographie(referenceBibliographique != null ? referenceBibliographique.trim() : null);
+        String bibJoined = null;
+        if (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty()) {
+            bibJoined = referenceBibliographiqueList.stream()
+                .filter(s -> s != null && !s.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.joining("; "));
+            if (bibJoined.isEmpty()) bibJoined = null;
+        }
+        newReference.setBibliographie(bibJoined);
         newReference.setEntityType(type);
-        newReference.setPublique(true);
+        newReference.setPublique(referencePublique != null ? referencePublique : true);
         newReference.setCreateDate(LocalDateTime.now());
 
-        Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
-        if (!StringUtils.isEmpty(label)) {
-            Label labelPrincipal = new Label();
-            labelPrincipal.setNom(label.trim());
-            labelPrincipal.setLangue(languePrincipale);
-            labelPrincipal.setEntity(newReference);
+        if (referenceNames != null && !referenceNames.isEmpty()) {
             List<Label> labels = new ArrayList<>();
-            labels.add(labelPrincipal);
+            for (NameItem item : referenceNames) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
+                    Label lbl = new Label();
+                    lbl.setNom(item.getNom().trim());
+                    lbl.setLangue(item.getLangue());
+                    lbl.setEntity(newReference);
+                    labels.add(lbl);
+                }
+            }
             newReference.setLabels(labels);
         }
 
-        if (!StringUtils.isEmpty(referenceDescription)) {
-            Description description = new Description();
-            description.setValeur(referenceDescription);
-            description.setLangue(languePrincipale);
-            description.setEntity(newReference);
+        if (referenceDescriptions != null && !referenceDescriptions.isEmpty()) {
             List<Description> descriptions = new ArrayList<>();
-            descriptions.add(description);
+            for (DescriptionItem item : referenceDescriptions) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
+                    Description desc = new Description();
+                    desc.setValeur(item.getValeur().trim());
+                    desc.setLangue(item.getLangue());
+                    desc.setEntity(newReference);
+                    descriptions.add(desc);
+                }
+            }
             newReference.setDescriptions(descriptions);
         }
 

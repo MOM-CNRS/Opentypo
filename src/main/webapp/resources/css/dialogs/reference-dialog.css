@@ -1,0 +1,555 @@
+/* ============================================
+   DIALOG CRÉATION RÉFÉRENTIEL
+   Design amélioré : en-tête, sections avec icônes, chips stylisés
+   ============================================ */
+
+/* Dialog : conteneur et contenu scrollable */
+.reference-dialog.ui-dialog,
+.reference-dialog .ui-dialog {
+    max-width: min(600px, 95vw) !important;
+    max-height: 90vh !important;
+    width: 95vw !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+.reference-dialog .ui-dialog-titlebar {
+    padding: 1.25rem 1.5rem !important;
+    background: linear-gradient(to bottom, #f8faf9 0%, #f0f4f2 100%) !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.reference-dialog .ui-dialog-titlebar-close {
+    color: rgba(71, 98, 77, 0.6) !important;
+}
+
+.reference-dialog .ui-dialog-titlebar-close:hover {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.reference-dialog .ui-dialog-content {
+    max-height: calc(90vh - 120px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 1.5rem !important;
+}
+
+/* En-tête personnalisé */
+.reference-dialog-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0;
+}
+
+.reference-dialog-header-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reference-dialog-header-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.reference-dialog-header-text {
+    flex: 1;
+}
+
+.reference-dialog-header-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+}
+
+.reference-dialog-header-subtitle {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    line-height: 1.4;
+}
+
+/* Sections avec libellé et icône */
+.reference-form-section {
+    width: 100%;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.08);
+}
+
+.reference-form-section:last-of-type {
+    border-bottom: none;
+}
+
+.reference-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #333);
+}
+
+.reference-section-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 0.95rem;
+}
+
+.reference-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.reference-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.reference-form-group-flex {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+.reference-form-group label,
+.reference-form-group b {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9rem;
+}
+
+.reference-input,
+.reference-textarea,
+.reference-select {
+    width: 100% !important;
+    border: 1px solid rgba(71, 98, 77, 0.3) !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    padding: 0.625rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.reference-input:focus,
+.reference-textarea:focus,
+.reference-select:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.reference-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Chips pour les références bibliographiques */
+.reference-chips.ui-chips,
+.reference-chips {
+    width: 100% !important;
+}
+
+.reference-chips .ui-chips-input-token input,
+.reference-chips .ui-inputfield {
+    border: none !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0 !important;
+    background: transparent !important;
+}
+
+.reference-chips .ui-chips-container {
+    width : 100% !important;
+    border: 1px solid rgba(71, 98, 77, 0.3) !important;
+    border-radius: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    min-height: 80px !important;
+    background: #fff !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.reference-chips .ui-chips-container:focus-within {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+}
+
+.reference-chips .ui-chip,
+.reference-chips .ui-chips-token {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 0.375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.9rem !important;
+    padding: 0.35rem 0.6rem !important;
+}
+
+.reference-chips .ui-chip-remove-icon,
+.reference-chips .ui-chips-token-icon {
+    color: rgba(71, 98, 77, 0.6) !important;
+}
+
+.reference-chips .ui-chip-remove-icon:hover,
+.reference-chips .ui-chips-token-icon:hover {
+    color: #dc3545 !important;
+}
+
+.reference-name-input-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+/* Hauteur uniforme pour inputs, select et bouton */
+.reference-name-input-row .reference-input {
+    height: 38px !important;
+    min-height: 38px !important;
+    box-sizing: border-box !important;
+}
+
+.reference-name-input-row .reference-select,
+.reference-name-input-row .ui-selectonemenu.reference-select {
+    min-height: 38px !important;
+}
+
+.reference-name-input-row .reference-select .ui-selectonemenu-label,
+.reference-name-input-row .ui-selectonemenu.reference-select .ui-selectonemenu-label {
+    min-height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+
+.reference-name-input-row .reference-btn-add,
+.reference-name-input-row .ui-button.reference-btn-add {
+    height: 38px !important;
+    min-height: 38px !important;
+    box-sizing: border-box !important;
+}
+
+.reference-names-table {
+    width: 100%;
+    border: none !important;
+}
+
+.reference-names-table .ui-datatable {
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.08) !important;
+}
+
+.reference-names-table .ui-datatable-thead th {
+    background: transparent !important;
+    border: none !important;
+    font-weight: 600 !important;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.875rem !important;
+}
+
+.reference-names-table .ui-datatable-data tr {
+    border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+}
+
+.reference-names-table .ui-datatable-data td {
+    vertical-align: middle !important;
+    border: none !important;
+}
+
+.reference-table-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reference-table-name-text {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+}
+
+.reference-table-flag {
+    width: 32px !important;
+    height: 24px !important;
+    border-radius: 4px !important;
+    object-fit: cover !important;
+}
+
+.reference-table-action-column {
+    width: 3rem !important;
+    text-align: right !important;
+}
+
+.reference-table-action-cell {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.reference-no-names {
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.25);
+    border-radius: 8px;
+}
+
+.reference-no-names-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+}
+
+.reference-no-names-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: rgba(71, 98, 77, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reference-no-names-icon i {
+    font-size: 1.5rem;
+    color: var(--color-action-main, #47624D);
+}
+
+.reference-no-names-title {
+    color: var(--color-text-primary, #333);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.reference-no-names-message {
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.reference-btn-add {
+    font-size: 0.875rem !important;
+    background-color: var(--color-action-main, #47624D) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0;
+}
+
+.reference-btn-add:hover {
+    background-color: #3a4f3f !important;
+}
+
+.reference-btn-remove {
+    padding: 0.5rem !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    background: rgba(220, 53, 69, 0.1) !important;
+    color: #dc3545 !important;
+    border: 1px solid rgba(220, 53, 69, 0.3) !important;
+    border-radius: 0.25rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.reference-btn-remove:hover {
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: #dc3545 !important;
+}
+
+.reference-visibility-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+.reference-visibility-label {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+    margin: 0 !important;
+}
+
+.reference-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.reference-switch {
+    position: relative;
+    width: 56px !important;
+    height: 32px !important;
+}
+
+.reference-switch .ui-chkbox-box {
+    width: 56px !important;
+    height: 32px !important;
+    border-radius: 16px !important;
+    background: #6C757D !important;
+    border: 2px solid #6C757D !important;
+    transition: all 0.3s ease !important;
+}
+
+.reference-switch .ui-chkbox-box.ui-state-active {
+    background: var(--color-action-main, #47624D) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.reference-switch-label {
+    font-weight: 500;
+    color: var(--color-text-primary, #333);
+    font-size: 0.9375rem;
+}
+
+.reference-switch-text-public {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+}
+
+.reference-switch-text-private {
+    color: #6C757D;
+    font-weight: 600;
+}
+
+.reference-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(71, 98, 77, 0.15);
+}
+
+.reference-btn {
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.reference-btn-cancel {
+    background-color: var(--color-action-secondary, #6C757D) !important;
+    color: white !important;
+}
+
+.reference-btn-cancel:hover {
+    background-color: #5a6268 !important;
+}
+
+.reference-btn-validate {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: white !important;
+}
+
+.reference-btn-validate:hover {
+    background-color: #3a4f3f !important;
+}
+
+/* Responsive : petit écran */
+@media (max-width: 768px) {
+    .reference-dialog.ui-dialog,
+    .reference-dialog .ui-dialog {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+        margin: 1rem auto !important;
+    }
+
+    .reference-dialog .ui-dialog-content {
+        max-height: calc(85vh - 100px) !important;
+    }
+
+    .reference-form-content {
+        gap: 1rem;
+    }
+
+    .reference-name-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reference-form-group-flex {
+        flex: 1 1 auto;
+    }
+
+    .reference-btn-add {
+        width: 100% !important;
+    }
+
+    .reference-visibility-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .reference-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .reference-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .reference-names-table .ui-datatable {
+        font-size: 0.85rem !important;
+    }
+
+    .reference-table-name-cell {
+        flex-wrap: wrap;
+    }
+}
+
+/* Responsive : très petit écran */
+@media (max-width: 480px) {
+    .reference-dialog.ui-dialog,
+    .reference-dialog .ui-dialog {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        max-height: 95vh !important;
+        margin: 0.5rem !important;
+    }
+
+    .reference-dialog .ui-dialog-content {
+        max-height: calc(95vh - 90px) !important;
+    }
+
+    .reference-form-group b,
+    .reference-form-group label {
+        font-size: 0.85rem !important;
+    }
+
+    .reference-input,
+    .reference-textarea,
+    .reference-select {
+        font-size: 0.85rem !important;
+        padding: 0.5rem !important;
+    }
+}

@@ -4,12 +4,12 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
 
+<!-- ========== HEAD : métadonnées, CSS, scripts globaux ========== -->
 <h:head>
     <title>Mon Application</title>
-
     <link rel="icon" type="image/png" href="#{resource['img:o.png']}"/>
 
-    <!-- FontAwsome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/all.css"/>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.2/css/v4-shims.css"/>
 
@@ -25,17 +25,30 @@
     
     <!-- Styles pour les animations de chargement -->
     <h:outputStylesheet library="css" name="loading.css"/>
-    
-    <!-- Définir showLoginDialog dans le head pour qu'il soit disponible immédiatement -->
+
+    <!-- Styles des dialogs login / logout -->
+    <h:outputStylesheet library="css" name="pages/user/login.css"/>
+    <h:outputStylesheet library="css" name="pages/user/logout.css"/>
+
+    <!-- Styles des dialogs collection / référentiel -->
+    <h:outputStylesheet library="css" name="dialogs/collection-dialog.css"/>
+    <h:outputStylesheet library="css" name="dialogs/reference-dialog.css"/>
+
+    <h:outputStylesheet library="css" name="details/details-common.css"/>
+
     <h:outputScript library="js" name="showLoginDialog.js" target="head"/>
 </h:head>
 
+<!-- ========== BODY : scripts, layout, contenu ========== -->
 <h:body styleClass="app-body">
-    <!-- Charger les constantes JavaScript en premier -->
+    <!-- Scripts globaux (ordre de chargement) -->
     <h:outputScript library="js" name="constants.js"/>
     
     <!-- Charger le script JavaScript en premier pour garantir la disponibilité des fonctions -->
     <h:outputScript library="js" name="theso_responsiveMenu_optimized.js"/>
+
+    <!-- Délégation data-action (remplace les onclick inline) -->
+    <h:outputScript library="js" name="actions.js"/>
 
     <!-- Script pour gérer le menu dynamique -->
     <!-- NOTE: Le script a été déplacé dans template_scripts.js -->
@@ -53,9 +66,9 @@
     <!-- Fonction pour afficher le dialog de login avec vérification -->
     <!-- NOTE: Le script a été déplacé dans template_scripts.js -->
 
-    <!-- Bandeau en haut de page, il faut activer l'affichage à la demande et intégrer le contenu dans la BDD -->
-    <h:panelGroup rendered="false" layout="block" style="width:100%; padding:10px; background-color:#f5f5f5; border-bottom:1px solid #ccc; position:fixed; top:0; left:0; z-index:1000;">
-        <div style="display:flex; justify-content:space-between; align-items:center; max-width:1200px; margin:0 auto;">
+    <!-- Bandeau institutionnel (désactivé : rendered="false") -->
+    <h:panelGroup rendered="false" layout="block" styleClass="template-top-bandeau">
+        <div class="template-top-bandeau-inner">
             <span class="footer-top">Logo et nom de l'institution</span>
             <div>
                 <a href="http://www.culture.gouv.fr/Mentions-legales" target="_blank">Mentions légales</a> |
@@ -66,29 +79,25 @@
             </div>
         </div>
     </h:panelGroup >
-    <!-- Pour que le contenu ne soit pas caché par la barre fixe -->
-    <h:panelGroup rendered="false" style="height:50px;" />
+    <h:panelGroup rendered="false" styleClass="template-top-bandeau-spacer" layout="block" />
 
-    <!-- HEADER -->
+    <!-- Layout principal : header + container (menu + main) -->
     <ui:include src="header.xhtml" />
-
     <div class="app-container">
-        <!-- MENU LATERAL -->
         <ui:include src="menu.xhtml" />
-
-        <!-- CONTENU CENTRAL -->
         <main class="app-main">
             <ui:insert name="mainContent"/>
         </main>
     </div>
-
-    <!-- FOOTER -->
     <ui:include src="footer.xhtml" />
 
-    <!-- Messages de notification -->
+    <!-- Notifications globales -->
     <p:growl id="growl" showDetail="true" life="5000" position="top-right" />
 
+    <!-- Dialogs globaux (login / logout / confirmation suppression et sauvegarde entité) -->
     <ui:include src="../user/login.xhtml" />
     <ui:include src="../user/logout.xhtml" />
+    <ui:include src="../dialogs/confirmDeleteDialog.xhtml" />
+    <ui:include src="../dialogs/confirmSaveDialog.xhtml" />
 </h:body>
 </html>

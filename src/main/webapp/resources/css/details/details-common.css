@@ -1,0 +1,12 @@
+/* ============================================
+   DETAILS - STYLES COMMUNS PAGES DÉTAIL
+   ============================================ */
+
+.details-mt-20 { margin-top: 20px; }
+.details-mt-15 { margin-top: 15px; }
+.details-form-m-13 { margin: 13px; }
+
+/* Row avec marge cohérente (remplace .row.mt-20 + style margin-top: 15px) */
+.details-row-mt-15 {
+    margin-top: 15px;
+}

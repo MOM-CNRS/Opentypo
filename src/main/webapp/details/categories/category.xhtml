@@ -48,7 +48,10 @@
                             <i class="pi pi-file-edit" />
                             <p:tooltip value="Modifier" position="top"/>
                         </p:commandLink>
-                        <p:commandLink onclick="PF('confirmDeleteCategoryDialog').show(); return false;"
+                        <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
+                                       process="@this"
+                                       update=":confirmDeleteDialogContent"
+                                       oncomplete="PF('confirmDeleteDialog').show();"
                                        styleClass="concept-action-button">
                             <i class="pi pi-trash" />
                             <p:tooltip value="Supprimer" position="top"/>
@@ -215,19 +218,20 @@
                                                  styleClass="reference-edit-btn reference-edit-btn-cancel"/>
                                 <p:commandButton value="Valider"
                                                  icon="pi pi-check"
-                                                 onclick="PF('confirmSaveCategoryDialog').show(); return false;"
+                                                 action="#{confirmSaveBean.prepareSave('CATEGORIE')}"
+                                                 process="@this"
+                                                 update=":confirmSaveDialogContent"
+                                                 oncomplete="PF('confirmSaveDialog').show();"
                                                  styleClass="reference-edit-btn reference-edit-btn-validate"/>
                             </div>
                         </h:panelGroup>
                     </div>
 
-                    <ui:include src="confirmSaveCategoryDialog.xhtml"/>
-                    <ui:include src="confirmDeleteCategoryDialog.xhtml"/>
                 </h:form>
             </div>
 
-            <div style="margin-top: 20px">
-                <div style="margin-top: 20px">
+            <div class="details-mt-20">
+                <div class="details-mt-20">
                     <!-- Bloc unifié pour les catégories -->
                     <div class="categories-unified-block">
                         <!-- Section header pour les catégories -->

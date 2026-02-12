@@ -1,0 +1,71 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <!-- Section d'action pour créer une collection (admin) -->
+    <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar"
+         rendered="#{loginBean.isAdmin()}">
+        <p:commandButton value="Créer une nouvelle collection"
+                         icon="pi pi-plus"
+                         styleClass="collection-btn collection-btn-validate"
+                         process="@this"
+                         update="@none"
+                         onclick="PF('addCollectionDialog').show(); return false;"/>
+    </h:panelGroup>
+
+    <!-- Grille des cartes collections -->
+    <div class="modern-cards-container">
+        <h:form id="collectionsForm">
+            <div class="modern-cards-grid">
+                <ui:repeat value="#{applicationBean.collections}" var="collection">
+                    <div class="modern-card-wrapper">
+                        <p:commandLink action="#{collectionBean.showCollectionDetail(applicationBean, collection)}"
+                                       styleClass="modern-card"
+                                       process="@this" ajax="true"
+                                       update=":centerContent :selectedEntityLabel :searchForm :breadcrumbContent :treeContainer :collectionSelect"
+                                       onstart="showLoading('Chargement de la collection...', 'spinner');"
+                                       oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
+                                       onerror="forceHideLoading();">
+                            <div class="modern-card-content">
+                                <div class="modern-card-header">
+                                    <div class="modern-card-icon">
+                                        <i class="pi pi-folder" />
+                                    </div>
+                                    <h3 class="modern-card-title">#{applicationBean.getCollectionNameForLanguage(collection)}</h3>
+                                    <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                        <div class="collection-card-status-badge #{collection.publique ? 'collection-status-public' : 'collection-status-private'}"
+                                             title="#{collection.publique ? 'Collection publique' : 'Collection privée'}">
+                                            <i class="pi #{collection.publique ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                                <p class="modern-card-description">
+                                    #{empty applicationBean.getCollectionDescriptionForLanguage(collection) ? 'Aucune description disponible' : applicationBean.getCollectionDescriptionForLanguage(collection)}
+                                </p>
+                            </div>
+                        </p:commandLink>
+                    </div>
+                </ui:repeat>
+
+                <!-- Message si aucune collection -->
+                <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.collections}">
+                    <div class="empty-categories-icon">
+                        <i class="pi pi-inbox" />
+                    </div>
+                    <div class="empty-categories-content">
+                        <h4 class="empty-categories-title">Aucune collection disponible</h4>
+                        <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                            <i class="pi pi-info-circle" />
+                            <span>Il n'y a actuellement aucune collection dans la base de données.<br/>
+                                Utilisez le bouton "Créer une nouvelle collection" pour en ajouter une.</span>
+                        </h:panelGroup>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </h:form>
+    </div>
+
+    <!-- Dialog de création de collection -->
+    <ui:include src="../../dialogs/collectionDialog.xhtml"/>
+</ui:composition>

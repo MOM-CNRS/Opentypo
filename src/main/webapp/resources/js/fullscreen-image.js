@@ -1,6 +1,9 @@
 /**
- * Script pour gérer l'affichage d'images en plein écran
+ * Script pour gérer l'affichage d'images en plein écran.
+ * Exposé sur window pour être appelé par actions.js (data-action="show-fullscreen-image").
  */
+(function() {
+    'use strict';
 
 function showFullscreenImage(imageUrl) {
     const overlay = document.getElementById('fullscreenImageOverlay');
@@ -24,9 +27,12 @@ function hideFullscreenImage() {
     }
 }
 
-// Fermer avec la touche Échap
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape' || event.keyCode === 27) {
-        hideFullscreenImage();
-    }
-});
+    window.showFullscreenImage = showFullscreenImage;
+    window.hideFullscreenImage = hideFullscreenImage;
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            hideFullscreenImage();
+        }
+    });
+})();

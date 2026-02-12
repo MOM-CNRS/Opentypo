@@ -5,8 +5,10 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
+    <!-- Panneau résultats : en-tête + liste ou message vide ou placeholder -->
     <h:panelGroup id="searchResultsPanel" styleClass="search-results-panel">
         <ui:fragment rendered="#{searchBean.hasSearchResults()}">
+            <!-- En-tête (titre + nombre de résultats) -->
             <div class="search-results-header">
                 <div class="search-results-header-content">
                     <i class="pi pi-search search-results-header-icon" />
@@ -23,7 +25,7 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Liste des résultats (liens vers détail entité) -->
             <div class="search-results-content">
                 <ui:repeat value="#{searchBean.searchResults}" var="result">
                     <div class="search-result-item">
@@ -57,6 +59,7 @@
             </div>
         </ui:fragment>
 
+        <!-- Aucun résultat (recherche effectuée) -->
         <ui:fragment rendered="#{not searchBean.hasSearchResults() and searchBean.searchTerm != null and not empty searchBean.searchTerm}">
             <div class="search-results-empty">
                 <div class="search-results-empty-content">
@@ -74,6 +77,7 @@
             </div>
         </ui:fragment>
 
+        <!-- Placeholder (aucune recherche encore) -->
         <ui:fragment rendered="#{searchBean.searchTerm == null or empty searchBean.searchTerm}">
             <div class="search-results-placeholder">
                 <div class="search-results-placeholder-content">

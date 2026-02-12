@@ -1,0 +1,79 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:tab title="Brouillons en cours" titleStyleClass="users-tab-title">
+        <div class="users-table-wrapper">
+            <p:dataTable id="tableEnCours"
+                       value="#{candidatBean.candidatsEnCours}"
+                       var="candidat"
+                       styleClass="modern-users-table"
+                       emptyMessage="Aucun brouillon en cours"
+                       paginator="true"
+                       rows="10"
+                       rowsPerPageTemplate="10,20,50"
+                       paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                       paginatorPosition="bottom"
+                       sortMode="multiple"
+                       rowStyleClass="modern-users-row">
+                <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
+                    <div class="candidat-code-cell">
+                        <i class="pi pi-tag"/>
+                        <h:outputText value="#{candidat.typeCode}"/>
+                    </div>
+                </p:column>
+                <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
+                    <div class="candidat-period-cell">
+                        <i class="pi pi-calendar"/>
+                        <h:outputText value="#{candidat.code}"/>
+                    </div>
+                </p:column>
+                <p:column headerText="Label" sortBy="#{candidat.label}" styleClass="users-col-label">
+                    <div class="candidat-label-cell">
+                        <h:outputText value="#{candidat.label}"/>
+                    </div>
+                </p:column>
+                <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
+                    <div class="date-cell">
+                        <i class="pi pi-calendar"/>
+                        <h:outputText value="#{candidat.dateCreation}">
+                            <f:converter converterId="localDateTimeConverter"/>
+                        </h:outputText>
+                    </div>
+                </p:column>
+                <p:column headerText="Créateur" styleClass="users-col-creator">
+                    <div class="user-info-cell">
+                        <div class="user-name">#{candidat.createur}</div>
+                    </div>
+                </p:column>
+                <p:column headerText="Actions" styleClass="users-col-actions">
+                    <div class="users-actions-modern">
+                        <p:commandButton icon="pi pi-eye"
+                                       styleClass="action-btn action-view"
+                                       title="Visualiser"
+                                       action="#{candidatBean.visualiserCandidat(candidat)}"
+                                       process="@this"
+                                       update="@none"/>
+                        <p:commandButton icon="pi pi-check"
+                                       styleClass="action-btn action-validate"
+                                       title="Valider"
+                                       rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
+                                       action="#{candidatBean.prepareValidateCandidat(candidat)}"
+                                       process="@this"
+                                       update=":candidatsForm"
+                                       oncomplete="PF('confirmValidateDialog').show();"/>
+                        <p:commandButton icon="pi pi-times"
+                                       styleClass="action-btn action-refuse"
+                                       title="Refuser"
+                                       rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
+                                       action="#{candidatBean.refuserCandidat(candidat)}"
+                                       process="@this"
+                                       update=":candidatsForm"/>
+                    </div>
+                </p:column>
+            </p:dataTable>
+        </div>
+    </p:tab>
+</ui:composition>

@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog générique de confirmation de sauvegarde (référentiel, catégorie, groupe, série, type) -->
+    <p:dialog id="confirmSaveDialog"
+              widgetVar="confirmSaveDialog"
+              header="Confirmer la sauvegarde"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="440"
+              height="auto"
+              styleClass="reference-confirm-dialog">
+
+        <f:facet name="header">
+            <div class="reference-confirm-header">
+                <div class="reference-confirm-header-icon-wrapper">
+                    <i class="pi pi-save reference-confirm-header-icon"/>
+                </div>
+                <div class="reference-confirm-header-content">
+                    <h3 class="reference-confirm-header-title">Confirmer la sauvegarde</h3>
+                    <p class="reference-confirm-header-subtitle">Voulez-vous enregistrer les modifications ?</p>
+                </div>
+            </div>
+        </f:facet>
+
+        <h:panelGroup id="confirmSaveDialogContent">
+            <div class="reference-confirm-message-wrapper">
+                <div class="reference-confirm-icon-info">
+                    <i class="pi pi-info-circle"/>
+                </div>
+                <p class="reference-confirm-message-text">
+                    #{confirmSaveBean.messageText}
+                </p>
+            </div>
+
+            <div class="reference-confirm-actions">
+                <p:commandButton value="Annuler"
+                                 icon="pi pi-times"
+                                 type="button"
+                                 styleClass="reference-confirm-btn reference-confirm-btn-cancel"
+                                 process="@this"
+                                 update="@none"
+                                 onclick="PF('confirmSaveDialog').hide(); return false;"/>
+
+                <p:commandButton value="Oui, enregistrer"
+                                 icon="pi pi-check"
+                                 action="#{confirmSaveBean.performSave()}"
+                                 process=":#{confirmSaveBean.formId}"
+                                 ajax="true"
+                                 update=":#{confirmSaveBean.formId}, :growl, :contentPanels"
+                                 styleClass="reference-confirm-btn reference-confirm-btn-validate"
+                                 oncomplete="setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);"/>
+            </div>
+        </h:panelGroup>
+    </p:dialog>
+</ui:composition>
