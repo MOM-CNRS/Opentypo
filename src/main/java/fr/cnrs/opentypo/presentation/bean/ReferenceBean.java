@@ -162,7 +162,7 @@ public class ReferenceBean implements Serializable {
      * Charge les données du référentiel dans le formulaire du dialog.
      */
     private void loadReferenceIntoForm(Long referenceId) {
-        Entity refLoaded = entityRepository.findByIdWithLabelsAndDescriptions(referenceId)
+        Entity refLoaded = entityRepository.findById(referenceId)
                 .orElseThrow(() -> new IllegalStateException("Référentiel introuvable (id: " + referenceId + ")"));
         editingReferenceId = refLoaded.getId();
         referenceCode = refLoaded.getCode();
@@ -526,6 +526,24 @@ public class ReferenceBean implements Serializable {
     }
 
     /**
+     * Supprime le référentiel par son ID et toutes ses entités rattachées (directement ou indirectement).
+     * Utilisé depuis la liste des référentiels d'une collection.
+     */
+    @Transactional
+    public void deleteReferenceById(ApplicationBean applicationBean, Long referenceId) {
+        if (referenceId == null) {
+            addErrorMessage("Aucun référentiel sélectionné.");
+            return;
+        }
+        Entity reference = entityRepository.findById(referenceId).orElse(null);
+        if (reference == null) {
+            addErrorMessage("Référentiel introuvable.");
+            return;
+        }
+        doDeleteReference(applicationBean, reference);
+    }
+
+    /**
      * Supprime le référentiel sélectionné et toutes ses entités rattachées
      */
     @Transactional
@@ -540,14 +558,17 @@ public class ReferenceBean implements Serializable {
             }
             return;
         }
+        doDeleteReference(applicationBean, applicationBean.getSelectedReference());
+    }
 
+    private void doDeleteReference(ApplicationBean applicationBean, Entity reference) {
         try {
-            String referenceCode = applicationBean.getSelectedReference().getCode();
-            String referenceName = applicationBean.getSelectedReference().getNom();
-            Long referenceId = applicationBean.getSelectedReference().getId();
+            String referenceCode = reference.getCode();
+            String referenceName = reference.getNom();
+            Long referenceId = reference.getId();
 
             // Supprimer récursivement le référentiel et toutes ses entités enfants
-            applicationBean.deleteEntityRecursively(applicationBean.getSelectedReference());
+            applicationBean.deleteEntityRecursively(reference);
 
             // Réinitialiser la sélection
             applicationBean.setSelectedEntity(null);
@@ -580,13 +601,7 @@ public class ReferenceBean implements Serializable {
             log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du référentiel", e);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Une erreur est survenue lors de la suppression : " + e.getMessage()));
-            }
+            addErrorMessage("Une erreur est survenue lors de la suppression : " + e.getMessage());
         }
     }
 
@@ -637,7 +652,7 @@ public class ReferenceBean implements Serializable {
      * Met à jour le référentiel à partir des données du dialog (mode édition).
      */
     @Transactional
-    private void updateReferenceFromDialog(FacesContext facesContext, String codeTrimmed) {
+    protected void updateReferenceFromDialog(FacesContext facesContext, String codeTrimmed) {
         try {
             Entity referenceToUpdate = entityRepository.findById(editingReferenceId)
                     .orElseThrow(() -> new IllegalStateException("Référentiel introuvable."));
@@ -691,13 +706,11 @@ public class ReferenceBean implements Serializable {
 
             entityRepository.save(referenceToUpdate);
 
-            if (applicationBean != null && applicationBean.getSelectedEntity() != null
-                    && editingReferenceId.equals(applicationBean.getSelectedEntity().getId())) {
+            if (editingReferenceId.equals(applicationBean.getSelectedEntity().getId())) {
                 applicationBean.setSelectedEntity(referenceToUpdate);
             }
-            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
-                applicationBean.refreshCollectionReferencesList();
-            }
+
+            applicationBean.refreshCollectionReferencesList();
 
             refreshReferencesList();
             if (treeBean != null) {
@@ -714,7 +727,6 @@ public class ReferenceBean implements Serializable {
             PrimeFaces.current().ajax().update(
                     ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
                             + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
-
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la modification du référentiel", e);
             addErrorMessage(e.getMessage());

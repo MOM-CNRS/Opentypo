@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -34,6 +35,8 @@ public class ConfirmDeleteBean implements Serializable {
     @Inject
     private ApplicationBean applicationBean;
     @Inject
+    private EntityRepository entityRepository;
+    @Inject
     private ReferenceBean referenceBean;
     @Inject
     private CategoryBean categoryBean;
@@ -45,12 +48,37 @@ public class ConfirmDeleteBean implements Serializable {
     private TypeBean typeBean;
 
     private String deleteTarget;
+    /** ID de l'entité à supprimer (pour suppression depuis la liste des référentiels dans une collection). */
+    private Long deleteTargetEntityId;
 
     /**
      * À appeler avant d'ouvrir le dialog (ex. action du bouton Supprimer).
      */
     public void prepareDelete(String target) {
         this.deleteTarget = target;
+        this.deleteTargetEntityId = null;
+    }
+
+    /**
+     * Prépare la suppression d'un référentiel par son ID (depuis la liste collection).
+     */
+    public void prepareDeleteReference(Long referenceId) {
+        this.deleteTarget = TARGET_REFERENCE;
+        this.deleteTargetEntityId = referenceId;
+    }
+
+    /**
+     * Prépare la suppression depuis le paramètre de requête "referenceId".
+     */
+    public void prepareDeleteReferenceFromRequest() {
+        String idParam = jakarta.faces.context.FacesContext.getCurrentInstance().getExternalContext()
+                .getRequestParameterMap().get("referenceId");
+        if (idParam != null && !idParam.trim().isEmpty()) {
+            try {
+                prepareDeleteReference(Long.parseLong(idParam.trim()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
     }
 
     public String getDialogTitle() {
@@ -67,12 +95,19 @@ public class ConfirmDeleteBean implements Serializable {
     }
 
     public String getEntityLabel() {
-        Entity e = applicationBean != null ? applicationBean.getSelectedEntity() : null;
+        Entity e = getEntityToDelete();
         if (e == null) return "";
         if (TARGET_COLLECTION.equals(deleteTarget) || TARGET_REFERENCE.equals(deleteTarget)) {
             return e.getNom() != null ? e.getNom() : e.getCode();
         }
         return e.getCode() != null ? e.getCode() : e.getNom();
+    }
+
+    private Entity getEntityToDelete() {
+        if (TARGET_REFERENCE.equals(deleteTarget) && deleteTargetEntityId != null && entityRepository != null) {
+            return entityRepository.findById(deleteTargetEntityId).orElse(null);
+        }
+        return applicationBean != null ? applicationBean.getSelectedEntity() : null;
     }
 
     /** Libellé du type d'entité (la collection, le référentiel, …). */
@@ -146,7 +181,12 @@ public class ConfirmDeleteBean implements Serializable {
                 applicationBean.deleteCollection(applicationBean.getSelectedEntity());
                 break;
             case TARGET_REFERENCE:
-                referenceBean.deleteReference(applicationBean);
+                if (deleteTargetEntityId != null) {
+                    referenceBean.deleteReferenceById(applicationBean, deleteTargetEntityId);
+                    deleteTargetEntityId = null;
+                } else {
+                    referenceBean.deleteReference(applicationBean);
+                }
                 break;
             case TARGET_CATEGORY:
                 categoryBean.deleteReference(applicationBean);

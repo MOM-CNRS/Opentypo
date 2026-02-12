@@ -252,15 +252,6 @@
                                 </span>
                             </div>
                         </div>
-                        
-                        <h:panelGroup class="collection-references-actions" rendered="#{loginBean.isAdmin()}">
-                            <p:commandButton value="Créer une catégorie"
-                                             icon="pi pi-plus"
-                                             styleClass="collection-create-btn"
-                                             onclick="PF('createCategoryDialog').show(); return false;"
-                                             process="@this"
-                                             update="@none"/>
-                        </h:panelGroup>
                     </div>
 
                     <!-- Liste des catégories -->
@@ -317,7 +308,7 @@
                                         <p class="empty-categories-text">Ce référentiel ne contient actuellement aucune catégorie.</p>
                                         <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                             <i class="pi pi-info-circle" />
-                                            <span>Cliquez sur "Créer une catégorie" pour en ajouter une.</span>
+                                            <span>Il faut passer la rubrique brouillon pour en ajouter une.</span>
                                         </h:panelGroup>
                                     </div>
                                 </h:panelGroup>

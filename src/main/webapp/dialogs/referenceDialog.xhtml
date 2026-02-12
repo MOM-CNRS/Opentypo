@@ -240,8 +240,8 @@
                                icon="pi pi-check"
                                styleClass="reference-btn reference-btn-validate"
                                action="#{referenceBean.createReference}"
-                               process="@form"
-                               update="@form :growl :treeContainer :cardsContainer :searchForm :collectionReferencesContainer"
+                               process="@form" ajax="true"
+                               update="@form :growl :centerContent"
                                oncomplete="if(!args.validationFailed) {PF('referenceDialog').hide();}"/>
             </div>
         </h:form>

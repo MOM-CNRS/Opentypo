@@ -12,17 +12,17 @@
               resizable="false"
               draggable="false"
               styleClass="modern-login-dialog"
-              width="480"
+              width="420"
               height="auto"
               hideEffect="fade"
               onShow="resetLoginFormCommand();">
 
         <f:facet name="header">
             <div class="modern-login-header">
-                <div class="modern-login-header-icon-wrapper">
+                <div class="modern-login-header-badge">
                     <i class="pi pi-lock modern-login-header-icon" />
                 </div>
-                <div class="modern-login-header-content">
+                <div class="modern-login-header-text">
                     <h3 class="modern-login-header-title">Connexion</h3>
                     <p class="modern-login-header-subtitle">Accédez à votre espace Opentypo</p>
                 </div>
@@ -34,7 +34,7 @@
                            action="#{loginBean.resetLoginForm}"
                            update=":loginForm"
                            process="@this"/>
-            <div class="modern-login-container">
+            <div class="modern-login-body">
                 <p:messages id="loginMessages"
                             for="loginForm"
                             showDetail="true"
@@ -42,7 +42,7 @@
                             styleClass="modern-login-messages" />
 
                 <div class="modern-login-field">
-                    <p:outputLabel for="username" value="Nom d'utilisateur" />
+                    <p:outputLabel for="username" value="Nom d'utilisateur" styleClass="modern-login-label" />
                     <div class="modern-login-input-wrapper">
                         <i class="pi pi-user modern-login-input-icon" />
                         <p:inputText id="username"
@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="modern-login-field">
-                    <p:outputLabel for="password" value="Mot de passe" />
+                    <p:outputLabel for="password" value="Mot de passe" styleClass="modern-login-label" />
                     <div class="modern-login-input-wrapper">
                         <i class="pi pi-lock modern-login-input-icon" />
                         <p:password id="password"
@@ -77,13 +77,13 @@
                                      icon="pi pi-times"
                                      onclick="PF('loginDialog').hide(); return false;"
                                      type="button"
-                                     styleClass="modern-login-button modern-login-button-secondary" />
+                                     styleClass="modern-login-btn modern-login-btn-secondary" />
 
                     <p:commandButton value="Se connecter"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login()}"
                                      update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm, :searchForm"
-                                     styleClass="modern-login-button modern-login-button-primary"
+                                     styleClass="modern-login-btn modern-login-btn-primary"
                                      process="@this username password" ajax="true" />
                 </div>
             </div>
