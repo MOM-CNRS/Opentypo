@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class CandidatConverter {
         
         Candidat candidat = new Candidat();
         candidat.setId(entity.getId());
+        candidat.setCode(entity.getCode());
         candidat.setTypeCode(entity.getEntityType() != null ? entity.getEntityType().getCode() : "");
         
         // Récupérer le label principal (premier label disponible ou nom par défaut)
@@ -103,6 +105,11 @@ public class CandidatConverter {
         // Créateur
         candidat.setCreateur(entity.getCreateBy() != null ? entity.getCreateBy() : "");
         
+        if (!CollectionUtils.isEmpty(entity.getAuteurs())) {
+            candidat.setValidateur(entity.getAuteurs().getLast().getPrenom()
+                    + " " + entity.getAuteurs().getLast().getNom().toUpperCase());
+        }
+
         // Statut
         if (EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.EN_COURS);

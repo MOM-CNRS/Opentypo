@@ -1,5 +1,6 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui">
 
     <!-- Période, TPQ et TAQ -->
@@ -102,28 +103,30 @@
             </div>
         </div>
 
-        <div class="users-form-group users-form-group-full candidats-mt-15" id="periode">
-            <p:outputLabel value="Corpus externe" />
-            <div class="candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{candidatBean.corpusExterne}"
-                                 styleClass="users-input"
-                                 placeholder="Aucune période sélectionnée"
-                                 rendered="#{candidatBean.hasPeriode()}"/>
-                </div>
+        <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 3}">
+            <div class="users-form-group users-form-group-full candidats-mt-15" id="periode">
+                <p:outputLabel value="Corpus externe" />
+                <div class="candidat-production-wrapper candidat-production-group">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                        <i class="pi pi-cog input-icon" />
+                        <p:inputText value="#{candidatBean.corpusExterne}"
+                                     styleClass="users-input"
+                                     placeholder="Aucune période sélectionnée"
+                                     rendered="#{candidatBean.hasPeriode()}"/>
+                    </div>
 
-                <div class="candidat-table-action-cell candidats-cell-action-mr">
-                    <p:commandButton icon="pi pi-check"
-                                     styleClass="candidat-btn-save"
-                                     actionListener="#{candidatBean.saveCorpus}"
-                                     process="@form"
-                                     ajax="true"
-                                     update=":growl"
-                                     title="Enregistrer le corpus externe"/>
+                    <div class="candidat-table-action-cell candidats-cell-action-mr">
+                        <p:commandButton icon="pi pi-check"
+                                         styleClass="candidat-btn-save"
+                                         actionListener="#{candidatBean.saveCorpus}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":growl"
+                                         title="Enregistrer le corpus externe"/>
+                    </div>
                 </div>
             </div>
-        </div>
+        </h:panelGroup>
     </div>
 </ui:composition>
 

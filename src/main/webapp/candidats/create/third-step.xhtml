@@ -85,9 +85,10 @@
 
                         <ui:include src="../form/divers.xhtml"/>
 
-                        <ui:include src="../form/details.xhtml"/>
-
-                        <ui:include src="../form/caracteristiques-physiques.xhtml"/>
+                        <h:panelGroup rendered="#{empty candidatBean.selectedCollection or candidatBean.selectedCollection.code ne 'MONNAIE'}">
+                            <ui:include src="../form/details.xhtml"/>
+                            <ui:include src="../form/caracteristiques-physiques.xhtml"/>
+                        </h:panelGroup>
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
