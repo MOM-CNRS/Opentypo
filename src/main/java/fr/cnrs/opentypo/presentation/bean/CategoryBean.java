@@ -226,8 +226,8 @@ public class CategoryBean implements Serializable {
         editingLabelLangueCode = codeLang;
         editingDescriptionLangueCode = codeLang;
         editingCategoryCommentaire = applicationBean.getSelectedEntity().getCommentaire() != null ? applicationBean.getSelectedEntity().getCommentaire() : "";
-        editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
+        editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
+        editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
         editingCategoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
     }
 
@@ -236,8 +236,8 @@ public class CategoryBean implements Serializable {
      * Recharge la valeur du label pour la nouvelle langue depuis l'entité.
      */
     public void onLabelLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedReference() != null && editingLabelLangueCode != null) {
-            editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), editingLabelLangueCode);
+        if (applicationBean.getSelectedEntity() != null && editingLabelLangueCode != null) {
+            editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), editingLabelLangueCode);
         }
     }
 
@@ -246,8 +246,8 @@ public class CategoryBean implements Serializable {
      * Recharge la valeur de la description pour la nouvelle langue depuis l'entité.
      */
     public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedReference() != null && editingDescriptionLangueCode != null) {
-            editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), editingDescriptionLangueCode);
+        if (applicationBean.getSelectedEntity() != null && editingDescriptionLangueCode != null) {
+            editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), editingDescriptionLangueCode);
         }
     }
 

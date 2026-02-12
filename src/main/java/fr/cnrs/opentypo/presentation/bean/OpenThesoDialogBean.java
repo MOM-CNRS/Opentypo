@@ -156,6 +156,12 @@ public class OpenThesoDialogBean implements Serializable {
      * Recherche les concepts
      */
     public void onConceptSearch() {
+        if (collectionParametrage == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le thésaurus n'est pas encore paramétrer pour ce référence"));
+            return;
+        }
+
         if (collectionParametrage.getIdTheso() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
@@ -236,15 +242,11 @@ public class OpenThesoDialogBean implements Serializable {
                 valueToSave = selectedConcept.getIdConcept();
             }
 
-            String conceptId = selectedConcept.getIdConcept();
-            String baseUrl = "https://pactols.frantiq.fr";
-            String url = baseUrl + "/?idc=" + conceptId + "&idt=" + collectionParametrage.getIdTheso();
-
             referenceOpentheso.setValeur(valueToSave);
-            referenceOpentheso.setConceptId(conceptId);
+            referenceOpentheso.setConceptId(selectedConcept.getIdConcept());
             referenceOpentheso.setThesaurusId(collectionParametrage.getIdTheso());
             referenceOpentheso.setCollectionId(collectionParametrage.getIdGroupe());
-            referenceOpentheso.setUrl(url);
+            referenceOpentheso.setUrl(selectedConcept.getUri());
         } else if (manualValue != null && !manualValue.trim().isEmpty()) {
             // Cas : saisie manuelle (aucun résultat ou choix de l'utilisateur)
             valueToSave = manualValue.trim();
@@ -277,6 +279,7 @@ public class OpenThesoDialogBean implements Serializable {
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
                 entity.setPeriode(createdReference);
                 entityRepository.save(entity);
+                candidatBean.updatePeriodeFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.CATEGORIE,
                  ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE:

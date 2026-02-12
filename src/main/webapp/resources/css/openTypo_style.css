@@ -8687,6 +8687,13 @@ body .ui-datatable .ui-datatable-data>tr>td {
     margin: 0 !important;
 }
 
+/* Formulaire du dialog (évite les marges par défaut) */
+.reference-confirm-form {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
 /* Actions */
 .reference-confirm-actions {
     display: flex !important;

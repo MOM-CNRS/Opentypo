@@ -19,7 +19,7 @@
                                             title="Français"/>
                         </div>
                         <div class="collection-panel-title-wrapper">
-                            <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                            <p:commandLink action="#{applicationBean.showReferenceDetail(applicationBean.selectedReference)}"
                                            process="@this"
                                            update=":centerContent, :treeContainer, :breadcrumbContent"
                                            onstart="showLoading('Chargement du référentiel...', 'spinner');"
@@ -113,7 +113,7 @@
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                <div id="descriptionEditWrapper" class="reference-edit-lang-row">
+                                <div class="reference-edit-lang-row">
                                     <p:selectOneMenu value="#{categoryBean.editingDescriptionLangueCode}"
                                                      styleClass="reference-edit-lang-select"
                                                      required="true">
@@ -170,7 +170,7 @@
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                <div id="descriptionEditWrapper" class="reference-edit-lang-row">
+                                <div class="reference-edit-lang-row">
                                     <p:inputTextarea value="#{categoryBean.editingCategoryCommentaire}"
                                                      rows="5"
                                                      cols="50"
@@ -187,7 +187,6 @@
                             </div>
                             <ui:fragment rendered="#{not categoryBean.editingCategory}">
                                 <div class="concept-info-value concept-info-description">
-                                    <div class="concept-info-value" />
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
                                         #{applicationBean.selectedEntity.bibliographie}
                                     </ui:fragment>
@@ -197,7 +196,7 @@
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                <div id="descriptionEditWrapper" class="reference-edit-lang-row">
+                                <div class="reference-edit-lang-row">
                                     <p:inputTextarea value="#{categoryBean.editingCategoryBibliographie}"
                                                      rows="5"
                                                      cols="50"
@@ -247,14 +246,6 @@
                                     </span>
                                 </div>
                             </div>
-                            <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                                <p:commandButton value="Créer un groupe"
-                                                 icon="pi pi-plus"
-                                                 styleClass="collection-create-btn"
-                                                 onclick="PF('createGroupDialog').show(); return false;"
-                                                 process="@this"
-                                                 update="@none"/>
-                            </h:panelGroup>
                         </div>
 
                         <!-- Liste des catégories -->
@@ -262,10 +253,10 @@
                             <h:form>
                                 <div class="reference-cards-grid">
                                     <ui:repeat value="#{applicationBean.childs}" var="group" varStatus="status">
-                                        <p:commandLink action="#{applicationBean.showGroupe(group)}"
+                                                        <p:commandLink action="#{applicationBean.showGroupe(group)}"
                                                        styleClass="reference-card"
                                                        process="@this"
-                                                       update=":centerContent"
+                                                       update=":centerContent, :treeContainer, :breadcrumbContent"
                                                        onstart="showLoading('Chargement du groupe...', 'spinner');"
                                                        oncomplete="setTimeout(function(){hideLoading();}, 500);"
                                                        onerror="forceHideLoading();">
@@ -292,6 +283,13 @@
                                                         </span>
                                                         </ui:fragment>
                                                     </div>
+                                                    <!-- Indicateur unique : brouillon ou public/privé -->
+                                                    <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                                        <span class="reference-card-indicator reference-card-status-badge #{treeBean.getUnifiedIndicatorCssClass(group)}"
+                                                              title="#{treeBean.getUnifiedIndicatorTitle(group)}">
+                                                            <i class="pi #{treeBean.getUnifiedIndicatorIcon(group)}"/>
+                                                        </span>
+                                                    </h:panelGroup>
                                                 </div>
                                             </div>
                                         </p:commandLink>
@@ -303,11 +301,11 @@
                                             <i class="pi pi-inbox" />
                                         </div>
                                         <div class="empty-categories-content">
-                                            <h4 class="empty-categories-title">Aucun group disponible</h4>
+                                            <h4 class="empty-categories-title">Aucun groupe disponible</h4>
                                             <p class="empty-categories-text">Cette catégorie ne contient actuellement aucun groupe.</p>
                                             <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                                 <i class="pi pi-info-circle" />
-                                                <span>Cliquez sur "Créer un nouveau groupe" pour en ajouter une.</span>
+                                                <span>Il faut passer par un brouillon pour en ajouter un.</span>
                                             </h:panelGroup>
                                         </div>
                                     </h:panelGroup>

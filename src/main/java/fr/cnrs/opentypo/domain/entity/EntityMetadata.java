@@ -103,4 +103,8 @@ public class EntityMetadata implements Serializable {
     // Sites archéologiques (liste séparée par ';')
     @Column(name = "sites_archeologiques", columnDefinition = "TEXT")
     private String sitesArcheologiques;
+
+    // Corpus externe
+    @Column(name = "corpus_externe", columnDefinition = "TEXT")
+    private String corpusExterne;
 }

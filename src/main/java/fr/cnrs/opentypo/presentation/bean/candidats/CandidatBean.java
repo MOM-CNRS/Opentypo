@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
@@ -144,8 +145,6 @@ public class CandidatBean implements Serializable {
     // Index du wizard (0 = étape 1, 1 = étape 2, 2 = étape 3)
     private int currentStep = 0;
 
-
-
     // Champs pour l'étape 2 selon le type
     private String typeDescription;
     private String serieDescription;
@@ -171,7 +170,7 @@ public class CandidatBean implements Serializable {
     private String ancienneVersion; // Ancienne version (enregistré dans entity.ancienneVersion)
     private String collectionDescription;
     private Boolean collectionPublique = true;
-
+    private String corpusExterne;
     private String periode;
     private Integer tpq;
     private Integer taq;
@@ -1155,6 +1154,7 @@ public class CandidatBean implements Serializable {
         collectionPublique = true;
         tpq = null;
         taq = null;
+        corpusExterne = null;
     }
     
     /**
@@ -1351,9 +1351,8 @@ public class CandidatBean implements Serializable {
         // Charger les champs spécifiques au groupe
         tpq = refreshedEntity.getTpq();
         taq = refreshedEntity.getTaq();
-        if (refreshedEntity.getPeriode() != null) {
-            periode = refreshedEntity.getPeriode().getValeur();
-        }
+        corpusExterne = refreshedEntity.getMetadata() == null ? "" : refreshedEntity.getMetadata().getCorpusExterne();
+        periode = refreshedEntity.getPeriode() == null ? "" : refreshedEntity.getPeriode().getValeur();
     }
 
     /**
@@ -1565,9 +1564,8 @@ public class CandidatBean implements Serializable {
         // Charger les champs spécifiques au groupe
         tpq = refreshedEntity.getTpq();
         taq = refreshedEntity.getTaq();
-        if (refreshedEntity.getPeriode() != null) {
-            periode = refreshedEntity.getPeriode().getValeur();
-        }
+        periode = refreshedEntity.getPeriode() != null ? refreshedEntity.getPeriode().getValeur() : "";
+        corpusExterne = refreshedEntity.getMetadata() != null ? refreshedEntity.getMetadata().getCorpusExterne() : "";
 
         // Charger les auteurs
         if (refreshedEntity.getAuteurs() != null) {
@@ -1704,97 +1702,22 @@ public class CandidatBean implements Serializable {
      * Met à jour l'entité avec les valeurs finales : période, commentaire, références bibliographiques, bibliographie, TAQ, TPQ
      */
     public String terminerCandidat() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-
         try {
             // Vérifier que currentEntity existe
             if (currentEntity == null || currentEntity.getId() == null) {
-                if (facesContext != null) {
-                    facesContext.addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "L'entité n'a pas été créée. Veuillez compléter les étapes précédentes."));
-                    PrimeFaces.current().ajax().update(":growl");
-                }
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Erreur", "L'entité n'a pas été créée. Veuillez compléter les étapes précédentes."));
+                PrimeFaces.current().ajax().update(":growl");
                 return null;
             }
 
             // Recharger l'entité depuis la base pour éviter les problèmes de détachement
             Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
             if (refreshedEntity == null) {
-                if (facesContext != null) {
-                    facesContext.addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "L'entité n'a pas été trouvée dans la base de données."));
-                    PrimeFaces.current().ajax().update(":growl");
-                }
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur", "L'entité n'a pas été trouvée dans la base de données."));
+                PrimeFaces.current().ajax().update(":growl");
                 return null;
-            }
-
-            // Mettre à jour le commentaire
-            if (candidatCommentaire != null) {
-                refreshedEntity.setCommentaire(candidatCommentaire.trim());
-            }
-
-            // Mettre à jour la bibliographie
-            if (candidatBibliographie != null) {
-                refreshedEntity.setBibliographie(candidatBibliographie.trim());
-            }
-
-            // Mettre à jour les références bibliographiques (concaténées avec ';')
-            if (referencesBibliographiques != null && !referencesBibliographiques.isEmpty()) {
-                String refs = String.join("; ", referencesBibliographiques);
-                refreshedEntity.setRereferenceBibliographique(refs);
-            } else {
-                refreshedEntity.setRereferenceBibliographique(null);
-            }
-
-            // Mettre à jour les ateliers (concaténées avec ';')
-            if (ateliers != null && !ateliers.isEmpty()) {
-                String ateliersStr = String.join("; ", ateliers);
-                refreshedEntity.setAteliers(ateliersStr);
-            } else {
-                refreshedEntity.setAteliers(null);
-            }
-
-            // Mettre à jour TPQ
-            if (tpq != null) {
-                refreshedEntity.setTpq(tpq);
-            }
-
-            // Mettre à jour TAQ
-            if (taq != null) {
-                refreshedEntity.setTaq(taq);
-            }
-
-            // Mettre à jour la période
-            // Si periode est une chaîne simple, on peut l'ajouter au commentaire
-            // Si c'est géré via ReferenceOpentheso, on doit créer ou récupérer la référence
-            if (periode != null && !periode.trim().isEmpty()) {
-                // Pour l'instant, on ajoute la période au commentaire si elle n'est pas déjà présente
-                // ou on peut créer une ReferenceOpentheso si nécessaire
-                // Note: La période peut être gérée via le dialog OpenTheso avec le code "PERIODE"
-                // Ici, on suppose que periode est une chaîne simple à ajouter au commentaire
-                String currentCommentaire = refreshedEntity.getCommentaire();
-                if (currentCommentaire == null || currentCommentaire.trim().isEmpty()) {
-                    refreshedEntity.setCommentaire("Période: " + periode.trim());
-                } else if (!currentCommentaire.contains("Période:")) {
-                    refreshedEntity.setCommentaire(currentCommentaire + "\n\nPériode: " + periode.trim());
-                }
-            }
-
-            // Mettre à jour DescriptionDetail avec le décors
-            DescriptionDetail descDetail = refreshedEntity.getDescriptionDetail();
-            if (descDetail == null) {
-                descDetail = new DescriptionDetail();
-                descDetail.setEntity(refreshedEntity);
-                refreshedEntity.setDescriptionDetail(descDetail);
-            }
-            if (decors != null && !decors.trim().isEmpty()) {
-                descDetail.setDecors(decors.trim());
-            } else {
-                descDetail.setDecors(null);
             }
 
             // Validation des champs obligatoires selon le type d'entité
@@ -1802,10 +1725,6 @@ public class CandidatBean implements Serializable {
                 // Ne pas sauvegarder ni rediriger si la validation échoue
                 return null;
             }
-
-            // Sauvegarder l'entité mise à jour (cascade sauvegardera DescriptionDetail)
-            entityRepository.save(refreshedEntity);
-            log.info("Entité mise à jour avec les valeurs finales: ID={}", refreshedEntity.getId());
 
             // Recharger la liste des candidats pour avoir les données à jour
             chargerCandidats();
@@ -1816,7 +1735,6 @@ public class CandidatBean implements Serializable {
             // Rediriger vers la liste des candidats avec un paramètre de succès
             // Le message sera affiché dans loadCandidatsPage() en vérifiant le paramètre
             return "/candidats/candidats.xhtml?faces-redirect=true&success=true";
-
         } catch (Exception e) {
             log.error("Erreur lors de la finalisation du candidat", e);
             // Rediriger avec un paramètre d'erreur
@@ -4608,8 +4526,6 @@ public class CandidatBean implements Serializable {
         currentEntity = null;
     }
 
-
-
     /**
      * Supprime la période de l'entité
      */
@@ -4643,6 +4559,38 @@ public class CandidatBean implements Serializable {
             candidatProduction = null;
             log.info("Production supprimée pour l'entité ID={}", currentEntity.getId());
         }
+    }
+
+    /**
+     * Met à jour le champ periode depuis OpenTheso après validation
+     */
+    public void updatePeriodeFromOpenTheso() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+
+        // Recharger l'entité depuis la base de données pour avoir la liste à jour
+        currentEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+    }
+
+    /**
+     * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
+     */
+    public void saveCorpus() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+
+        Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (refreshedEntity.getMetadata() == null) {
+            EntityMetadata entityMetadata = new EntityMetadata();
+            entityMetadata.setCorpusExterne(corpusExterne);
+            refreshedEntity.setMetadata(entityMetadata);
+        } else {
+            refreshedEntity.getMetadata().setCorpusExterne(corpusExterne);
+        }
+        entityRepository.save(refreshedEntity);
+        log.debug("Champs du groupe sauvegardés pour l'entité ID: {}", refreshedEntity.getId());
     }
 }
 

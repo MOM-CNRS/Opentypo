@@ -38,24 +38,26 @@
                 </p>
             </div>
 
-            <div class="reference-confirm-actions">
-                <p:commandButton value="Annuler"
-                                 icon="pi pi-times"
-                                 type="button"
-                                 styleClass="reference-confirm-btn reference-confirm-btn-cancel"
-                                 process="@this"
-                                 update="@none"
-                                 onclick="PF('confirmSaveDialog').hide(); return false;"/>
+            <h:form id="confirmSaveForm" styleClass="reference-confirm-form">
+                <div class="reference-confirm-actions">
+                    <p:commandButton value="Annuler"
+                                     icon="pi pi-times"
+                                     type="button"
+                                     styleClass="reference-confirm-btn reference-confirm-btn-cancel"
+                                     process="@this"
+                                     update="@none"
+                                     onclick="PF('confirmSaveDialog').hide(); return false;"/>
 
-                <p:commandButton value="Oui, enregistrer"
-                                 icon="pi pi-check"
-                                 action="#{confirmSaveBean.performSave()}"
-                                 process=":#{confirmSaveBean.formId}"
-                                 ajax="true"
-                                 update=":#{confirmSaveBean.formId}, :growl, :contentPanels"
-                                 styleClass="reference-confirm-btn reference-confirm-btn-validate"
-                                 oncomplete="setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);"/>
-            </div>
+                    <p:commandButton value="Oui, enregistrer"
+                                     icon="pi pi-check"
+                                     action="#{confirmSaveBean.performSave()}"
+                                     process=":#{confirmSaveBean.formId}"
+                                     ajax="true"
+                                     update=":#{confirmSaveBean.formId}, :growl, :contentPanels, :treeContainer, :breadcrumbContent"
+                                     styleClass="reference-confirm-btn reference-confirm-btn-validate"
+                                     oncomplete="setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);"/>
+                </div>
+            </h:form>
         </h:panelGroup>
     </p:dialog>
 </ui:composition>
