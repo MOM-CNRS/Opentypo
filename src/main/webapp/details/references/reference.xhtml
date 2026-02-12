@@ -275,19 +275,13 @@
                                                     <h3 class="reference-card-title">#{category.code}</h3>
                                                     <span class="reference-card-code">#{applicationBean.getEntityLabel(category)}</span>
                                                 </div>
-                                                <!-- Indicateurs public/privé et statut (candidat en validation / validée) -->
-                                                <span class="reference-card-indicators">
-                                                    <span class="reference-card-status-badge #{treeBean.isEntityPublic(category) ? 'collection-status-public' : 'collection-status-private'}"
-                                                          title="#{treeBean.getEntityPublicTitle(category)}">
-                                                        <i class="pi #{treeBean.isEntityPublic(category) ? 'pi-globe' : 'pi-lock'}"/>
+                                                <!-- Indicateur unique : brouillon ou public/privé (visible uniquement pour Éditeur, Admin technique, Admin Référentiel) -->
+                                                <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                                    <span class="reference-card-indicator reference-card-status-badge #{treeBean.getUnifiedIndicatorCssClass(category)}"
+                                                          title="#{treeBean.getUnifiedIndicatorTitle(category)}">
+                                                        <i class="pi #{treeBean.getUnifiedIndicatorIcon(category)}"/>
                                                     </span>
-                                                    <h:panelGroup rendered="#{treeBean.getEntityStatusCssClass(category) != ''}">
-                                                        <span class="reference-card-status-badge #{treeBean.getEntityStatusCssClass(category)}"
-                                                              title="#{treeBean.getEntityStatusTitle(category)}">
-                                                            <i class="pi #{treeBean.isEntityStatusProposition(category) ? 'pi-clock' : 'pi-check-circle'}"/>
-                                                        </span>
-                                                    </h:panelGroup>
-                                                </span>
+                                                </h:panelGroup>
                                             </div>
                                             <div class="reference-card-description-wrapper">
                                                 <p class="reference-card-description">

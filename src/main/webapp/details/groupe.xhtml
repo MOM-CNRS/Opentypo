@@ -312,6 +312,13 @@
                                                             <h3 class="reference-card-title">#{serie.nom}</h3>
                                                             <span class="reference-card-code">#{serie.code}</span>
                                                         </div>
+                                                        <!-- Indicateur unique : brouillon ou public/privé (visible uniquement pour Éditeur, Admin technique, Admin Référentiel) -->
+                                                        <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                                            <span class="reference-card-indicator reference-card-status-badge #{treeBean.getUnifiedIndicatorCssClass(serie)}"
+                                                                  title="#{treeBean.getUnifiedIndicatorTitle(serie)}">
+                                                                <i class="pi #{treeBean.getUnifiedIndicatorIcon(serie)}"/>
+                                                            </span>
+                                                        </h:panelGroup>
                                                     </div>
                                                     <p class="reference-card-description">
                                                         <h:outputText value="#{serie.commentaire}" 

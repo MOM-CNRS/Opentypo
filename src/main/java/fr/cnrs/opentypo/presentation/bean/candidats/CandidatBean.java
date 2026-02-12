@@ -1666,7 +1666,7 @@ public class CandidatBean implements Serializable {
         newEntity.setCode(entityCode.trim());
         newEntity.setEntityType(entityType);
         newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
-        newEntity.setPublique(true);
+        newEntity.setPublique(false); // Brouillon toujours privé tant qu'il n'est pas validé
         newEntity.setCreateDate(LocalDateTime.now());
 
         // Récupérer l'utilisateur actuel
@@ -1904,7 +1904,7 @@ public class CandidatBean implements Serializable {
                 newEntity.setCode(entityCode.trim());
                 newEntity.setEntityType(entityType);
                 newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
-                newEntity.setPublique(true);
+                newEntity.setPublique(false); // Brouillon toujours privé tant qu'il n'est pas validé
                 newEntity.setCreateDate(LocalDateTime.now());
 
                 Utilisateur currentUser = loginBean.getCurrentUser();
@@ -2021,9 +2021,8 @@ public class CandidatBean implements Serializable {
                 if (collectionDescription != null && !collectionDescription.trim().isEmpty()) {
                     newEntity.setCommentaire(collectionDescription.trim());
                 }
-                if (collectionPublique != null) {
-                    newEntity.setPublique(collectionPublique);
-                }
+                // Brouillon toujours privé ; collectionPublique sera appliqué à la validation
+                newEntity.setPublique(false);
             }
 
             // Utiliser la référence ReferenceOpentheso créée depuis le dialog OpenTheso
@@ -2260,6 +2259,7 @@ public class CandidatBean implements Serializable {
             }
 
             entity.setStatut(EntityStatusEnum.ACCEPTED.name());
+            entity.setPublique(true); // À la validation, le candidat devient public
 
             // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
             Utilisateur currentUser = loginBean.getCurrentUser();
@@ -2698,8 +2698,9 @@ public class CandidatBean implements Serializable {
                 return null;
             }
 
-            // Changer le statut
+            // Changer le statut et rendre public
             entity.setStatut(EntityStatusEnum.ACCEPTED.name());
+            entity.setPublique(true); // À la validation, le candidat devient public
 
             // Ajouter l'utilisateur actuel dans la liste des auteurs s'il n'y est pas déjà
             Utilisateur currentUser = loginBean.getCurrentUser();
@@ -4207,7 +4208,13 @@ public class CandidatBean implements Serializable {
         }
 
         Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-        refreshedEntity.setPublique(collectionPublique);
+        if (refreshedEntity == null) return;
+        // Brouillon : toujours privé ; on n'applique collectionPublique qu'après validation
+        if (EntityStatusEnum.PROPOSITION.name().equals(refreshedEntity.getStatut())) {
+            refreshedEntity.setPublique(false);
+        } else {
+            refreshedEntity.setPublique(collectionPublique);
+        }
         entityRepository.save(refreshedEntity);
         log.debug("Statut public de la collection sauvegardé pour l'entité ID: {}", refreshedEntity.getId());
     }

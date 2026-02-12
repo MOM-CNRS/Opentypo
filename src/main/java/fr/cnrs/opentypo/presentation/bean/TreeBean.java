@@ -571,6 +571,31 @@ public class TreeBean implements Serializable {
     }
 
     /**
+     * Indicateur unique : brouillon → icône brouillon ; validé → icône public/privé.
+     * Retourne la classe CSS pour l'indicateur unifié.
+     */
+    public String getUnifiedIndicatorCssClass(Object node) {
+        if (isEntityStatusProposition(node)) return "reference-indicator-brouillon";
+        return isEntityPublic(node) ? "reference-indicator-public" : "reference-indicator-private";
+    }
+
+    /**
+     * Titre (tooltip) pour l'indicateur unifié.
+     */
+    public String getUnifiedIndicatorTitle(Object node) {
+        if (isEntityStatusProposition(node)) return "Brouillon";
+        return isEntityPublic(node) ? "Public" : "Privé";
+    }
+
+    /**
+     * Classe de l'icône PrimeIcons pour l'indicateur unifié.
+     */
+    public String getUnifiedIndicatorIcon(Object node) {
+        if (isEntityStatusProposition(node)) return "pi-clock";
+        return isEntityPublic(node) ? "pi-globe" : "pi-lock";
+    }
+
+    /**
      * Sélectionne le nœud correspondant à une référence dans l'arbre
      * @param reference La référence à sélectionner
      */

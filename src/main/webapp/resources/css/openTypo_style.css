@@ -2998,13 +2998,51 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     font-weight: 600 !important;
 }
 
-/* Indicateurs de statut sur les nœuds de l'arbre (public/privé, candidat/validée) */
+/* Indicateurs de statut sur les nœuds de l'arbre (indicateur unifié : brouillon / public / privé) */
 .simple-tree-node-indicators {
     display: inline-flex;
     align-items: center;
     gap: 0.1875rem;
     flex-shrink: 0;
     margin-left: 0.1875rem;
+}
+
+.tree-node-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    font-size: 0.5rem;
+}
+
+.tree-node-indicator.reference-indicator-brouillon {
+    background: rgba(245, 158, 11, 0.2);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.tree-node-indicator.reference-indicator-public {
+    background: rgba(71, 98, 77, 0.12);
+    color: var(--color-action-main, #47624D);
+    border: 1px solid rgba(71, 98, 77, 0.25);
+}
+
+.tree-node-indicator.reference-indicator-private {
+    background: rgba(184, 74, 60, 0.12);
+    color: var(--color-danger, #B84A3C);
+    border: 1px solid rgba(184, 74, 60, 0.25);
+}
+
+.simple-tree .ui-treenode-content.ui-state-highlight .tree-node-indicator.reference-indicator-public {
+    background: rgba(71, 98, 77, 0.2);
+    border-color: var(--color-action-main, #47624D);
+}
+
+.simple-tree .ui-treenode-content.ui-state-highlight .tree-node-indicator.reference-indicator-private {
+    background: rgba(184, 74, 60, 0.2);
+    border-color: var(--color-danger, #B84A3C);
 }
 
 .tree-node-badge {
@@ -4986,6 +5024,53 @@ body .reference-card a {
     background: rgba(34, 197, 94, 0.15);
     color: #16a34a;
     border: 2px solid rgba(34, 197, 94, 0.35);
+}
+
+/* Indicateur unique (brouillon OU public/privé) */
+.reference-card-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: all 0.2s ease;
+}
+
+.reference-card-indicator.reference-indicator-brouillon {
+    background: rgba(245, 158, 11, 0.2);
+    color: #d97706;
+    border: 2px solid rgba(245, 158, 11, 0.4);
+}
+
+.reference-card-indicator.reference-indicator-public {
+    background: rgba(71, 98, 77, 0.1);
+    color: var(--color-action-main, #47624D);
+    border: 2px solid rgba(71, 98, 77, 0.2);
+}
+
+.reference-card-indicator.reference-indicator-private {
+    background: rgba(184, 74, 60, 0.1);
+    color: var(--color-danger, #B84A3C);
+    border: 2px solid rgba(184, 74, 60, 0.2);
+}
+
+.reference-card:hover .reference-card-indicator.reference-indicator-brouillon {
+    background: rgba(245, 158, 11, 0.28);
+    border-color: #d97706;
+}
+
+.reference-card:hover .reference-card-indicator.reference-indicator-public {
+    background: rgba(71, 98, 77, 0.15);
+    border-color: var(--color-action-main, #47624D);
+}
+
+.reference-card:hover .reference-card-indicator.reference-indicator-private {
+    background: rgba(184, 74, 60, 0.15);
+    border-color: var(--color-danger, #B84A3C);
 }
 
 .reference-card:hover .reference-card-indicators .reference-card-status-badge.collection-status-public {
