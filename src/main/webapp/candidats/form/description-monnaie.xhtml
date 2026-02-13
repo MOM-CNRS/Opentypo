@@ -1,0 +1,143 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <!-- Caractéristiques physiques -->
+        <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel value="Droit" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.droit}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de droit est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveDroit}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le droit"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-05">
+            <p:outputLabel value="Légende du droit" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.legendeDroit}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de droit est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveLegendeDroit}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le legende droit"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-05" >
+            <p:outputLabel value="Coins monétaires droit" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.coinsMonetairesDroit}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de coins monétaires droit n'est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveCoinsMonetairesDroit}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le legende droit"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-05">
+            <p:outputLabel value="Revers" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.revers}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de coins monétaires droit n'est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveRevers}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le legende droit"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-05">
+            <p:outputLabel value="Légende du revers" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.legendeRevers}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de coins monétaires droit n'est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveLegendeRevers}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le légende du revers"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-05">
+            <p:outputLabel value="Coins monétaires revers" />
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.coinsMonetairesRevers}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur de coins monétaires droit n'est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveCoinsMonetairesRevers}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le légende du revers"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>
+

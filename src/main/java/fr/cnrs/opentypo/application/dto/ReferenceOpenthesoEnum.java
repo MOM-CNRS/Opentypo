@@ -16,7 +16,12 @@ public enum ReferenceOpenthesoEnum {
     COULEUR_PATE,
     NATURE_PATE,
     INCLUSIONS,
-    CUISSON_POST_CUISSON;
+    CUISSON_POST_CUISSON,
+    MATERIAU,
+    DENOMINATION,
+    VALEUR,
+    TECHNIQUE,
+    FABRICATION;
 
 
     public static ReferenceOpenthesoEnum fromString(String value) {

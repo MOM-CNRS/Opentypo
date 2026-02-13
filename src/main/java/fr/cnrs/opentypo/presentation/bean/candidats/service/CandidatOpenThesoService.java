@@ -82,6 +82,40 @@ public class CandidatOpenThesoService {
         });
     }
 
+    public ReferenceOpentheso loadMateriau(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getMateriau);
+    }
+
+    public ReferenceOpentheso loadDenomination(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getDenomination);
+    }
+
+    public ReferenceOpentheso loadValeur(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getValeur);
+    }
+
+    public ReferenceOpentheso loadTechnique(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getTechnique);
+    }
+
+    public ReferenceOpentheso loadFabricationMonnaie(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getFabrication);
+    }
+
+    public String loadMetrologieMonnaie(Long entityId) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null || e.getCaracteristiquePhysiqueMonnaie() == null) return null;
+        return e.getCaracteristiquePhysiqueMonnaie().getMetrologie();
+    }
+
+    private ReferenceOpentheso loadRefFromCpm(Long entityId, java.util.function.Function<CaracteristiquePhysiqueMonnaie, ReferenceOpentheso> extractor) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null || e.getCaracteristiquePhysiqueMonnaie() == null) return null;
+        ReferenceOpentheso ref = extractor.apply(e.getCaracteristiquePhysiqueMonnaie());
+        if (ref != null) ref.getValeur();
+        return ref;
+    }
+
     public List<ReferenceOpentheso> loadAiresCirculation(Long entityId) {
         Entity e = entityRepository.findById(entityId).orElse(null);
         if (e == null || e.getAiresCirculation() == null) return new ArrayList<>();
@@ -204,6 +238,25 @@ public class CandidatOpenThesoService {
         log.info("Référence supprimée de DescriptionPate pour l'entité ID={}", entityId);
         return DeleteResult.SUCCESS;
     }
+
+    private DeleteResult deleteFromCpm(Long entityId, java.util.function.Consumer<CaracteristiquePhysiqueMonnaie> deleter) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null || e.getCaracteristiquePhysiqueMonnaie() == null) return DeleteResult.NOTHING_TO_DELETE;
+        deleter.accept(e.getCaracteristiquePhysiqueMonnaie());
+        entityRepository.save(e);
+        return DeleteResult.SUCCESS;
+    }
+
+    @Transactional
+    public DeleteResult deleteMateriau(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setMateriau(null)); }
+    @Transactional
+    public DeleteResult deleteDenomination(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setDenomination(null)); }
+    @Transactional
+    public DeleteResult deleteValeur(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setValeur(null)); }
+    @Transactional
+    public DeleteResult deleteTechnique(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setTechnique(null)); }
+    @Transactional
+    public DeleteResult deleteFabricationMonnaie(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setFabrication(null)); }
 
     public enum DeleteResult { SUCCESS, NOTHING_TO_DELETE }
 }

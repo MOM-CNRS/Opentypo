@@ -98,6 +98,14 @@ public class Entity implements Serializable {
     @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private DescriptionPate descriptionPate;
 
+    // Relations avec DescriptionMonnaie (collection MONNAIE)
+    @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private DescriptionMonnaie descriptionMonnaie;
+
+    // Relations avec CaracteristiquePhysiqueMonnaie (collection MONNAIE)
+    @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CaracteristiquePhysiqueMonnaie caracteristiquePhysiqueMonnaie;
+
     // Relations avec EntityRelation (parent)
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EntityRelation> parentRelations = new ArrayList<>();
@@ -223,6 +231,14 @@ public class Entity implements Serializable {
     public void setCommentaire(String commentaire) {
         ensureMetadata();
         metadata.setCommentaire(commentaire);
+    }
+
+    /**
+     * Définit le commentaire dans les métadonnées
+     */
+    public void setCommentaireDatation(String commentaireDatation) {
+        ensureMetadata();
+        metadata.setCommentaireDatation(commentaireDatation);
     }
 
     /**

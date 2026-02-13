@@ -21,6 +21,7 @@ public class CandidatSauvegardeRequest {
     private List<CategoryLabelItem> candidatLabels;
     private List<CategoryDescriptionItem> descriptions;
     private String candidatCommentaire;
+    private String candidatCommentaireDatation;
     private String candidatBibliographie;
     private List<String> referencesBibliographiques;
     private String typeDescription;
@@ -31,6 +32,18 @@ public class CandidatSauvegardeRequest {
     private String periode;
     private Integer tpq;
     private Integer taq;
+    private String droit;
+    private String legendeDroit;
+    private String coinsMonetairesDroit;
+    private String revers;
+    private String legendeRevers;
+    private String coinsMonetairesRevers;
+    private ReferenceOpentheso materiau;
+    private ReferenceOpentheso denomination;
+    private String metrologieMonnaie;
+    private ReferenceOpentheso valeur;
+    private ReferenceOpentheso technique;
+    private ReferenceOpentheso fabrication;
     private ReferenceOpentheso openThesoCreatedReference;
     private Utilisateur currentUser;
 }

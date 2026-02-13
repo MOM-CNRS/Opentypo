@@ -48,6 +48,10 @@ public class EntityMetadata implements Serializable {
     @Column(name = "commentaire", columnDefinition = "TEXT")
     private String commentaire;
 
+    // Commentaire datation
+    @Column(name = "commentaire_datation", columnDefinition = "TEXT")
+    private String commentaireDatation;
+
     // Bibliographie
     @Column(name = "bibliographie", columnDefinition = "TEXT")
     private String bibliographie;

@@ -61,6 +61,8 @@ public class CandidatSauvegardeService {
             Entity newEntity = loadOrCreateEntity(req);
             addLabelsAndDescriptions(newEntity, req);
             applyTypeSpecificFields(newEntity, req);
+            applyDescriptionMonnaie(newEntity, req);
+            applyCaracteristiquePhysiqueMonnaie(newEntity, req);
             applyOpenThesoReference(newEntity, req);
 
             Entity savedEntity = entityRepository.save(newEntity);
@@ -195,6 +197,47 @@ public class CandidatSauvegardeService {
             }
             entity.setPublique(false);
         }
+    }
+
+    private void applyCaracteristiquePhysiqueMonnaie(Entity entity, CandidatSauvegardeRequest req) {
+        boolean hasAny = (req.getMateriau() != null) || (req.getDenomination() != null)
+                || (req.getMetrologieMonnaie() != null && !req.getMetrologieMonnaie().trim().isEmpty())
+                || (req.getValeur() != null) || (req.getTechnique() != null) || (req.getFabrication() != null);
+        if (!hasAny) return;
+        CaracteristiquePhysiqueMonnaie cpm = entity.getCaracteristiquePhysiqueMonnaie();
+        if (cpm == null) {
+            cpm = new CaracteristiquePhysiqueMonnaie();
+            cpm.setEntity(entity);
+            entity.setCaracteristiquePhysiqueMonnaie(cpm);
+        }
+        if (req.getMateriau() != null) cpm.setMateriau(req.getMateriau());
+        if (req.getDenomination() != null) cpm.setDenomination(req.getDenomination());
+        if (req.getMetrologieMonnaie() != null) cpm.setMetrologie(req.getMetrologieMonnaie().trim().isEmpty() ? null : req.getMetrologieMonnaie().trim());
+        if (req.getValeur() != null) cpm.setValeur(req.getValeur());
+        if (req.getTechnique() != null) cpm.setTechnique(req.getTechnique());
+        if (req.getFabrication() != null) cpm.setFabrication(req.getFabrication());
+    }
+
+    private void applyDescriptionMonnaie(Entity entity, CandidatSauvegardeRequest req) {
+        boolean hasAny = (req.getDroit() != null && !req.getDroit().trim().isEmpty())
+                || (req.getLegendeDroit() != null && !req.getLegendeDroit().trim().isEmpty())
+                || (req.getCoinsMonetairesDroit() != null && !req.getCoinsMonetairesDroit().trim().isEmpty())
+                || (req.getRevers() != null && !req.getRevers().trim().isEmpty())
+                || (req.getLegendeRevers() != null && !req.getLegendeRevers().trim().isEmpty())
+                || (req.getCoinsMonetairesRevers() != null && !req.getCoinsMonetairesRevers().trim().isEmpty());
+        if (!hasAny) return;
+        DescriptionMonnaie dm = entity.getDescriptionMonnaie();
+        if (dm == null) {
+            dm = new DescriptionMonnaie();
+            dm.setEntity(entity);
+            entity.setDescriptionMonnaie(dm);
+        }
+        if (req.getDroit() != null) dm.setDroit(req.getDroit().trim().isEmpty() ? null : req.getDroit().trim());
+        if (req.getLegendeDroit() != null) dm.setLegendeDroit(req.getLegendeDroit().trim().isEmpty() ? null : req.getLegendeDroit().trim());
+        if (req.getCoinsMonetairesDroit() != null) dm.setCoinsMonetairesDroit(req.getCoinsMonetairesDroit().trim().isEmpty() ? null : req.getCoinsMonetairesDroit().trim());
+        if (req.getRevers() != null) dm.setRevers(req.getRevers().trim().isEmpty() ? null : req.getRevers().trim());
+        if (req.getLegendeRevers() != null) dm.setLegendeRevers(req.getLegendeRevers().trim().isEmpty() ? null : req.getLegendeRevers().trim());
+        if (req.getCoinsMonetairesRevers() != null) dm.setCoinsMonetairesRevers(req.getCoinsMonetairesRevers().trim().isEmpty() ? null : req.getCoinsMonetairesRevers().trim());
     }
 
     private void applyOpenThesoReference(Entity entity, CandidatSauvegardeRequest req) {

@@ -54,7 +54,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
-import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.file.UploadedFile;
 
@@ -182,7 +181,21 @@ public class CandidatBean implements Serializable {
     private ReferenceOpentheso naturePate; // Nature de pâte (sauvegardé immédiatement via OpenTheso)
     private ReferenceOpentheso inclusions; // Inclusions (sauvegardé immédiatement via OpenTheso)
     private ReferenceOpentheso cuissonPostCuisson; // Cuisson/post-cuisson (sauvegardé immédiatement via OpenTheso)
-    
+    // Description monnaie (collection MONNAIE)
+    private String droit;
+    private String legendeDroit;
+    private String coinsMonetairesDroit;
+    private String revers;
+    private String legendeRevers;
+    private String coinsMonetairesRevers;
+    // Caractéristiques physiques monnaie (collection MONNAIE)
+    private ReferenceOpentheso materiau;
+    private ReferenceOpentheso denomination;
+    private String metrologieMonnaie;
+    private ReferenceOpentheso valeur;
+    private ReferenceOpentheso technique;
+    private ReferenceOpentheso fabrication;
+
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
@@ -217,6 +230,7 @@ public class CandidatBean implements Serializable {
     private String newDescriptionValue;
     private String newDescriptionLangueCode;
     private String candidatCommentaire;
+    private String candidatCommentaireDatation;
     private String candidatBibliographie;
     private List<String> referencesBibliographiques = new ArrayList<>();
     private List<String> ateliers = new ArrayList<>();
@@ -591,6 +605,7 @@ public class CandidatBean implements Serializable {
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
         candidatCommentaire = null;
+        candidatCommentaireDatation = null;
         candidatBibliographie = null;
         referencesBibliographiques = new ArrayList<>();
         ateliers = new ArrayList<>();
@@ -605,6 +620,18 @@ public class CandidatBean implements Serializable {
         naturePate = null;
         inclusions = null;
         cuissonPostCuisson = null;
+        droit = null;
+        legendeDroit = null;
+        coinsMonetairesDroit = null;
+        revers = null;
+        legendeRevers = null;
+        coinsMonetairesRevers = null;
+        materiau = null;
+        denomination = null;
+        metrologieMonnaie = null;
+        valeur = null;
+        technique = null;
+        fabrication = null;
         collectionDescription = null;
         collectionPublique = true;
         tpq = null;
@@ -626,6 +653,7 @@ public class CandidatBean implements Serializable {
         candidatLabels = data.getCandidatLabels() != null ? new ArrayList<>(data.getCandidatLabels()) : new ArrayList<>();
         descriptions = data.getDescriptions() != null ? new ArrayList<>(data.getDescriptions()) : new ArrayList<>();
         candidatCommentaire = data.getCandidatCommentaire();
+        candidatCommentaireDatation = data.getCandidatCommentaireDatation();
         candidatBibliographie = data.getCandidatBibliographie();
         referencesBibliographiques = data.getReferencesBibliographiques() != null ? new ArrayList<>(data.getReferencesBibliographiques()) : new ArrayList<>();
         ateliers = data.getAteliers() != null ? new ArrayList<>(data.getAteliers()) : new ArrayList<>();
@@ -642,6 +670,18 @@ public class CandidatBean implements Serializable {
         naturePate = data.getNaturePate();
         inclusions = data.getInclusions();
         cuissonPostCuisson = data.getCuissonPostCuisson();
+        droit = data.getDroit();
+        legendeDroit = data.getLegendeDroit();
+        coinsMonetairesDroit = data.getCoinsMonetairesDroit();
+        revers = data.getRevers();
+        legendeRevers = data.getLegendeRevers();
+        coinsMonetairesRevers = data.getCoinsMonetairesRevers();
+        materiau = data.getMateriau();
+        denomination = data.getDenomination();
+        metrologieMonnaie = data.getMetrologieMonnaie();
+        valeur = data.getValeur();
+        technique = data.getTechnique();
+        fabrication = data.getFabrication();
         referentiel = data.getReferentiel();
         typologieScientifique = data.getTypologieScientifique();
         identifiantPerenne = data.getIdentifiantPerenne();
@@ -761,6 +801,7 @@ public class CandidatBean implements Serializable {
                 .candidatLabels(candidatLabels)
                 .descriptions(descriptions)
                 .candidatCommentaire(candidatCommentaire)
+                .candidatCommentaireDatation(candidatCommentaireDatation)
                 .candidatBibliographie(candidatBibliographie)
                 .referencesBibliographiques(referencesBibliographiques)
                 .typeDescription(typeDescription)
@@ -771,6 +812,18 @@ public class CandidatBean implements Serializable {
                 .periode(periode)
                 .tpq(tpq)
                 .taq(taq)
+                .droit(droit)
+                .legendeDroit(legendeDroit)
+                .coinsMonetairesDroit(coinsMonetairesDroit)
+                .revers(revers)
+                .legendeRevers(legendeRevers)
+                .coinsMonetairesRevers(coinsMonetairesRevers)
+                .materiau(materiau)
+                .denomination(denomination)
+                .metrologieMonnaie(metrologieMonnaie)
+                .valeur(valeur)
+                .technique(technique)
+                .fabrication(fabrication)
                 .openThesoCreatedReference(openThesoDialogBean != null ? openThesoDialogBean.getCreatedReference() : null)
                 .currentUser(loginBean != null ? loginBean.getCurrentUser() : null)
                 .build();
@@ -957,6 +1010,11 @@ public class CandidatBean implements Serializable {
         candidatLabels = res.getCandidatLabels() != null ? new ArrayList<>(res.getCandidatLabels()) : new ArrayList<>();
         descriptions = res.getDescriptions() != null ? new ArrayList<>(res.getDescriptions()) : new ArrayList<>();
         periode = res.getPeriode();
+
+        droit = res.getStep3Data().getDroit();
+        legendeDroit = res.getStep3Data().getLegendeDroit();
+        coinsMonetairesDroit = res.getStep3Data().getCoinsMonetairesDroit();
+
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
         loadAvailableAuteurs();
         return res.getRedirectUrl();
@@ -985,7 +1043,14 @@ public class CandidatBean implements Serializable {
      * Valide le candidat depuis la page de visualisation (change le statut à ACCEPTED)
      */
     public String getCollectionLabel(Entity collection) {
-        return candidatReferenceTreeService.getCollectionLabel(collection, searchBean != null ? searchBean.getLangSelected() : null);
+        return collection == null
+                ? getCollectionLabel()
+                : candidatReferenceTreeService.getCollectionLabel(collection, searchBean.getLangSelected());
+    }
+
+    public String getCollectionLabel() {
+        Entity entity = collectionService.findCollectionIdByEntityId(candidatSelectionne.getId());
+        return candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
     }
 
     public boolean isEntity(Object obj) { return candidatReferenceTreeService.isEntity(obj); }
@@ -993,26 +1058,6 @@ public class CandidatBean implements Serializable {
     public Entity getEntityFromNode(Object node) { return candidatReferenceTreeService.getEntityFromNode(node); }
     public String getNodeDisplayValue(Object node) { return candidatReferenceTreeService.getNodeDisplayValue(node); }
     public boolean isRootNode(Object node) { return candidatReferenceTreeService.isRootNode(node); }
-
-    public void handleImageUpload(FileUploadEvent event) {
-        CandidatImageService.UploadResult r = candidatImageService.uploadImage(event != null ? event.getFile() : null);
-        if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Aucun fichier sélectionné.");
-        } else {
-            imagePrincipaleUrl = r.imageUrl();
-            addInfoMessage("L'image a été uploadée avec succès vers IIIF. URL: " + r.imageUrl());
-        }
-        PrimeFaces.current().ajax().update(":createCandidatForm:imageUploadContainer :growl");
-    }
-
-    /**
-     * Supprime l'image principale
-     */
-    public void removeImage() {
-        imagePrincipaleUrl = null;
-        uploadedImageFile = null;
-        PrimeFaces.current().ajax().update(":createCandidatForm:imageUploadContainer");
-    }
 
     public void addLabelFromInput() {
         CandidatLabelDescriptionService.AddLabelResult r = candidatLabelDescriptionService.addLabel(
@@ -1114,6 +1159,12 @@ public class CandidatBean implements Serializable {
         }
     }
 
+    public void saveCommentaireDatation() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveCommentaireDatation(currentEntity.getId(), candidatCommentaireDatation);
+        }
+    }
+
     public void saveBibliographie() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveBibliographie(currentEntity.getId(), candidatBibliographie);
@@ -1172,6 +1223,48 @@ public class CandidatBean implements Serializable {
         }
     }
 
+    public void saveDroit() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveDroit(currentEntity.getId(), droit);
+            addInfoMessage("Le droit a été enregistré.");
+        }
+    }
+
+    public void saveLegendeDroit() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveLegendeDroit(currentEntity.getId(), legendeDroit);
+            addInfoMessage("La légende du droit a été enregistrée.");
+        }
+    }
+
+    public void saveCoinsMonetairesDroit() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveCoinsMonetairesDroit(currentEntity.getId(), coinsMonetairesDroit);
+            addInfoMessage("Les coins monétaires droit ont été enregistrés.");
+        }
+    }
+
+    public void saveRevers() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveRevers(currentEntity.getId(), revers);
+            addInfoMessage("Le revers a été enregistré.");
+        }
+    }
+
+    public void saveLegendeRevers() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveLegendeRevers(currentEntity.getId(), legendeRevers);
+            addInfoMessage("La légende du revers a été enregistrée.");
+        }
+    }
+
+    public void saveCoinsMonetairesRevers() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveCoinsMonetairesRevers(currentEntity.getId(), coinsMonetairesRevers);
+            addInfoMessage("Les coins monétaires revers ont été enregistrés.");
+        }
+    }
+
     private void addErrorMessage(String msg) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", msg));
     }
@@ -1219,6 +1312,37 @@ public class CandidatBean implements Serializable {
     public void deleteNaturePate() { deleteRefAndRefresh(candidatOpenThesoService::deleteNaturePate, r -> naturePate = null); }
     public void deleteInclusions() { deleteRefAndRefresh(candidatOpenThesoService::deleteInclusions, r -> inclusions = null); }
     public void deleteCuissonPostCuisson() { deleteRefAndRefresh(candidatOpenThesoService::deleteCuissonPostCuisson, r -> cuissonPostCuisson = null); }
+
+    public void deleteMateriau() { deleteRefAndRefresh(candidatOpenThesoService::deleteMateriau, r -> materiau = null); }
+    public void deleteDenomination() { deleteRefAndRefresh(candidatOpenThesoService::deleteDenomination, r -> denomination = null); }
+    public void deleteValeur() { deleteRefAndRefresh(candidatOpenThesoService::deleteValeur, r -> valeur = null); }
+    public void deleteTechnique() { deleteRefAndRefresh(candidatOpenThesoService::deleteTechnique, r -> technique = null); }
+    public void deleteFabricationMonnaie() { deleteRefAndRefresh(candidatOpenThesoService::deleteFabricationMonnaie, r -> fabrication = null); }
+
+    private boolean hasRefMonnaie(java.util.function.Supplier<ReferenceOpentheso> getter, java.util.function.Function<Long, ReferenceOpentheso> loader, java.util.function.Consumer<ReferenceOpentheso> setter) {
+        if (currentEntity == null || currentEntity.getId() == null) return false;
+        if (getter.get() != null) return true;
+        ReferenceOpentheso r = loader.apply(currentEntity.getId()); setter.accept(r); return r != null;
+    }
+
+    public boolean hasMateriau() { return hasRefMonnaie(() -> materiau, candidatOpenThesoService::loadMateriau, r -> materiau = r); }
+    public boolean hasDenomination() { return hasRefMonnaie(() -> denomination, candidatOpenThesoService::loadDenomination, r -> denomination = r); }
+    public boolean hasValeur() { return hasRefMonnaie(() -> valeur, candidatOpenThesoService::loadValeur, r -> valeur = r); }
+    public boolean hasTechnique() { return hasRefMonnaie(() -> technique, candidatOpenThesoService::loadTechnique, r -> technique = r); }
+    public boolean hasFabrication() { return hasRefMonnaie(() -> fabrication, candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
+
+    public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriau, r -> materiau = r); }
+    public void updateDenominationFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadDenomination, r -> denomination = r); }
+    public void updateValeurFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadValeur, r -> valeur = r); }
+    public void updateTechniqueFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadTechnique, r -> technique = r); }
+    public void updateFabricationMonnaieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
+
+    public void saveMetrologieMonnaie() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveMetrologieMonnaie(currentEntity.getId(), metrologieMonnaie);
+            addInfoMessage("La métrologie a été enregistrée.");
+        }
+    }
 
     public void saveTypeDescription() {
         if (currentEntity != null && currentEntity.getId() != null) {
@@ -1272,22 +1396,6 @@ public class CandidatBean implements Serializable {
             case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
             default -> code;
         };
-    }
-
-    /**
-     * Surcharge de getCollectionLabel pour accepter un Candidat
-     */
-    public String getCollectionLabel() {
-        if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
-            return "Aucune collection";
-        }
-
-        Entity entityOpt = collectionService.findCollectionIdByEntityId(candidatSelectionne.getId());
-        if (entityOpt != null) {
-            return entityOpt.getCode();
-        }
-
-        return "Aucune collection";
     }
     
     /**
@@ -1411,6 +1519,11 @@ public class CandidatBean implements Serializable {
     public void prepareConfirmDeleteNaturePate() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("NATURE_PATE")); }
     public void prepareConfirmDeleteInclusions() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("INCLUSIONS")); }
     public void prepareConfirmDeleteCuissonPostCuisson() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("CUISSON_POST_CUISSON")); }
+    public void prepareConfirmDeleteMateriau() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("MATERIAU")); }
+    public void prepareConfirmDeleteDenomination() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("DENOMINATION")); }
+    public void prepareConfirmDeleteValeur() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("VALEUR")); }
+    public void prepareConfirmDeleteTechnique() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("TECHNIQUE")); }
+    public void prepareConfirmDeleteFabricationMonnaie() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("FABRICATION_MONNAIE")); }
 
     /** Exécute la suppression selon le type préparé (appelé depuis la boîte de confirmation unique) */
     public void executeConfirmDelete() {
@@ -1421,6 +1534,11 @@ public class CandidatBean implements Serializable {
             case "AIRE_CIRCULATION" -> deleteAireCirculation();
             case "FONCTION_USAGE" -> deleteFonctionUsage();
             case "METROLOGIE" -> deleteMetrologie();
+            case "MATERIAU" -> deleteMateriau();
+            case "DENOMINATION" -> deleteDenomination();
+            case "VALEUR" -> deleteValeur();
+            case "TECHNIQUE" -> deleteTechnique();
+            case "FABRICATION_MONNAIE" -> deleteFabricationMonnaie();
             case "FABRICATION_FACONNAGE" -> deleteFabricationFaconnage();
             case "COULEUR_PATE" -> deleteCouleurPate();
             case "NATURE_PATE" -> deleteNaturePate();

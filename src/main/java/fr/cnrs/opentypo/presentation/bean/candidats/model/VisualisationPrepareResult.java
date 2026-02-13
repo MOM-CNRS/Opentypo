@@ -14,7 +14,6 @@ public class VisualisationPrepareResult {
     private boolean success;
     private String errorMessage;
     private String redirectUrl;
-
     private Long selectedEntityTypeId;
     private String entityCode;
     private String selectedLangueCode;

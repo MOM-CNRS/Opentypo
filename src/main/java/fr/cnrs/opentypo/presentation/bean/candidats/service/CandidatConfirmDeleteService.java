@@ -44,6 +44,11 @@ public class CandidatConfirmDeleteService {
             case "CUISSON_POST_CUISSON" -> new ConfirmConfig("CUISSON_POST_CUISSON",
                 "Êtes-vous sûr de vouloir supprimer la cuisson/post-cuisson sélectionnée ? " + MSG_REF,
                 ":createCandidatForm :growl");
+            case "MATERIAU" -> new ConfirmConfig("MATERIAU", "Êtes-vous sûr de vouloir supprimer le matériau ? " + MSG_REF, ":createCandidatForm :growl");
+            case "DENOMINATION" -> new ConfirmConfig("DENOMINATION", "Êtes-vous sûr de vouloir supprimer la dénomination ? " + MSG_REF, ":createCandidatForm :growl");
+            case "VALEUR" -> new ConfirmConfig("VALEUR", "Êtes-vous sûr de vouloir supprimer la valeur ? " + MSG_REF, ":createCandidatForm :growl");
+            case "TECHNIQUE" -> new ConfirmConfig("TECHNIQUE", "Êtes-vous sûr de vouloir supprimer la technique ? " + MSG_REF, ":createCandidatForm :growl");
+            case "FABRICATION_MONNAIE" -> new ConfirmConfig("FABRICATION_MONNAIE", "Êtes-vous sûr de vouloir supprimer la fabrication ? " + MSG_REF, ":createCandidatForm :growl");
             default -> null;
         };
     }

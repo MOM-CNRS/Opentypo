@@ -9,6 +9,7 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
@@ -393,6 +394,13 @@ public class OpenThesoDialogBean implements Serializable {
                 entityRepository.save(entity);
                 candidatBean.updateCuissonPostCuissonFromOpenTheso();
                 break;
+            case ReferenceOpenthesoEnum.MATERIAU:
+            case ReferenceOpenthesoEnum.DENOMINATION:
+            case ReferenceOpenthesoEnum.VALEUR:
+            case ReferenceOpenthesoEnum.TECHNIQUE:
+            case ReferenceOpenthesoEnum.FABRICATION:
+                createdReference = saveToCaracteristiquePhysiqueMonnaie(entity, referenceOpentheso, referenceCode);
+                break;
             default:
                 log.warn("Code de référence non géré: {}", referenceCode);
                 // Sauvegarder la référence sans lien spécifique
@@ -414,6 +422,28 @@ public class OpenThesoDialogBean implements Serializable {
 
         log.info("Référence ReferenceOpentheso créée avec succès - ID: {}, Code: '{}', Valeur: '{}', Entity ID: {}",
                 createdReference.getId(), referenceCode, valueForCallbackAndLambda, entityId);
+    }
+
+    private ReferenceOpentheso saveToCaracteristiquePhysiqueMonnaie(Entity entity, ReferenceOpentheso ref, ReferenceOpenthesoEnum code) {
+        if (entity == null || ref == null) return null;
+        ref.setEntity(entity);
+        CaracteristiquePhysiqueMonnaie cpm = entity.getCaracteristiquePhysiqueMonnaie();
+        if (cpm == null) {
+            cpm = new CaracteristiquePhysiqueMonnaie();
+            cpm.setEntity(entity);
+            entity.setCaracteristiquePhysiqueMonnaie(cpm);
+        }
+        ref = referenceOpenthesoRepository.save(ref);
+        switch (code) {
+            case MATERIAU -> { cpm.setMateriau(ref); candidatBean.updateMateriauFromOpenTheso(); }
+            case DENOMINATION -> { cpm.setDenomination(ref); candidatBean.updateDenominationFromOpenTheso(); }
+            case VALEUR -> { cpm.setValeur(ref); candidatBean.updateValeurFromOpenTheso(); }
+            case TECHNIQUE -> { cpm.setTechnique(ref); candidatBean.updateTechniqueFromOpenTheso(); }
+            case FABRICATION -> { cpm.setFabrication(ref); candidatBean.updateFabricationMonnaieFromOpenTheso(); }
+            default -> { }
+        }
+        entityRepository.save(entity);
+        return ref;
     }
 
     /**

@@ -70,7 +70,10 @@
             <!-- 2ème partie : Formulaire dynamique selon le type d'entité -->
             <div class="users-form-panel wizard-form-panel candidats-p-10">
                 <div class="wizard-content candidats-p-20">
-                    <ui:include src="../form/labels-form.xhtml"/>
+
+                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 5}">
+                        <ui:include src="../form/labels-form.xhtml"/>
+                    </h:panelGroup>
 
                     <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
                         <ui:include src="../form/appelation_type.xhtml"/>
@@ -88,6 +91,11 @@
                         <h:panelGroup rendered="#{empty candidatBean.selectedCollection or candidatBean.selectedCollection.code ne 'MONNAIE'}">
                             <ui:include src="../form/details.xhtml"/>
                             <ui:include src="../form/caracteristiques-physiques.xhtml"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{candidatBean.selectedCollection != null and candidatBean.selectedCollection.code eq 'MONNAIE'}">
+                            <ui:include src="../form/description-monnaie.xhtml"/>
+                            <ui:include src="../form/caracteristiques-physiques-monnaie.xhtml"/>
                         </h:panelGroup>
                     </h:panelGroup>
 

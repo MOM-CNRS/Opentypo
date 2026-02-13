@@ -11,30 +11,30 @@
                            styleClass="caracteristiques-physiques-title candidats-label-pl"/>
         </b>
 
-        <!-- Métrologie -->
+        <!-- Matériau -->
         <h:panelGroup styleClass="users-form-group users-form-group-full">
-            <p:outputLabel value="Métrologie" />
+            <p:outputLabel value="Matériau" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-arrows-h input-icon" />
-                    <p:inputText value="#{candidatBean.metrologie != null ? candidatBean.metrologie.valeur : ''}"
+                    <p:inputText value="#{candidatBean.materiau != null ? candidatBean.materiau.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune métrologie sélectionnée"
-                                 rendered="#{candidatBean.hasMetrologie()}"/>
+                                 placeholder="Aucun matériau sélectionné"
+                                 rendered="#{candidatBean.hasMateriau()}"/>
                     <p:inputText value=""
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune métrologie sélectionnée"
-                                 rendered="#{!candidatBean.hasMetrologie()}"/>
+                                 placeholder="Aucune matériau sélectionné"
+                                 rendered="#{!candidatBean.hasMateriau()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la métrologie"
-                                     rendered="#{candidatBean.hasMetrologie()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteMetrologie()}"
+                                     title="Supprimer le matériau"
+                                     rendered="#{candidatBean.hasMateriau()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteMateriau()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
@@ -43,7 +43,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'METROLOGIE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'MATERIAU', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -53,30 +53,30 @@
             <p:message for="@previous" display="icon"/>
         </h:panelGroup>
 
-        <!-- Fabrication/façonnage -->
+        <!-- Dénomination -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Fabrication/façonnage" />
+            <p:outputLabel value="Dénomination" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-wrench input-icon" />
-                    <p:inputText value="#{candidatBean.fabricationFaconnage != null ? candidatBean.fabricationFaconnage.valeur : ''}"
+                    <p:inputText value="#{candidatBean.denomination != null ? candidatBean.denomination.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune fabrication/façonnage sélectionnée"
-                                 rendered="#{candidatBean.hasFabricationFaconnage()}"/>
+                                 placeholder="Aucune dénomination sélectionnée"
+                                 rendered="#{candidatBean.hasDenomination()}"/>
                     <p:inputText value=""
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune fabrication/façonnage sélectionnée"
-                                 rendered="#{!candidatBean.hasFabricationFaconnage()}"/>
+                                 placeholder="Aucune dénomination sélectionnée"
+                                 rendered="#{!candidatBean.hasDenomination()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la fabrication/façonnage"
-                                     rendered="#{candidatBean.hasFabricationFaconnage()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteFabricationFaconnage()}"
+                                     title="Supprimer la dénomination"
+                                     rendered="#{candidatBean.hasDenomination()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteDenomination()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
@@ -85,7 +85,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FABRICATION_FACONNAGE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'DENOMINATION', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -95,45 +95,53 @@
             <p:message for="@previous" display="icon"/>
         </h:panelGroup>
 
-        <!-- Description pâte (champ texte, valeur simple) -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Description pâte" />
-            <div class="input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
+        <!-- Métrologie -->
+        <div class="users-form-group users-form-group-full candidats-mt-15" id="metrologie-monnaie">
+            <p:outputLabel value="Métrologie" />
+            <div class="candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.metrologieMonnaie}"
+                                 styleClass="users-input"
+                                 placeholder="Aucune valeur de métrologie n'est introduite"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveMetrologieMonnaie}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer le métrologie"/>
+                </div>
             </div>
-            <p:message for="@previous" display="icon"/>
         </div>
 
-        <!-- Couleur de pâte -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-20">
-            <p:outputLabel value="Couleur de pâte" />
+        <!-- Valeur -->
+        <h:panelGroup styleClass="users-form-group users-form-group-full">
+            <p:outputLabel value="Valeur" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-palette input-icon" />
-                    <p:inputText value="#{candidatBean.couleurPate != null ? candidatBean.couleurPate.valeur : ''}"
+                    <p:inputText value="#{candidatBean.valeur != null ? candidatBean.valeur.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune couleur sélectionnée"
-                                 rendered="#{candidatBean.hasCouleurPate()}"/>
+                                 placeholder="Aucune valeur sélectionnée"
+                                 rendered="#{candidatBean.hasValeur()}"/>
                     <p:inputText value=""
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune couleur sélectionnée"
-                                 rendered="#{!candidatBean.hasCouleurPate()}"/>
+                                 placeholder="Aucune valeur sélectionnée"
+                                 rendered="#{!candidatBean.hasValeur()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la couleur de pâte"
-                                     rendered="#{candidatBean.hasCouleurPate()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteCouleurPate()}"
+                                     title="Supprimer la valeur"
+                                     rendered="#{candidatBean.hasValeur()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteValeur()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
@@ -142,7 +150,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'COULEUR_PATE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'VALEUR', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -152,30 +160,30 @@
             <p:message for="@previous" display="icon"/>
         </h:panelGroup>
 
-        <!-- Nature de pâte -->
+        <!-- Technique -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Nature de pâte" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-th-large input-icon" />
-                    <p:inputText value="#{candidatBean.naturePate != null ? candidatBean.naturePate.valeur : ''}"
+                    <p:inputText value="#{candidatBean.technique != null ? candidatBean.technique.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune nature sélectionnée"
-                                 rendered="#{candidatBean.hasNaturePate()}"/>
+                                 placeholder="Aucune technique sélectionnée"
+                                 rendered="#{candidatBean.hasTechnique()}"/>
                     <p:inputText value=""
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune nature sélectionnée"
-                                 rendered="#{!candidatBean.hasNaturePate()}"/>
+                                 placeholder="Aucune technique sélectionnée"
+                                 rendered="#{!candidatBean.hasTechnique()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la nature de pâte"
-                                     rendered="#{candidatBean.hasNaturePate()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteNaturePate()}"
+                                     title="Supprimer la technique"
+                                     rendered="#{candidatBean.hasTechnique()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteTechnique()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
@@ -184,7 +192,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'NATURE_PATE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'TECHNIQUE', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"
@@ -194,30 +202,30 @@
             <p:message for="@previous" display="icon"/>
         </h:panelGroup>
 
-        <!-- Inclusions -->
+        <!-- Fabrication -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Inclusions" />
+            <p:outputLabel value="Fabrication" />
             <div class="candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-circle input-icon" />
-                    <p:inputText value="#{candidatBean.inclusions != null ? candidatBean.inclusions.valeur : ''}"
+                    <p:inputText value="#{candidatBean.fabrication != null ? candidatBean.fabrication.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune inclusion sélectionnée"
-                                 rendered="#{candidatBean.hasInclusions()}"/>
+                                 placeholder="Aucune fabrication sélectionnée"
+                                 rendered="#{candidatBean.hasFabrication()}"/>
                     <p:inputText value=""
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune inclusion sélectionnée"
-                                 rendered="#{!candidatBean.hasInclusions()}"/>
+                                 placeholder="Aucune fabrication sélectionnée"
+                                 rendered="#{!candidatBean.hasFabrication()}"/>
                 </div>
 
                 <div class="candidat-table-action-cell candidats-cell-action-mr">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer les inclusions"
-                                     rendered="#{candidatBean.hasInclusions()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteInclusions()}"
+                                     title="Supprimer la fabrication"
+                                     rendered="#{candidatBean.hasFabrication()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteFabricationMonnaie()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
@@ -226,48 +234,7 @@
                 <p:commandButton value="Ajouter"
                                  icon="pi pi-plus"
                                  styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'INCLUSIONS', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
-                                 process="@this"
-                                 ajax="true"
-                                 update=":openThesoForm :growl"
-                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
-                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
-            </div>
-            <p:message for="@previous" display="icon"/>
-        </h:panelGroup>
-
-        <!-- Cuisson/post-cuisson -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Cuisson/post-cuisson" />
-            <div class="candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper candidat-production-input-wrapper">
-                    <i class="pi pi-credit-card input-icon" />
-                    <p:inputText value="#{candidatBean.cuissonPostCuisson != null ? candidatBean.cuissonPostCuisson.valeur : ''}"
-                                 styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Aucune cuisson/post-cuisson sélectionnée"
-                                 rendered="#{candidatBean.hasCuissonPostCuisson()}"/>
-                    <p:inputText styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Aucune cuisson/post-cuisson sélectionnée"
-                                 rendered="#{!candidatBean.hasCuissonPostCuisson()}"/>
-                </div>
-
-                <div class="candidat-table-action-cell candidats-cell-action-mr">
-                    <p:commandButton icon="pi pi-trash"
-                                     styleClass="candidat-btn-remove"
-                                     title="Supprimer la cuisson/post-cuisson"
-                                     rendered="#{candidatBean.hasCuissonPostCuisson()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteCuissonPostCuisson()}"
-                                     process="@this"
-                                     update="@none"
-                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
-                </div>
-
-                <p:commandButton value="Ajouter"
-                                 icon="pi pi-plus"
-                                 styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'CUISSON_POST_CUISSON', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
+                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FABRICATION', candidatBean.currentEntity != null ? candidatBean.currentEntity.id : null)}"
                                  process="@this"
                                  ajax="true"
                                  update=":openThesoForm :growl"

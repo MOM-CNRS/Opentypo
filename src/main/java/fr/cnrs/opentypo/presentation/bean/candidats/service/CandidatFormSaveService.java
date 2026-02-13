@@ -1,6 +1,8 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
+import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityMetadata;
@@ -21,6 +23,11 @@ public class CandidatFormSaveService {
 
     @Inject
     private EntityRepository entityRepository;
+
+    @Transactional
+    public void saveCommentaireDatation(Long entityId, String commentaireDatation) {
+        updateEntity(entityId, e -> e.setCommentaireDatation(commentaireDatation != null ? commentaireDatation.trim() : null));
+    }
 
     @Transactional
     public void saveCommentaire(Long entityId, String commentaire) {
@@ -119,6 +126,68 @@ public class CandidatFormSaveService {
         dd.setDecors(decors != null && !decors.trim().isEmpty() ? decors.trim() : null);
         entityRepository.save(e);
         log.debug("Décors sauvegardés pour l'entité ID: {}", entityId);
+    }
+
+    @Transactional
+    public void saveDroit(Long entityId, String droit) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setDroit(trimOrNull(droit)));
+    }
+
+    @Transactional
+    public void saveLegendeDroit(Long entityId, String legendeDroit) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setLegendeDroit(trimOrNull(legendeDroit)));
+    }
+
+    @Transactional
+    public void saveCoinsMonetairesDroit(Long entityId, String value) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setCoinsMonetairesDroit(trimOrNull(value)));
+    }
+
+    @Transactional
+    public void saveRevers(Long entityId, String revers) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setRevers(trimOrNull(revers)));
+    }
+
+    @Transactional
+    public void saveLegendeRevers(Long entityId, String legendeRevers) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setLegendeRevers(trimOrNull(legendeRevers)));
+    }
+
+    @Transactional
+    public void saveCoinsMonetairesRevers(Long entityId, String value) {
+        saveDescriptionMonnaieField(entityId, dm -> dm.setCoinsMonetairesRevers(trimOrNull(value)));
+    }
+
+    @Transactional
+    public void saveMetrologieMonnaie(Long entityId, String metrologie) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null) return;
+        CaracteristiquePhysiqueMonnaie cpm = e.getCaracteristiquePhysiqueMonnaie();
+        if (cpm == null) {
+            cpm = new CaracteristiquePhysiqueMonnaie();
+            cpm.setEntity(e);
+            e.setCaracteristiquePhysiqueMonnaie(cpm);
+        }
+        cpm.setMetrologie(trimOrNull(metrologie));
+        entityRepository.save(e);
+    }
+
+    private void saveDescriptionMonnaieField(Long entityId, java.util.function.Consumer<DescriptionMonnaie> updater) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null) return;
+        DescriptionMonnaie dm = e.getDescriptionMonnaie();
+        if (dm == null) {
+            dm = new DescriptionMonnaie();
+            dm.setEntity(e);
+            e.setDescriptionMonnaie(dm);
+        }
+        updater.accept(dm);
+        entityRepository.save(e);
+        log.debug("Description monnaie sauvegardée pour l'entité ID: {}", entityId);
+    }
+
+    private static String trimOrNull(String s) {
+        return s != null && !s.trim().isEmpty() ? s.trim() : null;
     }
 
     @Transactional

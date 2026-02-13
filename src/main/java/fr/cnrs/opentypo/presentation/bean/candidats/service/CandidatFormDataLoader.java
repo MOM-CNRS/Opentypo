@@ -182,6 +182,37 @@ public class CandidatFormDataLoader {
             auteurs = new ArrayList<>(refreshedEntity.getAuteurs());
         }
 
+        // DescriptionMonnaie (collection MONNAIE)
+        DescriptionMonnaie descMonnaie = refreshedEntity.getDescriptionMonnaie();
+        String droit = null, legendeDroit = null, coinsMonetairesDroit = null;
+        String revers = null, legendeRevers = null, coinsMonetairesRevers = null;
+        if (descMonnaie != null) {
+            droit = descMonnaie.getDroit();
+            legendeDroit = descMonnaie.getLegendeDroit();
+            coinsMonetairesDroit = descMonnaie.getCoinsMonetairesDroit();
+            revers = descMonnaie.getRevers();
+            legendeRevers = descMonnaie.getLegendeRevers();
+            coinsMonetairesRevers = descMonnaie.getCoinsMonetairesRevers();
+        }
+
+        // CaracteristiquePhysiqueMonnaie (collection MONNAIE)
+        CaracteristiquePhysiqueMonnaie cpm = refreshedEntity.getCaracteristiquePhysiqueMonnaie();
+        ReferenceOpentheso materiau = null, denomination = null, valeur = null, technique = null;
+        String metrologieMonnaie = null;
+        if (cpm != null) {
+            materiau = cpm.getMateriau();
+            if (materiau != null) materiau.getValeur();
+            denomination = cpm.getDenomination();
+            if (denomination != null) denomination.getValeur();
+            metrologieMonnaie = cpm.getMetrologie();
+            valeur = cpm.getValeur();
+            if (valeur != null) valeur.getValeur();
+            technique = cpm.getTechnique();
+            if (technique != null) technique.getValeur();
+            fabrication = cpm.getFabrication();
+            if (fabrication != null) fabrication.getValeur();
+        }
+
         return Step3FormData.builder()
                 .candidatLabels(labels)
                 .descriptions(descriptions)
@@ -213,7 +244,20 @@ public class CandidatFormDataLoader {
                 .taq(refreshedEntity.getTaq())
                 .periode(refreshedEntity.getPeriode() != null ? refreshedEntity.getPeriode().getValeur() : "")
                 .corpusExterne(refreshedEntity.getMetadata() != null ? refreshedEntity.getMetadata().getCorpusExterne() : "")
+                .droit(droit)
+                .legendeDroit(legendeDroit)
+                .coinsMonetairesDroit(coinsMonetairesDroit)
+                .revers(revers)
+                .legendeRevers(legendeRevers)
+                .coinsMonetairesRevers(coinsMonetairesRevers)
+                .materiau(materiau)
+                .denomination(denomination)
+                .metrologieMonnaie(metrologieMonnaie)
+                .valeur(valeur)
+                .technique(technique)
+                .fabrication(fabrication)
                 .selectedAuteurs(auteurs)
+                .droit(droit)
                 .build();
     }
 }

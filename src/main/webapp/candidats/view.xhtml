@@ -90,7 +90,7 @@
                                     <span class="summary-label">Collection :</span>
                                     <span class="summary-value">
                                         <i class="pi pi-folder summary-value-icon" />
-                                        #{candidatBean.getCollectionLabel()}
+                                        #{candidatBean.getCollectionLabel(candidatBean.selectedCollection)}
                                     </span>
                                 </div>
                                 <div class="summary-item">
@@ -105,98 +105,109 @@
                     </div>
                 </div>
 
-                <!-- 2ème partie : Formulaire / Consultation (visible pour modification OU pour consultation si validé/refusé) -->
-                <h:form id="createCandidatForm" rendered="#{candidatBean.canEditCurrentBrouillon() or candidatBean.isCurrentBrouillonReadOnly()}">
-                    <div class="#{candidatBean.isCurrentBrouillonReadOnly() ? 'brouillon-consultation-only' : ''}">
-                        <div class="wizard-content candidats-p-20">
-                            <ui:include src="form/labels-form.xhtml"/>
+                <div class="users-form-panel wizard-form-panel summary-panel text-justify">
+                    <!-- 2ème partie : Formulaire / Consultation (visible pour modification OU pour consultation si validé/refusé) -->
+                    <h:form id="createCandidatForm" rendered="#{candidatBean.canEditCurrentBrouillon() or candidatBean.isCurrentBrouillonReadOnly()}">
+                        <div class="#{candidatBean.isCurrentBrouillonReadOnly() ? 'brouillon-consultation-only' : ''}">
+                            <div class="wizard-content candidats-p-20">
 
-                            <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
-                                <ui:include src="form/appelation_type.xhtml"/>
+                                <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 5}">
+                                    <ui:include src="form/labels-form.xhtml"/>
+                                </h:panelGroup>
 
-                                <ui:include src="form/relations_type.xhtml"/>
-                            </h:panelGroup>
+                                <ui:include src="form/descriptions-form.xhtml"/>
 
-                            <ui:include src="form/descriptions-form.xhtml"/>
+                                <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
+                                    <ui:include src="form/periode-tpq-taq.xhtml"/>
 
-                            <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
-                                <ui:include src="form/periode-tpq-taq.xhtml"/>
+                                    <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                                        <ui:include src="form/appelation_type.xhtml"/>
 
-                                <ui:include src="form/divers.xhtml"/>
+                                        <ui:include src="form/relations_type.xhtml"/>
+                                    </h:panelGroup>
 
-                                <ui:include src="form/details.xhtml"/>
+                                    <ui:include src="form/divers.xhtml"/>
 
-                                <ui:include src="form/caracteristiques-physiques.xhtml"/>
-                            </h:panelGroup>
+                                    <h:panelGroup rendered="#{not candidatBean.getCollectionLabel() == 'MONNAIE' and not candidatBean.getCollectionLabel() == 'CASH'}">
+                                        <ui:include src="form/details.xhtml"/>
+                                        <ui:include src="form/caracteristiques-physiques.xhtml"/>
+                                    </h:panelGroup>
 
-                            <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
-                                <ui:include src="form/details_type.xhtml"/>
-                            </h:panelGroup>
+                                    <h:panelGroup rendered="#{candidatBean.getCollectionLabel() == 'MONNAIE' or candidatBean.getCollectionLabel() == 'CASH'}">
+                                        <ui:include src="form/description-monnaie.xhtml"/>
+                                        <ui:include src="form/caracteristiques-physiques-monnaie.xhtml"/>
+                                    </h:panelGroup>
+                                </h:panelGroup>
 
-                            <ui:include src="form/commentaire-bibliographie.xhtml" />
-                        </div>
+                                <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                                    <ui:include src="form/details_type.xhtml"/>
+                                </h:panelGroup>
 
-                        <!-- Styles personnalisés pour le formulaire de groupe -->
-                        <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
-                        <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
-                        <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
+                                <ui:include src="form/commentaire-bibliographie.xhtml" />
+                            </div>
 
-                        <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
-                        <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
-                            <ui:include src="openthesoDialog.xhtml"/>
-                        </ui:fragment>
+                            <!-- Styles personnalisés pour le formulaire de groupe -->
+                            <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
+                            <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
+                            <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
 
-                        <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
-                        <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
-                        
-                        <!-- Champ Auteurs -->
-                        <div class="users-form-panel wizard-form-panel candidats-mt-20">
-                            <div class="users-form-group users-form-group-full candidats-m-10">
-                                <p:outputLabel value="Auteurs" />
-                                <div class="auteurs-list">
-                                    <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
-                                        <div class="auteur-item">
-                                            <i class="pi pi-user auteur-icon" />
-                                            <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
-                                            <span class="auteur-email">(#{auteur.email})</span>
-                                        </div>
-                                    </ui:repeat>
-                                    <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
-                                        <p class="auteurs-empty">Aucun auteur assigné</p>
-                                    </ui:fragment>
+                            <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
+                            <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                                <ui:include src="openthesoDialog.xhtml"/>
+                            </ui:fragment>
+
+                            <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
+                            <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
+
+                            <!-- Champ Auteurs -->
+                            <div class="users-form-panel wizard-form-panel candidats-mt-20">
+                                <div class="users-form-group users-form-group-full candidats-m-10">
+                                    <p:outputLabel value="Auteurs" />
+                                    <div class="auteurs-list">
+                                        <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
+                                            <div class="auteur-item">
+                                                <i class="pi pi-user auteur-icon" />
+                                                <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
+                                                <span class="auteur-email">(#{auteur.email})</span>
+                                            </div>
+                                        </ui:repeat>
+                                        <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
+                                            <p class="auteurs-empty">Aucun auteur assigné</p>
+                                        </ui:fragment>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Boutons d'action (uniquement en mode édition) -->
-                    <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canEditCurrentBrouillon()}">
-                        <div class="wizard-navigation candidats-gap-30">
-                            <p:commandButton value="Enregistrer"
-                                             icon="pi pi-save"
-                                             styleClass="candidat-btn-add"
-                                             action="#{candidatBean.enregistrerModifications}"
-                                             process="@form"
-                                             update="@none"/>
-                            
-                            <p:commandButton value="Refuser"
-                                             icon="pi pi-times"
-                                             styleClass="candidat-btn-add candidats-btn-refuse"
-                                             rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
-                                             action="#{candidatBean.refuserCandidatFromView}"
-                                             process="@form"
-                                             update="@none"/>
 
-                            <p:commandButton value="Valider"
-                                             icon="pi pi-check"
-                                             styleClass="candidat-btn-add candidats-btn-validate"
-                                             rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
-                                             action="#{candidatBean.validerCandidatFromView}"
-                                             process="@form"
-                                             update="@none"/>
-                        </div>
-                    </h:panelGroup>
-                </h:form>
+                        <!-- Boutons d'action (uniquement en mode édition) -->
+                        <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                            <div class="wizard-navigation candidats-gap-30">
+                                <p:commandButton value="Enregistrer"
+                                                 icon="pi pi-save"
+                                                 styleClass="candidat-btn-add"
+                                                 action="#{candidatBean.enregistrerModifications}"
+                                                 process="@form"
+                                                 update="@none"/>
+
+                                <p:commandButton value="Refuser"
+                                                 icon="pi pi-times"
+                                                 styleClass="candidat-btn-add candidats-btn-refuse"
+                                                 rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
+                                                 action="#{candidatBean.refuserCandidatFromView}"
+                                                 process="@form"
+                                                 update="@none"/>
+
+                                <p:commandButton value="Valider"
+                                                 icon="pi pi-check"
+                                                 styleClass="candidat-btn-add candidats-btn-validate"
+                                                 rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
+                                                 action="#{candidatBean.validerCandidatFromView}"
+                                                 process="@form"
+                                                 update="@none"/>
+                            </div>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
             </div>
         </div>
 

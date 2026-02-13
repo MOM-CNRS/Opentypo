@@ -19,6 +19,7 @@ public class Step3FormData {
     @Builder.Default
     private List<CategoryDescriptionItem> descriptions = new ArrayList<>();
     private String candidatCommentaire;
+    private String candidatCommentaireDatation;
     private String candidatBibliographie;
     @Builder.Default
     private List<String> referencesBibliographiques = new ArrayList<>();
@@ -52,6 +53,18 @@ public class Step3FormData {
     private Integer taq;
     private String periode;
     private String corpusExterne;
+    private String droit;
+    private String legendeDroit;
+    private String coinsMonetairesDroit;
+    private String revers;
+    private String legendeRevers;
+    private String coinsMonetairesRevers;
+    private ReferenceOpentheso materiau;
+    private ReferenceOpentheso denomination;
+    private String metrologieMonnaie;
+    private ReferenceOpentheso valeur;
+    private ReferenceOpentheso technique;
+    private ReferenceOpentheso fabrication;
     @Builder.Default
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
 }
