@@ -1,0 +1,357 @@
+/* ============================================
+   PAGE GROUPE - DESIGN RESPONSIVE, DYNAMIQUE & FORMEL
+   Site de recherche institutionnel – Charte Opentypo
+   Couleurs : --color-action-main #47624D, fonds #EEEFE0 / #D1D8BE
+   ============================================ */
+
+/* ---- Variables locales (fallback charte) ---- */
+.groupe-detail-page {
+    --gp-main: var(--color-action-main, #47624D);
+    --gp-main-rgb: 71, 98, 77;
+    --gp-bg: var(--color-bg-global, #EEEFE0);
+    --gp-text: var(--color-text-primary, #333);
+    --gp-text-muted: var(--color-text-secondary, #819A91);
+    --gp-border: rgba(var(--gp-main-rgb), 0.12);
+    --gp-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --gp-shadow-hover: 0 8px 24px rgba(var(--gp-main-rgb), 0.1);
+}
+
+/* ---- Container principal ---- */
+.groupe-detail-page {
+    width: 100%;
+    padding: 1.25rem 1rem;
+    box-sizing: border-box;
+}
+
+@media (min-width: 992px) {
+    .groupe-detail-page {
+        padding: 1.5rem 1.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .groupe-detail-page {
+        padding: 1.75rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* ---- Panneaux ---- */
+.groupe-detail-page .concept-info-panel {
+    background: #ffffff;
+    border: 1px solid var(--gp-border);
+    border-left: 4px solid var(--gp-main);
+    border-radius: 10px;
+    box-shadow: var(--gp-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.groupe-detail-page .concept-info-panel:hover {
+    box-shadow: var(--gp-shadow-hover);
+}
+
+/* ---- En-tête du panel principal ---- */
+.groupe-detail-page .concept-info-panel:first-of-type .concept-info-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--gp-main-rgb), 0.06) 0%, rgba(var(--gp-main-rgb), 0.02) 100%);
+    border-bottom: 1px solid var(--gp-border);
+}
+
+.groupe-detail-page .reference-entity-type-badge {
+    background: linear-gradient(135deg, var(--gp-main) 0%, rgba(var(--gp-main-rgb), 0.9) 100%);
+    color: #ffffff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* ---- En-têtes des sections ---- */
+.groupe-detail-page .concept-info-header {
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--gp-main-rgb), 0.04) 0%, rgba(var(--gp-main-rgb), 0.01) 100%);
+    border-bottom: 1px solid var(--gp-border);
+}
+
+.groupe-detail-page .concept-info-title,
+.groupe-detail-page h2.concept-info-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gp-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ---- Section Liste des séries / types (collection-references) ---- */
+.groupe-detail-page .collection-references-header {
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--gp-main-rgb), 0.05) 0%, rgba(var(--gp-main-rgb), 0.02) 100%);
+    border-bottom: 1px solid var(--gp-border);
+    border-radius: 0;
+    margin-bottom: 0;
+    border: none;
+}
+
+.groupe-detail-page .collection-references-icon {
+    background: linear-gradient(135deg, var(--gp-main) 0%, rgba(var(--gp-main-rgb), 0.9) 100%);
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(var(--gp-main-rgb), 0.2);
+}
+
+.groupe-detail-page .collection-references-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gp-text);
+}
+
+.groupe-detail-page .collection-references-subtitle {
+    font-size: 0.8125rem;
+    color: var(--gp-text-muted);
+}
+
+/* ---- Grille d'informations (responsive) ---- */
+.groupe-detail-page .concept-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+@media (min-width: 576px) {
+    .groupe-detail-page .concept-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .groupe-detail-page .concept-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.groupe-detail-page .concept-info-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(var(--gp-main-rgb), 0.06);
+    border-right: 1px solid rgba(var(--gp-main-rgb), 0.06);
+    transition: background-color 0.2s ease;
+}
+
+.groupe-detail-page .concept-info-item:last-child {
+    border-bottom: none;
+}
+
+.groupe-detail-page .concept-info-item:nth-child(2n) {
+    border-right: none;
+}
+
+@media (min-width: 576px) {
+    .groupe-detail-page .concept-info-item:nth-child(2n) {
+        border-right: 1px solid rgba(var(--gp-main-rgb), 0.06);
+    }
+    .groupe-detail-page .concept-info-item:nth-child(4n),
+    .groupe-detail-page .concept-info-item:nth-child(4n-1) {
+        border-right: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .groupe-detail-page .concept-info-item:nth-child(4n),
+    .groupe-detail-page .concept-info-item:nth-child(4n-1) {
+        border-right: 1px solid rgba(var(--gp-main-rgb), 0.06);
+    }
+    .groupe-detail-page .concept-info-item:nth-child(3n) {
+        border-right: none;
+    }
+}
+
+.groupe-detail-page .concept-info-item-full {
+    grid-column: 1 / -1;
+    border-right: none;
+}
+
+.groupe-detail-page .concept-info-item:hover {
+    background-color: rgba(var(--gp-main-rgb), 0.02);
+}
+
+/* ---- Labels et valeurs ---- */
+.groupe-detail-page .concept-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gp-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.groupe-detail-page .concept-info-icon {
+    color: var(--gp-main);
+    font-size: 0.9375rem;
+}
+
+.groupe-detail-page .concept-info-value {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--gp-text);
+}
+
+.groupe-detail-page .concept-info-value .empty-field-message,
+.groupe-detail-page .concept-info-value .text-muted,
+.groupe-detail-page .bibliographie-empty {
+    color: var(--gp-text-muted);
+    font-style: italic;
+}
+
+/* ---- Cartes séries (reference-card) et types (typologie-card) ---- */
+.groupe-detail-page .reference-cards-container {
+    padding: 1.25rem;
+}
+
+.groupe-detail-page .reference-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.groupe-detail-page .reference-card,
+.groupe-detail-page .typologie-card {
+    border: 1px solid var(--gp-border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.groupe-detail-page .reference-card:hover,
+.groupe-detail-page .typologie-card:hover {
+    border-color: var(--gp-main);
+    box-shadow: var(--gp-shadow-hover);
+}
+
+.groupe-detail-page .reference-card:hover .reference-card-icon,
+.groupe-detail-page .reference-card:hover .reference-card-title {
+    color: var(--gp-main);
+}
+
+/* ---- Badges (auteurs, bibliographie) ---- */
+.groupe-detail-page .bibliographie-badge {
+    background: rgba(var(--gp-main-rgb), 0.08);
+    border: 1px solid rgba(var(--gp-main-rgb), 0.15);
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.25rem 0.25rem 0.25rem 0;
+}
+
+.groupe-detail-page .bibliographie-badge-icon {
+    color: var(--gp-main);
+    font-size: 0.8125rem;
+}
+
+.groupe-detail-page .bibliographie-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+/* ---- Message vide (aucune série/type) ---- */
+.groupe-detail-page .empty-categories-message {
+    grid-column: 1 / -1;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background: rgba(var(--gp-main-rgb), 0.03);
+    border-radius: 10px;
+    border: 1px dashed var(--gp-border);
+}
+
+.groupe-detail-page .empty-categories-icon {
+    font-size: 2.5rem;
+    color: var(--gp-text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.groupe-detail-page .empty-categories-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gp-text);
+    margin: 0 0 0.5rem 0;
+}
+
+.groupe-detail-page .empty-categories-text {
+    font-size: 0.9375rem;
+    color: var(--gp-text-muted);
+    margin: 0 0 0.75rem 0;
+}
+
+.groupe-detail-page .empty-categories-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--gp-main);
+}
+
+.groupe-detail-page .empty-categories-hint i {
+    font-size: 1rem;
+}
+
+/* ---- Espacement entre sections ---- */
+.groupe-detail-page .row.details-row-mt-15,
+.groupe-detail-page .row.mt-20 {
+    margin-top: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .groupe-detail-page .row.details-row-mt-15,
+    .groupe-detail-page .row.mt-20 {
+        margin-top: 1.5rem;
+    }
+}
+
+/* ---- Boutons d'action ---- */
+.groupe-detail-page .concept-action-button {
+    border-color: var(--gp-border);
+    color: var(--gp-main);
+}
+
+.groupe-detail-page .concept-action-button:hover {
+    background: var(--gp-main);
+    color: #ffffff;
+    border-color: var(--gp-main);
+}
+
+/* ---- Responsive mobile ---- */
+@media (max-width: 575px) {
+    .groupe-detail-page {
+        padding: 1rem 0.75rem;
+    }
+
+    .groupe-detail-page .concept-info-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .groupe-detail-page .concept-info-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .groupe-detail-page .concept-info-item {
+        padding: 1rem;
+        border-right: none;
+    }
+
+    .groupe-detail-page .reference-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}

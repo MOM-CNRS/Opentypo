@@ -7,6 +7,7 @@
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentGroupePanels" layout="block">
+        <div class="groupe-detail-page">
         <div class="row">
             <div class="col-md-12">
                 <div class="concept-info-panel">
@@ -281,14 +282,6 @@
                                         <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
                                     </div>
                                 </div>
-                                <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                                    <p:commandButton value="Créer une nouvelle série"
-                                                     icon="pi pi-plus"
-                                                     styleClass="collection-create-btn"
-                                                     onclick="PF('createSerieDialog').show(); return false;"
-                                                     process="@this"
-                                                     update="@none"/>
-                                </h:panelGroup>
                             </div>
 
                             <!-- Liste des séries -->
@@ -366,14 +359,6 @@
                                         <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
                                     </div>
                                 </div>
-                                <h:panelGroup class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                                    <p:commandButton value="Créer un nouveau type"
-                                                     icon="pi pi-plus"
-                                                     styleClass="collection-create-btn"
-                                                     onclick="PF('createTypeDialog').show(); return false;"
-                                                     process="@this"
-                                                     update="@none"/>
-                                </h:panelGroup>
                             </div>
 
                             <!-- Liste des types -->
@@ -483,149 +468,17 @@
                     </div>
                 </div>
 
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Déscription</h2>
-                                </div>
-                            </div>
+                <ui:include src="../communs/divers.xhtml"/>
 
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-palette concept-info-icon" />
-                                        <span>Décors</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.descriptionDetail.decors}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.descriptionDetail and not empty applicationBean.selectedEntity.descriptionDetail.decors}"/>
-                                        <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedEntity.descriptionDetail or empty applicationBean.selectedEntity.descriptionDetail.decors}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/description_monnaie.xhtml"/>
+                </h:panelGroup>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-tag concept-info-icon" />
-                                        <span>Marques/estampilles</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.descriptionDetail.marques}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.descriptionDetail and not empty applicationBean.selectedEntity.descriptionDetail.marques}"/>
-                                        <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedEntity.descriptionDetail or empty applicationBean.selectedEntity.descriptionDetail.marques}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-tags concept-info-icon" />
-                                        <span>Catégorie fonctionnelle</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.categorieFonctionnelle.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Caractéristiques physique</h2>
-                                </div>
-                            </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-box concept-info-icon" />
-                                        <span>Matériaux</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.materiaux}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}"/>
-                                        <h:outputText value="Non spécifié" 
-                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-circle concept-info-icon" />
-                                        <span>Forme</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.forme}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.forme}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-arrows-alt concept-info-icon" />
-                                        <span>Dimensions</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-wrench concept-info-icon" />
-                                        <span>Technique</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.technique}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-cog concept-info-icon" />
-                                        <span>Fabrication</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                </h:panelGroup>
 
                 <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
@@ -673,11 +526,6 @@
                 </div>
             </div>
         </div>
+        </div>
     </h:panelGroup>
-    
-    <!-- Dialog pour créer une série -->
-    <ui:include src="../dialogs/serieDialog.xhtml"/>
-    
-    <!-- Dialog pour créer un type -->
-    <ui:include src="../dialogs/typeDialog.xhtml"/>
 </ui:composition>
