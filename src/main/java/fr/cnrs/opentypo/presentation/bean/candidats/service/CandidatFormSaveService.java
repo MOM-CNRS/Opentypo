@@ -40,15 +40,42 @@ public class CandidatFormSaveService {
     }
 
     @Transactional
+    public void saveAncienneVersion(Long entityId, String ancienneVersion) {
+        updateEntity(entityId, e -> e.setAncienneVersion(ancienneVersion != null ? ancienneVersion.trim() : null));
+    }
+
+    @Transactional
+    public void saveTypologieScientifique(Long entityId, String typologieScientifique) {
+        updateEntity(entityId, e -> e.setTypologieScientifique(typologieScientifique != null ? typologieScientifique.trim() : null));
+    }
+
+    @Transactional
+    public void saveIdentifiantPerenne(Long entityId, String identifiantPerenne) {
+        updateEntity(entityId, e -> e.setIdentifiantPerenne(identifiantPerenne != null ? identifiantPerenne.trim() : null));
+    }
+
+    @Transactional
     public void saveReferencesBibliographiques(Long entityId, List<String> refs) {
         String joined = (refs != null && !refs.isEmpty()) ? String.join("; ", refs) : null;
         updateEntity(entityId, e -> e.setRereferenceBibliographique(joined));
     }
 
     @Transactional
+    public void saveSitesArcheologiques(Long entityId, List<String> sitesArcheologiques) {
+        String joined = (sitesArcheologiques != null && !sitesArcheologiques.isEmpty()) ? String.join("; ", sitesArcheologiques) : null;
+        updateEntity(entityId, e -> e.setSitesArcheologiques(joined));
+    }
+
+    @Transactional
     public void saveAteliers(Long entityId, List<String> ateliersList) {
         String joined = (ateliersList != null && !ateliersList.isEmpty()) ? String.join("; ", ateliersList) : null;
         updateEntity(entityId, e -> e.setAteliers(joined));
+    }
+
+    @Transactional
+    public void saveAttestations(Long entityId, List<String> attestations) {
+        String joined = (attestations != null && !attestations.isEmpty()) ? String.join("; ", attestations) : null;
+        updateEntity(entityId, e -> e.setAttestations(joined));
     }
 
     @Transactional

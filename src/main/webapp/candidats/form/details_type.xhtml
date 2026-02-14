@@ -1,5 +1,4 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
@@ -12,12 +11,12 @@
                 <p:chips id="attestations"
                          value="#{candidatBean.attestations}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
                 </p:chips>
             </div>
             <p:message for="attestations" display="icon"/>
@@ -31,12 +30,12 @@
                 <p:chips id="sites_archeologiques"
                          value="#{candidatBean.sitesArcheologiques}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                 </p:chips>
             </div>
             <p:message for="sites_archeologiques" display="icon"/>
@@ -64,46 +63,70 @@
         <!-- Typologie scientifique -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Typologie scientifique" />
-            <div class="input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.typologieScientifique}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour typologie scientifique"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveTypologieScientifique}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer la typologie scientifique"/>
+                </div>
             </div>
-            <p:message for="@previous" display="icon"/>
         </div>
 
         <!-- Identifiant pérenne -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
+        <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Identifiant pérenne" />
-            <div class="input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.identifiantPerenne}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour l'identifiant perenne"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveIdentifiantPerenne}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer l'identifiant perenne"/>
+                </div>
             </div>
-            <p:message for="@previous" display="icon"/>
         </div>
 
         <!-- Ancienne version -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
+        <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Ancienne version" />
-            <div class="input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-align-left input-icon" />
-                <p:inputText value="#{candidatBean.descriptionPate}"
-                             styleClass="users-input"
-                             placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
-                    <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
-                </p:inputText>
+            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{candidatBean.ancienneVersion}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour l'ancienne version"/>
+                </div>
+
+                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save"
+                                     actionListener="#{candidatBean.saveAncienneVersion}"
+                                     process="@form"
+                                     ajax="true"
+                                     update=":growl"
+                                     title="Enregistrer l'ancienne version"/>
+                </div>
             </div>
-            <p:message for="@previous" display="icon"/>
         </div>
     </div>
 </ui:composition>

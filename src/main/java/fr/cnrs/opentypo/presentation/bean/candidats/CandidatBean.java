@@ -1014,6 +1014,11 @@ public class CandidatBean implements Serializable {
         droit = res.getStep3Data().getDroit();
         legendeDroit = res.getStep3Data().getLegendeDroit();
         coinsMonetairesDroit = res.getStep3Data().getCoinsMonetairesDroit();
+        ancienneVersion = res.getStep3Data().getAncienneVersion();
+        identifiantPerenne = res.getStep3Data().getIdentifiantPerenne();
+        typologieScientifique = res.getStep3Data().getTypologieScientifique();
+        attestations = res.getStep3Data().getAttestations();
+        sitesArcheologiques = res.getStep3Data().getSitesArcheologiques();
 
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
         loadAvailableAuteurs();
@@ -1151,6 +1156,36 @@ public class CandidatBean implements Serializable {
                 return !isLangueAlreadyUsedIndescriptions(langue.getCode(), null);
             })
             .collect(Collectors.toList());
+    }
+
+    public void saveSitesArcheologiques() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveSitesArcheologiques(currentEntity.getId(), sitesArcheologiques);
+        }
+    }
+
+    public void saveAttestations() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveAttestations(currentEntity.getId(), attestations);
+        }
+    }
+
+    public void saveAncienneVersion() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveAncienneVersion(currentEntity.getId(), ancienneVersion);
+        }
+    }
+
+    public void saveTypologieScientifique() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveTypologieScientifique(currentEntity.getId(), typologieScientifique);
+        }
+    }
+
+    public void saveIdentifiantPerenne() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveIdentifiantPerenne(currentEntity.getId(), identifiantPerenne);
+        }
     }
 
     public void saveCommentaire() {
