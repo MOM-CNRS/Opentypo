@@ -35,6 +35,11 @@ public class CandidatFormSaveService {
     }
 
     @Transactional
+    public void saveReference(Long entityId, String reference) {
+        updateEntity(entityId, e -> e.setReference(reference != null ? reference.trim() : null));
+    }
+
+    @Transactional
     public void saveBibliographie(Long entityId, String bibliographie) {
         updateEntity(entityId, e -> e.setBibliographie(bibliographie != null ? bibliographie.trim() : null));
     }
@@ -64,6 +69,12 @@ public class CandidatFormSaveService {
     public void saveSitesArcheologiques(Long entityId, List<String> sitesArcheologiques) {
         String joined = (sitesArcheologiques != null && !sitesArcheologiques.isEmpty()) ? String.join("; ", sitesArcheologiques) : null;
         updateEntity(entityId, e -> e.setSitesArcheologiques(joined));
+    }
+
+    @Transactional
+    public void saveReferences(Long entityId, List<String> referentiel) {
+        String joined = (referentiel != null && !referentiel.isEmpty()) ? String.join("; ", referentiel) : null;
+        updateEntity(entityId, e -> e.setReferences(joined));
     }
 
     @Transactional

@@ -14,11 +14,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedBy;
@@ -79,6 +79,7 @@ public class Entity implements Serializable {
     @JoinColumn(name = "production_id")
     private ReferenceOpentheso production;
 
+    @SQLRestriction("code = 'AIRE_CIRCULATION'")
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReferenceOpentheso> airesCirculation = new ArrayList<>();
 
@@ -239,6 +240,13 @@ public class Entity implements Serializable {
     public void setCommentaireDatation(String commentaireDatation) {
         ensureMetadata();
         metadata.setCommentaireDatation(commentaireDatation);
+    }
+
+    /**
+     * Définit le commentaire dans les métadonnées
+     */
+    public String getCommentaireDatation() {
+        return metadata != null ? metadata.getCommentaireDatation() : null;
     }
 
     /**
@@ -434,6 +442,21 @@ public class Entity implements Serializable {
     public void setAttestations(String attestations) {
         ensureMetadata();
         metadata.setAttestations(attestations);
+    }
+
+    /**
+     * Obtient les attestations depuis les métadonnées
+     */
+    public String getReferences() {
+        return metadata != null ? metadata.getReference() : null;
+    }
+
+    /**
+     * Définit les attestations dans les métadonnées
+     */
+    public void setReferences(String references) {
+        ensureMetadata();
+        metadata.setReference(references);
     }
 
     /**

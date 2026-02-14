@@ -1,0 +1,378 @@
+/* ============================================
+   PAGE TYPE - DESIGN RESPONSIVE, DYNAMIQUE & FORMEL
+   Site de recherche institutionnel – Charte Opentypo
+   Couleurs : --color-action-main #47624D, fonds #EEEFE0 / #D1D8BE
+   ============================================ */
+
+/* ---- Variables locales (fallback charte) ---- */
+.type-detail-page {
+    --type-main: var(--color-action-main, #47624D);
+    --type-main-rgb: 71, 98, 77;
+    --type-bg: var(--color-bg-global, #EEEFE0);
+    --type-bg-secondary: var(--color-bg-secondary, #D1D8BE);
+    --type-text: var(--color-text-primary, #333);
+    --type-text-muted: var(--color-text-secondary, #819A91);
+    --type-border: rgba(var(--type-main-rgb), 0.12);
+    --type-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --type-shadow-hover: 0 8px 24px rgba(var(--type-main-rgb), 0.1);
+}
+
+/* ---- Container principal ---- */
+.type-detail-page {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+    .type-detail-page {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* ---- Panneaux ---- */
+.type-detail-page .concept-info-panel {
+    background: #ffffff;
+    border: 1px solid var(--type-border);
+    border-left: 4px solid var(--type-main);
+    border-radius: 10px;
+    box-shadow: var(--type-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.type-detail-page .concept-info-panel:hover {
+    box-shadow: var(--type-shadow-hover);
+}
+
+/* ---- En-tête du panel principal (identité du type) ---- */
+.type-detail-page .concept-info-panel:first-of-type .concept-info-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--type-main-rgb), 0.06) 0%, rgba(var(--type-main-rgb), 0.02) 100%);
+    border-bottom: 1px solid var(--type-border);
+}
+
+.type-detail-page .reference-entity-type-badge {
+    background: linear-gradient(135deg, var(--type-main) 0%, rgba(var(--type-main-rgb), 0.9) 100%);
+    color: #ffffff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* ---- En-têtes des sections (Galerie, Relations, Détails, etc.) ---- */
+.type-detail-page .concept-info-panel .concept-info-header {
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--type-main-rgb), 0.04) 0%, rgba(var(--type-main-rgb), 0.01) 100%);
+    border-bottom: 1px solid var(--type-border);
+}
+
+.type-detail-page .concept-info-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.type-detail-page .concept-info-title,
+.type-detail-page h2.concept-info-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--type-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.type-detail-page .concept-info-title .pi,
+.type-detail-page .icon-color-main {
+    color: var(--type-main);
+    font-size: 1.125rem;
+}
+
+/* ---- Grille d'informations (responsive) ---- */
+.type-detail-page .concept-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+@media (min-width: 576px) {
+    .type-detail-page .concept-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .type-detail-page .concept-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.type-detail-page .concept-info-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(var(--type-main-rgb), 0.06);
+    border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    transition: background-color 0.2s ease;
+}
+
+.type-detail-page .concept-info-item:last-child {
+    border-bottom: none;
+}
+
+.type-detail-page .concept-info-item:nth-child(2n) {
+    border-right: none;
+}
+
+@media (min-width: 576px) {
+    .type-detail-page .concept-info-item:nth-child(2n) {
+        border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    }
+    .type-detail-page .concept-info-item:nth-child(4n),
+    .type-detail-page .concept-info-item:nth-child(4n-1) {
+        border-right: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .type-detail-page .concept-info-item:nth-child(4n),
+    .type-detail-page .concept-info-item:nth-child(4n-1) {
+        border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    }
+    .type-detail-page .concept-info-item:nth-child(3n) {
+        border-right: none;
+    }
+}
+
+.type-detail-page .concept-info-item-full {
+    grid-column: 1 / -1;
+    border-right: none;
+}
+
+.type-detail-page .concept-info-item:hover {
+    background-color: rgba(var(--type-main-rgb), 0.02);
+}
+
+/* ---- Labels et valeurs ---- */
+.type-detail-page .concept-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--type-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.type-detail-page .concept-info-icon {
+    color: var(--type-main);
+    font-size: 0.9375rem;
+}
+
+.type-detail-page .concept-info-value {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--type-text);
+}
+
+.type-detail-page .concept-info-value .empty-field-message {
+    color: var(--type-text-muted);
+    font-style: italic;
+}
+
+/* Lien externe dans les valeurs (thésaurus, référentiels) */
+.type-detail-page .concept-value-external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--type-main);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.type-detail-page .concept-value-external-link:hover {
+    color: var(--type-main);
+    background-color: rgba(var(--type-main-rgb), 0.08);
+    text-decoration: none;
+}
+
+.type-detail-page .concept-value-external-link .concept-value-external-link-icon {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.type-detail-page .concept-info-description {
+    line-height: 1.7;
+}
+
+/* Utilitaires (si absents) */
+.type-detail-page .fs-1rem { font-size: 1rem !important; }
+.type-detail-page .mr-0-5rem { margin-right: 0.5rem !important; }
+
+/* ---- Espacement entre sections ---- */
+.type-detail-page .row.details-row-mt-15,
+.type-detail-page .row.mt-20 {
+    margin-top: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .type-detail-page .row.details-row-mt-15,
+    .type-detail-page .row.mt-20 {
+        margin-top: 1.5rem;
+    }
+}
+
+/* ---- Galerie (responsive dynamique) ---- */
+/* Layout : [carte gauche] | [galleria centre] | [carte droite] */
+.type-detail-page .galleria-container {
+    padding: 1.25rem;
+}
+
+.type-detail-page .galleria-wrapper-with-images {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Desktop : 3 colonnes côte à côte, cartes latérales centrées verticalement */
+@media (min-width: 992px) {
+    .type-detail-page .galleria-wrapper-with-images {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    /* Carte gauche - fixe à gauche */
+    .type-detail-page .galleria-side-card-left {
+        order: 1;
+        flex: 0 0 auto;
+        width: 180px;
+        height: 200px;
+    }
+
+    /* Galleria au centre - prend l'espace restant */
+    .type-detail-page .galleria-main-wrapper {
+        order: 2;
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    /* Carte droite - fixe à droite */
+    .type-detail-page .galleria-side-card-right {
+        order: 3;
+        flex: 0 0 auto;
+        width: 180px;
+        height: 200px;
+    }
+}
+
+/* Mobile / tablette : galleria seul, cartes cachées */
+.type-detail-page .galleria-main-wrapper {
+    width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 991px) {
+    .type-detail-page .galleria-side-card {
+        display: none;
+    }
+}
+
+.type-detail-page .modern-galleria.ui-galleria {
+    border: 1px solid var(--type-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--type-shadow);
+}
+
+.type-detail-page .modern-galleria .ui-galleria-panel-wrapper {
+    background: rgba(var(--type-main-rgb), 0.02);
+}
+
+.type-detail-page .modern-galleria .ui-galleria-thumbnail-container {
+    border-top: 1px solid var(--type-border);
+    background: rgba(var(--type-main-rgb), 0.02);
+}
+
+.type-detail-page .galleria-caption {
+    background: linear-gradient(135deg, rgba(var(--type-main-rgb), 0.05) 0%, rgba(var(--type-main-rgb), 0.02) 100%);
+    border-top: 1px solid var(--type-border);
+}
+
+.type-detail-page .modern-galleria .ui-galleria-nav-prev,
+.type-detail-page .modern-galleria .ui-galleria-nav-next {
+    background: #ffffff !important;
+    border: 1px solid var(--type-border) !important;
+    color: var(--type-main) !important;
+}
+
+.type-detail-page .modern-galleria .ui-galleria-nav-prev:hover,
+.type-detail-page .modern-galleria .ui-galleria-nav-next:hover {
+    background: var(--type-main) !important;
+    color: #ffffff !important;
+}
+
+.type-detail-page .modern-galleria .ui-galleria-indicator-item.ui-galleria-indicator-item-active {
+    background: var(--type-main) !important;
+}
+
+/* ---- Boutons d'action (header) ---- */
+.type-detail-page .concept-action-button {
+    border-color: var(--type-border);
+    color: var(--type-main);
+}
+
+.type-detail-page .concept-action-button:hover {
+    background: var(--type-main);
+    color: #ffffff;
+    border-color: var(--type-main);
+}
+
+/* ---- Titre / lien série ---- */
+.type-detail-page .collection-panel-title {
+    font-weight: 600;
+    color: var(--type-text);
+}
+
+.type-detail-page .collection-panel-title-link:hover .collection-panel-title {
+    color: var(--type-main);
+}
+
+/* ---- Responsive mobile ---- */
+@media (max-width: 575px) {
+
+    .type-detail-page .concept-info-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .type-detail-page .concept-info-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .type-detail-page .concept-info-item {
+        padding: 1rem;
+        border-right: none;
+    }
+
+    .type-detail-page .galleria-container {
+        padding: 1rem;
+    }
+
+    .type-detail-page .concept-info-panel:first-of-type .concept-info-header {
+        padding: 1rem;
+    }
+}

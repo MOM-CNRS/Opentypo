@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -12,7 +13,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
+import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -23,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -63,6 +67,12 @@ public class TypeBean implements Serializable {
     @Inject
     private SearchBean searchBean;
 
+    @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
+    private CandidatReferenceTreeService candidatReferenceTreeService;
+
     private String typeCode;
     private String typeLabel;
     private String typeDescription;
@@ -78,6 +88,7 @@ public class TypeBean implements Serializable {
     private Integer editingTypeTpq;
     private Integer editingTypeTaq;
 
+
     public void resetTypeForm() {
         typeCode = null;
         typeLabel = null;
@@ -88,8 +99,7 @@ public class TypeBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
-                typeCode, entityRepository, ":typeForm")) {
+        if (!EntityValidator.validateCode(typeCode, entityRepository, ":typeForm")) {
             return;
         }
 
@@ -215,18 +225,6 @@ public class TypeBean implements Serializable {
         editingTypeStatut = null;
         editingTypeTpq = null;
         editingTypeTaq = null;
-    }
-
-    public void onLabelLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingLabelLangueCode != null) {
-            editingTypeLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), editingLabelLangueCode);
-        }
-    }
-
-    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingDescriptionLangueCode != null) {
-            editingTypeDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), editingDescriptionLangueCode);
-        }
     }
 
     @Transactional
@@ -365,5 +363,10 @@ public class TypeBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                             "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
+    }
+
+    public String getCollectionLabel(Long entityId) {
+        Entity entity = collectionService.findCollectionIdByEntityId(entityId);
+        return candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
     }
 }

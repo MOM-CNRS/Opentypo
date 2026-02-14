@@ -170,6 +170,11 @@ public class CandidatFormDataLoader {
             }
         }
 
+        List<String> referentiels = new ArrayList<>();
+        if (refreshedEntity.getMetadata() != null && refreshedEntity.getMetadata().getReference() != null) {
+            referentiels = new ArrayList<>(Arrays.asList(refreshedEntity.getMetadata().getReference().split("; ")));
+        }
+
         String typeDescription = null;
         if (refreshedEntity.getEntityType() != null
                 && EntityConstants.ENTITY_TYPE_TYPE.equals(refreshedEntity.getEntityType().getCode())) {
@@ -233,7 +238,7 @@ public class CandidatFormDataLoader {
                 .naturePate(naturePate)
                 .inclusions(inclusions)
                 .cuissonPostCuisson(cuisson)
-                .referentiel(refreshedEntity.getReference())
+                .reference(refreshedEntity.getReference())
                 .typologieScientifique(refreshedEntity.getTypologieScientifique())
                 .identifiantPerenne(refreshedEntity.getIdentifiantPerenne())
                 .ancienneVersion(refreshedEntity.getAncienneVersion())
@@ -258,6 +263,7 @@ public class CandidatFormDataLoader {
                 .fabrication(fabrication)
                 .selectedAuteurs(auteurs)
                 .droit(droit)
+                .references(referentiels)
                 .build();
     }
 }

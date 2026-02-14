@@ -1,0 +1,82 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="row mt-20 details-row-mt-15">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <div class="concept-info-grid">
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-tag concept-info-icon" />
+                            <span>Production</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production}">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production.url}">
+                                    <h:outputLink value="#{applicationBean.selectedEntity.production.url}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  styleClass="concept-value-external-link">
+                                        #{applicationBean.selectedEntity.production.valeur}
+                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                    </h:outputLink>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.production.url}">
+                                    #{applicationBean.selectedEntity.production.valeur}
+                                </ui:fragment>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.production}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-tag concept-info-icon" />
+                            <span>Atelier(s)</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.ateliers}">
+                                <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.ateliers, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                </span>
+                                    </ui:fragment>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucun atelier disponible"
+                                          rendered="#{empty applicationBean.selectedEntity.metadata.ateliers}"
+                                          styleClass="bibliographie-empty" />
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-tag concept-info-icon" />
+                            <span>Aire de circulation</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.airesCirculation}">
+                                <ui:repeat value="#{applicationBean.selectedEntity.airesCirculation}" var="ref">
+                                    <ui:fragment rendered="#{ref != null and not empty ref.valeur}">
+                                        <span class="bibliographie-badge">
+                                            <span class="bibliographie-badge-text">#{ref.valeur}</span>
+                                        </span>
+                                    </ui:fragment>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Non renseigné"
+                                          rendered="#{empty applicationBean.selectedEntity.airesCirculation}"
+                                          styleClass="empty-field-message" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

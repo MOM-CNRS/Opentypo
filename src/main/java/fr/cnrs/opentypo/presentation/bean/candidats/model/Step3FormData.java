@@ -30,7 +30,11 @@ public class Step3FormData {
     @Builder.Default
     private List<String> sitesArcheologiques = new ArrayList<>();
     @Builder.Default
+    private List<String> references = new ArrayList<>();
+    @Builder.Default
     private List<ReferenceOpentheso> airesCirculation = new ArrayList<>();
+    @Builder.Default
+    private List<ReferenceOpentheso> referentiels = new ArrayList<>();
     private String decors;
     @Builder.Default
     private List<String> marquesEstampilles = new ArrayList<>();
@@ -42,7 +46,6 @@ public class Step3FormData {
     private ReferenceOpentheso naturePate;
     private ReferenceOpentheso inclusions;
     private ReferenceOpentheso cuissonPostCuisson;
-    private String referentiel;
     private String typologieScientifique;
     private String identifiantPerenne;
     private String ancienneVersion;
@@ -65,6 +68,7 @@ public class Step3FormData {
     private ReferenceOpentheso valeur;
     private ReferenceOpentheso technique;
     private ReferenceOpentheso fabrication;
+    private String reference;
     @Builder.Default
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
 }

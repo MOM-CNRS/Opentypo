@@ -596,31 +596,7 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'une série spécifique
      */
     public void showSerie(Entity serie) {
-        if (serie != null && serie.getId() != null) {
-            try {
-                Entity loaded = entityRepository.findById(serie.getId()).orElse(serie);
-                if (loaded != null) {
-                    if (loaded.getProduction() != null) loaded.getProduction().getValeur();
-                    if (loaded.getAiresCirculation() != null) loaded.getAiresCirculation().forEach(ref -> {
-                        if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) ref.getValeur();
-                    });
-                    if (loaded.getCategorieFonctionnelle() != null) loaded.getCategorieFonctionnelle().getValeur();
-                    if (loaded.getCaracteristiquePhysique() != null) {
-                        CaracteristiquePhysique cp = loaded.getCaracteristiquePhysique();
-                        if (cp.getForme() != null) cp.getForme().getValeur();
-                        if (cp.getDimensions() != null) cp.getDimensions().getValeur();
-                        if (cp.getTechnique() != null) cp.getTechnique().getValeur();
-                        if (cp.getFabrication() != null) cp.getFabrication().getValeur();
-                    }
-                }
-                this.selectedEntity = loaded;
-            } catch (Exception e) {
-                log.error("Erreur lors du rechargement de la série depuis la base de données", e);
-                this.selectedEntity = serie;
-            }
-        } else {
-            this.selectedEntity = serie;
-        }
+        this.selectedEntity = entityRepository.findById(serie.getId()).orElse(serie);
         panelState.showSerie();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
@@ -635,31 +611,7 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un type spécifique
      */
     public void showType(Entity type) {
-        if (type != null && type.getId() != null) {
-            try {
-                Entity loaded = entityRepository.findById(type.getId()).orElse(type);
-                if (loaded != null) {
-                    if (loaded.getProduction() != null) loaded.getProduction().getValeur();
-                    if (loaded.getAiresCirculation() != null) loaded.getAiresCirculation().forEach(ref -> {
-                        if (ref != null && ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode())) ref.getValeur();
-                    });
-                    if (loaded.getCategorieFonctionnelle() != null) loaded.getCategorieFonctionnelle().getValeur();
-                    if (loaded.getCaracteristiquePhysique() != null) {
-                        CaracteristiquePhysique cp = loaded.getCaracteristiquePhysique();
-                        if (cp.getForme() != null) cp.getForme().getValeur();
-                        if (cp.getDimensions() != null) cp.getDimensions().getValeur();
-                        if (cp.getTechnique() != null) cp.getTechnique().getValeur();
-                        if (cp.getFabrication() != null) cp.getFabrication().getValeur();
-                    }
-                }
-                this.selectedEntity = loaded;
-            } catch (Exception e) {
-                log.error("Erreur lors du rechargement du type depuis la base de données", e);
-                this.selectedEntity = type;
-            }
-        } else {
-            this.selectedEntity = type;
-        }
+        this.selectedEntity = entityRepository.findById(type.getId()).orElse(type);
         panelState.showType();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();

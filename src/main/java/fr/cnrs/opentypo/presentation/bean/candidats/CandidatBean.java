@@ -236,6 +236,7 @@ public class CandidatBean implements Serializable {
     private List<String> ateliers = new ArrayList<>();
     private List<String> attestations = new ArrayList<>();
     private List<String> sitesArcheologiques = new ArrayList<>();
+    private List<String> references = new ArrayList<>();
     private String referentiel; // Référentiel (enregistré dans entity.reference)
     private String typologieScientifique; // Typologie scientifique (enregistré dans entity.typologieScientifique)
     private String identifiantPerenne; // Identifiant pérenne (enregistré dans entity.identifiantPerenne)
@@ -659,6 +660,7 @@ public class CandidatBean implements Serializable {
         ateliers = data.getAteliers() != null ? new ArrayList<>(data.getAteliers()) : new ArrayList<>();
         attestations = data.getAttestations() != null ? new ArrayList<>(data.getAttestations()) : new ArrayList<>();
         sitesArcheologiques = data.getSitesArcheologiques() != null ? new ArrayList<>(data.getSitesArcheologiques()) : new ArrayList<>();
+        references = data.getReferences() != null ? new ArrayList<>(data.getReferences()) : new ArrayList<>();
         airesCirculation = data.getAiresCirculation() != null ? new ArrayList<>(data.getAiresCirculation()) : new ArrayList<>();
         decors = data.getDecors();
         marquesEstampilles = data.getMarquesEstampilles() != null ? new ArrayList<>(data.getMarquesEstampilles()) : new ArrayList<>();
@@ -682,7 +684,6 @@ public class CandidatBean implements Serializable {
         valeur = data.getValeur();
         technique = data.getTechnique();
         fabrication = data.getFabrication();
-        referentiel = data.getReferentiel();
         typologieScientifique = data.getTypologieScientifique();
         identifiantPerenne = data.getIdentifiantPerenne();
         ancienneVersion = data.getAncienneVersion();
@@ -1019,6 +1020,7 @@ public class CandidatBean implements Serializable {
         typologieScientifique = res.getStep3Data().getTypologieScientifique();
         attestations = res.getStep3Data().getAttestations();
         sitesArcheologiques = res.getStep3Data().getSitesArcheologiques();
+        references = res.getStep3Data().getReferences();
 
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
         loadAvailableAuteurs();
@@ -1161,6 +1163,12 @@ public class CandidatBean implements Serializable {
     public void saveSitesArcheologiques() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveSitesArcheologiques(currentEntity.getId(), sitesArcheologiques);
+        }
+    }
+
+    public void saveReferences() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveReferences(currentEntity.getId(), references);
         }
     }
 

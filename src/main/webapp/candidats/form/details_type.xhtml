@@ -47,14 +47,14 @@
             <div class="input-wrapper">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="referentiel"
-                         value="#{candidatBean.marquesEstampilles}"
+                         value="#{candidatBean.references}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         placeholder="Saisissez un référentiel et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
                 </p:chips>
             </div>
             <p:message for="referentiel" display="icon"/>
