@@ -1,0 +1,94 @@
+/* ============================================
+   PAGES DÉTAIL : COLLECTION, REFERENCE, CATEGORY, SERIE
+   Homogène avec type et groupe - Charte Opentypo
+   ============================================ */
+
+/* ---- Variables communes ---- */
+.collection-detail-page,
+.reference-detail-page,
+.category-detail-page,
+.serie-detail-page {
+    --dp-main: var(--color-action-main, #47624D);
+    --dp-main-rgb: 71, 98, 77;
+    --dp-border: rgba(var(--dp-main-rgb), 0.12);
+    --dp-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --dp-shadow-hover: 0 8px 24px rgba(var(--dp-main-rgb), 0.1);
+}
+
+/* ---- Container principal ---- */
+.collection-detail-page,
+.reference-detail-page,
+.category-detail-page,
+.serie-detail-page {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+    .collection-detail-page,
+    .reference-detail-page,
+    .category-detail-page,
+    .serie-detail-page {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* ---- Panneaux concept-info ---- */
+.collection-detail-page .concept-info-panel,
+.reference-detail-page .concept-info-panel,
+.category-detail-page .concept-info-panel,
+.serie-detail-page .concept-info-panel {
+    background: #ffffff;
+    border: 1px solid var(--dp-border);
+    border-left: 4px solid var(--dp-main);
+    border-radius: 10px;
+    box-shadow: var(--dp-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.collection-detail-page .concept-info-panel:hover,
+.reference-detail-page .concept-info-panel:hover,
+.category-detail-page .concept-info-panel:hover,
+.serie-detail-page .concept-info-panel:hover {
+    box-shadow: var(--dp-shadow-hover);
+}
+
+/* ---- Espacement entre sections ---- */
+.collection-detail-page .row,
+.reference-detail-page .row,
+.category-detail-page .row,
+.serie-detail-page .row {
+    margin-top: 1rem;
+}
+
+.collection-detail-page .details-mt-20,
+.reference-detail-page .details-mt-20,
+.category-detail-page .details-mt-20,
+.serie-detail-page .details-mt-20 {
+    margin-top: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .collection-detail-page .row,
+    .reference-detail-page .row,
+    .category-detail-page .row,
+    .serie-detail-page .row {
+        margin-top: 1.25rem;
+    }
+}
+
+/* ---- Référence : image container ---- */
+.reference-detail-page .image-container {
+    margin-bottom: 1.25rem;
+}
+
+/* ---- Collection : section référentiels ---- */
+.collection-detail-page .collection-references-header {
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--dp-main-rgb), 0.05) 0%, rgba(var(--dp-main-rgb), 0.02) 100%);
+    border-bottom: 1px solid var(--dp-border);
+    border-radius: 0;
+    margin-bottom: 0;
+}

@@ -5,6 +5,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:panelGroup id="contentSeriePanels" layout="block">
+        <div class="serie-detail-page">
         <div class="row">
             <div class="col-md-12">
                 <div class="concept-info-panel">
@@ -54,15 +55,6 @@
 
                     <h:form id="serieEditForm">
                     <div class="concept-info-grid">
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{serieBean.editingSerie}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-code concept-info-icon" />
-                                <span>Code</span>
-                            </div>
-                            <p:inputText value="#{serieBean.editingSerieCode}"
-                                         styleClass="reference-edit-input" placeholder="Code (unique)"/>
-                        </h:panelGroup>
-
                         <h:panelGroup id="serieLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{serieBean.editingSerie}">
                             <div class="concept-info-label">
                                 <i class="pi pi-tag concept-info-icon" />
@@ -81,21 +73,6 @@
                                              placeholder="Nom pour la langue choisie..."/>
                             </div>
                         </h:panelGroup>
-
-                        <div class="concept-info-item concept-info-item-full" rendered="#{!serieBean.editingSerie}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-list concept-info-icon" />
-                                <span>Code</span>
-                            </div>
-                            <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.code}">
-                                    #{applicationBean.selectedEntity.code}
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.code}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
-                        </div>
 
                         <div class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
@@ -121,21 +98,19 @@
                         <div class="concept-info-item">
                             <div class="concept-info-label">
                                 <i class="pi pi-info-circle concept-info-icon" />
-                                <span>Statut / Période</span>
+                                <span>Période</span>
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.statut}">
-                                        #{applicationBean.selectedEntity.statut}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                    <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                            value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                    #{applicationBean.selectedEntity.periode.valeur}
+                                </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputText value="#{serieBean.editingSerieStatut}"
-                                             styleClass="reference-edit-input" placeholder="Statut"/>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
+                                <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
 
@@ -315,203 +290,17 @@
                     </div>
                 </div>
 
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Détails</h2>
-                                </div>
-                            </div>
+                <ui:include src="../communs/divers.xhtml"/>
 
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-industry concept-info-icon" />
-                                        <span>Production</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production}">
-                                            #{applicationBean.selectedEntity.production.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.production}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/description_monnaie.xhtml"/>
+                </h:panelGroup>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-building concept-info-icon" />
-                                        <span>Atelier(s)</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-map concept-info-icon" />
-                                        <span>Aire de circulation</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.airesCirculation}">
-                                            #{applicationBean.selectedEntity.airesCirculation[0].valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.airesCirculation}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Déscription</h2>
-                                </div>
-                            </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-palette concept-info-icon" />
-                                        <span>Décors</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-tag concept-info-icon" />
-                                        <span>Marques/estampilles</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-tags concept-info-icon" />
-                                        <span>Catégorie fonctionnelle</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle}">
-                                            #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Caractéristiques physique</h2>
-                                </div>
-                            </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-box concept-info-icon" />
-                                        <span>Matériaux</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}">
-                                            #{applicationBean.selectedEntity.caracteristiquePhysique.materiaux}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-circle concept-info-icon" />
-                                        <span>Forme</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
-                                            #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-arrows-alt concept-info-icon" />
-                                        <span>Dimensions</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
-                                            #{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-wrench concept-info-icon" />
-                                        <span>Technique</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
-                                            #{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-cog concept-info-icon" />
-                                        <span>Fabrication</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
-                                            #{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                </h:panelGroup>
 
                 <div class="row mt-20 details-row-mt-15">
                     <div class="col-md-12">
@@ -538,6 +327,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </h:panelGroup>
 </ui:composition>

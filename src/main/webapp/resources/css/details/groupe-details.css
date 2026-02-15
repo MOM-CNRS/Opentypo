@@ -19,19 +19,11 @@
 /* ---- Container principal ---- */
 .groupe-detail-page {
     width: 100%;
-    padding: 1.25rem 1rem;
     box-sizing: border-box;
-}
-
-@media (min-width: 992px) {
-    .groupe-detail-page {
-        padding: 1.5rem 1.5rem;
-    }
 }
 
 @media (min-width: 1200px) {
     .groupe-detail-page {
-        padding: 1.75rem 2rem;
         max-width: 1400px;
         margin: 0 auto;
     }

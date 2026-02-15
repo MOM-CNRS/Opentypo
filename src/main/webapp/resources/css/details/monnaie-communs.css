@@ -1,0 +1,150 @@
+/* ============================================
+   BLOCS MONNAIE COMMUNS
+   Caractéristiques physiques + Description
+   Utilisés dans groupe.xhtml, type.xhtml, etc.
+   Charte Opentypo - Responsive, formel
+   ============================================ */
+
+/* ---- Bloc sur nouvelle ligne ---- */
+.monnaie-communs-section.monnaie-communs-new-line {
+    display: block;
+    width: 100%;
+    clear: both;
+}
+
+.monnaie-communs-section {
+    --mc-main: var(--color-action-main, #47624D);
+    --mc-main-rgb: 71, 98, 77;
+    --mc-text: var(--color-text-primary, #333);
+    --mc-text-muted: var(--color-text-secondary, #819A91);
+    --mc-border: rgba(var(--mc-main-rgb), 0.12);
+}
+
+/* ---- Panneau ---- */
+.monnaie-communs-section .concept-info-panel {
+    background: #ffffff;
+    border: 1px solid var(--mc-border);
+    border-left: 4px solid var(--mc-main);
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.monnaie-communs-section .concept-info-panel:hover {
+    box-shadow: 0 8px 24px rgba(var(--mc-main-rgb), 0.1);
+}
+
+/* ---- En-tête et titre ---- */
+.monnaie-communs-section .concept-info-header.monnaie-communs-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(var(--mc-main-rgb), 0.08) 0%, rgba(var(--mc-main-rgb), 0.03) 100%);
+    border-bottom: 1px solid var(--mc-border);
+}
+
+.monnaie-communs-section .concept-info-title-section.monnaie-communs-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.monnaie-communs-section .monnaie-communs-title-icon {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--mc-main);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-style: normal;
+}
+
+.monnaie-communs-section .concept-info-title.monnaie-communs-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--mc-text);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+/* ---- Grille : un élément par ligne ---- */
+.monnaie-communs-section .concept-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.monnaie-communs-section .concept-info-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(var(--mc-main-rgb), 0.06);
+    transition: background-color 0.2s ease;
+}
+
+.monnaie-communs-section .concept-info-item:hover {
+    background-color: rgba(var(--mc-main-rgb), 0.02);
+}
+
+.monnaie-communs-section .concept-info-item:last-child {
+    border-bottom: none;
+}
+
+/* ---- Labels et icônes ---- */
+.monnaie-communs-section .concept-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mc-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.monnaie-communs-section .monnaie-communs-icon {
+    color: var(--mc-main);
+    font-size: 0.9375rem;
+}
+
+.monnaie-communs-section .concept-info-value {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--mc-text);
+}
+
+.monnaie-communs-section .concept-info-value .empty-field-message {
+    color: var(--mc-text-muted);
+    font-style: italic;
+}
+
+/* ---- Liens externes (thésaurus) - caracteristiques ---- */
+.monnaie-communs-section .concept-value-external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--mc-main);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.monnaie-communs-section .concept-value-external-link:hover {
+    color: var(--mc-main);
+    background-color: rgba(var(--mc-main-rgb), 0.08);
+    text-decoration: none;
+}
+
+.monnaie-communs-section .concept-value-external-link .concept-value-external-link-icon {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* ---- Responsive mobile ---- */
+@media (max-width: 575px) {
+    .monnaie-communs-section .concept-info-item {
+        padding: 1rem;
+    }
+}

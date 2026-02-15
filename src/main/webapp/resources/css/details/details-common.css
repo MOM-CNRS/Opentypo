@@ -1,12 +1,154 @@
 /* ============================================
    DETAILS - STYLES COMMUNS PAGES DÉTAIL
+   Homogène, fluide, responsive pour toutes les pages
    ============================================ */
 
 .details-mt-20 { margin-top: 20px; }
 .details-mt-15 { margin-top: 15px; }
 .details-form-m-13 { margin: 13px; }
 
-/* Row avec marge cohérente (remplace .row.mt-20 + style margin-top: 15px) */
+/* Row avec marge cohérente */
 .details-row-mt-15 {
-    margin-top: 15px;
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .details-row-mt-15 {
+        margin-top: 1.25rem;
+    }
+}
+
+/* ---- Panneaux communs (collection, reference, category, groupe, serie, type) ---- */
+.info-concept .concept-info-panel {
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-left: 4px solid var(--color-action-main, #47624D);
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.info-concept .concept-info-panel:hover {
+    box-shadow: 0 8px 24px rgba(71, 98, 77, 0.1);
+}
+
+.info-concept .concept-info-header {
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.01) 100%);
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12);
+}
+
+.info-concept .concept-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+@media (min-width: 576px) {
+    .info-concept .concept-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .info-concept .concept-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.info-concept .concept-info-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.06);
+    border-right: 1px solid rgba(71, 98, 77, 0.06);
+    transition: background-color 0.2s ease;
+}
+
+.info-concept .concept-info-item:last-child {
+    border-bottom: none;
+}
+
+.info-concept .concept-info-item:nth-child(2n) {
+    border-right: none;
+}
+
+@media (min-width: 576px) {
+    .info-concept .concept-info-item:nth-child(2n) {
+        border-right: 1px solid rgba(71, 98, 77, 0.06);
+    }
+    .info-concept .concept-info-item:nth-child(4n),
+    .info-concept .concept-info-item:nth-child(4n-1) {
+        border-right: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .info-concept .concept-info-item:nth-child(4n),
+    .info-concept .concept-info-item:nth-child(4n-1) {
+        border-right: 1px solid rgba(71, 98, 77, 0.06);
+    }
+    .info-concept .concept-info-item:nth-child(3n) {
+        border-right: none;
+    }
+}
+
+.info-concept .concept-info-item-full {
+    grid-column: 1 / -1;
+    border-right: none;
+}
+
+@media (max-width: 575px) {
+    .info-concept .concept-info-item {
+        padding: 1rem;
+        border-right: none;
+    }
+}
+
+.info-concept .concept-info-item:hover {
+    background-color: rgba(71, 98, 77, 0.02);
+}
+
+.info-concept .concept-info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-secondary, #819A91);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.info-concept .concept-info-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 0.9375rem;
+}
+
+.info-concept .reference-entity-type-badge {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%);
+    color: #ffffff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.info-concept .concept-info-value .empty-field-message,
+.info-concept .concept-info-value .text-muted {
+    color: var(--color-text-secondary, #819A91);
+    font-style: italic;
+}
+
+.info-concept .concept-action-button {
+    border-color: rgba(71, 98, 77, 0.2);
+    color: var(--color-action-main, #47624D);
+}
+
+.info-concept .concept-action-button:hover {
+    background: var(--color-action-main, #47624D);
+    color: #ffffff;
+}
+
+/* Breadcrumb - fluide ---- */
+.breadcrumb-nav {
+    padding: 0.5rem 0;
+    margin-bottom: 0.75rem;
 }
