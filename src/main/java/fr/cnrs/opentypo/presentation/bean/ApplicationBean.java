@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -319,6 +320,60 @@ public class ApplicationBean implements Serializable {
             }
         }
         return photos;
+    }
+
+    /**
+     * Retourne le TYPE qui précède l'entité sélectionnée (même parent, ordre alphabétique croissant).
+     * Retourne null si l'entité sélectionnée n'est pas un TYPE ou s'il n'y a pas de prédécesseur.
+     */
+    public Entity getPreviousType() {
+        if (selectedEntity == null || selectedEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_TYPE.equals(selectedEntity.getEntityType().getCode())) {
+            return null;
+        }
+        Entity selectedSerie = getSelectedSerie();
+        if (selectedSerie == null) return null;
+        List<Entity> siblings = typeService.loadSerieTypes(selectedSerie);
+        if (siblings == null || siblings.isEmpty()) return null;
+        List<Entity> sorted = siblings.stream()
+                .sorted(Comparator.comparing(e -> e.getNom() != null ? e.getNom().toLowerCase() : "",
+                        Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER)))
+                .collect(Collectors.toList());
+        int idx = -1;
+        for (int i = 0; i < sorted.size(); i++) {
+            if (selectedEntity.getId() != null && selectedEntity.getId().equals(sorted.get(i).getId())) {
+                idx = i;
+                break;
+            }
+        }
+        return (idx > 0) ? sorted.get(idx - 1) : null;
+    }
+
+    /**
+     * Retourne le TYPE qui suit l'entité sélectionnée (même parent, ordre alphabétique croissant).
+     * Retourne null si l'entité sélectionnée n'est pas un TYPE ou s'il n'y a pas de successeur.
+     */
+    public Entity getNextType() {
+        if (selectedEntity == null || selectedEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_TYPE.equals(selectedEntity.getEntityType().getCode())) {
+            return null;
+        }
+        Entity selectedSerie = getSelectedSerie();
+        if (selectedSerie == null) return null;
+        List<Entity> siblings = typeService.loadSerieTypes(selectedSerie);
+        if (siblings == null || siblings.isEmpty()) return null;
+        List<Entity> sorted = siblings.stream()
+                .sorted(Comparator.comparing(e -> e.getNom() != null ? e.getNom().toLowerCase() : "",
+                        Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER)))
+                .collect(Collectors.toList());
+        int idx = -1;
+        for (int i = 0; i < sorted.size(); i++) {
+            if (selectedEntity.getId() != null && selectedEntity.getId().equals(sorted.get(i).getId())) {
+                idx = i;
+                break;
+            }
+        }
+        return (idx >= 0 && idx < sorted.size() - 1) ? sorted.get(idx + 1) : null;
     }
 
     // Getters pour compatibilité avec XHTML

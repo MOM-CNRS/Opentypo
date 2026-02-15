@@ -33,6 +33,11 @@ function hideFullscreenImage() {
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape' || event.keyCode === 27) {
             hideFullscreenImage();
+            var galleriaWrapper = document.querySelector('.galleria-main-wrapper.galleria-fullscreen-mode');
+            if (galleriaWrapper) {
+                galleriaWrapper.classList.remove('galleria-fullscreen-mode');
+                document.body.style.overflow = '';
+            }
         }
     });
 })();

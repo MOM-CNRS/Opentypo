@@ -104,5 +104,16 @@
     <ui:include src="../user/logout.xhtml" />
     <ui:include src="../dialogs/confirmDeleteDialog.xhtml" />
     <ui:include src="../dialogs/confirmSaveDialog.xhtml" />
+
+    <!-- Overlay image plein écran (galerie, référence, etc.) -->
+    <div id="fullscreenImageOverlay" class="fullscreen-image-overlay" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();">
+        <div class="fullscreen-image-wrapper" onclick="event.stopPropagation();">
+            <button type="button" class="fullscreen-image-close" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();" title="Fermer (Échap)">
+                <i class="pi pi-times"/>
+            </button>
+            <img id="fullscreenImageElement" class="fullscreen-image-content" alt="Image en plein écran" />
+        </div>
+    </div>
+    <h:outputScript library="js" name="fullscreen-image.js"/>
 </h:body>
 </html>

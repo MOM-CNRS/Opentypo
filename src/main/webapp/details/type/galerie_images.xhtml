@@ -1,5 +1,6 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
 
@@ -16,34 +17,49 @@
                 </div>
 
                 <!-- Galerie de photos avec PrimeFaces Galleria (images de l'entité) -->
-                <div class="galleria-container" rendered="#{not empty applicationBean.galleriaPhotos}">
+                <div class="galleria-container">
+                    <div class="galleria-header-actions" rendered="#{not empty applicationBean.galleriaPhotos}">
+                        <p:commandButton icon="pi pi-window-maximize"
+                                         styleClass="galleria-fullscreen-btn"
+                                         onclick="var c=document.querySelector('.galleria-main-wrapper');if(c){c.classList.add('galleria-fullscreen-mode');document.body.style.overflow='hidden';}return false;"
+                                         title="Afficher la galerie en plein écran"/>
+                    </div>
                     <div class="galleria-wrapper-with-images">
-                        <!-- Carte typologie gauche -->
+                        <!-- Carte typologie gauche : type précédent (ordre alphabétique) -->
                         <div class="galleria-side-card galleria-side-card-left">
-                            <p:commandLink action="#{applicationBean.showType()}"
+                            <p:commandLink action="#{applicationBean.showType(applicationBean.previousType)}"
                                            styleClass="typologie-card"
                                            process="@this"
-                                           update=":centerContent">
+                                           update=":centerContent"
+                                           onstart="showLoading('Chargement du type...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                           onerror="forceHideLoading();"
+                                           rendered="#{applicationBean.previousType != null}">
                                 <div class="typologie-card-image-wrapper">
-                                    <p:graphicImage
-                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                            styleClass="typologie-card-image"
-                                            alt="Typologie"/>
+                                    <p:graphicImage value="#{applicationBean.previousType.image.url}"
+                                                   styleClass="typologie-card-image"
+                                                   alt="#{applicationBean.previousType.nom}"
+                                                   rendered="#{not empty applicationBean.previousType.image and not empty applicationBean.previousType.image.url}"/>
+                                    <h:panelGroup class="reference-image-placeholder"
+                                                  rendered="#{empty applicationBean.previousType.image or empty applicationBean.previousType.image.url}">
+                                        <span class="reference-placeholder-text">OpenTypo</span>
+                                    </h:panelGroup>
                                     <div class="typologie-card-overlay"></div>
                                 </div>
                                 <div class="typologie-card-content">
-                                    <h3 class="typologie-card-title">Label du Typo</h3>
+                                    <h3 class="typologie-card-title">#{applicationBean.previousType.nom}</h3>
                                 </div>
                             </p:commandLink>
+                            <h:panelGroup layout="block" styleClass="galleria-side-placeholder" rendered="#{applicationBean.previousType == null}"/>
                         </div>
 
-                        <!-- Galleria principal -->
+                        <!-- Galleria principal (uniquement ce bloc en plein écran) -->
                         <div class="galleria-main-wrapper">
                             <p:galleria
                                     value="#{applicationBean.galleriaPhotos}"
                                     var="photo"
                                     numVisible="5"
-                                    styleClass="modern-galleria"
+                                    styleClass="modern-galleria galleria-clickable"
                                     containerStyle="max-width: 100%; margin: 0 auto;"
                                     showItemNavigators="true"
                                     showThumbnails="true"
@@ -54,12 +70,18 @@
                                     transitionInterval="0"
                                     panelWidth="800"
                                     panelHeight="600"
-                                    thumbnailsPosition="bottom">
-                                <p:graphicImage
-                                        value="#{photo.itemImageSrc}"
-                                        alt="#{photo.alt}"
-                                        styleClass="galleria-main-image"
-                                        title="#{photo.title}"/>
+                                    thumbnailsPosition="bottom"
+                                    rendered="#{not empty applicationBean.galleriaPhotos}">
+                                <h:panelGroup layout="block" styleClass="galleria-image-click-wrapper"
+                                               style="cursor: pointer;"
+                                               data-image-url="#{photo.itemImageSrc}"
+                                               onclick="var u=this.getAttribute('data-image-url');if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u);}return false;">
+                                    <p:graphicImage
+                                            value="#{photo.itemImageSrc}"
+                                            alt="#{photo.alt}"
+                                            styleClass="galleria-main-image"
+                                            title="Cliquez pour afficher en plein écran"/>
+                                </h:panelGroup>
                                 <f:facet name="thumbnail">
                                     <p:graphicImage
                                             value="#{photo.thumbnailImageSrc}"
@@ -73,31 +95,48 @@
                                     </div>
                                 </f:facet>
                             </p:galleria>
+                            <h:panelGroup layout="block" class="image-container galleria-placeholder"
+                                          rendered="#{empty applicationBean.galleriaPhotos}">
+                                <h:panelGroup class="reference-image-placeholder">
+                                    <span class="reference-placeholder-text">OpenTypo</span>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not empty applicationBean.galleriaPhotos}">
+                                <button type="button" class="galleria-fullscreen-close" title="Fermer (Échap)"
+                                        onclick="var c=document.querySelector('.galleria-main-wrapper');if(c){c.classList.remove('galleria-fullscreen-mode');document.body.style.overflow='';}return false;">
+                                    <i class="pi pi-times"/>
+                                </button>
+                            </h:panelGroup>
                         </div>
 
-                        <!-- Carte typologie droite -->
+                        <!-- Carte typologie droite : type suivant (ordre alphabétique) -->
                         <div class="galleria-side-card galleria-side-card-right">
-                            <p:commandLink action="#{applicationBean.showType()}"
+                            <p:commandLink action="#{applicationBean.showType(applicationBean.nextType)}"
                                            styleClass="typologie-card"
                                            process="@this"
-                                           update=":centerContent">
+                                           update=":centerContent"
+                                           onstart="showLoading('Chargement du type...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                           onerror="forceHideLoading();"
+                                           rendered="#{applicationBean.nextType != null}">
                                 <div class="typologie-card-image-wrapper">
-                                    <p:graphicImage
-                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                            styleClass="typologie-card-image"
-                                            alt="Typologie"/>
+                                    <p:graphicImage value="#{applicationBean.nextType.image.url}"
+                                                   styleClass="typologie-card-image"
+                                                   alt="#{applicationBean.nextType.nom}"
+                                                   rendered="#{not empty applicationBean.nextType.image and not empty applicationBean.nextType.image.url}"/>
+                                    <h:panelGroup class="reference-image-placeholder"
+                                                  rendered="#{empty applicationBean.nextType.image or empty applicationBean.nextType.image.url}">
+                                        <span class="reference-placeholder-text">OpenTypo</span>
+                                    </h:panelGroup>
                                     <div class="typologie-card-overlay"></div>
                                 </div>
                                 <div class="typologie-card-content">
-                                    <h3 class="typologie-card-title">Label du Typo</h3>
+                                    <h3 class="typologie-card-title">#{applicationBean.nextType.nom}</h3>
                                 </div>
                             </p:commandLink>
+                            <h:panelGroup layout="block" styleClass="galleria-side-placeholder" rendered="#{applicationBean.nextType == null}"/>
                         </div>
                     </div>
-                </div>
-                <!-- Message lorsqu'aucune image n'est associée à l'entité -->
-                <div class="galleria-empty-message" rendered="#{empty applicationBean.galleriaPhotos}">
-                    <p>Aucune image associée à cette entité.</p>
                 </div>
             </div>
         </div>

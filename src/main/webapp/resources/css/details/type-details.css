@@ -288,6 +288,104 @@
     }
 }
 
+/* Indicateur (carré gris) quand aucun type précédent/suivant */
+.type-detail-page .galleria-side-placeholder {
+    display: block;
+    width: 100%;
+    min-height: 120px;
+    background: #e0e0e0;
+    border-radius: 8px;
+}
+
+@media (min-width: 992px) {
+    .type-detail-page .galleria-side-placeholder {
+        width: 180px;
+        height: 200px;
+        min-height: 200px;
+    }
+}
+
+/* Bouton et mode plein écran galerie */
+.type-detail-page .galleria-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1.25rem 0.5rem;
+}
+
+.type-detail-page .galleria-fullscreen-btn {
+    background: var(--type-main);
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.type-detail-page .galleria-fullscreen-btn:hover {
+    background: rgba(var(--type-main-rgb), 0.85);
+}
+
+/* Mode plein écran : uniquement le bloc galleria (p:galleria) occupe tout l'écran */
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999;
+    background: #1a1a1a;
+    overflow: auto;
+    padding: 2rem;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .ui-galleria {
+    max-width: 100%;
+}
+
+.type-detail-page .galleria-fullscreen-close {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10000;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .galleria-fullscreen-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .galleria-fullscreen-close:hover {
+    background: rgba(0,0,0,0.7);
+}
+
+/* Placeholder "OpenTypo" quand aucune image dans la galerie */
+.type-detail-page .galleria-main-wrapper .galleria-placeholder {
+    min-height: 400px;
+    align-items: center;
+}
+
+/* Clic sur l'image de la galerie = plein écran */
+.type-detail-page .galleria-image-click-wrapper {
+    cursor: pointer;
+    display: block;
+}
+
 .type-detail-page .modern-galleria.ui-galleria {
     border: 1px solid var(--type-border);
     border-radius: 10px;
