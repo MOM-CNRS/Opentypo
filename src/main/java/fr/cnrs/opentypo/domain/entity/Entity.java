@@ -65,10 +65,16 @@ public class Entity implements Serializable {
     @JoinColumn(name = "entity_type_id", nullable = false)
     private EntityType entityType;
 
-    // Relations avec Image
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_id")
-    private Image image;
+    // Relations avec Image (OneToMany : plusieurs images par entité)
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
+
+    /**
+     * Retourne la première image (compatibilité avec l'affichage d'une image principale).
+     */
+    public Image getImage() {
+        return (images != null && !images.isEmpty()) ? images.get(0) : null;
+    }
 
     // Relations auto-référencées
     @ManyToOne(fetch = FetchType.LAZY)

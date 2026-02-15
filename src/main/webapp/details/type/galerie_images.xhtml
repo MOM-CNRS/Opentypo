@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <div class="row mt-20 details-row-mt-15">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <!-- En-tête avec titre -->
+                <div class="concept-info-header">
+                    <div class="concept-info-title-section">
+                        <h2 class="concept-info-title fs-1rem">
+                            Galerie de photos
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Galerie de photos avec PrimeFaces Galleria (images de l'entité) -->
+                <div class="galleria-container" rendered="#{not empty applicationBean.galleriaPhotos}">
+                    <div class="galleria-wrapper-with-images">
+                        <!-- Carte typologie gauche -->
+                        <div class="galleria-side-card galleria-side-card-left">
+                            <p:commandLink action="#{applicationBean.showType()}"
+                                           styleClass="typologie-card"
+                                           process="@this"
+                                           update=":centerContent">
+                                <div class="typologie-card-image-wrapper">
+                                    <p:graphicImage
+                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                            styleClass="typologie-card-image"
+                                            alt="Typologie"/>
+                                    <div class="typologie-card-overlay"></div>
+                                </div>
+                                <div class="typologie-card-content">
+                                    <h3 class="typologie-card-title">Label du Typo</h3>
+                                </div>
+                            </p:commandLink>
+                        </div>
+
+                        <!-- Galleria principal -->
+                        <div class="galleria-main-wrapper">
+                            <p:galleria
+                                    value="#{applicationBean.galleriaPhotos}"
+                                    var="photo"
+                                    numVisible="5"
+                                    styleClass="modern-galleria"
+                                    containerStyle="max-width: 100%; margin: 0 auto;"
+                                    showItemNavigators="true"
+                                    showThumbnails="true"
+                                    showIndicators="true"
+                                    showIndicatorsOnItem="true"
+                                    circular="true"
+                                    autoPlay="false"
+                                    transitionInterval="0"
+                                    panelWidth="800"
+                                    panelHeight="600"
+                                    thumbnailsPosition="bottom">
+                                <p:graphicImage
+                                        value="#{photo.itemImageSrc}"
+                                        alt="#{photo.alt}"
+                                        styleClass="galleria-main-image"
+                                        title="#{photo.title}"/>
+                                <f:facet name="thumbnail">
+                                    <p:graphicImage
+                                            value="#{photo.thumbnailImageSrc}"
+                                            alt="#{photo.alt}"
+                                            styleClass="galleria-thumbnail-image" />
+                                </f:facet>
+                                <f:facet name="caption">
+                                    <div class="galleria-caption">
+                                        <h4>#{photo.title}</h4>
+                                        <p>#{photo.alt}</p>
+                                    </div>
+                                </f:facet>
+                            </p:galleria>
+                        </div>
+
+                        <!-- Carte typologie droite -->
+                        <div class="galleria-side-card galleria-side-card-right">
+                            <p:commandLink action="#{applicationBean.showType()}"
+                                           styleClass="typologie-card"
+                                           process="@this"
+                                           update=":centerContent">
+                                <div class="typologie-card-image-wrapper">
+                                    <p:graphicImage
+                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
+                                            styleClass="typologie-card-image"
+                                            alt="Typologie"/>
+                                    <div class="typologie-card-overlay"></div>
+                                </div>
+                                <div class="typologie-card-content">
+                                    <h3 class="typologie-card-title">Label du Typo</h3>
+                                </div>
+                            </p:commandLink>
+                        </div>
+                    </div>
+                </div>
+                <!-- Message lorsqu'aucune image n'est associée à l'entité -->
+                <div class="galleria-empty-message" rendered="#{empty applicationBean.galleriaPhotos}">
+                    <p>Aucune image associée à cette entité.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

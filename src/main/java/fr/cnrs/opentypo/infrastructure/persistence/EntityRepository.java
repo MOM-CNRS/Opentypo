@@ -162,5 +162,13 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
            "LEFT JOIN FETCH e.descriptions d LEFT JOIN FETCH d.langue " +
            "WHERE e.id = :id")
     Optional<Entity> findByIdWithLabelsAndDescriptions(@Param("id") Long id);
+
+    /**
+     * Charge une entité par ID avec ses images (pour la galerie).
+     */
+    @Query("SELECT DISTINCT e FROM Entity e " +
+           "LEFT JOIN FETCH e.images " +
+           "WHERE e.id = :id")
+    Optional<Entity> findByIdWithImages(@Param("id") Long id);
 }
 

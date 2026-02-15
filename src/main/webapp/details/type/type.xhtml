@@ -151,164 +151,11 @@
                         </div>
                     </div>
 
-                    <div class="row mt-20 details-row-mt-15">
-                        <div class="col-md-12">
-                            <div class="concept-info-panel">
-                                <!-- En-tête avec titre -->
-                                <div class="concept-info-header">
-                                    <div class="concept-info-title-section">
-                                        <h2 class="concept-info-title fs-1rem">
-                                            Galerie de photos
-                                        </h2>
-                                    </div>
-                                </div>
+                    <ui:include src="galerie_images.xhtml"/>
 
-                                <!-- Galerie de photos avec PrimeFaces Galleria -->
-                                <div class="galleria-container">
-                                    <div class="galleria-wrapper-with-images">
-                                        <!-- Carte typologie gauche -->
-                                        <div class="galleria-side-card galleria-side-card-left">
-                                            <p:commandLink action="#{applicationBean.showType()}"
-                                                           styleClass="typologie-card"
-                                                           process="@this"
-                                                           update=":centerContent">
-                                                <div class="typologie-card-image-wrapper">
-                                                    <p:graphicImage
-                                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                            styleClass="typologie-card-image"
-                                                            alt="Typologie"/>
-                                                    <div class="typologie-card-overlay"></div>
-                                                </div>
-                                                <div class="typologie-card-content">
-                                                    <h3 class="typologie-card-title">Label du Typo</h3>
-                                                </div>
-                                            </p:commandLink>
-                                        </div>
+                    <ui:include src="alignements.xhtml"/>
 
-                                        <!-- Galleria principal -->
-                                        <div class="galleria-main-wrapper">
-                                            <p:galleria
-                                                value="#{galleriaView.photos}"
-                                                var="photo"
-                                                numVisible="5"
-                                                styleClass="modern-galleria"
-                                                containerStyle="max-width: 100%; margin: 0 auto;"
-                                                showItemNavigators="true"
-                                                showThumbnails="true"
-                                                showIndicators="true"
-                                                showIndicatorsOnItem="true"
-                                                circular="true"
-                                                autoPlay="false"
-                                                transitionInterval="0"
-                                                panelWidth="800"
-                                                panelHeight="600"
-                                                thumbnailsPosition="bottom">
-                                                <p:graphicImage
-                                                    value="#{photo.itemImageSrc}"
-                                                    alt="#{photo.alt}"
-                                                    styleClass="galleria-main-image"
-                                                    title="#{photo.title}"/>
-                                                <f:facet name="thumbnail">
-                                                    <p:graphicImage
-                                                        value="#{photo.thumbnailImageSrc}"
-                                                        alt="#{photo.alt}"
-                                                        styleClass="galleria-thumbnail-image" />
-                                                </f:facet>
-                                                <f:facet name="caption">
-                                                    <div class="galleria-caption">
-                                                        <h4>#{photo.title}</h4>
-                                                        <p>#{photo.alt}</p>
-                                                    </div>
-                                                </f:facet>
-                                            </p:galleria>
-                                        </div>
-
-                                        <!-- Carte typologie droite -->
-                                        <div class="galleria-side-card galleria-side-card-right">
-                                            <p:commandLink action="#{applicationBean.showType()}"
-                                                           styleClass="typologie-card"
-                                                           process="@this"
-                                                           update=":centerContent">
-                                                <div class="typologie-card-image-wrapper">
-                                                    <p:graphicImage
-                                                            value="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/474000/474240-Left-Bank-Paris.jpg"
-                                                            styleClass="typologie-card-image"
-                                                            alt="Typologie"/>
-                                                    <div class="typologie-card-overlay"></div>
-                                                </div>
-                                                <div class="typologie-card-content">
-                                                    <h3 class="typologie-card-title">Label du Typo</h3>
-                                                </div>
-                                            </p:commandLink>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-20 details-row-mt-15">
-                        <div class="col-md-12">
-                            <div class="concept-info-panel">
-                                <!-- En-tête avec titre et actions -->
-                                <div class="concept-info-header">
-                                    <div class="concept-info-title-section">
-                                        <h2 class="concept-info-title fs-1rem">Relations</h2>
-                                    </div>
-                                </div>
-
-                                <!-- Grille d'informations -->
-                                <div class="concept-info-grid">
-                                    <div class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-link concept-info-icon" />
-                                            <span>Alignement opentypo, appartient à</span>
-                                        </div>
-                                        <div class="concept-info-value">
-                                            <ui:fragment rendered="#{not empty applicationBean.getSelectedGroup()}">
-                                                #{applicationBean.getSelectedGroup().nom}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.getSelectedGroup()}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </div>
-
-                                    <div class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-link concept-info-icon" />
-                                            <span>Alignement opentypo, associé à</span>
-                                        </div>
-                                        <div class="concept-info-value">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.relationExterne}">
-                                                #{applicationBean.selectedEntity.relationExterne}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.relationExterne}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </div>
-
-                                    <div class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-link concept-info-icon" />
-                                            <span>Alignement externe</span>
-                                        </div>
-                                        <div class="concept-info-value">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
-                                                #{applicationBean.selectedEntity.alignementExterne}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ui:include src="../communs/divers.xhtml"/>
+                    <ui:include src="../communs/production.xhtml"/>
 
                     <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
                             or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
@@ -450,40 +297,14 @@
                                             </ui:fragment>
                                         </div>
                                     </div>
-
-                                    <div class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-book concept-info-icon" />
-                                            <span>Bibliographie</span>
-                                        </div>
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                                #{applicationBean.selectedEntity.bibliographie}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </div>
-
-                                    <div class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-book concept-info-icon" />
-                                            <span>Commentaire</span>
-                                        </div>
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                                #{applicationBean.selectedEntity.commentaire}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <ui:include src="../communs/commentaire.xhtml"/>
+
+                    <ui:include src="../communs/bibliographie.xhtml"/>
                 </div>
             </div>
         </div>

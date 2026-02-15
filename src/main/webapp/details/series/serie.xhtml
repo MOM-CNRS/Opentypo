@@ -290,7 +290,7 @@
                     </div>
                 </div>
 
-                <ui:include src="../communs/divers.xhtml"/>
+                <ui:include src="../communs/production.xhtml"/>
 
                 <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
                         or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
@@ -302,30 +302,9 @@
                     <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                 </h:panelGroup>
 
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-comment concept-info-icon" />
-                                        <span>Commentaire</span>
-                                    </div>
-                                    <div class="concept-info-value">Text du commentaire</div>
-                                </div>
+                <ui:include src="../communs/commentaire.xhtml"/>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon" />
-                                        <span>Bibliographie</span>
-                                    </div>
-                                    <div class="concept-info-value">XXXXXXX</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <ui:include src="../communs/bibliographie.xhtml"/>
             </div>
         </div>
         </div>

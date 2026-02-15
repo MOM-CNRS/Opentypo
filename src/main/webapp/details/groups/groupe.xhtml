@@ -8,523 +8,428 @@
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentGroupePanels" layout="block">
         <div class="groupe-detail-page">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel">
-                    <!-- En-tête avec titre et actions -->
-                    <div class="concept-info-header">
-                        <div class="concept-info-title-section">
-                            <span class="reference-entity-type-badge">Groupe</span>
-                            <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png" 
-                                               styleClass="language-flag"
-                                               alt="Français"
-                                               title="Français"/>
-                            </div>
-                            <div class="collection-panel-title-wrapper">
-                                <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                               process="@this"
-                                               update=":centerContent, :treeContainer, :breadcrumbContent"
-                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                               onerror="forceHideLoading();"
-                                               styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                </p:commandLink>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                            </div>
-                        </div>
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                            <!-- Bouton Historique -->
-                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                           process="@this"
-                                           update="@none"
-                                           styleClass="concept-action-button"
-                                           immediate="true">
-                                <i class="pi pi-history" />
-                                <p:tooltip value="Voir l'historique" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#{groupBean.startEditingGroup(applicationBean)}"
-                                           process="@this"
-                                           update=":groupeEditForm"
-                                           styleClass="concept-action-button">
-                                <i class="pi pi-file-edit" />
-                                <p:tooltip value="Modifier" position="top"/>
-                            </p:commandLink>
-                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
-                                           process="@this"
-                                           update=":confirmDeleteDialogContent"
-                                           oncomplete="PF('confirmDeleteDialog').show();"
-                                           styleClass="concept-action-button">
-                                <i class="pi pi-trash" />
-                                <p:tooltip value="Supprimer" position="top"/>
-                            </p:commandLink>
-                        </h:panelGroup>
-                    </div>
-
-                    <!-- Grille d'informations -->
-                    <h:form id="groupeEditForm">
-                    <div class="concept-info-grid">
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-code concept-info-icon" />
-                                <span>Code</span>
-                            </div>
-                            <p:inputText value="#{groupBean.editingGroupCode}"
-                                         styleClass="reference-edit-input"
-                                         placeholder="Code (unique)"/>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="groupeLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Label</span>
-                            </div>
-                            <div class="reference-edit-lang-row">
-                                <p:selectOneMenu value="#{groupBean.editingLabelLangueCode}"
-                                                 styleClass="reference-edit-lang-select" required="true">
-                                    <f:selectItems value="#{applicationBean.languages}" var="lang"
-                                                   itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                    <p:ajax process="@this" listener="#{groupBean.onLabelLanguageChange(applicationBean)}"
-                                            update=":groupeEditForm:groupeLabelUpdatePanel"/>
-                                </p:selectOneMenu>
-                                <p:inputText value="#{groupBean.editingGroupLabel}"
-                                             styleClass="reference-edit-input reference-edit-input-flex"
-                                             placeholder="Nom pour la langue choisie..."/>
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="concept-info-panel">
+                        <!-- En-tête avec titre et actions -->
+                        <div class="concept-info-header">
+                            <div class="concept-info-title-section">
+                                <span class="reference-entity-type-badge">Groupe</span>
+                                <div class="concept-info-language-flag">
+                                    <h:graphicImage library="img" name="flag/fr.png"
+                                                   styleClass="language-flag"
+                                                   alt="Français"
+                                                   title="Français"/>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{groupBean.editingGroup}">
+                                <div class="collection-panel-title-wrapper">
+                                    <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                                   process="@this"
+                                                   update=":centerContent, :treeContainer, :breadcrumbContent"
+                                                   onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                                   oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                                   onerror="forceHideLoading();"
+                                                   styleClass="collection-panel-title-link">
+                                        <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                    </p:commandLink>
+                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                                </div>
+                            </div>
+                            <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                                <!-- Bouton Historique -->
+                                <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                               process="@this"
+                                               update="@none"
+                                               styleClass="concept-action-button"
+                                               immediate="true">
+                                    <i class="pi pi-history" />
+                                    <p:tooltip value="Voir l'historique" position="top"/>
+                                </p:commandLink>
+                                <p:commandLink action="#{groupBean.startEditingGroup(applicationBean)}"
+                                               process="@this"
+                                               update=":groupeEditForm"
+                                               styleClass="concept-action-button">
+                                    <i class="pi pi-file-edit" />
+                                    <p:tooltip value="Modifier" position="top"/>
+                                </p:commandLink>
+                                <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
+                                               process="@this"
+                                               update=":confirmDeleteDialogContent"
+                                               oncomplete="PF('confirmDeleteDialog').show();"
+                                               styleClass="concept-action-button">
+                                    <i class="pi pi-trash" />
+                                    <p:tooltip value="Supprimer" position="top"/>
+                                </p:commandLink>
+                            </h:panelGroup>
+                        </div>
+
+                        <!-- Grille d'informations -->
+                        <h:form id="groupeEditForm">
+                        <div class="concept-info-grid">
+                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-code concept-info-icon" />
+                                    <span>Code</span>
+                                </div>
+                                <p:inputText value="#{groupBean.editingGroupCode}"
+                                             styleClass="reference-edit-input"
+                                             placeholder="Code (unique)"/>
+                            </h:panelGroup>
+
+                            <h:panelGroup id="groupeLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-tag concept-info-icon" />
+                                    <span>Label</span>
+                                </div>
                                 <div class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{groupBean.editingDescriptionLangueCode}"
+                                    <p:selectOneMenu value="#{groupBean.editingLabelLangueCode}"
                                                      styleClass="reference-edit-lang-select" required="true">
                                         <f:selectItems value="#{applicationBean.languages}" var="lang"
                                                        itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                        <p:ajax listener="#{groupBean.onDescriptionLanguageChange(applicationBean)}"
-                                                process="@this" update=":groupeEditForm:groupeDescUpdatePanel"/>
+                                        <p:ajax process="@this" listener="#{groupBean.onLabelLanguageChange(applicationBean)}"
+                                                update=":groupeEditForm:groupeLabelUpdatePanel"/>
                                     </p:selectOneMenu>
-                                    <p:inputTextarea value="#{groupBean.editingGroupDescription}"
-                                                     rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Description pour la langue choisie..."/>
+                                    <p:inputText value="#{groupBean.editingGroupLabel}"
+                                                 styleClass="reference-edit-input reference-edit-input-flex"
+                                                 placeholder="Nom pour la langue choisie..."/>
                                 </div>
-                            </ui:fragment>
-                        </h:panelGroup>
+                            </h:panelGroup>
 
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-info-circle concept-info-icon" />
-                                <span>Période</span>
-                            </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
+                            <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
+                                </div>
+                                <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{groupBean.editingGroup}">
+                                    <div class="reference-edit-lang-row">
+                                        <p:selectOneMenu value="#{groupBean.editingDescriptionLangueCode}"
+                                                         styleClass="reference-edit-lang-select" required="true">
+                                            <f:selectItems value="#{applicationBean.languages}" var="lang"
+                                                           itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
+                                            <p:ajax listener="#{groupBean.onDescriptionLanguageChange(applicationBean)}"
+                                                    process="@this" update=":groupeEditForm:groupeDescUpdatePanel"/>
+                                        </p:selectOneMenu>
+                                        <p:inputTextarea value="#{groupBean.editingGroupDescription}"
+                                                         rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                         placeholder="Description pour la langue choisie..."/>
+                                    </div>
+                                </ui:fragment>
+                            </h:panelGroup>
+
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-info-circle concept-info-icon" />
+                                    <span>Période</span>
+                                </div>
                                 <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.valeur}">
-                                        #{applicationBean.selectedEntity.statut}
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                            <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                                    value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                            #{applicationBean.selectedEntity.periode.valeur}
+                                        </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputText value="#{serieBean.editingSerieStatut}"
-                                             styleClass="reference-edit-input" placeholder="Statut"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-calendar-minus concept-info-icon" />
-                                <span>TPQ</span>
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
-                                        #{applicationBean.selectedEntity.tpq}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-calendar-minus concept-info-icon" />
+                                    <span>TPQ</span>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputNumber value="#{serieBean.editingSerieTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-calendar-plus concept-info-icon" />
-                                <span>TAQ</span>
-                            </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
-                                        #{applicationBean.selectedEntity.taq}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputNumber value="#{serieBean.editingSerieTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-link concept-info-icon" />
-                                <span>Alignement externe</span>
-                            </div>
-                            <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
-                                        #{applicationBean.selectedEntity.alignementExterne}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{groupBean.editingGroup}">
-                                <p:inputText value="#{groupBean.editingGroupAlignementExterne}"
-                                             styleClass="reference-edit-input" placeholder="Alignement externe"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-comment concept-info-icon" />
-                                <span>Commentaire</span>
-                            </div>
-                            <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                        #{applicationBean.selectedEntity.commentaire}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{groupBean.editingGroup}">
-                                <p:inputTextarea value="#{groupBean.editingGroupCommentaire}"
-                                                 rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                 placeholder="Commentaire..."/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur">
-                                        <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
-                                    </ui:repeat>
+                                <ui:fragment rendered="#{!serieBean.editingSerie}">
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
+                                            #{applicationBean.selectedEntity.tpq}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </ui:fragment>
-                                <h:outputText value="Aucun auteur disponible"
-                                              rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                              styleClass="bibliographie-empty" />
+                                <ui:fragment rendered="#{serieBean.editingSerie}">
+                                    <p:inputNumber value="#{serieBean.editingSerieTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
+                                </ui:fragment>
                             </div>
-                        </div>
 
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                            <div class="reference-edit-actions">
-                                <p:commandButton value="Annuler" icon="pi pi-times"
-                                                 action="#{groupBean.cancelEditingGroup()}"
-                                                 process="@this" update=":groupeEditForm"
-                                                 styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                <p:commandButton value="Valider" icon="pi pi-check"
-                                                 action="#{confirmSaveBean.prepareSave('GROUPE')}"
-                                                 process="@this"
-                                                 update=":confirmSaveDialogContent"
-                                                 oncomplete="PF('confirmSaveDialog').show();"
-                                                 styleClass="reference-edit-btn reference-edit-btn-validate"/>
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-calendar-plus concept-info-icon" />
+                                    <span>TAQ</span>
+                                </div>
+                                <ui:fragment rendered="#{!serieBean.editingSerie}">
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
+                                            #{applicationBean.selectedEntity.taq}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{serieBean.editingSerie}">
+                                    <p:inputNumber value="#{serieBean.editingSerieTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
+                                </ui:fragment>
                             </div>
-                        </h:panelGroup>
-                    </div>
-                    </h:form>
-                </div>
 
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="collection-references-header">
-                                <div class="collection-references-title-section">
-                                    <div class="collection-references-icon">
-                                        <i class="pi pi-tag" />
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-link concept-info-icon" />
+                                    <span>Alignement externe</span>
+                                </div>
+                                <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
+                                            #{applicationBean.selectedEntity.alignementExterne}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
                                     </div>
-                                    <div class="collection-references-title-wrapper">
-                                        <h3 class="collection-references-title">Liste des séries</h3>
-                                        <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{groupBean.editingGroup}">
+                                    <p:inputText value="#{groupBean.editingGroupAlignementExterne}"
+                                                 styleClass="reference-edit-input" placeholder="Alignement externe"/>
+                                </ui:fragment>
+                            </div>
+
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-comment concept-info-icon" />
+                                    <span>Commentaire</span>
+                                </div>
+                                <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
+                                            #{applicationBean.selectedEntity.commentaire}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
                                     </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{groupBean.editingGroup}">
+                                    <p:inputTextarea value="#{groupBean.editingGroupCommentaire}"
+                                                     rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                     placeholder="Commentaire..."/>
+                                </ui:fragment>
+                            </div>
+
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur">
+                                            <span class="bibliographie-badge">
+                                                <i class="pi pi-user bibliographie-badge-icon" />
+                                                <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                            </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun auteur disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </div>
 
-                            <!-- Liste des séries -->
-                            <h:panelGroup id="seriesContainer" class="reference-cards-container">
-                                <h:form>
-                                    <div class="reference-cards-grid">
-                                        <ui:repeat value="#{applicationBean.childsSeries}" var="serie" varStatus="status">
-                                            <p:commandLink action="#{applicationBean.showSerie(serie)}"
-                                                           styleClass="reference-card"
-                                                           process="@this"
-                                                           update=":centerContent"
-                                                           onstart="showLoading('Chargement de la série...', 'spinner');"
-                                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
-                                                           onerror="forceHideLoading();">
-                                                <div class="reference-card-content">
-                                                    <div class="reference-card-header">
-                                                        <div class="reference-card-icon">
-                                                            <i class="pi pi-list" />
-                                                        </div>
-                                                        <div class="reference-card-title-wrapper">
-                                                            <h3 class="reference-card-title">#{serie.nom}</h3>
-                                                            <span class="reference-card-code">#{serie.code}</span>
-                                                        </div>
-                                                        <!-- Indicateur unique : brouillon ou public/privé (visible uniquement pour Éditeur, Admin technique, Admin Référentiel) -->
-                                                        <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
-                                                            <span class="reference-card-indicator reference-card-status-badge #{treeBean.getUnifiedIndicatorCssClass(serie)}"
-                                                                  title="#{treeBean.getUnifiedIndicatorTitle(serie)}">
-                                                                <i class="pi #{treeBean.getUnifiedIndicatorIcon(serie)}"/>
-                                                            </span>
-                                                        </h:panelGroup>
-                                                    </div>
-                                                    <p class="reference-card-description">
-                                                        <h:outputText value="#{serie.commentaire}" 
-                                                                     rendered="#{not empty serie.commentaire}"/>
-                                                        <h:outputText value="Aucune description disponible" 
-                                                                     rendered="#{empty serie.commentaire}"
-                                                                     styleClass="text-muted"/>
-                                                    </p>
-                                                </div>
-                                            </p:commandLink>
-                                        </ui:repeat>
-
-                                        <!-- Message si aucune catégorie -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsSeries}">
-                                            <div class="empty-categories-icon">
-                                                <i class="pi pi-inbox" />
-                                            </div>
-                                            <div class="empty-categories-content">
-                                                <h4 class="empty-categories-title">Aucune série disponible</h4>
-                                                <p class="empty-categories-text">Ce groupe ne contient actuellement aucune série.</p>
-                                                <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
-                                                    <i class="pi pi-info-circle" />
-                                                    <span>Cliquez sur "Créer une nouvelle série" pour en ajouter une.</span>
-                                                </h:panelGroup>
-                                            </div>
-                                        </h:panelGroup>
-                                    </div>
-                                </h:form>
+                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                <div class="reference-edit-actions">
+                                    <p:commandButton value="Annuler" icon="pi pi-times"
+                                                     action="#{groupBean.cancelEditingGroup()}"
+                                                     process="@this" update=":groupeEditForm"
+                                                     styleClass="reference-edit-btn reference-edit-btn-cancel"/>
+                                    <p:commandButton value="Valider" icon="pi pi-check"
+                                                     action="#{confirmSaveBean.prepareSave('GROUPE')}"
+                                                     process="@this"
+                                                     update=":confirmSaveDialogContent"
+                                                     oncomplete="PF('confirmSaveDialog').show();"
+                                                     styleClass="reference-edit-btn reference-edit-btn-validate"/>
+                                </div>
                             </h:panelGroup>
                         </div>
+                        </h:form>
                     </div>
-                </div>
 
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="collection-references-header">
-                                <div class="collection-references-title-section">
-                                    <div class="collection-references-icon">
-                                        <i class="pi pi-tag" />
-                                    </div>
-                                    <div class="collection-references-title-wrapper">
-                                        <h3 class="collection-references-title">Liste des types</h3>
-                                        <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
+                    <div class="row mt-20 details-row-mt-15">
+                        <div class="col-md-12">
+                            <div class="concept-info-panel">
+                                <!-- En-tête avec titre et actions -->
+                                <div class="collection-references-header">
+                                    <div class="collection-references-title-section">
+                                        <div class="collection-references-icon">
+                                            <i class="pi pi-tag" />
+                                        </div>
+                                        <div class="collection-references-title-wrapper">
+                                            <h3 class="collection-references-title">Liste des séries</h3>
+                                            <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Liste des types -->
-                            <h:panelGroup id="typesContainer" class="reference-cards-container">
-                                <h:form>
-                                    <div class="reference-cards-grid">
-                                        <ui:repeat value="#{applicationBean.childsTypes}" var="type" varStatus="status">
-                                            <p:commandLink action="#{applicationBean.showType(type)}"
-                                                           styleClass="typologie-card"
-                                                           process="@this"
-                                                           update=":centerContent"
-                                                           onstart="showLoading('Chargement du type...', 'spinner');"
-                                                           oncomplete="setTimeout(function(){hideLoading();}, 500);"
-                                                           onerror="forceHideLoading();">
-                                                <div class="typologie-card-image-wrapper">
-                                                    <!-- Afficher l'image si disponible -->
-                                                    <p:graphicImage
-                                                            value="#{type.image.url}"
-                                                            styleClass="typologie-card-image"
-                                                            alt="Typologie"
-                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
+                                <!-- Liste des séries -->
+                                <h:panelGroup id="seriesContainer" class="reference-cards-container">
+                                    <h:form>
+                                        <div class="reference-cards-grid">
+                                            <ui:repeat value="#{applicationBean.childsSeries}" var="serie" varStatus="status">
+                                                <p:commandLink action="#{applicationBean.showSerie(serie)}"
+                                                               styleClass="reference-card"
+                                                               process="@this"
+                                                               update=":centerContent"
+                                                               onstart="showLoading('Chargement de la série...', 'spinner');"
+                                                               oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                               onerror="forceHideLoading();">
+                                                    <div class="reference-card-content">
+                                                        <div class="reference-card-header">
+                                                            <div class="reference-card-icon">
+                                                                <i class="pi pi-list" />
+                                                            </div>
+                                                            <div class="reference-card-title-wrapper">
+                                                                <h3 class="reference-card-title">#{serie.nom}</h3>
+                                                                <span class="reference-card-code">#{serie.code}</span>
+                                                            </div>
+                                                            <!-- Indicateur unique : brouillon ou public/privé (visible uniquement pour Éditeur, Admin technique, Admin Référentiel) -->
+                                                            <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                                                <span class="reference-card-indicator reference-card-status-badge #{treeBean.getUnifiedIndicatorCssClass(serie)}"
+                                                                      title="#{treeBean.getUnifiedIndicatorTitle(serie)}">
+                                                                    <i class="pi #{treeBean.getUnifiedIndicatorIcon(serie)}"/>
+                                                                </span>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                        <p class="reference-card-description">
+                                                            <h:outputText value="#{serie.commentaire}"
+                                                                         rendered="#{not empty serie.commentaire}"/>
+                                                            <h:outputText value="Aucune description disponible"
+                                                                         rendered="#{empty serie.commentaire}"
+                                                                         styleClass="text-muted"/>
+                                                        </p>
+                                                    </div>
+                                                </p:commandLink>
+                                            </ui:repeat>
 
-                                                    <!-- Afficher le texte "OpenTypo" si pas d'image -->
-                                                    <h:panelGroup class="reference-image-placeholder"
-                                                                  rendered="#{empty type.image or empty type.image.url}">
-                                                        <span class="reference-placeholder-text">OpenTypo</span>
+                                            <!-- Message si aucune catégorie -->
+                                            <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsSeries}">
+                                                <div class="empty-categories-icon">
+                                                    <i class="pi pi-inbox" />
+                                                </div>
+                                                <div class="empty-categories-content">
+                                                    <h4 class="empty-categories-title">Aucune série disponible</h4>
+                                                    <p class="empty-categories-text">Ce groupe ne contient actuellement aucune série.</p>
+                                                    <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                        <i class="pi pi-info-circle" />
+                                                        <span>Cliquez sur "Créer une nouvelle série" pour en ajouter une.</span>
                                                     </h:panelGroup>
                                                 </div>
-                                                <div class="typologie-card-content">
-                                                    <h3 class="typologie-card-title">#{type.nom}</h3>
-                                                </div>
-                                            </p:commandLink>
-                                        </ui:repeat>
-                                        
-                                        <!-- Message si aucun type disponible -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsTypes}">
-                                            <div class="empty-categories-icon">
-                                                <i class="pi pi-inbox" />
-                                            </div>
-                                            <div class="empty-categories-content">
-                                                <h4 class="empty-categories-title">Aucun type disponible</h4>
-                                                <p class="empty-categories-text">Ce groupe ne contient actuellement aucun type.</p>
-                                                <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
-                                                    <i class="pi pi-info-circle" />
-                                                    <span>Cliquez sur "Créer une nouveau type" pour en ajouter une.</span>
-                                                </h:panelGroup>
-                                            </div>
-                                        </h:panelGroup>
-                                    </div>
-                                </h:form>
-                            </h:panelGroup>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- En-tête avec titre et actions -->
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <h2 class="concept-info-title fs-1rem">Détails</h2>
-                                </div>
-                            </div>
-
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-building concept-info-icon" />
-                                        <span>Production</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.production.valeur}"
-                                                     rendered="#{not empty applicationBean.selectedEntity.production}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.production}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-building concept-info-icon" />
-                                        <span>Atelier(s)</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="Non spécifiée" styleClass="text-muted"/>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-map concept-info-icon" />
-                                        <span>Aire de circulation</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.airesCirculation[0].valeur}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.airesCirculation}"/>
-                                        <h:outputText value="Non spécifiée" 
-                                                     rendered="#{empty applicationBean.selectedEntity.airesCirculation}"
-                                                     styleClass="text-muted"/>
-                                    </div>
-                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </h:form>
+                                </h:panelGroup>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <ui:include src="../communs/divers.xhtml"/>
-
-                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                    <ui:include src="../communs/description_monnaie.xhtml"/>
-                </h:panelGroup>
-
-                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                    <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                </h:panelGroup>
-
-                <div class="row mt-20 details-row-mt-15">
-                    <div class="col-md-12">
-                        <div class="concept-info-panel">
-                            <!-- Grille d'informations -->
-                            <div class="concept-info-grid">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-comment concept-info-icon" />
-                                        <span>Commentaire</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <h:outputText value="#{applicationBean.selectedEntity.commentaire}" 
-                                                     rendered="#{not empty applicationBean.selectedEntity.commentaire}"/>
-                                        <h:outputText value="Aucun commentaire disponible" 
-                                                     rendered="#{empty applicationBean.selectedEntity.commentaire}"
-                                                     styleClass="text-muted"/>
+                    <div class="row mt-20 details-row-mt-15">
+                        <div class="col-md-12">
+                            <div class="concept-info-panel">
+                                <!-- En-tête avec titre et actions -->
+                                <div class="collection-references-header">
+                                    <div class="collection-references-title-section">
+                                        <div class="collection-references-icon">
+                                            <i class="pi pi-tag" />
+                                        </div>
+                                        <div class="collection-references-title-wrapper">
+                                            <h3 class="collection-references-title">Liste des types</h3>
+                                            <span class="collection-references-subtitle">#{applicationBean.selectedEntity.nom}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon" />
-                                        <span>Bibliographie</span>
-                                    </div>
-                                    <div class="concept-info-value bibliographie-container">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                            <ui:repeat value="#{fn:split(applicationBean.selectedEntity.bibliographie, ';')}" var="ref" varStatus="status">
-                                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                    <span class="bibliographie-badge">
-                                                        <i class="pi pi-book bibliographie-badge-icon" />
-                                                        <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                    </span>
-                                                </ui:fragment>
+                                <!-- Liste des types -->
+                                <h:panelGroup id="typesContainer" class="reference-cards-container">
+                                    <h:form>
+                                        <div class="reference-cards-grid">
+                                            <ui:repeat value="#{applicationBean.childsTypes}" var="type" varStatus="status">
+                                                <p:commandLink action="#{applicationBean.showType(type)}"
+                                                               styleClass="typologie-card"
+                                                               process="@this"
+                                                               update=":centerContent"
+                                                               onstart="showLoading('Chargement du type...', 'spinner');"
+                                                               oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                                               onerror="forceHideLoading();">
+                                                    <div class="typologie-card-image-wrapper">
+                                                        <!-- Afficher l'image si disponible -->
+                                                        <p:graphicImage
+                                                                value="#{type.image.url}"
+                                                                styleClass="typologie-card-image"
+                                                                alt="Typologie"
+                                                                rendered="#{not empty type.image and not empty type.image.url}"/>
+
+                                                        <!-- Afficher le texte "OpenTypo" si pas d'image -->
+                                                        <h:panelGroup class="reference-image-placeholder"
+                                                                      rendered="#{empty type.image or empty type.image.url}">
+                                                            <span class="reference-placeholder-text">OpenTypo</span>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                    <div class="typologie-card-content">
+                                                        <h3 class="typologie-card-title">#{type.nom}</h3>
+                                                    </div>
+                                                </p:commandLink>
                                             </ui:repeat>
-                                        </ui:fragment>
-                                        <h:outputText value="Aucune référence bibliographique disponible" 
-                                                     rendered="#{empty applicationBean.selectedEntity.bibliographie}"
-                                                     styleClass="bibliographie-empty" />
-                                    </div>
-                                </div>
+
+                                            <!-- Message si aucun type disponible -->
+                                            <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsTypes}">
+                                                <div class="empty-categories-icon">
+                                                    <i class="pi pi-inbox" />
+                                                </div>
+                                                <div class="empty-categories-content">
+                                                    <h4 class="empty-categories-title">Aucun type disponible</h4>
+                                                    <p class="empty-categories-text">Ce groupe ne contient actuellement aucun type.</p>
+                                                    <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                                        <i class="pi pi-info-circle" />
+                                                        <span>Cliquez sur "Créer une nouveau type" pour en ajouter une.</span>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </h:form>
+                                </h:panelGroup>
                             </div>
                         </div>
                     </div>
+
+                    <ui:include src="../communs/production.xhtml"/>
+
+                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                        <ui:include src="../communs/description_monnaie.xhtml"/>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                    </h:panelGroup>
+
+                    <ui:include src="../communs/commentaire.xhtml"/>
+
+                    <ui:include src="../communs/bibliographie.xhtml"/>
                 </div>
             </div>
-        </div>
         </div>
     </h:panelGroup>
 </ui:composition>

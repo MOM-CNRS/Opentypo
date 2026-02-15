@@ -14,6 +14,7 @@ import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
+import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
@@ -24,6 +25,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -298,6 +300,26 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retourne la liste des photos pour la galerie, construite à partir des images de l'entité sélectionnée.
+     * Les images proviennent de la table image (entity_id = selectedEntity.id).
+     */
+    public List<Photo> getGalleriaPhotos() {
+        List<Photo> photos = new ArrayList<>();
+        if (selectedEntity == null || selectedEntity.getImages() == null) {
+            return photos;
+        }
+        String entityLabel = selectedEntity.getNom() != null ? selectedEntity.getNom() : selectedEntity.getCode();
+        int index = 1;
+        for (Image img : selectedEntity.getImages()) {
+            if (img != null && img.getUrl() != null && !img.getUrl().trim().isEmpty()) {
+                String title = entityLabel != null ? entityLabel + " - " + index : "Image " + index;
+                photos.add(new Photo(img.getUrl(), img.getUrl(), title, title));
+                index++;
+            }
+        }
+        return photos;
+    }
 
     // Getters pour compatibilité avec XHTML
     public boolean isShowCollectionsPanel() { return panelState.isShowCollections(); }
@@ -608,10 +630,10 @@ public class ApplicationBean implements Serializable {
     }
     
     /**
-     * Affiche les détails d'un type spécifique
+     * Affiche les détails d'un type spécifique (charge les images pour la galerie).
      */
     public void showType(Entity type) {
-        this.selectedEntity = entityRepository.findById(type.getId()).orElse(type);
+        this.selectedEntity = entityRepository.findByIdWithImages(type.getId()).orElse(type);
         panelState.showType();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
