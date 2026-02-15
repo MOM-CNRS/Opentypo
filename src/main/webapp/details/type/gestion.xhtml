@@ -1,0 +1,86 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+    <div class="row mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
+        <div class="col-md-12">
+            <div class="concept-info-panel">
+                <div class="concept-info-header monnaie-communs-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-cog monnaie-communs-title-icon" />
+                        <h2 class="concept-info-title monnaie-communs-title">Gestion</h2>
+                    </div>
+                </div>
+
+                <div class="concept-info-grid">
+                    <div class="concept-info-item concept-info-item-full">
+                        <div class="concept-info-label">
+                            <i class="pi pi-database monnaie-communs-icon" />
+                            <span>Référentiel</span>
+                        </div>
+                        <div class="concept-info-value bibliographie-container">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.reference}">
+                                <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.reference, ';')}" var="ref" varStatus="status">
+                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                    <span class="bibliographie-badge">
+                                        <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                    </span>
+                                </ui:fragment>
+                                </ui:repeat>
+                            </ui:fragment>
+                            <h:outputText value="Aucun référentiel disponible"
+                                      rendered="#{empty applicationBean.selectedEntity.metadata.reference}"
+                                      styleClass="bibliographie-empty"/>
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-book monnaie-communs-icon" />
+                            <span>Typologique scientifique</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.typologieScientifique}">
+                                #{applicationBean.selectedEntity.typologieScientifique}
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.typologieScientifique}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-id-card monnaie-communs-icon" />
+                            <span>Identifiant pérenne</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.identifiantPerenne}">
+                                #{applicationBean.selectedEntity.identifiantPerenne}
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.identifiantPerenne}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </div>
+
+                    <div class="concept-info-item">
+                        <div class="concept-info-label">
+                            <i class="pi pi-history monnaie-communs-icon" />
+                            <span>Ancienne version</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.ancienneVersion}">
+                                #{applicationBean.selectedEntity.ancienneVersion}
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.ancienneVersion}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

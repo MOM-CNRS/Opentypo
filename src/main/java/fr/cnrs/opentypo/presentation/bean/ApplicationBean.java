@@ -267,6 +267,7 @@ public class ApplicationBean implements Serializable {
                 childs = new ArrayList<>();
                 if (series != null) childs.addAll(series);
                 if (types != null) childs.addAll(types);
+                break;
             case EntityConstants.ENTITY_TYPE_SERIES:
                 childs = typeService.loadSerieTypes(selectedEntity);
                 break;
