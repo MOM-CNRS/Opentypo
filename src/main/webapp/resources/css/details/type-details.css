@@ -344,8 +344,23 @@
     justify-content: center;
 }
 
-.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .ui-galleria {
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .opentypo-gallery {
     max-width: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .opentypo-gallery-viewport {
+    max-height: 85vh;
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .opentypo-gallery-nav {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.type-detail-page .galleria-main-wrapper.galleria-fullscreen-mode .opentypo-gallery-nav:hover {
+    background: var(--type-main);
+    color: #fff;
 }
 
 .type-detail-page .galleria-fullscreen-close {
@@ -380,48 +395,179 @@
     align-items: center;
 }
 
-/* Clic sur l'image de la galerie = plein écran */
-.type-detail-page .galleria-image-click-wrapper {
-    cursor: pointer;
-    display: block;
-}
-
-.type-detail-page .modern-galleria.ui-galleria {
+/* ===== Galerie custom OpenTypo (HTML/CSS/JS) ===== */
+.type-detail-page .opentypo-gallery {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
     border: 1px solid var(--type-border);
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--type-shadow);
 }
 
-.type-detail-page .modern-galleria .ui-galleria-panel-wrapper {
-    background: rgba(var(--type-main-rgb), 0.02);
+.type-detail-page .opentypo-gallery-viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    max-height: 500px;
+    background: rgba(var(--type-main-rgb), 0.03);
+    overflow: hidden;
 }
 
-.type-detail-page .modern-galleria .ui-galleria-thumbnail-container {
+.type-detail-page .opentypo-gallery-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.type-detail-page .opentypo-gallery-slide-active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.type-detail-page .opentypo-gallery-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.type-detail-page .opentypo-gallery-slide img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(var(--type-main-rgb), 0.15);
+}
+
+.type-detail-page .opentypo-gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--type-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+    z-index: 2;
+}
+
+.type-detail-page .opentypo-gallery-nav:hover {
+    background: var(--type-main);
+    color: #fff;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.type-detail-page .opentypo-gallery-prev {
+    left: 0.75rem;
+}
+
+.type-detail-page .opentypo-gallery-next {
+    right: 0.75rem;
+}
+
+.type-detail-page .opentypo-gallery-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(var(--type-main-rgb), 0.04) 0%, rgba(var(--type-main-rgb), 0.01) 100%);
     border-top: 1px solid var(--type-border);
-    background: rgba(var(--type-main-rgb), 0.02);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
-.type-detail-page .galleria-caption {
+.type-detail-page .opentypo-gallery-thumbnails::-webkit-scrollbar {
+    height: 6px;
+}
+
+.type-detail-page .opentypo-gallery-thumbnails::-webkit-scrollbar-track {
+    background: rgba(var(--type-main-rgb), 0.08);
+    border-radius: 3px;
+}
+
+.type-detail-page .opentypo-gallery-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--type-main);
+    border-radius: 3px;
+}
+
+.type-detail-page .opentypo-gallery-thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, opacity 0.2s;
+}
+
+.type-detail-page .opentypo-gallery-thumb:hover {
+    opacity: 0.9;
+}
+
+.type-detail-page .opentypo-gallery-thumb-active {
+    border-color: var(--type-main);
+    box-shadow: 0 0 0 1px rgba(var(--type-main-rgb), 0.3);
+}
+
+.type-detail-page .opentypo-gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.type-detail-page .opentypo-gallery-caption {
+    padding: 0.75rem 1rem;
     background: linear-gradient(135deg, rgba(var(--type-main-rgb), 0.05) 0%, rgba(var(--type-main-rgb), 0.02) 100%);
     border-top: 1px solid var(--type-border);
 }
 
-.type-detail-page .modern-galleria .ui-galleria-nav-prev,
-.type-detail-page .modern-galleria .ui-galleria-nav-next {
-    background: #ffffff !important;
-    border: 1px solid var(--type-border) !important;
-    color: var(--type-main) !important;
+.type-detail-page .opentypo-gallery-caption h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--type-text);
 }
 
-.type-detail-page .modern-galleria .ui-galleria-nav-prev:hover,
-.type-detail-page .modern-galleria .ui-galleria-nav-next:hover {
-    background: var(--type-main) !important;
-    color: #ffffff !important;
+.type-detail-page .opentypo-gallery-caption p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--type-text-muted);
 }
 
-.type-detail-page .modern-galleria .ui-galleria-indicator-item.ui-galleria-indicator-item-active {
-    background: var(--type-main) !important;
+@media (max-width: 768px) {
+    .type-detail-page .opentypo-gallery-viewport {
+        max-height: 320px;
+    }
+
+    .type-detail-page .opentypo-gallery-nav {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1rem;
+    }
+
+    .type-detail-page .opentypo-gallery-thumb {
+        width: 56px;
+        height: 42px;
+    }
 }
 
 /* ---- Boutons d'action (header) ---- */

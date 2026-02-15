@@ -262,6 +262,10 @@
                                                             alt="Typologie"
                                                             rendered="#{not empty type.image and not empty type.image.url}"/>
                                                     <div class="typologie-card-overlay"></div>
+                                                    <h:panelGroup class="reference-image-placeholder"
+                                                                  rendered="#{empty type.image or empty type.image.url}">
+                                                        <span class="reference-placeholder-text">OpenTypo</span>
+                                                    </h:panelGroup>
                                                 </div>
                                                 <div class="typologie-card-content">
                                                     <h3 class="typologie-card-title">#{type.nom}</h3>

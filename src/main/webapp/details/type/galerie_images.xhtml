@@ -1,29 +1,21 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
 
-    <div class="row mt-20 details-row-mt-15">
+    <div class="row mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
         <div class="col-md-12">
             <div class="concept-info-panel">
                 <!-- En-tête avec titre -->
-                <div class="concept-info-header">
-                    <div class="concept-info-title-section">
-                        <h2 class="concept-info-title fs-1rem">
-                            Galerie de photos
-                        </h2>
+                <div class="concept-info-header monnaie-communs-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-images monnaie-communs-title-icon" />
+                        <h2 class="concept-info-title monnaie-communs-title">Galerie de photos</h2>
                     </div>
                 </div>
 
-                <!-- Galerie de photos avec PrimeFaces Galleria (images de l'entité) -->
+                <!-- Galerie de photos (composant custom HTML/CSS/JS) -->
                 <div class="galleria-container">
-                    <div class="galleria-header-actions" rendered="#{not empty applicationBean.galleriaPhotos}">
-                        <p:commandButton icon="pi pi-window-maximize"
-                                         styleClass="galleria-fullscreen-btn"
-                                         onclick="var c=document.querySelector('.galleria-main-wrapper');if(c){c.classList.add('galleria-fullscreen-mode');document.body.style.overflow='hidden';}return false;"
-                                         title="Afficher la galerie en plein écran"/>
-                    </div>
                     <div class="galleria-wrapper-with-images">
                         <!-- Carte typologie gauche : type précédent (ordre alphabétique) -->
                         <div class="galleria-side-card galleria-side-card-left">
@@ -53,48 +45,40 @@
                             <h:panelGroup layout="block" styleClass="galleria-side-placeholder" rendered="#{applicationBean.previousType == null}"/>
                         </div>
 
-                        <!-- Galleria principal (uniquement ce bloc en plein écran) -->
+                        <!-- Galerie custom (HTML/CSS/JS) - bloc en plein écran -->
                         <div class="galleria-main-wrapper">
-                            <p:galleria
-                                    value="#{applicationBean.galleriaPhotos}"
-                                    var="photo"
-                                    numVisible="5"
-                                    styleClass="modern-galleria galleria-clickable"
-                                    containerStyle="max-width: 100%; margin: 0 auto;"
-                                    showItemNavigators="true"
-                                    showThumbnails="true"
-                                    showIndicators="true"
-                                    showIndicatorsOnItem="true"
-                                    circular="true"
-                                    autoPlay="false"
-                                    transitionInterval="0"
-                                    panelWidth="800"
-                                    panelHeight="600"
-                                    thumbnailsPosition="bottom"
-                                    rendered="#{not empty applicationBean.galleriaPhotos}">
-                                <h:panelGroup layout="block" styleClass="galleria-image-click-wrapper"
-                                               style="cursor: pointer;"
-                                               data-image-url="#{photo.itemImageSrc}"
-                                               onclick="var u=this.getAttribute('data-image-url');if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u);}return false;">
-                                    <p:graphicImage
-                                            value="#{photo.itemImageSrc}"
-                                            alt="#{photo.alt}"
-                                            styleClass="galleria-main-image"
-                                            title="Cliquez pour afficher en plein écran"/>
-                                </h:panelGroup>
-                                <f:facet name="thumbnail">
-                                    <p:graphicImage
-                                            value="#{photo.thumbnailImageSrc}"
-                                            alt="#{photo.alt}"
-                                            styleClass="galleria-thumbnail-image" />
-                                </f:facet>
-                                <f:facet name="caption">
-                                    <div class="galleria-caption">
-                                        <h4>#{photo.title}</h4>
-                                        <p>#{photo.alt}</p>
-                                    </div>
-                                </f:facet>
-                            </p:galleria>
+                            <h:panelGroup layout="block" rendered="#{not empty applicationBean.galleriaPhotos}">
+                            <div class="opentypo-gallery" id="opentypoGalleryMain">
+                                <div class="opentypo-gallery-viewport">
+                                    <button type="button" class="opentypo-gallery-nav opentypo-gallery-prev"
+                                            aria-label="Image précédente">
+                                        <i class="pi pi-chevron-left"/>
+                                    </button>
+                                    <button type="button" class="opentypo-gallery-nav opentypo-gallery-next"
+                                            aria-label="Image suivante">
+                                        <i class="pi pi-chevron-right"/>
+                                    </button>
+                                    <ui:repeat value="#{applicationBean.galleriaPhotos}" var="photo" varStatus="status">
+                                        <div class="opentypo-gallery-slide #{status.first ? 'opentypo-gallery-slide-active' : ''}"
+                                             aria-hidden="#{status.first ? 'false' : 'true'}">
+                                            <img src="#{photo.itemImageSrc}" alt="#{photo.alt}"
+                                                 title="Cliquez pour afficher en plein écran"
+                                                 onclick="var u=this.src;if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u);}return false;"/>
+                                        </div>
+                                    </ui:repeat>
+                                </div>
+                                <div class="opentypo-gallery-thumbnails">
+                                    <ui:repeat value="#{applicationBean.galleriaPhotos}" var="photo" varStatus="status">
+                                        <button type="button" class="opentypo-gallery-thumb #{status.first ? 'opentypo-gallery-thumb-active' : ''}"
+                                                aria-label="Voir image #{status.index + 1}"
+                                                aria-selected="#{status.first ? 'true' : 'false'}">
+                                            <img src="#{photo.thumbnailImageSrc}" alt="#{photo.alt}"/>
+                                        </button>
+                                    </ui:repeat>
+                                </div>
+                            </div>
+                            <script>if(window.OpentypoGallery&amp;&amp;window.OpentypoGallery.init){window.OpentypoGallery.init();}</script>
+                            </h:panelGroup>
                             <h:panelGroup layout="block" class="image-container galleria-placeholder"
                                           rendered="#{empty applicationBean.galleriaPhotos}">
                                 <h:panelGroup class="reference-image-placeholder">
