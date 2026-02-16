@@ -1456,6 +1456,20 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
 }
 
+.action-remettre {
+    background: linear-gradient(135deg, rgba(253, 126, 20, 0.1) 0%, rgba(253, 126, 20, 0.06) 100%) !important;
+    color: #fd7e14 !important;
+    border-color: rgba(253, 126, 20, 0.2) !important;
+}
+
+.action-remettre:hover {
+    background: linear-gradient(135deg, #fd7e14 0%, rgba(253, 126, 20, 0.9) 100%) !important;
+    color: #ffffff !important;
+    border-color: #fd7e14 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3) !important;
+}
+
 /* ============================================
    PAGINATION FORMEL, SIMPLE ET ERGONOMIQUE
    Design épuré et professionnel

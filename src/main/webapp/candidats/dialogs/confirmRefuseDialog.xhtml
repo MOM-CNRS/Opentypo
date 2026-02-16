@@ -1,0 +1,55 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="confirmRefuseDialog"
+              widgetVar="confirmRefuseDialog"
+              header="Confirmer le refus"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="500"
+              height="auto"
+              styleClass="candidat-confirm-dialog">
+        <f:facet name="header">
+            <div class="candidat-confirm-header">
+                <div class="candidat-confirm-header-icon-wrapper candidat-confirm-header-icon-refuse">
+                    <i class="pi pi-times-circle candidat-confirm-header-icon"/>
+                </div>
+                <div class="candidat-confirm-header-content">
+                    <h3 class="candidat-confirm-header-title">Confirmer le refus</h3>
+                    <p class="candidat-confirm-header-subtitle">Le brouillon sera classé comme refusé (statut REFUSED)</p>
+                </div>
+            </div>
+        </f:facet>
+        <div class="candidat-confirm-message-wrapper">
+            <div class="candidat-confirm-icon-info">
+                <i class="pi pi-info-circle"/>
+            </div>
+            <p class="candidat-confirm-message-text">
+                Êtes-vous sûr de vouloir refuser ce brouillon ?<br/>
+                <strong>#{candidatBean.candidatARefuser != null ? candidatBean.candidatARefuser.label : ''}</strong>
+            </p>
+        </div>
+        <f:facet name="footer">
+            <div class="candidat-confirm-footer">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
+                               process="@this"
+                               update="@none"
+                               onclick="PF('confirmRefuseDialog').hide(); return false;"/>
+                <p:commandButton value="Oui, refuser"
+                               icon="pi pi-times"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-refuse"
+                               action="#{candidatBean.refuserCandidatConfirm()}"
+                               process=":candidatsForm"
+                               update=":candidatsForm :growl"
+                               oncomplete="PF('confirmRefuseDialog').hide();"/>
+            </div>
+        </f:facet>
+    </p:dialog>
+</ui:fragment>

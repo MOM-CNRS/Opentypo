@@ -3200,9 +3200,15 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     cursor: pointer !important;
 }
 
+.simple-tree .simple-tree-toggler {
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
 .simple-tree .simple-tree-toggler:hover {
     background-color: var(--tree-toggler-bg-hover) !important;
     color: var(--tree-toggler-color-hover) !important;
+}
+.simple-tree .simple-tree-toggler:active {
+    transform: scale(0.92);
 }
 
 .simple-tree .simple-tree-node-content.ui-state-highlight .simple-tree-toggler,
@@ -3210,18 +3216,13 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     color: var(--tree-toggler-color-hover) !important;
 }
 
-/* Toggler : état initial '>' (chevron-right), au clic affiche 'v' (chevron-down), au clic suivant revient à '>' */
-.simple-tree .simple-tree-toggler .simple-tree-toggler-icon-collapsed {
+/* Toggler : une seule icône chevron qui tourne (0° → 90°) de manière fluide */
+.simple-tree .simple-tree-toggler .simple-tree-toggler-icon {
     display: inline-flex !important;
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
-.simple-tree .simple-tree-toggler .simple-tree-toggler-icon-expanded {
-    display: none !important;
-}
-.simple-tree .simple-tree-node.expanded .simple-tree-toggler .simple-tree-toggler-icon-collapsed {
-    display: none !important;
-}
-.simple-tree .simple-tree-node.expanded .simple-tree-toggler .simple-tree-toggler-icon-expanded {
-    display: inline-flex !important;
+.simple-tree .simple-tree-node.expanded .simple-tree-toggler .simple-tree-toggler-icon {
+    transform: rotate(90deg);
 }
 
 /* Nœud déplié sans enfant : masquer le toggler (injection AJAX ou rendu) */
@@ -3229,7 +3230,7 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     display: none !important;
 }
 
-/* Enfants : replié par défaut, déplié quand .expanded (tous niveaux, pas seulement la racine) */
+/* Enfants : replié par défaut, déplié quand .expanded - transition fluide */
 .simple-tree .simple-tree-children {
     list-style: none;
     margin: 0 0 0 1rem !important;
@@ -3238,13 +3239,15 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height 0.28s ease-out, opacity 0.2s ease-out;
+    transition: max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .simple-tree .simple-tree-node.expanded > .simple-tree-children {
-    max-height: 2500px;
+    max-height: 3000px;
     opacity: 1;
-    overflow: visible;
-    transition: max-height 0.35s ease-in, opacity 0.2s ease-out;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @media (max-width: 768px) {
@@ -6155,6 +6158,9 @@ body .reference-card a {
     width: 70% !important;
     max-width: 900px !important;          /* limite sur grands écrans */
     height: auto !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 
     border-radius: 4px !important;        /* très léger, non décoratif */
     border: 1px solid #d0d0d0 !important; /* style institutionnel */
@@ -8162,6 +8168,57 @@ a.users-edit-btn:hover {
     margin-bottom: 1.5rem;
     display: flex;
     justify-content: flex-start;
+}
+
+/* Badge Type dans les tableaux candidats - design distinct par type d'entité */
+.candidat-type-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    padding: 0.25rem 0.6rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+}
+.candidat-type-badge i {
+    font-size: 0.7rem !important;
+    opacity: 0.9 !important;
+}
+.candidat-type-collection {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: #4f46e5 !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+}
+.candidat-type-referentiel {
+    background: rgba(14, 165, 233, 0.12) !important;
+    color: #0369a1 !important;
+    border: 1px solid rgba(14, 165, 233, 0.25) !important;
+}
+.candidat-type-categorie {
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #15803d !important;
+    border: 1px solid rgba(34, 197, 94, 0.25) !important;
+}
+.candidat-type-groupe {
+    background: rgba(234, 88, 12, 0.12) !important;
+    color: #c2410c !important;
+    border: 1px solid rgba(234, 88, 12, 0.25) !important;
+}
+.candidat-type-serie {
+    background: rgba(168, 85, 247, 0.12) !important;
+    color: #7c3aed !important;
+    border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+.candidat-type-type {
+    background: rgba(71, 98, 77, 0.12) !important;
+    color: var(--color-action-main, #47624D) !important;
+    border: 1px solid rgba(71, 98, 77, 0.25) !important;
+}
+.candidat-type-default {
+    background: rgba(107, 114, 128, 0.12) !important;
+    color: #4b5563 !important;
+    border: 1px solid rgba(107, 114, 128, 0.25) !important;
 }
 
 /* Responsive pour les composants candidats */

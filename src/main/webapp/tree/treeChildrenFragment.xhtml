@@ -1,0 +1,17 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <!-- Fragment des enfants à injecter dans l'arbre (évite le rechargement complet = pas de clignotement) -->
+    <ui:fragment rendered="#{treeBean.pendingChildrenTreeNode != null}">
+        <ul class="simple-tree-children ui-treenode-children">
+            <c:forEach items="#{treeBean.pendingChildrenTreeNode.children}" var="childNode">
+                <ui:include src="treeNode.xhtml">
+                    <ui:param name="node" value="#{childNode}"/>
+                    <ui:param name="treeBean" value="#{treeBean}"/>
+                </ui:include>
+            </c:forEach>
+        </ul>
+    </ui:fragment>
+
+</ui:composition>

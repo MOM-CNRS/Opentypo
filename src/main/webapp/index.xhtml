@@ -59,24 +59,28 @@
                                 styleClass="utility-hidden"
                                 action="#{treeBean.selectEntityById}"
                                 process="@this treeEntityId"
-                                update=":contentPanels, :breadcrumbContent"
+                                update=":contentPanels"
                                 ajax="true"
-                                onstart="showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
-                                oncomplete="setTimeout(function(){ hidePanelLoading(); if(typeof applyTreeSelectionHighlight === 'function'){ applyTreeSelectionHighlight(); } }, 250);"
-                                onerror="hidePanelLoading();"/>
+                                onstart="if(typeof showPanelLoading === 'function') showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
+                                oncomplete="setTimeout(function(){ if(typeof hidePanelLoading === 'function') hidePanelLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); }, 250);"
+                                onerror="if(typeof hidePanelLoading === 'function') hidePanelLoading();"/>
             </h:form>
-            <!-- Formulaire pour chargement des enfants au dépliage : mise à jour uniquement du panel contenu et du panel arbre -->
+            <!-- Fragment pour injection des enfants (hors form pour résolution correcte par update) -->
+            <h:panelGroup id="treeLoadChildrenFragment" layout="block" style="display:none !important; visibility:hidden;">
+                <ui:include src="tree/treeChildrenFragment.xhtml"/>
+            </h:panelGroup>
+            <!-- Formulaire pour chargement des enfants au dépliage -->
             <h:form id="treeExpandForm" styleClass="utility-hidden">
                 <h:inputHidden id="treeExpandEntityId" value="#{treeBean.expandEntityIdForAjax}"/>
                 <p:commandButton id="loadTreeChildrenBtn"
                                 styleClass="utility-hidden"
                                 action="#{treeBean.loadChildrenForEntity}"
                                 process="@this treeExpandEntityId"
-                                update=":contentPanels, :leftTreePanel"
+                                update=":treeLoadChildrenFragment"
                                 ajax="true"
-                                onstart="if(typeof showLoading === 'function') showLoading('Chargement des éléments...', 'spinner');"
-                                oncomplete="if(typeof hideLoading === 'function') hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();"
-                                onerror="if(typeof forceHideLoading === 'function') forceHideLoading();"/>
+                                onstart="if(typeof showPanelLoading === 'function') showPanelLoading('leftTreePanel', 'Chargement...', 'spinner');"
+                                oncomplete="var inp=document.querySelector('[id$=treeExpandEntityId]'); var eid=inp?inp.value:null; if(typeof injectTreeChildrenFragment==='function'&amp;&amp;eid){injectTreeChildrenFragment(eid);} if(typeof hidePanelLoading==='function') hidePanelLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();"
+                                onerror="if(typeof hidePanelLoading==='function') hidePanelLoading();"/>
             </h:form>
 
             <!-- Panneau droit pour les résultats de recherche -->

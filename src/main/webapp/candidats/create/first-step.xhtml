@@ -29,6 +29,7 @@
                                                var="entityType"
                                                itemLabel="#{candidatBean.getEntityTypeName(entityType)}"
                                                itemValue="#{entityType.id}" />
+                                <p:ajax event="change" process="@this" update="wizardContent"/>
                             </p:selectOneMenu>
                         </div>
                         <p:message for="entityType" display="icon"/>
@@ -41,7 +42,8 @@
                             <p:selectOneMenu id="selectedLangue"
                                              value="#{candidatBean.selectedLangueCode}"
                                              styleClass="users-select"
-                                             required="true"
+                                             disabled="#{candidatBean.isSelectedEntityTypeType()}"
+                                             required="#{not candidatBean.isSelectedEntityTypeType()}"
                                              requiredMessage="La langue est requise"
                                              validatorMessage="La langue est requise">
                                 <f:selectItem itemLabel="Sélectionnez une langue" itemValue="" />
@@ -60,7 +62,8 @@
                             <i class="pi pi-pencil input-icon" />
                             <p:inputText id="entityLabel"
                                          value="#{candidatBean.entityLabel}"
-                                         required="true"
+                                         disabled="#{candidatBean.isSelectedEntityTypeType()}"
+                                         required="#{not candidatBean.isSelectedEntityTypeType()}"
                                          requiredMessage="Le label est requis"
                                          validatorMessage="Le label est requis"
                                          styleClass="users-input"

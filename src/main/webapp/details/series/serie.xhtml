@@ -109,9 +109,9 @@
                                     #{applicationBean.selectedEntity.periode.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
+                            <h:outputText value="Non renseigné"
+                                          rendered="#{empty applicationBean.selectedEntity.periode}"
+                                          styleClass="empty-field-message" />
                         </div>
 
                         <div class="concept-info-item">

@@ -19,10 +19,10 @@
                        sortMode="multiple"
                        rowStyleClass="modern-users-row">
                 <p:column headerText="Type" sortBy="#{candidat.typeCode}" styleClass="users-col-code">
-                    <div class="candidat-code-cell">
-                        <i class="pi pi-tag"/>
-                        <h:outputText value="#{candidat.typeCode}"/>
-                    </div>
+                    <span class="#{candidatBean.getTypeBadgeCssClass(candidat)}" title="#{candidatBean.getEntityTypeName(candidat)}">
+                        <i class="#{candidatBean.getTypeIcon(candidat)}"/>
+                        <h:outputText value="#{candidatBean.getEntityTypeName(candidat)}"/>
+                    </span>
                 </p:column>
                 <p:column headerText="Code" sortBy="#{candidat.code}" styleClass="users-col-period">
                     <div class="candidat-period-cell">
@@ -56,6 +56,14 @@
                                        action="#{candidatBean.visualiserCandidat(candidat)}"
                                        process="@this"
                                        update="@none"/>
+                        <p:commandButton icon="pi pi-replay"
+                                       styleClass="action-btn action-remettre"
+                                       title="Remettre en brouillon"
+                                       rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
+                                       action="#{candidatBean.prepareRemettreEnBrouillon(candidat)}"
+                                       process="@this"
+                                       update=":candidatsForm"
+                                       oncomplete="PF('confirmRemettreBrouillonDialog').show();"/>
                     </div>
                 </p:column>
             </p:dataTable>

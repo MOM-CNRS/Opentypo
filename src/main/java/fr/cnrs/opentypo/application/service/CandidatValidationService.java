@@ -4,7 +4,9 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -24,12 +26,22 @@ public class CandidatValidationService {
     @Inject
     private EntityRepository entityRepository;
 
+    @Inject
+    private EntityTypeRepository entityTypeRepository;
+
     /**
      * Valide l'étape 1 du formulaire (Type et identification).
+     * Pour le type d'entité « Type », seuls le code est requis ; la vérification d'unicité porte uniquement sur le code.
      */
     public boolean validateStep1(Long selectedEntityTypeId, String entityCode, String entityLabel, String selectedLangueCode) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         boolean isValid = true;
+
+        boolean isEntityTypeType = false;
+        if (selectedEntityTypeId != null) {
+            EntityType entityType = entityTypeRepository.findById(selectedEntityTypeId).orElse(null);
+            isEntityTypeType = entityType != null && EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode());
+        }
 
         if (selectedEntityTypeId == null) {
             facesContext.addMessage(null,
@@ -41,15 +53,17 @@ public class CandidatValidationService {
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le code est requis."));
             isValid = false;
         }
-        if (entityLabel == null || entityLabel.trim().isEmpty()) {
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le label est requis."));
-            isValid = false;
-        }
-        if (selectedLangueCode == null) {
-            facesContext.addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La langue est requise."));
-            isValid = false;
+        if (!isEntityTypeType) {
+            if (entityLabel == null || entityLabel.trim().isEmpty()) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le label est requis."));
+                isValid = false;
+            }
+            if (selectedLangueCode == null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "La langue est requise."));
+                isValid = false;
+            }
         }
 
         if (isValid && entityCode != null && !entityCode.trim().isEmpty()) {
@@ -60,7 +74,7 @@ public class CandidatValidationService {
             }
         }
 
-        if (isValid && entityLabel != null && !entityLabel.trim().isEmpty() && selectedLangueCode != null) {
+        if (!isEntityTypeType && isValid && entityLabel != null && !entityLabel.trim().isEmpty() && selectedLangueCode != null) {
             if (entityRepository.existsByLabelNomAndLangueCode(entityLabel.trim(), selectedLangueCode)) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",

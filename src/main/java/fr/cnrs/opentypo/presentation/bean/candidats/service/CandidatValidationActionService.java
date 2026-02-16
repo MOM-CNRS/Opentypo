@@ -68,6 +68,24 @@ public class CandidatValidationActionService {
         return new ActionResult(true, "Le candidat a été refusé par " + userName + ".", null);
     }
 
+    /**
+     * Remet un candidat (validé ou refusé) en statut brouillon (PROPOSITION).
+     */
+    @Transactional
+    public ActionResult remettreEnBrouillon(Long candidatId, Utilisateur currentUser) {
+        if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");
+
+        Entity entity = entityRepository.findById(candidatId).orElse(null);
+        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+
+        entity.setStatut(EntityStatusEnum.PROPOSITION.name());
+        addUserAsAuthor(entity, currentUser);
+        entityRepository.save(entity);
+
+        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
+        return new ActionResult(true, "Le brouillon a été remis en cours par " + userName + ".", null);
+    }
+
     @Transactional
     public ActionResult supprimerCandidat(Long candidatId) {
         if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");

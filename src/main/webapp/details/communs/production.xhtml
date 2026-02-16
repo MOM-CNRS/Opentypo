@@ -54,9 +54,9 @@
                                     </ui:fragment>
                                 </ui:repeat>
                             </ui:fragment>
-                            <h:outputText value="Aucun atelier disponible"
+                            <h:outputText value="Non renseigné"
                                           rendered="#{empty applicationBean.selectedEntity.metadata or empty applicationBean.selectedEntity.metadata.ateliers}"
-                                          styleClass="bibliographie-empty" />
+                                          styleClass="empty-field-message" />
                         </div>
                     </div>
 

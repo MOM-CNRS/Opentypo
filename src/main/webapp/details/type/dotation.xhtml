@@ -1,4 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
@@ -19,19 +20,19 @@
                             <span>Période</span>
                         </div>
                         <div class="concept-info-value">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                    <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
                                         value="#{applicationBean.selectedEntity.periode.valeur}" />
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
                                     #{applicationBean.selectedEntity.periode.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
-                            <span class="empty-field-message">Non renseigné</span>
-                        </ui:fragment>
-                            </div>
+                            <h:outputText value="Non renseigné"
+                                          rendered="#{empty applicationBean.selectedEntity.periode}"
+                                          styleClass="empty-field-message" />
+                        </div>
                     </div>
 
                     <div class="concept-info-item">

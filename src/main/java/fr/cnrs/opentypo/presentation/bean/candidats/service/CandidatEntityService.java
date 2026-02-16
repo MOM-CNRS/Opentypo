@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.*;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
@@ -65,16 +66,19 @@ public class CandidatEntityService {
             newEntity.setAuteurs(auteurs);
         }
         
-        // Ajouter le label principal (de l'étape 1)
-        Langue languePrincipale = langueRepository.findByCode(langueCode);
-        if (languePrincipale != null) {
-            Label labelPrincipal = new Label();
-            labelPrincipal.setNom(label.trim());
-            labelPrincipal.setLangue(languePrincipale);
-            labelPrincipal.setEntity(newEntity);
-            List<Label> labels = new ArrayList<>();
-            labels.add(labelPrincipal);
-            newEntity.setLabels(labels);
+        // Ajouter le label principal (de l'étape 1) — sauf pour le type « Type » où langue et label ne sont pas utilisés
+        boolean isEntityTypeType = EntityConstants.ENTITY_TYPE_TYPE.equals(entityType.getCode());
+        if (!isEntityTypeType && langueCode != null && label != null && !label.trim().isEmpty()) {
+            Langue languePrincipale = langueRepository.findByCode(langueCode);
+            if (languePrincipale != null) {
+                Label labelPrincipal = new Label();
+                labelPrincipal.setNom(label.trim());
+                labelPrincipal.setLangue(languePrincipale);
+                labelPrincipal.setEntity(newEntity);
+                List<Label> labels = new ArrayList<>();
+                labels.add(labelPrincipal);
+                newEntity.setLabels(labels);
+            }
         }
         
         // Sauvegarder l'entité

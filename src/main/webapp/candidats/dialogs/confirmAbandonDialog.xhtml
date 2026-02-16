@@ -1,6 +1,7 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
              xmlns:ui="http://java.sun.com/jsf/facelets"
-             xmlns:p="http://primefaces.org/ui">
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <p:dialog id="confirmAbandonDialog"
               widgetVar="confirmAbandonDialog"
@@ -8,36 +9,37 @@
               modal="true"
               closable="true"
               resizable="false"
-              draggable="true"
+              draggable="false"
               width="500"
               height="auto"
-              styleClass="candidat-confirm-dialog">
-
+              appendTo="@(body)"
+              styleClass="candidat-confirm-dialog candidat-confirm-dialog-default-title">
         <div class="candidat-confirm-message-wrapper">
             <div class="candidat-confirm-icon-warning">
-                <i class="pi pi-exclamation-triangle" />
+                <i class="pi pi-exclamation-triangle"/>
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir abandonner cette proposition ? 
+                Êtes-vous sûr de vouloir abandonner cette proposition ?<br/>
                 <strong>Toutes les données saisies seront définitivement supprimées.</strong>
             </p>
         </div>
-
-        <div class="candidat-confirm-actions">
-            <p:commandButton value="Annuler"
-                             icon="pi pi-times"
-                             onclick="PF('confirmAbandonDialog').hide(); return false;"
-                             type="button"
-                             styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
-            <p:commandButton value="Oui, abandonner"
-                             icon="pi pi-trash"
-                             action="#{candidatBean.abandonnerProposition}"
-                             process="@this"
-                             ajax="true"
-                             update=":growl"
-                             styleClass="candidat-confirm-btn candidat-confirm-btn-delete"
-                             oncomplete="if(!args.validationFailed) {PF('confirmAbandonDialog').hide(); window.location.href='/candidats/candidats.xhtml';}"
-                             onerror="forceHideLoading();"/>
-        </div>
+        <f:facet name="footer">
+            <div class="candidat-confirm-footer">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
+                               process="@this"
+                               update="@none"
+                               onclick="PF('confirmAbandonDialog').hide(); return false;"/>
+                <p:commandButton value="Oui, abandonner"
+                               icon="pi pi-trash"
+                               styleClass="candidat-confirm-btn candidat-confirm-btn-delete"
+                               action="#{candidatBean.abandonnerProposition}"
+                               process="@this"
+                               update=":growl"
+                               oncomplete="if(!args.validationFailed) {PF('confirmAbandonDialog').hide(); window.location.href='/candidats/candidats.xhtml';}"
+                               onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
+            </div>
+        </f:facet>
     </p:dialog>
 </ui:fragment>

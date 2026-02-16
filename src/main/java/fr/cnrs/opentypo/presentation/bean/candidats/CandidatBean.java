@@ -159,6 +159,8 @@ public class CandidatBean implements Serializable {
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;
     private Candidat candidatAValider; // Candidat sélectionné pour validation
+    private Candidat candidatARefuser; // Candidat sélectionné pour refus
+    private Candidat candidatARemettreEnBrouillon; // Candidat sélectionné pour remise en brouillon
     private Candidat candidatASupprimer; // Candidat sélectionné pour suppression
     private int activeTabIndex = 0; // 0 = en cours, 1 = validés, 2 = refusés
     private boolean candidatsLoaded = false; // Flag pour savoir si les candidats ont été chargés
@@ -708,6 +710,15 @@ public class CandidatBean implements Serializable {
     }
 
     /**
+     * Retourne true si le type d'entité sélectionné est « Type ».
+     * Dans ce cas, les champs Langue et Label sont désactivés et non obligatoires.
+     */
+    public boolean isSelectedEntityTypeType() {
+        EntityType et = getSelectedEntityType();
+        return et != null && EntityConstants.ENTITY_TYPE_TYPE.equals(et.getCode());
+    }
+
+    /**
      * Récupère la collection sélectionnée
      */
     public Entity getSelectedCollection() {
@@ -855,6 +866,52 @@ public class CandidatBean implements Serializable {
     }
 
     /**
+     * Prépare le refus d'un candidat (stocke le candidat et ouvre le dialogue de confirmation)
+     */
+    public void prepareRefuseCandidat(Candidat candidat) {
+        this.candidatARefuser = candidat;
+    }
+
+    /**
+     * Refuse un candidat après confirmation (change le statut à REFUSED)
+     */
+    public void refuserCandidatConfirm() {
+        if (candidatARefuser != null) {
+            refuserCandidat(candidatARefuser);
+            candidatARefuser = null;
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun candidat sélectionné pour refus."));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+
+    /**
+     * Prépare la remise en brouillon d'un candidat (stocke le candidat et ouvre le dialogue)
+     */
+    public void prepareRemettreEnBrouillon(Candidat candidat) {
+        this.candidatARemettreEnBrouillon = candidat;
+    }
+
+    /**
+     * Remet un candidat en brouillon après confirmation (change le statut à PROPOSITION)
+     */
+    public void remettreEnBrouillonConfirm() {
+        if (candidatARemettreEnBrouillon != null) {
+            remettreEnBrouillon(candidatARemettreEnBrouillon);
+            candidatARemettreEnBrouillon = null;
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur",
+                    "Aucun candidat sélectionné pour remise en brouillon."));
+            PrimeFaces.current().ajax().update(":growl");
+        }
+    }
+
+    /**
      * Prépare la suppression d'un candidat (stocke le candidat et ouvre le dialogue)
      */
     public void prepareDeleteCandidat(Candidat candidat) {
@@ -955,6 +1012,12 @@ public class CandidatBean implements Serializable {
 
     public void refuserCandidat(Candidat candidat) {
         ActionResult r = candidatValidationActionService.refuserCandidat(candidat != null ? candidat.getId() : null, loginBean.getCurrentUser());
+        applyActionResult(r, ":growl, :candidatsForm");
+        if (r.success()) { candidatsLoaded = false; chargerCandidats(); }
+    }
+
+    public void remettreEnBrouillon(Candidat candidat) {
+        ActionResult r = candidatValidationActionService.remettreEnBrouillon(candidat != null ? candidat.getId() : null, loginBean.getCurrentUser());
         applyActionResult(r, ":growl, :candidatsForm");
         if (r.success()) { candidatsLoaded = false; chargerCandidats(); }
     }
@@ -1433,11 +1496,46 @@ public class CandidatBean implements Serializable {
         String code = candidat.getTypeCode();
         return switch (code) {
             case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
             case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
             case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
             case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
             case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
             default -> code;
+        };
+    }
+
+    /**
+     * Retourne la classe CSS du badge pour la colonne Type (design distinct par type d'entité).
+     */
+    public String getTypeBadgeCssClass(Candidat candidat) {
+        if (candidat == null || candidat.getTypeCode() == null || candidat.getTypeCode().isBlank()) {
+            return "candidat-type-badge candidat-type-default";
+        }
+        String code = candidat.getTypeCode().toLowerCase();
+        String modifier = switch (code) {
+            case "collection", "referentiel", "categorie", "groupe", "serie", "type" -> "candidat-type-" + code;
+            default -> "candidat-type-default";
+        };
+        return "candidat-type-badge " + modifier;
+    }
+
+    /**
+     * Retourne l'icône PrimeIcons pour le type d'entité.
+     */
+    public String getTypeIcon(Candidat candidat) {
+        if (candidat == null || candidat.getTypeCode() == null) {
+            return "pi pi-tag";
+        }
+        String code = candidat.getTypeCode();
+        return switch (code.toUpperCase()) {
+            case "COLLECTION" -> "pi pi-folder-open";
+            case "REFERENTIEL" -> "pi pi-book";
+            case "CATEGORIE" -> "pi pi-tags";
+            case "GROUPE" -> "pi pi-users";
+            case "SERIE" -> "pi pi-list";
+            case "TYPE" -> "pi pi-tag";
+            default -> "pi pi-tag";
         };
     }
     
