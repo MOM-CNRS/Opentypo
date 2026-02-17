@@ -15,6 +15,17 @@
     --ot-text-muted: var(--color-text-secondary, #819A91);
 }
 
+/* ---- Variables pour toutes les variantes du dialog ---- */
+.opentheso-dialog.ui-dialog,
+.opentheso-dialog {
+    --ot-main: var(--color-action-main, #47624D);
+    --ot-main-rgb: 71, 98, 77;
+    --ot-bg: var(--color-bg-global, #EEEFE0);
+    --ot-bg-secondary: var(--color-bg-secondary, #D1D8BE);
+    --ot-text: var(--color-text-primary, #333);
+    --ot-text-muted: var(--color-text-secondary, #819A91);
+}
+
 /* ---- Dialog principal ---- */
 .opentheso-dialog.ui-dialog {
     border-radius: 12px !important;
@@ -499,14 +510,107 @@ body .ui-widget-overlay {
     }
 }
 
-/* Paramétrage (réutilise le même dialog) */
+/* ============================================
+   DIALOG PARAMÉTRAGE OPENTHESO
+   Design soigné, layout structuré, charte cohérente
+   ============================================ */
+
+/* Sous-titre du paramétrage */
+.opentheso-dialog.parametrage-dialog .parametrage-subtitle {
+    margin: 0 0 1.25rem 0 !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 1px solid rgba(var(--ot-main-rgb), 0.08) !important;
+}
+
+/* Rows de formulaire */
+.opentheso-dialog .opentheso-dialog-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    align-items: flex-start !important;
+    margin-bottom: 1.25rem !important;
+}
+
+.opentheso-dialog .opentheso-dialog-row:last-of-type {
+    margin-bottom: 0 !important;
+}
+
+/* Champ standard */
+.opentheso-dialog .opentheso-dialog-field {
+    flex: 1 1 240px !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+}
+
+/* Champ pleine largeur */
+.opentheso-dialog .opentheso-dialog-field-full {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+}
+
+/* Labels du paramétrage */
+.opentheso-dialog .opentheso-dialog-row .ui-outputlabel,
+.opentheso-dialog .opentheso-dialog-row label {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: var(--ot-text) !important;
+    margin: 0 !important;
+}
+
+/* Input wrapper dans le paramétrage */
+.opentheso-dialog .opentheso-dialog-row .input-wrapper {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.opentheso-dialog .opentheso-dialog-row .input-icon {
+    color: var(--ot-main) !important;
+    font-size: 1rem !important;
+}
+
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-input,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-select,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .ui-selectonemenu {
+    padding-left: 2.75rem !important;
+    border: 1px solid rgba(var(--ot-main-rgb), 0.22) !important;
+    border-radius: 8px !important;
+    font-size: 0.9375rem !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-input:hover,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-select:hover,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .ui-selectonemenu:hover {
+    border-color: rgba(var(--ot-main-rgb), 0.35) !important;
+}
+
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-input:focus,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .users-select:focus,
+.opentheso-dialog .opentheso-dialog-row .input-wrapper .ui-selectonemenu.ui-state-focus {
+    border-color: var(--ot-main) !important;
+    box-shadow: 0 0 0 3px rgba(var(--ot-main-rgb), 0.12) !important;
+    outline: none !important;
+}
+
+/* Section URL + Actualiser */
 .opentheso-dialog .opentheso-dialog-row-url {
+    display: flex !important;
+    flex-wrap: wrap !important;
     align-items: flex-end !important;
     gap: 1rem !important;
+    margin-bottom: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+    border-bottom: 1px solid rgba(var(--ot-main-rgb), 0.1) !important;
 }
 
 .opentheso-dialog .opentheso-dialog-field-url {
-    flex: 1 1 auto !important;
+    flex: 1 1 280px !important;
     min-width: 0 !important;
 }
 
@@ -516,24 +620,37 @@ body .ui-widget-overlay {
 }
 
 .opentheso-dialog .parametrage-btn-refresh {
-    background: rgba(var(--ot-main-rgb), 0.08) !important;
-    border: 1px solid rgba(var(--ot-main-rgb), 0.25) !important;
-    color: var(--ot-main) !important;
-    padding: 0.625rem 1rem !important;
+    background: var(--ot-main) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 0.625rem 1.25rem !important;
     font-weight: 600 !important;
-    border-radius: 8px !important;
     font-size: 0.875rem !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(var(--ot-main-rgb), 0.25) !important;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease !important;
 }
 
 .opentheso-dialog .parametrage-btn-refresh:hover {
-    background: rgba(var(--ot-main-rgb), 0.12) !important;
-    border-color: var(--ot-main) !important;
+    background: rgba(var(--ot-main-rgb), 0.88) !important;
+    box-shadow: 0 4px 12px rgba(var(--ot-main-rgb), 0.3) !important;
+    transform: translateY(-1px) !important;
 }
 
+.opentheso-dialog .parametrage-btn-refresh .ui-button-icon-left {
+    margin-right: 0.5rem !important;
+}
+
+/* Footer et boutons */
 .opentheso-dialog .parametrage-dialog-footer {
     margin-top: 1.5rem !important;
-    padding-top: 1rem !important;
+    padding-top: 1.25rem !important;
     border-top: 1px solid rgba(var(--ot-main-rgb), 0.12) !important;
+}
+
+.opentheso-dialog .parametrage-dialog-footer,
+.opentheso-dialog .opentheso-dialog-row.parametrage-dialog-footer {
+    justify-content: flex-end !important;
 }
 
 .opentheso-dialog .parametrage-form-actions {
@@ -541,4 +658,67 @@ body .ui-widget-overlay {
     justify-content: flex-end !important;
     gap: 0.75rem !important;
     flex-wrap: wrap !important;
+    width: 100% !important;
+}
+
+/* Boutons Annuler / Valider (paramétrage) */
+.opentheso-dialog .parametrage-form-actions .category-btn,
+.opentheso-dialog .parametrage-form-actions .category-btn-cancel,
+.opentheso-dialog .parametrage-form-actions .category-btn-validate {
+    min-width: 120px !important;
+    padding: 0.625rem 1.25rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.opentheso-dialog .parametrage-form-actions .category-btn-cancel {
+    background: #fff !important;
+    border: 1px solid rgba(var(--ot-main-rgb), 0.25) !important;
+    color: var(--ot-text) !important;
+}
+
+.opentheso-dialog .parametrage-form-actions .category-btn-cancel:hover {
+    background: var(--ot-bg) !important;
+    border-color: var(--ot-main) !important;
+    color: var(--ot-main) !important;
+}
+
+.opentheso-dialog .parametrage-form-actions .category-btn-validate {
+    background: var(--ot-main) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(var(--ot-main-rgb), 0.25) !important;
+}
+
+.opentheso-dialog .parametrage-form-actions .category-btn-validate:hover {
+    background: rgba(var(--ot-main-rgb), 0.9) !important;
+    box-shadow: 0 4px 12px rgba(var(--ot-main-rgb), 0.35) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Responsive paramétrage */
+@media (max-width: 576px) {
+    .opentheso-dialog .opentheso-dialog-row-url {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .opentheso-dialog .parametrage-btn-refresh {
+        width: 100% !important;
+    }
+
+    .opentheso-dialog .parametrage-form-actions {
+        flex-direction: column-reverse !important;
+    }
+
+    .opentheso-dialog .parametrage-form-actions .category-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
 }

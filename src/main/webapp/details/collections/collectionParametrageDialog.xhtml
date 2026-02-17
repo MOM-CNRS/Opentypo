@@ -6,19 +6,19 @@
 
     <p:dialog id="collectionParametrageDialog"
               widgetVar="collectionParametrageDialog"
-              header="Paramétrage OpenTheso"
+              header="Paramétrage de connexion à OpenTheso"
               modal="true"
               closable="true"
               resizable="false"
               draggable="true"
-              width="500"
+              width="520"
               height="auto"
-              styleClass="opentheso-dialog"
+              styleClass="opentheso-dialog parametrage-dialog"
               showEffect="fade"
               hideEffect="fade"
               responsive="true">
 
-        <h:form id="collectionParametrageForm">
+        <h:form id="collectionParametrageForm" styleClass="parametrage-form">
             <div class="opentheso-dialog-row opentheso-dialog-row-url">
                 <div class="opentheso-dialog-field opentheso-dialog-field-url">
                     <p:outputLabel for="paramBaseUrl" value="Url Serveur" />
@@ -72,7 +72,7 @@
                 <div class="opentheso-dialog-field">
                     <p:outputLabel for="paramLanguageSelect" value="Liste des langues" />
                     <div class="input-wrapper">
-                        <i class="pi pi-book input-icon" />
+                        <i class="pi pi-globe input-icon" />
                         <p:selectOneMenu id="paramLanguageSelect"
                                          value="#{collectionParametrageBean.selectedLanguageId}"
                                          styleClass="users-select">
@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer">
+            <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer" style="text-align: right">
                 <div class="opentheso-dialog-actions-buttons category-form-actions parametrage-form-actions">
                     <p:button value="Annuler"
                               icon="pi pi-times"
