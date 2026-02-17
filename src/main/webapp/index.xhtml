@@ -30,23 +30,36 @@
                 <div id="contentPanelsWrapper" class="content-panels-wrapper">
                     <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
                         <ui:include src="details/breadCrumb.xhtml"/>
+
                         <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
                             <ui:include src="details/collections/collection.xhtml"/>
                         </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
                             <ui:include src="details/references/reference.xhtml"/>
                         </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
                             <ui:include src="details/categories/category.xhtml"/>
                         </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.isShowGroupePanel()}">
                             <ui:include src="details/groups/groupe.xhtml"/>
                         </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.showSeriePanel}">
                             <ui:include src="details/series/serie.xhtml"/>
                         </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.showTypePanel}">
                             <ui:include src="details/type/type.xhtml"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
+                            <ui:include src="details/catalogues/liste_categories.xhtml"/>
+                            <ui:include src="details/catalogues/liste_groupes.xhtml"/>
+                            <ui:include src="details/catalogues/liste_series.xhtml"/>
+                            <ui:include src="details/catalogues/liste_types.xhtml"/>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>

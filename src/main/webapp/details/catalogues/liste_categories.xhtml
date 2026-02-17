@@ -24,11 +24,9 @@
                         </div>
                     </div>
                     <span class="reference-categories-count-badge">
-                                #{fn:length(applicationBean.filteredCategories)} catégorie#{fn:length(applicationBean.filteredCategories) gt 1 ? 's' : ''}
-                            </span>
-                    <ui:fragment rendered="#{not empty applicationBean.childsCategories}">
-                        <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
-                    </ui:fragment>
+                        #{applicationBean.filteredCategoriesSize} catégorie#{applicationBean.filteredCategoriesSize gt 1 ? 's' : ''}
+                    </span>
+                    <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
                 </div>
             </f:facet>
 
@@ -70,10 +68,10 @@
                                                 <span class="reference-category-card-label">#{applicationBean.getEntityLabel(category)}</span>
                                             </div>
                                             <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}" styleClass="reference-category-card-badge-wrapper">
-                                                            <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(category)}"
-                                                                  title="#{treeBean.getUnifiedIndicatorTitle(category)}">
-                                                                <i class="pi #{treeBean.getUnifiedIndicatorIcon(category)}" aria-hidden="true"/>
-                                                            </span>
+                                                <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(category)}"
+                                                      title="#{treeBean.getUnifiedIndicatorTitle(category)}">
+                                                    <i class="pi #{treeBean.getUnifiedIndicatorIcon(category)}" aria-hidden="true"/>
+                                                </span>
                                             </h:panelGroup>
                                         </header>
                                         <div class="reference-category-card-body">
@@ -106,6 +104,7 @@
                                     </h:panelGroup>
                                 </div>
                             </h:panelGroup>
+
                             <!-- Message si recherche sans résultat -->
                             <h:panelGroup class="reference-categories-empty reference-categories-no-results"
                                           rendered="#{empty applicationBean.childsCategories ? false : empty applicationBean.filteredCategories}">
@@ -118,6 +117,7 @@
                                 </div>
                             </h:panelGroup>
                         </div>
+
                         <!-- Pagination -->
                         <h:panelGroup rendered="#{applicationBean.categoriesTotalPages gt 1}" class="reference-categories-pagination">
                             <p:commandButton icon="pi pi-chevron-left"

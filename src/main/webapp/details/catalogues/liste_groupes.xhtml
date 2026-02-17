@@ -2,11 +2,11 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <div class="categories-unified-block details-mt-20">
-        <p:panel toggleable="true"
+        <p:panel id="groupesTogglePanel"
+                 toggleable="true"
                  toggleableHeader="true"
                  collapsed="#{empty applicationBean.childsGroupes}"
                  toggleSpeed="300"
@@ -24,11 +24,9 @@
                         </div>
                     </div>
                     <span class="reference-categories-count-badge">
-                        #{fn:length(applicationBean.filteredGroupes)} groupe#{fn:length(applicationBean.filteredGroupes) gt 1 ? 's' : ''}
+                        #{applicationBean.filteredGroupesSize} groupe#{applicationBean.filteredGroupesSize gt 1 ? 's' : ''}
                     </span>
-                    <ui:fragment rendered="#{not empty applicationBean.childsGroupes}">
-                        <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
-                    </ui:fragment>
+                    <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
                 </div>
             </f:facet>
 

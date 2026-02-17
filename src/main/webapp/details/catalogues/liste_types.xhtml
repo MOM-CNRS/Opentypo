@@ -1,0 +1,131 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="categories-unified-block details-mt-20">
+        <p:panel id="typesTogglePanel"
+                 toggleable="true"
+                 toggleableHeader="true"
+                 collapsed="#{empty applicationBean.childsTypes}"
+                 toggleSpeed="300"
+                 styleClass="reference-categories-toggle-panel"
+                 contentStyleClass="reference-categories-toggle-content">
+
+            <f:facet name="header">
+                <div class="collection-references-header collection-references-header-toggle">
+                    <div class="collection-references-title-section">
+                        <div class="collection-references-icon">
+                            <i class="pi pi-images" />
+                        </div>
+                        <div class="collection-references-title-wrapper">
+                            <h3 class="collection-references-title">Liste des Types</h3>
+                        </div>
+                    </div>
+                    <span class="reference-categories-count-badge">
+                        #{applicationBean.filteredTypesSize} type#{applicationBean.filteredTypesSize gt 1 ? 's' : ''}
+                    </span>
+                    <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
+                </div>
+            </f:facet>
+
+            <h:form id="typesForm">
+                <h:panelGroup id="typesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
+                    <!-- Barre de recherche -->
+                    <div class="reference-categories-search-bar">
+                        <div class="reference-categories-search-input-wrapper">
+                            <i class="pi pi-search reference-categories-search-icon"/>
+                            <p:inputText id="typesSearchInput"
+                                         value="#{applicationBean.typesSearchQuery}"
+                                         styleClass="reference-categories-search-input"
+                                         placeholder="Rechercher par code ou label...">
+                                <p:ajax event="keyup"
+                                        process="@this"
+                                        update="typesContent"
+                                        delay="300"/>
+                            </p:inputText>
+                        </div>
+                    </div>
+
+                    <h:panelGroup id="typesContent">
+                        <div class="typologie-cards-container">
+                            <div class="typologie-cards-grid">
+                                <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
+                                    <p:commandLink action="#{applicationBean.showType(type)}"
+                                                   styleClass="typologie-card"
+                                                   process="@this"
+                                                   update=":centerContent, :treeContainer, :breadcrumbContent"
+                                                   onstart="showLoading('Chargement du type...', 'spinner');"
+                                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
+                                                   onerror="forceHideLoading();">
+                                        <div class="typologie-card-image-wrapper">
+                                            <p:graphicImage value="#{type.image.url}"
+                                                           styleClass="typologie-card-image"
+                                                           alt="Typologie"
+                                                           rendered="#{not empty type.image and not empty type.image.url}"/>
+                                            <div class="typologie-card-overlay"></div>
+                                            <h:panelGroup class="reference-image-placeholder"
+                                                          rendered="#{empty type.image or empty type.image.url}">
+                                                <span class="reference-placeholder-text">OpenTypo</span>
+                                            </h:panelGroup>
+                                        </div>
+                                        <div class="typologie-card-content">
+                                            <h3 class="typologie-card-title">#{type.nom}</h3>
+                                        </div>
+                                    </p:commandLink>
+                                </ui:repeat>
+
+                                <!-- Message si aucun type -->
+                                <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsTypes}">
+                                    <div class="reference-categories-empty-icon">
+                                        <i class="pi pi-inbox" aria-hidden="true"/>
+                                    </div>
+                                    <div class="reference-categories-empty-content">
+                                        <h4 class="reference-categories-empty-title">Aucun type disponible</h4>
+                                        <p class="reference-categories-empty-text">Aucun type n'est rattaché à l'élément sélectionné.</p>
+                                        <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                            <i class="pi pi-info-circle" aria-hidden="true"/>
+                                            <span>Il faut passer par un brouillon pour en ajouter un.</span>
+                                        </h:panelGroup>
+                                    </div>
+                                </h:panelGroup>
+                                <!-- Message si recherche sans résultat -->
+                                <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                                              rendered="#{empty applicationBean.childsTypes ? false : empty applicationBean.filteredTypes}">
+                                    <div class="reference-categories-empty-icon">
+                                        <i class="pi pi-search" aria-hidden="true"/>
+                                    </div>
+                                    <div class="reference-categories-empty-content">
+                                        <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                                        <p class="reference-categories-empty-text">Aucun type ne correspond à votre recherche.</p>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                        <!-- Pagination -->
+                        <h:panelGroup rendered="#{applicationBean.typesTotalPages gt 1}" class="reference-categories-pagination">
+                                <p:commandButton icon="pi pi-chevron-left"
+                                                styleClass="reference-categories-page-btn"
+                                                process="@this"
+                                                update="typesContent"
+                                                action="#{applicationBean.typesPreviousPage()}"
+                                                disabled="#{applicationBean.typesFirstPage}"
+                                                title="Page précédente"/>
+                                <span class="reference-categories-page-info">
+                                    Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
+                                </span>
+                                <p:commandButton icon="pi pi-chevron-right"
+                                                styleClass="reference-categories-page-btn"
+                                                process="@this"
+                                                update="typesContent"
+                                                action="#{applicationBean.typesNextPage()}"
+                                                disabled="#{applicationBean.typesLastPage}"
+                                                title="Page suivante"/>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:form>
+        </p:panel>
+    </div>
+</ui:composition>

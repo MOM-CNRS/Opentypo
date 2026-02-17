@@ -18,7 +18,13 @@
 #categoriesTogglePanel_toggler,
 [id$="categoriesTogglePanel_toggler"],
 #groupesTogglePanel_toggler,
-[id$="groupesTogglePanel_toggler"] {
+[id$="groupesTogglePanel_toggler"],
+#seriesTogglePanel_toggler,
+[id$="seriesTogglePanel_toggler"],
+#typesTogglePanel_toggler,
+[id$="typesTogglePanel_toggler"],
+.categories-unified-block [id$="_toggler"],
+.reference-categories-toggle-panel .ui-panel-titlebar [id$="_toggler"] {
     display: none !important;
 }
 
@@ -375,7 +381,8 @@
 }
 
 /* Message vide */
-.reference-categories-section .reference-categories-empty {
+.reference-categories-section .reference-categories-empty,
+.typologie-cards-grid .reference-categories-empty {
     grid-column: 1 / -1 !important;
     display: flex !important;
     flex-direction: column !important;

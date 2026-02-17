@@ -125,6 +125,18 @@ public class ApplicationBean implements Serializable {
     private int groupesCurrentPage = 1;
     private static final int GROUPES_PAGE_SIZE = 6;
 
+    /** Filtre de recherche pour les séries du groupe. */
+    private String seriesSearchQuery = "";
+    /** Page courante pour la pagination des séries (1-based). */
+    private int seriesCurrentPage = 1;
+    private static final int SERIES_PAGE_SIZE = 6;
+
+    /** Filtre de recherche pour les types de la série. */
+    private String typesSearchQuery = "";
+    /** Page courante pour la pagination des types (1-based). */
+    private int typesCurrentPage = 1;
+    private static final int TYPES_PAGE_SIZE = 6;
+
     // Titre de l'écran
     private String selectedEntityLabel;
 
@@ -283,9 +295,15 @@ public class ApplicationBean implements Serializable {
                 childs = new ArrayList<>();
                 if (series != null) childs.addAll(series);
                 if (types != null) childs.addAll(types);
+                seriesCurrentPage = 1;
+                seriesSearchQuery = "";
+                typesCurrentPage = 1;
+                typesSearchQuery = "";
                 break;
             case EntityConstants.ENTITY_TYPE_SERIES:
                 childs = typeService.loadSerieTypes(selectedEntity);
+                typesCurrentPage = 1;
+                typesSearchQuery = "";
                 break;
             default:
                 childs = new ArrayList<>();
@@ -326,6 +344,12 @@ public class ApplicationBean implements Serializable {
                         && entityTypeCode.equals(e.getEntityType().getCode()))
                 .collect(Collectors.toList());
     }
+
+    /** Taille des listes filtrées (évite fn:length en EL). */
+    public int getFilteredCategoriesSize() { return getFilteredCategories().size(); }
+    public int getFilteredGroupesSize() { return getFilteredGroupes().size(); }
+    public int getFilteredSeriesSize() { return getFilteredSeries().size(); }
+    public int getFilteredTypesSize() { return getFilteredTypes().size(); }
 
     /** Catégories filtrées par la recherche. */
     public List<Entity> getFilteredCategories() {
@@ -424,6 +448,106 @@ public class ApplicationBean implements Serializable {
     public void setGroupesSearchQuery(String groupesSearchQuery) {
         this.groupesSearchQuery = groupesSearchQuery != null ? groupesSearchQuery : "";
         this.groupesCurrentPage = 1;
+    }
+
+    /** Séries filtrées par la recherche. */
+    public List<Entity> getFilteredSeries() {
+        List<Entity> list = getChildsSeries();
+        if (list == null) return new ArrayList<>();
+        String q = seriesSearchQuery != null ? seriesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String nom = e.getNom() != null ? e.getNom().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    return code.contains(q) || nom.contains(q) || label.contains(q);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /** Séries pour la page courante (6 par page). */
+    public List<Entity> getPaginatedSeries() {
+        List<Entity> filtered = getFilteredSeries();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        int from = (seriesCurrentPage - 1) * SERIES_PAGE_SIZE;
+        if (from >= filtered.size()) {
+            seriesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + SERIES_PAGE_SIZE, filtered.size());
+        return filtered.subList(from, to);
+    }
+
+    public int getSeriesTotalPages() {
+        int size = getFilteredSeries().size();
+        return size == 0 ? 0 : (int) Math.ceil((double) size / SERIES_PAGE_SIZE);
+    }
+
+    public void seriesGoToPage(int page) {
+        int total = getSeriesTotalPages();
+        if (page >= 1 && page <= total) seriesCurrentPage = page;
+    }
+
+    public void seriesNextPage() { seriesGoToPage(seriesCurrentPage + 1); }
+    public void seriesPreviousPage() { seriesGoToPage(seriesCurrentPage - 1); }
+    public boolean isSeriesFirstPage() { return seriesCurrentPage <= 1; }
+    public boolean isSeriesLastPage() { return seriesCurrentPage >= getSeriesTotalPages(); }
+    public int getSeriesCurrentPage() { return seriesCurrentPage; }
+    public String getSeriesSearchQuery() { return seriesSearchQuery; }
+    public void setSeriesSearchQuery(String seriesSearchQuery) {
+        this.seriesSearchQuery = seriesSearchQuery != null ? seriesSearchQuery : "";
+        this.seriesCurrentPage = 1;
+    }
+
+    /** Types filtrés par la recherche. */
+    public List<Entity> getFilteredTypes() {
+        List<Entity> list = getChildsTypes();
+        if (list == null) return new ArrayList<>();
+        String q = typesSearchQuery != null ? typesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String nom = e.getNom() != null ? e.getNom().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    return code.contains(q) || nom.contains(q) || label.contains(q);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /** Types pour la page courante (6 par page). */
+    public List<Entity> getPaginatedTypes() {
+        List<Entity> filtered = getFilteredTypes();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        int from = (typesCurrentPage - 1) * TYPES_PAGE_SIZE;
+        if (from >= filtered.size()) {
+            typesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + TYPES_PAGE_SIZE, filtered.size());
+        return filtered.subList(from, to);
+    }
+
+    public int getTypesTotalPages() {
+        int size = getFilteredTypes().size();
+        return size == 0 ? 0 : (int) Math.ceil((double) size / TYPES_PAGE_SIZE);
+    }
+
+    public void typesGoToPage(int page) {
+        int total = getTypesTotalPages();
+        if (page >= 1 && page <= total) typesCurrentPage = page;
+    }
+
+    public void typesNextPage() { typesGoToPage(typesCurrentPage + 1); }
+    public void typesPreviousPage() { typesGoToPage(typesCurrentPage - 1); }
+    public boolean isTypesFirstPage() { return typesCurrentPage <= 1; }
+    public boolean isTypesLastPage() { return typesCurrentPage >= getTypesTotalPages(); }
+    public int getTypesCurrentPage() { return typesCurrentPage; }
+    public String getTypesSearchQuery() { return typesSearchQuery; }
+    public void setTypesSearchQuery(String typesSearchQuery) {
+        this.typesSearchQuery = typesSearchQuery != null ? typesSearchQuery : "";
+        this.typesCurrentPage = 1;
     }
 
     /**
