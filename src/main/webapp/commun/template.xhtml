@@ -117,5 +117,11 @@
     </div>
     <h:outputScript library="js" name="fullscreen-image.js"/>
     <h:outputScript library="js" name="gallery.js"/>
+
+    <!-- Bouton retour en haut - visible uniquement après défilement vers le bas (classe ui-scrolltop-visible gérée par scrollTop.js) -->
+    <button type="button" id="scrollTopBtn" class="ui-scrolltop custom-scrolltop scroll-top-button" aria-label="Retour en haut">
+        <i class="pi pi-arrow-up ui-scrolltop-icon"></i>
+    </button>
+    <h:outputScript library="js" name="scrollTop.js"/>
 </h:body>
 </html>

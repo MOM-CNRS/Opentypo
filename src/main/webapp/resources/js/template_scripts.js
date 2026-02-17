@@ -564,3 +564,25 @@ window.showOnlyCardsContainer = function() {
         leftTreePanel.style.display = 'block';
     }
 };
+
+// Scroll vers le haut : fenêtre + conteneurs internes (info-concept, cardsContainer)
+function scrollToTopAll() {
+    if (typeof window.scrollTo === 'function') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    document.querySelectorAll('.info-concept, [id$="contentPanels"], [id$="cardsContainer"]').forEach(function(el) {
+        if (el && el.scrollTop > 0) {
+            el.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+}
+
+// Délégation : clic sur scrollTop -> scrollToTopAll
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.addEventListener('click', function(e) {
+        var btn = e.target && (e.target.closest('.ui-scrolltop') || e.target.closest('.scroll-top-button'));
+        if (btn) {
+            setTimeout(scrollToTopAll, 50);
+        }
+    });
+});

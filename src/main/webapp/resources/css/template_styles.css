@@ -27,6 +27,7 @@
     transform: scale(0.8) translateY(20px) !important;
 }
 
+
 /* Affichage du bouton quand il est visible */
 .ui-scrolltop.ui-scrolltop-visible,
 .scroll-top-button.ui-scrolltop-visible {

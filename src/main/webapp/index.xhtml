@@ -5,7 +5,6 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ui:define name="mainContent">
-
         <!-- 1. Barre de recherche -->
         <section class="app-search">
             <ui:include src="search/search.xhtml"/>
@@ -28,7 +27,7 @@
 
                 <!-- 2.3 Panneaux de détail (référentiel, catégorie, groupe, série, type) -->
                 <div id="contentPanelsWrapper" class="content-panels-wrapper">
-                    <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
+                        <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
                         <ui:include src="details/breadCrumb.xhtml"/>
 
                         <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
@@ -102,4 +101,6 @@
             </h:panelGroup>
         </h:panelGroup>
     </ui:define>
+
+
 </ui:composition>

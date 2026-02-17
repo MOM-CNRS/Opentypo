@@ -177,6 +177,13 @@
 }
 
 /* Grille */
+.type-categories-section {
+    border: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 10px !important;
+    padding: 1rem 1.25rem !important;
+    background: rgba(71, 98, 77, 0.02) !important;
+}
+
 .reference-categories-section .reference-categories-form {
     width: 100% !important;
     box-sizing: border-box !important;
