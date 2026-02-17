@@ -54,7 +54,7 @@
                             <ui:include src="details/type/type.xhtml"/>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
+                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 5}">
                             <ui:include src="details/catalogues/liste_categories.xhtml"/>
                             <ui:include src="details/catalogues/liste_groupes.xhtml"/>
                             <ui:include src="details/catalogues/liste_series.xhtml"/>
