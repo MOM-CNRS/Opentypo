@@ -1,0 +1,155 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+    <div class="categories-unified-block details-mt-20">
+        <p:panel toggleable="true"
+                 toggleableHeader="true"
+                 collapsed="#{empty applicationBean.childsGroupes}"
+                 toggleSpeed="300"
+                 styleClass="reference-categories-toggle-panel"
+                 contentStyleClass="reference-categories-toggle-content">
+
+            <f:facet name="header">
+                <div class="collection-references-header collection-references-header-toggle">
+                    <div class="collection-references-title-section">
+                        <div class="collection-references-icon">
+                            <i class="pi pi-users" />
+                        </div>
+                        <div class="collection-references-title-wrapper">
+                            <h3 class="collection-references-title">Liste des Groupes</h3>
+                        </div>
+                    </div>
+                    <span class="reference-categories-count-badge">
+                        #{fn:length(applicationBean.filteredGroupes)} groupe#{fn:length(applicationBean.filteredGroupes) gt 1 ? 's' : ''}
+                    </span>
+                    <ui:fragment rendered="#{not empty applicationBean.childsGroupes}">
+                        <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
+                    </ui:fragment>
+                </div>
+            </f:facet>
+
+            <h:panelGroup class="reference-categories-section reference-cards-container reference-categories-form">
+                <!-- Barre de recherche -->
+                <div class="reference-categories-search-bar">
+                    <div class="reference-categories-search-input-wrapper">
+                        <i class="pi pi-search reference-categories-search-icon"/>
+                        <p:inputText value="#{applicationBean.groupesSearchQuery}"
+                                     styleClass="reference-categories-search-input"
+                                     placeholder="Rechercher par code ou label...">
+                            <p:ajax event="keyup"
+                                    process="@this"
+                                    update="groupesContent"
+                                    delay="300"/>
+                        </p:inputText>
+                    </div>
+                </div>
+                <h:panelGroup id="groupesContent">
+                    <div class="reference-categories-grid">
+                        <ui:repeat value="#{applicationBean.paginatedGroupes}" var="group" varStatus="status">
+                            <p:commandLink action="#{applicationBean.showGroupe(group)}"
+                                           styleClass="reference-category-card"
+                                           process="@this"
+                                           update=":centerContent, :treeContainer, :breadcrumbContent"
+                                           onstart="showLoading('Chargement du groupe...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
+                                           onerror="forceHideLoading();">
+                                <article class="reference-category-card-inner">
+                                    <header class="reference-category-card-header">
+                                        <div class="reference-category-card-icon">
+                                            <i class="pi pi-users" aria-hidden="true"/>
+                                        </div>
+                                        <div class="reference-category-card-heading">
+                                            <h3 class="reference-category-card-title">#{group.nom}</h3>
+                                            <span class="reference-category-card-label">#{group.code}</span>
+                                            <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
+                                                    <span class="reference-category-card-period">
+                                                        <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">
+                                                            Période: #{group.tpq} - #{group.taq}
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{not empty group.tpq and empty group.taq}">
+                                                            TPQ: #{group.tpq}
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty group.tpq and not empty group.taq}">
+                                                            TAQ: #{group.taq}
+                                                        </ui:fragment>
+                                                    </span>
+                                            </ui:fragment>
+                                        </div>
+                                        <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}" styleClass="reference-category-card-badge-wrapper">
+                                                <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(group)}"
+                                                      title="#{treeBean.getUnifiedIndicatorTitle(group)}">
+                                                    <i class="pi #{treeBean.getUnifiedIndicatorIcon(group)}" aria-hidden="true"/>
+                                                </span>
+                                        </h:panelGroup>
+                                    </header>
+                                    <div class="reference-category-card-body">
+                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(group)}">
+                                            <p class="reference-category-card-description">
+                                                #{applicationBean.getEntityDescription(group)}
+                                            </p>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(group)}">
+                                            <p class="reference-category-card-description reference-category-card-description-empty">
+                                                <i class="pi pi-info-circle"/><span>Non renseigné</span>
+                                            </p>
+                                        </ui:fragment>
+                                    </div>
+                                </article>
+                            </p:commandLink>
+                        </ui:repeat>
+
+                        <!-- Message si aucun groupe -->
+                        <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsGroupes}">
+                            <div class="reference-categories-empty-icon">
+                                <i class="pi pi-inbox" aria-hidden="true"/>
+                            </div>
+                            <div class="reference-categories-empty-content">
+                                <h4 class="reference-categories-empty-title">Aucun groupe disponible</h4>
+                                <p class="reference-categories-empty-text">Cette catégorie ne contient actuellement aucun groupe.</p>
+                                <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                    <i class="pi pi-info-circle" aria-hidden="true"/>
+                                    <span>Il faut passer par un brouillon pour en ajouter un.</span>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+                        <!-- Message si recherche sans résultat -->
+                        <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                                      rendered="#{empty applicationBean.childsGroupes ? false : empty applicationBean.filteredGroupes}">
+                            <div class="reference-categories-empty-icon">
+                                <i class="pi pi-search" aria-hidden="true"/>
+                            </div>
+                            <div class="reference-categories-empty-content">
+                                <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                                <p class="reference-categories-empty-text">Aucun groupe ne correspond à votre recherche.</p>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                    <!-- Pagination -->
+                    <h:panelGroup rendered="#{applicationBean.groupesTotalPages gt 1}" class="reference-categories-pagination">
+                        <p:commandButton icon="pi pi-chevron-left"
+                                         styleClass="reference-categories-page-btn"
+                                         process="@this"
+                                         update="groupesContent"
+                                         action="#{applicationBean.groupesPreviousPage()}"
+                                         disabled="#{applicationBean.groupesFirstPage}"
+                                         title="Page précédente"/>
+                        <span class="reference-categories-page-info">
+                                Page #{applicationBean.groupesCurrentPage} / #{applicationBean.groupesTotalPages}
+                            </span>
+                        <p:commandButton icon="pi pi-chevron-right"
+                                         styleClass="reference-categories-page-btn"
+                                         process="@this"
+                                         update="groupesContent"
+                                         action="#{applicationBean.groupesNextPage()}"
+                                         disabled="#{applicationBean.groupesLastPage}"
+                                         title="Page suivante"/>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
+        </p:panel>
+    </div>
+</ui:composition>

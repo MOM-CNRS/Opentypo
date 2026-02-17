@@ -16,10 +16,22 @@ BEGIN
 END $$;
 
 -- 2. Migrer les données : copier entity.id vers image.entity_id pour les images liées
-UPDATE image i
-SET entity_id = e.id
-FROM entity e
-WHERE e.image_id = i.id;
+-- (Uniquement si entity.image_id existe = base issue d'un schéma ancien)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'entity' AND column_name = 'image_id'
+    ) THEN
+        UPDATE image i
+        SET entity_id = e.id
+        FROM entity e
+        WHERE e.image_id = i.id;
+        RAISE NOTICE 'Données migrées de entity.image_id vers image.entity_id';
+    ELSE
+        RAISE NOTICE 'Colonne entity.image_id absente, pas de migration de données nécessaire';
+    END IF;
+END $$;
 
 -- 3. Contrainte de clé étrangère et index
 DO $$

@@ -3576,7 +3576,6 @@ body .ui-panel .ui-panel-titlebar {
     padding: .5em 1em .3em;
     color: var(--color-action-main);
     font-size: 15px;
-    font-style: italic;
     font-weight: normal !important;
 }
 

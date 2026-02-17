@@ -21,7 +21,7 @@ spring:
       max-age: 3600
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/opentypo
+    url: jdbc:postgresql://localhost:5432/opentypo2
     username: postgres
     password: postgres
   flyway:

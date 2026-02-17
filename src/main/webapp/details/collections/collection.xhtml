@@ -221,7 +221,7 @@
         </div>
         <!-- Liste des référentiels de la collection -->
         <h:panelGroup id="collectionReferencesContainer" class="collections-grid">
-            <ui:repeat value="#{applicationBean.childs}" var="reference">
+            <ui:repeat value="#{applicationBean.childsReferences}" var="reference">
                 <!-- Panel de référentiel compact et ergonomique -->
                 <div class="collection-panel">
                     <!-- En-tête compacte -->
@@ -333,7 +333,7 @@
 
             <!-- Message si aucune référence disponible -->
             <h:outputText value="Aucune référence disponible pour cette collection"
-                          rendered="#{empty applicationBean.childs}"
+                          rendered="#{empty applicationBean.childsReferences}"
                           styleClass="no-categories-message" />
         </h:panelGroup>
     </h:form>

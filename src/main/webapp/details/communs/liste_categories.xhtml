@@ -1,0 +1,146 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="categories-unified-block details-mt-20">
+        <p:panel id="categoriesTogglePanel"
+                 toggleable="true"
+                 toggleableHeader="true"
+                 collapsed="#{empty applicationBean.childsCategories}"
+                 toggleSpeed="300"
+                 styleClass="reference-categories-toggle-panel"
+                 contentStyleClass="reference-categories-toggle-content">
+
+            <f:facet name="header">
+                <div class="collection-references-header collection-references-header-toggle">
+                    <div class="collection-references-title-section">
+                        <div class="collection-references-icon">
+                            <i class="pi pi-tag" />
+                        </div>
+                        <div class="collection-references-title-wrapper">
+                            <h3 class="collection-references-title">Liste des Catégories</h3>
+                        </div>
+                    </div>
+                    <span class="reference-categories-count-badge">
+                                #{fn:length(applicationBean.filteredCategories)} catégorie#{fn:length(applicationBean.filteredCategories) gt 1 ? 's' : ''}
+                            </span>
+                    <ui:fragment rendered="#{not empty applicationBean.childsCategories}">
+                        <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
+                    </ui:fragment>
+                </div>
+            </f:facet>
+
+            <h:form id="categoriesForm">
+                <h:panelGroup id="categoriesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
+                    <!-- Barre de recherche -->
+                    <div class="reference-categories-search-bar">
+                        <div class="reference-categories-search-input-wrapper">
+                            <i class="pi pi-search reference-categories-search-icon"/>
+                            <p:inputText id="categoriesSearchInput"
+                                         value="#{applicationBean.categoriesSearchQuery}"
+                                         styleClass="reference-categories-search-input"
+                                         placeholder="Rechercher par code ou label...">
+                                <p:ajax event="keyup"
+                                        process="@this"
+                                        update="categoriesContent"
+                                        delay="300"/>
+                            </p:inputText>
+                        </div>
+                    </div>
+
+                    <h:panelGroup id="categoriesContent">
+                        <div class="reference-categories-grid">
+                            <ui:repeat value="#{applicationBean.paginatedCategories}" var="category" varStatus="status">
+                                <p:commandLink action="#{applicationBean.showCategoryDetail(category)}"
+                                               styleClass="reference-category-card"
+                                               process="@this"
+                                               update=":centerContent, :treeContainer"
+                                               onstart="showLoading('Chargement de la catégorie...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
+                                               onerror="forceHideLoading();">
+                                    <article class="reference-category-card-inner">
+                                        <header class="reference-category-card-header">
+                                            <div class="reference-category-card-icon">
+                                                <i class="pi pi-tag" aria-hidden="true"/>
+                                            </div>
+                                            <div class="reference-category-card-heading">
+                                                <h3 class="reference-category-card-title">#{category.code}</h3>
+                                                <span class="reference-category-card-label">#{applicationBean.getEntityLabel(category)}</span>
+                                            </div>
+                                            <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}" styleClass="reference-category-card-badge-wrapper">
+                                                            <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(category)}"
+                                                                  title="#{treeBean.getUnifiedIndicatorTitle(category)}">
+                                                                <i class="pi #{treeBean.getUnifiedIndicatorIcon(category)}" aria-hidden="true"/>
+                                                            </span>
+                                            </h:panelGroup>
+                                        </header>
+                                        <div class="reference-category-card-body">
+                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(category)}">
+                                                <p class="reference-category-card-description">
+                                                    #{applicationBean.getEntityDescription(category)}
+                                                </p>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(category)}">
+                                                <p class="reference-category-card-description reference-category-card-description-empty">
+                                                    <i class="pi pi-info-circle"/><span>Non renseigné</span>
+                                                </p>
+                                            </ui:fragment>
+                                        </div>
+                                    </article>
+                                </p:commandLink>
+                            </ui:repeat>
+
+                            <!-- Message si aucune catégorie -->
+                            <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsCategories}">
+                                <div class="reference-categories-empty-icon">
+                                    <i class="pi pi-inbox" aria-hidden="true"/>
+                                </div>
+                                <div class="reference-categories-empty-content">
+                                    <h4 class="reference-categories-empty-title">Aucune catégorie disponible</h4>
+                                    <p class="reference-categories-empty-text">Ce référentiel ne contient actuellement aucune catégorie.</p>
+                                    <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                        <i class="pi pi-info-circle" aria-hidden="true"/>
+                                        <span>Il faut passer la rubrique brouillon pour en ajouter une.</span>
+                                    </h:panelGroup>
+                                </div>
+                            </h:panelGroup>
+                            <!-- Message si recherche sans résultat -->
+                            <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                                          rendered="#{empty applicationBean.childsCategories ? false : empty applicationBean.filteredCategories}">
+                                <div class="reference-categories-empty-icon">
+                                    <i class="pi pi-search" aria-hidden="true"/>
+                                </div>
+                                <div class="reference-categories-empty-content">
+                                    <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                                    <p class="reference-categories-empty-text">Aucune catégorie ne correspond à votre recherche.</p>
+                                </div>
+                            </h:panelGroup>
+                        </div>
+                        <!-- Pagination -->
+                        <h:panelGroup rendered="#{applicationBean.categoriesTotalPages gt 1}" class="reference-categories-pagination">
+                            <p:commandButton icon="pi pi-chevron-left"
+                                             styleClass="reference-categories-page-btn"
+                                             process="@this"
+                                             update="categoriesContent"
+                                             action="#{applicationBean.categoriesPreviousPage()}"
+                                             disabled="#{applicationBean.categoriesFirstPage}"
+                                             title="Page précédente"/>
+                            <span class="reference-categories-page-info">
+                                        Page #{applicationBean.categoriesCurrentPage} / #{applicationBean.categoriesTotalPages}
+                                    </span>
+                            <p:commandButton icon="pi pi-chevron-right"
+                                             styleClass="reference-categories-page-btn"
+                                             process="@this"
+                                             update="categoriesContent"
+                                             action="#{applicationBean.categoriesNextPage()}"
+                                             disabled="#{applicationBean.categoriesLastPage}"
+                                             title="Page suivante"/>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:form>
+        </p:panel>
+    </div>
+</ui:composition>

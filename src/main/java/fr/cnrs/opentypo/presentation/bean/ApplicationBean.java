@@ -113,6 +113,18 @@ public class ApplicationBean implements Serializable {
     /** Enfants directs de l'entité sélectionnée (référentiels, catégories, groupes, séries ou types selon le niveau). */
     private List<Entity> childs = new ArrayList<>();
 
+    /** Filtre de recherche pour les catégories du référentiel. */
+    private String categoriesSearchQuery = "";
+    /** Page courante pour la pagination des catégories (1-based). */
+    private int categoriesCurrentPage = 1;
+    private static final int CATEGORIES_PAGE_SIZE = 6;
+
+    /** Filtre de recherche pour les groupes de la catégorie. */
+    private String groupesSearchQuery = "";
+    /** Page courante pour la pagination des groupes (1-based). */
+    private int groupesCurrentPage = 1;
+    private static final int GROUPES_PAGE_SIZE = 6;
+
     // Titre de l'écran
     private String selectedEntityLabel;
 
@@ -257,9 +269,13 @@ public class ApplicationBean implements Serializable {
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 childs = categoryService.loadCategoriesByReference(selectedEntity);
+                categoriesCurrentPage = 1;
+                categoriesSearchQuery = "";
                 break;
             case EntityConstants.ENTITY_TYPE_CATEGORY:
                 childs = groupService.loadCategoryGroups(selectedEntity);
+                groupesCurrentPage = 1;
+                groupesSearchQuery = "";
                 break;
             case EntityConstants.ENTITY_TYPE_GROUP:
                 List<Entity> series = serieService.loadGroupSeries(selectedEntity);
@@ -283,23 +299,131 @@ public class ApplicationBean implements Serializable {
     public Entity getSelectedSerie() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_SERIES); }
     public Entity getSelectedType() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_TYPE); }
 
-    /** Enfants de type Série (quand selectedEntity est un groupe). */
+    /** Enfants de type Référentiel (filtre sur childs). */
+    public List<Entity> getChildsReferences() {
+        return filterChildsByType(EntityConstants.ENTITY_TYPE_REFERENCE);
+    }
+    /** Enfants de type Catégorie (filtre sur childs). */
+    public List<Entity> getChildsCategories() {
+        return filterChildsByType(EntityConstants.ENTITY_TYPE_CATEGORY);
+    }
+    /** Enfants de type Groupe (filtre sur childs). */
+    public List<Entity> getChildsGroupes() {
+        return filterChildsByType(EntityConstants.ENTITY_TYPE_GROUP);
+    }
+    /** Enfants de type Série (filtre sur childs). */
     public List<Entity> getChildsSeries() {
+        return filterChildsByType(EntityConstants.ENTITY_TYPE_SERIES);
+    }
+    /** Enfants de type Type (filtre sur childs). */
+    public List<Entity> getChildsTypes() {
+        return filterChildsByType(EntityConstants.ENTITY_TYPE_TYPE);
+    }
+    private List<Entity> filterChildsByType(String entityTypeCode) {
         if (childs == null) return new ArrayList<>();
-        if (selectedEntity == null || selectedEntity.getEntityType() == null) return new ArrayList<>();
-        if (!EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) return new ArrayList<>();
         return childs.stream()
-                .filter(e -> e.getEntityType() != null && EntityConstants.ENTITY_TYPE_SERIES.equals(e.getEntityType().getCode()))
+                .filter(e -> e != null && e.getEntityType() != null
+                        && entityTypeCode.equals(e.getEntityType().getCode()))
                 .collect(Collectors.toList());
     }
-    /** Enfants de type Type (quand selectedEntity est un groupe). */
-    public List<Entity> getChildsTypes() {
-        if (childs == null) return new ArrayList<>();
-        if (selectedEntity == null || selectedEntity.getEntityType() == null) return new ArrayList<>();
-        if (!EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) return new ArrayList<>();
-        return childs.stream()
-                .filter(e -> e.getEntityType() != null && EntityConstants.ENTITY_TYPE_TYPE.equals(e.getEntityType().getCode()))
+
+    /** Catégories filtrées par la recherche. */
+    public List<Entity> getFilteredCategories() {
+        List<Entity> list = getChildsCategories();
+        if (list == null) return new ArrayList<>();
+        String q = categoriesSearchQuery != null ? categoriesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    return code.contains(q) || label.contains(q);
+                })
                 .collect(Collectors.toList());
+    }
+
+    /** Catégories pour la page courante (6 par page). */
+    public List<Entity> getPaginatedCategories() {
+        List<Entity> filtered = getFilteredCategories();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        int from = (categoriesCurrentPage - 1) * CATEGORIES_PAGE_SIZE;
+        if (from >= filtered.size()) {
+            categoriesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + CATEGORIES_PAGE_SIZE, filtered.size());
+        return filtered.subList(from, to);
+    }
+
+    public int getCategoriesTotalPages() {
+        int size = getFilteredCategories().size();
+        return size == 0 ? 0 : (int) Math.ceil((double) size / CATEGORIES_PAGE_SIZE);
+    }
+
+    public void categoriesGoToPage(int page) {
+        int total = getCategoriesTotalPages();
+        if (page >= 1 && page <= total) categoriesCurrentPage = page;
+    }
+
+    public void categoriesNextPage() { categoriesGoToPage(categoriesCurrentPage + 1); }
+    public void categoriesPreviousPage() { categoriesGoToPage(categoriesCurrentPage - 1); }
+    public boolean isCategoriesFirstPage() { return categoriesCurrentPage <= 1; }
+    public boolean isCategoriesLastPage() { return categoriesCurrentPage >= getCategoriesTotalPages(); }
+    public int getCategoriesCurrentPage() { return categoriesCurrentPage; }
+    public String getCategoriesSearchQuery() { return categoriesSearchQuery; }
+    public void setCategoriesSearchQuery(String categoriesSearchQuery) {
+        this.categoriesSearchQuery = categoriesSearchQuery != null ? categoriesSearchQuery : "";
+        this.categoriesCurrentPage = 1;
+    }
+
+    /** Groupes filtrés par la recherche. */
+    public List<Entity> getFilteredGroupes() {
+        List<Entity> list = getChildsGroupes();
+        if (list == null) return new ArrayList<>();
+        String q = groupesSearchQuery != null ? groupesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String nom = e.getNom() != null ? e.getNom().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    return code.contains(q) || nom.contains(q) || label.contains(q);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /** Groupes pour la page courante (6 par page). */
+    public List<Entity> getPaginatedGroupes() {
+        List<Entity> filtered = getFilteredGroupes();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        int from = (groupesCurrentPage - 1) * GROUPES_PAGE_SIZE;
+        if (from >= filtered.size()) {
+            groupesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + GROUPES_PAGE_SIZE, filtered.size());
+        return filtered.subList(from, to);
+    }
+
+    public int getGroupesTotalPages() {
+        int size = getFilteredGroupes().size();
+        return size == 0 ? 0 : (int) Math.ceil((double) size / GROUPES_PAGE_SIZE);
+    }
+
+    public void groupesGoToPage(int page) {
+        int total = getGroupesTotalPages();
+        if (page >= 1 && page <= total) groupesCurrentPage = page;
+    }
+
+    public void groupesNextPage() { groupesGoToPage(groupesCurrentPage + 1); }
+    public void groupesPreviousPage() { groupesGoToPage(groupesCurrentPage - 1); }
+    public boolean isGroupesFirstPage() { return groupesCurrentPage <= 1; }
+    public boolean isGroupesLastPage() { return groupesCurrentPage >= getGroupesTotalPages(); }
+    public int getGroupesCurrentPage() { return groupesCurrentPage; }
+    public String getGroupesSearchQuery() { return groupesSearchQuery; }
+    public void setGroupesSearchQuery(String groupesSearchQuery) {
+        this.groupesSearchQuery = groupesSearchQuery != null ? groupesSearchQuery : "";
+        this.groupesCurrentPage = 1;
     }
 
     /**

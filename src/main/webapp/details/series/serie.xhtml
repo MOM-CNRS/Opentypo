@@ -247,7 +247,7 @@
                             <div class="typologie-cards-container">
                                 <h:form>
                                     <div class="typologie-cards-grid">
-                                        <ui:repeat value="#{applicationBean.childs}" var="type" varStatus="status">
+                                        <ui:repeat value="#{applicationBean.childsTypes}" var="type" varStatus="status">
                                             <p:commandLink action="#{applicationBean.showType(type)}"
                                                            styleClass="typologie-card"
                                                            process="@this"
@@ -274,7 +274,7 @@
                                         </ui:repeat>
                                         
                                         <!-- Message si aucun type disponible -->
-                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childs}">
+                                        <h:panelGroup class="empty-categories-message" rendered="#{empty applicationBean.childsTypes}">
                                             <div class="empty-categories-icon">
                                                 <i class="pi pi-inbox" />
                                             </div>
