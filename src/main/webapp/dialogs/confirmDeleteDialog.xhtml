@@ -69,7 +69,7 @@
                                  action="#{confirmDeleteBean.performDelete()}"
                                  process="@this"
                                  ajax="true"
-                                 update=":centerContent, :treeContainer, :breadcrumbContent, :growl, :collectionReferencesContainer"
+                                 update=":centerContent, :growl, :collectionReferencesContainer"
                                  styleClass="reference-delete-btn reference-delete-btn-confirm"
                                  oncomplete="setTimeout(function(){PF('confirmDeleteDialog').hide();}, 100);"/>
             </div>

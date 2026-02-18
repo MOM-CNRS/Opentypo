@@ -26,8 +26,6 @@ import java.util.Map;
 @Named("historyBean")
 public class HistoryBean implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     @Inject
     private transient ApplicationBean applicationBean;
 
@@ -54,21 +52,16 @@ public class HistoryBean implements Serializable {
             log.warn("Tentative de chargement de l'historique avec une entité null ou sans ID");
             return null;
         }
-        
-        try {
-            this.selectedEntity = entity;
-            this.revisions = auditService.getEntityRevisions(entity.getId());
-            this.selectedRevision = null;
-            this.changedFields = null;
-            
-            log.info("Historique chargé pour l'entité {} : {} révisions trouvées", 
-                    entity.getCode(), revisions.size());
-            
-            return "/history/history-list.xhtml?faces-redirect=true";
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement de l'historique pour l'entité {}", entity.getId(), e);
-            return null;
-        }
+
+        this.selectedEntity = entity;
+        this.revisions = auditService.getEntityRevisions(entity.getId());
+        this.selectedRevision = null;
+        this.changedFields = null;
+
+        log.info("Historique chargé pour l'entité {} : {} révisions trouvées",
+                entity.getCode(), revisions.size());
+
+        return "/history/history-list.xhtml?faces-redirect=true";
     }
 
     /**
@@ -232,11 +225,11 @@ public class HistoryBean implements Serializable {
     }
 
     /**
-     * Formate une valeur pour l'affichage
+     * Formate une valeur pour l'affichage (texte brut, sans balises HTML)
      */
     public String formatValue(Object value) {
         if (value == null) {
-            return "<em>Aucune valeur</em>";
+            return "Aucune valeur";
         }
 
         // Gérer les Map (pour les labels et descriptions multilingues)
@@ -244,16 +237,17 @@ public class HistoryBean implements Serializable {
             @SuppressWarnings("unchecked")
             Map<String, String> map = (Map<String, String>) value;
             if (map.isEmpty()) {
-                return "<em>Aucune valeur</em>";
+                return "Aucune valeur";
             }
-            
-            StringBuilder sb = new StringBuilder("<ul>");
+            StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                sb.append("<li><strong>").append(entry.getKey().toUpperCase())
-                  .append(":</strong> ").append(entry.getValue() != null ? entry.getValue() : "<em>N/A</em>")
-                  .append("</li>");
+                if (sb.length() > 0) {
+                    sb.append(" ; ");
+                }
+                sb.append(entry.getKey().toUpperCase())
+                  .append(": ")
+                  .append(entry.getValue() != null ? stripHtml(entry.getValue()) : "N/A");
             }
-            sb.append("</ul>");
             return sb.toString();
         }
 
@@ -262,10 +256,10 @@ public class HistoryBean implements Serializable {
             @SuppressWarnings("unchecked")
             List<?> list = (List<?>) value;
             if (list.isEmpty()) {
-                return "<em>Aucune valeur</em>";
+                return "Aucune valeur";
             }
             return String.join(", ", list.stream()
-                    .map(item -> item != null ? item.toString() : "<em>N/A</em>")
+                    .map(item -> item != null ? stripHtml(item.toString()) : "N/A")
                     .toArray(String[]::new));
         }
 
@@ -274,8 +268,19 @@ public class HistoryBean implements Serializable {
             return (Boolean) value ? "Oui" : "Non";
         }
 
-        // Par défaut, convertir en String
-        return value.toString();
+        // Par défaut, convertir en String et retirer les balises HTML éventuelles
+        return stripHtml(value.toString());
+    }
+
+    /**
+     * Retire les balises HTML d'une chaîne pour un affichage en texte brut
+     */
+    private String stripHtml(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        String withoutTags = text.replaceAll("<[^>]+>", " ");
+        return withoutTags.replaceAll("\\s+", " ").trim();
     }
 
     /**

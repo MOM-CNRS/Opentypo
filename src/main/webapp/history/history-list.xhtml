@@ -13,7 +13,7 @@
             <div class="history-header">
                 <div class="history-title-section">
                     <h2 class="history-title">
-                        <i class="pi pi-history history-title-icon"></i>
+                        <i class="pi pi-history history-title-icon"/>
                         Historique des modifications
                     </h2>
                     <p class="history-subtitle">
@@ -35,7 +35,7 @@
             <div class="history-content">
                 <ui:fragment rendered="#{empty historyBean.revisions}">
                     <div class="history-empty">
-                        <i class="pi pi-info-circle history-empty-icon"></i>
+                        <i class="pi pi-info-circle history-empty-icon"/>
                         <p>Aucune modification enregistrée pour cette entité.</p>
                     </div>
                 </ui:fragment>
@@ -53,7 +53,7 @@
                         <!-- Colonne Type -->
                         <p:column headerText="Type" styleClass="history-col-type">
                             <div class="revision-type-badge #{revision.revisionTypeClass}">
-                                <i class="#{revision.revisionTypeIcon}"></i>
+                                <i class="#{revision.revisionTypeIcon}"/>
                                 <span>#{revision.revisionTypeLabel}</span>
                             </div>
                         </p:column>
@@ -61,11 +61,6 @@
                         <!-- Colonne Date -->
                         <p:column headerText="Date" styleClass="history-col-date">
                             <span>#{revision.revisionDate != null ? revision.revisionDate : 'N/A'}</span>
-                        </p:column>
-
-                        <!-- Colonne Révision -->
-                        <p:column headerText="Révision" styleClass="history-col-revision">
-                            <span class="revision-number">##{revision.revisionNumber}</span>
                         </p:column>
 
                         <!-- Colonne Modifié par -->

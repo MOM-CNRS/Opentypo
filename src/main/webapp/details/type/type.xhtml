@@ -14,7 +14,7 @@
                                 <div class="collection-panel-title-wrapper">
                                     <p:commandLink action="#{applicationBean.showSerie(applicationBean.selectedSerie)}"
                                                    process="@this"
-                                                   update=":centerContent, :treeContainer, :breadcrumbContent"
+                                                   update=":centerContent"
                                                    onstart="showLoading('Chargement de la série...', 'spinner');"
                                                    oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                                    onerror="forceHideLoading();"

@@ -51,7 +51,7 @@
                             <p:commandLink action="#{applicationBean.showGroupe(group)}"
                                            styleClass="reference-category-card"
                                            process="@this"
-                                           update=":centerContent, :treeContainer, :breadcrumbContent"
+                                           update=":centerContent"
                                            onstart="showLoading('Chargement du groupe...', 'spinner');"
                                            oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
                                            onerror="forceHideLoading();">

@@ -55,7 +55,7 @@
                                 <p:commandLink action="#{applicationBean.showSerie(serie)}"
                                                styleClass="reference-category-card"
                                                process="@this"
-                                               update=":centerContent, :treeContainer, :breadcrumbContent"
+                                                   update=":centerContent"
                                                onstart="showLoading('Chargement de la série...', 'spinner');"
                                                oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
                                                onerror="forceHideLoading();">

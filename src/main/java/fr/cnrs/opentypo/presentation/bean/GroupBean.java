@@ -181,7 +181,7 @@ public class GroupBean implements Serializable {
             resetGroupForm();
 
             // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des groupes
-            PrimeFaces.current().ajax().update(":growl, :groupForm, :treeContainer, :groupesContainer");
+            PrimeFaces.current().ajax().update(":growl, :groupForm, :groupesContainer");
 
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du groupe", e);

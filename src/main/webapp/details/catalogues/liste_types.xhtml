@@ -56,7 +56,7 @@
                                         <p:commandLink action="#{applicationBean.showType(type)}"
                                                        styleClass="typologie-card"
                                                        process="@this"
-                                                       update=":centerContent, :treeContainer, :breadcrumbContent"
+                                                       update=":centerContent"
                                                        onstart="showLoading('Chargement du type...', 'spinner');"
                                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
                                                        onerror="forceHideLoading();">

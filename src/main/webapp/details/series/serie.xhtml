@@ -21,7 +21,7 @@
                             <div class="collection-panel-title-wrapper">
                                 <p:commandLink action="#{applicationBean.showGroupe(applicationBean.selectedGroup)}"
                                                process="@this"
-                                               update=":centerContent, :treeContainer, :breadcrumbContent"
+                                               update=":centerContent"
                                                onstart="showLoading('Chargement du groupe...', 'spinner');"
                                                oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
                                                onerror="forceHideLoading();"

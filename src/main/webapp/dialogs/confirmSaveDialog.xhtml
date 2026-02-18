@@ -53,7 +53,7 @@
                                      action="#{confirmSaveBean.performSave()}"
                                      process=":#{confirmSaveBean.formId}"
                                      ajax="true"
-                                     update=":#{confirmSaveBean.formId}, :growl, :contentPanels, :treeContainer, :breadcrumbContent"
+                                     update=":#{confirmSaveBean.formId}, :growl, :contentPanels"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
                                      oncomplete="setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);"/>
                 </div>
