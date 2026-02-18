@@ -1,24 +1,15 @@
 server:
+  port: 8080
   servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-      file-size-threshold: 2KB
-  tomcat:
-    max-http-post-size: 10MB
-    max-swallow-size: 10MB
-    max-part-count: 100  # Augmenter la limite du nombre de "parts" dans une requête multipart
+    session:
+      timeout: 60m  # 1 heure (60 minutes)
+      cookie:
+        http-only: true
+        secure: ${COOKIE_SECURE:false}  # true en production avec HTTPS
+        same-site: strict
+        max-age: 3600  # 1 heure en secondes
 
 spring:
-  # Configuration CORS pour le développement local
-  web:
-    cors:
-      allowed-origins: http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080
-      allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
-      allowed-headers: "*"
-      allow-credentials: true
-      max-age: 3600
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/opentypo
@@ -41,14 +32,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         show_sql: false
-        # Configuration Hibernate Envers pour l'audit
         envers:
           audit_table_suffix: _aud
           revision_field_name: rev
           revision_type_field_name: revtype
           store_data_at_delete: true
           default_schema: public
-        # Configuration pour les relations lazy
         enable_lazy_load_no_trans: true
 
 logging:
@@ -62,7 +51,6 @@ logging:
     org.joinfaces: INFO
     org.primefaces: WARN
 
-# Configuration du serveur IIIF pour l'upload d'images
 iiif:
   server:
     url: ${IIIF_SERVER_URL:http://localhost:8182}  # URL de base du serveur IIIF
