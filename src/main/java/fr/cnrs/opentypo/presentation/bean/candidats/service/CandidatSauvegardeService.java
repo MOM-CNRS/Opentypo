@@ -158,9 +158,6 @@ public class CandidatSauvegardeService {
 
         String code = entityType.getCode();
         if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code) || "CATEGORIE".equals(code)) {
-            if (req.getCandidatCommentaire() != null && !req.getCandidatCommentaire().trim().isEmpty()) {
-                entity.setCommentaire(req.getCandidatCommentaire().trim());
-            }
             if (req.getCandidatBibliographie() != null && !req.getCandidatBibliographie().trim().isEmpty()) {
                 entity.setBibliographie(req.getCandidatBibliographie().trim());
             }

@@ -11,24 +11,47 @@
     overflow: hidden !important;
 }
 
+/* Header : bandeau et bouton fermer alignés sur la même ligne */
 .modern-logout-dialog .ui-dialog-titlebar {
     background: linear-gradient(135deg, var(--color-danger, #B84A3C) 0%, rgba(184, 74, 60, 0.9) 100%) !important;
     color: white !important;
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+}
+
+.modern-logout-dialog .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
 }
 
 .modern-logout-dialog .ui-dialog-titlebar-close {
-    color: white !important;
-    opacity: 0.9 !important;
-    transition: all 0.2s ease !important;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
+    flex-shrink: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    text-decoration: none !important;
+    color: white !important;
+    opacity: 0.9 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    position: static !important;
+    margin: 0 !important;
+    top: auto !important;
+    right: auto !important;
+    padding: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.modern-logout-dialog .ui-dialog-titlebar-close .ui-icon {
+    margin: 0 !important;
 }
 
 .modern-logout-dialog .ui-dialog-titlebar-close:hover {

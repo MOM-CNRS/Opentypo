@@ -231,7 +231,6 @@ public class CandidatBean implements Serializable {
     private List<CategoryDescriptionItem> descriptions = new ArrayList<>();
     private String newDescriptionValue;
     private String newDescriptionLangueCode;
-    private String candidatCommentaire;
     private String candidatCommentaireDatation;
     private String candidatBibliographie;
     private List<String> referencesBibliographiques = new ArrayList<>();
@@ -607,7 +606,6 @@ public class CandidatBean implements Serializable {
         descriptions = new ArrayList<>();
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
-        candidatCommentaire = null;
         candidatCommentaireDatation = null;
         candidatBibliographie = null;
         referencesBibliographiques = new ArrayList<>();
@@ -655,7 +653,6 @@ public class CandidatBean implements Serializable {
         if (data == null) return;
         candidatLabels = data.getCandidatLabels() != null ? new ArrayList<>(data.getCandidatLabels()) : new ArrayList<>();
         descriptions = data.getDescriptions() != null ? new ArrayList<>(data.getDescriptions()) : new ArrayList<>();
-        candidatCommentaire = data.getCandidatCommentaire();
         candidatCommentaireDatation = data.getCandidatCommentaireDatation();
         candidatBibliographie = data.getCandidatBibliographie();
         referencesBibliographiques = data.getReferencesBibliographiques() != null ? new ArrayList<>(data.getReferencesBibliographiques()) : new ArrayList<>();
@@ -758,7 +755,7 @@ public class CandidatBean implements Serializable {
      */
     /**
      * Termine le processus de création de candidat et redirige vers la liste des candidats
-     * Met à jour l'entité avec les valeurs finales : période, commentaire, références bibliographiques, bibliographie, TAQ, TPQ
+     * Met à jour l'entité avec les valeurs finales : période, références bibliographiques, bibliographie, TAQ, TPQ
      */
     public String terminerCandidat() {
         try {
@@ -812,7 +809,6 @@ public class CandidatBean implements Serializable {
                 .currentEntity(currentEntity)
                 .candidatLabels(candidatLabels)
                 .descriptions(descriptions)
-                .candidatCommentaire(candidatCommentaire)
                 .candidatCommentaireDatation(candidatCommentaireDatation)
                 .candidatBibliographie(candidatBibliographie)
                 .referencesBibliographiques(referencesBibliographiques)
@@ -1256,12 +1252,6 @@ public class CandidatBean implements Serializable {
     public void saveIdentifiantPerenne() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveIdentifiantPerenne(currentEntity.getId(), identifiantPerenne);
-        }
-    }
-
-    public void saveCommentaire() {
-        if (currentEntity != null && currentEntity.getId() != null) {
-            candidatFormSaveService.saveCommentaire(currentEntity.getId(), candidatCommentaire);
         }
     }
 

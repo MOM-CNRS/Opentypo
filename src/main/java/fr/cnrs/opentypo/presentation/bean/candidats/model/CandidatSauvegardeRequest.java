@@ -20,7 +20,6 @@ public class CandidatSauvegardeRequest {
     private Entity currentEntity;
     private List<CategoryLabelItem> candidatLabels;
     private List<CategoryDescriptionItem> descriptions;
-    private String candidatCommentaire;
     private String candidatCommentaireDatation;
     private String candidatBibliographie;
     private List<String> referencesBibliographiques;

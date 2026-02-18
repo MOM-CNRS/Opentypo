@@ -44,10 +44,6 @@ public class EntityMetadata implements Serializable {
     @Column(name = "code", nullable = false, length = 100)
     private String code;
 
-    // Commentaire général
-    @Column(name = "commentaire", columnDefinition = "TEXT")
-    private String commentaire;
-
     // Commentaire datation
     @Column(name = "commentaire_datation", columnDefinition = "TEXT")
     private String commentaireDatation;

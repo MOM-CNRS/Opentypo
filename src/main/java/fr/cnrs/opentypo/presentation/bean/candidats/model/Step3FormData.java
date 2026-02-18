@@ -18,7 +18,6 @@ public class Step3FormData {
     private List<CategoryLabelItem> candidatLabels = new ArrayList<>();
     @Builder.Default
     private List<CategoryDescriptionItem> descriptions = new ArrayList<>();
-    private String candidatCommentaire;
     private String candidatCommentaireDatation;
     private String candidatBibliographie;
     @Builder.Default

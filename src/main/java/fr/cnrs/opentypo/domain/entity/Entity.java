@@ -20,6 +20,7 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -134,6 +135,11 @@ public class Entity implements Serializable {
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPermission> userPermissions = new ArrayList<>();
 
+    // Relations avec Commentaire (un ou plusieurs commentaires par entité)
+    @NotAudited
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Commentaire> commentaires = new ArrayList<>();
+
     // Relations avec Auteur (Many-to-Many avec Utilisateur)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -226,18 +232,50 @@ public class Entity implements Serializable {
     }
 
     /**
-     * Obtient le commentaire depuis les métadonnées
+     * Obtient le contenu du premier commentaire (compatibilité avec l'ancien champ unique).
+     * Pour accéder à tous les commentaires, utiliser {@link #getCommentaires()}.
      */
     public String getCommentaire() {
-        return metadata != null ? metadata.getCommentaire() : null;
+        if (commentaires != null && !commentaires.isEmpty()) {
+            return commentaires.get(0).getContenu();
+        }
+        return null;
     }
 
     /**
-     * Définit le commentaire dans les métadonnées
+     * Définit le commentaire (compatibilité). Remplace tous les commentaires par un seul.
+     * Pour ajouter un commentaire avec auteur, utiliser {@link #addCommentaire(String, Utilisateur)}.
      */
     public void setCommentaire(String commentaire) {
-        ensureMetadata();
-        metadata.setCommentaire(commentaire);
+        if (commentaires == null) {
+            commentaires = new ArrayList<>();
+        }
+        commentaires.clear();
+        if (commentaire != null && !commentaire.isBlank()) {
+            Commentaire c = new Commentaire();
+            c.setEntity(this);
+            c.setContenu(commentaire.trim());
+            c.setDateCreation(LocalDateTime.now());
+            commentaires.add(c);
+        }
+    }
+
+    /**
+     * Ajoute un commentaire créé par un utilisateur.
+     */
+    public void addCommentaire(String contenu, Utilisateur utilisateur) {
+        if (contenu == null || contenu.isBlank()) {
+            return;
+        }
+        if (commentaires == null) {
+            commentaires = new ArrayList<>();
+        }
+        Commentaire c = new Commentaire();
+        c.setEntity(this);
+        c.setContenu(contenu.trim());
+        c.setUtilisateur(utilisateur);
+        c.setDateCreation(LocalDateTime.now());
+        commentaires.add(c);
     }
 
     /**
