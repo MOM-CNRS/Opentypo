@@ -139,6 +139,9 @@ public class ApplicationBean implements Serializable {
 
     // Titre de l'écran
     private String selectedEntityLabel;
+    @Named("userBean")
+    @Inject
+    private UserBean userBean;
 
     /**
      * Retourne l'ensemble des IDs de collections que l'utilisateur connecté est autorisé à consulter
@@ -1102,6 +1105,11 @@ public class ApplicationBean implements Serializable {
         panelState.showCollections();
 
         log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
+    }
+
+    public boolean showCommentaireBloc() {
+        return loginBean.getCurrentUser() != null
+            && (selectedEntity.getEntityType().getId() == 3 || selectedEntity.getEntityType().getId() == 4 || selectedEntity.getEntityType().getId() == 5);
     }
 }
 

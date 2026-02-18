@@ -1,0 +1,94 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <!-- Bloc Commentaires -->
+    <h:panelGroup class="row details-row-mt-15" style="margin-top: 20px">
+        <div class="col-md-12">
+            <div class="concept-info-panel commentaires-panel">
+                <div class="commentaires-panel-header">
+                    <i class="pi pi-comments commentaires-panel-icon"/>
+                    <h3 class="commentaires-panel-title">Commentaires</h3>
+                </div>
+                <h:form id="commentairesForm" styleClass="commentaires-form">
+                    <p:messages id="commentairesMessages" for="commentairesForm" showDetail="true" closable="true" redisplay="true"/>
+                    <!-- Formulaire d'ajout (utilisateurs connectés uniquement) -->
+                    <ui:fragment rendered="#{loginBean.authenticated}">
+                        <div class="commentaires-add-section">
+                            <p:inputTextarea id="newCommentInput"
+                                             value="#{commentaireBean.newCommentContenu}"
+                                             rows="3"
+                                             placeholder="Ajouter un commentaire..."
+                                             styleClass="commentaires-add-input"/>
+                            <p:commandButton value="Publier"
+                                             icon="pi pi-send"
+                                             action="#{commentaireBean.addCommentaire()}"
+                                             process="@form"
+                                             update=":commentairesForm :growl"
+                                             styleClass="commentaires-add-btn"/>
+                        </div>
+                    </ui:fragment>
+                    <p class="commentaires-login-hint">
+                        <ui:fragment rendered="#{not loginBean.authenticated}">
+                            <i class="pi pi-info-circle"/> Connectez-vous pour publier un commentaire.
+                        </ui:fragment>
+                    </p>
+                    <!-- Liste des commentaires -->
+                    <div class="commentaires-list">
+                        <ui:fragment rendered="#{empty commentaireBean.commentaires}">
+                            <p class="commentaires-empty">Aucun commentaire pour le moment.</p>
+                        </ui:fragment>
+                        <ui:repeat value="#{commentaireBean.commentaires}" var="comment">
+                            <div class="commentaires-item">
+                                <div class="commentaires-item-header">
+                                    <span class="commentaires-item-author">#{commentaireBean.getAuthorDisplayName(comment)}</span>
+                                    <span class="commentaires-item-date">#{commentaireBean.formatDate(comment.dateCreation)}</span>
+                                </div>
+                                <ui:fragment rendered="#{commentaireBean.editingCommentId != comment.id}">
+                                    <div class="commentaires-item-content">#{comment.contenu}</div>
+                                    <div class="commentaires-item-actions">
+                                        <ui:fragment rendered="#{commentaireBean.isCommentOwner(comment)}">
+                                            <p:commandButton icon="pi pi-pencil"
+                                                             styleClass="commentaires-action-btn"
+                                                             title="Modifier"
+                                                             action="#{commentaireBean.startEditComment(comment)}"
+                                                             process="@this"
+                                                             update=":commentairesForm :growl"/>
+                                            <p:commandButton icon="pi pi-trash"
+                                                             styleClass="commentaires-action-btn commentaires-action-btn-delete"
+                                                             title="Supprimer"
+                                                             action="#{commentaireBean.deleteCommentaire(comment)}"
+                                                             process="@this"
+                                                             update=":commentairesForm :growl"
+                                                             onclick="return confirm('Supprimer ce commentaire ?');"/>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{commentaireBean.editingCommentId == comment.id}">
+                                    <p:inputTextarea value="#{commentaireBean.editingCommentContenu}"
+                                                     rows="3"
+                                                     styleClass="commentaires-edit-input"/>
+                                    <div class="commentaires-item-actions">
+                                        <p:commandButton value="Annuler"
+                                                         icon="pi pi-times"
+                                                         styleClass="commentaires-action-btn"
+                                                         action="#{commentaireBean.cancelEditComment()}"
+                                                         process="@this"
+                                                         update=":commentairesForm :growl"/>
+                                        <p:commandButton value="Enregistrer"
+                                                         icon="pi pi-check"
+                                                         styleClass="commentaires-action-btn commentaires-action-btn-save"
+                                                         action="#{commentaireBean.saveCommentaire()}"
+                                                         process=":commentairesForm"
+                                                         update=":commentairesForm :growl"/>
+                                    </div>
+                                </ui:fragment>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </h:panelGroup>
+</ui:composition>

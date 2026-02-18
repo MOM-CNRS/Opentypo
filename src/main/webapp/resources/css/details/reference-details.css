@@ -480,3 +480,174 @@
         padding: 0.4rem !important;
     }
 }
+
+/* ============================================
+   BLOC COMMENTAIRES
+   ============================================ */
+
+.commentaires-panel {
+    margin-top: 0 !important;
+}
+
+.commentaires-panel-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    padding: 1rem 1.25rem !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+}
+
+.commentaires-panel-icon {
+    font-size: 1.25rem !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.commentaires-panel-title {
+    margin: 0 !important;
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    color: var(--color-text-primary, #333) !important;
+}
+
+.commentaires-form {
+    padding: 1.25rem !important;
+}
+
+.commentaires-add-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.commentaires-add-input {
+    width: 100% !important;
+    padding: 0.875rem 1rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 10px !important;
+    font-size: 0.9375rem !important;
+    resize: vertical !important;
+}
+
+.commentaires-add-input:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.12) !important;
+}
+
+.commentaires-add-btn {
+    align-self: flex-end !important;
+    background: var(--color-action-main, #47624D) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+
+.commentaires-add-btn:hover {
+    background: rgba(71, 98, 77, 0.9) !important;
+}
+
+.commentaires-login-hint {
+    margin: 0 0 1.25rem 0 !important;
+    font-size: 0.9rem !important;
+    color: var(--color-text-secondary, #819A91) !important;
+}
+
+.commentaires-login-hint .pi {
+    margin-right: 0.35rem !important;
+}
+
+.commentaires-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+.commentaires-empty {
+    margin: 0 !important;
+    padding: 1.5rem !important;
+    text-align: center !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    font-size: 0.9375rem !important;
+}
+
+.commentaires-item {
+    padding: 1rem 1.25rem !important;
+    background: #fafbfa !important;
+    border: 1px solid rgba(71, 98, 77, 0.1) !important;
+    border-radius: 10px !important;
+}
+
+.commentaires-item-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.commentaires-item-author {
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.commentaires-item-date {
+    font-size: 0.8125rem !important;
+    color: var(--color-text-secondary, #819A91) !important;
+}
+
+.commentaires-item-content {
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+}
+
+.commentaires-item-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    margin-top: 0.75rem !important;
+}
+
+.commentaires-action-btn {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.875rem !important;
+    background: rgba(71, 98, 77, 0.08) !important;
+    color: var(--color-action-main, #47624D) !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 6px !important;
+}
+
+.commentaires-action-btn:hover {
+    background: rgba(71, 98, 77, 0.15) !important;
+}
+
+.commentaires-action-btn-delete {
+    color: var(--color-danger, #B84A3C) !important;
+    background: rgba(184, 74, 60, 0.08) !important;
+    border-color: rgba(184, 74, 60, 0.2) !important;
+}
+
+.commentaires-action-btn-delete:hover {
+    background: rgba(184, 74, 60, 0.15) !important;
+}
+
+.commentaires-action-btn-save {
+    background: var(--color-action-main, #47624D) !important;
+    color: #fff !important;
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.commentaires-edit-input {
+    width: 100% !important;
+    margin-bottom: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 8px !important;
+    font-size: 0.9375rem !important;
+}

@@ -27,7 +27,8 @@
 
                 <!-- 2.3 Panneaux de détail (référentiel, catégorie, groupe, série, type) -->
                 <div id="contentPanelsWrapper" class="content-panels-wrapper">
-                        <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
+                    <h:panelGroup id="contentPanels" rendered="#{applicationBean.isShowDetail()}" layout="block" class="info-concept">
+
                         <ui:include src="details/breadCrumb.xhtml"/>
 
                         <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
@@ -59,6 +60,10 @@
                             <ui:include src="details/catalogues/liste_groupes.xhtml"/>
                             <ui:include src="details/catalogues/liste_series.xhtml"/>
                             <ui:include src="details/catalogues/liste_types.xhtml"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
+                            <ui:include src="details/communs/commentaires.xhtml"/>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
