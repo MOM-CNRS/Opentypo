@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.candidats;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.service.CandidatListService;
 import fr.cnrs.opentypo.application.service.CandidatValidationService;
@@ -484,28 +485,30 @@ public class CandidatBean implements Serializable {
 
     /**
      * Indique si l'utilisateur connecté peut valider ou refuser un brouillon.
-     * Seuls les groupes "Administrateur technique" et "Administrateur Référentiel" ont ce droit.
+     * Groupes autorisés : Administrateur technique, Gestionnaire de référentiels, Valideur.
      */
     public boolean canValidateOrRefuseBrouillon() {
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return "Administrateur technique".equalsIgnoreCase(groupeNom)
-            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**
      * Indique si l'utilisateur connecté peut modifier un brouillon (statut PROPOSITION).
-     * Groupes autorisés : Administrateur technique, Administrateur Référentiel, Éditeur.
+     * Groupes autorisés : Administrateur technique, Gestionnaire de référentiels, Rédacteur, Valideur.
      */
     public boolean canEditBrouillon(Candidat candidat) {
         if (candidat == null || candidat.getStatut() != Candidat.Statut.EN_COURS) return false;
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return "Administrateur technique".equalsIgnoreCase(groupeNom)
-            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom)
-            || "Éditeur".equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**
@@ -517,9 +520,10 @@ public class CandidatBean implements Serializable {
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return "Administrateur technique".equalsIgnoreCase(groupeNom)
-            || "Administrateur Référentiel".equalsIgnoreCase(groupeNom)
-            || "Éditeur".equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
+            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**

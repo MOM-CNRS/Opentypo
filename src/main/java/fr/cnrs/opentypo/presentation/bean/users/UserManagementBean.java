@@ -194,13 +194,13 @@ public class UserManagementBean implements Serializable {
     }
 
     /**
-     * Indique si le groupe sélectionné est "Administrateur Référentiel".
+     * Indique si le groupe sélectionné est "Gestionnaire de référentiels".
      */
     public boolean isAdministrateurReferentiel() {
         if (selectedGroupe == null) {
             return false;
         }
-        return "Administrateur Référentiel".equalsIgnoreCase(selectedGroupe.getNom());
+        return GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(selectedGroupe.getNom());
     }
 
     /**
@@ -1054,10 +1054,13 @@ public class UserManagementBean implements Serializable {
     }
 
     public String getGroupeEtiquette(Groupe groupe) {
-        if (GroupEnum.LECTEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
+        if (GroupEnum.RELECTEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
             return "role-badge-viewer";
-        } else if (GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
+        } else if (GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupe.getNom())
+                || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
             return "role-badge-editor";
+        } else if (GroupEnum.GESTIONNAIRE_COLLECTIONS.getLabel().equalsIgnoreCase(groupe.getNom())) {
+            return "role-badge-collection-manager";
         } else {
             return "role-badge-admin";
         }

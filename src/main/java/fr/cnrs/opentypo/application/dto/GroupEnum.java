@@ -6,9 +6,11 @@ import lombok.Getter;
 public enum GroupEnum {
 
     ADMINISTRATEUR_TECHNIQUE("Administrateur technique"),
-    ADMINISTRATEUR_REFERENTIEL("Administrateur Référentiel"),
-    EDITEUR("Éditeur"),
-    LECTEUR("Lecteur");
+    GESTIONNAIRE_REFERENTIELS("Gestionnaire de référentiels"),
+    GESTIONNAIRE_COLLECTIONS("Gestionnaire de collections"),
+    REDACTEUR("Rédacteur"),
+    VALIDEUR("Valideur"),
+    RELECTEUR("Relecteur");
 
     private final String label;
 

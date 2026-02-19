@@ -1256,6 +1256,12 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     border: 1px solid rgba(71, 98, 77, 0.2) !important;
 }
 
+.role-badge-collection-manager {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%) !important;
+    color: #2563eb !important;
+    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
 .status-badge {
     display: inline-flex !important;
     align-items: center !important;

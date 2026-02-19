@@ -118,9 +118,14 @@ public class LoginBean implements Serializable {
                 String groupeNom = utilisateur.getGroupe().getNom();
                 if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                } else if (GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(groupeNom)) {
+                } else if (GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                } else if (GroupEnum.GESTIONNAIRE_COLLECTIONS.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
-                } else if (GroupEnum.LECTEUR.getLabel().equalsIgnoreCase(groupeNom)) {
+                } else if (GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
+                        || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
+                } else if (GroupEnum.RELECTEUR.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_READER"));
                 }
             }
@@ -241,7 +246,7 @@ public class LoginBean implements Serializable {
         return currentUser != null
                 && currentUser.getGroupe() != null
                 && (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom())
-                    || GroupEnum.ADMINISTRATEUR_REFERENTIEL.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
+                    || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
     }
 
     /**
@@ -252,7 +257,8 @@ public class LoginBean implements Serializable {
     public boolean isEditor() {
         return currentUser != null 
             && currentUser.getGroupe() != null 
-            && GroupEnum.EDITEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+            && (GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom())
+                || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
     }
 
     /**
