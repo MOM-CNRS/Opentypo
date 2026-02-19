@@ -219,7 +219,7 @@
                                 <p:commandButton value="Valider"
                                                  icon="pi pi-check"
                                                  action="#{confirmSaveBean.prepareSave('CATEGORIE')}"
-                                                 process="@this"
+                                                 process="@this categoryEditForm"
                                                  update=":confirmSaveDialogContent"
                                                  oncomplete="PF('confirmSaveDialog').show();"
                                                  styleClass="reference-edit-btn reference-edit-btn-validate"/>

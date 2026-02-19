@@ -14,6 +14,7 @@
               draggable="false"
               width="440"
               height="auto"
+              appendTo="@(body)"
               styleClass="reference-confirm-dialog">
 
         <f:facet name="header">
@@ -51,11 +52,12 @@
                     <p:commandButton value="Oui, enregistrer"
                                      icon="pi pi-check"
                                      action="#{confirmSaveBean.performSave()}"
-                                     process=":#{confirmSaveBean.formId}"
+                                     process="@this"
                                      ajax="true"
                                      update=":#{confirmSaveBean.formId}, :growl, :contentPanels"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
-                                     oncomplete="setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);"/>
+                                     oncomplete="if(!args.validationFailed){setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);}"
+                                     onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
                 </div>
             </h:form>
         </h:panelGroup>

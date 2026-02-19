@@ -8665,16 +8665,27 @@ body .ui-datatable .ui-datatable-data>tr>td {
 }
 
 .reference-confirm-dialog .ui-dialog-titlebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
     background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
     color: white !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 0 0.75rem 0 0 !important;
     border-radius: 0 !important;
 }
 
+.reference-confirm-dialog .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
 .reference-confirm-dialog .ui-dialog-titlebar-close {
+    flex-shrink: 0 !important;
     color: white !important;
     opacity: 0.9 !important;
+    text-decoration: none !important;
     transition: all 0.2s ease !important;
     width: 36px !important;
     height: 36px !important;
@@ -8684,10 +8695,12 @@ body .ui-datatable .ui-datatable-data>tr>td {
     justify-content: center !important;
 }
 
-.reference-confirm-dialog .ui-dialog-titlebar-close:hover {
+.reference-confirm-dialog .ui-dialog-titlebar-close:hover,
+.reference-confirm-dialog .ui-dialog-titlebar-close:focus {
     background: rgba(255, 255, 255, 0.2) !important;
     opacity: 1 !important;
     transform: scale(1.1) !important;
+    text-decoration: none !important;
 }
 
 .reference-confirm-dialog .ui-dialog-content {
@@ -8695,13 +8708,14 @@ body .ui-datatable .ui-datatable-data>tr>td {
     background: #ffffff !important;
 }
 
-/* Header personnalisé */
+/* Header personnalisé - aligné horizontalement avec le bouton X */
 .reference-confirm-header {
     display: flex !important;
     align-items: center !important;
     gap: 1.25rem !important;
-    padding: 1.75rem 2rem !important;
-    width: 100% !important;
+    padding: 1.25rem 1.5rem 1.25rem 2rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
 }
 
 .reference-confirm-header-icon-wrapper {

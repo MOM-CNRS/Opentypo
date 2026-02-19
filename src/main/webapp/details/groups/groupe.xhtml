@@ -257,7 +257,7 @@
                                                      styleClass="reference-edit-btn reference-edit-btn-cancel"/>
                                     <p:commandButton value="Valider" icon="pi pi-check"
                                                      action="#{confirmSaveBean.prepareSave('GROUPE')}"
-                                                     process="@this"
+                                                     process="@this groupeEditForm"
                                                      update=":confirmSaveDialogContent"
                                                      oncomplete="PF('confirmSaveDialog').show();"
                                                      styleClass="reference-edit-btn reference-edit-btn-validate"/>

@@ -408,6 +408,19 @@ public class CategoryBean implements Serializable {
         // Actualiser l'arbre : déplier le chemin et sélectionner la catégorie sauvegardée
         treeBean.expandPathAndSelectEntity(categorySaved);
 
+        initEditForm();
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                "Succès", "Les modifications ont été enregistrées avec succès."));
+
+        log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
+    }
+
+    public void cancelEditingCategory() {
+        initEditForm();
+    }
+
+    private void initEditForm() {
         editingCategory = false;
         editingCategoryCode = null;
         editingLabelLangueCode = null;
@@ -416,10 +429,5 @@ public class CategoryBean implements Serializable {
         editingCategoryDescription = null;
         editingCategoryBibliographie = null;
         editingCategoryCommentaire = null;
-
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès", "Les modifications ont été enregistrées avec succès."));
-
-        log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
     }
 }
