@@ -23,6 +23,18 @@
                             <h3 class="collection-references-title">Liste des Types</h3>
                         </div>
                     </div>
+
+                    <h:form id="createTypeBtnForm" styleClass="inline-form">
+                        <p:commandButton value="Créer un type"
+                                         icon="pi pi-plus"
+                                         styleClass="collection-create-btn"
+                                         action="#{typeBean.prepareCreateType}"
+                                         process="@this"
+                                         update=":typeDialog :typeDialogForm"
+                                         partialSubmit="true"
+                                         oncomplete="PF('typeDialog').show();"/>
+                    </h:form>
+
                     <span class="reference-categories-count-badge">
                         #{applicationBean.filteredTypesSize} type#{applicationBean.filteredTypesSize gt 1 ? 's' : ''}
                     </span>
@@ -130,4 +142,7 @@
             </h:form>
         </p:panel>
     </div>
+
+    <!-- Dialog de création de type (code uniquement) -->
+    <ui:include src="../../dialogs/typeDialog.xhtml"/>
 </ui:composition>

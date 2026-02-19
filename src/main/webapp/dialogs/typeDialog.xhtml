@@ -1,0 +1,59 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer un nouveau type (code uniquement) -->
+    <p:dialog id="typeDialog"
+              header="Créer un nouveau type"
+              widgetVar="typeDialog"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="reference-dialog"
+              width="400"
+              height="auto"
+              closable="true"
+              responsive="true"
+              position="center">
+
+        <h:form id="typeDialogForm">
+            <p:remoteCommand name="resetTypeFormCommand"
+                           action="#{typeBean.resetTypeDialogForm}"
+                           update="@form"
+                           process="@this"/>
+            <div class="reference-form-content">
+                <!-- Code uniquement -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-key reference-section-icon"/>
+                        <span>Code du type</span>
+                    </div>
+                    <p:inputText id="typeCode"
+                               value="#{typeBean.typeDialogCode}"
+                               required="true"
+                               requiredMessage="Le code du type est requis"
+                               styleClass="reference-input"
+                               placeholder="Ex: TYP001"/>
+                </div>
+            </div>
+
+            <div class="reference-form-actions">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="reference-btn reference-btn-cancel"
+                               onclick="PF('typeDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Valider"
+                               icon="pi pi-check"
+                               styleClass="reference-btn reference-btn-validate"
+                               action="#{typeBean.createTypeFromDialog}"
+                               process="@form" ajax="true"
+                               update="@form :growl :centerContent"
+                               oncomplete="if(!args.validationFailed) {PF('typeDialog').hide();}"/>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

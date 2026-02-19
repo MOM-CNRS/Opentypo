@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -77,6 +78,10 @@ public class TypeBean implements Serializable {
     private String typeLabel;
     private String typeDescription;
 
+    // Propriétés pour le dialog de création (code uniquement)
+    private static final String TYPE_DIALOG_FORM = ":typeDialogForm";
+    private String typeDialogCode;
+
     private boolean editingType = false;
     private String editingTypeCode;
     private String editingLabelLangueCode;
@@ -93,6 +98,99 @@ public class TypeBean implements Serializable {
         typeCode = null;
         typeLabel = null;
         typeDescription = null;
+    }
+
+    public void resetTypeDialogForm() {
+        typeDialogCode = null;
+    }
+
+    public void prepareCreateType() {
+        resetTypeDialogForm();
+    }
+
+    @Transactional
+    public void createTypeFromDialog() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ApplicationBean applicationBean = applicationBeanProvider.get();
+
+        // Parent = groupe ou série sélectionné (celui dont on affiche les types)
+        Entity parent = null;
+        if (applicationBean != null && applicationBean.getSelectedEntity() != null
+                && applicationBean.getSelectedEntity().getEntityType() != null) {
+            String typeCode = applicationBean.getSelectedEntity().getEntityType().getCode();
+            if (EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode) || EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)) {
+                parent = applicationBean.getSelectedEntity();
+            }
+        }
+        if (parent == null && applicationBean != null) {
+            parent = applicationBean.getSelectedGroup();
+        }
+
+        if (applicationBean == null || parent == null) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Aucun groupe ou série n'est sélectionné. Veuillez sélectionner un groupe ou une série avant de créer un type."));
+            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+            return;
+        }
+
+        // Validation : unicité du code (EntityValidator.validateCode vérifie aussi vide et longueur)
+        if (!EntityValidator.validateCode(typeDialogCode, entityRepository, TYPE_DIALOG_FORM)) {
+            return;
+        }
+
+        String codeTrimmed = typeDialogCode.trim();
+
+        try {
+            EntityType typeEntityType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_TYPE)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Le type d'entité 'TYPE' n'existe pas dans la base de données."));
+
+            Entity newType = new Entity();
+            newType.setCode(codeTrimmed);
+            newType.setEntityType(typeEntityType);
+            newType.setPublique(true);
+            newType.setCreateDate(LocalDateTime.now());
+            newType.setStatut(EntityStatusEnum.PROPOSITION.name());
+
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                newType.setCreateBy(currentUser.getEmail());
+                List<Utilisateur> auteurs = new ArrayList<>();
+                auteurs.add(currentUser);
+                newType.setAuteurs(auteurs);
+            }
+
+            Entity savedType = entityRepository.save(newType);
+
+            if (!entityRelationRepository.existsByParentAndChild(parent.getId(), savedType.getId())) {
+                EntityRelation relation = new EntityRelation();
+                relation.setParent(parent);
+                relation.setChild(savedType);
+                entityRelationRepository.save(relation);
+            }
+
+            applicationBean.refreshGroupTypesList();
+            TreeBean treeBean = treeBeanProvider.get();
+            if (treeBean != null) {
+                treeBean.addEntityToTree(savedType, parent);
+            }
+
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                    "Le type '" + codeTrimmed + "' a été créé avec succès."));
+
+            resetTypeDialogForm();
+            PrimeFaces.current().executeScript("PF('typeDialog').hide();");
+            PrimeFaces.current().ajax().update(":growl, " + TYPE_DIALOG_FORM + ", :typesContent, :centerContent");
+        } catch (IllegalStateException e) {
+            log.error("Erreur lors de la création du type", e);
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la création du type", e);
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Une erreur est survenue lors de la création du type : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+        }
     }
 
     public void createType() {
