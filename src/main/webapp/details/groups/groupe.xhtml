@@ -46,7 +46,7 @@
                                 </p:commandLink>
                                 <p:commandLink action="#{groupBean.startEditingGroup(applicationBean)}"
                                                process="@this"
-                                               update=":groupeEditForm"
+                                               update=":contentGroupePanels"
                                                styleClass="concept-action-button">
                                     <i class="pi pi-file-edit" />
                                     <p:tooltip value="Modifier" position="top"/>
@@ -64,184 +64,184 @@
 
                         <!-- Grille d'informations -->
                         <h:form id="groupeEditForm">
-                        <div class="concept-info-grid">
-                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-code concept-info-icon" />
-                                    <span>Code</span>
-                                </div>
-                                <p:inputText value="#{groupBean.editingGroupCode}"
-                                             styleClass="reference-edit-input"
-                                             placeholder="Code (unique)"/>
-                            </h:panelGroup>
-
-                            <h:panelGroup id="groupeLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-tag concept-info-icon" />
-                                    <span>Label</span>
-                                </div>
-                                <div class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{groupBean.editingLabelLangueCode}"
-                                                     styleClass="reference-edit-lang-select" required="true">
-                                        <f:selectItems value="#{applicationBean.languages}" var="lang"
-                                                       itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                        <p:ajax process="@this" listener="#{groupBean.onLabelLanguageChange(applicationBean)}"
-                                                update=":groupeEditForm:groupeLabelUpdatePanel"/>
-                                    </p:selectOneMenu>
-                                    <p:inputText value="#{groupBean.editingGroupLabel}"
-                                                 styleClass="reference-edit-input reference-edit-input-flex"
-                                                 placeholder="Nom pour la langue choisie..."/>
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-file concept-info-icon" />
-                                    <span>Description</span>
-                                </div>
-                                <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                            <div class="concept-info-grid">
+                                <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-code concept-info-icon" />
+                                        <span>Code</span>
                                     </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{groupBean.editingGroup}">
+                                    <p:inputText value="#{groupBean.editingGroupCode}"
+                                                styleClass="reference-edit-input"
+                                                placeholder="Code (unique)"/>
+                                </h:panelGroup>
+
+                                <h:panelGroup id="groupeLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-tag concept-info-icon" />
+                                        <span>Label</span>
+                                    </div>
                                     <div class="reference-edit-lang-row">
-                                        <p:selectOneMenu value="#{groupBean.editingDescriptionLangueCode}"
-                                                         styleClass="reference-edit-lang-select" required="true">
+                                        <p:selectOneMenu value="#{groupBean.editingLabelLangueCode}"
+                                                        styleClass="reference-edit-lang-select" required="true">
                                             <f:selectItems value="#{applicationBean.languages}" var="lang"
-                                                           itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                            <p:ajax listener="#{groupBean.onDescriptionLanguageChange(applicationBean)}"
-                                                    process="@this" update=":groupeEditForm:groupeDescUpdatePanel"/>
+                                                        itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
+                                            <p:ajax process="@this" listener="#{groupBean.onLabelLanguageChange(applicationBean)}"
+                                                    update=":groupeEditForm:groupeLabelUpdatePanel"/>
                                         </p:selectOneMenu>
-                                        <p:inputTextarea value="#{groupBean.editingGroupDescription}"
-                                                         rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                         placeholder="Description pour la langue choisie..."/>
+                                        <p:inputText value="#{groupBean.editingGroupLabel}"
+                                                    styleClass="reference-edit-input reference-edit-input-flex"
+                                                    placeholder="Nom pour la langue choisie..."/>
                                     </div>
-                                </ui:fragment>
-                            </h:panelGroup>
+                                </h:panelGroup>
 
-                            <div class="concept-info-item">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-info-circle concept-info-icon" />
-                                    <span>Période</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                            <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
-                                                    value="#{applicationBean.selectedEntity.periode.valeur}" />
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                            #{applicationBean.selectedEntity.periode.valeur}
-                                        </ui:fragment>
+                                <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-file concept-info-icon" />
+                                        <span>Description</span>
+                                    </div>
+                                    <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                        <div class="concept-info-value concept-info-description">
+                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                    <ui:fragment rendered="#{groupBean.editingGroup}">
+                                        <div class="reference-edit-lang-row">
+                                            <p:selectOneMenu value="#{groupBean.editingDescriptionLangueCode}"
+                                                            styleClass="reference-edit-lang-select" required="true">
+                                                <f:selectItems value="#{applicationBean.languages}" var="lang"
+                                                            itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
+                                                <p:ajax listener="#{groupBean.onDescriptionLanguageChange(applicationBean)}"
+                                                        process="@this" update=":groupeEditForm:groupeDescUpdatePanel"/>
+                                            </p:selectOneMenu>
+                                            <p:inputTextarea value="#{groupBean.editingGroupDescription}"
+                                                            rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                            placeholder="Description pour la langue choisie..."/>
+                                        </div>
                                     </ui:fragment>
-                                </div>
-                            </div>
+                                </h:panelGroup>
 
-                            <div class="concept-info-item">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-calendar-minus concept-info-icon" />
-                                    <span>TPQ</span>
-                                </div>
-                                <ui:fragment rendered="#{!serieBean.editingSerie}">
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-info-circle concept-info-icon" />
+                                        <span>Période</span>
+                                    </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
-                                            #{applicationBean.selectedEntity.tpq}
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                                <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                                        value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                                #{applicationBean.selectedEntity.periode.valeur}
+                                            </ui:fragment>
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{serieBean.editingSerie}">
-                                    <p:inputNumber value="#{serieBean.editingSerieTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
-                                </ui:fragment>
-                            </div>
-
-                            <div class="concept-info-item">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-calendar-plus concept-info-icon" />
-                                    <span>TAQ</span>
                                 </div>
-                                <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
-                                            #{applicationBean.selectedEntity.taq}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar-minus concept-info-icon" />
+                                        <span>TPQ</span>
                                     </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{serieBean.editingSerie}">
-                                    <p:inputNumber value="#{serieBean.editingSerieTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
-                                </ui:fragment>
-                            </div>
-
-                            <div class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-link concept-info-icon" />
-                                    <span>Alignement externe</span>
-                                </div>
-                                <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
-                                            #{applicationBean.selectedEntity.alignementExterne}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{groupBean.editingGroup}">
-                                    <p:inputText value="#{groupBean.editingGroupAlignementExterne}"
-                                                 styleClass="reference-edit-input" placeholder="Alignement externe"/>
-                                </ui:fragment>
-                            </div>
-
-                            <div class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-user concept-info-icon" />
-                                    <span>Auteur(s)</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur">
-                                            <span class="bibliographie-badge">
-                                                <i class="pi pi-user bibliographie-badge-icon" />
-                                                <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                            </span>
-                                        </ui:repeat>
+                                    <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
+                                                #{applicationBean.selectedEntity.tpq}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
                                     </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                                  styleClass="bibliographie-empty" />
+                                    <ui:fragment rendered="#{groupBean.editingGroup}">
+                                        <p:inputNumber value="#{groupBean.editingGroupTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
+                                    </ui:fragment>
                                 </div>
-                            </div>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
-                                <div class="reference-edit-actions">
-                                    <p:commandButton value="Annuler" icon="pi pi-times"
-                                                     action="#{groupBean.cancelEditingGroup()}"
-                                                     process="@this" update=":groupeEditForm"
-                                                     styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                    <p:commandButton value="Valider" icon="pi pi-check"
-                                                     action="#{confirmSaveBean.prepareSave('GROUPE')}"
-                                                     process="@this groupeEditForm"
-                                                     update=":confirmSaveDialogContent"
-                                                     oncomplete="PF('confirmSaveDialog').show();"
-                                                     styleClass="reference-edit-btn reference-edit-btn-validate"/>
+                                <div class="concept-info-item">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-calendar-plus concept-info-icon" />
+                                        <span>TAQ</span>
+                                    </div>
+                                    <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
+                                                #{applicationBean.selectedEntity.taq}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{groupBean.editingGroup}">
+                                        <p:inputNumber value="#{groupBean.editingGroupTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
+                                    </ui:fragment>
                                 </div>
-                            </h:panelGroup>
-                        </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-link concept-info-icon" />
+                                        <span>Alignement externe</span>
+                                    </div>
+                                    <ui:fragment rendered="#{!groupBean.editingGroup}">
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
+                                                #{applicationBean.selectedEntity.alignementExterne}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{groupBean.editingGroup}">
+                                        <p:inputText value="#{groupBean.editingGroupAlignementExterne}"
+                                                    styleClass="reference-edit-input" placeholder="Alignement externe"/>
+                                    </ui:fragment>
+                                </div>
+
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-user concept-info-icon" />
+                                        <span>Auteur(s)</span>
+                                    </div>
+                                    <div class="concept-info-value bibliographie-container">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                            <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur">
+                                                <span class="bibliographie-badge">
+                                                    <i class="pi pi-user bibliographie-badge-icon" />
+                                                    <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                                </span>
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <h:outputText value="Aucun auteur disponible"
+                                                    rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                    styleClass="bibliographie-empty" />
+                                    </div>
+                                </div>
+
+                                <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
+                                    <div class="reference-edit-actions">
+                                        <p:commandButton value="Annuler" icon="pi pi-times"
+                                                        action="#{groupBean.cancelEditingGroup()}"
+                                                        process="@this" update=":contentGroupePanels"
+                                                        styleClass="reference-edit-btn reference-edit-btn-cancel"/>
+                                        <p:commandButton value="Valider" icon="pi pi-check"
+                                                        action="#{confirmSaveBean.prepareSave('GROUPE')}"
+                                                        process="@this groupeEditForm"
+                                                        update=":confirmSaveDialogContent"
+                                                        oncomplete="PF('confirmSaveDialog').show();"
+                                                        styleClass="reference-edit-btn reference-edit-btn-validate"/>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
                         </h:form>
                     </div>
 
