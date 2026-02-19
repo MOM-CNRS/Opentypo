@@ -209,28 +209,6 @@
 
                             <div class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-comment concept-info-icon" />
-                                    <span>Commentaire</span>
-                                </div>
-                                <ui:fragment rendered="#{!groupBean.editingGroup}">
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                            #{applicationBean.selectedEntity.commentaire}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{groupBean.editingGroup}">
-                                    <p:inputTextarea value="#{groupBean.editingGroupCommentaire}"
-                                                     rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Commentaire..."/>
-                                </ui:fragment>
-                            </div>
-
-                            <div class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
                                     <i class="pi pi-user concept-info-icon" />
                                     <span>Auteur(s)</span>
                                 </div>

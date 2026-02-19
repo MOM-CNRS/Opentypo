@@ -74,7 +74,6 @@ public class GroupBean implements Serializable {
     private String editingGroupLabel;
     private String editingDescriptionLangueCode;
     private String editingGroupDescription;
-    private String editingGroupCommentaire;
     private Integer editingGroupTpq;
     private Integer editingGroupTaq;
     private String editingGroupStatut;
@@ -215,7 +214,6 @@ public class GroupBean implements Serializable {
         editingDescriptionLangueCode = codeLang;
         editingGroupLabel = EntityUtils.getLabelValueForLanguage(group, codeLang);
         editingGroupDescription = EntityUtils.getDescriptionValueForLanguage(group, codeLang);
-        editingGroupCommentaire = group.getCommentaire() != null ? group.getCommentaire() : "";
         editingGroupTpq = group.getTpq();
         editingGroupTaq = group.getTaq();
         editingGroupStatut = group.getStatut() != null ? group.getStatut() : "";
@@ -230,7 +228,6 @@ public class GroupBean implements Serializable {
         editingGroupLabel = null;
         editingDescriptionLangueCode = null;
         editingGroupDescription = null;
-        editingGroupCommentaire = null;
         editingGroupTpq = null;
         editingGroupTaq = null;
         editingGroupStatut = null;
@@ -312,9 +309,6 @@ public class GroupBean implements Serializable {
             }
         }
 
-        if (editingGroupCommentaire != null) {
-            groupToUpdate.setCommentaire(editingGroupCommentaire.trim().isEmpty() ? null : editingGroupCommentaire.trim());
-        }
         if (editingGroupTpq != null) {
             groupToUpdate.setTpq(editingGroupTpq);
         }
@@ -363,9 +357,9 @@ public class GroupBean implements Serializable {
             applicationBean.deleteEntityRecursively(group);
 
             applicationBean.setSelectedEntity(parentCategory);
-            applicationBean.setChilds(parentCategory != null ? new ArrayList<>() : new ArrayList<>());
-            if (applicationBean.getBeadCrumbElements().size() > 0) {
-                applicationBean.getBeadCrumbElements().remove(applicationBean.getBeadCrumbElements().size() - 1);
+            applicationBean.setChilds(new ArrayList<>());
+            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
+                applicationBean.getBeadCrumbElements().removeLast();
             }
             if (parentCategory != null) {
                 applicationBean.refreshChilds();
