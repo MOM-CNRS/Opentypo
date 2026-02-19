@@ -69,6 +69,7 @@
                                 <i class="pi pi-cog" />
                                 <p:tooltip value="Paramétrage" position="top"/>
                             </p:commandLink>
+
                             <!-- Bouton Historique -->
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
@@ -78,7 +79,8 @@
                                 <i class="pi pi-history" />
                                 <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
-                            <p:commandLink action="#{applicationBean.editCollection(applicationBean.selectedEntity)}"
+
+                            <p:commandLink action="#{collectionBean.editCollection(applicationBean)}"
                                            process="@form"
                                            update=":collectionDetailPanel, :collectionEditForm"
                                            ajax="true"
@@ -90,6 +92,7 @@
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
+
                             <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
                                            process="@this"
                                            update=":confirmDeleteDialogContent"
@@ -99,24 +102,27 @@
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
+
+                            <div class="collection-visibility-section">
+                                <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
+                                    <h:outputText value="Publique"
+                                                  styleClass="collection-switch-text-public"
+                                                  rendered="#{collectionBean.editingStatus}"/>
+                                    <h:outputText value="Privée"
+                                                  styleClass="collection-switch-text-private"
+                                                  rendered="#{not collectionBean.editingStatus}"/>
+                                </h:panelGroup>
+                                <p:selectBooleanCheckbox value="#{collectionBean.editingStatus}"
+                                                         styleClass="collection-switch"
+                                                         id="collectionPublique">
+                                    <p:ajax event="change" process="@form" ajax="true" update=":collectionDetailPanel"/>
+                                </p:selectBooleanCheckbox>
+                            </div>
                         </h:panelGroup>
 
-                        <div class="collection-visibility-section">
-                            <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
-                                <h:outputText value="Publique"
-                                              styleClass="collection-switch-text-public"
-                                              rendered="#{collectionBean.editingStatus}"/>
-                                <h:outputText value="Privée"
-                                              styleClass="collection-switch-text-private"
-                                              rendered="#{not collectionBean.editingStatus}"/>
-                            </h:panelGroup>
-                            <p:selectBooleanCheckbox value="#{collectionBean.editingStatus}"
-                                                     disabled="#{!collectionBean.editingCollection}"
-                                                     styleClass="collection-switch"
-                                                     id="collectionPublique">
-                                <p:ajax event="change" process="@form" ajax="true" update=":collectionDetailPanel"/>
-                            </p:selectBooleanCheckbox>
-                        </div>
+                        <h:panelGroup rendered="#{collectionBean.editingCollection}">
+
+                        </h:panelGroup>
                     </div>
                     <!-- Grille d'informations (description, etc.) -->
                     <div class="concept-info-grid">
@@ -205,7 +211,7 @@
                 <div class="collection-references-title-wrapper">
                     <h3 class="collection-references-title">Liste des référentiels</h3>
                     <span class="collection-references-subtitle">
-                        #{applicationBean.getCollectionNameForLanguage(applicationBean.selectedEntity)}
+                        #{applicationBean.getEntityLabel(applicationBean.selectedEntity)}
                     </span>
                 </div>
             </div>

@@ -23,6 +23,18 @@
                             <h3 class="collection-references-title">Liste des Séries</h3>
                         </div>
                     </div>
+
+                    <h:form id="createSerieBtnForm" styleClass="inline-form">
+                        <p:commandButton value="Créer une série"
+                                         icon="pi pi-plus"
+                                         styleClass="collection-create-btn"
+                                         action="#{serieBean.prepareCreateSerie}"
+                                         process="@this"
+                                         update=":serieDialog :serieDialogForm"
+                                         partialSubmit="true"
+                                         oncomplete="PF('serieDialog').show();"/>
+                    </h:form>
+
                     <span class="reference-categories-count-badge">
                         #{applicationBean.filteredSeriesSize} série#{applicationBean.filteredSeriesSize gt 1 ? 's' : ''}
                     </span>
@@ -143,4 +155,7 @@
             </h:form>
         </p:panel>
     </div>
+
+    <!-- Dialog de création de série (sans bibliographique ni visibilité) -->
+    <ui:include src="../../dialogs/serieDialog.xhtml"/>
 </ui:composition>

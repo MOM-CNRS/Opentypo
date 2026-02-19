@@ -47,6 +47,9 @@ public class ConfirmDeleteBean implements Serializable {
     @Inject
     private TypeBean typeBean;
 
+    @Inject
+    private CollectionBean collectionBean;
+
     private String deleteTarget;
     /** ID de l'entité à supprimer (pour suppression depuis la liste des référentiels dans une collection). */
     private Long deleteTargetEntityId;
@@ -178,7 +181,7 @@ public class ConfirmDeleteBean implements Serializable {
         if (deleteTarget == null) return;
         switch (deleteTarget) {
             case TARGET_COLLECTION:
-                applicationBean.deleteCollection(applicationBean.getSelectedEntity());
+                collectionBean.deleteCollection(applicationBean);
                 break;
             case TARGET_REFERENCE:
                 if (deleteTargetEntityId != null) {

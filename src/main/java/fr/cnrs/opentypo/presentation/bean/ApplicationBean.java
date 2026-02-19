@@ -102,6 +102,9 @@ public class ApplicationBean implements Serializable {
     @Inject
     private TreeBean treeBean;
 
+    @Inject
+    private UserBean userBean;
+
 
     private final PanelStateManager panelState = new PanelStateManager();
     private List<Language> languages;
@@ -139,9 +142,14 @@ public class ApplicationBean implements Serializable {
 
     // Titre de l'écran
     private String selectedEntityLabel;
-    @Named("userBean")
-    @Inject
-    private UserBean userBean;
+
+
+    @PostConstruct
+    public void initialization() {
+        checkSessionExpiration();
+        loadLanguages();
+        loadPublicCollections();
+    }
 
     /**
      * Retourne l'ensemble des IDs de collections que l'utilisateur connecté est autorisé à consulter
@@ -638,13 +646,6 @@ public class ApplicationBean implements Serializable {
     public boolean isShowTypePanel() { return panelState.isShowTypePanel(); }
     public boolean isShowTreePanel() { return panelState.isShowTreePanel(); }
 
-    @PostConstruct
-    public void initialization() {
-        checkSessionExpiration();
-        loadLanguages();
-        loadPublicCollections();
-    }
-
     /**
      * Vérifie si la session ou la vue a expiré
      */
@@ -729,8 +730,8 @@ public class ApplicationBean implements Serializable {
                 // Filtrer selon les droits et le statut
                 .filter(this::isEntityVisibleForCurrentUser)
                 .sorted((c1, c2) -> {
-                    String nom1 = getCollectionNameForLanguage(c1);
-                    String nom2 = getCollectionNameForLanguage(c2);
+                    String nom1 = getEntityLabel(c1);
+                    String nom2 = getEntityLabel(c2);
                     return nom1.compareToIgnoreCase(nom2);
                 })
                 .collect(Collectors.toList());
@@ -738,58 +739,6 @@ public class ApplicationBean implements Serializable {
             log.error("Erreur lors du chargement des collections depuis la base de données", e);
             collections = new ArrayList<>();
         }
-    }
-    
-    /**
-     * Récupère le nom d'une collection selon la langue sélectionnée dans SearchBean
-     * Par défaut, utilise le français ("fr")
-     * Si aucun label n'est trouvé pour la langue, retourne le nom par défaut de l'entité
-     */
-    public String getCollectionNameForLanguage(Entity collection) {
-        if (collection == null) {
-            return "";
-        }
-        
-        final String langCode = (searchBean != null && searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty()) 
-            ? searchBean.getLangSelected() 
-            : "fr"; // Par défaut français
-        
-        // Chercher le label dans la langue sélectionnée
-        if (collection.getLabels() != null && !collection.getLabels().isEmpty()) {
-            return collection.getLabels().stream()
-                .filter(label -> label.getLangue() != null && langCode.equals(label.getLangue().getCode()))
-                .map(Label::getNom)
-                .findFirst()
-                .orElse(collection.getNom()); // Fallback sur le nom par défaut
-        }
-        
-        return collection.getNom();
-    }
-    
-    /**
-     * Récupère la description d'une collection selon la langue sélectionnée dans SearchBean
-     * Par défaut, utilise le français ("fr")
-     * Si aucune description n'est trouvée pour la langue, retourne le commentaire par défaut de l'entité
-     */
-    public String getCollectionDescriptionForLanguage(Entity collection) {
-        if (collection == null) {
-            return "";
-        }
-        
-        final String langCode = (searchBean != null && searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty()) 
-            ? searchBean.getLangSelected() 
-            : "fr"; // Par défaut français
-        
-        // Chercher la description dans la langue sélectionnée
-        if (collection.getDescriptions() != null && !collection.getDescriptions().isEmpty()) {
-            return collection.getDescriptions().stream()
-                .filter(desc -> desc.getLangue() != null && langCode.equals(desc.getLangue().getCode()))
-                .map(Description::getValeur)
-                .findFirst()
-                .orElse(collection.getCommentaire() != null ? collection.getCommentaire() : ""); // Fallback sur le commentaire par défaut
-        }
-        
-        return collection.getCommentaire() != null ? collection.getCommentaire() : "";
     }
     
     /**
@@ -971,35 +920,30 @@ public class ApplicationBean implements Serializable {
             return;
         }
 
-        try {
-            // Trouver tous les enfants de cette entité
-            List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
-            
-            // Supprimer récursivement tous les enfants
-            for (Entity child : children) {
-                deleteEntityRecursively(child);
-            }
-            
-            // Supprimer toutes les relations où cette entité est parent
-            List<EntityRelation> parentRelations = entityRelationRepository.findByParent(entity);
-            if (parentRelations != null && !parentRelations.isEmpty()) {
-                entityRelationRepository.deleteAll(parentRelations);
-            }
-            
-            // Supprimer toutes les relations où cette entité est enfant
-            List<EntityRelation> childRelations = entityRelationRepository.findByChild(entity);
-            if (childRelations != null && !childRelations.isEmpty()) {
-                entityRelationRepository.deleteAll(childRelations);
-            }
-            
-            // Supprimer l'entité elle-même
-            entityRepository.delete(entity);
-            
-            log.info("Entité supprimée avec succès: {} (ID: {})", entity.getCode(), entity.getId());
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression récursive de l'entité: {}", entity.getCode(), e);
-            throw e; // Propager l'erreur pour que la transaction soit annulée
+        // Trouver tous les enfants de cette entité
+        List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
+
+        // Supprimer récursivement tous les enfants
+        for (Entity child : children) {
+            deleteEntityRecursively(child);
         }
+
+        // Supprimer toutes les relations où cette entité est parent
+        List<EntityRelation> parentRelations = entityRelationRepository.findByParent(entity);
+        if (parentRelations != null && !parentRelations.isEmpty()) {
+            entityRelationRepository.deleteAll(parentRelations);
+        }
+
+        // Supprimer toutes les relations où cette entité est enfant
+        List<EntityRelation> childRelations = entityRelationRepository.findByChild(entity);
+        if (childRelations != null && !childRelations.isEmpty()) {
+            entityRelationRepository.deleteAll(childRelations);
+        }
+
+        // Supprimer l'entité elle-même
+        entityRepository.delete(entity);
+
+        log.info("Entité supprimée avec succès: {} (ID: {})", entity.getCode(), entity.getId());
     }
 
 
@@ -1015,30 +959,6 @@ public class ApplicationBean implements Serializable {
      */
     public void refreshGroupTypesList() {
         refreshChilds();
-    }
-    
-    /**
-     * Édite une collection (affiche les détails pour édition)
-     */
-    public void editCollection(Entity collection) {
-        if (collection == null) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucune collection sélectionnée."));
-            }
-            return;
-        }
-        
-        // Afficher les détails de la collection pour édition
-        collectionBean.showCollectionDetail(this, collection);
-        
-        // Activer le mode édition
-        collectionBean.startEditingCollection(this);
-        
-        log.debug("Mode édition activé pour la collection: {}", collection.getCode());
     }
 
     public String getEntityLabel(Entity entitySelected) {
@@ -1058,53 +978,7 @@ public class ApplicationBean implements Serializable {
                 .filter(description -> codeLang.equalsIgnoreCase(description.getLangue().getCode()))
                 .findFirst()
                 .map(Description::getValeur)
-                .orElse("");
-    }
-    
-    /**
-     * Supprime une collection et toutes ses entités rattachées
-     */
-    @Transactional
-    public void deleteCollection(Entity collection) {
-        if (collection == null || collection.getId() == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucune collection sélectionnée."));
-            return;
-        }
-
-        String collectionCode = collection.getCode();
-        String collectionName = collection.getNom();
-        Long collectionId = collection.getId();
-
-        // Supprimer récursivement la collection et toutes ses entités enfants
-        deleteEntityRecursively(collection);
-
-        // Réinitialiser la sélection si c'était la collection sélectionnée
-        if (selectedEntity != null && selectedEntity.getId().equals(collectionId)) {
-            selectedEntity = null;
-            selectedEntityLabel = "";
-            childs = new ArrayList<>();
-        }
-
-        // Recharger les collections
-        loadPublicCollections();
-
-        // Mettre à jour l'arbre
-        treeBean.initializeTreeWithCollection();
-
-        // Afficher un message de succès
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        if (facesContext != null) {
-            facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "La collection '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
-        }
-
-        // Afficher le panel des collections
-        panelState.showCollections();
-
-        log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
+                .orElse("Aucune description disponible");
     }
 
     public boolean showCommentaireBloc() {

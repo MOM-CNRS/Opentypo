@@ -848,4 +848,69 @@ public class CollectionBean implements Serializable {
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", " + COLLECTION_FORM);
     }
+
+    /**
+     * Supprime une collection et toutes ses entités rattachées
+     */
+    @Transactional
+    public void deleteCollection(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune collection sélectionnée."));
+            return;
+        }
+
+        String collectionCode = applicationBean.getSelectedEntity().getCode();
+        String collectionName = applicationBean.getSelectedEntity().getNom();
+        Long collectionId = applicationBean.getSelectedEntity().getId();
+
+        // Supprimer récursivement la collection et toutes ses entités enfants
+        applicationBean.deleteEntityRecursively(applicationBean.getSelectedEntity());
+
+        // Réinitialiser la sélection si c'était la collection sélectionnée
+        if (applicationBean.getSelectedEntity() != null && applicationBean.getSelectedEntity().getId().equals(collectionId)) {
+            applicationBean.setSelectedEntity(null);
+            applicationBean.setSelectedEntityLabel("");
+            applicationBean.setChilds(new ArrayList<>());
+        }
+
+        // Recharger les collections
+        applicationBean.loadPublicCollections();
+
+        // Mettre à jour l'arbre
+        applicationBean.getTreeBean().initializeTreeWithCollection();
+
+        // Afficher un message de succès
+        if (FacesContext.getCurrentInstance() != null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "La collection '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
+        }
+
+        // Afficher le panel des collections
+        applicationBean.getPanelState().showCollections();
+
+        log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
+    }
+
+    /**
+     * Édite une collection (affiche les détails pour édition)
+     */
+    public void editCollection(ApplicationBean applicationBean) {
+        if (applicationBean.getSelectedEntity() == null) {
+            if (FacesContext.getCurrentInstance() != null) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur", "Aucune collection sélectionnée."));
+            }
+            return;
+        }
+
+        // Afficher les détails de la collection pour édition
+        showCollectionDetail(applicationBean, applicationBean.getSelectedEntity());
+
+        // Activer le mode édition
+        startEditingCollection(applicationBean);
+
+        log.debug("Mode édition activé pour la collection: {}", applicationBean.getSelectedEntity().getCode());
+    }
 }

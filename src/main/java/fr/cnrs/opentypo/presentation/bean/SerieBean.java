@@ -1,5 +1,8 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.DescriptionItem;
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -13,6 +16,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
+import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -68,6 +72,17 @@ public class SerieBean implements Serializable {
     private String serieLabel;
     private String serieDescription;
 
+    // Propriétés pour le dialog de création (sans bibliographique ni visibilité)
+    private static final String SERIE_DIALOG_FORM = ":serieDialogForm";
+    private List<NameItem> serieNames = new ArrayList<>();
+    private List<DescriptionItem> serieDescriptions = new ArrayList<>();
+    private String serieDialogCode;
+    private String newNameValue;
+    private String newNameLangueCode;
+    private String newDescriptionValue;
+    private String newDescriptionLangueCode;
+    private List<Langue> availableLanguages;
+
     private boolean editingSerie = false;
     private String editingSerieCode;
     private String editingLabelLangueCode;
@@ -84,6 +99,235 @@ public class SerieBean implements Serializable {
         serieCode = null;
         serieLabel = null;
         serieDescription = null;
+    }
+
+    public void resetSerieDialogForm() {
+        serieDialogCode = null;
+        serieNames = new ArrayList<>();
+        serieDescriptions = new ArrayList<>();
+        newNameValue = null;
+        newNameLangueCode = null;
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+    }
+
+    public void prepareCreateSerie() {
+        resetSerieDialogForm();
+    }
+
+    private void loadAvailableLanguages() {
+        if (availableLanguages == null) {
+            try {
+                availableLanguages = langueRepository.findAllByOrderByNomAsc();
+            } catch (Exception e) {
+                log.error("Erreur lors du chargement des langues", e);
+                availableLanguages = new ArrayList<>();
+            }
+        }
+    }
+
+    public boolean isLangueAlreadyUsedInSerieNames(String code, NameItem exclude) {
+        if (serieNames == null || code == null) return false;
+        return serieNames.stream()
+                .filter(i -> i != exclude && i.getLangueCode() != null)
+                .anyMatch(i -> i.getLangueCode().equals(code));
+    }
+
+    public List<Langue> getAvailableLanguagesForNewSerieName() {
+        loadAvailableLanguages();
+        if (availableLanguages == null) return new ArrayList<>();
+        return availableLanguages.stream()
+                .filter(l -> !isLangueAlreadyUsedInSerieNames(l.getCode(), null))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public void addSerieNameFromInput() {
+        if (newNameValue == null || newNameValue.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+            return;
+        }
+        if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+            return;
+        }
+        if (isLangueAlreadyUsedInSerieNames(newNameLangueCode, null)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+            return;
+        }
+        if (serieNames == null) serieNames = new ArrayList<>();
+        Langue langue = langueRepository.findByCode(newNameLangueCode);
+        serieNames.add(new NameItem(newNameValue.trim(), newNameLangueCode, langue));
+        newNameValue = null;
+        newNameLangueCode = null;
+    }
+
+    public void removeSerieName(NameItem item) {
+        if (serieNames != null) serieNames.remove(item);
+    }
+
+    public boolean isLangueAlreadyUsedInSerieDescriptions(String code, DescriptionItem exclude) {
+        if (serieDescriptions == null || code == null) return false;
+        return serieDescriptions.stream()
+                .filter(i -> i != exclude && i.getLangueCode() != null)
+                .anyMatch(i -> i.getLangueCode().equals(code));
+    }
+
+    public List<Langue> getAvailableLanguagesForNewSerieDescription() {
+        loadAvailableLanguages();
+        if (availableLanguages == null) return new ArrayList<>();
+        return availableLanguages.stream()
+                .filter(l -> !isLangueAlreadyUsedInSerieDescriptions(l.getCode(), null))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public void addSerieDescriptionFromInput() {
+        if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+            return;
+        }
+        if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+            return;
+        }
+        if (isLangueAlreadyUsedInSerieDescriptions(newDescriptionLangueCode, null)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+            return;
+        }
+        if (serieDescriptions == null) serieDescriptions = new ArrayList<>();
+        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
+        serieDescriptions.add(new DescriptionItem(newDescriptionValue.trim(), newDescriptionLangueCode, langue));
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+    }
+
+    public void removeSerieDescription(DescriptionItem item) {
+        if (serieDescriptions != null) serieDescriptions.remove(item);
+    }
+
+    @Transactional
+    public void createSerieFromDialog() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ApplicationBean applicationBean = applicationBeanProvider.get();
+
+        if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Aucun groupe n'est sélectionné. Veuillez sélectionner un groupe avant de créer une série."));
+            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            return;
+        }
+
+        if (!EntityValidator.validateCode(serieDialogCode, entityRepository, SERIE_DIALOG_FORM)) {
+            return;
+        }
+
+        if (serieNames == null || serieNames.isEmpty()) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
+            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            return;
+        }
+
+        for (NameItem item : serieNames) {
+            if (item.getNom() == null || item.getNom().trim().isEmpty()) {
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
+                PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+                return;
+            }
+        }
+
+        String codeTrimmed = serieDialogCode.trim();
+
+        try {
+            EntityType serieType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_SERIES)
+                    .orElse(entityTypeRepository.findByCode("SERIE")
+                            .orElseThrow(() -> new IllegalStateException(
+                                    "Le type d'entité 'SERIES' ou 'SERIE' n'existe pas dans la base de données.")));
+
+            Entity newSerie = new Entity();
+            newSerie.setCode(codeTrimmed);
+            newSerie.setEntityType(serieType);
+            newSerie.setPublique(true);
+            newSerie.setCreateDate(LocalDateTime.now());
+
+            List<Label> labels = new ArrayList<>();
+            for (NameItem ni : serieNames) {
+                if (ni != null && ni.getLangueCode() != null && StringUtils.hasText(ni.getNom())) {
+                    Langue l = langueRepository.findByCode(ni.getLangueCode());
+                    if (l != null) {
+                        Label label = new Label();
+                        label.setNom(ni.getNom().trim());
+                        label.setLangue(l);
+                        label.setEntity(newSerie);
+                        labels.add(label);
+                    }
+                }
+            }
+            newSerie.setLabels(labels);
+
+            List<Description> descriptions = new ArrayList<>();
+            List<DescriptionItem> descList = serieDescriptions != null ? serieDescriptions : new ArrayList<>();
+            for (DescriptionItem di : descList) {
+                if (di != null && di.getLangueCode() != null && StringUtils.hasText(di.getValeur())) {
+                    Langue l = langueRepository.findByCode(di.getLangueCode());
+                    if (l != null) {
+                        Description desc = new Description();
+                        desc.setValeur(di.getValeur().trim());
+                        desc.setLangue(l);
+                        desc.setEntity(newSerie);
+                        descriptions.add(desc);
+                    }
+                }
+            }
+            newSerie.setDescriptions(descriptions);
+
+            Utilisateur currentUser = loginBean.getCurrentUser();
+            if (currentUser != null) {
+                newSerie.setCreateBy(currentUser.getEmail());
+                List<Utilisateur> auteurs = new ArrayList<>();
+                auteurs.add(currentUser);
+                newSerie.setAuteurs(auteurs);
+            }
+
+            newSerie.setStatut(EntityStatusEnum.PROPOSITION.name());
+
+            Entity savedSerie = entityRepository.save(newSerie);
+
+            if (!entityRelationRepository.existsByParentAndChild(
+                    applicationBean.getSelectedGroup().getId(), savedSerie.getId())) {
+                EntityRelation relation = new EntityRelation();
+                relation.setParent(applicationBean.getSelectedGroup());
+                relation.setChild(savedSerie);
+                entityRelationRepository.save(relation);
+            }
+
+            applicationBean.refreshGroupSeriesList();
+            TreeBean tb = treeBeanProvider.get();
+            if (tb != null) {
+                tb.addEntityToTree(savedSerie, applicationBean.getSelectedGroup());
+            }
+
+            String labelPrincipal = serieNames.get(0).getNom();
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                    "La série '" + labelPrincipal + "' a été créée avec succès."));
+
+            resetSerieDialogForm();
+            PrimeFaces.current().executeScript("PF('serieDialog').hide();");
+            PrimeFaces.current().ajax().update(":growl, " + SERIE_DIALOG_FORM + ", :seriesContent, :centerContent");
+        } catch (IllegalStateException e) {
+            log.error("Erreur lors de la création de la série", e);
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+        } catch (Exception e) {
+            log.error("Erreur inattendue lors de la création de la série", e);
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Une erreur est survenue lors de la création de la série : " + e.getMessage()));
+            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+        }
     }
 
     public void createSerie() {
