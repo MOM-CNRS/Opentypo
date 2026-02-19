@@ -1,0 +1,213 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Dialog pour créer un nouveau groupe (sans bibliographique ni visibilité) -->
+    <p:dialog id="groupDialog"
+              header="Créer un nouveau groupe"
+              widgetVar="groupDialog"
+              modal="true"
+              draggable="false"
+              resizable="false"
+              styleClass="reference-dialog"
+              width="600"
+              height="auto"
+              closable="true"
+              responsive="true"
+              position="center">
+
+        <h:form id="groupDialogForm">
+            <p:remoteCommand name="resetGroupFormCommand"
+                           action="#{groupBean.resetGroupDialogForm}"
+                           update="@form"
+                           process="@this"/>
+            <div class="reference-form-content">
+                <!-- Code -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-key reference-section-icon"/>
+                        <span>Code du groupe</span>
+                    </div>
+                    <p:inputText id="groupCode"
+                               value="#{groupBean.groupDialogCode}"
+                               required="true"
+                               requiredMessage="Le code du groupe est requis"
+                               styleClass="reference-input"
+                               placeholder="Ex: GRP001"/>
+                </div>
+
+                <!-- Section Labels -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-tag reference-section-icon"/>
+                        <span>Labels</span>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="reference-form-group reference-form-group-flex">
+                            <p:inputText id="newNameInput"
+                                       value="#{groupBean.newNameValue}"
+                                       placeholder="Nom"
+                                       styleClass="reference-input"/>
+                        </div>
+                        <div class="collection-form-group collection-form-group-flex">
+                            <p:selectOneMenu id="newNameLangue"
+                                             value="#{groupBean.newNameLangueCode}"
+                                             styleClass="collection-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{groupBean.availableLanguagesForNewName}"
+                                             var="langue"
+                                             itemLabel="#{langue.nom}"
+                                             itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:commandButton value="Ajouter"
+                                       icon="pi pi-plus"
+                                       styleClass="reference-btn-add"
+                                       actionListener="#{groupBean.addNameFromInput()}"
+                                       process="@form"
+                                       ajax="true"
+                                       update=":groupDialogForm:groupNamesTable :groupDialogForm:newNameInput :groupDialogForm:newNameLangue growl"/>
+                    </div>
+                    <h:panelGroup id="groupNamesTable" class="reference-names-table-container">
+                        <p:dataTable value="#{groupBean.groupNames}"
+                                   var="nameItem"
+                                   styleClass="reference-names-table"
+                                   rendered="#{not empty groupBean.groupNames}">
+                            <p:column styleClass="reference-table-name-column">
+                                <div class="reference-table-name-cell">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{nameItem.langueCode}.png"
+                                                    styleClass="reference-table-flag"
+                                                    alt="#{nameItem.langue.nom}"
+                                                    title="#{nameItem.langue.nom}" />
+                                    <div class="reference-table-name-inner">
+                                        <h:outputText value="#{nameItem.nom}" styleClass="reference-table-name-text" />
+                                    </div>
+                                </div>
+                            </p:column>
+                            <p:column styleClass="reference-table-action-column">
+                                <div class="reference-table-action-cell">
+                                    <p:commandButton icon="pi pi-trash"
+                                                     styleClass="reference-btn-remove"
+                                                     action="#{groupBean.removeName(nameItem)}"
+                                                     process="@form"
+                                                     ajax="true"
+                                                     update=":groupDialogForm:groupNamesTable :groupDialogForm:newNameLangue"
+                                                     title="Supprimer ce nom"/>
+                                </div>
+                            </p:column>
+                        </p:dataTable>
+                        <h:panelGroup rendered="#{empty groupBean.groupNames}">
+                            <div class="reference-no-names">
+                                <div class="reference-no-names-content">
+                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                    <div class="reference-no-names-text">
+                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+
+                <!-- Section Descriptions -->
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-align-left reference-section-icon"/>
+                        <span>Descriptions</span>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="reference-form-group reference-form-group-flex">
+                            <p:inputTextarea id="newDescriptionInput"
+                                           value="#{groupBean.newDescriptionValue}"
+                                           placeholder="Description"
+                                           rows="3"
+                                           styleClass="reference-textarea"/>
+                        </div>
+                    </div>
+                    <div class="reference-name-input-row">
+                        <div class="collection-form-group collection-form-group-flex">
+                            <p:selectOneMenu id="newDescriptionLangue"
+                                             value="#{groupBean.newDescriptionLangueCode}"
+                                             styleClass="collection-select">
+                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItems value="#{groupBean.availableLanguagesForNewDescription}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <p:commandButton value="Ajouter"
+                                         icon="pi pi-plus"
+                                         styleClass="reference-btn-add"
+                                         actionListener="#{groupBean.addDescriptionFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":groupDialogForm:groupDescriptionsTable :groupDialogForm:newDescriptionInput :groupDialogForm:newDescriptionLangue growl"/>
+                    </div>
+                    <h:panelGroup id="groupDescriptionsTable" class="reference-names-table-container">
+                        <p:dataTable value="#{groupBean.groupDescriptions}"
+                                   var="descriptionItem"
+                                   styleClass="reference-names-table"
+                                   emptyMessage="Aucune description ajoutée"
+                                   rendered="#{not empty groupBean.groupDescriptions}">
+                            <p:column styleClass="reference-table-name-column">
+                                <div class="reference-table-name-cell">
+                                    <h:graphicImage library="img"
+                                                    name="flag/#{descriptionItem.langueCode}.png"
+                                                    styleClass="reference-table-flag"
+                                                    alt="#{descriptionItem.langue.nom}"
+                                                    title="#{descriptionItem.langue.nom}"/>
+                                    <div class="reference-table-name-inner">
+                                        <h:outputText value="#{descriptionItem.valeur}" styleClass="reference-table-name-text" />
+                                    </div>
+                                </div>
+                            </p:column>
+                            <p:column styleClass="reference-table-action-column">
+                                <div class="reference-table-action-cell">
+                                    <p:commandButton icon="pi pi-trash"
+                                                     styleClass="reference-btn-remove"
+                                                     action="#{groupBean.removeDescription(descriptionItem)}"
+                                                     process="@form"
+                                                     ajax="true"
+                                                     update=":groupDialogForm:groupDescriptionsTable :groupDialogForm:newDescriptionLangue"
+                                                     title="Supprimer cette description"/>
+                                </div>
+                            </p:column>
+                        </p:dataTable>
+                        <h:panelGroup rendered="#{empty groupBean.groupDescriptions}">
+                            <div class="reference-no-names">
+                                <div class="reference-no-names-content">
+                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                    <div class="reference-no-names-text">
+                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <div class="reference-form-actions">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="reference-btn reference-btn-cancel"
+                               onclick="PF('groupDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Valider"
+                               icon="pi pi-check"
+                               styleClass="reference-btn reference-btn-validate"
+                               action="#{groupBean.createGroupFromDialog}"
+                               process="@form" ajax="true"
+                               update="@form :growl :centerContent"
+                               oncomplete="if(!args.validationFailed) {PF('groupDialog').hide();}"/>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

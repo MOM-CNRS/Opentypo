@@ -23,6 +23,18 @@
                             <h3 class="collection-references-title">Liste des Catégories</h3>
                         </div>
                     </div>
+
+                    <h:form id="createCategoryBtnForm" styleClass="inline-form">
+                        <p:commandButton value="Créer une catégorie"
+                                         icon="pi pi-plus"
+                                         styleClass="collection-create-btn"
+                                         action="#{categoryBean.prepareCreateCategory}"
+                                         process="@this"
+                                         update=":categoryDialog :categoryDialogForm"
+                                         partialSubmit="true"
+                                         oncomplete="PF('categoryDialog').show();"/>
+                    </h:form>
+
                     <span class="reference-categories-count-badge">
                         #{applicationBean.filteredCategoriesSize} catégorie#{applicationBean.filteredCategoriesSize gt 1 ? 's' : ''}
                     </span>
@@ -143,4 +155,7 @@
             </h:form>
         </p:panel>
     </div>
+
+    <!-- Dialog de création de catégorie (même formulaire que référence) -->
+    <ui:include src="../../dialogs/categoryDialog.xhtml"/>
 </ui:composition>
