@@ -49,7 +49,8 @@
                             <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                         </div>
                     </div>
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
+
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() or loginBean.isGestionnaireCollection()}">
                         <!-- Bouton Historique -->
                         <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                        process="@this"
@@ -59,6 +60,7 @@
                             <i class="pi pi-history" />
                             <p:tooltip value="Voir l'historique" position="top"/>
                         </p:commandLink>
+
                         <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
                                        process="@this"
                                        update=":referenceEditForm"
@@ -66,6 +68,7 @@
                             <i class="pi pi-file-edit" />
                             <p:tooltip value="Modifier" position="top"/>
                         </p:commandLink>
+
                         <p:commandLink action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
                                        process="@this"
                                        update=":confirmDeleteDialogContent"
@@ -74,6 +77,53 @@
                             <i class="pi pi-trash" />
                             <p:tooltip value="Supprimer" position="top"/>
                         </p:commandLink>
+
+                        <div class="collection-visibility-card">
+                            <div class="collection-visibility-card-content">
+                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                    <div class="collection-visibility-icon">
+                                        <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                    </div>
+                                    <div class="collection-visibility-info">
+                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Public' : 'Privé'}</span>
+                                    </div>
+                                </div>
+                                <div class="collection-visibility-toggle-wrapper">
+                                    <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                   process="@this"
+                                                   update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
+                                                   action="#{referenceBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
+                                                   oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                        <i class="pi pi-sync" />
+                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                    </p:commandLink>
+                                </div>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+
+                    <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
+                                   rendered="#{loginBean.isGestionnaireReferentiels()}"
+                                   process="@this"
+                                   update=":referenceEditForm"
+                                   styleClass="concept-action-button">
+                        <i class="pi pi-file-edit" />
+                        <p:tooltip value="Modifier" position="top"/>
+                    </p:commandLink>
+
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.getCurrentUser() != null and not loginBean.isAdminTechnique() and not loginBean.isGestionnaireCollection()}">
+                        <h:panelGroup class="collection-visibility-card">
+                            <div class="collection-visibility-card-content">
+                                <div class="collection-visibility-indicator #{referenceBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                    <div class="collection-visibility-icon">
+                                        <i class="pi #{referenceBean.editingStatus ? 'pi-globe' : 'pi-lock'}" />
+                                    </div>
+                                    <div class="collection-visibility-info">
+                                        <span class="collection-visibility-label">#{referenceBean.editingStatus ? 'Publique' : 'Privée'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
                     </h:panelGroup>
                 </div>
 
@@ -178,8 +228,8 @@
                             </div>
                             <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.rereferenceBibliographique}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.rereferenceBibliographique, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getRereferenceBibliographique()}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getRereferenceBibliographique(), ';')}" var="ref" varStatus="status">
                                             <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                                 <span class="bibliographie-badge">
                                                     <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
@@ -187,8 +237,8 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Aucune référence bibliographique disponible" 
-                                                 rendered="#{empty applicationBean.selectedEntity.rereferenceBibliographique}"
+                                    <h:outputText value="Aucune référence bibliographique disponible"
+                                                 rendered="#{empty applicationBean.selectedEntity.getRereferenceBibliographique()}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </ui:fragment>
@@ -225,4 +275,7 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <h:outputStylesheet library="css" name="collection.css"/>
+    <ui:include src="confirmReferenceVisibilityChangeDialog.xhtml"/>
 </ui:composition>

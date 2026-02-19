@@ -6,6 +6,7 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
@@ -113,6 +114,9 @@ public class ReferenceBean implements Serializable {
     private String editingLabelLangueCode;
     /** Code langue pour laquelle on édite la description (ex: fr, en). */
     private String editingDescriptionLangueCode;
+
+    /** Statut de visibilité demandé avant confirmation (pour le dialog) */
+    private Boolean requestedVisibilityStatus;
 
     
     public void resetReferenceForm() {
@@ -385,6 +389,61 @@ public class ReferenceBean implements Serializable {
     /**
      * Annule l'édition du référentiel
      */
+    /**
+     * Prépare l'affichage du dialog de confirmation avant changement de visibilité.
+     * @param makePublic true pour rendre public, false pour rendre privé
+     */
+    public void prepareConfirmVisibilityChange(boolean makePublic) {
+        requestedVisibilityStatus = makePublic;
+    }
+
+    /**
+     * Applique le changement de visibilité après confirmation et persiste en base.
+     */
+    @Transactional
+    public void applyVisibilityChange(ApplicationBean applicationBean) {
+        if (applicationBean == null || requestedVisibilityStatus == null) {
+            return;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference == null || reference.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun référentiel sélectionné."));
+            return;
+        }
+        try {
+            Boolean targetStatus = requestedVisibilityStatus;
+            Entity refreshed = entityRepository.findById(reference.getId()).orElse(reference);
+            refreshed.setPublique(targetStatus);
+            Entity saved = entityRepository.save(refreshed);
+            applicationBean.setSelectedEntity(saved);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                            targetStatus ? "Le référentiel est maintenant public." : "Le référentiel est maintenant privé."));
+            log.info("Visibilité du référentiel {} modifiée: {}", saved.getCode(), targetStatus ? "public" : "privé");
+        } catch (Exception e) {
+            log.error("Erreur lors du changement de visibilité du référentiel", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur est survenue : " + e.getMessage()));
+        } finally {
+            requestedVisibilityStatus = null;
+        }
+    }
+
+    /** Message pour le dialog de confirmation de changement de visibilité */
+    public String getVisibilityConfirmMessage() {
+        if (requestedVisibilityStatus == null) return "";
+        return requestedVisibilityStatus
+                ? "Voulez-vous rendre ce référentiel public ? Il sera visible par tous les utilisateurs."
+                : "Voulez-vous rendre ce référentiel privé ? Seuls les utilisateurs autorisés pourront y accéder.";
+    }
+
+    /** Titre du dialog selon le changement demandé */
+    public String getVisibilityConfirmTitle() {
+        if (requestedVisibilityStatus == null) return "Changer la visibilité";
+        return requestedVisibilityStatus ? "Rendre le référentiel public" : "Rendre le référentiel privé";
+    }
+
     public void cancelEditingReference() {
         editingReference = false;
         editingReferenceCode = null;
@@ -624,7 +683,7 @@ public class ReferenceBean implements Serializable {
         // Label selon la langue choisie
         editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
         editingReferenceBibliographie = applicationBean.getSelectedReference().getRereferenceBibliographique() != null
-                ? applicationBean.getSelectedReference().getBibliographie()
+                ? applicationBean.getSelectedReference().getRereferenceBibliographique()
                 : "";
     }
 
@@ -742,6 +801,7 @@ public class ReferenceBean implements Serializable {
     private Entity createNewReference(String code, EntityType type) {
         Entity newReference = new Entity();
         newReference.setCode(code);
+
         String bibJoined = null;
         if (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty()) {
             bibJoined = referenceBibliographiqueList.stream()
@@ -750,7 +810,10 @@ public class ReferenceBean implements Serializable {
                 .collect(Collectors.joining("; "));
             if (bibJoined.isEmpty()) bibJoined = null;
         }
-        newReference.setBibliographie(bibJoined);
+        EntityMetadata metadata = new EntityMetadata();
+        metadata.setRereferenceBibliographique(bibJoined);
+        newReference.setMetadata(metadata);
+
         newReference.setEntityType(type);
         newReference.setPublique(referencePublique != null ? referencePublique : true);
         newReference.setCreateDate(LocalDateTime.now());

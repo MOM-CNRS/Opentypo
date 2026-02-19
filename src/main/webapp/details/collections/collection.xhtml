@@ -339,8 +339,8 @@
                                     <span>Référence bibliographique</span>
                                 </div>
                                 <div class="collection-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty reference.bibliographie}">
-                                        <ui:repeat value="#{fn:split(reference.bibliographie, ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty reference.rereferenceBibliographique}">
+                                        <ui:repeat value="#{fn:split(reference.rereferenceBibliographique, ';')}" var="ref" varStatus="status">
                                             <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                                 <span class="bibliographie-badge">
                                                     <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
@@ -349,7 +349,7 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Aucune référence bibliographique disponible"
-                                                 rendered="#{empty reference.bibliographie}"
+                                                 rendered="#{empty reference.rereferenceBibliographique}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </div>
@@ -369,7 +369,7 @@
 
     <h:outputScript library="js" name="treeUtils.js"/>
 
-    <ui:include src="../../dialogs/referenceDialog.xhtml"/>
-    <ui:include src="../../dialogs/confirmVisibilityChangeDialog.xhtml"/>
+    <ui:include src="../references/referenceDialog.xhtml"/>
+    <ui:include src="confirmVisibilityChangeDialog.xhtml"/>
     <ui:include src="collectionParametrageDialog.xhtml"/>
 </ui:composition>
