@@ -551,7 +551,12 @@ public class ReferenceBean implements Serializable {
                 }
             }
 
-            applicationBean.setSelectedEntity(entityRepository.save(referenceToUpdate));
+            Entity savedEntity = entityRepository.save(referenceToUpdate);
+            applicationBean.setSelectedEntity(savedEntity);
+
+            if (treeBean != null) {
+                treeBean.updateEntityInTree(savedEntity);
+            }
 
             applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
 

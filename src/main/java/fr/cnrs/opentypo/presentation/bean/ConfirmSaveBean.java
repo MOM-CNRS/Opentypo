@@ -66,6 +66,21 @@ public class ConfirmSaveBean implements Serializable {
     }
 
     /**
+     * Cibles d'update pour le dialog (formulaire, growl, panels, arbre).
+     * Inclut :leftTreePanel pour les entités affichées dans l'arbre afin de rafraîchir
+     * le code après sauvegarde.
+     */
+    public String getUpdateIds() {
+        String base = ":" + getFormId() + ", :growl, :contentPanels";
+        if (TARGET_REFERENCE.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget)
+                || TARGET_GROUP.equals(saveTarget) || TARGET_SERIE.equals(saveTarget)
+                || TARGET_TYPE.equals(saveTarget)) {
+            return base + ", :leftTreePanel";
+        }
+        return base;
+    }
+
+    /**
      * Message explicatif affiché dans le dialog (entité concernée).
      */
     public String getMessageText() {

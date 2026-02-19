@@ -254,6 +254,23 @@ public class TreeBean implements Serializable {
     }
 
     /**
+     * Met à jour les données (Entity) d'un nœud de l'arbre pour refléter les modifications
+     * après sauvegarde. Appelé après saveReference, saveCategory, saveGroup, etc.
+     *
+     * @param updatedEntity L'entité mise à jour (avec nouveau code, label, etc.)
+     */
+    public void updateEntityInTree(Entity updatedEntity) {
+        if (root == null || updatedEntity == null || updatedEntity.getId() == null) {
+            return;
+        }
+        TreeNode node = findNodeByEntityId(root, updatedEntity.getId());
+        if (node != null && node instanceof DefaultTreeNode defaultNode) {
+            defaultNode.setData(updatedEntity);
+            log.debug("Nœud mis à jour dans l'arbre pour l'entité id={} code={}", updatedEntity.getId(), updatedEntity.getCode());
+        }
+    }
+
+    /**
      * Charge les enfants d'un nœud si nécessaire
      * Méthode utilitaire partagée entre onNodeExpand et onNodeSelect
      */

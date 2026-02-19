@@ -54,7 +54,7 @@
                                      action="#{confirmSaveBean.performSave()}"
                                      process="@this"
                                      ajax="true"
-                                     update=":#{confirmSaveBean.formId}, :growl, :contentPanels"
+                                     update="#{confirmSaveBean.updateIds}"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
                                      oncomplete="if(!args.validationFailed){setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);}"
                                      onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>

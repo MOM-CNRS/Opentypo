@@ -37,15 +37,7 @@
                                             title="Français"/>
                         </div>
                         <div class="collection-panel-title-wrapper">
-                            <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                           process="@this"
-                                           update=":centerContent"
-                                           onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                           oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                           onerror="forceHideLoading();"
-                                           styleClass="collection-panel-title-link">
-                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                            </p:commandLink>
+                            <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                             <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                         </div>
                     </div>
