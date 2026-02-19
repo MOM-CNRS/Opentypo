@@ -103,25 +103,55 @@
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <div class="collection-visibility-section">
-                                <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
-                                    <h:outputText value="Publique"
-                                                  styleClass="collection-switch-text-public"
-                                                  rendered="#{collectionBean.editingStatus}"/>
-                                    <h:outputText value="Privée"
-                                                  styleClass="collection-switch-text-private"
-                                                  rendered="#{not collectionBean.editingStatus}"/>
-                                </h:panelGroup>
-                                <p:selectBooleanCheckbox value="#{collectionBean.editingStatus}"
-                                                         styleClass="collection-switch"
-                                                         id="collectionPublique">
-                                    <p:ajax event="change" process="@form" ajax="true" update=":collectionDetailPanel"/>
-                                </p:selectBooleanCheckbox>
+                            <div class="collection-visibility-card">
+                                <div class="collection-visibility-card-content">
+                                    <div class="collection-visibility-indicator #{collectionBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                        <div class="collection-visibility-icon">
+                                            <i class="pi #{collectionBean.editingStatus ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                        <div class="collection-visibility-info">
+                                            <span class="collection-visibility-label">#{collectionBean.editingStatus ? 'Publique' : 'Privée'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="collection-visibility-toggle-wrapper">
+                                        <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                       process="@this"
+                                                       update=":confirmVisibilityChangeDialog :confirmVisibilityChangeDialogContent"
+                                                       action="#{collectionBean.prepareConfirmVisibilityChange(not collectionBean.editingStatus)}"
+                                                       oncomplete="PF('confirmVisibilityChangeDialog').show();">
+                                            <i class="pi pi-sync" />
+                                            <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
                             </div>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{collectionBean.editingCollection}">
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isGestionnaireCollection() and not collectionBean.editingCollection}">
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
+                                           styleClass="concept-action-button"
+                                           title="Supprimer la collection">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
+                            </p:commandLink>
+                        </h:panelGroup>
 
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isGestionnaireReferentiels() or loginBean.isRedacteur() or loginBean.isValideur() or loginBean.isRelecteur()}">
+                            <h:panelGroup class="collection-visibility-card">
+                                <div class="collection-visibility-card-content">
+                                    <div class="collection-visibility-indicator #{collectionBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                        <div class="collection-visibility-icon">
+                                            <i class="pi #{collectionBean.editingStatus ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                        <div class="collection-visibility-info">
+                                            <span class="collection-visibility-label">#{collectionBean.editingStatus ? 'Publique' : 'Privée'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
                         </h:panelGroup>
                     </div>
                     <!-- Grille d'informations (description, etc.) -->
@@ -215,7 +245,8 @@
                     </span>
                 </div>
             </div>
-            <h:panelGroup id="collection-references-actions" class="collection-references-actions" rendered="#{loginBean.canCreateOrEdit()}">
+            <h:panelGroup id="collection-references-actions" class="collection-references-actions"
+                          rendered="#{loginBean.isAdminTechnique() or loginBean.isGestionnaireCollection()}">
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"
@@ -226,11 +257,9 @@
             </h:panelGroup>
         </div>
         <!-- Liste des référentiels de la collection -->
-        <h:panelGroup id="collectionReferencesContainer" class="collections-grid">
+        <h:panelGroup id="collectionReferencesContainer" class="collections-grid collections-grid-cadre">
             <ui:repeat value="#{applicationBean.childsReferences}" var="reference">
-                <!-- Panel de référentiel compact et ergonomique -->
                 <div class="collection-panel">
-                    <!-- En-tête compacte -->
                     <div class="collection-panel-header">
                         <div class="collection-panel-title-section">
                             <div class="collection-panel-icon">
@@ -254,7 +283,6 @@
                                onclick="openEditReferenceDialog([{name:'referenceId',value:'#{reference.id}'}]); return false;">
                                 <i class="pi pi-file-edit"/>
                             </a>
-
                             <a href="#" class="collection-action-btn collection-action-btn-delete" title="Supprimer"
                                onclick="openDeleteReferenceConfirm([{name:'referenceId',value:'#{reference.id}'}]); return false;">
                                 <i class="pi pi-trash"/>
@@ -262,18 +290,12 @@
                         </h:panelGroup>
                     </div>
 
-                    <!-- Contenu compact -->
                     <div class="collection-panel-content">
-                        <!-- Image compacte ou texte par défaut -->
                         <div class="collection-panel-image">
-                            <!-- Afficher l'image si disponible -->
-                            <p:graphicImage
-                                value="#{reference.imagePrincipaleUrl}"
+                            <p:graphicImage value="#{reference.imagePrincipaleUrl}"
                                 styleClass="collection-image"
                                 alt="Image du référentiel"
                                 rendered="#{not empty reference.imagePrincipaleUrl}"/>
-
-                            <!-- Afficher le texte "OpenTypo" si pas d'image -->
                             <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
                                 <div class="collection-image-placeholder">
                                     <span class="collection-placeholder-text">OpenTypo</span>
@@ -281,7 +303,6 @@
                             </h:panelGroup>
                         </div>
 
-                        <!-- Informations en grille compacte -->
                         <div class="collection-info-grid">
                             <div class="collection-info-item collection-info-item-full">
                                 <div class="collection-info-label">
@@ -337,7 +358,6 @@
                 </div>
             </ui:repeat>
 
-            <!-- Message si aucune référence disponible -->
             <h:outputText value="Aucune référence disponible pour cette collection"
                           rendered="#{empty applicationBean.childsReferences}"
                           styleClass="no-categories-message" />
@@ -350,5 +370,6 @@
     <h:outputScript library="js" name="treeUtils.js"/>
 
     <ui:include src="../../dialogs/referenceDialog.xhtml"/>
+    <ui:include src="../../dialogs/confirmVisibilityChangeDialog.xhtml"/>
     <ui:include src="collectionParametrageDialog.xhtml"/>
 </ui:composition>

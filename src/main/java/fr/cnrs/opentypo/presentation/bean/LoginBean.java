@@ -242,6 +242,36 @@ public class LoginBean implements Serializable {
             && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
+    public boolean isGestionnaireCollection() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && GroupEnum.GESTIONNAIRE_COLLECTIONS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    public boolean isGestionnaireReferentiels() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    public boolean isRedacteur() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    public boolean isValideur() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    public boolean isRelecteur() {
+        return currentUser != null
+                && currentUser.getGroupe() != null
+                && GroupEnum.RELECTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
     public boolean isAdmin() {
         return currentUser != null
                 && currentUser.getGroupe() != null

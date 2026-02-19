@@ -474,6 +474,14 @@
     padding: 0.875rem;
 }
 
+/* Cadre autour de la grille (bordure, fond, coins arrondis) */
+.collections-grid-cadre {
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    background: rgba(71, 98, 77, 0.02);
+}
+
 @media (max-width: 768px) {
     .collections-grid {
         grid-template-columns: 1fr;
@@ -1091,7 +1099,106 @@
     }
 }
 
-/* Section Visibilité */
+/* Carte Visibilité - Même hauteur que concept-action-button (40px) */
+.collection-visibility-card {
+    display: inline-flex;
+    height: 40px;
+}
+
+.collection-visibility-card-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 40px;
+    padding: 0 0.75rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.95) 100%);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.collection-visibility-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-visibility-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.collection-visibility-public .collection-visibility-icon {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+    color: var(--color-action-main, #47624D);
+}
+
+.collection-visibility-private .collection-visibility-icon {
+    background: linear-gradient(135deg, rgba(184, 74, 60, 0.12) 0%, rgba(184, 74, 60, 0.06) 100%);
+    color: var(--color-danger, #B84A3C);
+}
+
+.collection-visibility-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.collection-visibility-public .collection-visibility-label {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.collection-visibility-private .collection-visibility-label {
+    color: var(--color-danger, #B84A3C);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.collection-visibility-desc {
+    color: #6c757d;
+    font-size: 0.6875rem;
+}
+
+.collection-visibility-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    margin-left: 0.25rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.collection-visibility-toggle-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.collection-visibility-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    color: var(--color-action-main, #47624D);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.collection-visibility-toggle-btn:hover {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.85) 100%);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* Section Visibilité (legacy) */
 .collection-visibility-section {
     display: flex;
     align-items: center;
@@ -1170,6 +1277,47 @@
 
 .collection-switch .ui-chkbox-icon {
     display: none !important;
+}
+
+/* Indicateur de statut (publique/privée) en mode édition */
+.collection-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.collection-status-indicator.collection-status-public {
+    background: rgba(71, 98, 77, 0.1);
+    border: 1px solid rgba(71, 98, 77, 0.2);
+}
+
+.collection-status-indicator.collection-status-public i,
+.collection-status-indicator.collection-status-public .collection-status-label {
+    color: var(--color-action-main, #47624D);
+}
+
+.collection-status-indicator.collection-status-private {
+    background: rgba(184, 74, 60, 0.1);
+    border: 1px solid rgba(184, 74, 60, 0.2);
+}
+
+.collection-status-indicator.collection-status-private i,
+.collection-status-indicator.collection-status-private .collection-status-label {
+    color: var(--color-danger, #B84A3C);
+}
+
+.collection-status-indicator .collection-status-label {
+    white-space: nowrap;
+}
+
+/* Dialog confirmation changement visibilité */
+.collection-visibility-confirm-dialog .collection-visibility-confirm-icon {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+    color: var(--color-action-main, #47624D);
 }
 
 /* Styles pour le mode édition - Design professionnel */
@@ -1773,8 +1921,6 @@
 
 /* Conteneur principal : éviter débordement et adapter les espacements */
 .collection-page-wrapper {
-    width: 100%;
-    max-width: 100%;
     margin-left: 0;
     margin-right: 0;
     box-sizing: border-box;

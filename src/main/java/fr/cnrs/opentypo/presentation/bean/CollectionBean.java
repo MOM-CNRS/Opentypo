@@ -45,8 +45,6 @@ import java.util.Optional;
 @Slf4j
 public class CollectionBean implements Serializable {
 
-    private static final String COLLECTION_FORM = ":collectionForm";
-
     @Inject
     private EntityRepository entityRepository;
 
@@ -101,6 +99,9 @@ public class CollectionBean implements Serializable {
     private String editingDescriptionValue;
     private String editingLanguageCode; // Langue sélectionnée en mode édition
     private Boolean editingStatus;
+
+    /** Statut de visibilité demandé avant confirmation (pour le dialog) */
+    private Boolean requestedVisibilityStatus;
 
 
     @PostConstruct
@@ -306,6 +307,62 @@ public class CollectionBean implements Serializable {
                 editingDescriptionValue = "";
             }
         }
+    }
+
+    /**
+     * Prépare l'affichage du dialog de confirmation avant changement de visibilité.
+     * @param makePublic true pour rendre publique, false pour rendre privée
+     */
+    public void prepareConfirmVisibilityChange(boolean makePublic) {
+        requestedVisibilityStatus = makePublic;
+    }
+
+    /**
+     * Applique le changement de visibilité après confirmation et persiste en base.
+     */
+    @Transactional
+    public void applyVisibilityChange(ApplicationBean applicationBean) {
+        if (applicationBean == null || requestedVisibilityStatus == null) {
+            return;
+        }
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection == null || collection.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune collection sélectionnée."));
+            return;
+        }
+        try {
+            Boolean targetStatus = requestedVisibilityStatus;
+            Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
+            refreshed.setPublique(targetStatus);
+            Entity saved = entityRepository.save(refreshed);
+            applicationBean.setSelectedEntity(saved);
+            editingStatus = targetStatus;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                            targetStatus ? "La collection est maintenant publique." : "La collection est maintenant privée."));
+            log.info("Visibilité de la collection {} modifiée: {}", saved.getCode(), targetStatus ? "publique" : "privée");
+        } catch (Exception e) {
+            log.error("Erreur lors du changement de visibilité", e);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur est survenue : " + e.getMessage()));
+        } finally {
+            requestedVisibilityStatus = null;
+        }
+    }
+
+    /** Message pour le dialog de confirmation de changement de visibilité */
+    public String getVisibilityConfirmMessage() {
+        if (requestedVisibilityStatus == null) return "";
+        return requestedVisibilityStatus
+                ? "Voulez-vous rendre cette collection publique ? Elle sera visible par tous les utilisateurs."
+                : "Voulez-vous rendre cette collection privée ? Seuls les utilisateurs autorisés pourront y accéder.";
+    }
+
+    /** Titre du dialog selon le changement demandé */
+    public String getVisibilityConfirmTitle() {
+        if (requestedVisibilityStatus == null) return "Changer la visibilité";
+        return requestedVisibilityStatus ? "Rendre la collection publique" : "Rendre la collection privée";
     }
 
     /**
@@ -730,7 +787,7 @@ public class CollectionBean implements Serializable {
             newDescriptionLangueCode = null;
 
             PrimeFaces.current().ajax().update(
-                ViewConstants.COMPONENT_GROWL + ", " + COLLECTION_FORM + ", " 
+                ViewConstants.COMPONENT_GROWL + ", :collectionForm, "
                 + ViewConstants.COMPONENT_CARDS_CONTAINER + ", :searchForm");
 
         } catch (IllegalStateException e) {
@@ -846,7 +903,7 @@ public class CollectionBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
-        PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", " + COLLECTION_FORM);
+        PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :collectionForm");
     }
 
     /**

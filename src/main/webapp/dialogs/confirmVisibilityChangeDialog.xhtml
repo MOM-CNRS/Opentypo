@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="confirmVisibilityChangeDialog"
+              widgetVar="confirmVisibilityChangeDialog"
+              header="#{collectionBean.visibilityConfirmTitle}"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="440"
+              height="auto"
+              styleClass="reference-confirm-dialog collection-visibility-confirm-dialog">
+
+        <f:facet name="header">
+            <div class="reference-confirm-header">
+                <div class="reference-confirm-header-icon-wrapper collection-visibility-confirm-icon">
+                    <i class="pi pi-eye reference-confirm-header-icon"/>
+                </div>
+                <div class="reference-confirm-header-content">
+                    <h3 class="reference-confirm-header-title">#{collectionBean.visibilityConfirmTitle}</h3>
+                    <p class="reference-confirm-header-subtitle">Confirmer le changement de visibilité</p>
+                </div>
+            </div>
+        </f:facet>
+
+        <h:panelGroup id="confirmVisibilityChangeDialogContent">
+            <div class="reference-confirm-message-wrapper">
+                <div class="reference-confirm-icon-info">
+                    <i class="pi pi-info-circle"/>
+                </div>
+                <p class="reference-confirm-message-text">
+                    #{collectionBean.visibilityConfirmMessage}
+                </p>
+            </div>
+
+            <h:form id="confirmVisibilityForm" styleClass="reference-confirm-form">
+                <div class="reference-confirm-actions">
+                    <p:commandButton value="Annuler"
+                                     icon="pi pi-times"
+                                     type="button"
+                                     styleClass="reference-confirm-btn reference-confirm-btn-cancel"
+                                     process="@this"
+                                     update="@none"
+                                     onclick="PF('confirmVisibilityChangeDialog').hide(); return false;"/>
+
+                    <p:commandButton value="Confirmer"
+                                     icon="pi pi-check"
+                                     action="#{collectionBean.applyVisibilityChange(applicationBean)}"
+                                     process="@this"
+                                     ajax="true"
+                                     update=":collectionDetailPanel, :growl"
+                                     styleClass="reference-confirm-btn reference-confirm-btn-validate"
+                                     oncomplete="if(!args.validationFailed){PF('confirmVisibilityChangeDialog').hide();}"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </p:dialog>
+</ui:composition>
