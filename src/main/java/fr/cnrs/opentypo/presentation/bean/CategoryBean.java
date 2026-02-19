@@ -88,7 +88,6 @@ public class CategoryBean implements Serializable {
     private String editingDescriptionLangueCode;
     private String editingCategoryDescription;
     private String editingCategoryBibliographie;
-    private String editingCategoryCommentaire;
 
 
     public void resetCategoryForm() {
@@ -225,7 +224,6 @@ public class CategoryBean implements Serializable {
         editingCategoryCode = applicationBean.getSelectedEntity().getCode() != null ? applicationBean.getSelectedEntity().getCode() : "";
         editingLabelLangueCode = codeLang;
         editingDescriptionLangueCode = codeLang;
-        editingCategoryCommentaire = applicationBean.getSelectedEntity().getCommentaire() != null ? applicationBean.getSelectedEntity().getCommentaire() : "";
         editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
         editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
         editingCategoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
@@ -375,13 +373,6 @@ public class CategoryBean implements Serializable {
             categoryToUpdate.setBibliographie(newBib);
         }
 
-        // Mettre à jour la bibliographique uniquement si modifiée
-        String newCom = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
-        String currentCom = categoryToUpdate.getCommentaire();
-        if (!Objects.equals(newCom, currentCom)) {
-            categoryToUpdate.setCommentaire(newCom);
-        }
-
         // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
         Utilisateur currentUser = loginBean != null ? loginBean.getCurrentUser() : null;
         if (currentUser != null && currentUser.getId() != null && utilisateurRepository != null) {
@@ -428,6 +419,5 @@ public class CategoryBean implements Serializable {
         editingDescriptionLangueCode = null;
         editingCategoryDescription = null;
         editingCategoryBibliographie = null;
-        editingCategoryCommentaire = null;
     }
 }
