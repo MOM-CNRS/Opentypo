@@ -1,0 +1,326 @@
+/* ============================================
+   DIALOG CRÉATION GROUPE
+   Design : header personnalisé, sections, permissions (PickList)
+   ============================================ */
+
+/* Dialog groupe : largeur et conteneur */
+.group-dialog.ui-dialog,
+.group-dialog .ui-dialog {
+    max-width: min(640px, 95vw) !important;
+    width: 640px !important;
+}
+
+/* Barre de titre : layout et alignement */
+.group-dialog-custom-header .ui-dialog-titlebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    padding: 1.25rem 1.5rem !important;
+    min-height: 4rem !important;
+    background: linear-gradient(to bottom, #f8faf9 0%, #f0f4f2 100%) !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Zone titre : contient le header personnalisé */
+.group-dialog-custom-header .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.group-dialog-custom-header .ui-dialog-titlebar .group-dialog-header {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.group-dialog-custom-header .ui-dialog-titlebar-close {
+    flex-shrink: 0 !important;
+    position: static !important;
+    margin: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(71, 98, 77, 0.6) !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.group-dialog-custom-header .ui-dialog-titlebar-close .ui-icon {
+    margin: 0 !important;
+}
+
+.group-dialog-custom-header .ui-dialog-titlebar-close:hover,
+.group-dialog-custom-header .ui-dialog-titlebar-close:focus {
+    color: var(--color-action-main, #47624D) !important;
+    background: rgba(71, 98, 77, 0.1) !important;
+    text-decoration: none !important;
+}
+
+.group-dialog-custom-header .ui-dialog-titlebar-close:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Header personnalisé : contenu */
+.group-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.group-dialog-header-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-dialog-header-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.group-dialog-header-content {
+    flex: 1;
+}
+
+.group-dialog-header-content h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+}
+
+/* Section Permissions */
+.group-dialog-permissions-section {
+    width: 100%;
+}
+
+.group-dialog-permissions-row {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.group-dialog-permissions-row:last-child {
+    margin-bottom: 0;
+}
+
+.group-dialog-permission-card {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 10px;
+}
+
+.group-dialog-permission-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.group-dialog-permission-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.group-dialog-permission-icon i {
+    font-size: 1rem;
+}
+
+.group-dialog-permission-icon-relecteur {
+    background: linear-gradient(135deg, #5c6bc0 0%, #3f51b5 100%) !important;
+}
+
+.group-dialog-permission-card-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text-primary, #333);
+}
+
+.group-dialog-permission-card-label label {
+    margin: 0;
+    font-weight: inherit;
+    font-size: inherit;
+    color: inherit;
+}
+
+/* PickList Relecteurs */
+.group-dialog-picklist.ui-picklist,
+.group-dialog-picklist .ui-picklist,
+.group-dialog-picklist {
+    width: 100% !important;
+}
+
+.group-dialog-picklist .ui-picklist {
+    display: flex !important;
+    gap: 1rem !important;
+    align-items: stretch !important;
+}
+
+.group-dialog-picklist .ui-picklist-list-wrapper,
+.group-dialog-picklist .ui-picklist-list-container {
+    flex: 1 !important;
+    border: 1px solid rgba(71, 98, 77, 0.25) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #fff !important;
+}
+
+.group-dialog-picklist .ui-picklist-filter-container,
+.group-dialog-picklist .ui-picklist-filter {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%) !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.group-dialog-picklist .ui-picklist-filter-container input,
+.group-dialog-picklist .ui-picklist-filter input,
+.group-dialog-picklist input.ui-picklist-filter {
+    width: 100% !important;
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 6px !important;
+    font-size: 0.9rem !important;
+}
+
+.group-dialog-picklist .ui-picklist-filter-container input:focus,
+.group-dialog-picklist .ui-picklist-filter input:focus,
+.group-dialog-picklist input.ui-picklist-filter:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.group-dialog-picklist .ui-picklist-list {
+    border: none !important;
+    background: transparent !important;
+}
+
+.group-dialog-picklist .ui-picklist-list li,
+.group-dialog-picklist .ui-picklist-item {
+    padding: 0.5rem 0.75rem !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.08) !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.group-dialog-picklist .ui-picklist-list li:hover,
+.group-dialog-picklist .ui-picklist-item:hover {
+    background: rgba(71, 98, 77, 0.08) !important;
+}
+
+.group-dialog-picklist .ui-picklist-list li.ui-state-highlight,
+.group-dialog-picklist .ui-picklist-item.ui-state-highlight {
+    background: var(--color-action-main, #47624D) !important;
+    color: #fff !important;
+}
+
+.group-dialog-picklist .ui-picklist-caption {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
+    border-bottom: 2px solid rgba(71, 98, 77, 0.2) !important;
+    padding: 0.5rem 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--color-action-main, #47624D) !important;
+    font-size: 0.9rem !important;
+}
+
+.group-dialog-picklist .ui-picklist-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    padding: 0 0.5rem !important;
+}
+
+.group-dialog-picklist .ui-picklist-buttons button,
+.group-dialog-picklist .ui-picklist-button {
+    min-width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--color-action-main, #47624D) !important;
+    background: #fff !important;
+    color: var(--color-action-main, #47624D) !important;
+    margin: 0.25rem 0 !important;
+}
+
+.group-dialog-picklist .ui-picklist-buttons button:hover,
+.group-dialog-picklist .ui-picklist-button:hover {
+    background: var(--color-action-main, #47624D) !important;
+    color: #fff !important;
+}
+
+/* Icônes filtre et boutons (PickList groupe uniquement) */
+.group-dialog-picklist .ui-picklist-filter-container .ui-icon:before {
+    margin-left: 10px;
+}
+
+.group-dialog-picklist .ui-picklist-filter-container .ui-icon {
+    margin-top: -1rem;
+}
+
+.group-dialog-picklist .ui-button.ui-button-icon-only .ui-icon {
+    margin-top: -12px;
+    margin-left: -8px;
+}
+
+.group-dialog-no-relecteurs {
+    display: block;
+    padding: 1rem;
+    background: rgba(71, 98, 77, 0.06);
+    border: 1px dashed rgba(71, 98, 77, 0.25);
+    border-radius: 8px;
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .group-dialog.ui-dialog,
+    .group-dialog .ui-dialog {
+        width: 95vw !important;
+        max-width: 95vw !important;
+    }
+
+    .group-dialog-permission-card {
+        padding: 0.875rem 1rem;
+    }
+
+    .group-dialog-picklist .ui-picklist-list-container {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .group-dialog-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .group-dialog-permission-card-header {
+        flex-wrap: wrap;
+    }
+}

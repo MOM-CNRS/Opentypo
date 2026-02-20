@@ -4,17 +4,21 @@ import fr.cnrs.opentypo.application.dto.DescriptionItem;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
@@ -26,6 +30,7 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -68,6 +73,12 @@ public class GroupBean implements Serializable {
     @Inject
     private LangueRepository langueRepository;
 
+    @Inject
+    private UtilisateurRepository utilisateurRepository;
+
+    @Inject
+    private UserPermissionRepository userPermissionRepository;
+
     private String groupCode;
     private String groupLabel;
     private String groupDescription;
@@ -95,6 +106,11 @@ public class GroupBean implements Serializable {
     private String newDescriptionLangueCode;
     private List<Langue> availableLanguages;
 
+    /** Rédacteur sélectionné (1 maximum, optionnel) */
+    private Utilisateur selectedRedacteur;
+    /** Relecteurs : modèle dual pour PickList (source = disponibles, target = sélectionnés) */
+    private DualListModel<Utilisateur> relecteursPickList;
+
     public void resetGroupForm() {
         groupCode = null;
         groupLabel = null;
@@ -109,6 +125,40 @@ public class GroupBean implements Serializable {
         newNameLangueCode = null;
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
+        selectedRedacteur = null;
+        initRelecteursPickList();
+    }
+
+    /** Initialise le PickList des relecteurs (source = tous, target = vide) */
+    private void initRelecteursPickList() {
+        List<Utilisateur> source = getRelecteursList();
+        relecteursPickList = new DualListModel<>(source != null ? new ArrayList<>(source) : new ArrayList<>(), new ArrayList<>());
+    }
+
+    /** Retourne le DualListModel des relecteurs, initialisé si besoin */
+    public DualListModel<Utilisateur> getRelecteursPickList() {
+        if (relecteursPickList == null) {
+            initRelecteursPickList();
+        }
+        return relecteursPickList;
+    }
+
+    public void setRelecteursPickList(DualListModel<Utilisateur> relecteursPickList) {
+        this.relecteursPickList = relecteursPickList;
+    }
+
+    /** Liste des utilisateurs avec le groupe "Rédacteur" */
+    public List<Utilisateur> getRedacteursList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.REDACTEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
+    }
+
+    /** Liste des utilisateurs avec le groupe "Relecteur" */
+    public List<Utilisateur> getRelecteursList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.RELECTEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
     }
 
     public void prepareCreateGroup() {
@@ -210,6 +260,39 @@ public class GroupBean implements Serializable {
         if (groupDescriptions != null) groupDescriptions.remove(item);
     }
 
+    /**
+     * Crée une ligne dans user_permission pour chaque utilisateur sélectionné
+     * (rédacteur et relecteurs) pour le groupe donné.
+     */
+    private void saveUserPermissionsForGroup(Entity savedGroup) {
+        if (userPermissionRepository == null || savedGroup == null || savedGroup.getId() == null) {
+            return;
+        }
+        List<Utilisateur> usersToAdd = new ArrayList<>();
+        if (selectedRedacteur != null && selectedRedacteur.getId() != null) {
+            usersToAdd.add(selectedRedacteur);
+        }
+        List<Utilisateur> selectedRelecteurs = (relecteursPickList != null && relecteursPickList.getTarget() != null) ? relecteursPickList.getTarget() : List.of();
+        for (Utilisateur u : selectedRelecteurs) {
+            if (u != null && u.getId() != null && !usersToAdd.contains(u)) {
+                usersToAdd.add(u);
+            }
+        }
+        for (Utilisateur utilisateur : usersToAdd) {
+            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+            id.setUserId(utilisateur.getId());
+            id.setEntityId(savedGroup.getId());
+            if (!userPermissionRepository.existsById(id)) {
+                UserPermission permission = new UserPermission();
+                permission.setUtilisateur(utilisateur);
+                permission.setEntity(savedGroup);
+                permission.setId(id);
+                permission.setCreateDate(LocalDateTime.now());
+                userPermissionRepository.save(permission);
+            }
+        }
+    }
+
     @Transactional
     public void createGroupFromDialog() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -309,6 +392,9 @@ public class GroupBean implements Serializable {
             if (tb != null) {
                 tb.addEntityToTree(savedGroup, applicationBean.getSelectedCategory());
             }
+
+            // Créer une ligne user_permission par utilisateur sélectionné (rédacteur + relecteurs)
+            saveUserPermissionsForGroup(savedGroup);
 
             String labelPrincipal = groupNames.get(0).getNom();
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
