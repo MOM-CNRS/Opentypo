@@ -230,17 +230,16 @@ public class UserManagementBean implements Serializable {
             utilisateur.setActive(newUser.getActive());
             utilisateur.setCreateBy(currentUserBean.getUsername() != null ? currentUserBean.getUsername() : "SYSTEM");
             utilisateur.setCreateDate(LocalDateTime.now());
-            utilisateur = utilisateurRepository.save(utilisateur);
 
-            notificationBean.showSuccessWithUpdate("Succès", "L'utilisateur a été créé avec succès.",
-                    ":growl, :userForm");
+            utilisateurRepository.save(utilisateur);
+
+            notificationBean.showSuccessWithUpdate("Succès", "L'utilisateur a été créé avec succès.", ":growl, :userForm");
         } else {
             // Modification d'un utilisateur existant
             Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(newUser.getId());
 
             if (utilisateurOpt.isEmpty()) {
-                notificationBean.showErrorWithUpdate("Erreur",
-                        "L'utilisateur à modifier n'existe pas.",
+                notificationBean.showErrorWithUpdate("Erreur", "L'utilisateur à modifier n'existe pas.",
                         ":growl, :userForm");
                 return;
             }
@@ -250,8 +249,7 @@ public class UserManagementBean implements Serializable {
             // Vérifier si l'email est unique (sauf pour l'utilisateur actuel)
             if (!utilisateur.getEmail().equals(newUser.getEmail().trim())) {
                 if (utilisateurRepository.existsByEmail(newUser.getEmail().trim())) {
-                    notificationBean.showErrorWithUpdate("Erreur",
-                            "Un utilisateur avec cet email existe déjà.",
+                    notificationBean.showErrorWithUpdate("Erreur", "Un utilisateur avec cet email existe déjà.",
                             ":growl, :userForm");
                     return;
                 }
@@ -279,7 +277,7 @@ public class UserManagementBean implements Serializable {
         users = utilisateurRepository.findAll();
 
         // Rediriger vers la liste après un court délai pour permettre l'affichage du message
-        PrimeFaces.current().executeScript("setTimeout(function() { window.location.href='/users/users.xhtml'; }, 500);");
+        PrimeFaces.current().executeScript("setTimeout(function() { window.location.href='/users/users.xhtml'; }, 100);");
     }
 
     public void supprimerUser(Utilisateur utilisateur) {
@@ -309,13 +307,11 @@ public class UserManagementBean implements Serializable {
                 // Recharger la liste des utilisateurs
                 users = utilisateurRepository.findAll();
             } else {
-                notificationBean.showErrorWithUpdate("Erreur", 
-                    "L'utilisateur à supprimer n'existe pas.", 
+                notificationBean.showErrorWithUpdate("Erreur", "L'utilisateur à supprimer n'existe pas.",
                     ":growl, :usersForm");
             }
         } catch (Exception e) {
-            notificationBean.showErrorWithUpdate("Erreur", 
-                "Erreur lors de la suppression : " + e.getMessage(), 
+            notificationBean.showErrorWithUpdate("Erreur", "Erreur lors de la suppression : " + e.getMessage(),
                 ":growl, :usersForm");
         }
         PrimeFaces.current().ajax().update(":growl, :usersForm");

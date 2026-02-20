@@ -54,6 +54,12 @@ public class UserPermission implements Serializable {
     private LocalDateTime createDate;
 
     /**
+     * Rôle de la permission : Gestionnaire de collection, Gestionnaire de référentiel, Rédacteur, Valideur, Relecteur
+     */
+    @Column(name = "role", length = 100)
+    private String role;
+
+    /**
      * Clé composite pour UserPermission
      */
     @Embeddable
