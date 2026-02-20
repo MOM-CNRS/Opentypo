@@ -25,12 +25,25 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
     List<UserPermission> findByUtilisateur(Utilisateur utilisateur);
 
     /**
+     * Trouve les IDs des utilisateurs ayant un rôle donné sur une entité
+     */
+    @Query("SELECT up.id.userId FROM UserPermission up WHERE up.id.entityId = :entityId AND up.role = :role")
+    List<Long> findUserIdsByEntityIdAndRole(@Param("entityId") Long entityId, @Param("role") String role);
+
+    /**
      * Vérifie si un utilisateur a un rôle donné sur une entité
      */
     @Query("SELECT CASE WHEN COUNT(up) > 0 THEN true ELSE false END FROM UserPermission up WHERE up.id.userId = :userId AND up.id.entityId = :entityId AND up.role = :role")
     boolean existsByUserIdAndEntityIdAndRole(@Param("userId") Long userId,
                                              @Param("entityId") Long entityId,
                                              @Param("role") String role);
+
+    /**
+     * Supprime toutes les permissions d'un rôle donné pour une entité
+     */
+    @Modifying
+    @Query("DELETE FROM UserPermission up WHERE up.id.entityId = :entityId AND up.role = :role")
+    void deleteByEntityIdAndRole(@Param("entityId") Long entityId, @Param("role") String role);
 
     /**
      * Supprime toutes les permissions d'un utilisateur

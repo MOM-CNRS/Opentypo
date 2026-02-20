@@ -6,12 +6,15 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.application.dto.GroupEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
+import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
@@ -26,6 +29,7 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +83,11 @@ public class ReferenceBean implements Serializable {
     @Autowired
     private LangueRepository langueRepository;
 
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
+
+    /** PickList pour sélectionner les gestionnaires de référentiel (IDs) */
+    private DualListModel<Long> gestionnairesPickList;
 
     // Propriétés pour le formulaire de création de référentiel
     private String referenceCode;
@@ -132,6 +141,93 @@ public class ReferenceBean implements Serializable {
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
         referencePublique = true;
+        gestionnairesPickList = null;
+    }
+
+    /** Liste des utilisateurs éligibles comme gestionnaires de référentiel (groupe Utilisateur) */
+    public List<Utilisateur> getGestionnairesList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
+    }
+
+    public DualListModel<Long> getGestionnairesPickList() {
+        if (gestionnairesPickList == null) {
+            initGestionnairesPickList();
+        }
+        return gestionnairesPickList;
+    }
+
+    public void setGestionnairesPickList(DualListModel<Long> gestionnairesPickList) {
+        this.gestionnairesPickList = gestionnairesPickList;
+    }
+
+    private void initGestionnairesPickList() {
+        List<Long> sourceIds = getGestionnairesList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        gestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceIds), new ArrayList<>());
+    }
+
+    private void initGestionnairesPickListForEdit(Long entityId) {
+        List<Long> sourceIds = getGestionnairesList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> targetIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !targetIds.contains(id)).toList();
+        gestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(targetIds));
+    }
+
+    /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
+    public String getUtilisateurDisplayName(Long userId) {
+        if (userId == null || utilisateurRepository == null) return "";
+        return utilisateurRepository.findById(userId)
+                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom() : "")).trim())
+                .orElse("");
+    }
+
+    private static Long toLong(Object value) {
+        if (value == null) return null;
+        if (value instanceof Long l) return l;
+        if (value instanceof Number n) return n.longValue();
+        if (value instanceof String s) {
+            if (s.isBlank()) return null;
+            try {
+                return Long.parseLong(s.trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private void saveUserPermissionsForReference(Entity savedReference) {
+        if (userPermissionRepository == null || savedReference == null || savedReference.getId() == null) return;
+        List<?> targetList = (gestionnairesPickList != null && gestionnairesPickList.getTarget() != null)
+                ? gestionnairesPickList.getTarget() : List.of();
+        for (Object raw : targetList) {
+            Long userId = toLong(raw);
+            if (userId == null) continue;
+            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+            id.setUserId(userId);
+            id.setEntityId(savedReference.getId());
+            if (!userPermissionRepository.existsById(id)) {
+                Utilisateur utilisateur = utilisateurRepository.findById(userId).orElse(null);
+                if (utilisateur != null) {
+                    UserPermission permission = new UserPermission();
+                    permission.setUtilisateur(utilisateur);
+                    permission.setEntity(savedReference);
+                    permission.setId(id);
+                    permission.setRole(PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+                    permission.setCreateDate(LocalDateTime.now());
+                    userPermissionRepository.save(permission);
+                }
+            }
+        }
     }
 
     /**
@@ -171,6 +267,7 @@ public class ReferenceBean implements Serializable {
         editingReferenceId = refLoaded.getId();
         referenceCode = refLoaded.getCode();
         referencePublique = refLoaded.getPublique() != null ? refLoaded.getPublique() : true;
+        initGestionnairesPickListForEdit(refLoaded.getId());
 
         referenceNames = new ArrayList<>();
         if (refLoaded.getLabels() != null) {
@@ -212,6 +309,11 @@ public class ReferenceBean implements Serializable {
      */
     public boolean isEditModeInDialog() {
         return editingReferenceId != null;
+    }
+
+    /** Bascule la visibilité public/privé du référentiel dans le formulaire du dialog */
+    public void toggleReferencePublique() {
+        referencePublique = (referencePublique == null || !referencePublique);
     }
 
     private void loadAvailableLanguages() {
@@ -348,7 +450,8 @@ public class ReferenceBean implements Serializable {
 
             Entity newReference = createNewReference(codeTrimmed, referenceType);
             entityRepository.save(newReference);
-            
+            saveUserPermissionsForReference(newReference);
+
             // Rattacher le référentiel à la collection courante si une collection est sélectionnée
             if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
                 attachReferenceToCollection(newReference, applicationBean.getSelectedCollection());
@@ -769,6 +872,7 @@ public class ReferenceBean implements Serializable {
             }
 
             entityRepository.save(referenceToUpdate);
+            saveUserPermissionsForReference(referenceToUpdate);
 
             if (editingReferenceId.equals(applicationBean.getSelectedEntity().getId())) {
                 applicationBean.setSelectedEntity(referenceToUpdate);
@@ -815,9 +919,7 @@ public class ReferenceBean implements Serializable {
                 .collect(Collectors.joining("; "));
             if (bibJoined.isEmpty()) bibJoined = null;
         }
-        EntityMetadata metadata = new EntityMetadata();
-        metadata.setRereferenceBibliographique(bibJoined);
-        newReference.setMetadata(metadata);
+        newReference.setRereferenceBibliographique(bibJoined);
 
         newReference.setEntityType(type);
         newReference.setPublique(referencePublique != null ? referencePublique : true);

@@ -1,7 +1,25 @@
 /* ============================================
    DIALOG CRÉATION RÉFÉRENTIEL
-   Design amélioré : en-tête, sections avec icônes, chips stylisés
+   Aligné sur collection-dialog : en-tête personnalisé, scroll panel, gestionnaires
    ============================================ */
+
+/* Réutilisation des styles collection-dialog pour référence */
+.reference-dialog .collection-dialog-scroll-panel,
+.reference-dialog .ui-scrollpanel.collection-dialog-scroll-panel {
+    width: 100% !important;
+    height: 380px !important;
+    max-height: calc(90vh - 220px) !important;
+    min-height: 200px !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.reference-dialog .ui-scrollpanel,
+.reference-dialog .ui-scrollpanel .ui-scrollpanel-wrapper,
+.reference-dialog .ui-scrollpanel .ui-scrollpanel-content {
+    border: none !important;
+    box-shadow: none !important;
+}
 
 /* Dialog : conteneur et contenu scrollable */
 .reference-dialog.ui-dialog,
