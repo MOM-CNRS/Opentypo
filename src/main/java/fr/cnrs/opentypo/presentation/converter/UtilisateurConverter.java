@@ -8,6 +8,9 @@ import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.util.Optional;
 
@@ -21,14 +24,39 @@ public class UtilisateurConverter implements Converter<Object> {
     @Inject
     private UtilisateurRepository utilisateurRepository;
 
+    private UtilisateurRepository getUtilisateurRepository() {
+        if (utilisateurRepository != null) {
+            return utilisateurRepository;
+        }
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc != null && fc.getExternalContext() != null) {
+            ServletContext servletContext = null;
+            Object ctx = fc.getExternalContext().getContext();
+            if (ctx instanceof ServletContext sc) {
+                servletContext = sc;
+            } else if (ctx instanceof HttpServletRequest request) {
+                servletContext = request.getServletContext();
+            }
+            if (servletContext != null) {
+                return WebApplicationContextUtils.getWebApplicationContext(servletContext)
+                        .getBean(UtilisateurRepository.class);
+            }
+        }
+        return null;
+    }
+
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
+        UtilisateurRepository repo = getUtilisateurRepository();
+        if (repo == null) {
+            return null;
+        }
         try {
             Long id = Long.parseLong(value);
-            Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(id);
+            Optional<Utilisateur> utilisateurOpt = repo.findById(id);
             return utilisateurOpt.orElse(null);
         } catch (NumberFormatException e) {
             return null;

@@ -5,13 +5,13 @@
 
     <!-- Section d'action pour créer une collection (admin) -->
     <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar"
-         rendered="#{loginBean.isAdmin()}">
+         rendered="#{loginBean.isAdminTechnique()}">
         <p:commandButton value="Créer une nouvelle collection"
                          icon="pi pi-plus"
                          styleClass="collection-btn collection-btn-validate"
                          process="@this"
-                         update="@none"
-                         onclick="PF('addCollectionDialog').show(); return false;"/>
+                         update="collectionDialogForm"
+                         actionListener="#{collectionBean.resetCollectionForm()}"/>
     </h:panelGroup>
 
     <!-- Grille des cartes collections -->

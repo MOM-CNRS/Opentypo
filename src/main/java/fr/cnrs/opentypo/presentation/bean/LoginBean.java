@@ -48,7 +48,7 @@ public class LoginBean implements Serializable {
     private String username; // Email de l'utilisateur
     private String password;
     private boolean authenticated = false;
-    private Utilisateur currentUser; // Utilisateur actuellement connecté
+    private Utilisateur currentUser;
 
 
     public void openLoginDialog() {
@@ -215,15 +215,6 @@ public class LoginBean implements Serializable {
     }
 
     /**
-     * Retourne l'utilisateur actuellement connecté
-     * 
-     * @return L'utilisateur connecté ou null
-     */
-    public Utilisateur getCurrentUser() {
-        return currentUser;
-    }
-
-    /**
      * Vérifie si l'utilisateur actuel est un administrateur
      * 
      * @return true si l'utilisateur est administrateur, false sinon
@@ -234,35 +225,13 @@ public class LoginBean implements Serializable {
             && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
-    /** @deprecated Groupes supprimés : conservé pour compatibilité XHTML, retourne toujours false */
-    public boolean isGestionnaireCollection() {
-        return false;
-    }
-
-    /** @deprecated Groupes supprimés : conservé pour compatibilité XHTML, retourne toujours false */
-    public boolean isGestionnaireReferentiels() {
-        return false;
-    }
-
-    public boolean isAdmin() {
-        return isAdminTechnique();
-    }
-
-    /**
-     * Vérifie si l'utilisateur actuel est un éditeur (peut créer/modifier du contenu).
-     * Avec la simplification des groupes : seul l'administrateur technique peut éditer.
-     */
-    public boolean isEditor() {
-        return isAdminTechnique();
-    }
-
     /**
      * Vérifie si l'utilisateur est connecté et a les droits d'administration ou d'édition
-     * 
+     *
      * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
      */
     public boolean canCreateOrEdit() {
-        return authenticated && (isAdmin() || isEditor());
+        return authenticated && (isAdminTechnique());
     }
 }
 

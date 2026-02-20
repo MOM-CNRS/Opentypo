@@ -7,62 +7,77 @@
     <!-- Dialog pour créer une nouvelle collection -->
     <p:dialog id="addCollectionDialog"
               widgetVar="addCollectionDialog"
-              header="Créer une nouvelle collection"
               modal="true"
               draggable="false"
               resizable="false"
-              styleClass="collection-dialog"
-              width="600"
+              styleClass="collection-dialog collection-dialog-custom-header"
+              width="650"
               height="auto"
               closable="true"
               responsive="true"
               position="center"
-              onShow="resetCollectionFormCommand();">
-        
-        <h:form id="collectionDialogForm">
+              visible="false"
+              appendTo="@(body)"
+              closeOnEscape="true">
+
+        <f:facet name="header">
+            <div class="collection-dialog-header">
+                <div class="collection-dialog-header-icon">
+                    <i class="pi pi-folder"/>
+                </div>
+                <div class="collection-dialog-header-content">
+                    <h3>Créer une nouvelle collection</h3>
+                </div>
+            </div>
+        </f:facet>
+
+        <h:form id="collectionDialogForm" styleClass="collection-dialog-form">
             <p:remoteCommand name="resetCollectionFormCommand"
-                           action="#{collectionBean.resetCollectionForm}"
-                           update="@form"
-                           process="@this"/>
-            <div class="collection-form-content">
+                             action="#{collectionBean.resetCollectionForm}"
+                             update="@form"
+                             process="@this"/>
+            <p:scrollPanel mode="native" styleClass="collection-dialog-scroll-panel">
+                <div class="collection-form-content">
                 <!-- Section Noms -->
                 <div class="collection-form-group">
-                    <b><p:outputLabel value="Labels" /></b>
-                    
+                    <div class="collection-section-header">
+                        <i class="pi pi-tag collection-section-icon"/>
+                        <span class="collection-section-label">Labels</span>
+                    </div>
                     <!-- Ligne de saisie pour ajouter un nouveau nom -->
                     <div class="collection-name-input-row">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:inputText id="newNameInput"
-                                       value="#{collectionBean.newNameValue}"
-                                       placeholder="Nom"
-                                       styleClass="collection-input"/>
+                                         value="#{collectionBean.newNameValue}"
+                                         placeholder="Nom"
+                                         styleClass="collection-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
-                                           value="#{collectionBean.newNameLangueCode}"
-                                           styleClass="collection-select">
+                                             value="#{collectionBean.newNameLangueCode}"
+                                             styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
-                                <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewName()}" 
-                                             var="langue"
-                                             itemLabel="#{langue.nom}"
-                                             itemValue="#{langue.code}" />
+                                <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewName()}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
                         <p:commandButton value="Ajouter"
-                                       icon="pi pi-plus"
-                                       styleClass="collection-btn-add"
-                                       actionListener="#{collectionBean.addNameFromInput()}"
-                                       process="@form"
-                                       ajax="true"
-                                       update=":collectionDialogForm:collectionNamesTable :collectionDialogForm:newNameInput :collectionDialogForm:newNameLangue growl"/>
+                                         icon="pi pi-plus"
+                                         styleClass="collection-btn-add"
+                                         actionListener="#{collectionBean.addNameFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update="@form :growl"/>
                     </div>
-                    
+
                     <!-- Tableau des noms ajoutés -->
                     <h:panelGroup id="collectionNamesTable" class="collection-names-table-container">
-                        <p:dataTable value="#{collectionBean.collectionNames}" 
-                                   var="nameItem"
-                                   styleClass="collection-names-table"
-                                   rendered="#{not empty collectionBean.collectionNames}">
+                        <p:dataTable value="#{collectionBean.collectionNames}"
+                                     var="nameItem"
+                                     styleClass="collection-names-table"
+                                     rendered="#{not empty collectionBean.collectionNames}">
 
                             <p:column styleClass="collection-table-name-column">
                                 <div class="collection-table-name-cell">
@@ -85,7 +100,7 @@
                                                      action="#{collectionBean.removeName(nameItem)}"
                                                      process="@form"
                                                      ajax="true"
-                                                     update=":collectionDialogForm:collectionNamesTable :collectionDialogForm:newNameLangue"
+                                                     update="@form :growl"
                                                      onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');"/>
                                 </div>
                             </p:column>
@@ -98,8 +113,8 @@
                                         <i class="pi pi-info-circle" />
                                     </div>
                                     <div class="collection-no-names-text">
-                                        <h4 class="collection-no-names-title">Aucun nom ajouté</h4>
-                                        <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
+                                        <h4 class="collection-no-names-title">Aucun label ajouté</h4>
+                                        <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un label dans une langue spécifique.</p>
                                     </div>
                                 </div>
                             </div>
@@ -109,16 +124,18 @@
 
                 <!-- Section Descriptions -->
                 <div class="collection-form-group">
-                    <p:outputLabel value="Descriptions" />
-                    
+                    <div class="collection-section-header">
+                        <i class="pi pi-align-left collection-section-icon"/>
+                        <span class="collection-section-label">Descriptions</span>
+                    </div>
                     <!-- Ligne de saisie pour ajouter une nouvelle description -->
                     <div class="collection-name-input-row">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:inputTextarea id="newDescriptionInput"
-                                           value="#{collectionBean.newDescriptionValue}"
-                                           placeholder="Description"
-                                           rows="3"
-                                           styleClass="collection-textarea"/>
+                                             value="#{collectionBean.newDescriptionValue}"
+                                             placeholder="Description"
+                                             rows="3"
+                                             styleClass="collection-textarea"/>
                         </div>
                     </div>
 
@@ -140,16 +157,16 @@
                                          actionListener="#{collectionBean.addDescriptionFromInput()}"
                                          process="@form"
                                          ajax="true"
-                                         update=":collectionDialogForm:collectionDescriptionsTable :collectionDialogForm:newDescriptionInput :collectionDialogForm:newDescriptionLangue growl"/>
+                                         update="@form :growl"/>
                     </div>
-                    
+
                     <!-- Tableau des descriptions ajoutées -->
                     <h:panelGroup id="collectionDescriptionsTable" class="collection-names-table-container">
-                        <p:dataTable value="#{collectionBean.collectionDescriptions}" 
-                                   var="descriptionItem"
-                                   styleClass="collection-names-table"
-                                   emptyMessage="Aucune description ajoutée"
-                                   rendered="#{not empty collectionBean.collectionDescriptions}">
+                        <p:dataTable value="#{collectionBean.collectionDescriptions}"
+                                     var="descriptionItem"
+                                     styleClass="collection-names-table"
+                                     emptyMessage="Aucune description ajoutée"
+                                     rendered="#{not empty collectionBean.collectionDescriptions}">
                             <p:column styleClass="collection-table-name-column">
                                 <div class="collection-table-name-cell">
                                     <h:graphicImage library="img"
@@ -170,7 +187,7 @@
                                                      action="#{collectionBean.removeDescription(descriptionItem)}"
                                                      process="@form"
                                                      ajax="true"
-                                                     update=":collectionDialogForm:collectionDescriptionsTable :collectionDialogForm:newDescriptionLangue"
+                                                     update="@form :growl"
                                                      title="Supprimer cette description"/>
                                 </div>
                             </p:column>
@@ -193,140 +210,81 @@
                 </div>
 
                 <!-- Section Visibilité -->
-                <div class="collection-form-group">
-                    <div class="collection-visibility-section">
-                        <p:outputLabel value="Visibilité de la collection" styleClass="collection-visibility-label" />
-                        <div class="collection-switch-wrapper">
-                            <h:panelGroup id="collectionSwitchLabel" class="collection-switch-label">
-                                <h:outputText value="Publique"
-                                              styleClass="collection-switch-text-public"
-                                              rendered="#{collectionBean.collectionPublique}"/>
-                                <h:outputText value="Privée"
-                                              styleClass="collection-switch-text-private"
-                                              rendered="#{not collectionBean.collectionPublique}"/>
-                            </h:panelGroup>
-                            <p:selectBooleanCheckbox value="#{collectionBean.collectionPublique}"
-                                                    styleClass="collection-switch"
-                                                    id="collectionPublique">
-                                <p:ajax event="change" process="@this" update=":collectionDialogForm:collectionSwitchLabel"/>
-                            </p:selectBooleanCheckbox>
+                <div class="collection-form-group collection-visibility-form-group">
+                    <div class="collection-section-header">
+                        <i class="pi pi-eye collection-section-icon"/>
+                        <span class="collection-section-label">Visibilité de la collection</span>
+                    </div>
+                    <h:panelGroup id="collectionVisibilityCard" class="collection-dialog-visibility-wrapper">
+                        <div class="collection-visibility-card collection-dialog-visibility-card">
+                            <div class="collection-visibility-card-content">
+                                <div class="collection-visibility-indicator #{collectionBean.collectionPublique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                    <div class="collection-visibility-icon">
+                                        <i class="pi #{collectionBean.collectionPublique ? 'pi-globe' : 'pi-lock'}" />
+                                    </div>
+                                    <div class="collection-visibility-info">
+                                        <span class="collection-visibility-label">#{collectionBean.collectionPublique ? 'Publique' : 'Privée'}</span>
+                                    </div>
+                                </div>
+                                <div class="collection-visibility-toggle-wrapper">
+                                    <p:commandLink styleClass="collection-visibility-toggle-btn collection-dialog-visibility-toggle"
+                                                   process="@this"
+                                                   update="collectionVisibilityCard"
+                                                   action="#{collectionBean.toggleCollectionPublique()}"
+                                                   title="Cliquez pour changer la visibilité">
+                                        <i class="pi pi-sync"/>
+                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                    </p:commandLink>
+                                </div>
+                            </div>
                         </div>
+                    </h:panelGroup>
+                </div>
+
+                <!-- Section Gestionnaires (optionnel) -->
+                <div class="collection-form-group collection-gestionnaires-section">
+                    <div class="collection-gestionnaires-card">
+                        <div class="collection-section-header collection-gestionnaires-header">
+                            <i class="pi pi-users collection-section-icon"/>
+                            <span class="collection-section-label">Gestionnaires de la collection</span>
+                        </div>
+                        <p:pickList id="gestionnairesPickList"
+                                    value="#{collectionBean.gestionnairesPickList}"
+                                    var="userId"
+                                    itemLabel="#{collectionBean.getUtilisateurDisplayName(userId)}"
+                                    itemValue="#{userId}"
+                                    styleClass="group-dialog-picklist"
+                                    showSourceFilter="true"
+                                    showTargetFilter="true"
+                                    filterMatchMode="contains"
+                                    sourceFilterPlaceholder="Rechercher..."
+                                    targetFilterPlaceholder="Rechercher..."
+                                    responsive="true"
+                                    rendered="#{not empty collectionBean.gestionnairesList}"/>
+                        <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
+                            <span>Aucun utilisateur disponible</span>
+                        </h:panelGroup>
                     </div>
                 </div>
-            </div>
+                </div>
+            </p:scrollPanel>
 
             <div class="collection-form-actions">
-                <p:commandButton value="Annuler" 
-                               icon="pi pi-times"
-                               styleClass="collection-btn collection-btn-cancel"
-                               onclick="PF('addCollectionDialog').hide(); return false;"
-                               process="@this"
-                               update="@none"/>
-                <p:commandButton value="Valider" 
-                               icon="pi pi-check"
-                               styleClass="collection-btn collection-btn-validate"
-                               action="#{collectionBean.createCollection(applicationBean)}"
-                               process="@form"
-                               update="@form :growl :cardsContainer :searchForm"
-                               oncomplete="if(!args.validationFailed) {PF('addCollectionDialog').hide();}"/>
+                <p:commandButton value="Annuler"
+                                 icon="pi pi-times"
+                                 styleClass="collection-btn collection-btn-cancel"
+                                 type="button"
+                                 onclick="PF('addCollectionDialog').hide(); return false;"
+                                 process="@none"
+                                 update="@none"/>
+                <p:commandButton value="Valider"
+                                 icon="pi pi-check"
+                                 styleClass="collection-btn collection-btn-validate"
+                                 action="#{collectionBean.createCollection(applicationBean)}"
+                                 process="@form"
+                                 update="@form :growl :cardsContainer :searchForm"
+                                 oncomplete="if(!args.validationFailed) {PF('addCollectionDialog').hide();}"/>
             </div>
         </h:form>
     </p:dialog>
-
-
-    <style>
-        body .ui-datatable .ui-datatable-data>tr>td {
-            border: none !important;
-            margin: 0px;
-            padding: 0px;
-        }
-
-        .candidat-table-action-column {
-            width: 3rem !important;
-            text-align: right !important;
-        }
-
-        .candidat-table-action-column {
-            width: 3rem !important;
-            text-align: right !important;
-        }
-
-        .candidat-table-action-cell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0.75rem 0;
-        }
-
-        .candidat-table-langue-cell,
-        .candidat-table-label-cell,
-        .candidat-table-action-cell {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .candidat-table-action-cell {
-            justify-content: flex-end;
-        }
-
-        .candidat-btn-remove {
-            padding: 0 !important;
-            width: 32px !important;
-            height: 32px !important;
-            border-radius: 999px !important;
-            border: 1px solid #dc3545 !important;
-            background: rgba(220, 53, 69, 0.08) !important;
-            color: #dc3545 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .candidat-btn-remove .ui-button-icon-left {
-            position: static !important;
-            margin: 0 !important;
-            font-size: 0.9rem !important;
-            line-height: 1 !important;
-        }
-
-        .candidat-btn-remove .ui-button-text {
-            display: none !important;
-            padding: 0 !important;
-        }
-
-        .candidat-btn-remove:hover {
-            background: #c82333 !important;
-            border-color: #bd2130 !important;
-            color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
-            transform: translateY(-1px) !important;
-        }
-
-        .candidat-btn-remove:focus {
-            outline: none !important;
-            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.35) !important;
-        }
-
-        .candidat-btn-remove:hover .ui-button-icon-left,
-        .candidat-btn-remove:focus .ui-button-icon-left {
-            color: #ffffff !important;
-        }
-
-        .candidat-btn-remove {
-            background: transparent !important;
-            border: 1px solid rgba(220, 53, 69, 0.3) !important;
-            color: #dc3545 !important;
-            padding: 0.5rem !important;
-            border-radius: 6px !important;
-            transition: all 0.2s ease !important;
-        }
-
-        .candidat-btn-remove:hover {
-            background: rgba(220, 53, 69, 0.1) !important;
-            border-color: #dc3545 !important;
-            transform: scale(1.1) !important;
-        }
-    </style>
 </ui:fragment>

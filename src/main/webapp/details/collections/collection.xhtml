@@ -127,19 +127,24 @@
                             </div>
                         </h:panelGroup>
 
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isGestionnaireCollection() and not collectionBean.editingCollection}">
-                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
-                                           process="@this"
-                                           update=":confirmDeleteDialogContent"
-                                           oncomplete="PF('confirmDeleteDialog').show();"
+                        <h:panelGroup class="concept-info-actions"
+                                      rendered="#{not loginBean.isAdminTechnique() and collectionBean.canEditCollectionAsGestionnaire(applicationBean.selectedEntity) and not collectionBean.editingCollection}">
+                            <p:commandLink action="#{collectionBean.editCollection(applicationBean)}"
+                                           process="@form"
+                                           update=":collectionDetailPanel, :collectionEditForm"
+                                           ajax="true"
                                            styleClass="concept-action-button"
-                                           title="Supprimer la collection">
-                                <i class="pi pi-trash" />
-                                <p:tooltip value="Supprimer" position="top"/>
+                                           title="Modifier la collection"
+                                           onstart="showLoading('Chargement...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                           onerror="forceHideLoading();">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
                         </h:panelGroup>
 
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isGestionnaireReferentiels() or loginBean.isRedacteur() or loginBean.isValideur() or loginBean.isRelecteur()}">
+                        <h:panelGroup class="concept-info-actions"
+                                      rendered="#{not loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
                             <h:panelGroup class="collection-visibility-card">
                                 <div class="collection-visibility-card-content">
                                     <div class="collection-visibility-indicator #{collectionBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -246,7 +251,7 @@
                 </div>
             </div>
             <h:panelGroup id="collection-references-actions" class="collection-references-actions"
-                          rendered="#{loginBean.isAdminTechnique() or loginBean.isGestionnaireCollection()}">
+                          rendered="#{loginBean.isAdminTechnique() or collectionBean.canEditCollectionAsGestionnaire(applicationBean.selectedEntity)}">
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

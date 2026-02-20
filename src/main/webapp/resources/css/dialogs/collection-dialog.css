@@ -3,6 +3,17 @@
    Styles extraits de dialogs/collectionDialog.xhtml
    ============================================ */
 
+/* ScrollPanel : hauteur adaptative + masquer bordures */
+.collection-dialog .collection-dialog-scroll-panel,
+.collection-dialog .ui-scrollpanel.collection-dialog-scroll-panel {
+    width: 100% !important;
+    height: 380px !important;
+    max-height: calc(90vh - 220px) !important;
+    min-height: 200px !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
 .collection-form-content {
     display: flex;
     flex-direction: column;
@@ -23,9 +34,124 @@
     gap: 0.5rem;
 }
 
+/* Bordures pour chaque bloc de la fenêtre de création de collection */
+.collection-form-content > .collection-form-group {
+    padding: 1rem;
+    border: 1px solid rgba(71, 98, 77, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Section Gestionnaires : la carte fournit déjà la bordure, pas de doublon */
+.collection-form-content > .collection-form-group.collection-gestionnaires-section {
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
 .collection-form-group-flex {
     flex: 1 1 0%;
     min-width: 0;
+}
+
+/* ScrollPanel : masquer les bordures */
+.collection-dialog .ui-scrollpanel,
+.collection-dialog .ui-scrollpanel .ui-scrollpanel-wrapper,
+.collection-dialog .ui-scrollpanel .ui-scrollpanel-content {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* En-tête personnalisé du dialog */
+.collection-dialog-custom-header .ui-dialog-titlebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    padding: 1.25rem 1.5rem !important;
+    min-height: 4rem !important;
+    background: linear-gradient(to bottom, #f8faf9 0%, #f0f4f2 100%) !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.collection-dialog-custom-header .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.collection-dialog-custom-header .ui-dialog-titlebar .collection-dialog-header {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.collection-dialog-custom-header .ui-dialog-titlebar-close,
+.collection-dialog-custom-header .ui-dialog-titlebar-close a,
+.collection-dialog-custom-header .ui-dialog-titlebar-close:hover,
+.collection-dialog-custom-header .ui-dialog-titlebar-close:focus,
+.collection-dialog-custom-header .ui-dialog-titlebar-close:hover a,
+.collection-dialog-custom-header .ui-dialog-titlebar-close:focus a {
+    text-decoration: none !important;
+}
+
+.collection-dialog-custom-header .ui-dialog-titlebar-close {
+    flex-shrink: 0 !important;
+    position: static !important;
+    margin: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(71, 98, 77, 0.6) !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.collection-dialog-custom-header .ui-dialog-titlebar-close:hover,
+.collection-dialog-custom-header .ui-dialog-titlebar-close:focus {
+    color: var(--color-action-main, #47624D) !important;
+    background: rgba(71, 98, 77, 0.1) !important;
+}
+
+.collection-dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.collection-dialog-header-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collection-dialog-header-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.collection-dialog-header-content h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+}
+
+.collection-gestionnaires-header {
+    margin-bottom: 0.75rem;
 }
 
 .collection-dialog .ui-datatable thead th {
@@ -267,6 +393,115 @@
     color: #dc3545;
 }
 
+/* Carte Visibilité - style similaire à collection.xhtml */
+/* Section Visibilité : alignement horizontal du titre et de la carte */
+.collection-visibility-form-group {
+    flex-direction: row !important;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.collection-visibility-form-group .collection-section-header {
+    margin-bottom: 0;
+}
+
+.collection-dialog-visibility-wrapper {
+    display: block;
+}
+
+.collection-dialog-visibility-card.collection-visibility-card {
+    display: inline-flex;
+    height: 40px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.collection-dialog-visibility-card .collection-visibility-card-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 40px;
+    padding: 0 0.75rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.95) 100%);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.collection-dialog-visibility-card .collection-visibility-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-dialog-visibility-card .collection-visibility-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.collection-dialog-visibility-card .collection-visibility-public .collection-visibility-icon {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%);
+    color: var(--color-action-main, #47624D);
+}
+
+.collection-dialog-visibility-card .collection-visibility-private .collection-visibility-icon {
+    background: linear-gradient(135deg, rgba(184, 74, 60, 0.12) 0%, rgba(184, 74, 60, 0.06) 100%);
+    color: var(--color-danger, #B84A3C);
+}
+
+.collection-dialog-visibility-card .collection-visibility-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.collection-dialog-visibility-card .collection-visibility-public .collection-visibility-label {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.collection-dialog-visibility-card .collection-visibility-private .collection-visibility-label {
+    color: var(--color-danger, #B84A3C);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.collection-dialog-visibility-card .collection-visibility-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 0.75rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.collection-dialog-visibility-card .collection-visibility-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    color: var(--color-action-main, #47624D);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.collection-dialog-visibility-card .collection-visibility-toggle-btn:hover {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.85) 100%);
+    color: #fff;
+    transform: scale(1.05);
+}
+
 .collection-visibility-section {
     display: flex;
     align-items: center;
@@ -354,12 +589,16 @@
     font-weight: 600;
 }
 
+/* Bloc actions (Annuler / Valider) */
 .collection-form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
-    padding-top: 1rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 0 0 0;
+    margin-top: 0.5rem;
     border-top: 1px solid rgba(71, 98, 77, 0.15);
+    flex-shrink: 0;
 }
 
 .collection-btn {
@@ -393,10 +632,142 @@
     background-color: #3a4f3f !important;
 }
 
+/* Tableau : colonnes et cellules d'action (dialog collection uniquement) */
+.collection-dialog .collection-table-action-column,
+.collection-dialog .candidat-table-action-column {
+    width: 3rem !important;
+    text-align: right !important;
+}
+
+.collection-dialog .candidat-table-action-cell,
+.collection-dialog .collection-table-action-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.collection-dialog .candidat-table-langue-cell,
+.collection-dialog .candidat-table-label-cell,
+.collection-dialog .candidat-table-action-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-dialog .candidat-table-action-cell {
+    justify-content: flex-end;
+}
+
+.collection-dialog .ui-datatable .ui-datatable-data > tr > td {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Bouton Supprimer (ligne tableau) */
+.collection-dialog .candidat-btn-remove {
+    padding: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(220, 53, 69, 0.3) !important;
+    background: rgba(220, 53, 69, 0.08) !important;
+    color: #dc3545 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.collection-dialog .candidat-btn-remove .ui-button-icon-left {
+    position: static !important;
+    margin: 0 !important;
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+}
+
+.collection-dialog .candidat-btn-remove .ui-button-text {
+    display: none !important;
+    padding: 0 !important;
+}
+
+.collection-dialog .candidat-btn-remove:hover {
+    background: rgba(220, 53, 69, 0.15) !important;
+    border-color: #dc3545 !important;
+    color: #c82333 !important;
+    transform: scale(1.05) !important;
+}
+
+.collection-dialog .candidat-btn-remove:hover .ui-button-icon-left {
+    color: inherit !important;
+}
+
+/* Style commun des titres de section (Labels, Descriptions, Gestionnaires) */
+.collection-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-section-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 1rem;
+}
+
+.collection-section-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text-primary, #333);
+}
+
+/* Section Gestionnaires (optionnel) */
+.collection-gestionnaires-section {
+    width: 100%;
+}
+
+.collection-gestionnaires-card {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 10px;
+}
+
+.collection-form-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    margin: 0 0 0.75rem 0;
+}
+
+.collection-form-hint i {
+    color: var(--color-action-main, #47624D);
+}
+
+.collection-gestionnaires-hint {
+    margin-bottom: 0.75rem;
+}
+
+/* ========== RESPONSIVE : tablettes ========== */
 @media (max-width: 768px) {
+    .collection-dialog.ui-dialog,
     .collection-dialog .ui-dialog {
-        width: 90% !important;
-        max-width: 500px !important;
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 85vh !important;
+    }
+
+    .collection-dialog .ui-dialog-content {
+        max-height: calc(85vh - 120px) !important;
+        padding: 1rem !important;
+    }
+
+    .collection-dialog .collection-dialog-scroll-panel,
+    .collection-dialog .ui-scrollpanel.collection-dialog-scroll-panel {
+        height: 320px !important;
+        max-height: calc(85vh - 200px) !important;
     }
 
     .collection-form-row {
@@ -417,6 +788,26 @@
         width: 100% !important;
     }
 
+    .collection-visibility-form-group {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .collection-dialog .group-dialog-picklist .ui-picklist {
+        flex-direction: column !important;
+    }
+
+    .collection-dialog .group-dialog-picklist .ui-picklist-list-wrapper,
+    .collection-dialog .group-dialog-picklist .ui-picklist-list-container {
+        width: 100% !important;
+        min-height: 120px !important;
+    }
+
+    .collection-dialog .group-dialog-picklist .ui-picklist-buttons {
+        flex-direction: row !important;
+        justify-content: center !important;
+    }
+
     .collection-form-actions {
         flex-direction: column-reverse;
     }
@@ -424,5 +815,109 @@
     .collection-btn {
         width: 100%;
         justify-content: center;
+        min-height: 44px !important;
+    }
+}
+
+/* ========== RESPONSIVE : téléphones ========== */
+@media (max-width: 480px) {
+    .collection-dialog.ui-dialog,
+    .collection-dialog .ui-dialog {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        max-height: 95vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .collection-dialog .ui-dialog-content {
+        max-height: calc(95vh - 110px) !important;
+        padding: 0.75rem 1rem !important;
+    }
+
+    .collection-dialog .collection-dialog-scroll-panel,
+    .collection-dialog .ui-scrollpanel.collection-dialog-scroll-panel {
+        height: 260px !important;
+        max-height: calc(95vh - 180px) !important;
+    }
+
+    .collection-form-content > .collection-form-group {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .collection-gestionnaires-card {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .collection-section-header {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .collection-section-label {
+        font-size: 0.9rem !important;
+    }
+
+    .collection-names-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .collection-names-table .ui-datatable {
+        min-width: 260px !important;
+    }
+
+    .collection-dialog-visibility-card .collection-visibility-card-content {
+        padding: 0 0.5rem !important;
+    }
+
+    .collection-dialog-visibility-card .collection-visibility-icon,
+    .collection-dialog-visibility-card .collection-visibility-toggle-btn {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .collection-dialog-custom-header .ui-dialog-titlebar {
+        padding: 1rem !important;
+        min-height: 3.5rem !important;
+    }
+
+    .collection-dialog-header-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .collection-dialog-header-content h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .collection-form-actions {
+        padding-top: 0.75rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .collection-btn {
+        min-height: 48px !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+/* ========== Très petits écrans (< 360px) ========== */
+@media (max-width: 360px) {
+    .collection-dialog .ui-dialog-content {
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    .collection-dialog .collection-dialog-scroll-panel,
+    .collection-dialog .ui-scrollpanel.collection-dialog-scroll-panel {
+        max-height: calc(95vh - 160px) !important;
+    }
+
+    .collection-form-content > .collection-form-group {
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    .collection-section-label {
+        font-size: 0.85rem !important;
     }
 }
