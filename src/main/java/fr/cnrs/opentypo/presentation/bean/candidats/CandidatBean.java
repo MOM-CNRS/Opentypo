@@ -198,7 +198,7 @@ public class CandidatBean implements Serializable {
     private ReferenceOpentheso valeur;
     private ReferenceOpentheso technique;
     private ReferenceOpentheso fabrication;
-
+    
     private String selectedLangueCode;
     private Long selectedCollectionId;
     private Entity selectedParentEntity;
@@ -271,9 +271,9 @@ public class CandidatBean implements Serializable {
                 selectedTreeNode, currentEntity, loginBean.getCurrentUser());
         if (r.errorMessage() != null) {
             addErrorMessage(r.errorMessage());
-            PrimeFaces.current().ajax().update(":growl");
-            return null;
-        }
+                    PrimeFaces.current().ajax().update(":growl");
+                    return null;
+                }
         if (r.success()) {
             if (r.createdEntity() != null) currentEntity = r.createdEntity();
             if (r.parentEntity() != null) selectedParentEntity = r.parentEntity();
@@ -281,7 +281,7 @@ public class CandidatBean implements Serializable {
             currentStep = r.newStep();
             log.info("Passage à l'étape {} - currentStep = {}", currentStep + 1, currentStep);
         }
-        return null;
+                        return null;
     }
     
     /**
@@ -363,8 +363,8 @@ public class CandidatBean implements Serializable {
         referenceTreeRoot = null;
         selectedTreeNode = null;
         selectedDirectEntityId = null;
-
-        boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
+        
+                boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
         CandidatReferenceTreeService.ReferenceTreeResult result =
                 candidatReferenceTreeService.loadReferencesForCollection(selectedCollectionId, isAuthenticated);
 
@@ -380,7 +380,7 @@ public class CandidatBean implements Serializable {
     public void loadDirectEntitiesForCollection() {
         log.debug("loadDirectEntitiesForCollection appelée - selectedCollectionId: {}", selectedCollectionId);
         selectedDirectEntityId = null;
-        boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
+                boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
         availableDirectEntities = candidatReferenceTreeService.loadDirectEntitiesForCollection(
                 selectedCollectionId, isAuthenticated);
     }
@@ -400,9 +400,9 @@ public class CandidatBean implements Serializable {
         log.debug("onDirectEntityChange appelée - selectedDirectEntityId: {}", selectedDirectEntityId);
         referenceTreeRoot = null;
         selectedTreeNode = null;
-
+        
         if (selectedDirectEntityId != null && !selectedDirectEntityId.toString().trim().isEmpty()) {
-            boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
+                boolean isAuthenticated = loginBean != null && loginBean.isAuthenticated();
             referenceTreeRoot = candidatReferenceTreeService.buildTreeFromDirectEntity(
                     selectedDirectEntityId, isAuthenticated);
         }
@@ -838,11 +838,11 @@ public class CandidatBean implements Serializable {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", result.getSuccessMessage()));
             resetWizardFormCompletely();
             currentStep = 0;
-            PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
             PrimeFaces.current().executeScript("setTimeout(function(){window.location.href='/candidats/candidats.xhtml';}, 1500);");
         } else {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", result.getErrorMessage()));
-            PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+                PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
         }
     }
 
@@ -871,7 +871,7 @@ public class CandidatBean implements Serializable {
         if (candidatARefuser != null) {
             refuserCandidat(candidatARefuser);
             candidatARefuser = null;
-        } else {
+            } else {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "Erreur",
@@ -1049,13 +1049,13 @@ public class CandidatBean implements Serializable {
 
     public String visualiserCandidat(Candidat candidat) {
         if (candidat == null) return null;
-        candidatSelectionne = candidat;
+            candidatSelectionne = candidat;
         String defaultLangue = candidat.getLangue() != null ? candidat.getLangue() : (searchBean != null ? searchBean.getLangSelected() : "fr");
         VisualisationPrepareResult res = candidatVisualisationService.prepareVisualisation(candidat.getId(), defaultLangue);
         if (!res.isSuccess()) {
             addErrorMessage(res.getErrorMessage());
-            return null;
-        }
+                return null;
+            }
         selectedEntityTypeId = res.getSelectedEntityTypeId();
         entityCode = res.getEntityCode();
         selectedLangueCode = res.getSelectedLangueCode();
@@ -1078,17 +1078,17 @@ public class CandidatBean implements Serializable {
         references = res.getStep3Data().getReferences();
 
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
-        loadAvailableAuteurs();
+            loadAvailableAuteurs();
         return res.getRedirectUrl();
     }
 
     public void loadAvailableAuteurs() { availableAuteurs = candidatFormLoadService.loadAuteursSorted(); }
 
     public String enregistrerModifications() {
-        if (currentEntity == null || currentEntity.getId() == null) {
+            if (currentEntity == null || currentEntity.getId() == null) {
             addErrorMessage("Aucune entité à enregistrer.");
-            return null;
-        }
+                return null;
+            }
         CandidatVisualisationService.EnregistrerResult res = candidatVisualisationService.enregistrerModifications(currentEntity.getId(), selectedAuteurs,
                 attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
         if (res.success()) {
@@ -1098,7 +1098,7 @@ public class CandidatBean implements Serializable {
             return res.redirectUrl();
         }
         addErrorMessage(res.errorMessage());
-        return null;
+            return null;
     }
 
     /**
@@ -1306,7 +1306,7 @@ public class CandidatBean implements Serializable {
         } else {
             addWarnMessage("Aucune fonction/usage à supprimer.");
         }
-        PrimeFaces.current().ajax().update(":growl");
+            PrimeFaces.current().ajax().update(":growl");
     }
 
     public void saveDescriptionPate() {
@@ -1595,10 +1595,10 @@ public class CandidatBean implements Serializable {
             currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
             airesCirculation = candidatOpenThesoService.loadAiresCirculation(currentEntity.getId());
             addInfoMessage("L'aire de circulation a été supprimée avec succès.");
-        } else {
+            } else {
             addWarnMessage("La référence sélectionnée n'existe pas ou n'appartient pas à cette entité.");
         }
-        PrimeFaces.current().ajax().update(":growl");
+            PrimeFaces.current().ajax().update(":growl");
     }
 
     /**

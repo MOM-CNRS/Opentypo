@@ -42,7 +42,7 @@
                         </div>
                     </div>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() or loginBean.isGestionnaireCollection()}">
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique()}">
                         <!-- Bouton Historique -->
                         <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                        process="@this"
@@ -102,7 +102,7 @@
                         <p:tooltip value="Modifier" position="top"/>
                     </p:commandLink>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.getCurrentUser() != null and not loginBean.isAdminTechnique() and not loginBean.isGestionnaireCollection()}">
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.getCurrentUser() != null and not loginBean.isAdminTechnique()}">
                         <h:panelGroup class="collection-visibility-card">
                             <div class="collection-visibility-card-content">
                                 <div class="collection-visibility-indicator #{referenceBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
