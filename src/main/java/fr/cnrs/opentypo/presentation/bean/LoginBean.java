@@ -118,16 +118,8 @@ public class LoginBean implements Serializable {
                 String groupeNom = utilisateur.getGroupe().getNom();
                 if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                } else if (GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                } else if (GroupEnum.GESTIONNAIRE_COLLECTIONS.getLabel().equalsIgnoreCase(groupeNom)) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
-                } else if (GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
-                        || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom)) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_EDITOR"));
-                } else if (GroupEnum.RELECTEUR.getLabel().equalsIgnoreCase(groupeNom)) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_READER"));
                 }
+                // Utilisateur : ROLE_USER uniquement (déjà ajouté plus haut)
             }
             
             // Créer une authentification Spring Security
@@ -242,53 +234,26 @@ public class LoginBean implements Serializable {
             && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
     }
 
+    /** @deprecated Groupes supprimés : conservé pour compatibilité XHTML, retourne toujours false */
     public boolean isGestionnaireCollection() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && GroupEnum.GESTIONNAIRE_COLLECTIONS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+        return false;
     }
 
+    /** @deprecated Groupes supprimés : conservé pour compatibilité XHTML, retourne toujours false */
     public boolean isGestionnaireReferentiels() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
-    }
-
-    public boolean isRedacteur() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
-    }
-
-    public boolean isValideur() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
-    }
-
-    public boolean isRelecteur() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && GroupEnum.RELECTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+        return false;
     }
 
     public boolean isAdmin() {
-        return currentUser != null
-                && currentUser.getGroupe() != null
-                && (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom())
-                    || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
+        return isAdminTechnique();
     }
 
     /**
-     * Vérifie si l'utilisateur actuel est un éditeur
-     * 
-     * @return true si l'utilisateur est éditeur, false sinon
+     * Vérifie si l'utilisateur actuel est un éditeur (peut créer/modifier du contenu).
+     * Avec la simplification des groupes : seul l'administrateur technique peut éditer.
      */
     public boolean isEditor() {
-        return currentUser != null 
-            && currentUser.getGroupe() != null 
-            && (GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom())
-                || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom()));
+        return isAdminTechnique();
     }
 
     /**

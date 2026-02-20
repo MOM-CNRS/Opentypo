@@ -485,30 +485,25 @@ public class CandidatBean implements Serializable {
 
     /**
      * Indique si l'utilisateur connecté peut valider ou refuser un brouillon.
-     * Groupes autorisés : Administrateur technique, Gestionnaire de référentiels, Valideur.
+     * Groupe autorisé : Administrateur technique uniquement.
      */
     public boolean canValidateOrRefuseBrouillon() {
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**
      * Indique si l'utilisateur connecté peut modifier un brouillon (statut PROPOSITION).
-     * Groupes autorisés : Administrateur technique, Gestionnaire de référentiels, Rédacteur, Valideur.
+     * Groupe autorisé : Administrateur technique uniquement.
      */
     public boolean canEditBrouillon(Candidat candidat) {
         if (candidat == null || candidat.getStatut() != Candidat.Statut.EN_COURS) return false;
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**
@@ -520,10 +515,7 @@ public class CandidatBean implements Serializable {
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
         if (user == null || user.getGroupe() == null) return false;
         String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.GESTIONNAIRE_REFERENTIELS.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.REDACTEUR.getLabel().equalsIgnoreCase(groupeNom)
-            || GroupEnum.VALIDEUR.getLabel().equalsIgnoreCase(groupeNom);
+        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
     }
 
     /**

@@ -87,15 +87,14 @@
                             <div class="users-form-group">
                                 <p:outputLabel for="groupe" value="Groupe" />
                                 <p:selectOneMenu id="groupe"
-                                               value="#{userManagementBean.selectedGroupeId}"
-                                               required="true"
-                                               requiredMessage="Le groupe est obligatoire"
-                                               styleClass="users-select">
+                                                 value="#{userManagementBean.selectedGroupeId}"
+                                                 required="true"
+                                                 requiredMessage="Le groupe est obligatoire"
+                                                 styleClass="users-select">
                                     <f:selectItem itemLabel="Sélectionner un groupe" itemValue=""/>
                                     <f:selectItems value="#{userManagementBean.availableGroups}" var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
                                     <p:ajax event="change"
                                             process="@this"
-                                            update=":userForm:referencesPanelWrapper"
                                             listener="#{userManagementBean.onGroupeChange}" />
                                 </p:selectOneMenu>
                                 <p:message for="groupe" display="icon"/>
@@ -109,58 +108,6 @@
                             </div>
                         </div>
                     </p:panel>
-
-                    <!-- Conteneur toujours rendu pour que la cible AJAX existe au changement de groupe -->
-                    <h:panelGroup id="referencesPanelWrapper">
-                        <h:panelGroup rendered="#{userManagementBean.showCollectionsPanel()}">
-                            <p:panel header="Collections autorisées" styleClass="users-form-panel">
-                                <div class="users-form-group users-form-group-full">
-                                    <p:outputLabel for="collectionsOnlyTable" value="Sélectionnez les collections autorisées" />
-
-                                    <!-- Barre de recherche -->
-                                    <div class="users-references-search">
-                                        <p:inputText id="collectionsOnlySearch"
-                                                     value="#{userManagementBean.searchFilter}"
-                                                     placeholder="Rechercher une collection..."
-                                                     styleClass="users-references-search-input">
-                                            <p:ajax event="keyup"
-                                                    process="@this"
-                                                    update=":userForm:collectionsOnlyTable"
-                                                    delay="300"/>
-                                        </p:inputText>
-                                        <i class="pi pi-search users-references-search-icon" />
-                                    </div>
-
-                                    <!-- Tableau : liste complète des collections (tous statuts), sélection par case à cocher -->
-                                    <div class="users-references-table-wrapper">
-                                        <p:dataTable id="collectionsOnlyTable"
-                                                     value="#{userManagementBean.filteredCollectionReferenceItems}"
-                                                     var="item"
-                                                     styleClass="users-references-datatable users-references-datatable--compact"
-                                                     emptyMessage="#{userManagementBean.emptyTableMessage}">
-
-                                            <p:column styleClass="users-references-col-checkbox" width="60">
-                                                <p:selectBooleanCheckbox value="#{item.collectionSelected}" styleClass="users-reference-checkbox">
-                                                    <p:ajax event="change" listener="#{userManagementBean.onCollectionToggle(item)}"/>
-                                                </p:selectBooleanCheckbox>
-                                            </p:column>
-
-                                            <!-- Ligne sans en-tête : simple liste code + icône -->
-                                            <p:column styleClass="users-references-col-code">
-                                                <i class="pi pi-folder users-reference-icon-collection" />
-                                                <h:outputText value="#{item.collection.code}" styleClass="users-reference-code"/>
-                                            </p:column>
-                                        </p:dataTable>
-                                    </div>
-
-                                    <p class="users-form-hint">
-                                        <i class="pi pi-info-circle" />
-                                        Sélectionnez une ou plusieurs collections pour autoriser l'accès à tous leurs référentiels.
-                                    </p>
-                                </div>
-                            </p:panel>
-                        </h:panelGroup>
-                    </h:panelGroup>
 
                     <div class="users-form-actions">
                         <p:commandButton value="Annuler"

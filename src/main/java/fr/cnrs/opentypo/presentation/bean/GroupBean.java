@@ -147,17 +147,17 @@ public class GroupBean implements Serializable {
         this.relecteursPickList = relecteursPickList;
     }
 
-    /** Liste des utilisateurs avec le groupe "Rédacteur" */
+    /** Liste des utilisateurs avec le groupe "Utilisateur" (sélection rédacteur) */
     public List<Utilisateur> getRedacteursList() {
         if (utilisateurRepository == null) return new ArrayList<>();
-        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.REDACTEUR.getLabel());
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
         return list != null ? list : new ArrayList<>();
     }
 
-    /** Liste des utilisateurs avec le groupe "Relecteur" */
+    /** Liste des utilisateurs avec le groupe "Utilisateur" (sélection relecteurs) */
     public List<Utilisateur> getRelecteursList() {
         if (utilisateurRepository == null) return new ArrayList<>();
-        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.RELECTEUR.getLabel());
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
         return list != null ? list : new ArrayList<>();
     }
 
