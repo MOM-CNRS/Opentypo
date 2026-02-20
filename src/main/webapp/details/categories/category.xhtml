@@ -5,207 +5,210 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <div class="category-detail-page">
-    <h:panelGroup class="row">
-        <div class="col-md-12">
-            <div class="concept-info-panel">
-                <!-- En-tête avec titre et actions -->
-                <div class="concept-info-header">
-                    <div class="concept-info-title-section">
-                        <span class="reference-entity-type-badge">Catégorie</span>
-                        <div class="concept-info-language-flag">
-                            <h:graphicImage library="img" name="flag/fr.png"
-                                            styleClass="language-flag"
-                                            alt="Français"
-                                            title="Français"/>
+        <h:panelGroup class="row">
+            <div class="col-md-12">
+                <div class="concept-info-panel">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <span class="reference-entity-type-badge">Catégorie</span>
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
+                            </div>
+                            <div class="collection-panel-title-wrapper">
+                                <p:commandLink action="#{applicationBean.showReferenceDetail(applicationBean.selectedReference)}"
+                                               process="@this"
+                                               update=":centerContent"
+                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
+                                               onerror="forceHideLoading();"
+                                               styleClass="collection-panel-title-link">
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                </p:commandLink>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                            </div>
                         </div>
-                        <div class="collection-panel-title-wrapper">
-                            <p:commandLink action="#{applicationBean.showReferenceDetail(applicationBean.selectedReference)}"
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
+                            <!-- Bouton Historique -->
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
-                                           update=":centerContent"
-                                           onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                           oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                           onerror="forceHideLoading();"
-                                           styleClass="collection-panel-title-link">
-                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                           update="@none"
+                                           styleClass="concept-action-button"
+                                           immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
-                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                        </div>
+                            <p:commandLink action="#{categoryBean.startEditingCategory(applicationBean)}"
+                                           process="@this"
+                                           update=":categoryEditForm"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
+                            </p:commandLink>
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
+                            </p:commandLink>
+                        </h:panelGroup>
                     </div>
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                        <!-- Bouton Historique -->
-                        <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                       process="@this"
-                                       update="@none"
-                                       styleClass="concept-action-button"
-                                       immediate="true">
-                            <i class="pi pi-history" />
-                            <p:tooltip value="Voir l'historique" position="top"/>
-                        </p:commandLink>
-                        <p:commandLink action="#{categoryBean.startEditingCategory(applicationBean)}"
-                                       process="@this"
-                                       update=":categoryEditForm"
-                                       styleClass="concept-action-button">
-                            <i class="pi pi-file-edit" />
-                            <p:tooltip value="Modifier" position="top"/>
-                        </p:commandLink>
-                        <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
-                                       process="@this"
-                                       update=":confirmDeleteDialogContent"
-                                       oncomplete="PF('confirmDeleteDialog').show();"
-                                       styleClass="concept-action-button">
-                            <i class="pi pi-trash" />
-                            <p:tooltip value="Supprimer" position="top"/>
-                        </p:commandLink>
-                    </h:panelGroup>
-                </div>
 
-                <!-- Grille d'informations -->
-                <h:form id="categoryEditForm">
-                    <div class="concept-info-grid">
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-code concept-info-icon" />
-                                <span>Code</span>
-                            </div>
-                            <p:inputText id="editingCodeInput"
-                                         value="#{categoryBean.editingCategoryCode}"
-                                         styleClass="reference-edit-input"
-                                         placeholder="Code (unique, indépendant de la langue)"/>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="labelUpdatePanel" class="concept-info-item concept-info-item-full"
-                                      rendered="#{categoryBean.editingCategory}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Label</span>
-                            </div>
-                            <div class="reference-edit-lang-row">
-                                <p:selectOneMenu value="#{categoryBean.editingLabelLangueCode}"
-                                                 styleClass="reference-edit-lang-select"
-                                                 required="true">
-                                    <f:selectItems value="#{applicationBean.languages}"
-                                                   var="lang"
-                                                   itemValue="#{lang.code}"
-                                                   itemLabel="#{lang.value}"/>
-                                    <p:ajax process="@this" ajax="true"
-                                            listener="#{categoryBean.onLabelLanguageChange(applicationBean)}"
-                                            update=":categoryEditForm:labelUpdatePanel"/>
-                                </p:selectOneMenu>
-                                <p:inputText value="#{categoryBean.editingCategoryLabel}"
-                                             styleClass="reference-edit-input reference-edit-input-flex"
-                                             placeholder="Saisissez le nom pour la langue choisie..."/>
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="descriptionUpdatePanel" class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <ui:fragment rendered="#{!categoryBean.editingCategory}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+                    <!-- Grille d'informations -->
+                    <h:form id="categoryEditForm">
+                        <div class="concept-info-grid">
+                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-code concept-info-icon" />
+                                    <span>Code</span>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{categoryBean.editingCategory}">
+                                <p:inputText id="editingCodeInput"
+                                             value="#{categoryBean.editingCategoryCode}"
+                                             styleClass="reference-edit-input"
+                                             placeholder="Code (unique, indépendant de la langue)"/>
+                            </h:panelGroup>
+
+                            <h:panelGroup id="labelUpdatePanel" class="concept-info-item concept-info-item-full"
+                                          rendered="#{categoryBean.editingCategory}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-tag concept-info-icon" />
+                                    <span>Label</span>
+                                </div>
                                 <div class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{categoryBean.editingDescriptionLangueCode}"
+                                    <p:selectOneMenu value="#{categoryBean.editingLabelLangueCode}"
                                                      styleClass="reference-edit-lang-select"
                                                      required="true">
                                         <f:selectItems value="#{applicationBean.languages}"
                                                        var="lang"
                                                        itemValue="#{lang.code}"
                                                        itemLabel="#{lang.value}"/>
-                                        <p:ajax listener="#{categoryBean.onDescriptionLanguageChange(applicationBean)}"
-                                                process="@this" ajax="true"
-                                                update=":categoryEditForm:descriptionUpdatePanel"/>
+                                        <p:ajax process="@this" ajax="true"
+                                                listener="#{categoryBean.onLabelLanguageChange(applicationBean)}"
+                                                update=":categoryEditForm:labelUpdatePanel"/>
                                     </p:selectOneMenu>
-                                    <p:inputTextarea value="#{categoryBean.editingCategoryDescription}"
-                                                     rows="5"
-                                                     cols="50"
-                                                     styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Saisissez la description pour la langue choisie..."/>
+                                    <p:inputText value="#{categoryBean.editingCategoryLabel}"
+                                                 styleClass="reference-edit-input reference-edit-input-flex"
+                                                 placeholder="Saisissez le nom pour la langue choisie..."/>
                                 </div>
-                            </ui:fragment>
-                        </h:panelGroup>
+                            </h:panelGroup>
 
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                    <span class="bibliographie-badge">
-                                        <i class="pi pi-user bibliographie-badge-icon" />
-                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                    </span>
-                                    </ui:repeat>
+                            <h:panelGroup id="descriptionUpdatePanel" class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
+                                </div>
+                                <ui:fragment rendered="#{!categoryBean.editingCategory}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
                                 </ui:fragment>
-                                <h:outputText value="Aucun auteur disponible"
-                                              rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                              styleClass="bibliographie-empty" />
-                            </div>
-                        </h:panelGroup>
+                                <ui:fragment rendered="#{categoryBean.editingCategory}">
+                                    <div class="reference-edit-lang-row">
+                                        <p:selectOneMenu value="#{categoryBean.editingDescriptionLangueCode}"
+                                                         styleClass="reference-edit-lang-select"
+                                                         required="true">
+                                            <f:selectItems value="#{applicationBean.languages}"
+                                                           var="lang"
+                                                           itemValue="#{lang.code}"
+                                                           itemLabel="#{lang.value}"/>
+                                            <p:ajax listener="#{categoryBean.onDescriptionLanguageChange(applicationBean)}"
+                                                    process="@this" ajax="true"
+                                                    update=":categoryEditForm:descriptionUpdatePanel"/>
+                                        </p:selectOneMenu>
+                                        <p:inputTextarea value="#{categoryBean.editingCategoryDescription}"
+                                                         rows="5"
+                                                         cols="50"
+                                                         styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                         placeholder="Saisissez la description pour la langue choisie..."/>
+                                    </div>
+                                </ui:fragment>
+                            </h:panelGroup>
 
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-book concept-info-icon" />
-                                <span>Bibliographie</span>
-                            </div>
-                            <ui:fragment rendered="#{not categoryBean.editingCategory}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                        #{applicationBean.selectedEntity.bibliographie}
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-user bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                        </span>
+                                        </ui:repeat>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                    <h:outputText value="Aucun auteur disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  styleClass="bibliographie-empty" />
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'MONNAIE'
+                                    and applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'CASH'}">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book concept-info-icon" />
+                                        <span>Bibliographie</span>
+                                    </div>
+                                    <ui:fragment rendered="#{not categoryBean.editingCategory}">
+                                        <div class="concept-info-value concept-info-description">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
+                                                #{applicationBean.selectedEntity.bibliographie}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{categoryBean.editingCategory}">
+                                        <div class="reference-edit-lang-row">
+                                            <p:inputTextarea value="#{categoryBean.editingCategoryBibliographie}"
+                                                             rows="5"
+                                                             cols="50"
+                                                             styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                             placeholder="Saisissez la description pour la langue choisie..."/>
+                                        </div>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                <div class="reference-edit-lang-row">
-                                    <p:inputTextarea value="#{categoryBean.editingCategoryBibliographie}"
-                                                     rows="5"
-                                                     cols="50"
-                                                     styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Saisissez la description pour la langue choisie..."/>
+                            </h:panelGroup>
+
+                            <!-- Boutons Valider et Annuler -->
+                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
+                                <div class="reference-edit-actions">
+                                    <p:commandButton value="Annuler"
+                                                     icon="pi pi-times"
+                                                     action="#{categoryBean.cancelEditingCategory()}"
+                                                     process="@this"
+                                                     update=":categoryEditForm"
+                                                     styleClass="reference-edit-btn reference-edit-btn-cancel"/>
+                                    <p:commandButton value="Valider"
+                                                     icon="pi pi-check"
+                                                     action="#{confirmSaveBean.prepareSave('CATEGORIE')}"
+                                                     process="@this categoryEditForm"
+                                                     update=":confirmSaveDialogContent"
+                                                     oncomplete="PF('confirmSaveDialog').show();"
+                                                     styleClass="reference-edit-btn reference-edit-btn-validate"/>
                                 </div>
-                            </ui:fragment>
+                            </h:panelGroup>
                         </div>
-
-                        <!-- Boutons Valider et Annuler -->
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
-                            <div class="reference-edit-actions">
-                                <p:commandButton value="Annuler"
-                                                 icon="pi pi-times"
-                                                 action="#{categoryBean.cancelEditingCategory()}"
-                                                 process="@this"
-                                                 update=":categoryEditForm"
-                                                 styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                <p:commandButton value="Valider"
-                                                 icon="pi pi-check"
-                                                 action="#{confirmSaveBean.prepareSave('CATEGORIE')}"
-                                                 process="@this categoryEditForm"
-                                                 update=":confirmSaveDialogContent"
-                                                 oncomplete="PF('confirmSaveDialog').show();"
-                                                 styleClass="reference-edit-btn reference-edit-btn-validate"/>
-                            </div>
-                        </h:panelGroup>
-                    </div>
-
-                </h:form>
+                    </h:form>
+                </div>
             </div>
-
-        </div>
-    </h:panelGroup>
+        </h:panelGroup>
     </div>
+
+    <ui:include src="../catalogues/liste_groupes.xhtml"/>
 
     <!-- Inclusion du dialog de création de groupe -->
     <ui:include src="groupDialog.xhtml"/>

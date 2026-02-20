@@ -30,9 +30,27 @@
             flex-shrink: 0 !important;
         }
 
-        /* Masquer le titre par défaut quand on utilise un header personnalisé (sauf pour default-title) */
-        .candidat-confirm-dialog:not(.candidat-confirm-dialog-default-title) .ui-dialog-titlebar .ui-dialog-title {
+        /* Masquer le titre par défaut quand on utilise un header personnalisé (sauf default-title et custom-header) */
+        .candidat-confirm-dialog:not(.candidat-confirm-dialog-default-title):not(.candidat-confirm-dialog-custom-header) .ui-dialog-titlebar .ui-dialog-title {
             display: none !important;
+        }
+
+        /* Header personnalisé + bouton X alignés horizontalement */
+        .candidat-confirm-dialog.candidat-confirm-dialog-custom-header .ui-dialog-titlebar {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        .candidat-confirm-dialog.candidat-confirm-dialog-custom-header .ui-dialog-titlebar .ui-dialog-title {
+            display: flex !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .candidat-confirm-dialog.candidat-confirm-dialog-custom-header .ui-dialog-titlebar-close {
+            flex-shrink: 0 !important;
         }
 
         .candidat-confirm-dialog.candidat-confirm-dialog-default-title .ui-dialog-titlebar .ui-dialog-title {
@@ -52,6 +70,17 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            text-decoration: none !important;
+        }
+
+        .candidat-confirm-dialog .ui-dialog-titlebar-close:hover,
+        .candidat-confirm-dialog .ui-dialog-titlebar-close:focus {
+            text-decoration: none !important;
+        }
+
+        .candidat-confirm-dialog .ui-dialog-titlebar-close span,
+        .candidat-confirm-dialog .ui-dialog-titlebar-close .ui-icon {
+            text-decoration: none !important;
         }
 
         .candidat-confirm-dialog .ui-dialog-titlebar-close:hover {

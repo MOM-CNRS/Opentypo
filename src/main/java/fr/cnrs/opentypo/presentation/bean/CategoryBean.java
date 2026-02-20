@@ -640,6 +640,10 @@ public class CategoryBean implements Serializable {
         Entity categorySaved = entityRepository.save(categoryToUpdate);
         applicationBean.setSelectedEntity(categorySaved);
 
+        if (treeBean != null) {
+            treeBean.updateEntityInTree(categorySaved);
+        }
+
         applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, categorySaved);
 
         // Actualiser l'arbre : déplier le chemin et sélectionner la catégorie sauvegardée
