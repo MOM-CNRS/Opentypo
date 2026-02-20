@@ -180,12 +180,13 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
-     * Indique si une entité est visible pour l'utilisateur connecté, selon les règles métier :
+     * Indique si une entité est visible pour l'utilisateur actuel, selon les règles métier :
      * - Jamais d'entités avec statut REFUSED.
-     * - Utilisateur non connecté : uniquement les entités publiques.
-     * - Administrateur technique : toutes les entités sauf REFUSED.
-     * - Autres groupes : uniquement les collections autorisées et les entités rattachées
-     *   à ces collections (via les relations), quel que soit le statut public/privé.
+     * - Utilisateur non connecté : uniquement les entités avec le champ publique = true.
+     * - Utilisateur connecté : entités avec publique = true ou false selon les règles ci-dessous :
+     *   - Collections publiques : toutes les entités rattachées sont visibles.
+     *   - Administrateur technique : toutes les entités sauf REFUSED.
+     *   - Autres groupes : collections autorisées via user_permission et entités rattachées.
      */
     public boolean isEntityVisibleForCurrentUser(Entity entity) {
         if (entity == null) {
@@ -197,8 +198,17 @@ public class ApplicationBean implements Serializable {
             return false;
         }
 
-        // 2) Règle globale : toutes les collections publiques et tous leurs éléments
-        //    sont visibles pour tout le monde (connecté ou non).
+        boolean authenticated = loginBean != null && loginBean.isAuthenticated();
+        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
+
+        // 2) Utilisateur non connecté : uniquement les entités avec publique = true
+        //    (pas de prise en compte des collections publiques : filtre strict sur le champ entity.publique)
+        if (!authenticated) {
+            return Boolean.TRUE.equals(entity.getPublique());
+        }
+
+        // 3) Utilisateur connecté : règle des collections publiques — toutes les collections
+        //    publiques et tous leurs éléments sont visibles.
         Entity collectionAncestorForPublicRule = null;
         if (entity.getEntityType() != null
                 && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
@@ -209,14 +219,6 @@ public class ApplicationBean implements Serializable {
         if (collectionAncestorForPublicRule != null
                 && Boolean.TRUE.equals(collectionAncestorForPublicRule.getPublique())) {
             return true;
-        }
-
-        boolean authenticated = loginBean != null && loginBean.isAuthenticated();
-        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
-
-        // 3) Utilisateur non connecté : ne voit que le contenu public
-        if (!authenticated) {
-            return Boolean.TRUE.equals(entity.getPublique());
         }
 
         // 4) Administrateur technique : tout voir (sauf REFUSED déjà filtré)

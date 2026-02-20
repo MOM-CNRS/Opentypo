@@ -4,45 +4,31 @@
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <!-- Dialog pour créer ou modifier un référentiel -->
+    <!-- Dialog pour créer ou modifier un référentiel (aligné sur categoryDialog) -->
     <p:dialog id="referenceDialog"
+              header="#{referenceBean.editModeInDialog ? 'Modifier le référentiel' : 'Créer un nouveau référentiel'}"
               widgetVar="referenceDialog"
               modal="true"
               draggable="false"
               resizable="false"
-              styleClass="reference-dialog reference-dialog-custom-header"
-              width="650"
+              styleClass="reference-dialog"
+              width="600"
               height="auto"
               closable="true"
               responsive="true"
-              position="center"
-              visible="false"
-              appendTo="@(body)"
-              closeOnEscape="true">
+              position="center">
 
-        <f:facet name="header">
-            <div class="collection-dialog-header">
-                <div class="collection-dialog-header-icon">
-                    <i class="pi pi-book"/>
-                </div>
-                <div class="collection-dialog-header-content">
-                    <h3>#{referenceBean.editModeInDialog ? 'Modifier le référentiel' : 'Créer un nouveau référentiel'}</h3>
-                </div>
-            </div>
-        </f:facet>
-
-        <h:form id="referenceDialogForm" styleClass="collection-dialog-form">
+        <h:form id="referenceDialogForm">
             <p:remoteCommand name="resetReferenceFormCommand"
                              action="#{referenceBean.resetReferenceForm}"
                              update="@form"
                              process="@this"/>
-            <p:scrollPanel mode="native" styleClass="collection-dialog-scroll-panel">
-                <div class="collection-form-content">
+            <div class="reference-form-content">
                 <!-- Code -->
-                <div class="collection-form-group">
-                    <div class="collection-section-header">
-                        <i class="pi pi-key collection-section-icon"/>
-                        <span class="collection-section-label">Code du référentiel</span>
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-key reference-section-icon"/>
+                        <span>Code du référentiel</span>
                     </div>
                     <p:inputText id="referenceCode"
                                value="#{referenceBean.referenceCode}"
@@ -53,10 +39,10 @@
                 </div>
 
                 <!-- Section Labels -->
-                <div class="collection-form-group">
-                    <div class="collection-section-header">
-                        <i class="pi pi-tag collection-section-icon"/>
-                        <span class="collection-section-label">Labels</span>
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-tag reference-section-icon"/>
+                        <span>Labels</span>
                     </div>
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex">
@@ -78,11 +64,11 @@
                         </div>
                         <p:commandButton value="Ajouter"
                                        icon="pi pi-plus"
-                                       styleClass="collection-btn-add"
+                                       styleClass="reference-btn-add"
                                        actionListener="#{referenceBean.addNameFromInput()}"
                                        process="@form"
                                        ajax="true"
-                                       update="@form :growl"/>
+                                       update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameInput :referenceDialogForm:newNameLangue growl"/>
                     </div>
                     <h:panelGroup id="referenceNamesTable" class="reference-names-table-container">
                         <p:dataTable value="#{referenceBean.referenceNames}"
@@ -108,7 +94,7 @@
                                                      action="#{referenceBean.removeName(nameItem)}"
                                                      process="@form"
                                                      ajax="true"
-                                                     update="@form :growl"
+                                                     update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameLangue"
                                                      title="Supprimer ce nom"/>
                                 </div>
                             </p:column>
@@ -128,10 +114,10 @@
                 </div>
 
                 <!-- Section Descriptions -->
-                <div class="collection-form-group">
-                    <div class="collection-section-header">
-                        <i class="pi pi-align-left collection-section-icon"/>
-                        <span class="collection-section-label">Descriptions</span>
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-align-left reference-section-icon"/>
+                        <span>Descriptions</span>
                     </div>
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex">
@@ -156,11 +142,11 @@
                         </div>
                         <p:commandButton value="Ajouter"
                                          icon="pi pi-plus"
-                                         styleClass="collection-btn-add"
+                                         styleClass="reference-btn-add"
                                          actionListener="#{referenceBean.addDescriptionFromInput()}"
                                          process="@form"
                                          ajax="true"
-                                         update="@form :growl"/>
+                                         update=":referenceDialogForm:referenceDescriptionsTable :referenceDialogForm:newDescriptionInput :referenceDialogForm:newDescriptionLangue growl"/>
                     </div>
                     <h:panelGroup id="referenceDescriptionsTable" class="reference-names-table-container">
                         <p:dataTable value="#{referenceBean.referenceDescriptions}"
@@ -187,7 +173,7 @@
                                                      action="#{referenceBean.removeDescription(descriptionItem)}"
                                                      process="@form"
                                                      ajax="true"
-                                                     update="@form :growl"
+                                                     update=":referenceDialogForm:referenceDescriptionsTable :referenceDialogForm:newDescriptionLangue"
                                                      title="Supprimer cette description"/>
                                 </div>
                             </p:column>
@@ -207,10 +193,10 @@
                 </div>
 
                 <!-- Références bibliographiques -->
-                <div class="collection-form-group">
-                    <div class="collection-section-header">
-                        <i class="pi pi-book collection-section-icon"/>
-                        <span class="collection-section-label">Référence(s) bibliographique(s)</span>
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-book reference-section-icon"/>
+                        <span>Référence(s) bibliographique(s)</span>
                     </div>
                     <p:chips id="referenceBibliographique"
                              value="#{referenceBean.referenceBibliographiqueList}"
@@ -221,44 +207,33 @@
                 </div>
 
                 <!-- Section Visibilité -->
-                <div class="collection-form-group collection-visibility-form-group">
-                    <div class="collection-section-header">
-                        <i class="pi pi-eye collection-section-icon"/>
-                        <span class="collection-section-label">Visibilité du référentiel</span>
-                    </div>
-                    <h:panelGroup id="referenceVisibilityCard" class="collection-dialog-visibility-wrapper">
-                        <div class="collection-visibility-card collection-dialog-visibility-card">
-                            <div class="collection-visibility-card-content">
-                                <div class="collection-visibility-indicator #{referenceBean.referencePublique ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                    <div class="collection-visibility-icon">
-                                        <i class="pi #{referenceBean.referencePublique ? 'pi-globe' : 'pi-lock'}" />
-                                    </div>
-                                    <div class="collection-visibility-info">
-                                        <span class="collection-visibility-label">#{referenceBean.referencePublique ? 'Public' : 'Privé'}</span>
-                                    </div>
-                                </div>
-                                <div class="collection-visibility-toggle-wrapper">
-                                    <p:commandLink styleClass="collection-visibility-toggle-btn collection-dialog-visibility-toggle"
-                                                   process="@this"
-                                                   update="referenceVisibilityCard"
-                                                   action="#{referenceBean.toggleReferencePublique()}"
-                                                   title="Cliquez pour changer la visibilité">
-                                        <i class="pi pi-sync"/>
-                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
-                                    </p:commandLink>
-                                </div>
-                            </div>
+                <div class="collection-form-group">
+                    <div class="collection-visibility-section">
+                        <p:outputLabel value="Visibilité du référentiel" styleClass="collection-visibility-label" />
+                        <div class="collection-switch-wrapper">
+                            <h:panelGroup id="referenceSwitchLabel" class="collection-switch-label">
+                                <h:outputText value="Public"
+                                              styleClass="reference-switch-text-public"
+                                              rendered="#{referenceBean.referencePublique}"/>
+                                <h:outputText value="Privé"
+                                              styleClass="reference-switch-text-private"
+                                              rendered="#{not referenceBean.referencePublique}"/>
+                            </h:panelGroup>
+                            <p:selectBooleanCheckbox value="#{referenceBean.referencePublique}"
+                                                     styleClass="collection-switch"
+                                                     id="referencePublique">
+                                <p:ajax event="change" process="@this" update=":referenceDialogForm:referenceSwitchLabel"/>
+                            </p:selectBooleanCheckbox>
                         </div>
-                    </h:panelGroup>
+                    </div>
                 </div>
 
                 <!-- Section Gestionnaires de référentiel -->
-                <div class="collection-form-group collection-gestionnaires-section">
-                    <div class="collection-gestionnaires-card">
-                        <div class="collection-section-header collection-gestionnaires-header">
-                            <i class="pi pi-users collection-section-icon"/>
-                            <span class="collection-section-label">Gestionnaires du référentiel</span>
-                        </div>
+                <div class="reference-form-group reference-form-section">
+                    <div class="reference-section-label">
+                        <i class="pi pi-users reference-section-icon"/>
+                        <span>Gestionnaires du référentiel</span>
+                    </div>
                         <p:pickList id="gestionnairesPickList"
                                     value="#{referenceBean.gestionnairesPickList}"
                                     var="userId"
@@ -275,22 +250,19 @@
                         <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
                             <span>Aucun utilisateur disponible</span>
                         </h:panelGroup>
-                    </div>
                 </div>
-                </div>
-            </p:scrollPanel>
+            </div>
 
-            <div class="collection-form-actions">
+            <div class="reference-form-actions">
                 <p:commandButton value="Annuler"
                                  icon="pi pi-times"
-                                 styleClass="collection-btn collection-btn-cancel"
-                                 type="button"
+                                 styleClass="reference-btn reference-btn-cancel"
                                  onclick="PF('referenceDialog').hide(); return false;"
-                                 process="@none"
+                                 process="@this"
                                  update="@none"/>
                 <p:commandButton value="#{referenceBean.editModeInDialog ? 'Enregistrer' : 'Valider'}"
                                  icon="pi pi-check"
-                                 styleClass="collection-btn collection-btn-validate"
+                                 styleClass="reference-btn reference-btn-validate"
                                  action="#{referenceBean.createReference}"
                                  process="@form"
                                  ajax="true"

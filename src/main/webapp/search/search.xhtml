@@ -61,7 +61,7 @@
                                  styleClass="search-button-compact"
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
-                                 update="@all"
+                                 update=":centerContent, :searchForm"
                                  oncomplete="if(typeof SearchPage !== 'undefined' &amp;&amp; SearchPage.onSearchComplete) SearchPage.onSearchComplete();"
                                  title="Rechercher (minimum 2 caractères requis)"/>
             </div>

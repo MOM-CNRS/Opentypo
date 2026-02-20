@@ -25,7 +25,7 @@
                     </div>
 
                     <h:form id="createCategoryBtnForm" styleClass="inline-form"
-                            rendered="#{loginBean.isAdminTechnique() or loginBean.isGestionnaireCollection() or loginBean.isGestionnaireReferentiels()}">
+                            rendered="#{loginBean.isAdminTechnique()}">
                         <p:commandButton value="Créer une catégorie"
                                          icon="pi pi-plus"
                                          styleClass="collection-create-btn"

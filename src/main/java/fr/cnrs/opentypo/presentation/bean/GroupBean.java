@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
@@ -261,36 +262,56 @@ public class GroupBean implements Serializable {
     }
 
     /**
-     * Crée une ligne dans user_permission pour chaque utilisateur sélectionné
-     * (rédacteur et relecteurs) pour le groupe donné.
+     * Crée une ligne dans user_permission pour le rédacteur (rôle "Rédacteur") et
+     * chaque relecteur (rôle "Relecteur") du groupe donné.
      */
     private void saveUserPermissionsForGroup(Entity savedGroup) {
         if (userPermissionRepository == null || savedGroup == null || savedGroup.getId() == null) {
             return;
         }
-        List<Utilisateur> usersToAdd = new ArrayList<>();
+        // Rédacteur : rôle "Rédacteur"
         if (selectedRedacteur != null && selectedRedacteur.getId() != null) {
-            usersToAdd.add(selectedRedacteur);
+            saveUserPermission(savedGroup, selectedRedacteur, PermissionRoleEnum.REDACTEUR.getLabel());
         }
-        List<Utilisateur> selectedRelecteurs = (relecteursPickList != null && relecteursPickList.getTarget() != null) ? relecteursPickList.getTarget() : List.of();
-        for (Utilisateur u : selectedRelecteurs) {
-            if (u != null && u.getId() != null && !usersToAdd.contains(u)) {
-                usersToAdd.add(u);
+
+        // Relecteurs : rôle "Relecteur" (on évite les doublons avec le rédacteur)
+        List<?> targetList = (relecteursPickList != null && relecteursPickList.getTarget() != null)
+                ? relecteursPickList.getTarget() : List.of();
+        for (Object raw : targetList) {
+            Utilisateur u = resolveUtilisateur(raw);
+            if (u != null && u.getId() != null
+                    && (selectedRedacteur == null || !u.getId().equals(selectedRedacteur.getId()))) {
+                saveUserPermission(savedGroup, u, PermissionRoleEnum.RELECTEUR.getLabel());
             }
         }
-        for (Utilisateur utilisateur : usersToAdd) {
-            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
-            id.setUserId(utilisateur.getId());
-            id.setEntityId(savedGroup.getId());
-            if (!userPermissionRepository.existsById(id)) {
-                UserPermission permission = new UserPermission();
-                permission.setUtilisateur(utilisateur);
-                permission.setEntity(savedGroup);
-                permission.setId(id);
-                permission.setCreateDate(LocalDateTime.now());
-                userPermissionRepository.save(permission);
-            }
+    }
+
+    private void saveUserPermission(Entity savedGroup, Utilisateur utilisateur, String role) {
+        UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+        id.setUserId(utilisateur.getId());
+        id.setEntityId(savedGroup.getId());
+        if (!userPermissionRepository.existsById(id)) {
+            UserPermission permission = new UserPermission();
+            permission.setUtilisateur(utilisateur);
+            permission.setEntity(savedGroup);
+            permission.setId(id);
+            permission.setRole(role);
+            permission.setCreateDate(LocalDateTime.now());
+            userPermissionRepository.save(permission);
         }
+    }
+
+    /** Résout un objet (Utilisateur, Long ou String) en Utilisateur pour le PickList. */
+    private Utilisateur resolveUtilisateur(Object value) {
+        if (value == null || utilisateurRepository == null) return null;
+        if (value instanceof Utilisateur u) return u;
+        Long userId = null;
+        if (value instanceof Long l) userId = l;
+        else if (value instanceof Number n) userId = n.longValue();
+        else if (value instanceof String s && !s.isBlank()) {
+            try { userId = Long.parseLong(s.trim()); } catch (NumberFormatException e) { return null; }
+        }
+        return userId != null ? utilisateurRepository.findById(userId).orElse(null) : null;
     }
 
     @Transactional
