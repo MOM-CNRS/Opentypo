@@ -28,12 +28,12 @@
                                        process="@this"
                                        update=":centerContent">
                             <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
-                            <span class="breadcrumb-link-text">#{element.code}</span>
+                            <span class="breadcrumb-link-text">#{element.entityType != null and element.entityType.code == 'COLLECTION' ? applicationBean.getEntityLabel(element) : element.code}</span>
                         </p:commandLink>
                     </ui:fragment>
                     <ui:fragment rendered="#{status.last}">
                         <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
-                        <span class="breadcrumb-current" aria-current="page">#{element.code}</span>
+                        <span class="breadcrumb-current" aria-current="page">#{element.entityType != null and element.entityType.code == 'COLLECTION' ? applicationBean.getEntityLabel(element) : element.code}</span>
                     </ui:fragment>
                 </li>
             </ui:repeat>
