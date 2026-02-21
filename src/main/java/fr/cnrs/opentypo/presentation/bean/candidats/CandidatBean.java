@@ -432,13 +432,13 @@ public class CandidatBean implements Serializable {
             candidats.clear();
             candidats.addAll(entitiesProposition.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .collect(Collectors.toList()));
+                .toList());
             candidats.addAll(entitiesAccepted.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .collect(Collectors.toList()));
+                .toList());
             candidats.addAll(entitiesRefused.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .collect(Collectors.toList()));
+                .toList());
             
             candidatsLoaded = true;
             log.info("Chargement des candidats terminé: {} PROPOSITION, {} ACCEPTED, {} REFUSED", 
@@ -1049,7 +1049,8 @@ public class CandidatBean implements Serializable {
 
     public String visualiserCandidat(Candidat candidat) {
         if (candidat == null) return null;
-            candidatSelectionne = candidat;
+
+        candidatSelectionne = candidat;
         String defaultLangue = candidat.getLangue() != null ? candidat.getLangue() : (searchBean != null ? searchBean.getLangSelected() : "fr");
         VisualisationPrepareResult res = candidatVisualisationService.prepareVisualisation(candidat.getId(), defaultLangue);
         if (!res.isSuccess()) {
@@ -1078,7 +1079,8 @@ public class CandidatBean implements Serializable {
         references = res.getStep3Data().getReferences();
 
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
-            loadAvailableAuteurs();
+
+        loadAvailableAuteurs();
         return res.getRedirectUrl();
     }
 

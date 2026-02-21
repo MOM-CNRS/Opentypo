@@ -20,6 +20,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
@@ -33,9 +36,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -79,6 +84,12 @@ public class GroupBean implements Serializable {
 
     @Inject
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private ApplicationBean applicationBean;
+
+    @Inject
+    private CandidatBean candidatBean;
 
     private String groupCode;
     private String groupLabel;
@@ -772,5 +783,13 @@ public class GroupBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                             "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
+    }
+
+    public void editCandidat() throws IOException {
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(applicationBean.getSelectedEntity());
+        candidatBean.visualiserCandidat(candidat);
+
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");
     }
 }

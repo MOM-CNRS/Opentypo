@@ -128,7 +128,7 @@
 
                                     <ui:include src="form/production.xhtml"/>
 
-                                    <h:panelGroup rendered="#{not candidatBean.getCollectionLabel() == 'MONNAIE' and not candidatBean.getCollectionLabel() == 'CASH'}">
+                                    <h:panelGroup rendered="#{candidatBean.getCollectionLabel() != 'MONNAIE' and candidatBean.getCollectionLabel() != 'CASH'}">
                                         <ui:include src="form/details.xhtml"/>
                                         <ui:include src="form/caracteristiques-physiques.xhtml"/>
                                     </h:panelGroup>
