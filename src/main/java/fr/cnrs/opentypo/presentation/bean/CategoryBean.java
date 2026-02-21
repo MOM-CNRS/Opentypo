@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.DescriptionItem;
 import fr.cnrs.opentypo.application.dto.NameItem;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -15,6 +16,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
@@ -28,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -63,9 +66,6 @@ public class CategoryBean implements Serializable {
 
     @Inject
     private Provider<TreeBean> treeBeanProvider;
-    
-    @Inject
-    private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
     private EntityRelationRepository entityRelationRepository;
@@ -78,6 +78,12 @@ public class CategoryBean implements Serializable {
 
     @Inject
     private TreeBean treeBean;
+
+    @Inject
+    private ApplicationBean applicationBean;
+
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
 
 
     private String categoryCode;
@@ -104,6 +110,7 @@ public class CategoryBean implements Serializable {
     private String newDescriptionLangueCode;
     private Boolean categoryPublique = true;
     private List<Langue> availableLanguages;
+
 
     public void resetCategoryForm() {
         categoryCode = null;
@@ -225,7 +232,6 @@ public class CategoryBean implements Serializable {
     @Transactional
     public void createCategoryFromDialog() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        ApplicationBean applicationBean = applicationBeanProvider.get();
 
         if (applicationBean == null || applicationBean.getSelectedReference() == null) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
@@ -355,8 +361,6 @@ public class CategoryBean implements Serializable {
                 categoryLabel, ":categoryForm")) {
             return;
         }
-
-        ApplicationBean applicationBean = applicationBeanProvider.get();
         
         // Vérifier qu'un référentiel est sélectionné
         if (applicationBean == null || applicationBean.getSelectedReference() == null) {
@@ -669,5 +673,16 @@ public class CategoryBean implements Serializable {
         editingDescriptionLangueCode = null;
         editingCategoryDescription = null;
         editingCategoryBibliographie = null;
+    }
+
+    public boolean canCreateCategory() {
+        if (!loginBean.isAuthenticated()) return false;
+
+        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+
+        return isGestionnaireReference || loginBean.isAdminTechnique();
     }
 }

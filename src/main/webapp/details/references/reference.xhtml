@@ -42,7 +42,7 @@
                         </div>
                     </div>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique()}">
+                    <h:panelGroup class="concept-info-actions" rendered="#{referenceBean.canShowParamsPanel()}">
                         <!-- Bouton Historique -->
                         <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                        process="@this"
@@ -94,23 +94,25 @@
                         </div>
                     </h:panelGroup>
 
-                    <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
-                                   process="@this"
-                                   update=":referenceEditForm"
-                                   styleClass="concept-action-button">
-                        <i class="pi pi-file-edit" />
-                        <p:tooltip value="Modifier" position="top"/>
-                    </p:commandLink>
+                    <h:panelGroup rendered="#{referenceBean.canEditReference()}">
+                        <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
+                                       process="@this"
+                                       update=":referenceEditForm"
+                                       styleClass="concept-action-button">
+                            <i class="pi pi-file-edit" />
+                            <p:tooltip value="Modifier" position="top"/>
+                        </p:commandLink>
+                    </h:panelGroup>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.getCurrentUser() != null and not loginBean.isAdminTechnique()}">
+                    <h:panelGroup class="concept-info-actions" rendered="#{!referenceBean.showReferenceStatut()}">
                         <h:panelGroup class="collection-visibility-card">
                             <div class="collection-visibility-card-content">
-                                <div class="collection-visibility-indicator #{referenceBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                     <div class="collection-visibility-icon">
-                                        <i class="pi #{referenceBean.editingStatus ? 'pi-globe' : 'pi-lock'}" />
+                                        <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
                                     </div>
                                     <div class="collection-visibility-info">
-                                        <span class="collection-visibility-label">#{referenceBean.editingStatus ? 'Publique' : 'Privée'}</span>
+                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Publique' : 'Privée'}</span>
                                     </div>
                                 </div>
                             </div>

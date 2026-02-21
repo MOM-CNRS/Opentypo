@@ -18,13 +18,13 @@ import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
-import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,15 +52,13 @@ import java.util.stream.Collectors;
 public class ReferenceBean implements Serializable {
 
     private static final String reference_FORM = ":referenceDialogForm";
+    private final CollectionBean collectionBean;
 
     @Autowired
     private EntityRepository entityRepository;
 
     @Autowired
     private EntityTypeRepository entityTypeRepository;
-
-    @Autowired
-    private ReferenceOpenthesoRepository referenceOpenthesoRepository;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -127,7 +125,12 @@ public class ReferenceBean implements Serializable {
     /** Statut de visibilité demandé avant confirmation (pour le dialog) */
     private Boolean requestedVisibilityStatus;
 
-    
+    @Inject
+    public ReferenceBean(@Named("collectionBean") CollectionBean collectionBean) {
+        this.collectionBean = collectionBean;
+    }
+
+
     public void resetReferenceForm() {
         editingReferenceId = null;
         referenceCode = null;
@@ -156,10 +159,6 @@ public class ReferenceBean implements Serializable {
             initGestionnairesPickList();
         }
         return gestionnairesPickList;
-    }
-
-    public void setGestionnairesPickList(DualListModel<Long> gestionnairesPickList) {
-        this.gestionnairesPickList = gestionnairesPickList;
     }
 
     private void initGestionnairesPickList() {
@@ -456,15 +455,16 @@ public class ReferenceBean implements Serializable {
             if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
                 attachReferenceToCollection(newReference, applicationBean.getSelectedCollection());
             }
-            
-            refreshReferencesList();
+
+            applicationBean.loadReferences();
+            searchBean.loadReferences();
             
             // Recharger les référentiels de la collection
             if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
                 applicationBean.refreshCollectionReferencesList();
             }
 
-            updateTree(newReference);
+            treeBean.addReferenceToTree(newReference);
             
             String labelPrincipal = referenceNames.get(0).getNom();
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
@@ -880,7 +880,9 @@ public class ReferenceBean implements Serializable {
 
             applicationBean.refreshCollectionReferencesList();
 
-            refreshReferencesList();
+            applicationBean.loadReferences();
+            searchBean.loadReferences();
+
             if (treeBean != null) {
                 treeBean.initializeTreeWithCollection();
             }
@@ -965,41 +967,16 @@ public class ReferenceBean implements Serializable {
     }
 
     /**
-     * Recharge les listes de référentiels dans les beans concernés
-     */
-    private void refreshReferencesList() {
-        if (applicationBean != null) {
-            applicationBean.loadReferences();
-        }
-        if (searchBean != null) {
-            searchBean.loadReferences();
-        }
-    }
-
-    /**
      * Rattache un référentiel à une collection
      */
     private void attachReferenceToCollection(Entity reference, Entity collection) {
-        try {
-            // Vérifier si la relation existe déjà
-            if (!entityRelationRepository.existsByParentAndChild(collection.getId(), reference.getId())) {
-                fr.cnrs.opentypo.domain.entity.EntityRelation relation = 
+        // Vérifier si la relation existe déjà
+        if (!entityRelationRepository.existsByParentAndChild(collection.getId(), reference.getId())) {
+            fr.cnrs.opentypo.domain.entity.EntityRelation relation =
                     new fr.cnrs.opentypo.domain.entity.EntityRelation();
-                relation.setParent(collection);
-                relation.setChild(reference);
-                entityRelationRepository.save(relation);
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors du rattachement du référentiel à la collection", e);
-        }
-    }
-
-    /**
-     * Met à jour l'arbre avec le nouveau référentiel
-     */
-    private void updateTree(Entity reference) {
-        if (treeBean != null) {
-            treeBean.addReferenceToTree(reference);
+            relation.setParent(collection);
+            relation.setChild(reference);
+            entityRelationRepository.save(relation);
         }
     }
 
@@ -1011,5 +988,30 @@ public class ReferenceBean implements Serializable {
         facesContext.addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", " + reference_FORM);
+    }
+
+    public boolean canCreateReference() {
+        return collectionBean.canEditCollectionAsGestionnaire(applicationBean.getSelectedCollection())
+                || loginBean.isAdminTechnique();
+    }
+
+    public boolean canShowParamsPanel() {
+        return canCreateReference() && !editingReference;
+    }
+
+    public boolean canEditReference() {
+
+        if (!loginBean.isAuthenticated()) return false;
+
+        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+
+        return loginBean.isAuthenticated() && isGestionnaireReference && !editingReference;
+    }
+
+    public boolean showReferenceStatut() {
+        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || canEditReference());
     }
 }

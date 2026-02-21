@@ -286,8 +286,7 @@
                     </span>
                 </div>
             </div>
-            <h:panelGroup id="collection-references-actions" class="collection-references-actions"
-                          rendered="#{loginBean.isAdminTechnique() or collectionBean.canEditCollectionAsGestionnaire(applicationBean.selectedEntity)}">
+            <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"
