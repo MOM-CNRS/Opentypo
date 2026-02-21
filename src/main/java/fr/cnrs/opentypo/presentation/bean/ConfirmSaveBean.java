@@ -34,8 +34,6 @@ public class ConfirmSaveBean implements Serializable {
     @Inject
     private CategoryBean categoryBean;
     @Inject
-    private GroupBean groupBean;
-    @Inject
     private SerieBean serieBean;
     @Inject
     private TypeBean typeBean;
@@ -114,9 +112,6 @@ public class ConfirmSaveBean implements Serializable {
                 break;
             case TARGET_CATEGORY:
                 categoryBean.saveCategory(applicationBean);
-                break;
-            case TARGET_GROUP:
-                groupBean.saveGroup(applicationBean);
                 break;
             case TARGET_SERIE:
                 serieBean.saveSerie(applicationBean);
