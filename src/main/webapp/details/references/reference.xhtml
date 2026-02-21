@@ -104,7 +104,7 @@
                         </p:commandLink>
                     </h:panelGroup>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{!referenceBean.showReferenceStatut()}">
+                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAuthenticated() and !referenceBean.canShowParamsPanel()}">
                         <h:panelGroup class="collection-visibility-card">
                             <div class="collection-visibility-card-content">
                                 <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -197,25 +197,6 @@
 
                         <h:panelGroup class="concept-info-item concept-info-item-full">
                             <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                        <span class="bibliographie-badge">
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
-                                    </ui:repeat>
-                                </ui:fragment>
-                                <h:outputText value="Aucun auteur disponible" 
-                                             rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                             styleClass="bibliographie-empty" />
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
                                 <i class="pi pi-book concept-info-icon" />
                                 <span>Référence bibliographique</span>
                             </div>
@@ -242,6 +223,67 @@
                                                 styleClass="reference-edit-textarea"
                                                 placeholder="Saisissez les références bibliographiques (séparées par ';')..."/>
                             </ui:fragment>
+                        </h:panelGroup>
+
+                        <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-users concept-info-icon" />
+                                <span>Gestionnaires du référentiel</span>
+                            </div>
+                            <ui:fragment rendered="#{not referenceBean.editingReference}">
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}">
+                                        <ui:repeat value="#{referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}" var="gestionnaire">
+                                            <span class="bibliographie-badge">
+                                                <span class="bibliographie-badge-text">#{gestionnaire}</span>
+                                            </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun gestionnaire assigné"
+                                                 rendered="#{empty referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}"
+                                                 styleClass="bibliographie-empty" />
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{referenceBean.editingReference}">
+                                <div class="collection-edit-field-wrapper collection-edit-gestionnaires-wrapper">
+                                    <p:pickList id="referenceEditGestionnairesPickList"
+                                                value="#{referenceBean.editingGestionnairesPickList}"
+                                                var="userId"
+                                                itemLabel="#{referenceBean.getUtilisateurDisplayName(userId)}"
+                                                itemValue="#{userId}"
+                                                converter="pickListLongConverter"
+                                                styleClass="group-dialog-picklist"
+                                                showSourceFilter="true"
+                                                showTargetFilter="true"
+                                                filterMatchMode="contains"
+                                                sourceFilterPlaceholder="Rechercher..."
+                                                targetFilterPlaceholder="Rechercher..."
+                                                responsive="true"
+                                                rendered="#{not empty referenceBean.gestionnairesList}"/>
+                                    <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
+                                        <span>Aucun utilisateur disponible</span>
+                                    </h:panelGroup>
+                                </div>
+                            </ui:fragment>
+                        </h:panelGroup>
+
+                        <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-user concept-info-icon" />
+                                <span>Auteur(s)</span>
+                            </div>
+                            <div class="concept-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                        <span class="bibliographie-badge">
+                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                        </span>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucun auteur disponible"
+                                              rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                              styleClass="bibliographie-empty" />
+                            </div>
                         </h:panelGroup>
 
                         <!-- Boutons Valider et Annuler -->

@@ -19,17 +19,6 @@
               position="center"
               appendTo="@(body)">
 
-        <f:facet name="header">
-            <div class="group-dialog-header">
-                <div class="group-dialog-header-icon">
-                    <i class="pi pi-users"/>
-                </div>
-                <div class="group-dialog-header-content">
-                    <h3>Créer un nouveau groupe</h3>
-                </div>
-            </div>
-        </f:facet>
-
         <h:form id="groupDialogForm">
             <p:remoteCommand name="resetGroupFormCommand"
                            action="#{groupBean.resetGroupDialogForm}"
@@ -249,10 +238,10 @@
                             </div>
                             <p:pickList id="relecteursPickList"
                                         value="#{groupBean.relecteursPickList}"
-                                        var="user"
-                                        itemLabel="#{user.prenom} #{user.nom}"
-                                        itemValue="#{user}"
-                                        converter="utilisateurConverter"
+                                        var="userId"
+                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                        itemValue="#{userId}"
+                                        converter="pickListLongConverter"
                                         styleClass="group-dialog-picklist"
                                         showSourceFilter="true"
                                         showTargetFilter="true"

@@ -19,15 +19,7 @@
                                                 title="Français"/>
                             </div>
                             <div class="collection-panel-title-wrapper">
-                                <p:commandLink action="#{applicationBean.showReferenceDetail(applicationBean.selectedReference)}"
-                                               process="@this"
-                                               update=":centerContent"
-                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                               onerror="forceHideLoading();"
-                                               styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                </p:commandLink>
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
@@ -134,26 +126,6 @@
                                 </ui:fragment>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-user concept-info-icon" />
-                                    <span>Auteur(s)</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                        <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
-                            </h:panelGroup>
-
                             <h:panelGroup rendered="#{applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'MONNAIE'
                                     and applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'CASH'}">
                                 <div class="concept-info-item concept-info-item-full">
@@ -180,6 +152,26 @@
                                                              placeholder="Saisissez la description pour la langue choisie..."/>
                                         </div>
                                     </ui:fragment>
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                        <span class="bibliographie-badge">
+                                            <i class="pi pi-user bibliographie-badge-icon" />
+                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                        </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun auteur disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </h:panelGroup>
 

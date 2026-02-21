@@ -109,8 +109,8 @@ public class GroupBean implements Serializable {
 
     /** Rédacteur sélectionné (1 maximum, optionnel) */
     private Utilisateur selectedRedacteur;
-    /** Relecteurs : modèle dual pour PickList (source = disponibles, target = sélectionnés) */
-    private DualListModel<Utilisateur> relecteursPickList;
+    /** Relecteurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
+    private DualListModel<Long> relecteursPickList;
 
     public void resetGroupForm() {
         groupCode = null;
@@ -130,22 +130,29 @@ public class GroupBean implements Serializable {
         initRelecteursPickList();
     }
 
-    /** Initialise le PickList des relecteurs (source = tous, target = vide) */
+    /** Initialise le PickList des relecteurs (source = IDs disponibles, target = vide) */
     private void initRelecteursPickList() {
         List<Utilisateur> source = getRelecteursList();
-        relecteursPickList = new DualListModel<>(source != null ? new ArrayList<>(source) : new ArrayList<>(), new ArrayList<>());
+        List<Long> sourceIds = (source != null)
+                ? source.stream().map(Utilisateur::getId).filter(Objects::nonNull).toList()
+                : List.of();
+        relecteursPickList = new DualListModel<>(new ArrayList<>(sourceIds), new ArrayList<>());
     }
 
     /** Retourne le DualListModel des relecteurs, initialisé si besoin */
-    public DualListModel<Utilisateur> getRelecteursPickList() {
+    public DualListModel<Long> getRelecteursPickList() {
         if (relecteursPickList == null) {
             initRelecteursPickList();
         }
         return relecteursPickList;
     }
 
-    public void setRelecteursPickList(DualListModel<Utilisateur> relecteursPickList) {
-        this.relecteursPickList = relecteursPickList;
+    /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
+    public String getUtilisateurDisplayName(Long userId) {
+        if (userId == null || utilisateurRepository == null) return "";
+        return utilisateurRepository.findById(userId)
+                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom().toUpperCase() : "")).trim())
+                .orElse("");
     }
 
     /** Liste des utilisateurs avec le groupe "Utilisateur" (sélection rédacteur) */
@@ -160,6 +167,39 @@ public class GroupBean implements Serializable {
         if (utilisateurRepository == null) return new ArrayList<>();
         List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
         return list != null ? list : new ArrayList<>();
+    }
+
+    /**
+     * Retourne le nom affichable du rédacteur du groupe (rôle "Rédacteur" dans user_permission).
+     */
+    public String getGroupRedacteurDisplayName(Entity group) {
+        if (group == null || group.getId() == null || userPermissionRepository == null) {
+            return null;
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) {
+            return null;
+        }
+        return getUtilisateurDisplayName(userIds.get(0));
+    }
+
+    /**
+     * Retourne la liste des noms affichables des relecteurs du groupe (rôle "Relecteur" dans user_permission).
+     */
+    public List<String> getGroupRelecteursDisplayNames(Entity group) {
+        if (group == null || group.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                group.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
     }
 
     public void prepareCreateGroup() {

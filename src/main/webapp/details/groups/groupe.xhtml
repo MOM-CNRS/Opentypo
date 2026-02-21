@@ -2,8 +2,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentGroupePanels" layout="block">
@@ -22,15 +21,7 @@
                                                    title="Français"/>
                                 </div>
                                 <div class="collection-panel-title-wrapper">
-                                    <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                                   process="@this"
-                                                   update=":centerContent"
-                                                   onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                                   oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                                   onerror="forceHideLoading();"
-                                                   styleClass="collection-panel-title-link">
-                                        <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    </p:commandLink>
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                     <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                 </div>
                             </div>
@@ -140,7 +131,7 @@
                                                 #{applicationBean.selectedEntity.periode.valeur}
                                             </ui:fragment>
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.statut}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
@@ -207,26 +198,6 @@
                                     </ui:fragment>
                                 </div>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-user concept-info-icon" />
-                                        <span>Auteur(s)</span>
-                                    </div>
-                                    <div class="concept-info-value bibliographie-container">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                            <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur">
-                                                <span class="bibliographie-badge">
-                                                    <i class="pi pi-user bibliographie-badge-icon" />
-                                                    <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                                </span>
-                                            </ui:repeat>
-                                        </ui:fragment>
-                                        <h:outputText value="Aucun auteur disponible"
-                                                    rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                                    styleClass="bibliographie-empty" />
-                                    </div>
-                                </div>
-
                                 <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{groupBean.editingGroup}">
                                     <div class="reference-edit-actions">
                                         <p:commandButton value="Annuler" icon="pi pi-times"
@@ -251,13 +222,23 @@
                             or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
                         <ui:include src="../communs/description_monnaie.xhtml"/>
                     </h:panelGroup>
+                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                        <ui:include src="../communs/description.xhtml"/>
+                    </h:panelGroup>
 
                     <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
                             or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
                         <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                     </h:panelGroup>
+                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                        <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                    </h:panelGroup>
 
                     <ui:include src="../communs/bibliographie.xhtml"/>
+
+                    <ui:include src="intervenants.xhtml"/>
                 </div>
             </div>
         </div>

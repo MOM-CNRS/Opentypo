@@ -833,7 +833,8 @@ public class CollectionBean implements Serializable {
      * Enregistre les gestionnaires de la collection dans user_permission (rôle Gestionnaire de collection).
      * En édition inline : utilise editingGestionnairesPickList. En création : utilise gestionnairesPickList.
      */
-    private void saveUserPermissionsForCollection(Entity savedCollection) {
+    @Transactional
+    protected void saveUserPermissionsForCollection(Entity savedCollection) {
         if (userPermissionRepository == null || savedCollection == null || savedCollection.getId() == null) {
             return;
         }

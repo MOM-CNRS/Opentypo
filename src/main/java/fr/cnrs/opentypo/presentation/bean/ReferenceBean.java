@@ -84,8 +84,14 @@ public class ReferenceBean implements Serializable {
     @Autowired
     private UserPermissionRepository userPermissionRepository;
 
-    /** PickList pour sélectionner les gestionnaires de référentiel (IDs) */
+    /** PickList pour sélectionner les gestionnaires de référentiel (IDs) - création dialog */
     private DualListModel<Long> gestionnairesPickList;
+
+    /** PickList pour l'édition inline des gestionnaires de référentiel */
+    private DualListModel<Long> editingGestionnairesPickList;
+
+    private transient List<String> cachedReferenceGestionnaires;
+    private transient Long cachedReferenceGestionnairesEntityId;
 
     // Propriétés pour le formulaire de création de référentiel
     private String referenceCode;
@@ -161,6 +167,16 @@ public class ReferenceBean implements Serializable {
         return gestionnairesPickList;
     }
 
+    /**
+     * PickList pour l'édition inline des gestionnaires. Retourne une liste vide si non initialisé.
+     */
+    public DualListModel<Long> getEditingGestionnairesPickList() {
+        if (editingGestionnairesPickList == null && editingReference) {
+            editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+        }
+        return editingGestionnairesPickList;
+    }
+
     private void initGestionnairesPickList() {
         List<Long> sourceIds = getGestionnairesList().stream()
                 .map(Utilisateur::getId)
@@ -179,6 +195,54 @@ public class ReferenceBean implements Serializable {
                 : new ArrayList<>();
         List<Long> sourceFiltered = sourceIds.stream().filter(id -> !targetIds.contains(id)).toList();
         gestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(targetIds));
+    }
+
+    /**
+     * Initialise le PickList des gestionnaires pour l'édition inline d'un référentiel existant.
+     */
+    private void initEditingGestionnairesPickListForEdit(Long entityId) {
+        List<Long> sourceIds = getGestionnairesList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> targetIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !targetIds.contains(id)).toList();
+        editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(targetIds));
+    }
+
+    /**
+     * Retourne la liste des noms affichables des gestionnaires du référentiel (rôle "Gestionnaire de référentiel").
+     */
+    public List<String> getReferenceGestionnairesDisplayNames(Entity reference) {
+        if (reference == null || reference.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        if (reference.getId().equals(cachedReferenceGestionnairesEntityId) && cachedReferenceGestionnaires != null) {
+            return cachedReferenceGestionnaires;
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                reference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+        if (userIds == null || userIds.isEmpty()) {
+            cachedReferenceGestionnairesEntityId = reference.getId();
+            cachedReferenceGestionnaires = List.of();
+            return List.of();
+        }
+        List<String> names = userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+        cachedReferenceGestionnairesEntityId = reference.getId();
+        cachedReferenceGestionnaires = names;
+        return names;
+    }
+
+    private void invalidateReferenceGestionnairesCache(Long entityId) {
+        if (entityId != null && entityId.equals(cachedReferenceGestionnairesEntityId)) {
+            cachedReferenceGestionnairesEntityId = null;
+            cachedReferenceGestionnaires = null;
+        }
     }
 
     /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
@@ -204,10 +268,15 @@ public class ReferenceBean implements Serializable {
         return null;
     }
 
-    private void saveUserPermissionsForReference(Entity savedReference) {
+    @Transactional
+    protected void saveUserPermissionsForReference(Entity savedReference) {
         if (userPermissionRepository == null || savedReference == null || savedReference.getId() == null) return;
-        List<?> targetList = (gestionnairesPickList != null && gestionnairesPickList.getTarget() != null)
-                ? gestionnairesPickList.getTarget() : List.of();
+        DualListModel<Long> pickListToUse = (editingReference && editingGestionnairesPickList != null)
+                ? editingGestionnairesPickList
+                : gestionnairesPickList;
+        userPermissionRepository.deleteByEntityIdAndRole(savedReference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+        List<?> targetList = (pickListToUse != null && pickListToUse.getTarget() != null)
+                ? pickListToUse.getTarget() : List.of();
         for (Object raw : targetList) {
             Long userId = toLong(raw);
             if (userId == null) continue;
@@ -227,6 +296,7 @@ public class ReferenceBean implements Serializable {
                 }
             }
         }
+        invalidateReferenceGestionnairesCache(savedReference.getId());
     }
 
     /**
@@ -555,6 +625,7 @@ public class ReferenceBean implements Serializable {
         editingReferenceBibliographie = null;
         editingLabelLangueCode = null;
         editingDescriptionLangueCode = null;
+        editingGestionnairesPickList = null;
     }
 
     /**
@@ -655,6 +726,7 @@ public class ReferenceBean implements Serializable {
             }
 
             Entity savedEntity = entityRepository.save(referenceToUpdate);
+            saveUserPermissionsForReference(savedEntity);
             applicationBean.setSelectedEntity(savedEntity);
 
             if (treeBean != null) {
@@ -670,6 +742,7 @@ public class ReferenceBean implements Serializable {
             editingReferenceBibliographie = null;
             editingLabelLangueCode = null;
             editingDescriptionLangueCode = null;
+            editingGestionnairesPickList = null;
 
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
@@ -786,13 +859,14 @@ public class ReferenceBean implements Serializable {
         editingReferenceCode = applicationBean.getSelectedReference().getCode() != null ? applicationBean.getSelectedReference().getCode() : "";
         editingLabelLangueCode = codeLang;
         editingDescriptionLangueCode = codeLang;
-        // Description selon la langue choisie
         editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        // Label selon la langue choisie
         editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
         editingReferenceBibliographie = applicationBean.getSelectedReference().getRereferenceBibliographique() != null
                 ? applicationBean.getSelectedReference().getRereferenceBibliographique()
                 : "";
+        if (applicationBean.getSelectedReference().getId() != null) {
+            initEditingGestionnairesPickListForEdit(applicationBean.getSelectedReference().getId());
+        }
     }
 
     /**
@@ -1012,6 +1086,6 @@ public class ReferenceBean implements Serializable {
     }
 
     public boolean showReferenceStatut() {
-        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || canEditReference());
+        return !loginBean.isAuthenticated() || !loginBean.isAdminTechnique();
     }
 }
