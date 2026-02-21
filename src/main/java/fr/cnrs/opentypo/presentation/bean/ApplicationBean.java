@@ -25,6 +25,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
@@ -39,6 +42,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -104,6 +108,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private UserBean userBean;
+
+    @Inject
+    private CandidatBean candidatBean;
 
 
     private final PanelStateManager panelState = new PanelStateManager();
@@ -993,6 +1000,15 @@ public class ApplicationBean implements Serializable {
     public boolean showCommentaireBloc() {
         return loginBean.getCurrentUser() != null
             && (selectedEntity.getEntityType().getId() == 3 || selectedEntity.getEntityType().getId() == 4 || selectedEntity.getEntityType().getId() == 5);
+    }
+
+    public void editEntity() throws IOException {
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(selectedEntity);
+        candidatBean.visualiserCandidat(candidat);
+        candidatBean.setFromCatalog(true);
+
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");
     }
 }
 

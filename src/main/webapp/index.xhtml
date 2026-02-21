@@ -55,6 +55,10 @@
                             <ui:include src="details/type/type.xhtml"/>
                         </h:panelGroup>
 
+                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4 or applicationBean.selectedEntity.entityType.id == 5}">
+                            <ui:include src="details/catalogues/liste_types.xhtml"/>
+                        </h:panelGroup>
+
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
                             <ui:include src="details/communs/commentaires.xhtml"/>
                         </h:panelGroup>

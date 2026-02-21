@@ -35,7 +35,7 @@
                                     <i class="pi pi-history" />
                                     <p:tooltip value="Voir l'historique" position="top"/>
                                 </p:commandLink>
-                                <p:commandLink action="#{groupBean.editCandidat()}"
+                                <p:commandLink action="#{applicationBean.editEntity()}"
                                                process="@this"
                                                update=":contentGroupePanels"
                                                styleClass="concept-action-button">
@@ -241,7 +241,6 @@
                     <ui:include src="intervenants.xhtml"/>
 
                     <ui:include src="../catalogues/liste_series.xhtml"/>
-                    <ui:include src="../catalogues/liste_types.xhtml"/>
                 </div>
             </div>
         </div>

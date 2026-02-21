@@ -58,6 +58,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.file.UploadedFile;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -249,6 +250,8 @@ public class CandidatBean implements Serializable {
     private String periode;
     private Integer tpq;
     private Integer taq;
+
+    private boolean fromCatalog;
 
     // Propriétés pour les auteurs
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
@@ -1050,6 +1053,7 @@ public class CandidatBean implements Serializable {
     public String visualiserCandidat(Candidat candidat) {
         if (candidat == null) return null;
 
+        fromCatalog = false;
         candidatSelectionne = candidat;
         String defaultLangue = candidat.getLangue() != null ? candidat.getLangue() : (searchBean != null ? searchBean.getLangSelected() : "fr");
         VisualisationPrepareResult res = candidatVisualisationService.prepareVisualisation(candidat.getId(), defaultLangue);
@@ -1722,6 +1726,17 @@ public class CandidatBean implements Serializable {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveCorpus(currentEntity.getId(), corpusExterne);
         }
+    }
+
+    public void returnFromViewPage() throws IOException {
+
+        String pageDestination = "/candidats/candidats.xhtml";
+        if (fromCatalog) {
+            fromCatalog = false;
+            pageDestination = "/index.xhtml";
+        }
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + pageDestination);
     }
 }
 

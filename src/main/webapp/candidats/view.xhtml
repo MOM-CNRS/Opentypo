@@ -20,7 +20,7 @@
                             <p:commandButton value="Retour à la liste"
                                              icon="pi pi-arrow-left"
                                              styleClass="users-create-button"
-                                             action="/candidats/candidats.xhtml?faces-redirect=true"
+                                             action="#{candidatBean.returnFromViewPage()}"
                                              process="@this"
                                              update="@none"/>
                         </h:form>

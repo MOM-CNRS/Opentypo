@@ -19,15 +19,7 @@
                                                title="Français"/>
                             </div>
                             <div class="collection-panel-title-wrapper">
-                                <p:commandLink action="#{applicationBean.showGroupe(applicationBean.selectedGroup)}"
-                                               process="@this"
-                                               update=":centerContent"
-                                               onstart="showLoading('Chargement du groupe...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                               onerror="forceHideLoading();"
-                                               styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                </p:commandLink>
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
@@ -37,7 +29,7 @@
                                 <i class="pi pi-history" />
                                 <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
-                            <p:commandLink action="#{serieBean.startEditingSerie(applicationBean)}"
+                            <p:commandLink action="#{applicationBean.editEntity()}"
                                            process="@this" update=":serieEditForm" styleClass="concept-action-button">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
@@ -228,13 +220,21 @@
                 <ui:include src="../communs/production.xhtml"/>
 
                 <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
                     <ui:include src="../communs/description_monnaie.xhtml"/>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/description.xhtml"/>
                 </h:panelGroup>
 
                 <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                        or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
                     <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
+                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
                 </h:panelGroup>
 
                 <ui:include src="../communs/bibliographie.xhtml"/>

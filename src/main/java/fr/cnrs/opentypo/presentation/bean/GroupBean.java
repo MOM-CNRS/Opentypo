@@ -784,12 +784,4 @@ public class GroupBean implements Serializable {
                             "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
     }
-
-    public void editCandidat() throws IOException {
-        Candidat candidat = new CandidatConverter().convertEntityToCandidat(applicationBean.getSelectedEntity());
-        candidatBean.visualiserCandidat(candidat);
-
-        FacesContext.getCurrentInstance().getExternalContext()
-                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");
-    }
 }
