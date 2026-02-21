@@ -207,6 +207,13 @@ public class ApplicationBean implements Serializable {
             return Boolean.TRUE.equals(entity.getPublique());
         }
 
+        // 2b) Utilisateur connecté : pour les collections, afficher toutes (publique = true et false)
+        //     (liste collections + select recherche)
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
+            return true;
+        }
+
         // 3) Utilisateur connecté : règle des collections publiques — toutes les collections
         //    publiques et tous leurs éléments sont visibles.
         Entity collectionAncestorForPublicRule = null;

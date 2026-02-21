@@ -40,6 +40,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -98,8 +99,11 @@ public class CollectionBean implements Serializable {
     // Collection publique ou privée
     private Boolean collectionPublique = true; // Par défaut, la collection est publique
 
-    /** PickList pour sélectionner les gestionnaires (IDs) - évite les erreurs de conversion */
+    /** PickList pour sélectionner les gestionnaires (IDs) - création via dialog */
     private DualListModel<Long> gestionnairesPickList;
+
+    /** PickList pour l'édition inline des gestionnaires (évite conflit avec le dialog) */
+    private DualListModel<Long> editingGestionnairesPickList;
 
     private Label labelSelected;
     private Description descriptionSelected;
@@ -134,24 +138,76 @@ public class CollectionBean implements Serializable {
         return gestionnairesPickList;
     }
 
-    public void setGestionnairesPickList(DualListModel<Long> gestionnairesPickList) {
-        this.gestionnairesPickList = gestionnairesPickList;
+    /**
+     * PickList pour l'édition inline. Retourne une liste vide si non initialisé (évite NPE dans la vue).
+     */
+    public DualListModel<Long> getEditingGestionnairesPickList() {
+        if (editingGestionnairesPickList == null && editingCollection) {
+            editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+        }
+        return editingGestionnairesPickList;
     }
 
     private void initGestionnairesPickList() {
         List<Long> sourceIds = getGestionnairesList().stream()
                 .map(Utilisateur::getId)
-                .filter(id -> id != null)
+                .filter(Objects::nonNull)
                 .toList();
         gestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceIds), new ArrayList<>());
+    }
+
+    /**
+     * Initialise le PickList des gestionnaires pour l'édition d'une collection existante.
+     * Les gestionnaires actuels sont placés dans la liste cible (à droite).
+     */
+    private void initGestionnairesPickListForEdit(Long entityId) {
+        List<Long> sourceIds = getGestionnairesList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> targetIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !targetIds.contains(id)).toList();
+        editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(targetIds));
     }
 
     /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
     public String getUtilisateurDisplayName(Long userId) {
         if (userId == null || utilisateurRepository == null) return "";
         return utilisateurRepository.findById(userId)
-                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom() : "")).trim())
+                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom().toUpperCase() : "")).trim())
                 .orElse("");
+    }
+
+    private transient List<String> cachedCollectionGestionnaires;
+    private transient Long cachedCollectionGestionnairesEntityId;
+
+    /**
+     * Retourne la liste des noms affichables des gestionnaires de la collection (rôle "Gestionnaire de collection"
+     * dans user_permission pour l'entité donnée).
+     */
+    public List<String> getCollectionGestionnairesDisplayNames(Entity collection) {
+        if (collection == null || collection.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        if (collection.getId().equals(cachedCollectionGestionnairesEntityId) && cachedCollectionGestionnaires != null) {
+            return cachedCollectionGestionnaires;
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                collection.getId(), PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
+        if (userIds == null || userIds.isEmpty()) {
+            cachedCollectionGestionnairesEntityId = collection.getId();
+            cachedCollectionGestionnaires = List.of();
+            return List.of();
+        }
+        List<String> names = userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+        cachedCollectionGestionnairesEntityId = collection.getId();
+        cachedCollectionGestionnaires = names;
+        return names;
     }
 
     /**
@@ -272,6 +328,12 @@ public class CollectionBean implements Serializable {
 
         // Charger les valeurs pour la langue sélectionnée
         loadEditingValuesForLanguage(applicationBean, editingLanguageCode);
+
+        // Initialiser le PickList des gestionnaires avec les gestionnaires actuels de la collection
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null) {
+            initGestionnairesPickListForEdit(collection.getId());
+        }
     }
 
     /**
@@ -373,7 +435,7 @@ public class CollectionBean implements Serializable {
      * Bascule la visibilité de la collection (mode création) : publique ↔ privée.
      */
     public void toggleCollectionPublique() {
-        collectionPublique = collectionPublique == null ? false : !collectionPublique;
+        collectionPublique = collectionPublique != null && !collectionPublique;
     }
 
     /**
@@ -440,6 +502,7 @@ public class CollectionBean implements Serializable {
         editingLabelValue = null;
         editingDescriptionValue = null;
         editingLanguageCode = null;
+        editingGestionnairesPickList = null;
     }
 
     /**
@@ -451,27 +514,16 @@ public class CollectionBean implements Serializable {
         Entity collection = applicationBean.getSelectedCollection();
 
         if (collection == null) {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                    FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucune collection sélectionnée."));
-            }
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune collection sélectionnée."));
             return;
         }
 
         // Recharger la collection depuis la base de données pour avoir les données à jour
         Entity refreshedCollection = collection;
         if (collection.getId() != null) {
-            try {
-                refreshedCollection = entityRepository.findById(collection.getId())
-                        .orElse(collection);
-                applicationBean.setSelectedEntity(refreshedCollection);
-            } catch (Exception e) {
-                log.error("Erreur lors du rechargement de la collection pour la sauvegarde", e);
-                refreshedCollection = collection;
-            }
+            refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
+            applicationBean.setSelectedEntity(refreshedCollection);
         }
 
         // Mettre à jour ou créer le label
@@ -486,18 +538,14 @@ public class CollectionBean implements Serializable {
             } else {
                 // Créer un nouveau label
                 Langue langue = langueRepository.findByCode(editingLanguageCode);
-                if (langue != null) {
-                    Label newLabel = new Label();
-                    newLabel.setNom(editingLabelValue.trim());
-                    newLabel.setEntity(refreshedCollection);
-                    newLabel.setLangue(langue);
-                    if (refreshedCollection.getLabels() == null) {
-                        refreshedCollection.setLabels(new ArrayList<>());
-                    }
-                    refreshedCollection.getLabels().add(newLabel);
-                } else {
-                    log.warn("Langue avec le code {} non trouvée pour créer le label", editingLanguageCode);
+                Label newLabel = new Label();
+                newLabel.setNom(editingLabelValue.trim());
+                newLabel.setEntity(refreshedCollection);
+                newLabel.setLangue(langue);
+                if (refreshedCollection.getLabels() == null) {
+                    refreshedCollection.setLabels(new ArrayList<>());
                 }
+                refreshedCollection.getLabels().add(newLabel);
             }
         }
 
@@ -538,6 +586,9 @@ public class CollectionBean implements Serializable {
         Entity savedCollection = entityRepository.save(refreshedCollection);
         applicationBean.setSelectedEntity(savedCollection);
 
+        // Sauvegarder les gestionnaires de la collection (PickList)
+        saveUserPermissionsForCollection(savedCollection);
+
         // Mettre à jour les valeurs sélectionnées selon la langue actuelle
         updateCollectionLanguage(applicationBean);
 
@@ -546,6 +597,7 @@ public class CollectionBean implements Serializable {
         editingLabelValue = null;
         editingDescriptionValue = null;
         editingLanguageCode = null;
+        editingGestionnairesPickList = null;
 
         // Afficher un message de succès
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -778,14 +830,19 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Crée une ligne dans user_permission pour chaque gestionnaire sélectionné (rôle Gestionnaire de collection).
+     * Enregistre les gestionnaires de la collection dans user_permission (rôle Gestionnaire de collection).
+     * En édition inline : utilise editingGestionnairesPickList. En création : utilise gestionnairesPickList.
      */
     private void saveUserPermissionsForCollection(Entity savedCollection) {
         if (userPermissionRepository == null || savedCollection == null || savedCollection.getId() == null) {
             return;
         }
-        List<?> targetList = (gestionnairesPickList != null && gestionnairesPickList.getTarget() != null)
-                ? gestionnairesPickList.getTarget() : List.of();
+        DualListModel<Long> pickListToUse = (editingCollection && editingGestionnairesPickList != null)
+                ? editingGestionnairesPickList
+                : gestionnairesPickList;
+        userPermissionRepository.deleteByEntityIdAndRole(savedCollection.getId(), PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
+        List<?> targetList = (pickListToUse != null && pickListToUse.getTarget() != null)
+                ? pickListToUse.getTarget() : List.of();
         for (Object raw : targetList) {
             Long userId = toLong(raw);
             if (userId == null) continue;
@@ -804,6 +861,14 @@ public class CollectionBean implements Serializable {
                     userPermissionRepository.save(permission);
                 }
             }
+        }
+        invalidateCollectionGestionnairesCache(savedCollection.getId());
+    }
+
+    private void invalidateCollectionGestionnairesCache(Long entityId) {
+        if (entityId != null && entityId.equals(cachedCollectionGestionnairesEntityId)) {
+            cachedCollectionGestionnairesEntityId = null;
+            cachedCollectionGestionnaires = null;
         }
     }
 
@@ -914,24 +979,7 @@ public class CollectionBean implements Serializable {
         nouvelleCollection.setPublique(collectionPublique != null ? collectionPublique : true);
         nouvelleCollection.setCreateDate(LocalDateTime.now());
 
-        Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
-        if (!StringUtils.isEmpty(nomPrincipal)) {
-            Label labelPrincipal = new Label();
-            labelPrincipal.setNom(nomPrincipal.trim());
-            labelPrincipal.setLangue(languePrincipale);
-            labelPrincipal.setEntity(nouvelleCollection);
-            List<Label> labels = new ArrayList<>();
-            labels.add(labelPrincipal);
-            nouvelleCollection.setLabels(labels);
-        }
-
-        Utilisateur currentUser = loginBean.getCurrentUser();
-        if (currentUser != null) {
-            nouvelleCollection.setCreateBy(currentUser.getEmail());
-            List<Utilisateur> auteurs = new ArrayList<>();
-            auteurs.add(currentUser);
-            nouvelleCollection.setAuteurs(auteurs);
-        }
+        createCollectionLabel(nomPrincipal, nouvelleCollection, langueRepository, searchBean, loginBean);
 
         // Créer les labels pour chaque langue
         if (collectionNames != null && !collectionNames.isEmpty()) {
@@ -970,6 +1018,28 @@ public class CollectionBean implements Serializable {
         }
 
         return nouvelleCollection;
+    }
+
+    static void createCollectionLabel(String nomPrincipal, Entity nouvelleCollection, LangueRepository langueRepository,
+                                      SearchBean searchBean, LoginBean loginBean) {
+        Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
+        if (!StringUtils.isEmpty(nomPrincipal)) {
+            Label labelPrincipal = new Label();
+            labelPrincipal.setNom(nomPrincipal.trim());
+            labelPrincipal.setLangue(languePrincipale);
+            labelPrincipal.setEntity(nouvelleCollection);
+            List<Label> labels = new ArrayList<>();
+            labels.add(labelPrincipal);
+            nouvelleCollection.setLabels(labels);
+        }
+
+        Utilisateur currentUser = loginBean.getCurrentUser();
+        if (currentUser != null) {
+            nouvelleCollection.setCreateBy(currentUser.getEmail());
+            List<Utilisateur> auteurs = new ArrayList<>();
+            auteurs.add(currentUser);
+            nouvelleCollection.setAuteurs(auteurs);
+        }
     }
 
     /**
@@ -1056,5 +1126,9 @@ public class CollectionBean implements Serializable {
         startEditingCollection(applicationBean);
 
         log.debug("Mode édition activé pour la collection: {}", applicationBean.getSelectedEntity().getCode());
+    }
+
+    public boolean showCollectionStatut() {
+        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || editingCollection);
     }
 }

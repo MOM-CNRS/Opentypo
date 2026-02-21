@@ -7,7 +7,6 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.PrimeFaces;
@@ -34,16 +33,13 @@ import java.util.Optional;
 public class LoginBean implements Serializable {
 
     @Inject
-    private fr.cnrs.opentypo.presentation.bean.UserBean userBean;
+    private UserBean userBean;
 
     @Inject
     private UtilisateurService utilisateurService;
     
     @Inject
-    private fr.cnrs.opentypo.presentation.bean.NotificationBean notificationBean;
-
-    @Inject
-    private Provider<ApplicationBean> applicationBeanProvider;
+    private NotificationBean notificationBean;
 
     private String username; // Email de l'utilisateur
     private String password;
@@ -64,18 +60,16 @@ public class LoginBean implements Serializable {
         password = null;
     }
 
-    public void login() {
+    public void login(ApplicationBean applicationBean) {
         // Validation des champs
         if (username == null || username.trim().isEmpty()) {
-            notificationBean.showErrorWithUpdate("Champ requis",
-                "Veuillez saisir votre email.",
+            notificationBean.showErrorWithUpdate("Champ requis", "Veuillez saisir votre email.",
                 ":loginForm:loginMessages");
             return;
         }
         
         if (password == null || password.trim().isEmpty()) {
-            notificationBean.showErrorWithUpdate("Champ requis",
-                "Veuillez saisir votre mot de passe.",
+            notificationBean.showErrorWithUpdate("Champ requis", "Veuillez saisir votre mot de passe.",
                 ":loginForm:loginMessages");
             return;
         }
@@ -123,25 +117,17 @@ public class LoginBean implements Serializable {
             }
             
             // Créer une authentification Spring Security
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                utilisateur.getEmail(),
-                null,
-                authorities
-            );
+            Authentication authentication = new UsernamePasswordAuthenticationToken(utilisateur.getEmail(), null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
             // Sauvegarder l'authentification dans la session HTTP
-            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
+            HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
             HttpSession session = request.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
             
             // Recharger les collections pour inclure les collections privées maintenant que l'utilisateur est connecté
-            ApplicationBean appBean = applicationBeanProvider.get();
-            if (appBean != null) {
-                appBean.loadPublicCollections();
-            }
+            applicationBean.loadPublicCollections();
             
             notificationBean.showSuccessWithUpdate("Connexion réussie",
                 "Bienvenue dans votre espace de recherche, " + displayName + ".",

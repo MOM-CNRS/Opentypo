@@ -377,24 +377,7 @@ public class SerieBean implements Serializable {
             newSerie.setPublique(true);
             newSerie.setCreateDate(LocalDateTime.now());
 
-            Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
-            if (!StringUtils.isEmpty(labelTrimmed)) {
-                Label labelPrincipal = new Label();
-                labelPrincipal.setNom(labelTrimmed.trim());
-                labelPrincipal.setLangue(languePrincipale);
-                labelPrincipal.setEntity(newSerie);
-                List<Label> labels = new ArrayList<>();
-                labels.add(labelPrincipal);
-                newSerie.setLabels(labels);
-            }
-
-            Utilisateur currentUser = loginBean.getCurrentUser();
-            if (currentUser != null) {
-                newSerie.setCreateBy(currentUser.getEmail());
-                List<Utilisateur> auteurs = new ArrayList<>();
-                auteurs.add(currentUser);
-                newSerie.setAuteurs(auteurs);
-            }
+            CollectionBean.createCollectionLabel(labelTrimmed, newSerie, langueRepository, searchBean, loginBean);
 
             // Sauvegarder la série
             Entity savedSerie = entityRepository.save(newSerie);

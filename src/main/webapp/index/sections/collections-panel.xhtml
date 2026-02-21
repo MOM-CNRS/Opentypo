@@ -33,7 +33,7 @@
                                         <i class="pi pi-folder" />
                                     </div>
                                     <h3 class="modern-card-title">#{applicationBean.getEntityLabel(collection)}</h3>
-                                    <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}">
+                                    <h:panelGroup rendered="#{loginBean.isAuthenticated()}">
                                         <div class="collection-card-status-badge #{collection.publique ? 'collection-status-public' : 'collection-status-private'}"
                                              title="#{collection.publique ? 'Collection publique' : 'Collection privée'}">
                                             <i class="pi #{collection.publique ? 'pi-globe' : 'pi-lock'}" />
@@ -41,7 +41,7 @@
                                     </h:panelGroup>
                                 </div>
                                 <p class="modern-card-description">
-                                    #{applicationBean.getEntityDescription(collection)}
+                                    <h:outputText value="#{applicationBean.getEntityDescription(collection)}" escape="false"/>
                                 </p>
                             </div>
                         </p:commandLink>

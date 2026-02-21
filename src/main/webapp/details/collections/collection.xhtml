@@ -143,8 +143,7 @@
                             </p:commandLink>
                         </h:panelGroup>
 
-                        <h:panelGroup class="concept-info-actions"
-                                      rendered="#{not loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
+                        <h:panelGroup class="concept-info-actions" rendered="#{!collectionBean.showCollectionStatut()}">
                             <h:panelGroup class="collection-visibility-card">
                                 <div class="collection-visibility-card-content">
                                     <div class="collection-visibility-indicator #{collectionBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -169,30 +168,67 @@
                             <ui:fragment rendered="#{not collectionBean.editingCollection}">
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty collectionBean.descriptionSelected and not empty collectionBean.descriptionSelected.valeur}">
-                                        #{collectionBean.descriptionSelected.valeur}
+                                        <h:outputText value="#{collectionBean.descriptionSelected.valeur}" escape="false"/>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty collectionBean.descriptionSelected or empty collectionBean.descriptionSelected.valeur}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                            #{applicationBean.selectedEntity.commentaire}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                                        <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{collectionBean.editingCollection}">
                                 <div class="collection-edit-field-wrapper">
-                                    <p:inputTextarea id="collectionEditDescriptionInput"
-                                                    value="#{collectionBean.editingDescriptionValue}"
-                                                    rows="6"
-                                                    cols="50"
-                                                    styleClass="collection-edit-textarea"
-                                                    placeholder="Saisissez la description de la collection"/>
+                                    <p:textEditor id="collectionEditDescriptionInput"
+                                                  value="#{collectionBean.editingDescriptionValue}"
+                                                  secure="false"
+                                                  height="200"
+                                                  styleClass="collection-edit-textarea"
+                                                  placeholder="Saisissez la description de la collection"/>
                                     <div class="collection-edit-hint">
                                         <i class="pi pi-info-circle" />
                                         <span>Les modifications seront enregistrées pour la langue actuellement sélectionnée</span>
                                     </div>
+                                </div>
+                            </ui:fragment>
+                        </h:panelGroup>
+
+                        <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <div class="concept-info-label">
+                                <i class="pi pi-users concept-info-icon" />
+                                <span>Gestionnaires de la collection</span>
+                            </div>
+                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}">
+                                        <ui:repeat value="#{collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}" var="gestionnaire">
+                                            <span class="bibliographie-badge">
+                                                <span class="bibliographie-badge-text">#{gestionnaire}</span>
+                                            </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun gestionnaire assigné"
+                                                 rendered="#{empty collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}"
+                                                 styleClass="bibliographie-empty" />
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{collectionBean.editingCollection}">
+                                <div class="collection-edit-field-wrapper collection-edit-gestionnaires-wrapper">
+                                    <p:pickList id="collectionEditGestionnairesPickList"
+                                                value="#{collectionBean.editingGestionnairesPickList}"
+                                                var="userId"
+                                                itemLabel="#{collectionBean.getUtilisateurDisplayName(userId)}"
+                                                itemValue="#{userId}"
+                                                converter="pickListLongConverter"
+                                                styleClass="group-dialog-picklist"
+                                                showSourceFilter="true"
+                                                showTargetFilter="true"
+                                                filterMatchMode="contains"
+                                                sourceFilterPlaceholder="Rechercher..."
+                                                targetFilterPlaceholder="Rechercher..."
+                                                responsive="true"
+                                                rendered="#{not empty collectionBean.gestionnairesList}"/>
+                                    <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
+                                        <span>Aucun utilisateur disponible</span>
+                                    </h:panelGroup>
                                 </div>
                             </ui:fragment>
                         </h:panelGroup>

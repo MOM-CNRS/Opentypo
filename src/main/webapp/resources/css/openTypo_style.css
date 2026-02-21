@@ -4549,7 +4549,6 @@ body .ui-panelgrid .ui-panelgrid-cell {
 
 .modern-card-content {
     padding: 1.5rem;
-    display: flex;
     flex-direction: column;
     gap: 1rem;
     height: 100%;
@@ -4628,6 +4627,16 @@ body .ui-panelgrid .ui-panelgrid-cell {
 .modern-card:hover .modern-card-description {
     color: var(--color-text-primary, #333);
     text-decoration: none !important;
+}
+
+/* Contenu HTML riche dans la description des cartes */
+.modern-card-description p,
+.modern-card-description div {
+    margin: 0 0 0.35em 0;
+}
+.modern-card-description p:last-child,
+.modern-card-description div:last-child {
+    margin-bottom: 0;
 }
 
 /* Responsive pour les cartes modernes */
@@ -5476,6 +5485,27 @@ body .reference-card a {
     line-height: 1.6;
     color: var(--color-text-primary, #333);
 }
+
+/* Style pour le HTML riche (descriptions issues du TextEditor) */
+.concept-info-description p,
+.concept-info-description div {
+    margin: 0 0 0.75em 0;
+}
+.concept-info-description p:last-child,
+.concept-info-description div:last-child {
+    margin-bottom: 0;
+}
+.concept-info-description ul,
+.concept-info-description ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+.concept-info-description li {
+    margin: 0.25em 0;
+}
+.concept-info-description strong { font-weight: 600; }
+.concept-info-description em { font-style: italic; }
+.concept-info-description a { color: var(--color-action-main, #47624D); text-decoration: underline; }
 
 /* Style uniforme pour les champs non renseignés - Respect de la charte couleur */
 .concept-info-value .empty-field-message,

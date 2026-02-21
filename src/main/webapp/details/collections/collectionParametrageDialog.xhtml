@@ -32,15 +32,15 @@
                 </div>
                 <div class="opentheso-dialog-button opentheso-dialog-button-url">
                     <p:commandButton value="Actualiser"
-                                    icon="pi pi-refresh"
-                                    action="#{collectionParametrageBean.loadThesaurusFromUrl}"
-                                    process="@this"
+                                     icon="pi pi-refresh"
+                                     action="#{collectionParametrageBean.loadThesaurusFromUrl}"
+                                     process="@this"
                                      ajax="true"
-                                    update=":collectionParametrageForm :growl"
-                                    styleClass="parametrage-btn-refresh"
-                                    title="Charger les thésaurus avec cette URL"
-                                    onstart="showLoading('Chargement...', 'spinner');"
-                                    oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
+                                     update=":collectionParametrageForm :growl"
+                                     styleClass="parametrage-btn-refresh"
+                                     title="Charger les thésaurus avec cette URL"
+                                     onstart="showLoading('Chargement...', 'spinner');"
+                                     oncomplete="setTimeout(function(){hideLoading();}, 200);"/>
                 </div>
             </div>
 

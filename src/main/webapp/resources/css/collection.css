@@ -966,6 +966,85 @@
     gap: 0.75rem;
 }
 
+/* ============================================
+   TextEditor (édition riche) - Description collection
+   Style cohérent avec la charte Opentypo
+   ============================================ */
+
+.collection-edit-field-wrapper .collection-edit-textarea {
+    width: 100% !important;
+    border: 2px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea:hover {
+    border-color: rgba(71, 98, 77, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.08) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea:focus-within {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 4px rgba(71, 98, 77, 0.12) !important;
+    outline: none !important;
+}
+
+/* Toolbar Quill - barre d'outils */
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.02) 100%) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.12) !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar .ql-stroke {
+    stroke: rgba(71, 98, 77, 0.35) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar .ql-fill {
+    fill: rgba(71, 98, 77, 0.5) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar button:hover .ql-stroke,
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar .ql-picker-label:hover .ql-stroke {
+    stroke: var(--color-action-main, #47624D) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar button:hover .ql-fill,
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar .ql-picker-label:hover .ql-fill {
+    fill: var(--color-action-main, #47624D) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar button.ql-active .ql-stroke {
+    stroke: var(--color-action-main, #47624D) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar button.ql-active .ql-fill {
+    fill: var(--color-action-main, #47624D) !important;
+}
+
+/* Zone d'édition */
+.collection-edit-field-wrapper .collection-edit-textarea .ql-container {
+    border: none !important;
+    font-family: inherit !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-editor {
+    min-height: 200px !important;
+    padding: 1rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.6 !important;
+    color: var(--color-text-primary, #333) !important;
+}
+
+.collection-edit-field-wrapper .collection-edit-textarea .ql-editor.ql-blank::before {
+    color: rgba(129, 154, 145, 0.6) !important;
+    font-style: normal !important;
+}
+
 /* Champs d'édition */
 .collection-edit-input,
 .collection-edit-textarea {
@@ -1650,6 +1729,15 @@
     .collection-edit-textarea {
         min-height: 120px;
         padding: 0.875rem;
+    }
+
+    .collection-edit-field-wrapper .collection-edit-textarea .ql-editor {
+        min-height: 160px !important;
+        padding: 0.875rem 1rem !important;
+    }
+
+    .collection-edit-field-wrapper .collection-edit-textarea .ql-toolbar {
+        padding: 0.4rem 0.5rem !important;
     }
 
     .collection-edit-actions {
