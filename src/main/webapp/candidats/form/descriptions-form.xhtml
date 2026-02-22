@@ -9,16 +9,17 @@
 
         <h6>Descriptions</h6>
 
-        <div class="candidat-description-input-row">
-            <div class="candidat-description-textarea-wrapper">
-                <div class="input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-align-left input-icon input-icon-textarea" />
-                    <p:inputTextarea value="#{candidatBean.newDescriptionValue}"
-                                     placeholder="Saisissez une description détaillée..."
-                                     rows="4"
-                                     styleClass="users-textarea"
-                                     maxlength="2000"/>
+        <div class="candidat-description-editor-block">
+            <div class="candidat-description-editor-inner">
+                <div class="candidat-description-editor-label">
+                    <i class="pi pi-align-left candidat-description-editor-icon" />
+                    <span>Saisissez la description puis choisissez une langue ci‑dessous</span>
                 </div>
+                <p:textEditor value="#{candidatBean.newDescriptionValue}"
+                              secure="false"
+                              height="220"
+                              styleClass="candidat-description-texteditor"
+                              placeholder="Décrivez la référence (texte riche)…"/>
             </div>
         </div>
 
@@ -62,7 +63,7 @@
                                         alt="#{descriptionItem.langue.nom}"
                                         title="#{descriptionItem.langue.nom}"/>
                     </h:panelGroup>
-                    <h:outputText value="#{descriptionItem.valeur}"
+                    <h:outputText value="#{descriptionItem.valeur}" escape="false"
                                   styleClass="candidat-table-description-text" />
                 </div>
             </p:column>

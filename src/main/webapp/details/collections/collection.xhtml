@@ -318,16 +318,6 @@
                                 <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
                             </div>
                         </div>
-                        <h:panelGroup class="collection-panel-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                            <a href="#" class="collection-action-btn" title="Modifier"
-                               onclick="openEditReferenceDialog([{name:'referenceId',value:'#{reference.id}'}]); return false;">
-                                <i class="pi pi-file-edit"/>
-                            </a>
-                            <a href="#" class="collection-action-btn collection-action-btn-delete" title="Supprimer"
-                               onclick="openDeleteReferenceConfirm([{name:'referenceId',value:'#{reference.id}'}]); return false;">
-                                <i class="pi pi-trash"/>
-                            </a>
-                        </h:panelGroup>
                     </div>
 
                     <div class="collection-panel-content">

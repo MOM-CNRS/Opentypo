@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.SerieWithTypes;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
@@ -525,6 +526,35 @@ public class ApplicationBean implements Serializable {
     public void setSeriesSearchQuery(String seriesSearchQuery) {
         this.seriesSearchQuery = seriesSearchQuery != null ? seriesSearchQuery : "";
         this.seriesCurrentPage = 1;
+    }
+
+    /**
+     * Séries avec leurs types, filtrées par recherche (pour le panneau Groupe).
+     * Chaque série contient la liste de ses types chargés depuis entity_relation.
+     */
+    public List<SerieWithTypes> getSeriesWithTypesFiltered() {
+        List<Entity> filtered = getFilteredSeries();
+        if (filtered == null || filtered.isEmpty()) return new ArrayList<>();
+        List<SerieWithTypes> result = new ArrayList<>();
+        for (Entity serie : filtered) {
+            List<Entity> types = typeService.loadSerieTypes(serie);
+            if (types == null) types = new ArrayList<>();
+            result.add(new SerieWithTypes(serie, types));
+        }
+        return result;
+    }
+
+    /** Séries avec types pour la page courante (pagination). */
+    public List<SerieWithTypes> getPaginatedSeriesWithTypes() {
+        List<SerieWithTypes> all = getSeriesWithTypesFiltered();
+        if (all.isEmpty()) return new ArrayList<>();
+        int from = (seriesCurrentPage - 1) * SERIES_PAGE_SIZE;
+        if (from >= all.size()) {
+            seriesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + SERIES_PAGE_SIZE, all.size());
+        return all.subList(from, to);
     }
 
     /** Types filtrés par la recherche. */

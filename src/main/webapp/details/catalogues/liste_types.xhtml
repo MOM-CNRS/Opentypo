@@ -3,9 +3,10 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:param name="typesPanelId" value="typesTogglePanel"/>
 
     <div class="categories-unified-block details-mt-20">
-        <p:panel id="typesTogglePanel"
+        <p:panel id="#{typesPanelId}"
                  toggleable="true"
                  toggleableHeader="true"
                  collapsed="#{empty applicationBean.childsTypes}"
@@ -84,7 +85,7 @@
                                                 </h:panelGroup>
                                             </div>
                                             <div class="typologie-card-content">
-                                                <h3 class="typologie-card-title">#{type.nom}</h3>
+                                                <h3 class="typologie-card-title">#{type.code}</h3>
                                             </div>
                                         </p:commandLink>
                                     </ui:repeat>

@@ -15,7 +15,7 @@
     </h:panelGroup>
 
     <!-- Grille des cartes collections -->
-    <div class="modern-cards-container">
+    <div class="modern-cards-container modern-cards-collections">
         <h:form id="collectionsForm">
             <div class="modern-cards-grid">
                 <ui:repeat value="#{applicationBean.collections}" var="collection">
@@ -41,7 +41,9 @@
                                     </h:panelGroup>
                                 </div>
                                 <p class="modern-card-description">
-                                    <h:outputText value="#{applicationBean.getEntityDescription(collection)}" escape="false"/>
+                                    <span class="modern-card-description-text">
+                                        <h:outputText value="#{applicationBean.getEntityDescription(collection)}" escape="false"/>
+                                    </span>
                                 </p>
                             </div>
                         </p:commandLink>

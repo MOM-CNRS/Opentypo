@@ -55,11 +55,9 @@
                             <ui:include src="details/type/type.xhtml"/>
                         </h:panelGroup>
 
+                        <!-- Groupe : composant unifié séries + types. Série : liste des types uniquement. Un seul bloc évite les IDs dupliqués. -->
                         <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3 or applicationBean.selectedEntity.entityType.id == 4}">
-                            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
-                                <ui:include src="details/catalogues/liste_series.xhtml"/>
-                            </h:panelGroup>
-                            <ui:include src="details/catalogues/liste_types.xhtml" />
+                            <ui:include src="#{applicationBean.selectedEntity.entityType.id == 3 ? 'details/catalogues/series_types_unified.xhtml' : 'details/catalogues/liste_types.xhtml'}"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
