@@ -536,10 +536,27 @@ public class CandidatBean implements Serializable {
     }
 
     /**
-     * Retourne le nom du type d'entité pour l'affichage
+     * Retourne le nom du type d'entité pour l'affichage.
+     * Méthode unique (Object) pour éviter l'ambiguïté EL lorsque l'argument est null.
      */
-    public String getEntityTypeName(EntityType entityType) {
-        return candidatReferenceTreeService.getEntityTypeName(entityType);
+    public String getEntityTypeName(Object obj) {
+        if (obj == null) return "";
+        if (obj instanceof EntityType entityType) return candidatReferenceTreeService.getEntityTypeName(entityType);
+        if (obj instanceof Candidat candidat) return getEntityTypeNameFromCandidat(candidat);
+        return "";
+    }
+
+    private String getEntityTypeNameFromCandidat(Candidat candidat) {
+        if (candidat == null || candidat.getTypeCode() == null) return "";
+        return switch (candidat.getTypeCode()) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
+            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
+            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
+            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
+            default -> candidat.getTypeCode();
+        };
     }
 
     /**
@@ -1600,24 +1617,6 @@ public class CandidatBean implements Serializable {
         }
     }
     
-    /**
-     * Surcharge de getEntityTypeName pour accepter un Candidat
-     */
-    public String getEntityTypeName(Candidat candidat) {
-        if (candidat == null || candidat.getTypeCode() == null) {
-            return "";
-        }
-        String code = candidat.getTypeCode();
-        return switch (code) {
-            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
-            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
-            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
-            default -> code;
-        };
-    }
 
     /**
      * Retourne la classe CSS du badge pour la colonne Type (design distinct par type d'entité).
