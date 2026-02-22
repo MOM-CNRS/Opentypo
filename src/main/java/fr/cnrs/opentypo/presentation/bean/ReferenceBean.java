@@ -480,6 +480,7 @@ public class ReferenceBean implements Serializable {
             .collect(java.util.stream.Collectors.toList());
     }
     
+    @Transactional
     public void createReference() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 

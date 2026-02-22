@@ -9,6 +9,8 @@
 .candidats-mt-15 { margin-top: 15px; }
 .candidats-mt--10 { margin-top: -10px; }
 .candidats-m-10 { margin: 10px; }
+.candidats-mb-10 { margin-bottom: 10px; }
+.candidats-ml-10 { margin-left: 10px; }
 
 /* Padding */
 .candidats-p-20 { padding: 20px; }
@@ -74,4 +76,12 @@
 .candidats-confirm-warning-text {
     color: #dc3545;
     font-weight: 600;
+}
+
+/* Ligne PickList validateurs : flex avec le bouton "Envoyer invitation" */
+.candidats-validateurs-picklist-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
 }

@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean.candidats;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.service.CandidatListService;
 import fr.cnrs.opentypo.application.service.CandidatValidationService;
@@ -9,12 +10,14 @@ import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.IiifImageService;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
@@ -55,13 +58,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.primefaces.model.DualListModel;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.file.UploadedFile;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -105,6 +111,9 @@ public class CandidatBean implements Serializable {
 
     @Inject
     private UtilisateurRepository utilisateurRepository;
+
+    @Inject
+    private UserPermissionRepository userPermissionRepository;
 
     @Autowired
     private CollectionService collectionService;
@@ -257,6 +266,119 @@ public class CandidatBean implements Serializable {
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
     private List<Utilisateur> availableAuteurs = new ArrayList<>();
 
+    /** PickList pour inviter des validateurs (source = disponibles, target = à inviter) */
+    private DualListModel<Long> validateursPickList;
+
+    /** Liste des utilisateurs éligibles comme validateurs (groupe Utilisateur) */
+    public List<Utilisateur> getValidateursList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
+    }
+
+    /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
+    public String getUtilisateurDisplayName(Long userId) {
+        if (userId == null || utilisateurRepository == null) return "";
+        return utilisateurRepository.findById(userId)
+                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom().toUpperCase() : "")).trim())
+                .orElse("");
+    }
+
+    /** Retourne le DualListModel des validateurs à inviter, initialisé si besoin */
+    public DualListModel<Long> getValidateursPickList() {
+        if (validateursPickList == null && currentEntity != null && currentEntity.getId() != null) {
+            initValidateursPickList(currentEntity.getId());
+        }
+        if (validateursPickList == null) {
+            validateursPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+        }
+        return validateursPickList;
+    }
+
+    /** Initialise le PickList des validateurs (source = utilisateurs non encore validateurs, target = vide) */
+    private void initValidateursPickList(Long entityId) {
+        List<Long> sourceIds = getValidateursList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> alreadyValidatorIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.VALIDEUR.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !alreadyValidatorIds.contains(id)).toList();
+        validateursPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>());
+    }
+
+    /** Liste des noms des validateurs déjà assignés à l'entité */
+    public List<String> getValidateursDisplayNames() {
+        if (currentEntity == null || currentEntity.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                currentEntity.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) return List.of();
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+    }
+
+    /** Prépare l'envoi des invitations (le dialog s'ouvre via oncomplete si des utilisateurs sont sélectionnés) */
+    public void prepareSendValidateurInvitation() {
+        if (validateursPickList == null || validateursPickList.getTarget() == null || validateursPickList.getTarget().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner au moins un validateur à inviter."));
+            FacesContext.getCurrentInstance().validationFailed();
+        }
+    }
+
+    /** Envoie les invitations aux validateurs sélectionnés (après confirmation) */
+    @org.springframework.transaction.annotation.Transactional
+    public void sendValidateurInvitations() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            addErrorMessage("Aucune entité à associer.");
+            return;
+        }
+        if (validateursPickList == null || validateursPickList.getTarget() == null) {
+            return;
+        }
+        List<?> targetList = validateursPickList.getTarget();
+        int added = 0;
+        for (Object raw : targetList) {
+            Long userId = toLong(raw);
+            if (userId == null) continue;
+            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+            id.setUserId(userId);
+            id.setEntityId(currentEntity.getId());
+            if (!userPermissionRepository.existsById(id)) {
+                Utilisateur utilisateur = utilisateurRepository.findById(userId).orElse(null);
+                if (utilisateur != null) {
+                    UserPermission permission = new UserPermission();
+                    permission.setUtilisateur(utilisateur);
+                    permission.setEntity(currentEntity);
+                    permission.setId(id);
+                    permission.setRole(PermissionRoleEnum.VALIDEUR.getLabel());
+                    permission.setCreateDate(LocalDateTime.now());
+                    userPermissionRepository.save(permission);
+                    added++;
+                }
+            }
+        }
+        validateursPickList = null; // Force re-init au prochain accès
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                        added > 0 ? "Invitation(s) envoyée(s) à " + added + " validateur(s)." : "Aucune nouvelle invitation à envoyer."));
+        PrimeFaces.current().ajax().update(":growl, :validateursSection");
+    }
+
+    private static Long toLong(Object value) {
+        if (value == null) return null;
+        if (value instanceof Long l) return l;
+        if (value instanceof Number n) return n.longValue();
+        if (value instanceof String s && !s.isBlank()) {
+            try { return Long.parseLong(s.trim()); } catch (NumberFormatException e) { return null; }
+        }
+        return null;
+    }
 
     @PostConstruct
     public void init() {

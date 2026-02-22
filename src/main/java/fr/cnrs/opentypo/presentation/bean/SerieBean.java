@@ -15,7 +15,6 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
-import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -34,8 +33,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
 
 @Getter
 @Setter
@@ -55,9 +53,6 @@ public class SerieBean implements Serializable {
 
     @Inject
     private Provider<TreeBean> treeBeanProvider;
-    
-    @Inject
-    private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
     private EntityRelationRepository entityRelationRepository;
@@ -66,14 +61,15 @@ public class SerieBean implements Serializable {
     private SearchBean searchBean;
 
     @Inject
+    private ApplicationBean applicationBean;
+
+    @Inject
     private LangueRepository langueRepository;
 
     private String serieCode;
     private String serieLabel;
     private String serieDescription;
 
-    // Propriétés pour le dialog de création (sans bibliographique ni visibilité)
-    private static final String SERIE_DIALOG_FORM = ":serieDialogForm";
     private List<NameItem> serieNames = new ArrayList<>();
     private List<DescriptionItem> serieDescriptions = new ArrayList<>();
     private String serieDialogCode;
@@ -83,17 +79,6 @@ public class SerieBean implements Serializable {
     private String newDescriptionLangueCode;
     private List<Langue> availableLanguages;
 
-    private boolean editingSerie = false;
-    private String editingSerieCode;
-    private String editingLabelLangueCode;
-    private String editingSerieLabel;
-    private String editingDescriptionLangueCode;
-    private String editingSerieDescription;
-    private String editingSerieCommentaire;
-    private String editingSerieAppellation;
-    private String editingSerieStatut;
-    private Integer editingSerieTpq;
-    private Integer editingSerieTaq;
 
     public void resetSerieForm() {
         serieCode = null;
@@ -213,29 +198,28 @@ public class SerieBean implements Serializable {
     @Transactional
     public void createSerieFromDialog() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        ApplicationBean applicationBean = applicationBeanProvider.get();
 
         if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Aucun groupe n'est sélectionné. Veuillez sélectionner un groupe avant de créer une série."));
-            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
             return;
         }
 
-        if (!EntityValidator.validateCode(serieDialogCode, entityRepository, SERIE_DIALOG_FORM)) {
+        if (!EntityValidator.validateCode(serieDialogCode, entityRepository, ":serieDialogForm")) {
             return;
         }
 
         if (serieNames == null || serieNames.isEmpty()) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
-            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
             return;
         }
 
         for (NameItem item : serieNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
                 facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
-                PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+                PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
                 return;
             }
         }
@@ -317,16 +301,16 @@ public class SerieBean implements Serializable {
 
             resetSerieDialogForm();
             PrimeFaces.current().executeScript("PF('serieDialog').hide();");
-            PrimeFaces.current().ajax().update(":growl, " + SERIE_DIALOG_FORM + ", :seriesContent, :centerContent");
+            PrimeFaces.current().ajax().update(":growl, :serieDialogForm, :seriesContent, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la série", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
-            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la série", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Une erreur est survenue lors de la création de la série : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(SERIE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
         }
     }
 
@@ -343,8 +327,6 @@ public class SerieBean implements Serializable {
                 serieLabel, ":serieForm")) {
             return;
         }
-
-        ApplicationBean applicationBean = applicationBeanProvider.get();
         
         // Vérifier qu'un groupe est sélectionné
         if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
@@ -428,146 +410,6 @@ public class SerieBean implements Serializable {
         }
     }
 
-    public void startEditingSerie(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedEntity() == null) {
-            return;
-        }
-        Entity serie = applicationBean.getSelectedEntity();
-        String codeLang = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        editingSerie = true;
-        editingSerieCode = serie.getCode() != null ? serie.getCode() : "";
-        editingLabelLangueCode = codeLang;
-        editingDescriptionLangueCode = codeLang;
-        editingSerieLabel = EntityUtils.getLabelValueForLanguage(serie, codeLang);
-        editingSerieDescription = EntityUtils.getDescriptionValueForLanguage(serie, codeLang);
-        editingSerieCommentaire = serie.getCommentaire() != null ? serie.getCommentaire() : "";
-        editingSerieAppellation = serie.getAppellation() != null ? serie.getAppellation() : "";
-        editingSerieStatut = serie.getStatut() != null ? serie.getStatut() : "";
-        editingSerieTpq = serie.getTpq();
-        editingSerieTaq = serie.getTaq();
-    }
-
-    public void cancelEditingSerie() {
-        editingSerie = false;
-        editingSerieCode = null;
-        editingLabelLangueCode = null;
-        editingDescriptionLangueCode = null;
-        editingSerieLabel = null;
-        editingSerieDescription = null;
-        editingSerieCommentaire = null;
-        editingSerieAppellation = null;
-        editingSerieStatut = null;
-        editingSerieTpq = null;
-        editingSerieTaq = null;
-    }
-
-    public void onLabelLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingLabelLangueCode != null) {
-            editingSerieLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), editingLabelLangueCode);
-        }
-    }
-
-    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean != null && applicationBean.getSelectedEntity() != null && editingDescriptionLangueCode != null) {
-            editingSerieDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), editingDescriptionLangueCode);
-        }
-    }
-
-    @Transactional
-    public void saveSerie(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedEntity() == null) {
-            return;
-        }
-        Entity serieToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).orElse(null);
-        if (serieToUpdate == null) {
-            return;
-        }
-
-        String newCode = editingSerieCode != null ? editingSerieCode.trim() : null;
-        if (newCode != null && !newCode.isEmpty() && !Objects.equals(newCode, serieToUpdate.getCode())) {
-            serieToUpdate.setCode(newCode);
-        }
-
-        String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
-        Langue labelLangue = langueRepository.findByCode(labelLangueCode);
-        String newLabel = editingSerieLabel != null ? editingSerieLabel.trim() : "";
-        String currentLabelValue = EntityUtils.getLabelValueForLanguage(serieToUpdate, labelLangueCode);
-        if (labelLangue != null && !Objects.equals(newLabel, currentLabelValue)) {
-            Optional<Label> labelOpt = serieToUpdate.getLabels() != null
-                    ? serieToUpdate.getLabels().stream()
-                    .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
-                    .findFirst()
-                    : Optional.empty();
-            if (labelOpt.isPresent()) {
-                labelOpt.get().setNom(newLabel);
-            } else {
-                Label newLabelEntity = new Label();
-                newLabelEntity.setNom(newLabel);
-                newLabelEntity.setEntity(serieToUpdate);
-                newLabelEntity.setLangue(labelLangue);
-                if (serieToUpdate.getLabels() == null) {
-                    serieToUpdate.setLabels(new ArrayList<>());
-                }
-                serieToUpdate.getLabels().add(newLabelEntity);
-            }
-        }
-
-        String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
-        Langue descLangue = langueRepository.findByCode(descLangueCode);
-        String newDesc = editingSerieDescription != null ? editingSerieDescription.trim() : "";
-        String currentDescValue = EntityUtils.getDescriptionValueForLanguage(serieToUpdate, descLangueCode);
-        if (descLangue != null && !Objects.equals(newDesc, currentDescValue)) {
-            Optional<Description> descOpt = serieToUpdate.getDescriptions() != null
-                    ? serieToUpdate.getDescriptions().stream()
-                    .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
-                    .findFirst()
-                    : Optional.empty();
-            if (descOpt.isPresent()) {
-                descOpt.get().setValeur(newDesc);
-            } else {
-                Description newDescEntity = new Description();
-                newDescEntity.setValeur(newDesc);
-                newDescEntity.setEntity(serieToUpdate);
-                newDescEntity.setLangue(descLangue);
-                if (serieToUpdate.getDescriptions() == null) {
-                    serieToUpdate.setDescriptions(new ArrayList<>());
-                }
-                serieToUpdate.getDescriptions().add(newDescEntity);
-            }
-        }
-
-        if (editingSerieCommentaire != null) {
-            serieToUpdate.setCommentaire(editingSerieCommentaire.trim().isEmpty() ? null : editingSerieCommentaire.trim());
-        }
-        if (editingSerieAppellation != null) {
-            serieToUpdate.setAppellation(editingSerieAppellation.trim().isEmpty() ? null : editingSerieAppellation.trim());
-        }
-        if (editingSerieStatut != null) {
-            serieToUpdate.setStatut(editingSerieStatut.trim().isEmpty() ? null : editingSerieStatut.trim());
-        }
-        if (editingSerieTpq != null) {
-            serieToUpdate.setTpq(editingSerieTpq);
-        }
-        if (editingSerieTaq != null) {
-            serieToUpdate.setTaq(editingSerieTaq);
-        }
-
-        Entity saved = entityRepository.save(serieToUpdate);
-        applicationBean.setSelectedEntity(saved);
-        int idx = applicationBean.getBeadCrumbElements().size() - 1;
-        if (idx >= 0) {
-            applicationBean.getBeadCrumbElements().set(idx, saved);
-        }
-        TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
-        if (tb != null) {
-            tb.expandPathAndSelectEntity(saved);
-        }
-        cancelEditingSerie();
-        applicationBean.refreshGroupSeriesList();
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Les modifications de la série ont été enregistrées."));
-    }
-
     /**
      * Supprime la série sélectionnée et toutes ses entités enfants (types) de manière récursive.
      */
@@ -601,7 +443,6 @@ public class SerieBean implements Serializable {
             if (tb != null) {
                 tb.initializeTreeWithCollection();
             }
-            cancelEditingSerie();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                             "La série '" + serieCode + "' et toutes les entités rattachées ont été supprimées."));

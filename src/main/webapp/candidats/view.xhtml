@@ -2,8 +2,7 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:p="http://primefaces.org/ui">
 
     <ui:define name="mainContent">
         <div class="wizard-content">
@@ -144,38 +143,31 @@
                                 </h:panelGroup>
 
                                 <ui:include src="form/bibliographie.xhtml" />
-                            </div>
 
-                            <!-- Styles personnalisés pour le formulaire de groupe -->
-                            <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
-                            <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
-                            <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
-
-                            <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
-                            <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
-                                <ui:include src="openthesoDialog.xhtml"/>
-                            </ui:fragment>
-
-                            <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
-                            <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
-
-                            <!-- Champ Auteurs -->
-                            <div class="users-form-panel wizard-form-panel candidats-mt-20">
-                                <div class="users-form-group users-form-group-full candidats-m-10">
-                                    <p:outputLabel value="Auteurs" />
-                                    <div class="auteurs-list">
-                                        <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
-                                            <div class="auteur-item">
-                                                <i class="pi pi-user auteur-icon" />
-                                                <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
-                                                <span class="auteur-email">(#{auteur.email})</span>
-                                            </div>
-                                        </ui:repeat>
-                                        <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
-                                            <p class="auteurs-empty">Aucun auteur assigné</p>
-                                        </ui:fragment>
+                                <!-- Champ Auteurs -->
+                                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+                                    <div class="users-form-group users-form-group-full candidats-m-10">
+                                        <p:outputLabel value="Auteurs" class="auteurs-section-label" />
+                                        <div class="auteurs-list">
+                                            <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
+                                                <div class="auteur-item">
+                                                <span class="auteur-avatar">
+                                                    <i class="pi pi-user auteur-icon" />
+                                                </span>
+                                                    <span class="auteur-name">#{auteur.prenom} #{auteur.nom}</span>
+                                                </div>
+                                            </ui:repeat>
+                                            <ui:fragment rendered="#{empty candidatBean.selectedAuteurs}">
+                                                <div class="auteurs-empty-state">
+                                                    <span class="auteurs-empty-icon"><i class="pi pi-users" /></span>
+                                                    <p class="auteurs-empty">Aucun auteur assigné</p>
+                                                </div>
+                                            </ui:fragment>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <ui:include src="form/invite_validateur.xhtml"/>
                             </div>
                         </div>
 
@@ -206,6 +198,21 @@
                                                  update="@none"/>
                             </div>
                         </h:panelGroup>
+
+                        <!-- Styles personnalisés pour le formulaire de groupe -->
+                        <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
+                        <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
+                        <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
+
+                        <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
+                        <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                            <ui:include src="openthesoDialog.xhtml"/>
+                        </ui:fragment>
+
+                        <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
+                        <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
+                        <!-- Dialogue de confirmation d'envoi d'invitation aux validateurs -->
+                        <ui:include src="dialogs/confirmValidateurInvitationDialog.xhtml"/>
                     </h:form>
                 </div>
             </div>

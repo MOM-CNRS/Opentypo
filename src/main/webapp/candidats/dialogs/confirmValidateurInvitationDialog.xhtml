@@ -1,0 +1,46 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="confirmValidateurInvitationDialog"
+              widgetVar="confirmValidateurInvitationDialog"
+              header="Confirmer l'envoi des invitations"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="true"
+              width="500"
+              height="auto"
+              styleClass="candidat-confirm-dialog">
+
+        <h:panelGroup id="confirmValidateurInvitationDialogContent">
+            <div class="candidat-confirm-message-wrapper">
+                <div class="candidat-confirm-icon-info">
+                    <i class="pi pi-info-circle" />
+                </div>
+                <p class="candidat-confirm-message-text">
+                    Voulez-vous envoyer une invitation de validation aux utilisateurs sélectionnés ?
+                    Ils seront ajoutés comme validateurs pour ce brouillon.
+                </p>
+            </div>
+
+            <div class="candidat-confirm-actions">
+                <p:commandButton value="Annuler"
+                                 icon="pi pi-times"
+                                 onclick="PF('confirmValidateurInvitationDialog').hide(); return false;"
+                                 type="button"
+                                 styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
+                <p:commandButton value="Oui, envoyer"
+                                 icon="pi pi-send"
+                                 action="#{candidatBean.sendValidateurInvitations}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":growl, :validateursSection"
+                                 styleClass="candidat-confirm-btn candidat-confirm-btn-validate"
+                                 oncomplete="if(!args.validationFailed) {PF('confirmValidateurInvitationDialog').hide();}"/>
+            </div>
+        </h:panelGroup>
+    </p:dialog>
+</ui:fragment>

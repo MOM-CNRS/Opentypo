@@ -63,7 +63,7 @@
                                     </div>
                                     <div class="concept-info-value concept-info-description">
                                         <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                             <span class="empty-field-message">Non renseigné</span>
@@ -154,8 +154,6 @@
                     <ui:include src="../communs/bibliographie.xhtml"/>
 
                     <ui:include src="intervenants.xhtml"/>
-
-                    <ui:include src="../catalogues/liste_series.xhtml"/>
                 </div>
             </div>
         </div>

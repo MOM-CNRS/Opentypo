@@ -55,8 +55,11 @@
                             <ui:include src="details/type/type.xhtml"/>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4 or applicationBean.selectedEntity.entityType.id == 5}">
-                            <ui:include src="details/catalogues/liste_types.xhtml"/>
+                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3 or applicationBean.selectedEntity.entityType.id == 4}">
+                            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
+                                <ui:include src="details/catalogues/liste_series.xhtml"/>
+                            </h:panelGroup>
+                            <ui:include src="details/catalogues/liste_types.xhtml" />
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">

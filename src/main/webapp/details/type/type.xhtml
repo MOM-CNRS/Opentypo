@@ -12,15 +12,9 @@
                             <div class="concept-info-title-section">
                                 <span class="reference-entity-type-badge">Type</span>
                                 <div class="collection-panel-title-wrapper">
-                                    <p:commandLink action="#{applicationBean.showSerie(applicationBean.selectedSerie)}"
-                                                   process="@this"
-                                                   update=":centerContent"
-                                                   onstart="showLoading('Chargement de la série...', 'spinner');"
-                                                   oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                                   onerror="forceHideLoading();"
-                                                   styleClass="collection-panel-title-link">
+                                    <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    </p:commandLink>
+                                    </div>
                                 </div>
                             </div>
                             <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
@@ -53,7 +47,7 @@
                                 </div>
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                         <span class="empty-field-message">Non renseigné</span>

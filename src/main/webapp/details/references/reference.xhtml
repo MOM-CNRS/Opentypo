@@ -166,7 +166,7 @@
                             <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
+                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                         <span class="empty-field-message">Non renseigné</span>
@@ -186,11 +186,11 @@
                                                 process="@this" ajax="true"
                                                 update=":referenceEditForm:descriptionUpdatePanel"/>
                                     </p:selectOneMenu>
-                                    <p:inputTextarea value="#{referenceBean.editingReferenceDescription}"
-                                                     rows="5"
-                                                     cols="50"
-                                                     styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Saisissez la description pour la langue choisie..."/>
+                                    <p:textEditor value="#{referenceBean.editingReferenceDescription}"
+                                                  secure="false"
+                                                  height="200"
+                                                  styleClass="collection-edit-textarea"
+                                                  placeholder="Saisissez la description de la réference"/>
                                 </div>
                             </ui:fragment>
                         </h:panelGroup>

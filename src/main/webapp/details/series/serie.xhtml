@@ -46,32 +46,12 @@
                     </div>
 
                     <h:form id="serieEditForm">
-                    <div class="concept-info-grid">
-                        <h:panelGroup id="serieLabelUpdatePanel" class="concept-info-item concept-info-item-full" rendered="#{serieBean.editingSerie}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Label</span>
-                            </div>
-                            <div class="reference-edit-lang-row">
-                                <p:selectOneMenu value="#{serieBean.editingLabelLangueCode}"
-                                                 styleClass="reference-edit-lang-select" required="true">
-                                    <f:selectItems value="#{applicationBean.languages}" var="lang"
-                                                   itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                    <p:ajax process="@this" listener="#{serieBean.onLabelLanguageChange(applicationBean)}"
-                                            update=":serieEditForm:serieLabelUpdatePanel"/>
-                                </p:selectOneMenu>
-                                <p:inputText value="#{serieBean.editingSerieLabel}"
-                                             styleClass="reference-edit-input reference-edit-input-flex"
-                                             placeholder="Nom pour la langue choisie..."/>
-                            </div>
-                        </h:panelGroup>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Appellation usuelle</span>
-                            </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
+                        <div class="concept-info-grid">
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-tag concept-info-icon" />
+                                    <span>Appellation usuelle</span>
+                                </div>
                                 <div class="concept-info-value">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.appellation}">
                                         #{applicationBean.selectedEntity.appellation}
@@ -80,38 +60,32 @@
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputText value="#{serieBean.editingSerieAppellation}"
-                                             styleClass="reference-edit-input" placeholder="Appellation usuelle"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-info-circle concept-info-icon" />
-                                <span>Période</span>
                             </div>
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                    <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
-                                            value="#{applicationBean.selectedEntity.periode.valeur}" />
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                    #{applicationBean.selectedEntity.periode.valeur}
-                                </ui:fragment>
-                            </ui:fragment>
-                            <h:outputText value="Non renseigné"
-                                          rendered="#{empty applicationBean.selectedEntity.periode}"
-                                          styleClass="empty-field-message" />
-                        </div>
 
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-calendar-minus concept-info-icon" />
-                                <span>TPQ</span>
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-info-circle concept-info-icon" />
+                                    <span>Période</span>
+                                </div>
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                        <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                                value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                        #{applicationBean.selectedEntity.periode.valeur}
+                                    </ui:fragment>
+                                </ui:fragment>
+                                <h:outputText value="Non renseigné"
+                                              rendered="#{empty applicationBean.selectedEntity.periode}"
+                                              styleClass="empty-field-message" />
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
+
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-calendar-minus concept-info-icon" />
+                                    <span>TPQ</span>
+                                </div>
                                 <div class="concept-info-value">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
                                         #{applicationBean.selectedEntity.tpq}
@@ -120,18 +94,13 @@
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputNumber value="#{serieBean.editingSerieTpq}" styleClass="reference-edit-input" placeholder="TPQ"/>
-                            </ui:fragment>
-                        </div>
-
-                        <div class="concept-info-item">
-                            <div class="concept-info-label">
-                                <i class="pi pi-calendar-plus concept-info-icon" />
-                                <span>TAQ</span>
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
+
+                            <div class="concept-info-item">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-calendar-plus concept-info-icon" />
+                                    <span>TAQ</span>
+                                </div>
                                 <div class="concept-info-value">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
                                         #{applicationBean.selectedEntity.taq}
@@ -140,80 +109,62 @@
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputNumber value="#{serieBean.editingSerieTaq}" styleClass="reference-edit-input" placeholder="TAQ"/>
-                            </ui:fragment>
-                        </div>
-
-                        <h:panelGroup id="serieDescUpdatePanel" class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        #{applicationBean.getEntityDescription(applicationBean.selectedEntity)}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+
+                            <h:panelGroup id="serieDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <div class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{serieBean.editingDescriptionLangueCode}"
-                                                     styleClass="reference-edit-lang-select" required="true">
-                                        <f:selectItems value="#{applicationBean.languages}" var="lang"
-                                                       itemValue="#{lang.code}" itemLabel="#{lang.value}"/>
-                                        <p:ajax listener="#{serieBean.onDescriptionLanguageChange(applicationBean)}"
-                                                process="@this" update=":serieEditForm:serieDescUpdatePanel"/>
-                                    </p:selectOneMenu>
-                                    <p:inputTextarea value="#{serieBean.editingSerieDescription}"
+                                <ui:fragment rendered="#{!serieBean.editingSerie}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                            </h:panelGroup>
+
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-comment concept-info-icon" />
+                                    <span>Commentaire</span>
+                                </div>
+                                <ui:fragment rendered="#{!serieBean.editingSerie}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
+                                            #{applicationBean.selectedEntity.commentaire}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{serieBean.editingSerie}">
+                                    <p:inputTextarea value="#{serieBean.editingSerieCommentaire}"
                                                      rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                     placeholder="Description pour la langue choisie..."/>
-                                </div>
-                            </ui:fragment>
-                        </h:panelGroup>
-
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-comment concept-info-icon" />
-                                <span>Commentaire</span>
+                                                     placeholder="Commentaire..."/>
+                                </ui:fragment>
                             </div>
-                            <ui:fragment rendered="#{!serieBean.editingSerie}">
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                        #{applicationBean.selectedEntity.commentaire}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{serieBean.editingSerie}">
+                                <div class="reference-edit-actions">
+                                    <p:commandButton value="Annuler" icon="pi pi-times"
+                                                     action="#{serieBean.cancelEditingSerie()}"
+                                                     process="@this" update=":serieEditForm"
+                                                     styleClass="reference-edit-btn reference-edit-btn-cancel"/>
+                                    <p:commandButton value="Valider" icon="pi pi-check"
+                                                     action="#{confirmSaveBean.prepareSave('SERIE')}"
+                                                     process="@this serieEditForm"
+                                                     update=":confirmSaveDialogContent"
+                                                     oncomplete="PF('confirmSaveDialog').show();"
+                                                     styleClass="reference-edit-btn reference-edit-btn-validate"/>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{serieBean.editingSerie}">
-                                <p:inputTextarea value="#{serieBean.editingSerieCommentaire}"
-                                                 rows="5" styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                 placeholder="Commentaire..."/>
-                            </ui:fragment>
+                            </h:panelGroup>
                         </div>
-
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{serieBean.editingSerie}">
-                            <div class="reference-edit-actions">
-                                <p:commandButton value="Annuler" icon="pi pi-times"
-                                                 action="#{serieBean.cancelEditingSerie()}"
-                                                 process="@this" update=":serieEditForm"
-                                                 styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                <p:commandButton value="Valider" icon="pi pi-check"
-                                                 action="#{confirmSaveBean.prepareSave('SERIE')}"
-                                                 process="@this serieEditForm"
-                                                 update=":confirmSaveDialogContent"
-                                                 oncomplete="PF('confirmSaveDialog').show();"
-                                                 styleClass="reference-edit-btn reference-edit-btn-validate"/>
-                            </div>
-                        </h:panelGroup>
-                    </div>
                     </h:form>
                 </div>
 
