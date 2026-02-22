@@ -67,18 +67,20 @@
                                     <i class="pi pi-info-circle concept-info-icon" />
                                     <span>Période</span>
                                 </div>
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                        <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
-                                                value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                <div class="concept-info-value">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                            <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
+                                                    value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                            #{applicationBean.selectedEntity.periode.valeur}
+                                        </ui:fragment>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                        #{applicationBean.selectedEntity.periode.valeur}
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
+                                        <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
-                                </ui:fragment>
-                                <h:outputText value="Non renseigné"
-                                              rendered="#{empty applicationBean.selectedEntity.periode}"
-                                              styleClass="empty-field-message" />
+                                </div>
                             </div>
 
                             <div class="concept-info-item">

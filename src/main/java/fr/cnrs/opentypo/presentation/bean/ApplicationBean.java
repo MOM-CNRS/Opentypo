@@ -365,11 +365,13 @@ public class ApplicationBean implements Serializable {
     public List<Entity> getChildsTypes() {
         return filterChildsByType(EntityConstants.ENTITY_TYPE_TYPE);
     }
+
     private List<Entity> filterChildsByType(String entityTypeCode) {
         if (childs == null) return new ArrayList<>();
         return childs.stream()
                 .filter(e -> e != null && e.getEntityType() != null
                         && entityTypeCode.equals(e.getEntityType().getCode()))
+                .sorted(Comparator.comparing(e -> e.getCode() != null ? e.getCode() : "", String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 

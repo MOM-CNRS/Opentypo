@@ -39,7 +39,7 @@
                                     <div class="typologie-card-overlay"></div>
                                 </div>
                                 <div class="typologie-card-content">
-                                    <h3 class="typologie-card-title">#{applicationBean.previousType.nom}</h3>
+                                    <h3 class="typologie-card-title">#{applicationBean.previousType.code}</h3>
                                 </div>
                             </p:commandLink>
                             <h:panelGroup layout="block" styleClass="galleria-side-placeholder" rendered="#{applicationBean.previousType == null}"/>
@@ -115,7 +115,7 @@
                                     <div class="typologie-card-overlay"></div>
                                 </div>
                                 <div class="typologie-card-content">
-                                    <h3 class="typologie-card-title">#{applicationBean.nextType.nom}</h3>
+                                    <h3 class="typologie-card-title">#{applicationBean.nextType.code}</h3>
                                 </div>
                             </p:commandLink>
                             <h:panelGroup layout="block" styleClass="galleria-side-placeholder" rendered="#{applicationBean.nextType == null}"/>

@@ -88,9 +88,11 @@
                                         </header>
                                         <div class="reference-category-card-body">
                                             <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(category)}">
-                                                <p class="reference-category-card-description">
-                                                    #{applicationBean.getEntityDescription(category)}
-                                                </p>
+                                                <div class="collection-info-value collection-info-description">
+                                                    <p class="reference-category-card-description">
+                                                        <h:outputText value="#{applicationBean.getEntityDescription(category)}" escape="false"/>
+                                                    </p>
+                                                </div>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.getEntityDescription(category)}">
                                                 <p class="reference-category-card-description reference-category-card-description-empty">
