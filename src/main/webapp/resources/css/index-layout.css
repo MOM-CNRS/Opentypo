@@ -35,12 +35,13 @@
     align-items: stretch !important;
 }
 
-/* ---- 3. Panneau arbre (gauche) - responsive ---- */
+/* ---- 3. Panneau arbre (gauche) - hauteur intégrale disponible ---- */
 .left-tree {
     flex: 0 0 280px !important;
     min-width: 0 !important;
     max-width: 320px !important;
-    max-height: calc(100vh - 180px) !important;
+    align-self: stretch !important;
+    min-height: 0 !important;
     border-radius: var(--index-radius) !important;
     transition: all var(--index-transition) !important;
     overflow-y: auto !important;

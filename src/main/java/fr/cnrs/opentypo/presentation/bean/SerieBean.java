@@ -27,12 +27,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -224,17 +226,22 @@ public class SerieBean implements Serializable {
             newSerie.setCreateDate(LocalDateTime.now());
 
             List<Label> labels = new ArrayList<>();
-            for (NameItem ni : serieNames) {
-                if (ni != null && ni.getLangueCode() != null && StringUtils.hasText(ni.getNom())) {
-                    Langue l = langueRepository.findByCode(ni.getLangueCode());
-                    if (l != null) {
-                        Label label = new Label();
-                        label.setNom(ni.getNom().trim());
-                        label.setLangue(l);
-                        label.setEntity(newSerie);
-                        labels.add(label);
-                    }
-                }
+            if (!CollectionUtils.isEmpty(serieNames)) {
+                labels = serieNames.stream()
+                        .filter(element -> element != null && element.getLangueCode() != null && StringUtils.hasText(element.getNom()))
+                        .map(element -> {
+                            Label label = null;
+                            Langue l = langueRepository.findByCode(element.getLangueCode());
+                            if (l != null) {
+                                label = new Label();
+                                label.setNom(element.getNom().trim());
+                                label.setLangue(l);
+                                label.setEntity(newSerie);
+                            }
+                            return label;
+                        })
+                        .filter(Objects::nonNull)
+                        .toList();
             }
             newSerie.setLabels(labels);
 

@@ -3271,7 +3271,8 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     border-right: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    max-height: 85vh;
+    align-self: stretch;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden !important; /* Empêcher le débordement horizontal */
     transition: all 0.3s ease;
@@ -3337,7 +3338,8 @@ body .ui-tree {
     .left-tree {
         flex: 0 0 100%;
         max-width: 100%;
-        max-height: 70vh;
+        align-self: stretch;
+        min-height: 0;
         padding: 0.1875rem;
     }
     
