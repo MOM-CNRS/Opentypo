@@ -71,6 +71,14 @@
             <div class="users-form-panel wizard-form-panel candidats-p-10">
                 <div class="wizard-content candidats-p-20">
 
+                    <h:panelGroup rendered="#{openThesoDialogBean.isPeriodeParametrageMissing() and candidatBean.canEditCurrentBrouillon()}" layout="block" styleClass="periode-parametrage-info-banner">
+                        <i class="pi pi-info-circle periode-parametrage-info-icon" />
+                        <div class="periode-parametrage-info-content">
+                            <strong>Connexion OpenTheso non paramétrée</strong>
+                            <p>Le gestionnaire du référentiel doit configurer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus. En attendant, vous pouvez saisir en texte libre.</p>
+                        </div>
+                    </h:panelGroup>
+
                     <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 5}">
                         <ui:include src="../form/labels-form.xhtml"/>
                     </h:panelGroup>
