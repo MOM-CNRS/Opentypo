@@ -206,24 +206,55 @@
                                     <i class="pi pi-pencil"/>
                                 </div>
                                 <div class="group-dialog-permission-card-label">
-                                    <label for="selectedRedacteur">Rédacteur</label>
+                                    <label>Rédacteurs</label>
                                 </div>
                             </div>
-                            <div class="collection-form-group collection-form-group-flex">
-                                <p:selectOneMenu id="selectedRedacteur"
-                                                 value="#{groupBean.selectedRedacteur}"
-                                                 styleClass="collection-select"
-                                                 converter="utilisateurConverter"
-                                                 filter="true"
-                                                 filterMatchMode="contains"
-                                                 filterPlaceholder="Rechercher un rédacteur...">
-                                    <f:selectItem itemLabel="Aucun" itemValue=""/>
-                                    <f:selectItems value="#{groupBean.redacteursList}"
-                                                   var="user"
-                                                   itemLabel="#{user.prenom} #{user.nom} (#{user.email})"
-                                                   itemValue="#{user}"/>
-                                </p:selectOneMenu>
+                            <p:pickList id="redacteursPickList"
+                                        value="#{groupBean.redacteursPickList}"
+                                        var="userId"
+                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                        itemValue="#{userId}"
+                                        converter="pickListLongConverter"
+                                        styleClass="group-dialog-picklist"
+                                        showSourceFilter="true"
+                                        showTargetFilter="true"
+                                        filterMatchMode="contains"
+                                        sourceFilterPlaceholder="Rechercher..."
+                                        targetFilterPlaceholder="Rechercher..."
+                                        responsive="true"
+                                        rendered="#{not empty groupBean.redacteursList}"/>
+                            <h:panelGroup rendered="#{empty groupBean.redacteursList}" class="group-dialog-no-relecteurs">
+                                <span>Aucun rédacteur disponible</span>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                    <div class="group-dialog-permissions-row">
+                        <div class="group-dialog-permission-card group-dialog-permission-validateurs">
+                            <div class="group-dialog-permission-card-header">
+                                <div class="group-dialog-permission-icon">
+                                    <i class="pi pi-check-circle"/>
+                                </div>
+                                <div class="group-dialog-permission-card-label">
+                                    <label>Validateurs</label>
+                                </div>
                             </div>
+                            <p:pickList id="validateursPickList"
+                                        value="#{groupBean.validateursPickList}"
+                                        var="userId"
+                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                        itemValue="#{userId}"
+                                        converter="pickListLongConverter"
+                                        styleClass="group-dialog-picklist"
+                                        showSourceFilter="true"
+                                        showTargetFilter="true"
+                                        filterMatchMode="contains"
+                                        sourceFilterPlaceholder="Rechercher..."
+                                        targetFilterPlaceholder="Rechercher..."
+                                        responsive="true"
+                                        rendered="#{not empty groupBean.validateursList}"/>
+                            <h:panelGroup rendered="#{empty groupBean.validateursList}" class="group-dialog-no-relecteurs">
+                                <span>Aucun validateur disponible</span>
+                            </h:panelGroup>
                         </div>
                     </div>
                     <div class="group-dialog-permissions-row">
@@ -233,7 +264,7 @@
                                     <i class="pi pi-pencil"/>
                                 </div>
                                 <div class="group-dialog-permission-card-label">
-                                    <label for="selectedRedacteur">Relecteurs</label>
+                                    <label>Relecteurs</label>
                                 </div>
                             </div>
                             <p:pickList id="relecteursPickList"

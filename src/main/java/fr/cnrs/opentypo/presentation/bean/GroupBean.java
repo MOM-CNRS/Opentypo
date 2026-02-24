@@ -98,10 +98,12 @@ public class GroupBean implements Serializable {
     private String newDescriptionLangueCode;
     private List<Langue> availableLanguages;
 
-    /** Rédacteur sélectionné (1 maximum, optionnel) */
-    private Utilisateur selectedRedacteur;
+    /** Rédacteurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
+    private DualListModel<Long> redacteursPickList;
     /** Relecteurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
     private DualListModel<Long> relecteursPickList;
+    /** Validateurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
+    private DualListModel<Long> validateursPickList;
 
     public void resetGroupForm() {
         groupCode = null;
@@ -117,8 +119,50 @@ public class GroupBean implements Serializable {
         newNameLangueCode = null;
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
-        selectedRedacteur = null;
+        initRedacteursPickList();
         initRelecteursPickList();
+        initValidateursPickList();
+    }
+
+    /** Initialise le PickList des rédacteurs (source = IDs disponibles, target = vide) */
+    private void initRedacteursPickList() {
+        List<Utilisateur> source = getRedacteursList();
+        List<Long> sourceIds = (source != null)
+                ? source.stream().map(Utilisateur::getId).filter(Objects::nonNull).toList()
+                : List.of();
+        redacteursPickList = new DualListModel<>(new ArrayList<>(sourceIds), new ArrayList<>());
+    }
+
+    /** Retourne le DualListModel des rédacteurs, initialisé si besoin */
+    public DualListModel<Long> getRedacteursPickList() {
+        if (redacteursPickList == null) {
+            initRedacteursPickList();
+        }
+        return redacteursPickList;
+    }
+
+    /** Initialise le PickList des validateurs (source = IDs disponibles, target = vide) */
+    private void initValidateursPickList() {
+        List<Utilisateur> source = getValidateursList();
+        List<Long> sourceIds = (source != null)
+                ? source.stream().map(Utilisateur::getId).filter(Objects::nonNull).toList()
+                : List.of();
+        validateursPickList = new DualListModel<>(new ArrayList<>(sourceIds), new ArrayList<>());
+    }
+
+    /** Retourne le DualListModel des validateurs, initialisé si besoin */
+    public DualListModel<Long> getValidateursPickList() {
+        if (validateursPickList == null) {
+            initValidateursPickList();
+        }
+        return validateursPickList;
+    }
+
+    /** Liste des utilisateurs éligibles comme validateurs (groupe Utilisateur) */
+    public List<Utilisateur> getValidateursList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
     }
 
     /** Initialise le PickList des relecteurs (source = IDs disponibles, target = vide) */
@@ -161,7 +205,8 @@ public class GroupBean implements Serializable {
     }
 
     /**
-     * Retourne le nom affichable du rédacteur du groupe (rôle "Rédacteur" dans user_permission).
+     * Retourne le(s) nom(s) affichable(s) des rédacteurs du groupe (rôle "Rédacteur" dans user_permission).
+     * Plusieurs noms sont séparés par des virgules.
      */
     public String getGroupRedacteurDisplayName(Entity group) {
         if (group == null || group.getId() == null || userPermissionRepository == null) {
@@ -172,7 +217,10 @@ public class GroupBean implements Serializable {
         if (userIds == null || userIds.isEmpty()) {
             return null;
         }
-        return getUtilisateurDisplayName(userIds.get(0));
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .collect(java.util.stream.Collectors.joining(", "));
     }
 
     /**
@@ -184,6 +232,24 @@ public class GroupBean implements Serializable {
         }
         List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
                 group.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+    }
+
+    /**
+     * Retourne la liste des noms affichables des validateurs du groupe (rôle "Valideur" dans user_permission).
+     */
+    public List<String> getGroupValidateursDisplayNames(Entity group) {
+        if (group == null || group.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                group.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
         if (userIds == null || userIds.isEmpty()) {
             return List.of();
         }
@@ -293,25 +359,42 @@ public class GroupBean implements Serializable {
     }
 
     /**
-     * Crée une ligne dans user_permission pour le rédacteur (rôle "Rédacteur") et
-     * chaque relecteur (rôle "Relecteur") du groupe donné.
+     * Crée une ligne dans user_permission pour chaque rédacteur, validateur et relecteur sélectionné.
+     * Un utilisateur ne peut avoir qu'un seul rôle par entité (contrainte user_id + entity_id).
+     * Priorité : Rédacteur > Valideur > Relecteur.
      */
     private void saveUserPermissionsForGroup(Entity savedGroup) {
         if (userPermissionRepository == null || savedGroup == null || savedGroup.getId() == null) {
             return;
         }
-        // Rédacteur : rôle "Rédacteur"
-        if (selectedRedacteur != null && selectedRedacteur.getId() != null) {
-            saveUserPermission(savedGroup, selectedRedacteur, PermissionRoleEnum.REDACTEUR.getLabel());
+        java.util.Set<Long> alreadyAssigned = new java.util.HashSet<>();
+
+        // Rédacteurs : rôle "Rédacteur"
+        List<?> redacteursTarget = (redacteursPickList != null && redacteursPickList.getTarget() != null)
+                ? redacteursPickList.getTarget() : List.of();
+        for (Object raw : redacteursTarget) {
+            Utilisateur u = resolveUtilisateur(raw);
+            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
+                saveUserPermission(savedGroup, u, PermissionRoleEnum.REDACTEUR.getLabel());
+            }
         }
 
-        // Relecteurs : rôle "Relecteur" (on évite les doublons avec le rédacteur)
-        List<?> targetList = (relecteursPickList != null && relecteursPickList.getTarget() != null)
-                ? relecteursPickList.getTarget() : List.of();
-        for (Object raw : targetList) {
+        // Validateurs : rôle "Valideur" (uniquement si pas déjà rédacteur)
+        List<?> validateursTarget = (validateursPickList != null && validateursPickList.getTarget() != null)
+                ? validateursPickList.getTarget() : List.of();
+        for (Object raw : validateursTarget) {
             Utilisateur u = resolveUtilisateur(raw);
-            if (u != null && u.getId() != null
-                    && (selectedRedacteur == null || !u.getId().equals(selectedRedacteur.getId()))) {
+            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
+                saveUserPermission(savedGroup, u, PermissionRoleEnum.VALIDEUR.getLabel());
+            }
+        }
+
+        // Relecteurs : rôle "Relecteur" (uniquement si pas déjà rédacteur ou validateur)
+        List<?> relecteursTarget = (relecteursPickList != null && relecteursPickList.getTarget() != null)
+                ? relecteursPickList.getTarget() : List.of();
+        for (Object raw : relecteursTarget) {
+            Utilisateur u = resolveUtilisateur(raw);
+            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
                 saveUserPermission(savedGroup, u, PermissionRoleEnum.RELECTEUR.getLabel());
             }
         }

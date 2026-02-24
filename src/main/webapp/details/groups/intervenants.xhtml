@@ -43,6 +43,25 @@
                 </div>
                 <div class="concept-info-item concept-info-item-full">
                     <div class="concept-info-label">
+                        <i class="pi pi-check-circle concept-info-icon" />
+                        <span>Validateurs</span>
+                    </div>
+                    <div class="concept-info-value bibliographie-container">
+                        <ui:fragment rendered="#{not empty groupBean.getGroupValidateursDisplayNames(applicationBean.selectedEntity)}">
+                            <ui:repeat value="#{groupBean.getGroupValidateursDisplayNames(applicationBean.selectedEntity)}" var="validateur">
+                                <span class="bibliographie-badge">
+                                    <i class="pi pi-check-circle bibliographie-badge-icon" />
+                                    <span class="bibliographie-badge-text">#{validateur}</span>
+                                </span>
+                            </ui:repeat>
+                        </ui:fragment>
+                        <h:outputText value="Aucun validateur assigné"
+                                      rendered="#{empty groupBean.getGroupValidateursDisplayNames(applicationBean.selectedEntity)}"
+                                      styleClass="bibliographie-empty" />
+                    </div>
+                </div>
+                <div class="concept-info-item concept-info-item-full">
+                    <div class="concept-info-label">
                         <i class="pi pi-user concept-info-icon" />
                         <span>Auteur(s)</span>
                     </div>
