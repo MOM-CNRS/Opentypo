@@ -34,7 +34,7 @@
                     <p:commandButton value="Actualiser"
                                      icon="pi pi-refresh"
                                      action="#{collectionParametrageBean.loadThesaurusFromUrl}"
-                                     process="@this"
+                                     process="@this paramBaseUrl"
                                      ajax="true"
                                      update=":collectionParametrageForm :growl"
                                      styleClass="parametrage-btn-refresh"
