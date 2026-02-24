@@ -791,6 +791,14 @@ select:hover {
     background: transparent;
 }
 
+/* Forcer PrimeIcons pour les icônes du header (évite les conflits avec Bootstrap/Font Awesome) */
+.header-icon .ui-button-icon-left,
+.header-icon .ui-button-icon,
+.header-icon .ui-icon,
+.header-icon .pi {
+    font-family: 'primeicons' !important;
+}
+
 .mobile-burger-button {
     background-color: transparent !important;
     border: none !important;
@@ -799,6 +807,12 @@ select:hover {
     margin-right: 10px;
     display: none !important;
     box-shadow: none;
+}
+
+.mobile-burger-button .ui-button-icon-left,
+.mobile-burger-button .ui-icon,
+.mobile-burger-button .pi {
+    font-family: 'primeicons' !important;
 }
 
 

@@ -3115,6 +3115,7 @@ body .ui-menu.ui-menu-dynamic .ui-menuitem-link .ui-menuitem-icon {
     font-size: 1rem !important;
     width: 20px !important;
     text-align: center !important;
+    font-family: 'primeicons' !important;
 }
 
 .header-icon.authenticated-user .ui-menu .ui-menuitem-link:hover .ui-menuitem-icon,

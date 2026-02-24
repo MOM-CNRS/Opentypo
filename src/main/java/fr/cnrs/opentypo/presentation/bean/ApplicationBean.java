@@ -1130,7 +1130,7 @@ public class ApplicationBean implements Serializable {
                 .filter(description -> codeLang.equalsIgnoreCase(description.getLangue().getCode()))
                 .findFirst()
                 .map(Description::getValeur)
-                .orElse("Aucune description disponible");
+                .orElse(null);
     }
 
     public boolean showCommentaireBloc() {

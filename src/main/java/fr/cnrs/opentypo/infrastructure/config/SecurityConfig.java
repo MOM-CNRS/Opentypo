@@ -60,6 +60,9 @@ public class SecurityConfig {
                     return false;
                 }).permitAll()
 
+                // Permettre l'accès aux WebJars (Font Awesome, Bootstrap, etc. - chargement local)
+                .requestMatchers("/webjars/**").permitAll()
+
                 // Permettre l'accès aux ressources statiques (CSS, JS, images, etc.)
                 .requestMatchers(
                     "/resources/**",

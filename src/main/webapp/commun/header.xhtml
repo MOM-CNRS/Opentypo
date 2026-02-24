@@ -39,6 +39,7 @@
                 <!-- Icône d'alertes -->
                 <p:commandButton icon="pi pi-bell text-white"
                                  styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                 style="color: white"
                                  title="Alertes"
                                  action="#{notificationBean.showAlerts}" />
 
@@ -46,6 +47,7 @@
                 <h:panelGroup rendered="#{!loginBean.authenticated}">
                     <p:commandButton icon="pi pi-user text-white"
                                      styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                                     style="color: white"
                                      title="Se connecter"
                                      type="button"
                                      onclick="showLoginDialog(); return false;" />
