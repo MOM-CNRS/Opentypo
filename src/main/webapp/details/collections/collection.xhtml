@@ -60,16 +60,6 @@
                         </div>
                         <!-- Actions pour l'administrateur technique -->
                         <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
-                            <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
-                                           process="@form"
-                                           update=":collectionParametrageForm"
-                                           styleClass="concept-action-button"
-                                           title="Paramétrage OpenTheso"
-                                           oncomplete="PF('collectionParametrageDialog').show();">
-                                <i class="pi pi-cog" />
-                                <p:tooltip value="Paramétrage" position="top"/>
-                            </p:commandLink>
-
                             <!-- Bouton Historique -->
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
@@ -401,5 +391,4 @@
 
     <ui:include src="../references/referenceDialog.xhtml"/>
     <ui:include src="confirmVisibilityChangeDialog.xhtml"/>
-    <ui:include src="collectionParametrageDialog.xhtml"/>
 </ui:composition>

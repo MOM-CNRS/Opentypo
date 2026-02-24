@@ -1036,6 +1036,44 @@
             border: 1px solid rgba(71, 98, 77, 0.12);
         }
 
+        /* Bandeau info : paramétrage OpenTheso manquant */
+        .periode-parametrage-info-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.06) 0%, rgba(13, 110, 253, 0.02) 100%);
+            border: 1px solid rgba(13, 110, 253, 0.25);
+            border-radius: 10px;
+            color: #0d6efd;
+        }
+
+        .periode-parametrage-info-icon {
+            font-size: 1.35rem;
+            flex-shrink: 0;
+            opacity: 0.9;
+            margin-top: 0.15rem;
+        }
+
+        .periode-parametrage-info-content {
+            flex: 1;
+        }
+
+        .periode-parametrage-info-content strong {
+            display: block;
+            font-size: 0.9375rem;
+            margin-bottom: 0.35rem;
+            color: #0a58ca;
+        }
+
+        .periode-parametrage-info-content p {
+            margin: 0;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #495057;
+        }
+
         .periode-autocomplete-row {
             display: flex;
             align-items: center;

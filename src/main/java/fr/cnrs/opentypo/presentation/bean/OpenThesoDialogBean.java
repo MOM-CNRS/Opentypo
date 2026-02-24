@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.*;
 import fr.cnrs.opentypo.application.service.CollectionService;
+import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.PactolsService;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -28,11 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.inject.Inject;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -61,6 +61,13 @@ public class OpenThesoDialogBean implements Serializable {
     @Autowired
     private CollectionService collectionService;
 
+    @Autowired
+    @Lazy
+    private CandidatBean candidatBeanForAutocomplete;
+
+    @Autowired
+    private GroupService groupService;
+
     // État de la boîte de dialogue
     private String dialogWidgetVar;
     private String targetFieldId; // ID du champ cible où insérer la valeur
@@ -80,10 +87,6 @@ public class OpenThesoDialogBean implements Serializable {
     private CandidatBean candidatBean;
     private Parametrage collectionParametrage;
 
-    @Inject
-    @Lazy
-    private CandidatBean candidatBeanForAutocomplete;
-
     /**
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
      * @param code Code de la référence à créer (PRODUCTION, PERIODE, etc.)
@@ -96,17 +99,19 @@ public class OpenThesoDialogBean implements Serializable {
         this.entityId = entityId;
         
         // Recharger les thésaurus avec la langue sélectionnée
-        Entity collectionParent = collectionService.findCollectionIdByEntityId(entityId);
-        collectionParametrage = parametrageRepository.findByEntityId(collectionParent.getId()).orElse(null);
-        if (collectionParametrage == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La collection "
-                            + collectionParent.getCode()
-                            + " n'est pas paramétrée"));
-            return;
+        Optional<Entity> groupeParent = groupService.findGroupByEntityId(entityId);
+        if (groupeParent.isPresent()) {
+            Optional<Parametrage> parametrage = parametrageRepository.findByEntityId(groupeParent.get().getId());
+            if (parametrage.isEmpty()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La collection "
+                                + groupeParent.get().getCode() + " n'est pas paramétrée"));
+                return;
+            }
+            collectionParametrage = parametrage.get();
+            // Réinitialiser l'état
+            resetDialog();
         }
-        // Réinitialiser l'état
-        resetDialog();
     }
 
     /**
@@ -208,13 +213,18 @@ public class OpenThesoDialogBean implements Serializable {
      * Même logique que onConceptSearch - recherche dans le thésaurus Pactols.
      */
     public List<PactolsConcept> completePeriode(String query) {
-        CandidatBean cb = candidatBeanForAutocomplete;
-        if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
+        if (candidatBeanForAutocomplete == null
+                || candidatBeanForAutocomplete.getCurrentEntity() == null
+                || candidatBeanForAutocomplete.getCurrentEntity().getId() == null) {
             return new ArrayList<>();
         }
-        ensurePeriodeThesaurusLoaded(cb);
+        ensurePeriodeThesaurusLoaded(candidatBeanForAutocomplete);
         if (collectionParametrage == null || collectionParametrage.getIdTheso() == null
                 || collectionParametrage.getIdGroupe() == null || collectionParametrage.getIdLangue() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
+                            "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
+            PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
         String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
@@ -233,6 +243,39 @@ public class OpenThesoDialogBean implements Serializable {
             return;
         }
         loadThesaurus(cb, ReferenceOpenthesoEnum.PERIODE.name(), cb.getCurrentEntity().getId());
+    }
+
+    /**
+     * Indique si le paramétrage OpenTheso est manquant pour le groupe de l'entité en cours.
+     * Utilisé pour afficher un message d'information dans le champ Période.
+     */
+    public boolean isPeriodeParametrageMissing() {
+        CandidatBean cb = candidatBeanForAutocomplete;
+        if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
+            return false;
+        }
+        Optional<Entity> groupeOpt = groupService.findGroupByEntityId(cb.getCurrentEntity().getId());
+        if (groupeOpt.isEmpty()) {
+            return false;
+        }
+        Optional<Parametrage> pOpt = parametrageRepository.findByEntityId(groupeOpt.get().getId());
+        if (pOpt.isEmpty()) {
+            return true;
+        }
+        Parametrage p = pOpt.get();
+        return p.getIdTheso() == null || p.getIdTheso().trim().isEmpty()
+                || p.getIdLangue() == null || p.getIdLangue().trim().isEmpty()
+                || p.getIdGroupe() == null || p.getIdGroupe().trim().isEmpty();
+    }
+
+    /**
+     * Message à afficher dans la liste vide de l'autocomplete Période.
+     * Différencie le cas « paramétrage manquant » du cas « aucun résultat ».
+     */
+    public String getPeriodeEmptyMessage() {
+        return isPeriodeParametrageMissing()
+                ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
+                : "Aucun résultat trouvé";
     }
 
     /**
