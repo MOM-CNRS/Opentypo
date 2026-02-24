@@ -4,12 +4,14 @@ import fr.cnrs.opentypo.application.dto.EntityRevisionDTO;
 import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ public class HistoryBean implements Serializable {
     private transient ApplicationBean applicationBean;
 
     @Inject
-    private transient fr.cnrs.opentypo.application.service.AuditService auditService;
+    private transient AuditService auditService;
 
     // Entité sélectionnée pour laquelle on affiche l'historique
     private Entity selectedEntity;
@@ -102,17 +104,9 @@ public class HistoryBean implements Serializable {
     /**
      * Retourne à l'entité depuis la liste des révisions
      */
-    public String backToEntity() {
-        if (selectedEntity != null && applicationBean != null) {
-            // Retourner à la page de référence si c'est une référence
-            if (applicationBean.getSelectedReference() != null && 
-                applicationBean.getSelectedReference().getId().equals(selectedEntity.getId())) {
-                return "/details/references/reference.xhtml?faces-redirect=true";
-            }
-            // Sinon, retourner à la page de l'entité (à adapter selon votre navigation)
-            return "/details/references/reference.xhtml?faces-redirect=true";
-        }
-        return "/index.xhtml?faces-redirect=true";
+    public void backToEntity() throws IOException {
+        FacesContext.getCurrentInstance().getExternalContext()
+                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/index.xhtml");
     }
 
     /**

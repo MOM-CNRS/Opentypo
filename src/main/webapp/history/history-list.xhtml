@@ -22,12 +22,13 @@
                     </p>
                 </div>
                 <div class="history-actions">
-                    <p:commandButton value="Retour"
-                                    icon="pi pi-arrow-left"
-                                    styleClass="history-btn-back"
-                                    action="#{historyBean.backToEntity()}"
-                                    process="@this"
-                                    update="@none"/>
+                    <h:form>
+                        <p:commandButton value="Retour"
+                                        icon="pi pi-arrow-left"
+                                        styleClass="history-btn-back"
+                                        action="#{historyBean.backToEntity()}"
+                                        ajax="true"/>
+                    </h:form>
                 </div>
             </div>
 
