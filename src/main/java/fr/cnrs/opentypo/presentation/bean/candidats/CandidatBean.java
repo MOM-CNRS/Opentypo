@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean.candidats;
 
+import fr.cnrs.opentypo.application.dto.pactols.PactolsConcept;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
@@ -259,6 +260,9 @@ public class CandidatBean implements Serializable {
     private String periode;
     private Integer tpq;
     private Integer taq;
+
+    /** Sélection Période pour l'autocomplete */
+    private PactolsConcept periodeAutocompleteSelection;
 
     private boolean fromCatalog;
 
@@ -832,6 +836,7 @@ public class CandidatBean implements Serializable {
         periode = data.getPeriode();
         corpusExterne = data.getCorpusExterne();
         if (data.getSelectedAuteurs() != null) selectedAuteurs = new ArrayList<>(data.getSelectedAuteurs());
+        syncPeriodeAutocompleteFromEntity();
     }
 
     /**
@@ -1222,6 +1227,7 @@ public class CandidatBean implements Serializable {
         references = res.getStep3Data().getReferences();
 
         if (res.getStep3Data() != null) applyStep3FormData(res.getStep3Data());
+        syncPeriodeAutocompleteFromEntity();
 
         loadAvailableAuteurs();
         return res.getRedirectUrl();
@@ -1823,6 +1829,7 @@ public class CandidatBean implements Serializable {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatOpenThesoService.deletePeriode(currentEntity.getId());
             currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
+            periodeAutocompleteSelection = null;
         }
     }
 
@@ -1837,7 +1844,37 @@ public class CandidatBean implements Serializable {
     public void updatePeriodeFromOpenTheso() {
         if (currentEntity != null && currentEntity.getId() != null) {
             currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
+            syncPeriodeAutocompleteFromEntity();
         }
+    }
+
+    /** Synchronise periodeAutocompleteSelection à partir de l'entité. */
+    public void syncPeriodeAutocompleteFromEntity() {
+        if (currentEntity == null || currentEntity.getId() == null) return;
+        Entity e = entityRepository.findById(currentEntity.getId()).orElse(null);
+        if (e != null && e.getPeriode() != null) {
+            ReferenceOpentheso p = e.getPeriode();
+            periodeAutocompleteSelection = new PactolsConcept(
+                    p.getConceptId(), p.getUrl(), p.getValeur());
+        } else {
+            periodeAutocompleteSelection = null;
+        }
+    }
+
+    /** Enregistre la période sélectionnée ou saisie dans l'autocomplete. */
+    public void savePeriodeFromAutocomplete() {
+        PactolsConcept conceptToSave = periodeAutocompleteSelection;
+        if (conceptToSave == null) {
+            String lastQuery = openThesoDialogBean.getLastPeriodeQuery();
+            if (lastQuery != null && !lastQuery.trim().isEmpty()) {
+                conceptToSave = new PactolsConcept(null, null, lastQuery.trim());
+            }
+        }
+        openThesoDialogBean.savePeriodeFromConcept(conceptToSave);
+        if (conceptToSave != null) {
+            openThesoDialogBean.setLastPeriodeQuery("");
+        }
+        updatePeriodeFromOpenTheso();
     }
 
     /**

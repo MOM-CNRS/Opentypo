@@ -1028,6 +1028,188 @@
            Champ Période - Design moderne et fluide
            ============================================ */
 
+        /* Section Période (autocomplete) */
+        .periode-periode-section {
+            padding: 1rem 1.25rem !important;
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.01) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(71, 98, 77, 0.12);
+        }
+
+        .periode-autocomplete-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .periode-autocomplete-wrapper {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Wrapper avec position relative pour positionner le panneau en dessous */
+        #periodeAutocompleteWrapper {
+            position: relative;
+        }
+
+        .periode-autocomplete-wrapper .periode-autocomplete-icon {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-action-main, #47624D);
+            font-size: 0.95rem;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .periode-autocomplete-wrapper:focus-within .periode-autocomplete-icon {
+            opacity: 1;
+            color: var(--color-action-main, #47624D);
+        }
+
+        .periode-action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Boutons période : même style carré (Enregistrer = vert, Supprimer = rouge) */
+        .periode-action-buttons .candidat-btn-save,
+        .periode-action-buttons .periode-save-btn {
+            padding: 0 !important;
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            border-radius: 6px !important;
+            border: 1px solid var(--color-action-main, #47624D) !important;
+            background: rgba(71, 98, 77, 0.08) !important;
+            color: var(--color-action-main, #47624D) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+        }
+
+        .periode-action-buttons .candidat-btn-save:hover,
+        .periode-action-buttons .periode-save-btn:hover {
+            background: var(--color-action-main, #47624D) !important;
+            border-color: var(--color-action-main, #47624D) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(71, 98, 77, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .periode-action-buttons .candidat-btn-save .ui-button-icon-left,
+        .periode-action-buttons .candidat-btn-save .ui-button-icon,
+        .periode-action-buttons .periode-save-btn .ui-button-icon-left,
+        .periode-action-buttons .periode-save-btn .ui-button-icon {
+            position: static !important;
+            margin: 0 !important;
+            font-size: 0.9rem !important;
+            line-height: 1 !important;
+        }
+
+        .periode-action-buttons .candidat-btn-save .ui-button-text,
+        .periode-action-buttons .periode-save-btn .ui-button-text {
+            display: none !important;
+            padding: 0 !important;
+        }
+
+        .periode-action-buttons .candidat-btn-save:hover .ui-button-icon-left,
+        .periode-action-buttons .candidat-btn-save:hover .ui-button-icon,
+        .periode-action-buttons .periode-save-btn:hover .ui-button-icon-left,
+        .periode-action-buttons .periode-save-btn:hover .ui-button-icon {
+            color: #ffffff !important;
+        }
+
+        .periode-action-buttons .candidat-btn-remove {
+            padding: 0 !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 6px !important;
+            border: 1px solid #dc3545 !important;
+            background: rgba(220, 53, 69, 0.08) !important;
+            color: #dc3545 !important;
+        }
+
+        .periode-action-buttons .candidat-btn-remove:hover {
+            background: #c82333 !important;
+            border-color: #bd2130 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .periode-autocomplete-hint {
+            margin: 0.5rem 0 0 0;
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+            color: var(--color-text-secondary, #6c757d);
+            line-height: 1.4;
+        }
+
+        .periode-autocomplete-hint .pi {
+            font-size: 0.75rem;
+            vertical-align: middle;
+            opacity: 0.8;
+        }
+
+        /* Liste déroulante Période - design et positionnement */
+        .periode-autocomplete-panel.ui-autocomplete-panel {
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            margin-top: 4px !important;
+            padding: 0.5rem 0 !important;
+            border: 1px solid rgba(71, 98, 77, 0.2) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 8px 24px rgba(71, 98, 77, 0.15) !important;
+            background: #ffffff !important;
+            z-index: 9999 !important;
+        }
+
+        .periode-autocomplete-panel .ui-autocomplete-list {
+            padding: 0 !important;
+            border: none !important;
+        }
+
+        .periode-autocomplete-panel .ui-autocomplete-item,
+        .periode-autocomplete-panel .ui-autocomplete-list-item {
+            padding: 0.65rem 1rem !important;
+            margin: 0.15rem 0.5rem !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            transition: background 0.15s ease, color 0.15s ease !important;
+            font-size: 0.9375rem !important;
+        }
+
+        .periode-autocomplete-panel .ui-autocomplete-item:hover,
+        .periode-autocomplete-panel .ui-autocomplete-list-item:hover,
+        .periode-autocomplete-panel .ui-autocomplete-item.ui-state-highlight,
+        .periode-autocomplete-panel .ui-autocomplete-list-item.ui-state-highlight {
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+            color: var(--color-action-main, #47624D) !important;
+            border: none !important;
+        }
+
+        .periode-autocomplete-panel .ui-autocomplete-empty-message {
+            padding: 1rem !important;
+            color: var(--color-text-secondary, #6c757d) !important;
+            font-size: 0.9rem !important;
+            text-align: center !important;
+        }
+
         .periode-group {
             border-radius: 10px;
             border: 1px solid rgba(71, 98, 77, 0.12);
@@ -1103,12 +1285,27 @@
 
         /* Responsive pour le bloc période */
         @media (max-width: 768px) {
-            .periode-group {
+            .periode-group,
+            .periode-periode-section {
                 padding: 0.75rem 0.75rem;
             }
 
-            .periode-field-row {
+            .periode-field-row,
+            .periode-autocomplete-row {
                 gap: 0.5rem;
+            }
+
+            .periode-autocomplete-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .periode-autocomplete-wrapper {
+                min-width: 100%;
+            }
+
+            .periode-action-buttons {
+                justify-content: flex-start;
             }
 
             .periode-save-btn {

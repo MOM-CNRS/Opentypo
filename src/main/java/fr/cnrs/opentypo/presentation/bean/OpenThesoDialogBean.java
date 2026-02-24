@@ -25,7 +25,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.util.CollectionUtils;
+
+import jakarta.inject.Inject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -72,8 +75,14 @@ public class OpenThesoDialogBean implements Serializable {
     private PactolsConcept selectedConcept;
     /** Valeur saisie manuellement lorsque la recherche ne retourne aucun résultat (enregistrée dans reference-opentheso.valeur). */
     private String manualValue = "";
+    /** Dernière requête saisie dans l'autocomplete Période (pour enregistrement en texte libre si aucun résultat). */
+    private String lastPeriodeQuery = "";
     private CandidatBean candidatBean;
     private Parametrage collectionParametrage;
+
+    @Inject
+    @Lazy
+    private CandidatBean candidatBeanForAutocomplete;
 
     /**
      * Charge les thésaurus disponibles (appelé avant l'ouverture de la boîte de dialogue)
@@ -192,6 +201,84 @@ public class OpenThesoDialogBean implements Serializable {
                 collectionParametrage.getIdGroupe());
 
         PrimeFaces.current().ajax().update(":openThesoForm:conceptsTable :growl");
+    }
+
+    /**
+     * Méthode de complétion pour l'autocomplete Période.
+     * Même logique que onConceptSearch - recherche dans le thésaurus Pactols.
+     */
+    public List<PactolsConcept> completePeriode(String query) {
+        CandidatBean cb = candidatBeanForAutocomplete;
+        if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
+            return new ArrayList<>();
+        }
+        ensurePeriodeThesaurusLoaded(cb);
+        if (collectionParametrage == null || collectionParametrage.getIdTheso() == null
+                || collectionParametrage.getIdGroupe() == null || collectionParametrage.getIdLangue() == null) {
+            return new ArrayList<>();
+        }
+        String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
+        if (term.isEmpty()) {
+            lastPeriodeQuery = "";
+            return new ArrayList<>();
+        }
+        lastPeriodeQuery = term;
+        return pactolsService.searchConcepts(collectionParametrage.getIdTheso(), term,
+                collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
+    }
+
+    private void ensurePeriodeThesaurusLoaded(CandidatBean cb) {
+        if (collectionParametrage != null && referenceCode == ReferenceOpenthesoEnum.PERIODE && entityId != null
+                && entityId.equals(cb.getCurrentEntity().getId())) {
+            return;
+        }
+        loadThesaurus(cb, ReferenceOpenthesoEnum.PERIODE.name(), cb.getCurrentEntity().getId());
+    }
+
+    /**
+     * Enregistre une période sélectionnée depuis l'autocomplete.
+     */
+    public void savePeriodeFromConcept(PactolsConcept concept) {
+        CandidatBean cb = candidatBeanForAutocomplete;
+        if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune entité en cours d'édition."));
+            return;
+        }
+        if (concept == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir ou sélectionner une période."));
+            return;
+        }
+        ensurePeriodeThesaurusLoaded(cb);
+        if (collectionParametrage == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le thésaurus n'est pas paramétré."));
+            return;
+        }
+        Entity entity = entityRepository.findById(cb.getCurrentEntity().getId()).orElse(null);
+        if (entity == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Entité introuvable."));
+            return;
+        }
+        String valueToSave = concept.getSelectedTerm() != null && !concept.getSelectedTerm().trim().isEmpty()
+                ? concept.getSelectedTerm().trim()
+                : concept.getIdConcept();
+        ReferenceOpentheso ref = new ReferenceOpentheso();
+        ref.setCode(ReferenceOpenthesoEnum.PERIODE.name());
+        ref.setEntity(entity);
+        ref.setValeur(valueToSave);
+        ref.setConceptId(concept.getIdConcept());
+        ref.setThesaurusId(collectionParametrage.getIdTheso());
+        ref.setCollectionId(collectionParametrage.getIdGroupe());
+        ref.setUrl(concept.getUri());
+        ref = referenceOpenthesoRepository.save(ref);
+        entity.setPeriode(ref);
+        entityRepository.save(entity);
+        cb.updatePeriodeFromOpenTheso();
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Période enregistrée avec succès."));
     }
 
     /**
