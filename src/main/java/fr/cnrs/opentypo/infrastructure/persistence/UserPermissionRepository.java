@@ -39,6 +39,12 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
                                              @Param("role") String role);
 
     /**
+     * Vérifie si un utilisateur a une permission (n'importe quel rôle) sur une entité
+     */
+    @Query("SELECT CASE WHEN COUNT(up) > 0 THEN true ELSE false END FROM UserPermission up WHERE up.id.userId = :userId AND up.id.entityId = :entityId")
+    boolean existsByUserIdAndEntityId(@Param("userId") Long userId, @Param("entityId") Long entityId);
+
+    /**
      * Supprime toutes les permissions d'un rôle donné pour une entité
      */
     @Modifying

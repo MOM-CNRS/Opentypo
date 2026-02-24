@@ -1,7 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
-import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
@@ -11,7 +11,6 @@ import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
-import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
@@ -33,7 +32,6 @@ import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -41,7 +39,6 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -201,18 +198,29 @@ public class ApplicationBean implements Serializable {
             return false;
         }
 
-        // 1) Ne jamais afficher les entités au statut REFUSED
+        // 0) Administrateur technique : voit tous les éléments (y compris REFUSED)
+        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
+        if (isAdminTechnique) {
+            return true;
+        }
+
+        // 1) Ne jamais afficher les entités au statut REFUSED (pour les non-admin)
         if (EntityStatusEnum.REFUSED.name().equals(entity.getStatut())) {
             return false;
         }
 
         boolean authenticated = loginBean != null && loginBean.isAuthenticated();
-        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
 
-        // 2) Utilisateur non connecté : uniquement les entités avec publique = true
-        //    (pas de prise en compte des collections publiques : filtre strict sur le champ entity.publique)
+        // 2) Utilisateur non connecté (offline) : uniquement les entités publique = true
+        //    et statut différent de REFUSED et PROPOSITION
         if (!authenticated) {
-            return Boolean.TRUE.equals(entity.getPublique());
+            if (!Boolean.TRUE.equals(entity.getPublique())) {
+                return false;
+            }
+            String statut = entity.getStatut();
+            return statut != null
+                    && !EntityStatusEnum.REFUSED.name().equals(statut)
+                    && !EntityStatusEnum.PROPOSITION.name().equals(statut);
         }
 
         // 2b) Utilisateur connecté : pour les collections, afficher toutes (publique = true et false)
@@ -236,12 +244,7 @@ public class ApplicationBean implements Serializable {
             return true;
         }
 
-        // 4) Administrateur technique : tout voir (sauf REFUSED déjà filtré)
-        if (isAdminTechnique) {
-            return true;
-        }
-
-        // 5) Autres groupes connectés : filtrer par collections autorisées
+        // 4) Autres groupes connectés : filtrer par collections autorisées
         Set<Long> allowedCollectionIds = getAllowedCollectionIdsForCurrentUser();
         if (allowedCollectionIds == null || allowedCollectionIds.isEmpty()) {
             return false;
@@ -258,6 +261,106 @@ public class ApplicationBean implements Serializable {
         return collectionAncestor != null
                 && collectionAncestor.getId() != null
                 && allowedCollectionIds.contains(collectionAncestor.getId());
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté est Gestionnaire de référentiel pour l'entité référence donnée.
+     */
+    private boolean isCurrentUserGestionnaireReferentielFor(Entity reference) {
+        if (loginBean == null || !loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || reference == null || reference.getId() == null) {
+            return false;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+    }
+
+    /**
+     * Vérifie si l'utilisateur connecté a une permission (n'importe quel rôle) sur le groupe.
+     */
+    private boolean isCurrentUserHasAnyRoleOnGroup(Entity group) {
+        if (loginBean == null || !loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || group == null || group.getId() == null) {
+            return false;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityId(
+                loginBean.getCurrentUser().getId(),
+                group.getId());
+    }
+
+    /**
+     * Indique si une entité est visible dans une liste de catalogue (références, catégories, groupes, séries, types).
+     * Règles :
+     * - Mode offline (non connecté) : publique = true ET statut différent de REFUSED et PROPOSITION
+     * - Mode connecté :
+     *   - Références : statut != REFUSED, PROPOSITION ; OU (statut = PROPOSITION et user est Gestionnaire de référentiel)
+     *   - Groupes : statut != REFUSED, PROPOSITION ; OU (statut = PROPOSITION et (user est admin réf de la référence OU user a un rôle sur le groupe))
+     *   - Catégories, séries, types : statut != REFUSED, PROPOSITION ; OU (statut = PROPOSITION et accès via référence/group)
+     */
+    public boolean isEntityVisibleInCatalogList(Entity entity, String entityTypeCode) {
+        if (entity == null) {
+            return false;
+        }
+
+        // 0) Administrateur technique : voit tous les éléments (y compris REFUSED, PROPOSITION)
+        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
+        if (isAdminTechnique) {
+            return true;
+        }
+
+        String statut = entity.getStatut();
+        boolean isRefused = EntityStatusEnum.REFUSED.name().equals(statut);
+        boolean isProposition = EntityStatusEnum.PROPOSITION.name().equals(statut);
+        boolean authenticated = loginBean != null && loginBean.isAuthenticated();
+
+        // 1) Jamais afficher REFUSED (pour les non-admin)
+        if (isRefused) {
+            return false;
+        }
+
+        // 2) Mode offline : publique = true ET statut différent de REFUSED et PROPOSITION
+        if (!authenticated) {
+            return Boolean.TRUE.equals(entity.getPublique())
+                    && !isProposition;
+        }
+
+        // 3) Connecté : statut != PROPOSITION -> visible si isEntityVisibleForCurrentUser
+        if (!isProposition) {
+            return isEntityVisibleForCurrentUser(entity);
+        }
+
+        // 4) Statut = PROPOSITION : règles spécifiques par type
+        Entity referenceAncestor = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_REFERENCE);
+        Entity groupAncestor = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_GROUP);
+
+        if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
+            return isCurrentUserGestionnaireReferentielFor(entity);
+        }
+        if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)) {
+            boolean isAdminRefOfReference = referenceAncestor != null
+                    && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
+            boolean hasRoleOnGroup = isCurrentUserHasAnyRoleOnGroup(entity);
+            return isAdminRefOfReference || hasRoleOnGroup;
+        }
+        if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode)) {
+            return referenceAncestor != null && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
+        }
+        if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) || "SERIE".equals(entityTypeCode)) {
+            boolean isAdminRefOfReference = referenceAncestor != null
+                    && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
+            boolean hasRoleOnGroup = groupAncestor != null && isCurrentUserHasAnyRoleOnGroup(groupAncestor);
+            return isAdminRefOfReference || hasRoleOnGroup;
+        }
+        if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
+            boolean isAdminRefOfReference = referenceAncestor != null
+                    && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
+            boolean hasRoleOnGroup = groupAncestor != null && isCurrentUserHasAnyRoleOnGroup(groupAncestor);
+            return isAdminRefOfReference || hasRoleOnGroup;
+        }
+
+        return isEntityVisibleForCurrentUser(entity);
     }
 
     /**
@@ -345,32 +448,33 @@ public class ApplicationBean implements Serializable {
     public Entity getSelectedSerie() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_SERIES); }
     public Entity getSelectedType() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_TYPE); }
 
-    /** Enfants de type Référentiel (filtre sur childs). */
+    /** Enfants de type Référentiel (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsReferences() {
-        return filterChildsByType(EntityConstants.ENTITY_TYPE_REFERENCE);
+        return filterChildsByTypeWithVisibility(EntityConstants.ENTITY_TYPE_REFERENCE);
     }
-    /** Enfants de type Catégorie (filtre sur childs). */
+    /** Enfants de type Catégorie (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsCategories() {
-        return filterChildsByType(EntityConstants.ENTITY_TYPE_CATEGORY);
+        return filterChildsByTypeWithVisibility(EntityConstants.ENTITY_TYPE_CATEGORY);
     }
-    /** Enfants de type Groupe (filtre sur childs). */
+    /** Enfants de type Groupe (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsGroupes() {
-        return filterChildsByType(EntityConstants.ENTITY_TYPE_GROUP);
+        return filterChildsByTypeWithVisibility(EntityConstants.ENTITY_TYPE_GROUP);
     }
-    /** Enfants de type Série (filtre sur childs). */
+    /** Enfants de type Série (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsSeries() {
-        return filterChildsByType(EntityConstants.ENTITY_TYPE_SERIES);
+        return filterChildsByTypeWithVisibility(EntityConstants.ENTITY_TYPE_SERIES);
     }
-    /** Enfants de type Type (filtre sur childs). */
+    /** Enfants de type Type (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsTypes() {
-        return filterChildsByType(EntityConstants.ENTITY_TYPE_TYPE);
+        return filterChildsByTypeWithVisibility(EntityConstants.ENTITY_TYPE_TYPE);
     }
 
-    private List<Entity> filterChildsByType(String entityTypeCode) {
+    private List<Entity> filterChildsByTypeWithVisibility(String entityTypeCode) {
         if (childs == null) return new ArrayList<>();
         return childs.stream()
                 .filter(e -> e != null && e.getEntityType() != null
-                        && entityTypeCode.equals(e.getEntityType().getCode()))
+                        && entityTypeCode.equals(e.getEntityType().getCode())
+                        && isEntityVisibleInCatalogList(e, entityTypeCode))
                 .sorted(Comparator.comparing(e -> e.getCode() != null ? e.getCode() : "", String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }

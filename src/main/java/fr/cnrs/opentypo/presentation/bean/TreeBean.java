@@ -116,7 +116,8 @@ public class TreeBean implements Serializable {
         }
 
         if (selectedCollection != null && treeService != null) {
-            root = treeService.buildRootWithDirectChildrenOnly(selectedCollection);
+            TreeNode rawRoot = treeService.buildRootWithDirectChildrenOnly(selectedCollection);
+            root = filterTreeNodesByVisibility(rawRoot, EntityConstants.ENTITY_TYPE_REFERENCE);
             if (previouslySelectedEntity != null && previouslySelectedEntity.getId() != null && root != null) {
                 TreeNode found = findNodeByEntity(root, previouslySelectedEntity);
                 if (found != null) {
@@ -325,11 +326,45 @@ public class TreeBean implements Serializable {
         }
     }
 
-    private void loadChildForEntity(TreeNode entityNode, Entity collection) {
-        List<Entity> elements = referenceService.loadChildOfEntity(collection);
+    /**
+     * Filtre les enfants d'un nœud racine selon les règles de visibilité catalogue.
+     * Crée un nouveau nœud racine ne contenant que les enfants visibles.
+     */
+    private TreeNode filterTreeNodesByVisibility(TreeNode rawRoot, String childrenEntityTypeCode) {
+        if (rawRoot == null || rawRoot.getData() == null) return rawRoot;
+        ApplicationBean appBean = getApplicationBean();
+        if (appBean == null) return rawRoot;
+
+        Object rootData = rawRoot.getData();
+        String rootLabel = rawRoot.toString() != null ? rawRoot.toString() : "root";
+        DefaultTreeNode newRoot = new DefaultTreeNode(rootLabel, null);
+        newRoot.setData(rootData);
+
+        if (rawRoot.getChildren() != null) {
+            for (Object childObj : rawRoot.getChildren()) {
+                if (childObj instanceof TreeNode childNode && childNode.getData() instanceof Entity childEntity) {
+                    if (appBean.isEntityVisibleInCatalogList(childEntity, childrenEntityTypeCode)) {
+                        String label = childEntity.getNom() != null ? childEntity.getNom() : childEntity.getCode();
+                        if (label == null) label = "?";
+                        DefaultTreeNode newNode = new DefaultTreeNode(label, newRoot);
+                        newNode.setData(childEntity);
+                    }
+                }
+            }
+        }
+        return newRoot;
+    }
+
+    private void loadChildForEntity(TreeNode entityNode, Entity parentEntity) {
+        List<Entity> elements = referenceService.loadChildOfEntity(parentEntity);
+        ApplicationBean appBean = getApplicationBean();
 
         if (elements != null && !elements.isEmpty()) {
             for (Entity entity : elements) {
+                if (appBean != null && entity.getEntityType() != null
+                        && !appBean.isEntityVisibleInCatalogList(entity, entity.getEntityType().getCode())) {
+                    continue;
+                }
                 // Vérifier si le référentiel existe déjà pour éviter les doublons
                 boolean exists = false;
                 if (entityNode.getChildren() != null) {
