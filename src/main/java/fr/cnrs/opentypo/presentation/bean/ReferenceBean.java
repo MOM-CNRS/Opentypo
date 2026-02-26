@@ -38,6 +38,7 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -123,6 +124,8 @@ public class ReferenceBean implements Serializable {
     private String editingReferenceDescription;
     private String editingReferenceLabel;
     private String editingReferenceBibliographie;
+    /** Liste des références bibliographiques pour l'édition inline (stockée avec ";" dans rereference_bibliographique) */
+    private List<String> editingReferenceBibliographiqueList = new ArrayList<>();
     /** Code langue pour laquelle on édite le label (ex: fr, en). */
     private String editingLabelLangueCode;
     /** Code langue pour laquelle on édite la description (ex: fr, en). */
@@ -615,6 +618,7 @@ public class ReferenceBean implements Serializable {
         editingReferenceDescription = null;
         editingReferenceLabel = null;
         editingReferenceBibliographie = null;
+        editingReferenceBibliographiqueList = new ArrayList<>();
         editingLabelLangueCode = null;
         editingDescriptionLangueCode = null;
         editingGestionnairesPickList = null;
@@ -692,9 +696,15 @@ public class ReferenceBean implements Serializable {
                 }
             }
 
-            // Mettre à jour la référence bibliographique (liste des références) uniquement si modifiée
-            String newBib = editingReferenceBibliographie != null ? editingReferenceBibliographie.trim() : null;
-            String currentBib = referenceToUpdate.getBibliographie();
+            // Mettre à jour la référence bibliographique (liste jointe avec "; ")
+            String newBib = (editingReferenceBibliographiqueList != null && !editingReferenceBibliographiqueList.isEmpty())
+                    ? editingReferenceBibliographiqueList.stream()
+                            .filter(s -> s != null && !s.trim().isEmpty())
+                            .map(String::trim)
+                            .collect(Collectors.joining("; "))
+                    : null;
+            if (newBib != null && newBib.isEmpty()) newBib = null;
+            String currentBib = referenceToUpdate.getRereferenceBibliographique();
             if (!Objects.equals(newBib, currentBib)) {
                 referenceToUpdate.setRereferenceBibliographique(newBib);
             }
@@ -732,6 +742,7 @@ public class ReferenceBean implements Serializable {
             editingReferenceDescription = null;
             editingReferenceLabel = null;
             editingReferenceBibliographie = null;
+            editingReferenceBibliographiqueList = new ArrayList<>();
             editingLabelLangueCode = null;
             editingDescriptionLangueCode = null;
             editingGestionnairesPickList = null;
@@ -853,9 +864,15 @@ public class ReferenceBean implements Serializable {
         editingDescriptionLangueCode = codeLang;
         editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
         editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        editingReferenceBibliographie = applicationBean.getSelectedReference().getRereferenceBibliographique() != null
-                ? applicationBean.getSelectedReference().getRereferenceBibliographique()
-                : "";
+        String bibStr = applicationBean.getSelectedReference().getRereferenceBibliographique();
+        editingReferenceBibliographie = bibStr != null ? bibStr : "";
+        editingReferenceBibliographiqueList = new ArrayList<>();
+        if (bibStr != null && !bibStr.isEmpty()) {
+            editingReferenceBibliographiqueList = Arrays.stream(bibStr.split("[;；]"))
+                    .map(s -> s != null ? s.trim() : "")
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
         if (applicationBean.getSelectedReference().getId() != null) {
             initEditingGestionnairesPickListForEdit(applicationBean.getSelectedReference().getId());
         }

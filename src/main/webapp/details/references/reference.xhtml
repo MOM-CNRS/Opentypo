@@ -217,11 +217,12 @@
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{referenceBean.editingReference}">
-                                <p:inputTextarea value="#{referenceBean.editingReferenceBibliographie}"
-                                                rows="3"
-                                                cols="50"
-                                                styleClass="reference-edit-textarea"
-                                                placeholder="Saisissez les références bibliographiques (séparées par ';')..."/>
+                                <p:chips id="editingReferenceBibliographique"
+                                         value="#{referenceBean.editingReferenceBibliographiqueList}"
+                                         styleClass="reference-edit-textarea"
+                                         style="width: 100%"
+                                         placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
+                                         separator=";"/>
                             </ui:fragment>
                         </div>
 
