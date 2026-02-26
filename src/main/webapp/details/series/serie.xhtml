@@ -139,10 +139,10 @@
                                     <span>Commentaire</span>
                                 </div>
                                 <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaire}">
-                                        #{applicationBean.selectedEntity.commentaire}
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                        #{applicationBean.selectedEntity.metadataCommentaire}
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaire}">
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
@@ -172,6 +172,7 @@
                 </h:panelGroup>
 
                 <ui:include src="../communs/bibliographie.xhtml"/>
+                <ui:include src="../communs/commentaire.xhtml"/>
             </div>
         </div>
         </div>

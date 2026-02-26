@@ -19,6 +19,7 @@ public class Step3FormData {
     @Builder.Default
     private List<CategoryDescriptionItem> descriptions = new ArrayList<>();
     private String candidatCommentaireDatation;
+    private String candidatMetadataCommentaire;
     private String candidatBibliographie;
     @Builder.Default
     private List<String> referencesBibliographiques = new ArrayList<>();

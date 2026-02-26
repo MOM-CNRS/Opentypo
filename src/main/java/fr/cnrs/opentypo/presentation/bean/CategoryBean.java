@@ -97,6 +97,7 @@ public class CategoryBean implements Serializable {
     private String editingDescriptionLangueCode;
     private String editingCategoryDescription;
     private String editingCategoryBibliographie;
+    private String editingCategoryCommentaire;
 
     // Propriétés pour le dialog de création (même structure que référence)
     private static final String CATEGORY_DIALOG_FORM = ":categoryDialogForm";
@@ -477,6 +478,7 @@ public class CategoryBean implements Serializable {
         editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
         editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
         editingCategoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
+        editingCategoryCommentaire = applicationBean.getSelectedEntity().getMetadataCommentaire() != null ? applicationBean.getSelectedEntity().getMetadataCommentaire() : "";
     }
 
     /**
@@ -617,6 +619,12 @@ public class CategoryBean implements Serializable {
         }
 
         // Mettre à jour la bibliographique uniquement si modifiée
+        String newCommentaire = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
+        String currentCommentaire = categoryToUpdate.getMetadataCommentaire();
+        if (!Objects.equals(newCommentaire, currentCommentaire)) {
+            categoryToUpdate.setMetadataCommentaire(newCommentaire);
+        }
+
         String newBib = editingCategoryBibliographie != null ? editingCategoryBibliographie.trim() : null;
         String currentBib = categoryToUpdate.getBibliographie();
         if (!Objects.equals(newBib, currentBib)) {
@@ -673,6 +681,7 @@ public class CategoryBean implements Serializable {
         editingDescriptionLangueCode = null;
         editingCategoryDescription = null;
         editingCategoryBibliographie = null;
+        editingCategoryCommentaire = null;
     }
 
     public boolean canCreateCategory() {

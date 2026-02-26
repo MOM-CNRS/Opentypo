@@ -306,7 +306,7 @@ public class TypeBean implements Serializable {
         editingDescriptionLangueCode = codeLang;
         editingTypeLabel = EntityUtils.getLabelValueForLanguage(type, codeLang);
         editingTypeDescription = EntityUtils.getDescriptionValueForLanguage(type, codeLang);
-        editingTypeCommentaire = type.getCommentaire() != null ? type.getCommentaire() : "";
+        editingTypeCommentaire = type.getMetadataCommentaire() != null ? type.getMetadataCommentaire() : "";
         editingTypeStatut = type.getStatut() != null ? type.getStatut() : "";
         editingTypeTpq = type.getTpq();
         editingTypeTaq = type.getTaq();
@@ -389,7 +389,7 @@ public class TypeBean implements Serializable {
         }
 
         if (editingTypeCommentaire != null) {
-            typeToUpdate.setCommentaire(editingTypeCommentaire.trim().isEmpty() ? null : editingTypeCommentaire.trim());
+            typeToUpdate.setMetadataCommentaire(editingTypeCommentaire.trim().isEmpty() ? null : editingTypeCommentaire.trim());
         }
         if (editingTypeStatut != null) {
             typeToUpdate.setStatut(editingTypeStatut.trim().isEmpty() ? null : editingTypeStatut.trim());

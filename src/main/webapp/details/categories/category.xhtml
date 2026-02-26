@@ -157,6 +157,32 @@
 
                             <h:panelGroup class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
+                                    <i class="pi pi-comment concept-info-icon" />
+                                    <span>Commentaire</span>
+                                </div>
+                                <ui:fragment rendered="#{not categoryBean.editingCategory}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                            #{applicationBean.selectedEntity.metadataCommentaire}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{categoryBean.editingCategory}">
+                                    <div class="reference-edit-lang-row">
+                                        <p:inputTextarea value="#{categoryBean.editingCategoryCommentaire}"
+                                                         rows="4"
+                                                         cols="50"
+                                                         styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                         placeholder="Saisissez un commentaire..."/>
+                                    </div>
+                                </ui:fragment>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
                                     <i class="pi pi-user concept-info-icon" />
                                     <span>Auteur(s)</span>
                                 </div>

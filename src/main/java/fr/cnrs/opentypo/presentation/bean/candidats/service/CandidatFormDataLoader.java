@@ -221,6 +221,7 @@ public class CandidatFormDataLoader {
         return Step3FormData.builder()
                 .candidatLabels(labels)
                 .descriptions(descriptions)
+                .candidatMetadataCommentaire(refreshedEntity.getMetadataCommentaire())
                 .candidatBibliographie(refreshedEntity.getBibliographie())
                 .referencesBibliographiques(refsBiblio)
                 .ateliers(ateliersList)

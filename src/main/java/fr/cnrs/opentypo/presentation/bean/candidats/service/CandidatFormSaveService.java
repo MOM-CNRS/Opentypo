@@ -45,6 +45,11 @@ public class CandidatFormSaveService {
     }
 
     @Transactional
+    public void saveMetadataCommentaire(Long entityId, String commentaire) {
+        updateEntity(entityId, e -> e.setMetadataCommentaire(commentaire != null ? commentaire.trim() : null));
+    }
+
+    @Transactional
     public void saveAncienneVersion(Long entityId, String ancienneVersion) {
         updateEntity(entityId, e -> e.setAncienneVersion(ancienneVersion != null ? ancienneVersion.trim() : null));
     }

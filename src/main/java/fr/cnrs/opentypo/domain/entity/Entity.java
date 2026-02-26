@@ -54,6 +54,9 @@ public class Entity implements Serializable {
     @Column(name = "image_principale_url", length = 500)
     private String imagePrincipaleUrl;
 
+    @Column(name = "id_ark", length = 255)
+    private String idArk;
+
     // Relation OneToOne avec EntityMetadata (mappedBy côté EntityMetadata)
     // Exclure les getters/setters automatiques car on utilise des méthodes personnalisées
     @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -229,6 +232,22 @@ public class Entity implements Serializable {
     public void setCode(String code) {
         ensureMetadata();
         metadata.setCode(code);
+    }
+
+    /**
+     * Obtient le commentaire depuis les métadonnées (champ entity_metadata.commentaire).
+     * Visible dans les formulaires groupe, catégorie, série, type.
+     */
+    public String getMetadataCommentaire() {
+        return metadata != null ? metadata.getCommentaire() : null;
+    }
+
+    /**
+     * Définit le commentaire dans les métadonnées.
+     */
+    public void setMetadataCommentaire(String commentaire) {
+        ensureMetadata();
+        metadata.setCommentaire(commentaire);
     }
 
     /**

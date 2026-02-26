@@ -250,6 +250,7 @@ public class CandidatBean implements Serializable {
     private String newDescriptionValue;
     private String newDescriptionLangueCode;
     private String candidatCommentaireDatation;
+    private String candidatMetadataCommentaire;
     private String candidatBibliographie;
     private List<String> referencesBibliographiques = new ArrayList<>();
     private List<String> ateliers = new ArrayList<>();
@@ -898,6 +899,7 @@ public class CandidatBean implements Serializable {
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
         candidatCommentaireDatation = null;
+        candidatMetadataCommentaire = null;
         candidatBibliographie = null;
         referencesBibliographiques = new ArrayList<>();
         ateliers = new ArrayList<>();
@@ -960,6 +962,7 @@ public class CandidatBean implements Serializable {
         candidatLabels = data.getCandidatLabels() != null ? new ArrayList<>(data.getCandidatLabels()) : new ArrayList<>();
         descriptions = data.getDescriptions() != null ? new ArrayList<>(data.getDescriptions()) : new ArrayList<>();
         candidatCommentaireDatation = data.getCandidatCommentaireDatation();
+        candidatMetadataCommentaire = data.getCandidatMetadataCommentaire();
         candidatBibliographie = data.getCandidatBibliographie();
         referencesBibliographiques = data.getReferencesBibliographiques() != null ? new ArrayList<>(data.getReferencesBibliographiques()) : new ArrayList<>();
         ateliers = data.getAteliers() != null ? new ArrayList<>(data.getAteliers()) : new ArrayList<>();
@@ -1588,6 +1591,12 @@ public class CandidatBean implements Serializable {
     public void saveBibliographie() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveBibliographie(currentEntity.getId(), candidatBibliographie);
+        }
+    }
+
+    public void saveMetadataCommentaire() {
+        if (currentEntity != null && currentEntity.getId() != null) {
+            candidatFormSaveService.saveMetadataCommentaire(currentEntity.getId(), candidatMetadataCommentaire);
         }
     }
 
