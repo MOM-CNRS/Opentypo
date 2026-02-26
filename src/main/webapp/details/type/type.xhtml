@@ -7,102 +7,114 @@
         <div class="type-detail-page">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="concept-info-panel">
-                        <div class="concept-info-header">
-                            <div class="concept-info-title-section">
-                                <span class="reference-entity-type-badge">Type</span>
-                                <div class="collection-panel-title-wrapper">
+                    <h:form id="typeEditForm" styleClass="groupe-header-form-inline">
+                        <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <span class="reference-entity-type-badge">Type</span>
                                     <div class="collection-panel-title-wrapper">
-                                        <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                        <div class="collection-panel-title-wrapper">
+                                            <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                        </div>
                                     </div>
                                 </div>
+                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not entityEditModeBean.editingEntityInCatalog}">
+                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                   process="@this" update="@none" styleClass="concept-action-button" immediate="true">
+                                        <i class="pi pi-history" />
+                                        <p:tooltip value="Voir l'historique" position="top"/>
+                                    </p:commandLink>
+                                    <p:commandLink action="#{typeBean.startEditingType(applicationBean)}"
+                                                   process="@this"
+                                                   update=":typeEditForm"
+                                                   styleClass="concept-action-button">
+                                        <i class="pi pi-file-edit" />
+                                        <p:tooltip value="Modifier" position="top"/>
+                                    </p:commandLink>
+                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
+                                                   process="@this"
+                                                   update=":confirmDeleteDialogContent"
+                                                   oncomplete="PF('confirmDeleteDialog').show();"
+                                                   styleClass="concept-action-button">
+                                        <i class="pi pi-trash" />
+                                        <p:tooltip value="Supprimer" position="top"/>
+                                    </p:commandLink>
+                                </h:panelGroup>
                             </div>
-                            <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                                <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                               process="@this" update="@none" styleClass="concept-action-button" immediate="true">
-                                    <i class="pi pi-history" />
-                                    <p:tooltip value="Voir l'historique" position="top"/>
-                                </p:commandLink>
-                                <p:commandLink action="#{typeBean.startEditingType(applicationBean)}"
-                                               process="@this" styleClass="concept-action-button">
-                                    <i class="pi pi-file-edit" />
-                                    <p:tooltip value="Modifier" position="top"/>
-                                </p:commandLink>
-                                <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
-                                               process="@this"
-                                               update=":confirmDeleteDialogContent"
-                                               oncomplete="PF('confirmDeleteDialog').show();"
-                                               styleClass="concept-action-button">
-                                    <i class="pi pi-trash" />
-                                    <p:tooltip value="Supprimer" position="top"/>
-                                </p:commandLink>
-                            </h:panelGroup>
+
+                            <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                                <div class="concept-info-grid">
+                                    <h:panelGroup id="typeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-file concept-info-icon" />
+                                            <span>Description</span>
+                                        </div>
+                                        <div class="concept-info-value concept-info-description">
+                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-user concept-info-icon" />
+                                            <span>Auteur(s)</span>
+                                        </div>
+                                        <div class="concept-info-value bibliographie-container">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                                <span class="bibliographie-badge">
+                                                    <i class="pi pi-user bibliographie-badge-icon" />
+                                                    <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                                </span>
+                                                </ui:repeat>
+                                            </ui:fragment>
+                                            <h:outputText value="Aucun auteur disponible"
+                                                          rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                          styleClass="bibliographie-empty" />
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
+                                <ui:include src="modifier.xhtml"/>
+                            </ui:fragment>
                         </div>
 
-                        <div class="concept-info-grid">
-                            <h:panelGroup id="typeDescUpdatePanel" class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-file concept-info-icon" />
-                                    <span>Description</span>
-                                </div>
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
+                        <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                            <ui:include src="dotation.xhtml"/>
+
+                            <ui:include src="galerie_images.xhtml"/>
+
+                            <ui:include src="alignements.xhtml"/>
+
+                            <ui:include src="../communs/production.xhtml"/>
+
+                            <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                                    or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                                <ui:include src="../communs/description_monnaie.xhtml"/>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-user concept-info-icon" />
-                                    <span>Auteur(s)</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                        <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
+                            <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
+                                    or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                             </h:panelGroup>
-                        </div>
-                    </div>
 
-                    <ui:include src="dotation.xhtml"/>
+                            <ui:include src="attestations.xhtml"/>
 
-                    <ui:include src="galerie_images.xhtml"/>
+                            <ui:include src="sites_archeologiques.xhtml"/>
 
-                    <ui:include src="alignements.xhtml"/>
+                            <ui:include src="gestion.xhtml"/>
 
-                    <ui:include src="../communs/production.xhtml"/>
-
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/description_monnaie.xhtml"/>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                    </h:panelGroup>
-
-                    <ui:include src="attestations.xhtml"/>
-
-                    <ui:include src="sites_archeologiques.xhtml"/>
-
-                    <ui:include src="gestion.xhtml"/>
-
-                    <ui:include src="../communs/bibliographie.xhtml"/>
-                    <ui:include src="../communs/commentaire.xhtml"/>
+                            <ui:include src="../communs/bibliographie.xhtml"/>
+                            <ui:include src="../communs/commentaire.xhtml"/>
+                        </ui:fragment>
+                    </h:form>
                 </div>
             </div>
         </div>

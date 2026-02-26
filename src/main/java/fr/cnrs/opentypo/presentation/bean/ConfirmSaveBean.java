@@ -114,7 +114,7 @@ public class ConfirmSaveBean implements Serializable {
                 categoryBean.saveCategory(applicationBean);
                 break;
             case TARGET_TYPE:
-                typeBean.saveType(applicationBean);
+                typeBean.saveEditingType(applicationBean);
                 break;
         }
     }

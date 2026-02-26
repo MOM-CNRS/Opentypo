@@ -4,6 +4,9 @@ import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -73,6 +76,12 @@ public class TypeBean implements Serializable {
 
     @Autowired
     private CandidatReferenceTreeService candidatReferenceTreeService;
+
+    @Inject
+    private CandidatBean candidatBean;
+
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
 
     private String typeCode;
     private String typeLabel;
@@ -294,25 +303,27 @@ public class TypeBean implements Serializable {
         }
     }
 
+    /** Active le mode édition in-place pour le type sélectionné (comme GroupBean.startEditingGroupe). */
     public void startEditingType(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedEntity() == null) {
-            return;
-        }
-        Entity type = applicationBean.getSelectedEntity();
-        String codeLang = searchBean != null && searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        editingType = true;
-        editingTypeCode = type.getCode() != null ? type.getCode() : "";
-        editingLabelLangueCode = codeLang;
-        editingDescriptionLangueCode = codeLang;
-        editingTypeLabel = EntityUtils.getLabelValueForLanguage(type, codeLang);
-        editingTypeDescription = EntityUtils.getDescriptionValueForLanguage(type, codeLang);
-        editingTypeCommentaire = type.getMetadataCommentaire() != null ? type.getMetadataCommentaire() : "";
-        editingTypeStatut = type.getStatut() != null ? type.getStatut() : "";
-        editingTypeTpq = type.getTpq();
-        editingTypeTaq = type.getTaq();
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null) return;
+        Entity entity = applicationBean.getSelectedEntity();
+        if (entity.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode())) return;
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
+        candidatBean.visualiserCandidat(candidat);
+        entityEditModeBean.startEditing();
     }
 
+    /** Annule le mode édition et rafraîchit l'entité (utilisé par modifier Retour). */
+    public void cancelEditingType(ApplicationBean appBean) {
+        entityEditModeBean.cancelEditing();
+        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
+            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
+        }
+    }
+
+    /** Annule le mode édition sans refresh (utilisé par deleteType). */
     public void cancelEditingType() {
+        entityEditModeBean.cancelEditing();
         editingType = false;
         editingTypeCode = null;
         editingLabelLangueCode = null;
@@ -323,6 +334,13 @@ public class TypeBean implements Serializable {
         editingTypeStatut = null;
         editingTypeTpq = null;
         editingTypeTaq = null;
+    }
+
+    /** Enregistre les modifications et sort du mode édition si succès. */
+    public void saveEditingType(ApplicationBean appBean) {
+        if (candidatBean.performEnregistrerModifications()) {
+            cancelEditingType(appBean);
+        }
     }
 
     @Transactional
