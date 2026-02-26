@@ -238,7 +238,7 @@
                                            icon="pi pi-check"
                                            action="#{collectionBean.saveCollectionChanges(applicationBean)}"
                                            process="@form" ajax="true"
-                                           update=":collectionDetailPanel, :growl, :centerContent"
+                                           update=":collectionDetailPanel, :growl, :centerContent selectedEntityLabel :searchForm"
                                            styleClass="collection-edit-btn collection-edit-btn-validate"
                                            onstart="showLoading('Enregistrement en cours...', 'spinner');"
                                            oncomplete="setTimeout(function(){hideLoading();}, 300);"

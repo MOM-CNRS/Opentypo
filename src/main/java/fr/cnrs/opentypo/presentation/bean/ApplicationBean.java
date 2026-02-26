@@ -813,10 +813,8 @@ public class ApplicationBean implements Serializable {
     private void checkSessionExpiration() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         if (facesContext != null) {
-            String sessionExpired = facesContext.getExternalContext()
-                .getRequestParameterMap().get(ViewConstants.PARAM_SESSION_EXPIRED);
-            String viewExpired = facesContext.getExternalContext()
-                .getRequestParameterMap().get(ViewConstants.PARAM_VIEW_EXPIRED);
+            String sessionExpired = facesContext.getExternalContext().getRequestParameterMap().get(ViewConstants.PARAM_SESSION_EXPIRED);
+            String viewExpired = facesContext.getExternalContext().getRequestParameterMap().get(ViewConstants.PARAM_VIEW_EXPIRED);
             
             if (ViewConstants.PARAM_TRUE.equals(sessionExpired) 
                 || ViewConstants.PARAM_TRUE.equals(viewExpired)) {
@@ -874,20 +872,18 @@ public class ApplicationBean implements Serializable {
      * puis les trie par ordre alphabétique décroissant.
      */
     public void loadPublicCollections() {
-        collections = new ArrayList<>();
-        try {
-            // Charger les collections avec leurs labels (une seule collection à la fois avec JOIN FETCH)
-            collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
-            
-            // Initialiser les descriptions pour chaque collection (évite le problème MultipleBagFetchException)
-            for (Entity collection : collections) {
-                if (collection.getDescriptions() != null) {
-                    // Forcer l'initialisation de la collection lazy
-                    collection.getDescriptions().size();
-                }
+
+        collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
+
+        // Initialiser les descriptions pour chaque collection (évite le problème MultipleBagFetchException)
+        for (Entity collection : collections) {
+            if (collection.getDescriptions() != null) {
+                // Forcer l'initialisation de la collection lazy
+                collection.getDescriptions().size();
             }
-            
-            collections = collections.stream()
+        }
+
+        collections = collections.stream()
                 // Filtrer selon les droits et le statut
                 .filter(this::isEntityVisibleForCurrentUser)
                 .sorted((c1, c2) -> {
@@ -896,10 +892,6 @@ public class ApplicationBean implements Serializable {
                     return nom1.compareToIgnoreCase(nom2);
                 })
                 .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des collections depuis la base de données", e);
-            collections = new ArrayList<>();
-        }
     }
     
     /**

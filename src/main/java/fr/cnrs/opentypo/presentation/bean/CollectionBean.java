@@ -118,6 +118,9 @@ public class CollectionBean implements Serializable {
     /** Statut de visibilité demandé avant confirmation (pour le dialog) */
     private Boolean requestedVisibilityStatus;
 
+    private transient List<String> cachedCollectionGestionnaires;
+    private transient Long cachedCollectionGestionnairesEntityId;
+
 
     @PostConstruct
     public void init() {
@@ -174,14 +177,11 @@ public class CollectionBean implements Serializable {
 
     /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
     public String getUtilisateurDisplayName(Long userId) {
-        if (userId == null || utilisateurRepository == null) return "";
         return utilisateurRepository.findById(userId)
-                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "") + " " + (u.getNom() != null ? u.getNom().toUpperCase() : "")).trim())
+                .map(u -> ((u.getPrenom() != null ? u.getPrenom() : "")
+                        + " " + (u.getNom() != null ? u.getNom().toUpperCase() : "")).trim())
                 .orElse("");
     }
-
-    private transient List<String> cachedCollectionGestionnaires;
-    private transient Long cachedCollectionGestionnairesEntityId;
 
     /**
      * Retourne la liste des noms affichables des gestionnaires de la collection (rôle "Gestionnaire de collection"
@@ -234,21 +234,9 @@ public class CollectionBean implements Serializable {
         Entity refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
         applicationBean.setSelectedEntity(refreshedCollection);
 
-        String langSelected = (searchBean.getLangSelected() != null && !searchBean.getLangSelected().isEmpty())
-            ? searchBean.getLangSelected()
-            : "fr";
+        applicationBean.setSelectedEntityLabel(applicationBean.getSelectedEntityLabel());
 
-        Optional<Label> label = refreshedCollection.getLabels().stream()
-                .filter(element -> element.getLangue() != null && element.getLangue().getCode().equalsIgnoreCase(langSelected))
-                .findFirst();
-        if (label.isPresent()) {
-            labelSelected = label.get();
-            applicationBean.setSelectedEntityLabel(labelSelected.getNom().toUpperCase());
-        } else {
-            labelSelected = null;
-            applicationBean.setSelectedEntityLabel("");
-        }
-
+        String langSelected = (searchBean.getLangSelected() != null) ? searchBean.getLangSelected() : "fr";
         descriptionSelected = refreshedCollection.getDescriptions().stream()
                 .filter(element -> element.getLangue() != null && element.getLangue().getCode().equalsIgnoreCase(langSelected))
                 .findFirst()
@@ -526,8 +514,8 @@ public class CollectionBean implements Serializable {
             applicationBean.setSelectedEntity(refreshedCollection);
         }
 
-        // Mettre à jour ou créer le label
-        if (editingLabelValue != null && !editingLabelValue.trim().isEmpty()) {
+        if (editingDescriptionValue != null) {
+            // Mettre à jour ou créer le label
             Optional<Label> existingLabel = refreshedCollection.getLabels().stream()
                     .filter(l -> l.getLangue() != null && l.getLangue().getCode().equalsIgnoreCase(editingLanguageCode))
                     .findFirst();
@@ -547,10 +535,8 @@ public class CollectionBean implements Serializable {
                 }
                 refreshedCollection.getLabels().add(newLabel);
             }
-        }
 
-        // Mettre à jour ou créer la description
-        if (editingDescriptionValue != null) {
+            // Mettre à jour ou créer la description
             String descriptionValue = editingDescriptionValue.trim();
             // Permettre les descriptions vides (pour supprimer une description)
             Optional<Description> existingDescription = refreshedCollection.getDescriptions().stream()
@@ -591,6 +577,13 @@ public class CollectionBean implements Serializable {
 
         // Mettre à jour les valeurs sélectionnées selon la langue actuelle
         updateCollectionLanguage(applicationBean);
+
+        applicationBean.loadPublicCollections();
+        searchBean.loadCollections();
+
+        applicationBean.setBeadCrumbElements(List.of(savedCollection));
+
+        applicationBean.setSelectedEntityLabel(applicationBean.getEntityLabel(savedCollection));
 
         // Désactiver le mode édition
         editingCollection = false;
@@ -820,16 +813,6 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Met à jour la langue d'un nom
-     */
-    public void updateNameLangue(NameItem nameItem) {
-        if (nameItem != null && nameItem.getLangueCode() != null && !nameItem.getLangueCode().isEmpty()) {
-            Langue langue = langueRepository.findByCode(nameItem.getLangueCode());
-            nameItem.setLangue(langue);
-        }
-    }
-
-    /**
      * Enregistre les gestionnaires de la collection dans user_permission (rôle Gestionnaire de collection).
      * En édition inline : utilise editingGestionnairesPickList. En création : utilise gestionnairesPickList.
      */
@@ -944,7 +927,8 @@ public class CollectionBean implements Serializable {
         // Sauvegarder les permissions des gestionnaires sélectionnés (optionnel)
         saveUserPermissionsForCollection(nouvelleCollection);
 
-        refreshCollectionsList(applicationBean);
+        applicationBean.loadPublicCollections();
+        searchBean.loadCollections();
 
         facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                 "La collection '" + collectionNames.getFirst().getNom().trim() + "' a été créée avec succès."));
@@ -1041,17 +1025,6 @@ public class CollectionBean implements Serializable {
             List<Utilisateur> auteurs = new ArrayList<>();
             auteurs.add(currentUser);
             nouvelleCollection.setAuteurs(auteurs);
-        }
-    }
-
-    /**
-     * Recharge les listes de collections dans les beans concernés
-     */
-    private void refreshCollectionsList(ApplicationBean applicationBean) {
-        applicationBean.loadPublicCollections();
-        SearchBean sb = searchBeanProvider.get();
-        if (sb != null) {
-            sb.loadCollections();
         }
     }
 

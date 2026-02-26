@@ -513,51 +513,42 @@ public class ReferenceBean implements Serializable {
             return;
         }
 
-        try {
-            EntityType referenceType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
+        EntityType referenceType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
                 .orElseThrow(() -> new IllegalStateException(
-                    "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
+                        "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
 
-            Entity newReference = createNewReference(codeTrimmed, referenceType);
-            entityRepository.save(newReference);
-            saveUserPermissionsForReference(newReference);
+        Entity newReference = createNewReference(codeTrimmed, referenceType);
+        entityRepository.save(newReference);
+        saveUserPermissionsForReference(newReference);
 
-            // Rattacher le référentiel à la collection courante si une collection est sélectionnée
-            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
-                attachReferenceToCollection(newReference, applicationBean.getSelectedCollection());
-            }
-
-            applicationBean.loadReferences();
-            searchBean.loadReferences();
-            
-            // Recharger les référentiels de la collection
-            if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
-                applicationBean.refreshCollectionReferencesList();
-            }
-
-            treeBean.addReferenceToTree(newReference);
-            
-            String labelPrincipal = referenceNames.get(0).getNom();
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le référentiel '" + labelPrincipal + "' a été créé avec succès."));
-
-            resetReferenceForm();
-            
-            // Fermer le dialog
-            PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
-            
-            // Mettre à jour les composants
-            PrimeFaces.current().ajax().update(
-                ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", " 
-                + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
-            
-        } catch (IllegalStateException e) {
-            log.error("Erreur lors de la création du référentiel", e);
-            addErrorMessage(e.getMessage());
-        } catch (Exception e) {
-            log.error("Erreur inattendue lors de la création du référentiel", e);
-            addErrorMessage("Une erreur est survenue lors de la création du référentiel : " + e.getMessage());
+        // Rattacher le référentiel à la collection courante si une collection est sélectionnée
+        if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+            attachReferenceToCollection(newReference, applicationBean.getSelectedCollection());
         }
+
+        applicationBean.loadReferences();
+        searchBean.loadReferences();
+
+        // Recharger les référentiels de la collection
+        if (applicationBean != null && applicationBean.getSelectedCollection() != null) {
+            applicationBean.refreshCollectionReferencesList();
+        }
+
+        treeBean.addReferenceToTree(newReference);
+
+        String labelPrincipal = referenceNames.get(0).getNom();
+        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                "Le référentiel '" + labelPrincipal + "' a été créé avec succès."));
+
+        resetReferenceForm();
+
+        // Fermer le dialog
+        PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
+
+        // Mettre à jour les composants
+        PrimeFaces.current().ajax().update(
+                ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
+                        + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
     }
 
     /**
