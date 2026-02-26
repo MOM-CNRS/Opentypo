@@ -5,62 +5,26 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <!-- 1. Panneau détail collection : en-tête (titre, langue, actions), visibilité, grille (description), boutons édition -->
+    <!-- 1. Panneau détail collection : en-tête, vue/modifier, liste référentiels -->
     <h:panelGroup id="collectionDetailPanel" class="row collection-page-wrapper">
         <div class="col-md-12 collection-page-content">
-            <div class="concept-info-panel #{collectionBean.editingCollection ? 'collection-edit-mode' : ''}">
-                <!-- Grille d'informations -->
-                <h:form id="collectionEditForm">
-                    <div class="concept-info-header #{collectionBean.editingCollection ? 'collection-edit-header' : ''}">
+            <h:form id="collectionEditForm" styleClass="groupe-header-form-inline">
+                <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                    <div class="concept-info-header #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-header' : ''}">
                         <div class="concept-info-title-section">
-                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
-                                <div class="concept-info-language-flag">
-                                    <h:graphicImage library="img"
-                                                    name="flag/#{not empty searchBean.langSelected ? searchBean.langSelected : 'fr'}.png"
-                                                    styleClass="language-flag"
-                                                    alt="#{not empty searchBean.langSelected ? searchBean.langSelected : 'Français'}"
-                                                    title="#{not empty searchBean.langSelected ? searchBean.langSelected : 'Français'}"/>
-                                </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{collectionBean.editingCollection}">
-                                <div class="collection-edit-language-selector">
-                                    <p:selectOneMenu value="#{collectionBean.editingLanguageCode}"
-                                                     styleClass="collection-edit-lang-select"
-                                                     id="collectionEditLangSelect">
-                                        <f:selectItems value="#{collectionBean.getAvailableLanguagesForSelector()}"
-                                                       var="langue"
-                                                       itemLabel="#{langue.nom}"
-                                                       itemValue="#{langue.code}" />
-                                        <p:ajax event="change"
-                                                listener="#{collectionBean.changeEditingLanguage(applicationBean)}"
-                                                process="@form"
-                                                update=":collectionEditForm:collectionEditLabelInput, :collectionEditForm:collectionEditDescriptionInput"
-                                                onstart="showLoading('Chargement...', 'spinner');"
-                                                oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                                onerror="forceHideLoading();"/>
-                                    </p:selectOneMenu>
-                                </div>
-                            </ui:fragment>
-                            <h2 class="concept-info-title">
-                                <ui:fragment rendered="#{not collectionBean.editingCollection}">
-                                <span class="concept-info-title-name">
-                                    #{collectionBean.labelSelected.nom}
-                                </span>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{collectionBean.editingCollection}">
-                                    <div class="collection-edit-field-wrapper">
-                                        <p:inputText id="collectionEditLabelInput"
-                                                     value="#{collectionBean.editingLabelValue}"
-                                                     styleClass="collection-edit-input collection-edit-label-input"
-                                                     placeholder="Saisissez le label de la collection"
-                                                     required="true"/>
-                                    </div>
-                                </ui:fragment>
-                            </h2>
+                            <span class="reference-entity-type-badge">Typologie</span>
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
+                            </div>
+                            <div class="collection-panel-title-wrapper">
+                                <h3 class="collection-panel-title">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</h3>
+                            </div>
                         </div>
-                        <!-- Actions pour l'administrateur technique -->
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not collectionBean.editingCollection}">
-                            <!-- Bouton Historique -->
+                        <!-- Actions (masquées en mode édition) -->
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}">
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
                                            update="@none"
@@ -70,10 +34,9 @@
                                 <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
 
-                            <p:commandLink action="#{collectionBean.editCollection(applicationBean)}"
-                                           process="@form"
-                                           update=":collectionDetailPanel, :collectionEditForm"
-                                           ajax="true"
+                            <p:commandLink action="#{collectionBean.startEditingCollection(applicationBean)}"
+                                           process="@this"
+                                           update=":collectionEditForm"
                                            styleClass="concept-action-button"
                                            title="Modifier la collection"
                                            onstart="showLoading('Chargement...', 'spinner');"
@@ -118,11 +81,10 @@
                         </h:panelGroup>
 
                         <h:panelGroup class="concept-info-actions"
-                                      rendered="#{not loginBean.isAdminTechnique() and collectionBean.canEditCollectionAsGestionnaire(applicationBean.selectedEntity) and not collectionBean.editingCollection}">
-                            <p:commandLink action="#{collectionBean.editCollection(applicationBean)}"
-                                           process="@form"
-                                           update=":collectionDetailPanel, :collectionEditForm"
-                                           ajax="true"
+                                      rendered="#{not loginBean.isAdminTechnique() and collectionBean.canEditCollectionAsGestionnaire(applicationBean.selectedEntity) and not entityEditModeBean.editingEntityInCatalog}">
+                            <p:commandLink action="#{collectionBean.startEditingCollection(applicationBean)}"
+                                           process="@this"
+                                           update=":collectionEditForm"
                                            styleClass="concept-action-button"
                                            title="Modifier la collection"
                                            onstart="showLoading('Chargement...', 'spinner');"
@@ -148,14 +110,15 @@
                             </h:panelGroup>
                         </h:panelGroup>
                     </div>
-                    <!-- Grille d'informations (description, etc.) -->
-                    <div class="concept-info-grid">
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
+
+                    <!-- Vue lecture -->
+                    <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                        <div class="concept-info-grid">
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
+                                </div>
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty collectionBean.descriptionSelected and not empty collectionBean.descriptionSelected.valeur}">
                                         <h:outputText value="#{collectionBean.descriptionSelected.valeur}" escape="false"/>
@@ -164,29 +127,34 @@
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{collectionBean.editingCollection}">
-                                <div class="collection-edit-field-wrapper">
-                                    <p:textEditor id="collectionEditDescriptionInput"
-                                                  value="#{collectionBean.editingDescriptionValue}"
-                                                  secure="false"
-                                                  height="200"
-                                                  styleClass="collection-edit-textarea"
-                                                  placeholder="Saisissez la description de la collection"/>
-                                    <div class="collection-edit-hint">
-                                        <i class="pi pi-info-circle" />
-                                        <span>Les modifications seront enregistrées pour la langue actuellement sélectionnée</span>
-                                    </div>
-                                </div>
-                            </ui:fragment>
-                        </h:panelGroup>
+                            </h:panelGroup>
 
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-users concept-info-icon" />
-                                <span>Gestionnaires de la collection</span>
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-book concept-info-icon" />
+                                    <span>Référence bibliographique</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getRereferenceBibliographique()}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getRereferenceBibliographique(), ';')}" var="ref" varStatus="status">
+                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                </span>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucune référence bibliographique disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.getRereferenceBibliographique()}"
+                                                  styleClass="bibliographie-empty" />
+                                </div>
                             </div>
-                            <ui:fragment rendered="#{not collectionBean.editingCollection}">
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-users concept-info-icon" />
+                                    <span>Gestionnaires de la collection</span>
+                                </div>
                                 <div class="concept-info-value bibliographie-container">
                                     <ui:fragment rendered="#{not empty collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}">
                                         <ui:repeat value="#{collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}" var="gestionnaire">
@@ -199,190 +167,60 @@
                                                  rendered="#{empty collectionBean.getCollectionGestionnairesDisplayNames(applicationBean.selectedEntity)}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{collectionBean.editingCollection}">
-                                <div class="collection-edit-field-wrapper collection-edit-gestionnaires-wrapper">
-                                    <p:pickList id="collectionEditGestionnairesPickList"
-                                                value="#{collectionBean.editingGestionnairesPickList}"
-                                                var="userId"
-                                                itemLabel="#{collectionBean.getUtilisateurDisplayName(userId)}"
-                                                itemValue="#{userId}"
-                                                converter="pickListLongConverter"
-                                                styleClass="group-dialog-picklist"
-                                                showSourceFilter="true"
-                                                showTargetFilter="true"
-                                                filterMatchMode="contains"
-                                                sourceFilterPlaceholder="Rechercher..."
-                                                targetFilterPlaceholder="Rechercher..."
-                                                responsive="true"
-                                                rendered="#{not empty collectionBean.gestionnairesList}"/>
-                                    <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                                        <span>Aucun utilisateur disponible</span>
-                                    </h:panelGroup>
-                                </div>
-                            </ui:fragment>
-                        </h:panelGroup>
-                    </div>
-
-                    <!-- Boutons de validation et d'annulation en mode édition -->
-                    <ui:fragment rendered="#{collectionBean.editingCollection}">
-                        <div class="collection-edit-actions">
-                            <p:commandButton value="Annuler"
-                                             icon="pi pi-times"
-                                             action="#{collectionBean.cancelEditingCollection}"
-                                             process="@form"
-                                             update=":collectionDetailPanel"
-                                             styleClass="collection-edit-btn collection-edit-btn-cancel"
-                                             immediate="true"/>
-                            <p:commandButton value="Valider"
-                                           icon="pi pi-check"
-                                           action="#{collectionBean.saveCollectionChanges(applicationBean)}"
-                                           process="@form" ajax="true"
-                                           update=":collectionDetailPanel, :growl, :centerContent selectedEntityLabel :searchForm"
-                                           styleClass="collection-edit-btn collection-edit-btn-validate"
-                                           onstart="showLoading('Enregistrement en cours...', 'spinner');"
-                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
-                                           onerror="forceHideLoading();"/>
+                            </h:panelGroup>
                         </div>
                     </ui:fragment>
-                </h:form>
-            </div>
+
+                    <!-- Mode édition : formulaire modifier -->
+                    <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
+                        <ui:include src="modifier.xhtml"/>
+                    </ui:fragment>
+                </div>
+            </h:form>
         </div>
     </h:panelGroup>
 
-    <!-- 2. En-tête liste des référentiels + bouton Créer une référence -->
-    <h:form id="collectionReferencesForm">
-        <p:remoteCommand name="openEditReferenceDialog"
-                        action="#{referenceBean.prepareEditReferenceInDialogFromRequest()}"
-                        process="@this"
-                        update=":referenceDialog :referenceDialogForm"
-                        oncomplete="PF('referenceDialog').show();"/>
+    <!-- 2. Liste des référentiels (masquée en mode édition) -->
+    <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+        <h:form id="collectionReferencesForm">
+            <p:remoteCommand name="openEditReferenceDialog"
+                            action="#{referenceBean.prepareEditReferenceInDialogFromRequest()}"
+                            process="@this"
+                            update=":referenceDialog :referenceDialogForm"
+                            oncomplete="PF('referenceDialog').show();"/>
 
-        <p:remoteCommand name="openDeleteReferenceConfirm"
-                        action="#{confirmDeleteBean.prepareDeleteReferenceFromRequest()}"
-                        process="@this"
-                        update=":confirmDeleteDialogContent"
-                        oncomplete="PF('confirmDeleteDialog').show();"/>
+            <p:remoteCommand name="openDeleteReferenceConfirm"
+                            action="#{confirmDeleteBean.prepareDeleteReferenceFromRequest()}"
+                            process="@this"
+                            update=":confirmDeleteDialogContent"
+                            oncomplete="PF('confirmDeleteDialog').show();"/>
 
-        <div class="collection-references-header details-mt-20">
-            <div class="collection-references-title-section">
-                <div class="collection-references-icon">
-                    <i class="pi pi-database" />
+            <div class="collection-references-header details-mt-20">
+                <div class="collection-references-title-section">
+                    <div class="collection-references-icon">
+                        <i class="pi pi-database" />
+                    </div>
+                    <div class="collection-references-title-wrapper">
+                        <h3 class="collection-references-title">Liste des référentiels</h3>
+                        <span class="collection-references-subtitle">
+                            #{applicationBean.getEntityLabel(applicationBean.selectedEntity)}
+                        </span>
+                    </div>
                 </div>
-                <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des référentiels</h3>
-                    <span class="collection-references-subtitle">
-                        #{applicationBean.getEntityLabel(applicationBean.selectedEntity)}
-                    </span>
-                </div>
+                <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
+                    <p:commandButton value="Créer une nouvelle référence"
+                                     icon="pi pi-plus"
+                                     styleClass="collection-create-btn"
+                                     action="#{referenceBean.prepareCreateReference}"
+                                     process="@this"
+                                     update=":referenceDialog :referenceDialogForm"
+                                     oncomplete="PF('referenceDialog').show();"/>
+                </h:panelGroup>
             </div>
-            <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
-                <p:commandButton value="Créer une nouvelle référence"
-                                 icon="pi pi-plus"
-                                 styleClass="collection-create-btn"
-                                 action="#{referenceBean.prepareCreateReference}"
-                                 process="@this"
-                                 update=":referenceDialog :referenceDialogForm"
-                                 oncomplete="PF('referenceDialog').show();"/>
-            </h:panelGroup>
-        </div>
-        <!-- Liste des référentiels de la collection -->
-        <h:panelGroup id="collectionReferencesContainer" class="collections-grid collections-grid-cadre">
-            <ui:repeat value="#{applicationBean.childsReferences}" var="reference">
-                <div class="collection-panel">
-                    <div class="collection-panel-header">
-                        <div class="collection-panel-title-section">
-                            <div class="collection-panel-icon">
-                                <i class="pi pi-database" />
-                            </div>
-                            <div class="collection-panel-title-wrapper">
-                                <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                             process="@this"
-                                             update=":centerContent"
-                                             onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                             oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate();}, 500);"
-                                             onerror="forceHideLoading();"
-                                             styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{reference.code}</h3>
-                                </p:commandLink>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="collection-panel-content">
-                        <div class="collection-panel-image">
-                            <p:graphicImage value="#{reference.imagePrincipaleUrl}"
-                                styleClass="collection-image"
-                                alt="Image du référentiel"
-                                rendered="#{not empty reference.imagePrincipaleUrl}"/>
-                            <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
-                                <div class="collection-image-placeholder">
-                                    <span class="collection-placeholder-text">OpenTypo</span>
-                                </div>
-                            </h:panelGroup>
-                        </div>
-
-                        <div class="collection-info-grid">
-                            <div class="collection-info-item collection-info-item-full">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-file collection-info-icon" />
-                                    <span>Description</span>
-                                </div>
-                                <div class="collection-info-value collection-info-description">
-                                    <h:outputText value="#{applicationBean.getEntityDescription(reference)}" escape="false"/>
-                                </div>
-                            </div>
-
-                            <div class="collection-info-item">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-user collection-info-icon" />
-                                    <span>Auteur(s)</span>
-                                </div>
-                                <div class="collection-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty reference.auteurs}">
-                                        <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
-                                            <span class="bibliographie-badge">
-                                                <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                            </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                 rendered="#{empty reference.auteurs}"
-                                                 styleClass="bibliographie-empty" />
-                                </div>
-                            </div>
-
-                            <div class="collection-info-item">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-book collection-info-icon" />
-                                    <span>Référence bibliographique</span>
-                                </div>
-                                <div class="collection-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty reference.rereferenceBibliographique}">
-                                        <ui:repeat value="#{fn:split(reference.rereferenceBibliographique, ';')}" var="ref" varStatus="status">
-                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                <span class="bibliographie-badge">
-                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                </span>
-                                            </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucune référence bibliographique disponible"
-                                                 rendered="#{empty reference.rereferenceBibliographique}"
-                                                 styleClass="bibliographie-empty" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </ui:repeat>
-
-            <h:outputText value="Aucune référence disponible pour cette collection"
-                          rendered="#{empty applicationBean.childsReferences}"
-                          styleClass="no-categories-message" />
-        </h:panelGroup>
-    </h:form>
+            <ui:include src="liste_references.xhtml"/>
+        </h:form>
+    </ui:fragment>
 
     <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>

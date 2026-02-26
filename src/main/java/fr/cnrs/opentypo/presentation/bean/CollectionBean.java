@@ -4,6 +4,9 @@ import fr.cnrs.opentypo.application.dto.DescriptionItem;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -77,6 +80,12 @@ public class CollectionBean implements Serializable {
 
     @Inject
     private SearchBean searchBean;
+
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
+
+    @Inject
+    private CandidatBean candidatBean;
 
     // Propriétés pour le formulaire de création de collection
     private String collectionDescription;
@@ -300,27 +309,25 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Active le mode édition pour la collection
+     * Active le mode édition in-place pour la collection (comme GroupBean.startEditingGroupe).
+     * Charge la collection dans CandidatBean pour les labels/descriptions et CollectionBean pour visibilité/gestionnaires.
      */
     public void startEditingCollection(ApplicationBean applicationBean) {
-        log.debug("Début de startEditingCollection()");
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null) return;
+        Entity entity = applicationBean.getSelectedEntity();
+        if (entity.getEntityType() == null || !EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) return;
+
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
+        candidatBean.visualiserCandidat(candidat);
+        entityEditModeBean.startEditing();
         editingCollection = true;
-        log.debug("editingCollection mis à true");
 
-        // Initialiser avec la langue actuellement sélectionnée
-        SearchBean searchBean = searchBeanProvider.get();
-        editingLanguageCode = searchBean != null && searchBean.getLangSelected() != null
-            ? searchBean.getLangSelected()
-            : "fr";
-        log.debug("Langue d'édition sélectionnée: {}", editingLanguageCode);
-
-        // Charger les valeurs pour la langue sélectionnée
-        loadEditingValuesForLanguage(applicationBean, editingLanguageCode);
-
-        // Initialiser le PickList des gestionnaires avec les gestionnaires actuels de la collection
         Entity collection = applicationBean.getSelectedCollection();
         if (collection != null && collection.getId() != null) {
-            initGestionnairesPickListForEdit(collection.getId());
+            Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
+            applicationBean.setSelectedEntity(refreshed);
+            editingStatus = refreshed.getPublique();
+            initGestionnairesPickListForEdit(refreshed.getId());
         }
     }
 
@@ -483,9 +490,56 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Annule les modifications et désactive le mode édition
+     * Enregistre uniquement la visibilité (publique/privée) de la collection.
+     */
+    @Transactional
+    public void saveVisibilityOnly(ApplicationBean applicationBean) {
+        if (applicationBean == null) return;
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection == null || collection.getId() == null) return;
+        Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
+        refreshed.setPublique(editingStatus != null ? editingStatus : true);
+        entityRepository.save(refreshed);
+        applicationBean.setSelectedEntity(refreshed);
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Visibilité enregistrée."));
+    }
+
+    /**
+     * Enregistre uniquement les gestionnaires de la collection.
+     */
+    @Transactional
+    public void saveGestionnairesOnly(ApplicationBean applicationBean) {
+        if (applicationBean == null) return;
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection == null || collection.getId() == null) return;
+        Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
+        saveUserPermissionsForCollection(refreshed);
+        applicationBean.setSelectedEntity(refreshed);
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Gestionnaires enregistrés."));
+    }
+
+    /**
+     * Annule le mode édition et rafraîchit l'entité (utilisé par modifier Retour).
+     */
+    public void cancelEditingCollection(ApplicationBean appBean) {
+        entityEditModeBean.cancelEditing();
+        editingCollection = false;
+        editingLabelValue = null;
+        editingDescriptionValue = null;
+        editingLanguageCode = null;
+        editingGestionnairesPickList = null;
+        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
+            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
+        }
+    }
+
+    /**
+     * Annule les modifications et désactive le mode édition (sans refresh).
      */
     public void cancelEditingCollection() {
+        entityEditModeBean.cancelEditing();
         editingCollection = false;
         editingLabelValue = null;
         editingDescriptionValue = null;
@@ -586,6 +640,7 @@ public class CollectionBean implements Serializable {
         applicationBean.setSelectedEntityLabel(applicationBean.getEntityLabel(savedCollection));
 
         // Désactiver le mode édition
+        entityEditModeBean.cancelEditing();
         editingCollection = false;
         editingLabelValue = null;
         editingDescriptionValue = null;
@@ -1104,6 +1159,6 @@ public class CollectionBean implements Serializable {
     }
 
     public boolean showCollectionStatut() {
-        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || editingCollection);
+        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || entityEditModeBean.isEditingEntityInCatalog());
     }
 }
