@@ -94,7 +94,7 @@
                                      icon="pi pi-send"
                                      styleClass="candidat-btn-add candidats-ml-10"
                                      action="#{candidatBean.prepareSendValidateurInvitation}"
-                                     process="@this validateursPickList"
+                                     process="@form"
                                      update=":growl, :confirmValidateurInvitationDialogContent"
                                      oncomplete="if (!args.validationFailed) { PF('confirmValidateurInvitationDialog').show(); }"/>
                 </div>

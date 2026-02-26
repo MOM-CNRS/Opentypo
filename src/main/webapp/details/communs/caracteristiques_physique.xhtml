@@ -21,7 +21,7 @@
                             <span>Métrologie</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}"
                                                   target="_blank"
@@ -35,7 +35,7 @@
                                     #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -47,7 +47,7 @@
                             <span>Forme</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}"
                                                   target="_blank"
@@ -61,7 +61,7 @@
                                     #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -73,7 +73,7 @@
                             <span>Dimensions</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.url}"
                                                   target="_blank"
@@ -87,7 +87,7 @@
                                     #{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -99,7 +99,7 @@
                             <span>Technique</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.technique.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.technique.url}"
                                                   target="_blank"
@@ -113,7 +113,7 @@
                                     #{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -125,7 +125,7 @@
                             <span>Fabrication</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique and not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.url}"
                                                   target="_blank"
@@ -139,7 +139,7 @@
                                     #{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>

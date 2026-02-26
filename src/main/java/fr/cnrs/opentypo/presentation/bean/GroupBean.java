@@ -239,22 +239,21 @@ public class GroupBean implements Serializable {
     }
 
     /**
-     * Retourne le(s) nom(s) affichable(s) des rédacteurs du groupe (rôle "Rédacteur" dans user_permission).
-     * Plusieurs noms sont séparés par des virgules.
+     * Retourne la liste des noms affichables des rédacteurs du groupe (rôle "Rédacteur" dans user_permission).
      */
-    public String getGroupRedacteurDisplayName(Entity group) {
+    public List<String> getGroupRedacteursDisplayNames(Entity group) {
         if (group == null || group.getId() == null || userPermissionRepository == null) {
-            return null;
+            return List.of();
         }
         List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
                 group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
         if (userIds == null || userIds.isEmpty()) {
-            return null;
+            return List.of();
         }
         return userIds.stream()
                 .map(this::getUtilisateurDisplayName)
                 .filter(name -> name != null && !name.isBlank())
-                .collect(java.util.stream.Collectors.joining(", "));
+                .toList();
     }
 
     /**

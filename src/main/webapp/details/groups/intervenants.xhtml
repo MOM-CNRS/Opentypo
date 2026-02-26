@@ -7,18 +7,20 @@
             <div class="concept-info-panel">
                 <div class="concept-info-item concept-info-item-full">
                     <div class="concept-info-label">
-                        <i class="pi pi-user concept-info-icon" />
-                        <span>Rédacteur</span>
+                        <i class="pi pi-users concept-info-icon" />
+                        <span>Rédacteurs</span>
                     </div>
                     <div class="concept-info-value bibliographie-container">
-                        <ui:fragment rendered="#{not empty groupBean.getGroupRedacteurDisplayName(applicationBean.selectedEntity)}">
-                            <span class="bibliographie-badge">
-                                <i class="pi pi-user bibliographie-badge-icon" />
-                                <span class="bibliographie-badge-text">#{groupBean.getGroupRedacteurDisplayName(applicationBean.selectedEntity)}</span>
-                            </span>
+                        <ui:fragment rendered="#{not empty groupBean.getGroupRedacteursDisplayNames(applicationBean.selectedEntity)}">
+                            <ui:repeat value="#{groupBean.getGroupRedacteursDisplayNames(applicationBean.selectedEntity)}" var="redacteur">
+                                <span class="bibliographie-badge">
+                                    <i class="pi pi-user bibliographie-badge-icon" />
+                                    <span class="bibliographie-badge-text">#{redacteur}</span>
+                                </span>
+                            </ui:repeat>
                         </ui:fragment>
-                        <h:outputText value="Non renseigné"
-                                      rendered="#{empty groupBean.getGroupRedacteurDisplayName(applicationBean.selectedEntity)}"
+                        <h:outputText value="Aucun rédacteur assigné"
+                                      rendered="#{empty groupBean.getGroupRedacteursDisplayNames(applicationBean.selectedEntity)}"
                                       styleClass="bibliographie-empty" />
                     </div>
                 </div>

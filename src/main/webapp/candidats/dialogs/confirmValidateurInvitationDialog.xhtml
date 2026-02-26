@@ -21,8 +21,8 @@
                     <i class="pi pi-info-circle" />
                 </div>
                 <p class="candidat-confirm-message-text">
-                    Voulez-vous envoyer une invitation de validation aux utilisateurs sélectionnés ?
-                    Ils seront ajoutés comme validateurs pour ce brouillon.
+                    Voulez-vous enregistrer les validateurs sélectionnés ?
+                    La liste sera mise à jour dans la base de données.
                 </p>
             </div>
 
@@ -35,7 +35,7 @@
                 <p:commandButton value="Oui, envoyer"
                                  icon="pi pi-send"
                                  action="#{candidatBean.sendValidateurInvitations}"
-                                 process="@this"
+                                 process="@form"
                                  ajax="true"
                                  update=":growl, :intervenantsSection"
                                  styleClass="candidat-confirm-btn candidat-confirm-btn-validate"

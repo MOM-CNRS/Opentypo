@@ -64,76 +64,76 @@
                             </div>
 
                             <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                                <div class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-file concept-info-icon" />
+                                        <span>Description</span>
+                                    </div>
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </div>
+
                                 <div class="concept-info-grid">
-                                    <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-item">
                                         <div class="concept-info-label">
-                                            <i class="pi pi-file concept-info-icon" />
-                                            <span>Description</span>
+                                            <i class="pi pi-info-circle concept-info-icon" />
+                                            <span>Période</span>
                                         </div>
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                                    <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
+                                                                  target="_blank"
+                                                                  rel="noopener noreferrer"
+                                                                  styleClass="concept-value-external-link">
+                                                        #{applicationBean.selectedEntity.periode.valeur}
+                                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                    </h:outputLink>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                                    #{applicationBean.selectedEntity.periode.valeur}
+                                                </ui:fragment>
                                             </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </h:panelGroup>
-                                </div>
-
-                                <div class="concept-info-item">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-info-circle concept-info-icon" />
-                                        <span>Période</span>
                                     </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                                <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              styleClass="concept-value-external-link">
-                                                    #{applicationBean.selectedEntity.periode.valeur}
-                                                    <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                                </h:outputLink>
+
+                                    <div class="concept-info-item">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-calendar-minus concept-info-icon" />
+                                            <span>TPQ</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
+                                                #{applicationBean.selectedEntity.tpq}
                                             </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                                #{applicationBean.selectedEntity.periode.valeur}
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
+                                                <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="concept-info-item">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-calendar-minus concept-info-icon" />
-                                        <span>TPQ</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.tpq}">
-                                            #{applicationBean.selectedEntity.tpq}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </div>
-
-                                <div class="concept-info-item">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-calendar-plus concept-info-icon" />
-                                        <span>TAQ</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
-                                            #{applicationBean.selectedEntity.taq}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                                    <div class="concept-info-item">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-calendar-plus concept-info-icon" />
+                                            <span>TAQ</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.taq}">
+                                                #{applicationBean.selectedEntity.taq}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
                                     </div>
                                 </div>
 

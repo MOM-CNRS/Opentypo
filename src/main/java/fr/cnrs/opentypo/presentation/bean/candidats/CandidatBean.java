@@ -50,6 +50,8 @@ import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatValidationAc
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatValidationActionService.ActionResult;
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatVisualisationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -444,7 +446,7 @@ public class CandidatBean implements Serializable {
         }
     }
 
-    /** Envoie les invitations aux validateurs sélectionnés (après confirmation) */
+    /** Enregistre les validateurs sélectionnés en base (synchronise avec la PickList, après confirmation) */
     @org.springframework.transaction.annotation.Transactional
     public void sendValidateurInvitations() {
         if (currentEntity == null || currentEntity.getId() == null) {
@@ -454,37 +456,15 @@ public class CandidatBean implements Serializable {
         if (validateursPickList == null || validateursPickList.getTarget() == null) {
             return;
         }
-        List<?> targetList = validateursPickList.getTarget();
-        int added = 0;
-        for (Object raw : targetList) {
-            Long userId = toLong(raw);
-            if (userId == null) continue;
-            UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
-            id.setUserId(userId);
-            id.setEntityId(currentEntity.getId());
-            if (!userPermissionRepository.existsById(id)) {
-                Utilisateur utilisateur = utilisateurRepository.findById(userId).orElse(null);
-                if (utilisateur != null) {
-                    UserPermission permission = new UserPermission();
-                    permission.setUtilisateur(utilisateur);
-                    permission.setEntity(currentEntity);
-                    permission.setId(id);
-                    permission.setRole(PermissionRoleEnum.VALIDEUR.getLabel());
-                    permission.setCreateDate(LocalDateTime.now());
-                    userPermissionRepository.save(permission);
-                    added++;
-                }
-            }
-        }
-        validateursPickList = null; // Force re-init au prochain accès
+        syncUserPermissionsFromPickList(validateursPickList, PermissionRoleEnum.VALIDEUR.getLabel());
+        validateursPickList = null;
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                        added > 0 ? "Invitation(s) envoyée(s) à " + added + " validateur(s)." : "Aucune nouvelle invitation à envoyer."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Validateurs mis à jour."));
         PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
     }
 
     /** Assigne les rédacteurs sélectionnés au brouillon courant (synchronise la base avec la PickList) */
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void assignRedacteurs() {
         if (currentEntity == null || currentEntity.getId() == null) {
             addErrorMessage("Aucune entité à associer.");
@@ -497,10 +477,11 @@ public class CandidatBean implements Serializable {
         redacteursPickList = null;
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Rédacteurs mis à jour."));
+        PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
     }
 
     /** Assigne les relecteurs sélectionnés au brouillon courant (synchronise la base avec la PickList) */
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void assignRelecteurs() {
         if (currentEntity == null || currentEntity.getId() == null) {
             addErrorMessage("Aucune entité à associer.");

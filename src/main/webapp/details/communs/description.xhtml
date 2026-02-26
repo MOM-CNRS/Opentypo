@@ -51,7 +51,7 @@
                             <span>Catégorie fonctionnelle</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail and not empty applicationBean.selectedEntity.descriptionDetail.fonction}">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail.fonction}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail.fonction.url}">
                                     <h:outputLink value="#{applicationBean.selectedEntity.descriptionDetail.fonction.url}"
                                                   target="_blank"
@@ -65,7 +65,7 @@
                                     #{applicationBean.selectedEntity.descriptionDetail.fonction.valeur}
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique or empty applicationBean.selectedEntity.descriptionDetail.fonction}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.fonction}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
