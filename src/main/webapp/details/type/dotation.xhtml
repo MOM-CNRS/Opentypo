@@ -22,8 +22,13 @@
                         <div class="concept-info-value">
                             <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                    <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
-                                        value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                    <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  styleClass="concept-value-external-link">
+                                        #{applicationBean.selectedEntity.periode.valeur}
+                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                    </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
                                     #{applicationBean.selectedEntity.periode.valeur}

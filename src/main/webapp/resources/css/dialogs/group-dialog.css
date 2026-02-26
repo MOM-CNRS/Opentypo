@@ -300,9 +300,22 @@
     margin-top: -1rem;
 }
 
-.group-dialog-picklist .ui-button.ui-button-icon-only .ui-icon {
-    margin-top: -12px;
-    margin-left: -8px;
+/* Centrer l'icône dans les boutons PickList (add-all, add, remove, remove-all) */
+.group-dialog-picklist .ui-picklist-buttons button.ui-button-icon-only,
+.group-dialog-picklist .ui-picklist-button-add-all,
+.group-dialog-picklist .ui-picklist-button-add,
+.group-dialog-picklist .ui-picklist-button-remove,
+.group-dialog-picklist .ui-picklist-button-remove-all {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.group-dialog-picklist .ui-picklist-buttons button.ui-button-icon-only .ui-icon,
+.group-dialog-picklist .ui-picklist-buttons button .ui-icon {
+    margin: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
 }
 
 .group-dialog-no-relecteurs {

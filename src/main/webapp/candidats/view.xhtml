@@ -212,11 +212,6 @@
                         <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
                         <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
 
-                        <!-- Boîte de dialogue OpenTheso (masquée en mode consultation) -->
-                        <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
-                            <ui:include src="openthesoDialog.xhtml"/>
-                        </ui:fragment>
-
                         <!-- Dialogue de confirmation de suppression (référence : période, production, aire, fonction/usage, etc.) -->
                         <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
                         <!-- Dialogue de confirmation d'envoi d'invitation aux validateurs -->

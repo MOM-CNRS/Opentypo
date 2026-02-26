@@ -3,28 +3,77 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <!-- Section Validateurs - Invitation -->
-    <h:panelGroup id="validateursSection" class="users-form-panel wizard-form-panel candidats-mt-20"
+    <!-- Section Intervenants : Rédacteurs, Relecteurs, Validateurs -->
+    <h:panelGroup id="intervenantsSection" class="users-form-panel wizard-form-panel candidats-mt-20"
                   rendered="#{candidatBean.canValidateOrRefuseBrouillon() and candidatBean.currentEntity != null and candidatBean.currentEntity.id != null}">
+
+        <!-- Rédacteurs -->
         <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Validateurs invités" />
-                <div class="auteurs-list candidats-mb-10">
-                    <ui:repeat value="#{candidatBean.validateursDisplayNames}" var="validateur">
-                        <div class="auteur-item">
-                        <span class="auteur-avatar auteur-avatar--validateur">
-                            <i class="pi pi-user-check auteur-icon" />
-                        </span>
-                            <span class="auteur-name">#{validateur}</span>
-                        </div>
-                    </ui:repeat>
-                    <ui:fragment rendered="#{empty candidatBean.validateursDisplayNames}">
-                        <div class="auteurs-empty-state">
-                            <span class="auteurs-empty-icon"><i class="pi pi-user-plus" /></span>
-                            <p class="auteurs-empty">Aucun validateur invité</p>
-                        </div>
-                    </ui:fragment>
+                <p:outputLabel value="Assigner des rédacteurs" />
+                <div class="candidats-validateurs-picklist-row">
+                    <p:pickList id="redacteursPickList"
+                                value="#{candidatBean.redacteursPickList}"
+                                var="userId"
+                                itemLabel="#{candidatBean.getUtilisateurDisplayName(userId)}"
+                                itemValue="#{userId}"
+                                converter="pickListLongConverter"
+                                styleClass="group-dialog-picklist"
+                                showSourceFilter="true"
+                                showTargetFilter="true"
+                                filterMatchMode="contains"
+                                sourceFilterPlaceholder="Rechercher..."
+                                targetFilterPlaceholder="Rechercher..."
+                                responsive="true"
+                                rendered="#{not empty candidatBean.redacteursList}"/>
+                    <p:commandButton value="Assigner"
+                                     icon="pi pi-user-plus"
+                                     styleClass="candidat-btn-add candidats-ml-10"
+                                     action="#{candidatBean.assignRedacteurs}"
+                                     process="@form"
+                                     update=":growl, :intervenantsSection"/>
                 </div>
+                <h:panelGroup rendered="#{empty candidatBean.redacteursList}" class="group-dialog-no-relecteurs">
+                    <span>Aucun rédacteur disponible</span>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <!-- Relecteurs -->
+        <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+            <div class="users-form-group users-form-group-full">
+                <p:outputLabel value="Assigner des relecteurs" />
+                <div class="candidats-validateurs-picklist-row">
+                    <p:pickList id="relecteursPickList"
+                                value="#{candidatBean.relecteursPickList}"
+                                var="userId"
+                                itemLabel="#{candidatBean.getUtilisateurDisplayName(userId)}"
+                                itemValue="#{userId}"
+                                converter="pickListLongConverter"
+                                styleClass="group-dialog-picklist"
+                                showSourceFilter="true"
+                                showTargetFilter="true"
+                                filterMatchMode="contains"
+                                sourceFilterPlaceholder="Rechercher..."
+                                targetFilterPlaceholder="Rechercher..."
+                                responsive="true"
+                                rendered="#{not empty candidatBean.relecteursList}"/>
+                    <p:commandButton value="Assigner"
+                                     icon="pi pi-user-plus"
+                                     styleClass="candidat-btn-add candidats-ml-10"
+                                     action="#{candidatBean.assignRelecteurs}"
+                                     process="@form"
+                                     update=":growl, :intervenantsSection"/>
+                </div>
+                <h:panelGroup rendered="#{empty candidatBean.relecteursList}" class="group-dialog-no-relecteurs">
+                    <span>Aucun relecteur disponible</span>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <!-- Validateurs -->
+        <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+            <div class="users-form-group users-form-group-full">
                 <p:outputLabel value="Inviter des validateurs" />
                 <div class="candidats-validateurs-picklist-row">
                     <p:pickList id="validateursPickList"
@@ -50,7 +99,7 @@
                                      oncomplete="if (!args.validationFailed) { PF('confirmValidateurInvitationDialog').show(); }"/>
                 </div>
                 <h:panelGroup rendered="#{empty candidatBean.validateursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun utilisateur disponible</span>
+                    <span>Aucun validateur disponible</span>
                 </h:panelGroup>
             </div>
         </div>

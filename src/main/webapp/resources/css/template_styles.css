@@ -1716,7 +1716,6 @@ body .ui-tabs.ui-tabs-top > .ui-tabs-nav li.ui-tabs-header.ui-state-active {
     font-weight: 700 !important;
     color: var(--color-text-primary, #333) !important;
     font-size: 0.9375rem !important;
-    margin-bottom: 0.25rem !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;

@@ -221,6 +221,21 @@ public class CandidatOpenThesoService {
         return DeleteResult.SUCCESS;
     }
 
+    /** Supprime une aire de circulation par son conceptId (pour le mode multiple autoComplete). */
+    @Transactional
+    public DeleteResult deleteAireCirculationByConceptId(Long entityId, String conceptId) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null || e.getAiresCirculation() == null || conceptId == null) return DeleteResult.NOTHING_TO_DELETE;
+        ReferenceOpentheso toRemove = e.getAiresCirculation().stream()
+                .filter(r -> conceptId.equals(r.getConceptId()))
+                .findFirst().orElse(null);
+        if (toRemove == null) return DeleteResult.NOTHING_TO_DELETE;
+        e.getAiresCirculation().remove(toRemove);
+        entityRepository.save(e);
+        log.info("Aire de circulation (conceptId={}) supprimée pour l'entité ID={}", conceptId, entityId);
+        return DeleteResult.SUCCESS;
+    }
+
     private DeleteResult deleteFromCaracteristique(Long entityId, java.util.function.Consumer<CaracteristiquePhysique> deleter) {
         Entity e = entityRepository.findById(entityId).orElse(null);
         if (e == null || e.getCaracteristiquePhysique() == null) return DeleteResult.NOTHING_TO_DELETE;

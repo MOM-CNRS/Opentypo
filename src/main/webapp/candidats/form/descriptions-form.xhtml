@@ -6,10 +6,11 @@
 
     <!-- Descriptions multilingues -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <div class="periode-header-row">
+            <p:outputLabel value="Descriptions" />
+        </div>
 
-        <h6>Descriptions</h6>
-
-        <div class="candidat-description-editor-block">
+        <h:panelGroup layout="block" styleClass="candidat-description-editor-block" rendered="#{candidatBean.canEditCurrentBrouillon()}">
             <div class="candidat-description-editor-inner">
                 <div class="candidat-description-editor-label">
                     <i class="pi pi-align-left candidat-description-editor-icon" />
@@ -21,12 +22,12 @@
                               styleClass="candidat-description-texteditor"
                               placeholder="Décrivez la référence (texte riche)…"/>
             </div>
-        </div>
+        </h:panelGroup>
 
-        <div class="candidat-description-input-section" >
+        <h:panelGroup layout="block" styleClass="candidat-description-input-section" rendered="#{candidatBean.canEditCurrentBrouillon()}">
             <div class="candidat-description-input-row">
                 <div class="candidat-description-select-wrapper">
-                    <div class="input-wrapper">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-globe input-icon" />
                         <p:selectOneMenu value="#{candidatBean.newDescriptionLangueCode}"
                                          styleClass="users-select">
@@ -46,7 +47,7 @@
                                  ajax="true"
                                  update=":createCandidatForm :growl"/>
             </div>
-        </div>
+        </h:panelGroup>
 
         <p:dataTable value="#{candidatBean.descriptions}"
                      var="descriptionItem"
@@ -68,7 +69,7 @@
                 </div>
             </p:column>
 
-            <p:column styleClass="candidat-table-action-column">
+            <p:column styleClass="candidat-table-action-column" rendered="#{candidatBean.canEditCurrentBrouillon()}">
                 <div class="candidat-table-action-cell">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"

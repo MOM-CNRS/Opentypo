@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
 import fr.cnrs.opentypo.application.service.CategoryService;
+import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
@@ -28,6 +29,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
+import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
 import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
@@ -39,6 +41,7 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -109,6 +112,12 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private CandidatBean candidatBean;
+
+    @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
+    private CandidatReferenceTreeService candidatReferenceTreeService;
 
 
     private final PanelStateManager panelState = new PanelStateManager();
@@ -1141,10 +1150,16 @@ public class ApplicationBean implements Serializable {
     public void editEntity() throws IOException {
         Candidat candidat = new CandidatConverter().convertEntityToCandidat(selectedEntity);
         candidatBean.visualiserCandidat(candidat);
-        candidatBean.setFromCatalog(true);
 
         FacesContext.getCurrentInstance().getExternalContext()
                 .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");
+    }
+
+    public boolean isCashTypo() {
+
+        Entity entity = collectionService.findCollectionIdByEntityId(selectedEntity.getId());
+        String label = candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
+        return "MONNAIE".equals(label) || "CASH".equals(label);
     }
 }
 

@@ -31,7 +31,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -84,6 +86,8 @@ public class OpenThesoDialogBean implements Serializable {
     private String manualValue = "";
     /** Dernière requête saisie dans l'autocomplete Période (pour enregistrement en texte libre si aucun résultat). */
     private String lastPeriodeQuery = "";
+    /** Dernière requête par type de thésaurus (pour enregistrement en texte libre si aucun résultat). */
+    private final Map<String, String> lastQueryByType = new HashMap<>();
     private CandidatBean candidatBean;
     private Parametrage collectionParametrage;
 
@@ -238,11 +242,74 @@ public class OpenThesoDialogBean implements Serializable {
     }
 
     private void ensurePeriodeThesaurusLoaded(CandidatBean cb) {
-        if (collectionParametrage != null && referenceCode == ReferenceOpenthesoEnum.PERIODE && entityId != null
+        ensureThesaurusLoaded(cb, ReferenceOpenthesoEnum.PERIODE);
+    }
+
+    /**
+     * Charge le thésaurus pour un type donné si pas déjà chargé pour cette entité.
+     */
+    private void ensureThesaurusLoaded(CandidatBean cb, ReferenceOpenthesoEnum type) {
+        if (collectionParametrage != null && referenceCode == type && entityId != null
+                && cb.getCurrentEntity() != null && cb.getCurrentEntity().getId() != null
                 && entityId.equals(cb.getCurrentEntity().getId())) {
             return;
         }
-        loadThesaurus(cb, ReferenceOpenthesoEnum.PERIODE.name(), cb.getCurrentEntity().getId());
+        Long eid = (cb.getCurrentEntity() != null && cb.getCurrentEntity().getId() != null)
+                ? cb.getCurrentEntity().getId() : null;
+        loadThesaurus(cb, type.name(), eid);
+    }
+
+    /**
+     * Méthode de complétion générique pour un type de thésaurus.
+     */
+    private List<PactolsConcept> completeThesaurus(ReferenceOpenthesoEnum type, String query) {
+        CandidatBean cb = candidatBeanForAutocomplete;
+        if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
+            return new ArrayList<>();
+        }
+        ensureThesaurusLoaded(cb, type);
+        if (collectionParametrage == null || collectionParametrage.getIdTheso() == null
+                || collectionParametrage.getIdGroupe() == null || collectionParametrage.getIdLangue() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
+                            "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
+            PrimeFaces.current().ajax().update(":growl");
+            return new ArrayList<>();
+        }
+        String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
+        if (term.isEmpty()) {
+            lastQueryByType.put(type.name(), "");
+            return new ArrayList<>();
+        }
+        lastQueryByType.put(type.name(), term);
+        return pactolsService.searchConcepts(collectionParametrage.getIdTheso(), term,
+                collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
+    }
+
+    public List<PactolsConcept> completeProduction(String query) { return completeThesaurus(ReferenceOpenthesoEnum.PRODUCTION, query); }
+    public List<PactolsConcept> completeAireCirculation(String query) { return completeThesaurus(ReferenceOpenthesoEnum.AIRE_CIRCULATION, query); }
+    public List<PactolsConcept> completeFonctionUsage(String query) { return completeThesaurus(ReferenceOpenthesoEnum.FONCTION_USAGE, query); }
+    public List<PactolsConcept> completeMetrologie(String query) { return completeThesaurus(ReferenceOpenthesoEnum.METROLOGIE, query); }
+    public List<PactolsConcept> completeFabricationFaconnage(String query) { return completeThesaurus(ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, query); }
+    public List<PactolsConcept> completeCouleurPate(String query) { return completeThesaurus(ReferenceOpenthesoEnum.COULEUR_PATE, query); }
+    public List<PactolsConcept> completeNaturePate(String query) { return completeThesaurus(ReferenceOpenthesoEnum.NATURE_PATE, query); }
+    public List<PactolsConcept> completeInclusions(String query) { return completeThesaurus(ReferenceOpenthesoEnum.INCLUSIONS, query); }
+    public List<PactolsConcept> completeCuissonPostCuisson(String query) { return completeThesaurus(ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, query); }
+    public List<PactolsConcept> completeMateriau(String query) { return completeThesaurus(ReferenceOpenthesoEnum.MATERIAU, query); }
+    public List<PactolsConcept> completeDenomination(String query) { return completeThesaurus(ReferenceOpenthesoEnum.DENOMINATION, query); }
+    public List<PactolsConcept> completeValeur(String query) { return completeThesaurus(ReferenceOpenthesoEnum.VALEUR, query); }
+    public List<PactolsConcept> completeTechnique(String query) { return completeThesaurus(ReferenceOpenthesoEnum.TECHNIQUE, query); }
+    public List<PactolsConcept> completeFabrication(String query) { return completeThesaurus(ReferenceOpenthesoEnum.FABRICATION, query); }
+
+    /** Retourne la dernière requête saisie pour un type (pour enregistrement en texte libre). */
+    public String getLastQueryFor(String typeCode) {
+        return lastQueryByType.getOrDefault(typeCode != null ? typeCode : "", "");
+    }
+
+    public String getEmptyMessageFor(String typeCode) {
+        return isPeriodeParametrageMissing()
+                ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
+                : "Aucun résultat trouvé";
     }
 
     /**
@@ -282,46 +349,48 @@ public class OpenThesoDialogBean implements Serializable {
      * Enregistre une période sélectionnée depuis l'autocomplete.
      */
     public void savePeriodeFromConcept(PactolsConcept concept) {
+        saveThesaurusFromConcept(ReferenceOpenthesoEnum.PERIODE, concept, "période");
+    }
+
+    /**
+     * Enregistre un concept sélectionné depuis l'autocomplete pour un type de thésaurus donné.
+     * @param type   type de référence (PRODUCTION, AIRE_CIRCULATION, etc.)
+     * @param concept concept sélectionné ou null pour utiliser la dernière requête saisie
+     * @param label   libellé pour les messages (ex: "production", "aire de circulation")
+     */
+    public void saveThesaurusFromConcept(ReferenceOpenthesoEnum type, PactolsConcept concept, String label) {
         CandidatBean cb = candidatBeanForAutocomplete;
         if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune entité en cours d'édition."));
             return;
         }
-        if (concept == null) {
+        PactolsConcept conceptToSave = concept;
+        if (conceptToSave == null) {
+            String lastQuery = lastQueryByType.getOrDefault(type.name(), "");
+            if (lastQuery != null && !lastQuery.trim().isEmpty()) {
+                conceptToSave = new PactolsConcept(null, null, lastQuery.trim());
+            }
+        }
+        if (conceptToSave == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir ou sélectionner une période."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
+                            "Veuillez saisir ou sélectionner une " + (label != null ? label : "valeur") + "."));
             return;
         }
-        ensurePeriodeThesaurusLoaded(cb);
+        ensureThesaurusLoaded(cb, type);
         if (collectionParametrage == null) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le thésaurus n'est pas paramétré."));
             return;
         }
-        Entity entity = entityRepository.findById(cb.getCurrentEntity().getId()).orElse(null);
-        if (entity == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Entité introuvable."));
-            return;
-        }
-        String valueToSave = concept.getSelectedTerm() != null && !concept.getSelectedTerm().trim().isEmpty()
-                ? concept.getSelectedTerm().trim()
-                : concept.getIdConcept();
-        ReferenceOpentheso ref = new ReferenceOpentheso();
-        ref.setCode(ReferenceOpenthesoEnum.PERIODE.name());
-        ref.setEntity(entity);
-        ref.setValeur(valueToSave);
-        ref.setConceptId(concept.getIdConcept());
-        ref.setThesaurusId(collectionParametrage.getIdTheso());
-        ref.setCollectionId(collectionParametrage.getIdGroupe());
-        ref.setUrl(concept.getUri());
-        ref = referenceOpenthesoRepository.save(ref);
-        entity.setPeriode(ref);
-        entityRepository.save(entity);
-        cb.updatePeriodeFromOpenTheso();
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Période enregistrée avec succès."));
+        this.candidatBean = cb;
+        this.referenceCode = type;
+        this.entityId = cb.getCurrentEntity().getId();
+        this.selectedConcept = conceptToSave;
+        this.manualValue = null;
+        validateSelection();
+        lastQueryByType.put(type.name(), "");
     }
 
     /**
@@ -422,10 +491,13 @@ public class OpenThesoDialogBean implements Serializable {
                 break;
             case ReferenceOpenthesoEnum.AIRE_CIRCULATION:
                 referenceOpentheso.setEntity(entity);
-                if (CollectionUtils.isEmpty(entity.getAiresCirculation())) {
-                    entity.setAiresCirculation(new ArrayList<>());
+                /* Ne jamais remplacer la collection : avec orphanRemoval, setXxx(new ArrayList())
+                   provoquerait l'erreur "collection no longer referenced". Toujours modifier en place. */
+                List<ReferenceOpentheso> aires = entity.getAiresCirculation();
+                if (aires == null) {
+                    entity.setAiresCirculation(aires = new ArrayList<>());
                 }
-                entity.getAiresCirculation().add(referenceOpentheso);
+                aires.add(referenceOpentheso);
                 // Sauvegarder l'entité (cascade ALL sauvegardera aussi la référence)
                 Entity savedEntity = entityRepository.save(entity);
                 // Récupérer la référence sauvegardée (par valeur, pour gérer concept ou saisie manuelle)

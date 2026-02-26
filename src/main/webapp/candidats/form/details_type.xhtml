@@ -1,14 +1,16 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Attestations -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel for="attestations" value="Attestations" />
-            <div class="input-wrapper">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="attestations"
+                         rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.attestations}"
                          styleClass="users-chips"
                          placeholder="Saisissez une attestation et appuyez sur Entrée..."
@@ -18,6 +20,11 @@
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
                 </p:chips>
+                <p:inputText value="#{fn:join(candidatBean.attestations, ', ')}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Aucune attestation"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="attestations" display="icon"/>
         </div>
@@ -25,9 +32,10 @@
         <!-- Sites archéologiques -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel for="sites_archeologiques" value="Sites archéologiques" />
-            <div class="input-wrapper">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="sites_archeologiques"
+                         rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.sitesArcheologiques}"
                          styleClass="users-chips"
                          placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
@@ -37,6 +45,11 @@
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                 </p:chips>
+                <p:inputText value="#{fn:join(candidatBean.sitesArcheologiques, ', ')}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Aucun site archéologique"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="sites_archeologiques" display="icon"/>
         </div>
@@ -44,9 +57,10 @@
         <!-- Référentiel -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel for="referentiel" value="Référentiel" />
-            <div class="input-wrapper">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="referentiel"
+                         rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.references}"
                          styleClass="users-chips"
                          placeholder="Saisissez un référentiel et appuyez sur Entrée..."
@@ -56,6 +70,11 @@
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
                 </p:chips>
+                <p:inputText value="#{fn:join(candidatBean.references, ', ')}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Aucun référentiel"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="referentiel" display="icon"/>
         </div>
@@ -63,17 +82,24 @@
         <!-- Typologie scientifique -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Typologie scientifique" />
-            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
                     <p:inputText value="#{candidatBean.typologieScientifique}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour typologie scientifique"/>
+                                 placeholder="Aucun valeur pour typologie scientifique"
+                                 rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
+                    <p:inputText value="#{candidatBean.typologieScientifique}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Non renseigné"
+                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save"
+                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveTypologieScientifique}"
                                      process="@form"
                                      ajax="true"
@@ -86,17 +112,24 @@
         <!-- Identifiant pérenne -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Identifiant pérenne" />
-            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
                     <p:inputText value="#{candidatBean.identifiantPerenne}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'identifiant perenne"/>
+                                 placeholder="Aucun valeur pour l'identifiant perenne"
+                                 rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
+                    <p:inputText value="#{candidatBean.identifiantPerenne}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Non renseigné"
+                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save"
+                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveIdentifiantPerenne}"
                                      process="@form"
                                      ajax="true"
@@ -109,17 +142,24 @@
         <!-- Ancienne version -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Ancienne version" />
-            <div class="candidat-production-wrapper candidat-production-group candidats-mt--10">
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
                     <p:inputText value="#{candidatBean.ancienneVersion}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'ancienne version"/>
+                                 placeholder="Aucun valeur pour l'ancienne version"
+                                 rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
+                    <p:inputText value="#{candidatBean.ancienneVersion}"
+                                 styleClass="users-input"
+                                 readonly="true"
+                                 placeholder="Non renseigné"
+                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 
-                <div class="candidat-table-action-cell candidats-cell-action-mr">
+                <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save"
+                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveAncienneVersion}"
                                      process="@form"
                                      ajax="true"

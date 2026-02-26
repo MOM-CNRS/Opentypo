@@ -6,12 +6,14 @@
 
     <!-- Traductions du label (multilingues) -->
     <div class="users-form-group users-form-group-full periode-group">
-        <h6>Traductions du label</h6>
+        <div class="periode-header-row">
+            <p:outputLabel value="Traductions du label" />
+        </div>
 
         <!-- Formulaire pour ajouter une nouvelle traduction de label -->
-        <div class="candidat-label-input-row">
+        <h:panelGroup layout="block" styleClass="candidat-label-input-row" rendered="#{candidatBean.canEditCurrentBrouillon()}">
             <div class="candidat-label-input-wrapper">
-                <div class="input-wrapper candidats-input-wrapper-border">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-tag input-icon" />
                     <p:inputText value="#{candidatBean.newLabelValue}"
                                  placeholder="Saisissez la traduction du label..."
@@ -20,7 +22,7 @@
                 </div>
             </div>
             <div class="candidat-label-select-wrapper">
-                <div class="input-wrapper">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-globe input-icon" />
                     <p:selectOneMenu value="#{candidatBean.newLabelLangueCode}"
                                      styleClass="users-select">
@@ -39,12 +41,12 @@
                              process="@form"
                              ajax="true"
                              update=":createCandidatForm :growl"/>
-        </div>
+        </h:panelGroup>
 
         <!-- Liste des traductions de label ajoutées -->
         <p:dataTable value="#{candidatBean.candidatLabels}"
                      var="labelItem"
-                     styleClass="candidat-labels-table"
+                     styleClass="candidat-labels-table candidats-mt-10"
                      emptyMessage="Aucune traduction ajoutée"
                      rendered="#{not empty candidatBean.candidatLabels}">
 
@@ -61,7 +63,7 @@
                 </div>
             </p:column>
 
-            <p:column styleClass="candidat-table-action-column">
+            <p:column styleClass="candidat-table-action-column" rendered="#{candidatBean.canEditCurrentBrouillon()}">
                 <div class="candidat-table-action-cell">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"

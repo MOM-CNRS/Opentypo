@@ -20,6 +20,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -83,6 +86,12 @@ public class GroupBean implements Serializable {
     @Autowired
     private ApplicationBean applicationBean;
 
+    @Inject
+    private CandidatBean candidatBean;
+
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
+
     private String groupCode;
     private String groupLabel;
     private String groupDescription;
@@ -104,6 +113,31 @@ public class GroupBean implements Serializable {
     private DualListModel<Long> relecteursPickList;
     /** Validateurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
     private DualListModel<Long> validateursPickList;
+
+    /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
+    public void startEditingGroupe(ApplicationBean appBean) {
+        if (appBean == null || appBean.getSelectedEntity() == null) return;
+        Entity entity = appBean.getSelectedEntity();
+        if (entity.getEntityType() == null || !Long.valueOf(3L).equals(entity.getEntityType().getId())) return;
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
+        candidatBean.visualiserCandidat(candidat);
+        entityEditModeBean.startEditing();
+    }
+
+    /** Annule le mode édition et rafraîchit l'entité. */
+    public void cancelEditingGroupe(ApplicationBean appBean) {
+        entityEditModeBean.cancelEditing();
+        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
+            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
+        }
+    }
+
+    /** Enregistre les modifications et sort du mode édition si succès. */
+    public void saveEditingGroupe(ApplicationBean appBean) {
+        if (candidatBean.performEnregistrerModifications()) {
+            cancelEditingGroupe(appBean);
+        }
+    }
 
     public void resetGroupForm() {
         groupCode = null;

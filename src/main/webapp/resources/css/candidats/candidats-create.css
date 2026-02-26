@@ -1488,6 +1488,22 @@
                 color: #28a745 !important;
             }
 
+            .auteur-avatar--redacteur {
+                background: linear-gradient(135deg, rgba(0, 123, 255, 0.12) 0%, rgba(0, 123, 255, 0.06) 100%);
+            }
+
+            .auteur-avatar--redacteur .auteur-icon {
+                color: #007bff !important;
+            }
+
+            .auteur-avatar--relecteur {
+                background: linear-gradient(135deg, rgba(253, 126, 20, 0.12) 0%, rgba(253, 126, 20, 0.06) 100%);
+            }
+
+            .auteur-avatar--relecteur .auteur-icon {
+                color: #fd7e14 !important;
+            }
+
             .auteur-name {
                 font-weight: 600;
                 color: var(--color-text-primary, #333);

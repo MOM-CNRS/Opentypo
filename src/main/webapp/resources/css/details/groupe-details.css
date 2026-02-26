@@ -44,6 +44,11 @@
     box-shadow: var(--gp-shadow-hover);
 }
 
+/* Form header (évite NPE @form) */
+.groupe-detail-page .groupe-header-form-inline {
+    display: contents;
+}
+
 /* ---- En-tête du panel principal ---- */
 .groupe-detail-page .concept-info-panel:first-of-type .concept-info-header {
     padding: 1rem 1.25rem;
@@ -198,6 +203,31 @@
 .groupe-detail-page .bibliographie-empty {
     color: var(--gp-text-muted);
     font-style: italic;
+}
+
+/* ---- Lien externe Période (thésaurus ARK, etc.) ---- */
+.groupe-detail-page .concept-info-value .concept-value-external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--gp-main);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.groupe-detail-page .concept-info-value .concept-value-external-link:hover {
+    color: var(--gp-main);
+    background-color: rgba(var(--gp-main-rgb), 0.08);
+    text-decoration: none;
+}
+
+.groupe-detail-page .concept-info-value .concept-value-external-link .concept-value-external-link-icon {
+    font-size: 0.75rem;
+    opacity: 0.8;
 }
 
 /* ---- Cartes séries (reference-card) et types (typologie-card) ---- */

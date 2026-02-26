@@ -149,11 +149,7 @@ public class TreeBean implements Serializable {
         selectedNode = entityRoot;
 
         // Charger les enfants directs de cette entité
-        try {
-            loadChildrenIfNeeded(entityRoot);
-        } catch (Exception e) {
-            log.error("Erreur lors de l'initialisation de l'arbre avec l'entité : {}", entity.getNom(), e);
-        }
+        loadChildrenIfNeeded(entityRoot);
     }
 
     /**
@@ -301,8 +297,7 @@ public class TreeBean implements Serializable {
 
         loadChildForEntity(node, entity);
         int childCountAfter = node.getChildCount();
-        log.debug("Après chargement, le nœud {} a maintenant {} enfants (avant: {})",
-                entity.getNom(), childCountAfter, childCountBefore);
+        log.debug("Après chargement, le nœud {} a maintenant {} enfants (avant: {})", entity.getNom(), childCountAfter, childCountBefore);
         if (childCountAfter == 0 && entity.getId() != null) {
             entityIdsWithNoChildren.add(entity.getId());
         }

@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Caractéristiques physiques -->
@@ -15,34 +16,47 @@
             <div class="periode-field-row">
                 <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                     <div class="candidat-description-textarea-wrapper">
-                        <div class="input-wrapper">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-palette input-icon" />
                             <p:inputTextarea id="groupDecors"
                                              value="#{candidatBean.decors}"
                                              placeholder="Saisissez le décors du groupe..."
                                              rows="4"
                                              styleClass="users-textarea"
-                                             maxlength="2000"/>
+                                             maxlength="2000"
+                                             rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
+                            <p:inputTextarea value="#{candidatBean.decors}"
+                                             placeholder="Non renseigné"
+                                             rows="4"
+                                             styleClass="users-textarea"
+                                             readonly="true"
+                                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                         </div>
                     </div>
                 </div>
-                <p:commandButton icon="pi pi-check"
+                <div class="periode-action-buttons">
+                    <p:commandButton icon="pi pi-check"
+                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                  styleClass="candidat-btn-save"
                                  actionListener="#{candidatBean.saveDecors}"
                                  process="@this"
                                  ajax="true"
                                  update=":growl"
                                  title="Enregistrer le décors"/>
+                </div>
             </div>
             <p:message for="groupDecors" display="icon"/>
         </div>
 
         <!-- Marques/estampilles -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel for="groupMarquesEstampilles" value="Marques/estampilles" />
-            <div class="input-wrapper">
+            <div class="periode-header-row">
+                <p:outputLabel for="groupMarquesEstampilles" value="Marques/estampilles" />
+            </div>
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="groupMarquesEstampilles"
+                         rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.marquesEstampilles}"
                          styleClass="users-chips"
                          placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
@@ -52,45 +66,72 @@
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
                 </p:chips>
+                <p:inputText value="#{fn:join(candidatBean.marquesEstampilles, ', ')}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Aucune marque/estampille"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
+            <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
+                <p class="users-form-hint">
+                    <i class="pi pi-info-circle" />
+                    Saisissez une marque/estampille et appuyez sur Entrée pour l'ajouter. Cliquez sur le tag pour le supprimer.
+                </p>
+            </ui:fragment>
             <p:message for="groupMarquesEstampilles" display="icon"/>
         </div>
 
         <!-- Fonction/usage -->
-        <h:panelGroup id="fonctionUsageGroup" styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Fonction/usage" />
-            <div class="candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper candidat-production-input-wrapper">
-                    <i class="pi pi-cog input-icon" />
+        <h:panelGroup id="fonctionUsageGroup" styleClass="users-form-group users-form-group-full">
+            <div class="periode-header-row">
+                <p:outputLabel value="Fonction/usage" />
+            </div>
+            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-cog input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="fonctionUsageAutocomplete"
+                                   value="#{candidatBean.fonctionUsageAutocompleteSelection}"
+                                   completeMethod="#{openThesoDialogBean.completeFonctionUsage}"
+                                   converter="pactolsConceptConverter"
+                                   var="concept"
+                                   itemLabel="#{concept.selectedTerm}"
+                                   itemValue="#{concept}"
+                                   dropdown="false"
+                                   minQueryLength="2"
+                                   appendTo="#fonctionUsageAutocompleteWrapper"
+                                   my="left top"
+                                   at="left bottom"
+                                   panelStyleClass="periode-autocomplete-panel"
+                                   scrollHeight="280"
+                                   emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FONCTION_USAGE')}"
+                                   placeholder="Ex. Contenant, Luminaire..."
+                                   styleClass="users-input periode-autocomplete-input"
+                                   forceSelection="false"
+                                   rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.fonctionUsage != null ? candidatBean.fonctionUsage.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
                                  placeholder="Aucune fonction/usage sélectionnée"
-                                 rendered="#{candidatBean.hasFonctionUsage()}"/>
-                    <p:inputText styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Aucune fonction/usage sélectionnée"
-                                 rendered="#{!candidatBean.hasFonctionUsage()}"/>
+                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
-
-                <p:commandButton icon="pi pi-trash"
-                                 styleClass="candidat-btn-remove"
-                                 title="Supprimer la fonction/usage"
-                                 rendered="#{candidatBean.hasFonctionUsage()}"
-                                 actionListener="#{candidatBean.prepareConfirmDeleteFonctionUsage()}"
-                                 process="@this"
-                                 update="@none"
-                                 oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
-
-                <p:commandButton value="Ajouter"
-                                 icon="pi pi-plus"
-                                 styleClass="candidat-btn-add-production"
-                                 actionListener="#{openThesoDialogBean.loadThesaurus(candidatBean, 'FONCTION_USAGE', candidatBean.currentEntity.id)}"
-                                 process="@this"
-                                 ajax="true"
-                                 update=":openThesoForm :growl"
-                                 oncomplete="hideLoading(); PF('openthesoDialog').show();"
-                                 onstart="showLoading('Chargement des thésaurus...', 'spinner');"/>
+                <div class="periode-action-buttons">
+                    <p:commandButton icon="pi pi-check"
+                                     styleClass="candidat-btn-save periode-save-btn"
+                                     title="Enregistrer la fonction/usage"
+                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
+                                     actionListener="#{candidatBean.saveFonctionUsageFromAutocomplete}"
+                                     process="@form"
+                                     ajax="true"
+                                     update="@form :growl"/>
+                    <p:commandButton icon="pi pi-trash"
+                                     styleClass="candidat-btn-remove"
+                                     title="Supprimer la fonction/usage"
+                                     rendered="#{candidatBean.hasFonctionUsage() and candidatBean.canEditCurrentBrouillon()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteFonctionUsage()}"
+                                     process="@this"
+                                     update="@none"
+                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
+                </div>
             </div>
             <p:message for="fonctionUsageGroup" display="icon"/>
         </h:panelGroup>

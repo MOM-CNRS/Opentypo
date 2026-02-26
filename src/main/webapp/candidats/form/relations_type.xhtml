@@ -12,14 +12,20 @@
         <!-- Alignement opentypo, appartient à -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Alignement opentypo, appartient à" />
-            <div class="input-wrapper candidats-input-wrapper-border">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
                              placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
+                             maxlength="255"
+                             rendered="#{candidatBean.canEditCurrentBrouillon()}">
                     <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
                 </p:inputText>
+                <p:inputText value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Non renseigné"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="@previous" display="icon"/>
         </div>
@@ -27,14 +33,20 @@
         <!-- Alignement opentypo, associé à -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Alignement opentypo, associé à" />
-            <div class="input-wrapper candidats-input-wrapper-border">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
                              placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
+                             maxlength="255"
+                             rendered="#{candidatBean.canEditCurrentBrouillon()}">
                     <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
                 </p:inputText>
+                <p:inputText value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Non renseigné"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="@previous" display="icon"/>
         </div>
@@ -42,14 +54,20 @@
         <!-- Relations externes -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Relations externes" />
-            <div class="input-wrapper candidats-input-wrapper-border">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-align-left input-icon" />
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
                              placeholder="Saisissez la description de la pâte..."
-                             maxlength="255">
+                             maxlength="255"
+                             rendered="#{candidatBean.canEditCurrentBrouillon()}">
                     <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
                 </p:inputText>
+                <p:inputText value="#{candidatBean.descriptionPate}"
+                             styleClass="users-input"
+                             readonly="true"
+                             placeholder="Non renseigné"
+                             rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="@previous" display="icon"/>
         </div>

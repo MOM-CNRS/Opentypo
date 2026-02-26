@@ -1,85 +1,85 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:p="http://primefaces.org/ui">
 
     <!-- Contenu dynamique -->
     <h:panelGroup id="contentGroupePanels" layout="block">
         <div class="groupe-detail-page">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="concept-info-panel">
-                        <!-- En-tête avec titre et actions -->
-                        <div class="concept-info-header">
-                            <div class="concept-info-title-section">
-                                <span class="reference-entity-type-badge">Groupe</span>
-                                <div class="concept-info-language-flag">
-                                    <h:graphicImage library="img" name="flag/fr.png"
-                                                   styleClass="language-flag"
-                                                   alt="Français"
-                                                   title="Français"/>
-                                </div>
-                                <div class="collection-panel-title-wrapper">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                                </div>
-                            </div>
-                            <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                                <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
-                                <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
-                                               process="@this"
-                                               update=":collectionParametrageForm"
-                                               styleClass="concept-action-button"
-                                               title="Paramétrage OpenTheso"
-                                               oncomplete="PF('collectionParametrageDialog').show();">
-                                    <i class="pi pi-cog" />
-                                    <p:tooltip value="Paramétrage" position="top"/>
-                                </p:commandLink>
-                                <!-- Bouton Historique -->
-                                <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                               process="@this"
-                                               update="@none"
-                                               styleClass="concept-action-button"
-                                               immediate="true">
-                                    <i class="pi pi-history" />
-                                    <p:tooltip value="Voir l'historique" position="top"/>
-                                </p:commandLink>
-                                <p:commandLink action="#{applicationBean.editEntity()}"
-                                               process="@this"
-                                               update=":contentGroupePanels"
-                                               styleClass="concept-action-button">
-                                    <i class="pi pi-file-edit" />
-                                    <p:tooltip value="Modifier" position="top"/>
-                                </p:commandLink>
-                                <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
-                                               process="@this"
-                                               update=":confirmDeleteDialogContent"
-                                               oncomplete="PF('confirmDeleteDialog').show();"
-                                               styleClass="concept-action-button">
-                                    <i class="pi pi-trash" />
-                                    <p:tooltip value="Supprimer" position="top"/>
-                                </p:commandLink>
-                            </h:panelGroup>
-                        </div>
-
-                        <!-- Grille d'informations -->
-                        <h:form id="groupeEditForm">
-                            <div class="concept-info-grid">
-                                <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-file concept-info-icon" />
-                                        <span>Description</span>
+                    <h:form id="groupeEditForm" styleClass="groupe-header-form-inline">
+                        <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                            <!-- En-tête avec titre et actions (form pour éviter NPE @form) -->
+                            <div class="concept-info-header">
+                                <div class="concept-info-title-section">
+                                    <span class="reference-entity-type-badge">Groupe</span>
+                                    <div class="concept-info-language-flag">
+                                        <h:graphicImage library="img" name="flag/fr.png"
+                                                        styleClass="language-flag"
+                                                        alt="Français"
+                                                        title="Français"/>
                                     </div>
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                                    <div class="collection-panel-title-wrapper">
+                                        <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                        <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                     </div>
+                                </div>
+                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not entityEditModeBean.editingEntityInCatalog}">
+                                    <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
+                                    <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
+                                                   process="@this"
+                                                   update=":collectionParametrageForm"
+                                                   styleClass="concept-action-button"
+                                                   title="Paramétrage OpenTheso"
+                                                   oncomplete="PF('collectionParametrageDialog').show();">
+                                        <i class="pi pi-cog" />
+                                        <p:tooltip value="Paramétrage" position="top"/>
+                                    </p:commandLink>
+                                    <!-- Bouton Historique -->
+                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                   process="@this"
+                                                   update="@none"
+                                                   styleClass="concept-action-button"
+                                                   immediate="true">
+                                        <i class="pi pi-history" />
+                                        <p:tooltip value="Voir l'historique" position="top"/>
+                                    </p:commandLink>
+                                    <p:commandLink action="#{groupBean.startEditingGroupe(applicationBean)}"
+                                                   process="@this"
+                                                   update=":groupeEditForm"
+                                                   styleClass="concept-action-button">
+                                        <i class="pi pi-file-edit" />
+                                        <p:tooltip value="Modifier" position="top"/>
+                                    </p:commandLink>
+                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
+                                                   process="@this"
+                                                   update=":confirmDeleteDialogContent"
+                                                   oncomplete="PF('confirmDeleteDialog').show();"
+                                                   styleClass="concept-action-button">
+                                        <i class="pi pi-trash" />
+                                        <p:tooltip value="Supprimer" position="top"/>
+                                    </p:commandLink>
                                 </h:panelGroup>
+                            </div>
+
+                            <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                                <div class="concept-info-grid">
+                                    <h:panelGroup id="groupeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-file concept-info-icon" />
+                                            <span>Description</span>
+                                        </div>
+                                        <div class="concept-info-value concept-info-description">
+                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
 
                                 <div class="concept-info-item">
                                     <div class="concept-info-label">
@@ -89,8 +89,13 @@
                                     <div class="concept-info-value">
                                         <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
                                             <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                                <p:link outcome="#{applicationBean.selectedEntity.periode.url}"
-                                                        value="#{applicationBean.selectedEntity.periode.valeur}" />
+                                                <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              styleClass="concept-value-external-link">
+                                                    #{applicationBean.selectedEntity.periode.valeur}
+                                                    <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
                                                 #{applicationBean.selectedEntity.periode.valeur}
@@ -146,33 +151,31 @@
                                         </ui:fragment>
                                     </div>
                                 </div>
-                            </div>
-                        </h:form>
-                    </div>
+                            </ui:fragment>
 
-                    <ui:include src="../communs/production.xhtml"/>
+                            <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
+                                <ui:include src="modifier.xhtml"/>
+                            </ui:fragment>
+                        </div>
 
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/description_monnaie.xhtml"/>
-                    </h:panelGroup>
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/description.xhtml"/>
-                    </h:panelGroup>
+                        <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                            <ui:include src="../communs/production.xhtml"/>
 
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                    </h:panelGroup>
-                    <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) != 'MONNAIE'
-                            or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                        <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                    </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
+                                <ui:include src="../communs/description_monnaie.xhtml"/>
+                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                            </h:panelGroup>
 
-                    <ui:include src="../communs/bibliographie.xhtml"/>
+                            <h:panelGroup rendered="#{!applicationBean.isCashTypo()}">
+                                <ui:include src="../communs/description.xhtml"/>
+                                <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                            </h:panelGroup>
 
-                    <ui:include src="intervenants.xhtml"/>
+                            <ui:include src="../communs/bibliographie.xhtml"/>
+
+                            <ui:include src="intervenants.xhtml"/>
+                        </ui:fragment>
+                    </h:form>
                 </div>
             </div>
         </div>

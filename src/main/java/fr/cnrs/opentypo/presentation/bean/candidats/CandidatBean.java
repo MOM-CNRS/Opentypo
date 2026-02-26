@@ -23,6 +23,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.EntityEditModeBean;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
@@ -82,6 +83,9 @@ public class CandidatBean implements Serializable {
 
     @Inject
     private UserBean userBean;
+
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
 
     @Inject
     private LoginBean loginBean;
@@ -263,8 +267,21 @@ public class CandidatBean implements Serializable {
 
     /** Sélection Période pour l'autocomplete */
     private PactolsConcept periodeAutocompleteSelection;
-
-    private boolean fromCatalog;
+    /** Sélections autocomplete pour les thésaurus (remplace la popup OpenTheso) */
+    private PactolsConcept productionAutocompleteSelection;
+    private PactolsConcept aireCirculationAutocompleteSelection;
+    private PactolsConcept fonctionUsageAutocompleteSelection;
+    private PactolsConcept metrologieAutocompleteSelection;
+    private PactolsConcept fabricationFaconnageAutocompleteSelection;
+    private PactolsConcept couleurPateAutocompleteSelection;
+    private PactolsConcept naturePateAutocompleteSelection;
+    private PactolsConcept inclusionsAutocompleteSelection;
+    private PactolsConcept cuissonPostCuissonAutocompleteSelection;
+    private PactolsConcept materiauAutocompleteSelection;
+    private PactolsConcept denominationAutocompleteSelection;
+    private PactolsConcept valeurAutocompleteSelection;
+    private PactolsConcept techniqueAutocompleteSelection;
+    private PactolsConcept fabricationAutocompleteSelection;
 
     // Propriétés pour les auteurs
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
@@ -273,11 +290,27 @@ public class CandidatBean implements Serializable {
     /** PickList pour inviter des validateurs (source = disponibles, target = à inviter) */
     private DualListModel<Long> validateursPickList;
 
+    /** PickList pour assigner des rédacteurs */
+    private DualListModel<Long> redacteursPickList;
+
+    /** PickList pour assigner des relecteurs */
+    private DualListModel<Long> relecteursPickList;
+
     /** Liste des utilisateurs éligibles comme validateurs (groupe Utilisateur) */
     public List<Utilisateur> getValidateursList() {
         if (utilisateurRepository == null) return new ArrayList<>();
         List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
         return list != null ? list : new ArrayList<>();
+    }
+
+    /** Liste des utilisateurs éligibles comme rédacteurs (groupe Utilisateur) */
+    public List<Utilisateur> getRedacteursList() {
+        return getValidateursList();
+    }
+
+    /** Liste des utilisateurs éligibles comme relecteurs (groupe Utilisateur) */
+    public List<Utilisateur> getRelecteursList() {
+        return getValidateursList();
     }
 
     /** Libellé affiché pour un utilisateur dans le PickList (à partir de l'ID) */
@@ -299,7 +332,7 @@ public class CandidatBean implements Serializable {
         return validateursPickList;
     }
 
-    /** Initialise le PickList des validateurs (source = utilisateurs non encore validateurs, target = vide) */
+    /** Initialise le PickList des validateurs (source = disponibles, target = déjà assignés) */
     private void initValidateursPickList(Long entityId) {
         List<Long> sourceIds = getValidateursList().stream()
                 .map(Utilisateur::getId)
@@ -309,7 +342,55 @@ public class CandidatBean implements Serializable {
                 ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.VALIDEUR.getLabel())
                 : new ArrayList<>();
         List<Long> sourceFiltered = sourceIds.stream().filter(id -> !alreadyValidatorIds.contains(id)).toList();
-        validateursPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>());
+        validateursPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(alreadyValidatorIds));
+    }
+
+    /** Retourne le DualModel des rédacteurs à assigner, initialisé si besoin */
+    public DualListModel<Long> getRedacteursPickList() {
+        if (redacteursPickList == null && currentEntity != null && currentEntity.getId() != null) {
+            initRedacteursPickList(currentEntity.getId());
+        }
+        if (redacteursPickList == null) {
+            redacteursPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+        }
+        return redacteursPickList;
+    }
+
+    /** Initialise le PickList des rédacteurs (source = disponibles, target = déjà assignés) */
+    private void initRedacteursPickList(Long entityId) {
+        List<Long> sourceIds = getRedacteursList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> alreadyRedacteurIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.REDACTEUR.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !alreadyRedacteurIds.contains(id)).toList();
+        redacteursPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(alreadyRedacteurIds));
+    }
+
+    /** Retourne le DualModel des relecteurs à assigner, initialisé si besoin */
+    public DualListModel<Long> getRelecteursPickList() {
+        if (relecteursPickList == null && currentEntity != null && currentEntity.getId() != null) {
+            initRelecteursPickList(currentEntity.getId());
+        }
+        if (relecteursPickList == null) {
+            relecteursPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
+        }
+        return relecteursPickList;
+    }
+
+    /** Initialise le PickList des relecteurs (source = disponibles, target = déjà assignés) */
+    private void initRelecteursPickList(Long entityId) {
+        List<Long> sourceIds = getRelecteursList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> alreadyRelecteurIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.RELECTEUR.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !alreadyRelecteurIds.contains(id)).toList();
+        relecteursPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(alreadyRelecteurIds));
     }
 
     /** Liste des noms des validateurs déjà assignés à l'entité */
@@ -319,6 +400,34 @@ public class CandidatBean implements Serializable {
         }
         List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
                 currentEntity.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) return List.of();
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+    }
+
+    /** Liste des noms des rédacteurs déjà assignés à l'entité */
+    public List<String> getRedacteursDisplayNames() {
+        if (currentEntity == null || currentEntity.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                currentEntity.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+        if (userIds == null || userIds.isEmpty()) return List.of();
+        return userIds.stream()
+                .map(this::getUtilisateurDisplayName)
+                .filter(name -> name != null && !name.isBlank())
+                .toList();
+    }
+
+    /** Liste des noms des relecteurs déjà assignés à l'entité */
+    public List<String> getRelecteursDisplayNames() {
+        if (currentEntity == null || currentEntity.getId() == null || userPermissionRepository == null) {
+            return List.of();
+        }
+        List<Long> userIds = userPermissionRepository.findUserIdsByEntityIdAndRole(
+                currentEntity.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
         if (userIds == null || userIds.isEmpty()) return List.of();
         return userIds.stream()
                 .map(this::getUtilisateurDisplayName)
@@ -371,7 +480,64 @@ public class CandidatBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                         added > 0 ? "Invitation(s) envoyée(s) à " + added + " validateur(s)." : "Aucune nouvelle invitation à envoyer."));
-        PrimeFaces.current().ajax().update(":growl, :validateursSection");
+        PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
+    }
+
+    /** Assigne les rédacteurs sélectionnés au brouillon courant (synchronise la base avec la PickList) */
+    @org.springframework.transaction.annotation.Transactional
+    public void assignRedacteurs() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            addErrorMessage("Aucune entité à associer.");
+            return;
+        }
+        if (redacteursPickList == null || redacteursPickList.getTarget() == null) {
+            return;
+        }
+        syncUserPermissionsFromPickList(redacteursPickList, PermissionRoleEnum.REDACTEUR.getLabel());
+        redacteursPickList = null;
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Rédacteurs mis à jour."));
+    }
+
+    /** Assigne les relecteurs sélectionnés au brouillon courant (synchronise la base avec la PickList) */
+    @org.springframework.transaction.annotation.Transactional
+    public void assignRelecteurs() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            addErrorMessage("Aucune entité à associer.");
+            return;
+        }
+        if (relecteursPickList == null || relecteursPickList.getTarget() == null) {
+            return;
+        }
+        syncUserPermissionsFromPickList(relecteursPickList, PermissionRoleEnum.RELECTEUR.getLabel());
+        relecteursPickList = null;
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Relecteurs mis à jour."));
+        PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
+    }
+
+    /** Synchronise les permissions : supprime les existantes pour le rôle puis recrée selon le target de la PickList */
+    private void syncUserPermissionsFromPickList(DualListModel<Long> pickList, String role) {
+        Long entityId = currentEntity.getId();
+        userPermissionRepository.deleteByEntityIdAndRole(entityId, role);
+        List<?> targetList = pickList.getTarget();
+        for (Object raw : targetList) {
+            Long userId = toLong(raw);
+            if (userId == null) continue;
+            Utilisateur utilisateur = utilisateurRepository.findById(userId).orElse(null);
+            if (utilisateur != null) {
+                UserPermission.UserPermissionId id = new UserPermission.UserPermissionId();
+                id.setUserId(userId);
+                id.setEntityId(entityId);
+                UserPermission permission = new UserPermission();
+                permission.setUtilisateur(utilisateur);
+                permission.setEntity(currentEntity);
+                permission.setId(id);
+                permission.setRole(role);
+                permission.setCreateDate(LocalDateTime.now());
+                userPermissionRepository.save(permission);
+            }
+        }
     }
 
     private static Long toLong(Object value) {
@@ -654,8 +820,10 @@ public class CandidatBean implements Serializable {
 
     /**
      * Indique si le brouillon courant (currentEntity) peut être modifié par l'utilisateur connecté.
+     * En mode édition catalogue (groupe), l'édition est autorisée.
      */
     public boolean canEditCurrentBrouillon() {
+        if (entityEditModeBean != null && entityEditModeBean.isEditingEntityInCatalog()) return true;
         if (currentEntity == null || currentEntity.getStatut() == null) return false;
         if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) return false;
         Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
@@ -780,6 +948,21 @@ public class CandidatBean implements Serializable {
         tpq = null;
         taq = null;
         corpusExterne = null;
+        periodeAutocompleteSelection = null;
+        productionAutocompleteSelection = null;
+        aireCirculationAutocompleteSelection = null;
+        fonctionUsageAutocompleteSelection = null;
+        metrologieAutocompleteSelection = null;
+        fabricationFaconnageAutocompleteSelection = null;
+        couleurPateAutocompleteSelection = null;
+        naturePateAutocompleteSelection = null;
+        inclusionsAutocompleteSelection = null;
+        cuissonPostCuissonAutocompleteSelection = null;
+        materiauAutocompleteSelection = null;
+        denominationAutocompleteSelection = null;
+        valeurAutocompleteSelection = null;
+        techniqueAutocompleteSelection = null;
+        fabricationAutocompleteSelection = null;
     }
     
     /**
@@ -837,6 +1020,7 @@ public class CandidatBean implements Serializable {
         corpusExterne = data.getCorpusExterne();
         if (data.getSelectedAuteurs() != null) selectedAuteurs = new ArrayList<>(data.getSelectedAuteurs());
         syncPeriodeAutocompleteFromEntity();
+        syncAllAutocompleteSelectionsFromEntity();
     }
 
     /**
@@ -1143,6 +1327,13 @@ public class CandidatBean implements Serializable {
         return airesCirculation != null ? airesCirculation : new ArrayList<>();
     }
 
+    /** Affichage en lecture seule des aires de circulation (pour le mode non éditable) */
+    public String getAiresCirculationDisplay() {
+        List<ReferenceOpentheso> list = getAiresCirculation();
+        if (list == null || list.isEmpty()) return "";
+        return list.stream().map(ReferenceOpentheso::getValeur).filter(Objects::nonNull).collect(Collectors.joining(", "));
+    }
+
     public void validerCandidat(Candidat candidat) {
         ActionResult r = candidatValidationActionService.validerCandidat(candidat != null ? candidat.getId() : null, loginBean.getCurrentUser());
         applyActionResult(r, ":growl, :candidatsForm");
@@ -1197,7 +1388,6 @@ public class CandidatBean implements Serializable {
     public String visualiserCandidat(Candidat candidat) {
         if (candidat == null) return null;
 
-        fromCatalog = false;
         candidatSelectionne = candidat;
         String defaultLangue = candidat.getLangue() != null ? candidat.getLangue() : (searchBean != null ? searchBean.getLangSelected() : "fr");
         VisualisationPrepareResult res = candidatVisualisationService.prepareVisualisation(candidat.getId(), defaultLangue);
@@ -1236,20 +1426,26 @@ public class CandidatBean implements Serializable {
     public void loadAvailableAuteurs() { availableAuteurs = candidatFormLoadService.loadAuteursSorted(); }
 
     public String enregistrerModifications() {
-            if (currentEntity == null || currentEntity.getId() == null) {
+        if (!performEnregistrerModifications()) return null;
+        return "/candidats/candidats.xhtml?faces-redirect=true";
+    }
+
+    /** Exécute l'enregistrement, retourne true si succès. Utilisé par GroupBean.saveEditingGroupe. */
+    public boolean performEnregistrerModifications() {
+        if (currentEntity == null || currentEntity.getId() == null) {
             addErrorMessage("Aucune entité à enregistrer.");
-                return null;
-            }
+            return false;
+        }
         CandidatVisualisationService.EnregistrerResult res = candidatVisualisationService.enregistrerModifications(currentEntity.getId(), selectedAuteurs,
                 attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
         if (res.success()) {
             addInfoMessage("Les modifications ont été enregistrées avec succès.");
             candidatsLoaded = false;
             chargerCandidats();
-            return res.redirectUrl();
+            return true;
         }
         addErrorMessage(res.errorMessage());
-            return null;
+        return false;
     }
 
     /**
@@ -1443,6 +1639,7 @@ public class CandidatBean implements Serializable {
         if (currentEntity == null || currentEntity.getId() == null) return;
         currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
         fonctionUsage = candidatOpenThesoService.loadFonctionUsage(currentEntity.getId());
+        fonctionUsageAutocompleteSelection = refToConcept(fonctionUsage);
     }
 
     public void deleteFonctionUsage() {
@@ -1528,6 +1725,10 @@ public class CandidatBean implements Serializable {
         currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
         setter.accept(loader.apply(currentEntity.getId()));
     }
+
+    private static PactolsConcept refToConcept(ReferenceOpentheso ref) {
+        return ref != null ? new PactolsConcept(ref.getConceptId(), ref.getUrl(), ref.getValeur()) : null;
+    }
     private void deleteRefAndRefresh(java.util.function.Function<Long, CandidatOpenThesoService.DeleteResult> deleter, java.util.function.Consumer<ReferenceOpentheso> clearer) {
         if (currentEntity == null || currentEntity.getId() == null) return;
         deleter.apply(currentEntity.getId());
@@ -1542,12 +1743,12 @@ public class CandidatBean implements Serializable {
     public boolean hasInclusions() { return hasRef(() -> inclusions, candidatOpenThesoService::loadInclusions, r -> inclusions = r); }
     public boolean hasCuissonPostCuisson() { return hasRef(() -> cuissonPostCuisson, candidatOpenThesoService::loadCuissonPostCuisson, r -> cuissonPostCuisson = r); }
 
-    public void updateMetrologieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMetrologie, r -> metrologie = r); }
-    public void updateFabricationFaconnageFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabrication, r -> fabricationFaconnage = r); }
-    public void updateCouleurPateFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadCouleurPate, r -> couleurPate = r); }
-    public void updateNaturePateFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadNaturePate, r -> naturePate = r); }
-    public void updateInclusionsFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadInclusions, r -> inclusions = r); }
-    public void updateCuissonPostCuissonFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadCuissonPostCuisson, r -> cuissonPostCuisson = r); }
+    public void updateMetrologieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMetrologie, r -> { metrologie = r; metrologieAutocompleteSelection = refToConcept(r); }); }
+    public void updateFabricationFaconnageFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabrication, r -> { fabricationFaconnage = r; fabricationFaconnageAutocompleteSelection = refToConcept(r); }); }
+    public void updateCouleurPateFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadCouleurPate, r -> { couleurPate = r; couleurPateAutocompleteSelection = refToConcept(r); }); }
+    public void updateNaturePateFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadNaturePate, r -> { naturePate = r; naturePateAutocompleteSelection = refToConcept(r); }); }
+    public void updateInclusionsFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadInclusions, r -> { inclusions = r; inclusionsAutocompleteSelection = refToConcept(r); }); }
+    public void updateCuissonPostCuissonFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadCuissonPostCuisson, r -> { cuissonPostCuisson = r; cuissonPostCuissonAutocompleteSelection = refToConcept(r); }); }
 
     public void deleteMetrologie() { deleteRefAndRefresh(candidatOpenThesoService::deleteMetrologie, r -> metrologie = null); }
     public void deleteFabricationFaconnage() { deleteRefAndRefresh(candidatOpenThesoService::deleteFabrication, r -> fabricationFaconnage = null); }
@@ -1574,11 +1775,11 @@ public class CandidatBean implements Serializable {
     public boolean hasTechnique() { return hasRefMonnaie(() -> technique, candidatOpenThesoService::loadTechnique, r -> technique = r); }
     public boolean hasFabrication() { return hasRefMonnaie(() -> fabrication, candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
 
-    public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriau, r -> materiau = r); }
-    public void updateDenominationFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadDenomination, r -> denomination = r); }
-    public void updateValeurFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadValeur, r -> valeur = r); }
-    public void updateTechniqueFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadTechnique, r -> technique = r); }
-    public void updateFabricationMonnaieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
+    public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriau, r -> { materiau = r; materiauAutocompleteSelection = refToConcept(r); }); }
+    public void updateDenominationFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadDenomination, r -> { denomination = r; denominationAutocompleteSelection = refToConcept(r); }); }
+    public void updateValeurFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadValeur, r -> { valeur = r; valeurAutocompleteSelection = refToConcept(r); }); }
+    public void updateTechniqueFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadTechnique, r -> { technique = r; techniqueAutocompleteSelection = refToConcept(r); }); }
+    public void updateFabricationMonnaieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabricationMonnaie, r -> { fabrication = r; fabricationAutocompleteSelection = refToConcept(r); }); }
 
     public void saveMetrologieMonnaie() {
         if (currentEntity != null && currentEntity.getId() != null) {
@@ -1700,8 +1901,10 @@ public class CandidatBean implements Serializable {
      */
     public void updateProductionFromOpenTheso() {
         if (currentEntity != null && currentEntity.getId() != null) {
-            candidatProduction = candidatOpenThesoService.loadProductionValue(currentEntity.getId());
             currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
+            candidatProduction = candidatOpenThesoService.loadProductionValue(currentEntity.getId());
+            ReferenceOpentheso p = currentEntity.getProduction();
+            productionAutocompleteSelection = refToConcept(p);
         }
     }
 
@@ -1861,6 +2064,23 @@ public class CandidatBean implements Serializable {
         }
     }
 
+    /** Synchronise toutes les sélections autocomplete thésaurus à partir des données chargées. */
+    private void syncAllAutocompleteSelectionsFromEntity() {
+        productionAutocompleteSelection = refToConcept(currentEntity != null ? currentEntity.getProduction() : null);
+        fonctionUsageAutocompleteSelection = refToConcept(fonctionUsage);
+        metrologieAutocompleteSelection = refToConcept(metrologie);
+        fabricationFaconnageAutocompleteSelection = refToConcept(fabricationFaconnage);
+        couleurPateAutocompleteSelection = refToConcept(couleurPate);
+        naturePateAutocompleteSelection = refToConcept(naturePate);
+        inclusionsAutocompleteSelection = refToConcept(inclusions);
+        cuissonPostCuissonAutocompleteSelection = refToConcept(cuissonPostCuisson);
+        materiauAutocompleteSelection = refToConcept(materiau);
+        denominationAutocompleteSelection = refToConcept(denomination);
+        valeurAutocompleteSelection = refToConcept(valeur);
+        techniqueAutocompleteSelection = refToConcept(technique);
+        fabricationAutocompleteSelection = refToConcept(fabrication);
+    }
+
     /** Enregistre la période sélectionnée ou saisie dans l'autocomplete. */
     public void savePeriodeFromAutocomplete() {
         PactolsConcept conceptToSave = periodeAutocompleteSelection;
@@ -1877,6 +2097,77 @@ public class CandidatBean implements Serializable {
         updatePeriodeFromOpenTheso();
     }
 
+    /** Enregistre depuis l'autocomplete pour les champs thésaurus (remplace la popup). */
+    public void saveProductionFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.PRODUCTION, productionAutocompleteSelection, "production");
+        updateProductionFromOpenTheso();
+        productionAutocompleteSelection = null;
+    }
+    public void addAireCirculationFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.AIRE_CIRCULATION, aireCirculationAutocompleteSelection, "aire de circulation");
+        updateAireCirculationFromOpenTheso();
+        aireCirculationAutocompleteSelection = null;
+    }
+    public void saveFonctionUsageFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.FONCTION_USAGE, fonctionUsageAutocompleteSelection, "fonction/usage");
+        updateFonctionUsageFromOpenTheso();
+    }
+    public void saveMetrologieFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.METROLOGIE, metrologieAutocompleteSelection, "métrologie");
+        updateMetrologieFromOpenTheso();
+        metrologieAutocompleteSelection = null;
+    }
+    public void saveFabricationFaconnageFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, fabricationFaconnageAutocompleteSelection, "fabrication/façonnage");
+        updateFabricationFaconnageFromOpenTheso();
+        fabricationFaconnageAutocompleteSelection = null;
+    }
+    public void saveCouleurPateFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.COULEUR_PATE, couleurPateAutocompleteSelection, "couleur de pâte");
+        updateCouleurPateFromOpenTheso();
+        couleurPateAutocompleteSelection = null;
+    }
+    public void saveNaturePateFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.NATURE_PATE, naturePateAutocompleteSelection, "nature de pâte");
+        updateNaturePateFromOpenTheso();
+        naturePateAutocompleteSelection = null;
+    }
+    public void saveInclusionsFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.INCLUSIONS, inclusionsAutocompleteSelection, "inclusions");
+        updateInclusionsFromOpenTheso();
+        inclusionsAutocompleteSelection = null;
+    }
+    public void saveCuissonPostCuissonFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, cuissonPostCuissonAutocompleteSelection, "cuisson/post-cuisson");
+        updateCuissonPostCuissonFromOpenTheso();
+        cuissonPostCuissonAutocompleteSelection = null;
+    }
+    public void saveMateriauFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.MATERIAU, materiauAutocompleteSelection, "matériau");
+        updateMateriauFromOpenTheso();
+        materiauAutocompleteSelection = null;
+    }
+    public void saveDenominationFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.DENOMINATION, denominationAutocompleteSelection, "dénomination");
+        updateDenominationFromOpenTheso();
+        denominationAutocompleteSelection = null;
+    }
+    public void saveValeurFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.VALEUR, valeurAutocompleteSelection, "valeur");
+        updateValeurFromOpenTheso();
+        valeurAutocompleteSelection = null;
+    }
+    public void saveTechniqueFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.TECHNIQUE, techniqueAutocompleteSelection, "technique");
+        updateTechniqueFromOpenTheso();
+        techniqueAutocompleteSelection = null;
+    }
+    public void saveFabricationFromAutocomplete() {
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.FABRICATION, fabricationAutocompleteSelection, "fabrication");
+        updateFabricationMonnaieFromOpenTheso();
+        fabricationAutocompleteSelection = null;
+    }
+
     /**
      * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
      */
@@ -1889,10 +2180,6 @@ public class CandidatBean implements Serializable {
     public void returnFromViewPage() throws IOException {
 
         String pageDestination = "/candidats/candidats.xhtml";
-        if (fromCatalog) {
-            fromCatalog = false;
-            pageDestination = "/index.xhtml";
-        }
         FacesContext.getCurrentInstance().getExternalContext()
                 .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + pageDestination);
     }

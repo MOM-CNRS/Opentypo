@@ -889,6 +889,7 @@ public class CollectionBean implements Serializable {
         return null;
     }
 
+    @Transactional
     public void createCollection(ApplicationBean applicationBean) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
