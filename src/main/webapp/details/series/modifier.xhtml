@@ -1,0 +1,71 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="wizard-content candidats-p-20">
+        <h:panelGroup rendered="#{openThesoDialogBean.isPeriodeParametrageMissing()}" layout="block" styleClass="periode-parametrage-info-banner">
+            <i class="pi pi-info-circle periode-parametrage-info-icon" />
+            <div class="periode-parametrage-info-content">
+                <strong>Connexion OpenTheso non paramétrée</strong>
+                <p>Le gestionnaire doit configurer OpenTheso pour cette série.</p>
+            </div>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 5}">
+            <ui:include src="../../candidats/form/labels-form.xhtml"/>
+        </h:panelGroup>
+
+        <ui:include src="../../candidats/form/descriptions-form.xhtml"/>
+
+        <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId != 2}">
+            <ui:include src="../../candidats/form/periode-tpq-taq.xhtml"/>
+
+            <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+                <ui:include src="../../candidats/form/appelation_type.xhtml"/>
+                <ui:include src="../../candidats/form/relations_type.xhtml"/>
+            </h:panelGroup>
+
+            <ui:include src="../../candidats/form/production.xhtml"/>
+
+            <h:panelGroup rendered="#{candidatBean.getCollectionLabel() != 'MONNAIE' and candidatBean.getCollectionLabel() != 'CASH'}">
+                <ui:include src="../../candidats/form/details.xhtml"/>
+                <ui:include src="../../candidats/form/caracteristiques-physiques.xhtml"/>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{candidatBean.getCollectionLabel() == 'MONNAIE' or candidatBean.getCollectionLabel() == 'CASH'}">
+                <ui:include src="../../candidats/form/description-monnaie.xhtml"/>
+                <ui:include src="../../candidats/form/caracteristiques-physiques-monnaie.xhtml"/>
+            </h:panelGroup>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{candidatBean.selectedEntityTypeId == 5}">
+            <ui:include src="../../candidats/form/details_type.xhtml"/>
+        </h:panelGroup>
+
+        <ui:include src="../../candidats/form/bibliographie.xhtml"/>
+
+        <ui:include src="../../candidats/form/invite_validateur.xhtml"/>
+    </div>
+
+    <div class="collection-edit-actions candidats-mt-20">
+        <p:commandButton value="Retour"
+                         action="#{serieBean.cancelEditingSerie(applicationBean)}"
+                         process="@this"
+                         update=":serieEditForm :growl"
+                         styleClass="collection-edit-btn collection-edit-btn-cancel"
+                         immediate="true"/>
+    </div>
+
+    <h:outputStylesheet library="css" name="candidats/candidats-forms-common.css"/>
+    <h:outputStylesheet library="css" name="candidats/candidats-group-form.css"/>
+    <h:outputStylesheet library="css" name="candidats/candidats-category-form.css"/>
+    <ui:include src="../../candidats/dialogs/confirmDeleteReferenceDialog.xhtml"/>
+    <ui:include src="../../candidats/dialogs/confirmValidateurInvitationDialog.xhtml"/>
+
+    <style>
+        .wizard-content .users-form-group > label, .wizard-content .users-form-group .ui-outputlabel {
+            font-size: 0.85rem !important;
+        }
+    </style>
+</ui:composition>

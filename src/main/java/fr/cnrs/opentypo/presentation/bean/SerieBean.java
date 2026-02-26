@@ -4,6 +4,9 @@ import fr.cnrs.opentypo.application.dto.DescriptionItem;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
+import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
@@ -68,6 +71,12 @@ public class SerieBean implements Serializable {
     @Inject
     private LangueRepository langueRepository;
 
+    @Inject
+    private CandidatBean candidatBean;
+
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
+
     private String serieCode;
     private String serieLabel;
     private String serieDescription;
@@ -96,6 +105,31 @@ public class SerieBean implements Serializable {
         newNameLangueCode = null;
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
+    }
+
+    /** Active le mode édition in-place pour la série sélectionnée (comme GroupBean.startEditingGroupe). */
+    public void startEditingSerie(ApplicationBean appBean) {
+        if (appBean == null || appBean.getSelectedEntity() == null) return;
+        Entity entity = appBean.getSelectedEntity();
+        if (entity.getEntityType() == null || !EntityConstants.ENTITY_TYPE_SERIES.equals(entity.getEntityType().getCode())) return;
+        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
+        candidatBean.visualiserCandidat(candidat);
+        entityEditModeBean.startEditing();
+    }
+
+    /** Annule le mode édition et rafraîchit l'entité. */
+    public void cancelEditingSerie(ApplicationBean appBean) {
+        entityEditModeBean.cancelEditing();
+        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
+            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
+        }
+    }
+
+    /** Enregistre les modifications et sort du mode édition si succès. */
+    public void saveEditingSerie(ApplicationBean appBean) {
+        if (candidatBean.performEnregistrerModifications()) {
+            cancelEditingSerie(appBean);
+        }
     }
 
     public void prepareCreateSerie() {
