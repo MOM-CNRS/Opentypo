@@ -12,7 +12,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/opentypo2
+    url: jdbc:postgresql://localhost:5432/opentypo
     username: postgres
     password: postgres
   flyway:
