@@ -81,6 +81,22 @@
     flex: 1;
 }
 
+/* En-tête détail collection : titre + icône non publié sur une ligne */
+.collection-panel-title-wrapper.collection-detail-title-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-not-published-icon {
+    color: #e67e22;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.collection-not-published-icon i {
+    vertical-align: middle;
+}
+
 .collection-panel-title-link {
     text-decoration: none;
     color: inherit;

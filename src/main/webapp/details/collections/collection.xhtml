@@ -17,8 +17,13 @@
                                                 alt="Français"
                                                 title="Français"/>
                             </div>
-                            <div class="collection-panel-title-wrapper">
+                            <div class="collection-panel-title-wrapper collection-detail-title-row">
                                 <h3 class="collection-panel-title">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</h3>
+                                <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
+                                              styleClass="collection-not-published-icon">
+                                    <i class="pi pi-clock"/>
+                                    <p:tooltip value="Collection non publiée" position="top"/>
+                                </h:panelGroup>
                             </div>
                         </div>
                         <!-- Actions (masquées en mode édition) -->
