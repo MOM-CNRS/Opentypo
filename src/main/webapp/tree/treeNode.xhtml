@@ -14,14 +14,21 @@
              data-entity-id="#{treeBean.getEntityIdFromNode(node)}"
              data-code="#{treeBean.getEntityCodeFromNode(node)}">
 
-            <!-- Toggler : état initial droite, au clic vers le bas. Style : .simple-tree-toggler ou variables tree-toggler dans openTypo_style.css -->
-            <h:panelGroup rendered="#{node.childCount > 0 or (treeBean.canHaveChildren(node) and not treeBean.isKnownToHaveNoChildren(node))}">
-                <span class="simple-tree-toggler ui-tree-toggler"
-                      data-tree-toggler="true"
-                      aria-label="#{node.expanded ? 'Réduire' : 'Développer'}"
-                      title="#{node.expanded ? 'Réduire' : 'Développer'}">
-                    <i class="pi pi-chevron-right simple-tree-toggler-icon" aria-hidden="true"/>
-                </span>
+            <!-- Toggler : chevron cliquable si enfants possibles ; icône fixe si aucun enfant ; placeholder pour feuilles (alignement) -->
+            <h:panelGroup rendered="#{node.childCount > 0 or treeBean.canHaveChildren(node) or treeBean.isLeafEntityType(node)}">
+                <ui:fragment rendered="#{(node.childCount > 0 or not treeBean.isKnownToHaveNoChildren(node)) and not treeBean.isLeafEntityType(node)}">
+                    <span class="simple-tree-toggler ui-tree-toggler"
+                          data-tree-toggler="true"
+                          aria-label="#{node.expanded ? 'Réduire' : 'Développer'}"
+                          title="#{node.expanded ? 'Réduire' : 'Développer'}">
+                        <i class="pi pi-chevron-right simple-tree-toggler-icon" aria-hidden="true"/>
+                    </span>
+                </ui:fragment>
+                <ui:fragment rendered="#{treeBean.isKnownToHaveNoChildren(node) or treeBean.isLeafEntityType(node)}">
+                    <span class="simple-tree-leaf-placeholder" aria-hidden="true" title="Aucun sous-élément">
+                        <i class="pi pi-circle simple-tree-leaf-placeholder-icon"/>
+                    </span>
+                </ui:fragment>
             </h:panelGroup>
 
             <i class="#{treeBean.getEntityIcon(node)} simple-tree-node-icon"/>

@@ -544,7 +544,10 @@ function showPanelLoading(panelId, message, type) {
     
     panelLoadingActive = true;
     
-    const panel = document.getElementById(panelId);
+    let panel = document.getElementById(panelId);
+    if (!panel && panelId === 'leftTreePanel') {
+        panel = document.querySelector('.left-tree');
+    }
     if (!panel) {
         console.warn('Panel non trouvé:', panelId);
         return;

@@ -512,7 +512,7 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Indique si le nœud peut avoir des enfants (types collection, référentiel, catégorie, groupe).
+     * Indique si le nœud peut avoir des enfants (collection, référentiel, catégorie, groupe, série).
      * Utilisé pour afficher le toggler même quand les enfants ne sont pas encore chargés (lazy load).
      */
     public boolean canHaveChildren(Object node) {
@@ -522,7 +522,18 @@ public class TreeBean implements Serializable {
         return EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)
                 || EntityConstants.ENTITY_TYPE_REFERENCE.equals(code)
                 || EntityConstants.ENTITY_TYPE_CATEGORY.equals(code)
-                || EntityConstants.ENTITY_TYPE_GROUP.equals(code);
+                || EntityConstants.ENTITY_TYPE_GROUP.equals(code)
+                || EntityConstants.ENTITY_TYPE_SERIES.equals(code);
+    }
+
+    /**
+     * Indique si le nœud est une feuille (type TYPE) sans enfant possible.
+     * Permet d'afficher l'icône placeholder pour l'alignement visuel.
+     */
+    public boolean isLeafEntityType(Object node) {
+        Entity entity = getEntityFromNode(node);
+        return entity != null && entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode());
     }
 
     /**

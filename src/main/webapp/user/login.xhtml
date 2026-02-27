@@ -82,7 +82,8 @@
                     <p:commandButton value="Se connecter"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login(applicationBean)}"
-                                     update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm, :searchForm"
+                                     update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm, :searchForm, :leftTreePanel"
+                                     oncomplete="if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();"
                                      styleClass="modern-login-btn modern-login-btn-primary"
                                      process="@this username password" ajax="true" />
                 </div>

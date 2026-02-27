@@ -128,7 +128,13 @@ public class LoginBean implements Serializable {
             
             // Recharger les collections pour inclure les collections privées maintenant que l'utilisateur est connecté
             applicationBean.loadAllCollections();
-            
+
+            // Recharger l'arbre avec les éléments visibles selon le profil (conserve l'élément sélectionné)
+            TreeBean treeBean = applicationBean.getTreeBean();
+            if (treeBean != null) {
+                treeBean.initializeTreeWithCollection();
+            }
+
             notificationBean.showSuccessWithUpdate("Connexion réussie",
                 "Bienvenue dans votre espace de recherche, " + displayName + ".",
                 ":growl, :headerForm, :sidebarForm, :create-collection-section, :centerContent");

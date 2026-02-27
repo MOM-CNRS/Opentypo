@@ -59,6 +59,15 @@
                 targetLi.classList.add('expanded');
                 if (ul && ul.querySelectorAll('li.simple-tree-node').length === 0) {
                     targetLi.classList.add('simple-tree-node-empty-children');
+                    /* Remplacer le toggler par une icône fixe (pas de clic) */
+                    var toggler = targetLi.querySelector('.simple-tree-toggler[data-tree-toggler]');
+                    if (toggler) {
+                        toggler.removeAttribute('data-tree-toggler');
+                        toggler.setAttribute('aria-hidden', 'true');
+                        toggler.className = 'simple-tree-leaf-placeholder';
+                        toggler.title = 'Aucun sous-élément';
+                        toggler.innerHTML = '<i class="pi pi-circle simple-tree-leaf-placeholder-icon" aria-hidden="true"></i>';
+                    }
                 }
             });
         });

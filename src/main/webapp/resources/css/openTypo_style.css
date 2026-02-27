@@ -3235,13 +3235,38 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     display: inline-flex !important;
     transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
-.simple-tree .simple-tree-node.expanded .simple-tree-toggler .simple-tree-toggler-icon {
+/* Uniquement le toggler du nœud lui-même (> évite d'affecter les enfants) */
+.simple-tree .simple-tree-node.expanded > .simple-tree-node-content .simple-tree-toggler .simple-tree-toggler-icon,
+.simple-tree .simple-tree-node.expanded > .ui-treenode-content .simple-tree-toggler .simple-tree-toggler-icon {
     transform: rotate(90deg);
 }
 
-/* Nœud déplié sans enfant : masquer le toggler (injection AJAX ou rendu) */
-.simple-tree .simple-tree-node.simple-tree-node-empty-children .simple-tree-toggler {
-    display: none !important;
+/* Nœud sans enfant : placeholder (petite icône) à la place du toggler - même empreinte visuelle */
+.simple-tree .simple-tree-leaf-placeholder {
+    width: var(--tree-toggler-size, 1.25rem) !important;
+    height: var(--tree-toggler-size, 1.25rem) !important;
+    min-width: var(--tree-toggler-size, 1.25rem) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    color: var(--color-text-secondary, #819A91) !important;
+    opacity: 0.6 !important;
+    cursor: default !important;
+}
+.simple-tree .simple-tree-leaf-placeholder-icon {
+    font-size: 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+    .simple-tree .simple-tree-leaf-placeholder {
+        width: 1.375rem !important;
+        height: 1.375rem !important;
+        min-width: 1.375rem !important;
+    }
+    .simple-tree .simple-tree-leaf-placeholder-icon {
+        font-size: 0.55rem !important;
+    }
 }
 
 /* Enfants : replié par défaut, déplié quand .expanded - transition fluide */

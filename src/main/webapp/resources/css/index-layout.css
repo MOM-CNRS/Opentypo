@@ -37,6 +37,7 @@
 
 /* ---- 3. Panneau arbre (gauche) - hauteur intégrale disponible ---- */
 .left-tree {
+    position: relative !important;
     flex: 0 0 280px !important;
     min-width: 0 !important;
     max-width: 320px !important;
