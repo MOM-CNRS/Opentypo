@@ -39,11 +39,11 @@
 
                             <p:commandLink action="#{collectionBean.startEditingCollection(applicationBean)}"
                                            process="@this"
-                                           update=":collectionEditForm"
+                                           update=":centerContent"
                                            styleClass="concept-action-button"
                                            title="Modifier la collection"
                                            onstart="showLoading('Chargement...', 'spinner');"
-                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 0);"
                                            onerror="forceHideLoading();">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>

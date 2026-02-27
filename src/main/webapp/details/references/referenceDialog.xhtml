@@ -30,12 +30,14 @@
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code du référentiel</span>
                     </div>
-                    <p:inputText id="referenceCode"
-                               value="#{referenceBean.referenceCode}"
-                               required="true"
-                               requiredMessage="Le code du référentiel est requis"
-                               styleClass="reference-input"
-                               placeholder="Ex: REF001"/>
+                    <div class="input-wrapper periode-input-wrapper collection-select">
+                        <p:inputText id="referenceCode"
+                                     value="#{referenceBean.referenceCode}"
+                                     required="true"
+                                     requiredMessage="Le code du référentiel est requis"
+                                     styleClass="reference-input"
+                                     placeholder="Ex: REF001"/>
+                    </div>
                 </div>
 
                 <!-- Section Labels -->
@@ -45,7 +47,7 @@
                         <span>Labels</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputText id="newNameInput"
                                        value="#{referenceBean.newNameValue}"
                                        placeholder="Nom"
@@ -120,7 +122,7 @@
                         <span>Descriptions</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                            value="#{referenceBean.newDescriptionValue}"
                                            placeholder="Description"
