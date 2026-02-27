@@ -345,14 +345,14 @@ public class Entity implements Serializable {
     /**
      * Obtient la référence bibliographique depuis les métadonnées
      */
-    public String getRereferenceBibliographique() {
+    public String getReferenceBibliographique() {
         return metadata != null ? metadata.getRereferenceBibliographique() : null;
     }
 
     /**
      * Définit la référence bibliographique dans les métadonnées
      */
-    public void setRereferenceBibliographique(String rereferenceBibliographique) {
+    public void setReferenceBibliographique(String rereferenceBibliographique) {
         ensureMetadata();
         metadata.setRereferenceBibliographique(rereferenceBibliographique);
     }

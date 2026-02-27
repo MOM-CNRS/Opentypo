@@ -42,6 +42,9 @@ public class TreeBean implements Serializable {
     private transient Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
+    private transient Provider<CollectionBean> collectionBeanProvider;
+
+    @Inject
     private transient CategoryService categoryService;
 
     @Inject
@@ -52,9 +55,6 @@ public class TreeBean implements Serializable {
 
     @Inject
     private transient TypeService typeService;
-
-    @Inject
-    private transient CollectionBean collectionBean;
 
     @Inject
     private transient TreeService treeService;
@@ -214,7 +214,7 @@ public class TreeBean implements Serializable {
         assert appBean != null;
         switch(entity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
-                collectionBean.showCollectionDetail(appBean, entity);
+                collectionBeanProvider.get().showCollectionDetail(appBean, entity);
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 appBean.showReferenceDetail(entity);

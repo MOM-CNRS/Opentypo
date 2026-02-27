@@ -175,9 +175,9 @@ public class CandidatEntityService {
             refreshedEntity.setBibliographie(bibliographie.trim());
         }
         if (referencesBibliographiques != null && !referencesBibliographiques.isEmpty()) {
-            refreshedEntity.setRereferenceBibliographique(referencesBibliographiques);
+            refreshedEntity.setReferenceBibliographique(referencesBibliographiques);
         } else {
-            refreshedEntity.setRereferenceBibliographique(null);
+            refreshedEntity.setReferenceBibliographique(null);
         }
         if (ateliers != null && !ateliers.isEmpty()) {
             refreshedEntity.setAteliers(ateliers);

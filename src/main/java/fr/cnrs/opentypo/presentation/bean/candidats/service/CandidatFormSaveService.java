@@ -67,7 +67,7 @@ public class CandidatFormSaveService {
     @Transactional
     public void saveReferencesBibliographiques(Long entityId, List<String> refs) {
         String joined = (refs != null && !refs.isEmpty()) ? String.join("; ", refs) : null;
-        updateEntity(entityId, e -> e.setRereferenceBibliographique(joined));
+        updateEntity(entityId, e -> e.setReferenceBibliographique(joined));
     }
 
     @Transactional

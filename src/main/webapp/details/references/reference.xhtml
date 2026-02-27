@@ -202,8 +202,8 @@
                             </div>
                             <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getRereferenceBibliographique()}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getRereferenceBibliographique(), ';')}" var="ref" varStatus="status">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getReferenceBibliographique()}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getReferenceBibliographique(), ';')}" var="ref" varStatus="status">
                                             <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
                                                 <span class="bibliographie-badge">
                                                     <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
@@ -212,7 +212,7 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Aucune référence bibliographique disponible"
-                                                 rendered="#{empty applicationBean.selectedEntity.getRereferenceBibliographique()}"
+                                                 rendered="#{empty applicationBean.selectedEntity.getReferenceBibliographique()}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
                             </ui:fragment>

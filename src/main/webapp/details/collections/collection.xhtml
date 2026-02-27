@@ -159,44 +159,7 @@
 
     <!-- 2. Liste des référentiels (masquée en mode édition) -->
     <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
-        <h:form id="collectionReferencesForm">
-            <p:remoteCommand name="openEditReferenceDialog"
-                            action="#{referenceBean.prepareEditReferenceInDialogFromRequest()}"
-                            process="@this"
-                            update=":referenceDialog :referenceDialogForm"
-                            oncomplete="PF('referenceDialog').show();"/>
-
-            <p:remoteCommand name="openDeleteReferenceConfirm"
-                            action="#{confirmDeleteBean.prepareDeleteReferenceFromRequest()}"
-                            process="@this"
-                            update=":confirmDeleteDialogContent"
-                            oncomplete="PF('confirmDeleteDialog').show();"/>
-
-            <div class="collection-references-header details-mt-20">
-                <div class="collection-references-title-section">
-                    <div class="collection-references-icon">
-                        <i class="pi pi-database" />
-                    </div>
-                    <div class="collection-references-title-wrapper">
-                        <h3 class="collection-references-title">Liste des référentiels</h3>
-                        <span class="collection-references-subtitle">
-                            #{applicationBean.getEntityLabel(applicationBean.selectedEntity)}
-                        </span>
-                    </div>
-                </div>
-                <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
-                    <p:commandButton value="Créer une nouvelle référence"
-                                     icon="pi pi-plus"
-                                     styleClass="collection-create-btn"
-                                     action="#{referenceBean.prepareCreateReference}"
-                                     process="@this"
-                                     update=":referenceDialog :referenceDialogForm"
-                                     oncomplete="PF('referenceDialog').show();"/>
-                </h:panelGroup>
-            </div>
-
-            <ui:include src="liste_references.xhtml"/>
-        </h:form>
+        <ui:include src="liste_references.xhtml"/>
     </ui:fragment>
 
     <h:outputStylesheet library="css" name="collection.css"/>

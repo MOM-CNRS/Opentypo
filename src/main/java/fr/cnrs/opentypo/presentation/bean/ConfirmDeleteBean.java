@@ -70,20 +70,6 @@ public class ConfirmDeleteBean implements Serializable {
         this.deleteTargetEntityId = referenceId;
     }
 
-    /**
-     * Prépare la suppression depuis le paramètre de requête "referenceId".
-     */
-    public void prepareDeleteReferenceFromRequest() {
-        String idParam = jakarta.faces.context.FacesContext.getCurrentInstance().getExternalContext()
-                .getRequestParameterMap().get("referenceId");
-        if (idParam != null && !idParam.trim().isEmpty()) {
-            try {
-                prepareDeleteReference(Long.parseLong(idParam.trim()));
-            } catch (NumberFormatException ignored) {
-            }
-        }
-    }
-
     public String getDialogTitle() {
         if (deleteTarget == null) return "Confirmer la suppression";
         switch (deleteTarget) {

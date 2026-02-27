@@ -482,6 +482,44 @@
     background: rgba(71, 98, 77, 0.02);
 }
 
+/* Cadre principal : fait apparaître la section « Liste des référentiels » comme une partie distincte */
+.references-list-frame {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.18);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(71, 98, 77, 0.08);
+}
+
+.references-list-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, transparent 100%);
+    opacity: 0.3;
+    border-radius: 16px 16px 0 0;
+}
+
+@media (max-width: 768px) {
+    .references-list-frame {
+        margin-top: 1.25rem;
+        padding: 1.25rem;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .references-list-frame {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .collections-grid {
         grid-template-columns: 1fr;

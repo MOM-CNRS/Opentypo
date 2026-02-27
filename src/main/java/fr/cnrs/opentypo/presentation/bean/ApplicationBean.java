@@ -107,13 +107,13 @@ public class ApplicationBean implements Serializable {
     private CollectionBean collectionBean;
 
     @Inject
-    private TreeBean treeBean;
+    private Provider<TreeBean> treeBeanProvider;
 
     @Inject
     private UserBean userBean;
 
     @Inject
-    private CandidatBean candidatBean;
+    private Provider<CandidatBean> candidatBeanProvider;
 
     @Autowired
     private CollectionService collectionService;
@@ -165,6 +165,20 @@ public class ApplicationBean implements Serializable {
         checkSessionExpiration();
         loadLanguages();
         loadAllCollections();
+    }
+
+    /**
+     * Retourne le TreeBean (résolution paresseuse via Provider pour éviter la dépendance circulaire).
+     */
+    public TreeBean getTreeBean() {
+        return treeBeanProvider != null ? treeBeanProvider.get() : null;
+    }
+
+    /**
+     * Retourne le CandidatBean (résolution paresseuse via Provider pour éviter la dépendance circulaire).
+     */
+    public CandidatBean getCandidatBean() {
+        return candidatBeanProvider != null ? candidatBeanProvider.get() : null;
     }
 
     /**
@@ -994,7 +1008,7 @@ public class ApplicationBean implements Serializable {
         panelState.showGroupe();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        treeBean.expandPathAndSelectEntity(selectedEntity);
+        getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
     /**
@@ -1005,8 +1019,8 @@ public class ApplicationBean implements Serializable {
         panelState.showReference();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
         refreshChilds();
-        treeBean.selectReferenceNode(reference);
-        treeBean.loadChildForEntity(reference);
+        getTreeBean().selectReferenceNode(reference);
+        getTreeBean().loadChildForEntity(reference);
     }
 
     public void refreshCollectionReferencesList() {
@@ -1033,7 +1047,7 @@ public class ApplicationBean implements Serializable {
         panelState.showSerie();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        treeBean.expandPathAndSelectEntity(selectedEntity);
+        getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
     public void showType() {
@@ -1048,7 +1062,7 @@ public class ApplicationBean implements Serializable {
         panelState.showType();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        treeBean.expandPathAndSelectEntity(selectedEntity);
+        getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
     /**
@@ -1059,7 +1073,7 @@ public class ApplicationBean implements Serializable {
         panelState.showCategory();
         refreshChilds();
         beadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        treeBean.expandPathAndSelectEntity(category);
+        getTreeBean().expandPathAndSelectEntity(category);
     }
 
     public void refreshCategoryGroupsList() {
@@ -1143,7 +1157,7 @@ public class ApplicationBean implements Serializable {
 
     public void editEntity() throws IOException {
         Candidat candidat = new CandidatConverter().convertEntityToCandidat(selectedEntity);
-        candidatBean.visualiserCandidat(candidat);
+        getCandidatBean().visualiserCandidat(candidat);
 
         FacesContext.getCurrentInstance().getExternalContext()
                 .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");

@@ -165,7 +165,7 @@ public class CandidatSauvegardeService {
                 entity.setImagePrincipaleUrl(req.getImagePrincipaleUrl().trim());
             }
             if (req.getReferencesBibliographiques() != null && !req.getReferencesBibliographiques().isEmpty()) {
-                entity.setRereferenceBibliographique(String.join("; ", req.getReferencesBibliographiques()));
+                entity.setReferenceBibliographique(String.join("; ", req.getReferencesBibliographiques()));
             }
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
             if (req.getTypeDescription() != null && !req.getTypeDescription().trim().isEmpty()) {

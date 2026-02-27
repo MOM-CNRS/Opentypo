@@ -704,9 +704,9 @@ public class ReferenceBean implements Serializable {
                             .collect(Collectors.joining("; "))
                     : null;
             if (newBib != null && newBib.isEmpty()) newBib = null;
-            String currentBib = referenceToUpdate.getRereferenceBibliographique();
+            String currentBib = referenceToUpdate.getReferenceBibliographique();
             if (!Objects.equals(newBib, currentBib)) {
-                referenceToUpdate.setRereferenceBibliographique(newBib);
+                referenceToUpdate.setReferenceBibliographique(newBib);
             }
 
             // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
@@ -864,7 +864,7 @@ public class ReferenceBean implements Serializable {
         editingDescriptionLangueCode = codeLang;
         editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
         editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        String bibStr = applicationBean.getSelectedReference().getRereferenceBibliographique();
+        String bibStr = applicationBean.getSelectedReference().getReferenceBibliographique();
         editingReferenceBibliographie = bibStr != null ? bibStr : "";
         editingReferenceBibliographiqueList = new ArrayList<>();
         if (bibStr != null && !bibStr.isEmpty()) {
@@ -918,7 +918,7 @@ public class ReferenceBean implements Serializable {
                         .collect(Collectors.joining("; "));
                 if (bibJoined.isEmpty()) bibJoined = null;
             }
-            referenceToUpdate.setRereferenceBibliographique(bibJoined);
+            referenceToUpdate.setReferenceBibliographique(bibJoined);
 
             // Mise à jour des labels
             if (referenceToUpdate.getLabels() == null) {
@@ -1004,7 +1004,7 @@ public class ReferenceBean implements Serializable {
                 .collect(Collectors.joining("; "));
             if (bibJoined.isEmpty()) bibJoined = null;
         }
-        newReference.setRereferenceBibliographique(bibJoined);
+        newReference.setReferenceBibliographique(bibJoined);
 
         newReference.setEntityType(type);
         newReference.setPublique(referencePublique != null ? referencePublique : true);

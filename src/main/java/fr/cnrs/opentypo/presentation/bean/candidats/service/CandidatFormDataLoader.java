@@ -81,9 +81,9 @@ public class CandidatFormDataLoader {
         }
 
         List<String> refsBiblio = new ArrayList<>();
-        if (refreshedEntity.getRereferenceBibliographique() != null
-                && !refreshedEntity.getRereferenceBibliographique().isEmpty()) {
-            refsBiblio = new ArrayList<>(Arrays.asList(refreshedEntity.getRereferenceBibliographique().split("; ")));
+        if (refreshedEntity.getReferenceBibliographique() != null
+                && !refreshedEntity.getReferenceBibliographique().isEmpty()) {
+            refsBiblio = new ArrayList<>(Arrays.asList(refreshedEntity.getReferenceBibliographique().split("; ")));
         }
 
         List<String> ateliersList = new ArrayList<>();
