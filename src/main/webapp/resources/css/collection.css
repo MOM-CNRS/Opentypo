@@ -1152,6 +1152,72 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* ============================================
+   FORMULAIRE MODIFIER COLLECTION (modifier.xhtml)
+   ============================================ */
+
+.wizard-content .users-form-group > label,
+.wizard-content .users-form-group .ui-outputlabel {
+    font-size: 0.85rem !important;
+}
+
+.periode-action-buttons-collection {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-modifier-btn-save {
+    padding: 0.625rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.25) !important;
+    transition: all 0.25s ease !important;
+}
+
+.collection-modifier-btn-save:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+}
+
+.collection-modifier-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 0 !important;
+    border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
+}
+
+.collection-modifier-btn-back {
+    padding: 0.625rem 1.25rem !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    color: var(--color-text-primary, #333) !important;
+    border: 2px solid rgba(71, 98, 77, 0.2) !important;
+    transition: all 0.25s ease !important;
+    margin-right: 20px !important;
+}
+
+.collection-modifier-btn-back:hover {
+    background: rgba(71, 98, 77, 0.06) !important;
+    border-color: rgba(71, 98, 77, 0.35) !important;
+    color: var(--color-action-main, #47624D) !important;
+    transform: translateX(-4px) !important;
+}
+
+.collection-modifier-btn-back .ui-button-icon-left,
+.collection-modifier-btn-back .ui-button-icon {
+    margin-right: 0.5rem !important;
+    font-size: 0.875rem !important;
+}
+
 /* Mode édition - styles pour le panel */
 .collection-edit-mode {
     border: 2px solid rgba(71, 98, 77, 0.3) !important;

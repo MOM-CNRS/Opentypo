@@ -36,6 +36,7 @@
                              action="#{collectionBean.resetCollectionForm}"
                              update="@form"
                              process="@this"/>
+
             <p:scrollPanel mode="native" styleClass="collection-dialog-scroll-panel">
                 <div class="collection-form-content">
                     <!-- Section Noms -->
@@ -46,11 +47,10 @@
                         </div>
                         <!-- Ligne de saisie pour ajouter un nouveau nom -->
                         <div class="collection-name-input-row">
-                            <div class="collection-form-group collection-form-group-flex">
-                                <p:inputText id="newNameInput"
-                                            value="#{collectionBean.newNameValue}"
-                                            placeholder="Nom"
-                                            styleClass="collection-input"/>
+                            <div class="collection-form-group collection-form-group-flex collection-select">
+                                <p:inputText value="#{collectionBean.newNameValue}"
+                                             placeholder="Nom"
+                                             styleClass="collection-input"/>
                             </div>
                             <div class="collection-form-group collection-form-group-flex">
                                 <p:selectOneMenu id="newNameLangue"
@@ -88,8 +88,7 @@
                                                         title="#{nameItem.langue.nom}" />
 
                                         <div class="collection-table-name-inner">
-                                            <h:outputText value="#{nameItem.nom}"
-                                                        styleClass="collection-table-name-text" />
+                                            <h:outputText value="#{nameItem.nom}" styleClass="collection-table-name-text" />
                                         </div>
                                     </div>
                                 </p:column>
@@ -130,7 +129,7 @@
                         </div>
                         <!-- Ligne de saisie pour ajouter une nouvelle description -->
                         <div class="collection-name-input-row">
-                            <div class="collection-form-group collection-form-group-flex">
+                            <div class="collection-form-group collection-form-group-flex collection-select">
                                 <p:inputTextarea id="newDescriptionInput"
                                                 value="#{collectionBean.newDescriptionValue}"
                                                 placeholder="Description"
@@ -278,6 +277,7 @@
                                  onclick="PF('addCollectionDialog').hide(); return false;"
                                  process="@none"
                                  update="@none"/>
+
                 <p:commandButton value="Valider"
                                  icon="pi pi-check"
                                  styleClass="collection-btn collection-btn-validate"

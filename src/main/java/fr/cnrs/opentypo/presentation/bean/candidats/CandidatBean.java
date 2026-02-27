@@ -23,6 +23,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.ApplicationBean;
 import fr.cnrs.opentypo.presentation.bean.EntityEditModeBean;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
@@ -172,6 +173,12 @@ public class CandidatBean implements Serializable {
 
     @Inject
     private CandidatWizardStepService candidatWizardStepService;
+
+    @Autowired
+    private ApplicationBean applicationBean;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
@@ -1454,8 +1461,7 @@ public class CandidatBean implements Serializable {
 
     public void addLabelFromInput() {
         CandidatLabelDescriptionService.AddLabelResult r = candidatLabelDescriptionService.addLabel(
-                currentEntity != null ? currentEntity.getId() : null, newLabelValue, newLabelLangueCode,
-                selectedLangueCode, candidatLabels);
+                currentEntity.getId(), newLabelValue, newLabelLangueCode, selectedLangueCode);
         if (!r.success()) {
             addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de l'ajout du label.");
             return;
@@ -1499,6 +1505,34 @@ public class CandidatBean implements Serializable {
                 return !isLangueAlreadyUsedIncandidatLabels(langue.getCode(), null);
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtient les langues disponibles pour un nouveau label
+     */
+    public List<Langue> getAvailableLanguagesForNewLabelV2() {
+        if (availableLanguages == null) {
+            return new ArrayList<>();
+        }
+
+        return availableLanguages.stream()
+                .filter(langue -> !isLangueAlreadyUsedIncandidatLabels(langue.getCode(), null))
+                .collect(Collectors.toList());
+    }
+
+    public void addLabelFromInputV2() {
+        CandidatLabelDescriptionService.AddLabelResult r = candidatLabelDescriptionService.addLabel(
+                currentEntity.getId(), newLabelValue, newLabelLangueCode, "");
+        if (!r.success()) {
+            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de l'ajout du label.");
+            return;
+        }
+        if (candidatLabels == null) candidatLabels = new ArrayList<>();
+        candidatLabels.add(r.addedItem());
+        newLabelValue = null;
+        newLabelLangueCode = null;
+        //applicationBean.getBeadCrumbElements().getLast().setLabels(labelRepository.findByEntity_Id(findByEntity_Id.getId()));
+        addInfoMessage("Le label a été ajouté avec succès.");
     }
 
     public void addCandidatDescriptionFromInput() {

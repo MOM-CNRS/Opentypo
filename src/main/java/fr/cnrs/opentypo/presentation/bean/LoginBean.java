@@ -127,7 +127,7 @@ public class LoginBean implements Serializable {
                 SecurityContextHolder.getContext());
             
             // Recharger les collections pour inclure les collections privées maintenant que l'utilisateur est connecté
-            applicationBean.loadPublicCollections();
+            applicationBean.loadAllCollections();
             
             notificationBean.showSuccessWithUpdate("Connexion réussie",
                 "Bienvenue dans votre espace de recherche, " + displayName + ".",

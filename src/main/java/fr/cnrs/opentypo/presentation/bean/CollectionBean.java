@@ -523,16 +523,16 @@ public class CollectionBean implements Serializable {
     /**
      * Annule le mode édition et rafraîchit l'entité (utilisé par modifier Retour).
      */
-    public void cancelEditingCollection(ApplicationBean appBean) {
+    public void cancelEditingCollection(ApplicationBean applicationBean) {
         entityEditModeBean.cancelEditing();
         editingCollection = false;
         editingLabelValue = null;
         editingDescriptionValue = null;
         editingLanguageCode = null;
         editingGestionnairesPickList = null;
-        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
-            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
-        }
+        applicationBean.loadAllCollections();
+        applicationBean.setSelectedEntity(entityRepository.findById(applicationBean.getSelectedEntity().getId())
+                .orElse(applicationBean.getSelectedEntity()));
     }
 
     /**
@@ -632,7 +632,7 @@ public class CollectionBean implements Serializable {
         // Mettre à jour les valeurs sélectionnées selon la langue actuelle
         updateCollectionLanguage(applicationBean);
 
-        applicationBean.loadPublicCollections();
+        applicationBean.loadAllCollections();
         searchBean.loadCollections();
 
         applicationBean.setBeadCrumbElements(List.of(savedCollection));
@@ -982,7 +982,7 @@ public class CollectionBean implements Serializable {
         // Sauvegarder les permissions des gestionnaires sélectionnés (optionnel)
         saveUserPermissionsForCollection(nouvelleCollection);
 
-        applicationBean.loadPublicCollections();
+        applicationBean.loadAllCollections();
         searchBean.loadCollections();
 
         facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
@@ -1119,7 +1119,7 @@ public class CollectionBean implements Serializable {
         }
 
         // Recharger les collections
-        applicationBean.loadPublicCollections();
+        applicationBean.loadAllCollections();
 
         // Mettre à jour l'arbre
         applicationBean.getTreeBean().initializeTreeWithCollection();

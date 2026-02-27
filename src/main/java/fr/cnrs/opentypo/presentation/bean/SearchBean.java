@@ -85,7 +85,7 @@ public class SearchBean implements Serializable {
         
         if (collectionSelected == null || collectionSelected.isEmpty()) {
             // "Toutes les collections" est sélectionné - recharger les collections selon l'état de connexion
-            appBean.loadPublicCollections();
+            appBean.loadAllCollections();
             appBean.showCollections();
         } else {
             Entity selectedEntity = null;

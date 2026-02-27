@@ -1,9 +1,7 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+                xmlns:p="http://primefaces.org/ui">
 
     <!-- 1. Panneau détail collection : en-tête, vue/modifier, liste référentiels -->
     <h:panelGroup id="collectionDetailPanel" class="row collection-page-wrapper">
@@ -128,27 +126,6 @@
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
-
-                            <div class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-book concept-info-icon" />
-                                    <span>Référence bibliographique</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getRereferenceBibliographique()}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getRereferenceBibliographique(), ';')}" var="ref" varStatus="status">
-                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                <span class="bibliographie-badge">
-                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                </span>
-                                            </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucune référence bibliographique disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.getRereferenceBibliographique()}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
-                            </div>
 
                             <h:panelGroup class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">

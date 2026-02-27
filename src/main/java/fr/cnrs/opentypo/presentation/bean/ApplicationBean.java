@@ -42,6 +42,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -102,6 +103,7 @@ public class ApplicationBean implements Serializable {
     private UserPermissionRepository userPermissionRepository;
 
     @Inject
+    @Lazy
     private CollectionBean collectionBean;
 
     @Inject
@@ -162,7 +164,7 @@ public class ApplicationBean implements Serializable {
     public void initialization() {
         checkSessionExpiration();
         loadLanguages();
-        loadPublicCollections();
+        loadAllCollections();
     }
 
     /**
@@ -871,7 +873,7 @@ public class ApplicationBean implements Serializable {
      * selon les droits de l'utilisateur (publique / groupe / user_permission / statut REFUSED),
      * puis les trie par ordre alphabétique décroissant.
      */
-    public void loadPublicCollections() {
+    public void loadAllCollections() {
 
         collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
 
@@ -900,7 +902,7 @@ public class ApplicationBean implements Serializable {
      */
     public void onLanguageChange() {
         // Recharger les collections pour appliquer le nouveau tri selon la langue
-        loadPublicCollections();
+        loadAllCollections();
         
         // Mettre à jour le label et la description de la collection sélectionnée si elle existe
         if (getSelectedCollection() != null) {

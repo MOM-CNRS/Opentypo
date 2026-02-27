@@ -32,8 +32,8 @@ public class CandidatLabelDescriptionService {
     public record RemoveDescriptionResult(boolean success, String errorMessage) {}
 
     @Transactional
-    public AddLabelResult addLabel(Long entityId, String newLabelValue, String newLabelLangueCode,
-                                   String principalLangueCode, List<CategoryLabelItem> existingLabels) {
+    public AddLabelResult addLabel(Long entityId, String newLabelValue, String newLabelLangueCode, String principalLangueCode) {
+
         if (entityId == null) return new AddLabelResult(false, null, "L'entité n'a pas encore été créée.");
         if (newLabelValue == null || newLabelValue.trim().isEmpty()) return new AddLabelResult(false, null, "Le label est requis.");
         if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) return new AddLabelResult(false, null, "La langue est requise.");
