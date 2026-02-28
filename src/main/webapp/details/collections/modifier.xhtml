@@ -30,7 +30,7 @@
                             <p:selectOneMenu value="#{candidatBean.newLabelLangueCode}"
                                              styleClass="users-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
-                                <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewLabelV2()}"
+                                <f:selectItems value="#{candidatBean.availableTmpLanguagesForLabel}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
@@ -40,7 +40,7 @@
                     <p:commandButton value="Ajouter"
                                      icon="pi pi-plus"
                                      styleClass="candidat-btn-add"
-                                     actionListener="#{candidatBean.addLabelFromInputV2()}"
+                                     actionListener="#{candidatBean.addTempLabelFromInput()}"
                                      process="@form"
                                      ajax="true"
                                      update=":collectionEditForm :growl"/>
@@ -70,7 +70,7 @@
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"
-                                             action="#{candidatBean.removeCandidatLabel(labelItem)}"
+                                             action="#{candidatBean.removeTempCandidatLabel(labelItem)}"
                                              process="@form"
                                              ajax="true"
                                              update=":collectionEditForm :growl"
@@ -124,7 +124,7 @@
                                 <p:selectOneMenu value="#{candidatBean.newDescriptionLangueCode}"
                                                  styleClass="users-select">
                                     <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
-                                    <f:selectItems value="#{candidatBean.getAvailableLanguagesForNewDescription()}"
+                                    <f:selectItems value="#{candidatBean.availableTmpLanguagesForDefinition}"
                                                    var="langue"
                                                    itemLabel="#{langue.nom}"
                                                    itemValue="#{langue.code}" />
@@ -134,7 +134,7 @@
                         <p:commandButton value="Ajouter"
                                          icon="pi pi-plus"
                                          styleClass="candidat-btn-add"
-                                         actionListener="#{candidatBean.addCandidatDescriptionFromInput()}"
+                                         actionListener="#{candidatBean.addTempCandidatDescription()}"
                                          process="@form"
                                          ajax="true"
                                          update=":collectionEditForm :growl"/>
@@ -165,7 +165,7 @@
                         <div class="candidat-table-action-cell">
                             <p:commandButton icon="pi pi-trash"
                                              styleClass="candidat-btn-remove"
-                                             action="#{candidatBean.removeCandidatDescription(descriptionItem)}"
+                                             action="#{candidatBean.removeTmpCandidatDescription(descriptionItem)}"
                                              process="@form"
                                              ajax="true"
                                              update=":collectionEditForm :growl"
@@ -209,15 +209,6 @@
                 <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
                     <span>Aucun utilisateur disponible</span>
                 </h:panelGroup>
-                <div class="periode-action-buttons periode-action-buttons-collection candidats-mt-10">
-                    <p:commandButton value="Enregistrer les gestionnaires"
-                                     icon="pi pi-check"
-                                     styleClass="collection-modifier-btn collection-modifier-btn-save"
-                                     actionListener="#{collectionBean.saveGestionnairesOnly(applicationBean)}"
-                                     process="@form"
-                                     ajax="true"
-                                     update=":collectionEditForm :growl :centerContent"/>
-                </div>
             </div>
         </div>
 
@@ -232,6 +223,14 @@
                              oncomplete="window.scrollTo(0, 0);"
                              styleClass="collection-modifier-btn collection-modifier-btn-back"
                              immediate="true"/>
+            <p:commandButton value="Enregistrer"
+                             icon="pi pi-check"
+                             iconPos="left"
+                             action="#{confirmSaveBean.prepareSave('COLLECTION')}"
+                             process="@form"
+                             update=":confirmSaveDialogContent"
+                             oncomplete="PF('confirmSaveDialog').show();"
+                             styleClass="collection-modifier-btn collection-modifier-btn-save"/>
         </div>
     </h:panelGroup>
 

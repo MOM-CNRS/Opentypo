@@ -7,6 +7,8 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
+import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
+import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -45,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -133,7 +136,7 @@ public class CollectionBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        loadAvailableLanguages();
+        availableLanguages = langueRepository.findAllByOrderByNomAsc();
     }
 
     /** Liste des utilisateurs éligibles comme gestionnaires (groupe Utilisateur) */
@@ -322,11 +325,17 @@ public class CollectionBean implements Serializable {
         entityEditModeBean.startEditing();
         editingCollection = true;
 
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null) {
-            Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
-            applicationBean.setSelectedEntity(refreshed);
-            editingStatus = refreshed.getPublique();
+        candidatBean.setAvailableTmpLanguagesForLabel(availableLanguages.stream()
+                .filter(langue -> !candidatBean.isLangueAlreadyUsedIncandidatLabels(langue.getCode(), null))
+                .toList());
+
+        candidatBean.setAvailableTmpLanguagesForDefinition(availableLanguages.stream()
+                .filter(langue -> !candidatBean.isLangueAlreadyUsedIndescriptions(langue.getCode(), null))
+                .toList());
+
+        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null) {
+            Entity refreshed = entityRepository.findById(applicationBean.getSelectedCollection().getId())
+                    .orElse(applicationBean.getSelectedCollection());
             initGestionnairesPickListForEdit(refreshed.getId());
         }
     }
@@ -548,7 +557,83 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Sauvegarde les modifications de la collection
+     * Sauvegarde les modifications de la collection (modifier multilingue).
+     * Utilise candidatLabels et descriptions de CandidatBean, plus editingGestionnairesPickList.
+     * Appelé par le bouton Enregistrer du formulaire modifier.
+     */
+    @Transactional
+    public void saveCollection(ApplicationBean applicationBean) {
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection == null || collection.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune collection sélectionnée."));
+            return;
+        }
+
+        Entity refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
+        applicationBean.setSelectedEntity(refreshedCollection);
+
+        // Mise à jour des labels depuis candidatLabels
+        List<CategoryLabelItem> labels = candidatBean.getCandidatLabels();
+        if (labels != null && !labels.isEmpty()) {
+            if (refreshedCollection.getLabels() == null) refreshedCollection.setLabels(new ArrayList<>());
+            refreshedCollection.getLabels().clear();
+            for (CategoryLabelItem item : labels) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
+                    Label lbl = new Label();
+                    lbl.setNom(item.getNom().trim());
+                    lbl.setLangue(item.getLangue());
+                    lbl.setEntity(refreshedCollection);
+                    refreshedCollection.getLabels().add(lbl);
+                }
+            }
+        }
+
+        // Mise à jour des descriptions depuis descriptions
+        List<CategoryDescriptionItem> descs = candidatBean.getDescriptions();
+        if (descs != null && !descs.isEmpty()) {
+            if (refreshedCollection.getDescriptions() == null) refreshedCollection.setDescriptions(new ArrayList<>());
+            refreshedCollection.getDescriptions().clear();
+            for (CategoryDescriptionItem item : descs) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
+                    Description desc = new Description();
+                    desc.setValeur(item.getValeur().trim());
+                    desc.setLangue(item.getLangue());
+                    desc.setEntity(refreshedCollection);
+                    refreshedCollection.getDescriptions().add(desc);
+                }
+            }
+        }
+
+        refreshedCollection.setPublique(editingStatus != null ? editingStatus : true);
+
+        Entity savedCollection = entityRepository.save(refreshedCollection);
+        applicationBean.setSelectedEntity(savedCollection);
+
+        saveUserPermissionsForCollection(savedCollection);
+
+        treeBeanProvider.get().updateEntityInTree(savedCollection);
+
+        updateCollectionLanguage(applicationBean);
+        applicationBean.loadAllCollections();
+        searchBean.loadCollections();
+        applicationBean.setBeadCrumbElements(List.of(savedCollection));
+        applicationBean.setSelectedEntityLabel(applicationBean.getEntityLabel(savedCollection));
+
+        entityEditModeBean.cancelEditing();
+        editingCollection = false;
+        editingLabelValue = null;
+        editingDescriptionValue = null;
+        editingLanguageCode = null;
+        editingGestionnairesPickList = null;
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
+                FacesMessage.SEVERITY_INFO, "Succès", "Les modifications ont été enregistrées avec succès."));
+        log.info("Collection modifiée avec succès: {} (ID: {})", savedCollection.getCode(), savedCollection.getId());
+    }
+
+    /**
+     * Sauvegarde les modifications de la collection (ancien mode édition mono-langue).
      */
     @Transactional
     public void saveCollectionChanges(ApplicationBean applicationBean) {
@@ -660,18 +745,6 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Charge les langues disponibles depuis la base de données
-     */
-    private void loadAvailableLanguages() {
-        try {
-            availableLanguages = langueRepository.findAllByOrderByNomAsc();
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des langues", e);
-            availableLanguages = new ArrayList<>();
-        }
-    }
-
-    /**
      * Réinitialise tous les champs du formulaire de création de collection
      */
     public void resetCollectionForm() {
@@ -778,7 +851,7 @@ public class CollectionBean implements Serializable {
     public List<Langue> getAvailableLanguagesForSelector() {
         if (availableLanguages == null || availableLanguages.isEmpty()) {
             // Si les langues ne sont pas chargées, les charger maintenant
-            loadAvailableLanguages();
+            availableLanguages = langueRepository.findAllByOrderByNomAsc();
         }
         return availableLanguages != null ? availableLanguages : new ArrayList<>();
     }

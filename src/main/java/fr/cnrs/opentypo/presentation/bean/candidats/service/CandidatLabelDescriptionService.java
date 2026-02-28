@@ -100,6 +100,13 @@ public class CandidatLabelDescriptionService {
         return false;
     }
 
+    public boolean isLangueAlreadyUsedInLabels(String langueCode, List<CategoryLabelItem> candidatLabels) {
+        if (langueCode == null || langueCode.isEmpty() || candidatLabels == null) return false;
+        return candidatLabels.stream()
+                .filter(element -> element.getLangueCode() != null)
+                .anyMatch(element -> element.getLangueCode().equalsIgnoreCase(langueCode));
+    }
+
     @Transactional
     public AddDescriptionResult addDescription(Long entityId, String newDescValue, String newDescLangueCode,
                                                List<CategoryDescriptionItem> existingDescriptions) {
@@ -164,5 +171,13 @@ public class CandidatLabelDescriptionService {
                             && d.getLangue().getCode().equals(langueCode));
         }
         return false;
+    }
+
+    public boolean isLangueAlreadyUsedInDescriptions(String langueCode, List<CategoryDescriptionItem> descriptions) {
+        if (langueCode == null || langueCode.isEmpty() || descriptions == null) return false;
+
+        return descriptions.stream()
+                .filter(element -> element.getLangueCode() != null)
+                .anyMatch(element -> element.getLangueCode().equalsIgnoreCase(langueCode));
     }
 }

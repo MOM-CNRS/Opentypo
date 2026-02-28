@@ -232,6 +232,7 @@ public class CandidatBean implements Serializable {
     // Liste des données pour les sélecteurs
     private List<EntityType> availableEntityTypes;
     private List<Langue> availableLanguages;
+    private List<Langue> availableTmpLanguagesForLabel, availableTmpLanguagesForDefinition;
     private List<Entity> availableCollections;
     private List<Entity> availableReferences;
     private List<Entity> availableDirectEntities; // Entités directement rattachées à la collection
@@ -1484,6 +1485,14 @@ public class CandidatBean implements Serializable {
         addInfoMessage("Le label a été supprimé avec succès.");
     }
 
+    public void removeTempCandidatLabel(CategoryLabelItem labelItem) {
+        if (candidatLabels != null) candidatLabels.remove(labelItem);
+        availableTmpLanguagesForLabel = availableLanguages.stream()
+                .filter(langue -> !candidatLabelDescriptionService.isLangueAlreadyUsedInLabels(langue.getCode(), candidatLabels))
+                .collect(Collectors.toList());
+        addInfoMessage("Le label a été supprimé avec succès.");
+    }
+
     public boolean isLangueAlreadyUsedIncandidatLabels(String langueCode, CategoryLabelItem currentItem) {
         return candidatLabelDescriptionService.isLangueAlreadyUsedInLabels(langueCode, currentItem, candidatLabels, currentEntity);
     }
@@ -1507,31 +1516,25 @@ public class CandidatBean implements Serializable {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Obtient les langues disponibles pour un nouveau label
-     */
-    public List<Langue> getAvailableLanguagesForNewLabelV2() {
-        if (availableLanguages == null) {
-            return new ArrayList<>();
-        }
+    public void addTempLabelFromInput() {
 
-        return availableLanguages.stream()
-                .filter(langue -> !isLangueAlreadyUsedIncandidatLabels(langue.getCode(), null))
-                .collect(Collectors.toList());
-    }
-
-    public void addLabelFromInputV2() {
-        CandidatLabelDescriptionService.AddLabelResult r = candidatLabelDescriptionService.addLabel(
-                currentEntity.getId(), newLabelValue, newLabelLangueCode, "");
-        if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de l'ajout du label.");
+        if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
+            addErrorMessage("Le label est requis.");
             return;
         }
+        if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) {
+            addErrorMessage("La langue est requise.");
+            return;
+        }
+
         if (candidatLabels == null) candidatLabels = new ArrayList<>();
-        candidatLabels.add(r.addedItem());
+        candidatLabels.add(CategoryLabelItem.builder().nom(newLabelValue)
+                .langueCode(newLabelLangueCode).langue(langueRepository.findByCode(newLabelLangueCode)).build());
+        availableTmpLanguagesForLabel = availableLanguages.stream()
+                .filter(langue -> !candidatLabelDescriptionService.isLangueAlreadyUsedInLabels(langue.getCode(), candidatLabels))
+                .collect(Collectors.toList());
         newLabelValue = null;
         newLabelLangueCode = null;
-        //applicationBean.getBeadCrumbElements().getLast().setLabels(labelRepository.findByEntity_Id(findByEntity_Id.getId()));
         addInfoMessage("Le label a été ajouté avec succès.");
     }
 
@@ -1549,6 +1552,31 @@ public class CandidatBean implements Serializable {
         addInfoMessage("La description a été ajoutée avec succès.");
     }
 
+    public void addTempCandidatDescription() {
+
+        if (descriptions == null) descriptions = new ArrayList<>();
+
+        if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
+            addErrorMessage("La description est requise.");
+            return;
+        }
+
+        if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
+            addErrorMessage("La langue est requise.");
+            return;
+        }
+
+        descriptions.add(CategoryDescriptionItem.builder().valeur(newDescriptionValue)
+                .langueCode(newDescriptionLangueCode).langue(langueRepository.findByCode(newDescriptionLangueCode)).build());
+
+        availableTmpLanguagesForDefinition = availableLanguages.stream()
+                .filter(langue ->  !candidatLabelDescriptionService.isLangueAlreadyUsedInDescriptions(langue.getCode(), descriptions))
+                .toList();
+        newDescriptionValue = null;
+        newDescriptionLangueCode = null;
+        addInfoMessage("La description a été ajoutée avec succès.");
+    }
+
     public void removeCandidatDescription(CategoryDescriptionItem descriptionItem) {
         CandidatLabelDescriptionService.RemoveDescriptionResult r = candidatLabelDescriptionService.removeDescription(
                 currentEntity != null ? currentEntity.getId() : null, descriptionItem);
@@ -1560,6 +1588,16 @@ public class CandidatBean implements Serializable {
         addInfoMessage("La description a été supprimée avec succès.");
     }
 
+    public void removeTmpCandidatDescription(CategoryDescriptionItem descriptionItem) {
+
+        if (descriptions != null) descriptions.remove(descriptionItem);
+
+        availableTmpLanguagesForDefinition = availableLanguages.stream()
+                .filter(langue ->  !candidatLabelDescriptionService.isLangueAlreadyUsedInDescriptions(langue.getCode(), descriptions))
+                .toList();
+        addInfoMessage("La description a été supprimée avec succès.");
+    }
+
     public boolean isLangueAlreadyUsedIndescriptions(String langueCode, CategoryDescriptionItem currentItem) {
         return candidatLabelDescriptionService.isLangueAlreadyUsedInDescriptions(langueCode, currentItem, descriptions, currentEntity);
     }
@@ -1567,7 +1605,7 @@ public class CandidatBean implements Serializable {
     /**
      * Obtient les langues disponibles pour une nouvelle description (toutes les langues disponibles, excluant seulement celles déjà utilisées)
      */
-        public List<Langue> getAvailableLanguagesForNewDescription() {
+    public List<Langue> getAvailableLanguagesForNewDescription() {
         if (availableLanguages == null) {
             return new ArrayList<>();
         }

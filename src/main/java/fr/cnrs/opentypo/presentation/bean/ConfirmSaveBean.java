@@ -22,6 +22,7 @@ import java.io.Serializable;
 public class ConfirmSaveBean implements Serializable {
 
     public static final String TARGET_REFERENCE = EntityConstants.ENTITY_TYPE_REFERENCE;
+    public static final String TARGET_COLLECTION = EntityConstants.ENTITY_TYPE_COLLECTION;
     public static final String TARGET_CATEGORY = EntityConstants.ENTITY_TYPE_CATEGORY;
     public static final String TARGET_GROUP = EntityConstants.ENTITY_TYPE_GROUP;
     public static final String TARGET_SERIE = EntityConstants.ENTITY_TYPE_SERIES;
@@ -31,6 +32,8 @@ public class ConfirmSaveBean implements Serializable {
     private ApplicationBean applicationBean;
     @Inject
     private ReferenceBean referenceBean;
+    @Inject
+    private CollectionBean collectionBean;
     @Inject
     private CategoryBean categoryBean;
     @Inject
@@ -55,6 +58,7 @@ public class ConfirmSaveBean implements Serializable {
         if (saveTarget == null) return "growl";
         switch (saveTarget) {
             case TARGET_REFERENCE: return "referenceEditForm";
+            case TARGET_COLLECTION: return "collectionEditForm";
             case TARGET_CATEGORY:  return "categoryEditForm";
             case TARGET_GROUP:     return "groupeEditForm";
             case TARGET_SERIE:     return "serieEditForm";
@@ -70,8 +74,8 @@ public class ConfirmSaveBean implements Serializable {
      */
     public String getUpdateIds() {
         String base = ":" + getFormId() + ", :growl, :contentPanels";
-        if (TARGET_REFERENCE.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget) || TARGET_GROUP.equals(saveTarget)
-                || TARGET_SERIE.equals(saveTarget) || TARGET_TYPE.equals(saveTarget)) {
+        if (TARGET_REFERENCE.equals(saveTarget) || TARGET_COLLECTION.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget)
+                || TARGET_GROUP.equals(saveTarget) || TARGET_SERIE.equals(saveTarget) || TARGET_TYPE.equals(saveTarget)) {
             return base + ", :leftTreePanel";
         }
         return base;
@@ -82,11 +86,13 @@ public class ConfirmSaveBean implements Serializable {
      */
     public String getMessageText() {
         Entity e = applicationBean != null ? applicationBean.getSelectedEntity() : null;
-        String label = (e != null && e.getCode() != null) ? e.getCode() : "";
+        String label = (e != null && applicationBean != null) ? applicationBean.getEntityLabel(e) : "";
         if (saveTarget == null) return "Les modifications seront enregistrées dans la base de données.";
         switch (saveTarget) {
             case TARGET_REFERENCE:
                 return "Les modifications apportées au référentiel " + label + " seront enregistrées dans la base de données.";
+            case TARGET_COLLECTION:
+                return "Les modifications apportées à la collection " + label + " seront enregistrées dans la base de données.";
             case TARGET_CATEGORY:
                 return "Les modifications apportées à la catégorie " + label + " seront enregistrées dans la base de données.";
             case TARGET_GROUP:
@@ -108,6 +114,9 @@ public class ConfirmSaveBean implements Serializable {
         switch (saveTarget) {
             case TARGET_REFERENCE:
                 referenceBean.saveReference(applicationBean);
+                break;
+            case TARGET_COLLECTION:
+                collectionBean.saveCollection(applicationBean);
                 break;
             case TARGET_CATEGORY:
                 categoryBean.saveCategory(applicationBean);
