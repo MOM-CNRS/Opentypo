@@ -22,6 +22,11 @@
                                 <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
+                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
+                                          styleClass="collection-not-published-icon">
+                                <i class="pi pi-clock"/>
+                                <p:tooltip value="Collection non publiée" position="top"/>
+                            </h:panelGroup>
                         </div>
                         <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
                             <!-- Bouton Historique -->
@@ -54,41 +59,6 @@
                     <!-- Grille d'informations -->
                     <h:form id="categoryEditForm">
                         <div class="concept-info-grid">
-                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-code concept-info-icon" />
-                                    <span>Code</span>
-                                </div>
-                                <p:inputText id="editingCodeInput"
-                                             value="#{categoryBean.editingCategoryCode}"
-                                             styleClass="reference-edit-input"
-                                             placeholder="Code (unique, indépendant de la langue)"/>
-                            </h:panelGroup>
-
-                            <h:panelGroup id="labelUpdatePanel" class="concept-info-item concept-info-item-full"
-                                          rendered="#{categoryBean.editingCategory}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-tag concept-info-icon" />
-                                    <span>Label</span>
-                                </div>
-                                <div class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{categoryBean.editingLabelLangueCode}"
-                                                     styleClass="reference-edit-lang-select"
-                                                     required="true">
-                                        <f:selectItems value="#{applicationBean.languages}"
-                                                       var="lang"
-                                                       itemValue="#{lang.code}"
-                                                       itemLabel="#{lang.value}"/>
-                                        <p:ajax process="@this" ajax="true"
-                                                listener="#{categoryBean.onLabelLanguageChange(applicationBean)}"
-                                                update=":categoryEditForm:labelUpdatePanel"/>
-                                    </p:selectOneMenu>
-                                    <p:inputText value="#{categoryBean.editingCategoryLabel}"
-                                                 styleClass="reference-edit-input reference-edit-input-flex"
-                                                 placeholder="Saisissez le nom pour la langue choisie..."/>
-                                </div>
-                            </h:panelGroup>
-
                             <h:panelGroup id="descriptionUpdatePanel" class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
                                     <i class="pi pi-file concept-info-icon" />
@@ -126,6 +96,32 @@
                                 </ui:fragment>
                             </h:panelGroup>
 
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-comment concept-info-icon" />
+                                    <span>Commentaire</span>
+                                </div>
+                                <ui:fragment rendered="#{not categoryBean.editingCategory}">
+                                    <div class="concept-info-value concept-info-description">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                            #{applicationBean.selectedEntity.metadataCommentaire}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{categoryBean.editingCategory}">
+                                    <div class="reference-edit-lang-row">
+                                        <p:inputTextarea value="#{categoryBean.editingCategoryCommentaire}"
+                                                         rows="4"
+                                                         cols="50"
+                                                         styleClass="reference-edit-textarea reference-edit-textarea-flex"
+                                                         placeholder="Saisissez un commentaire..."/>
+                                    </div>
+                                </ui:fragment>
+                            </h:panelGroup>
+
                             <h:panelGroup rendered="#{applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'MONNAIE'
                                     and applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'CASH'}">
                                 <div class="concept-info-item concept-info-item-full">
@@ -157,32 +153,6 @@
 
                             <h:panelGroup class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-comment concept-info-icon" />
-                                    <span>Commentaire</span>
-                                </div>
-                                <ui:fragment rendered="#{not categoryBean.editingCategory}">
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
-                                            #{applicationBean.selectedEntity.metadataCommentaire}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                    <div class="reference-edit-lang-row">
-                                        <p:inputTextarea value="#{categoryBean.editingCategoryCommentaire}"
-                                                         rows="4"
-                                                         cols="50"
-                                                         styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                         placeholder="Saisissez un commentaire..."/>
-                                    </div>
-                                </ui:fragment>
-                            </h:panelGroup>
-
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
                                     <i class="pi pi-user concept-info-icon" />
                                     <span>Auteur(s)</span>
                                 </div>
@@ -198,25 +168,6 @@
                                     <h:outputText value="Aucun auteur disponible"
                                                   rendered="#{empty applicationBean.selectedEntity.auteurs}"
                                                   styleClass="bibliographie-empty" />
-                                </div>
-                            </h:panelGroup>
-
-                            <!-- Boutons Valider et Annuler -->
-                            <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{categoryBean.editingCategory}">
-                                <div class="reference-edit-actions">
-                                    <p:commandButton value="Annuler"
-                                                     icon="pi pi-times"
-                                                     action="#{categoryBean.cancelEditingCategory()}"
-                                                     process="@this"
-                                                     update=":categoryEditForm"
-                                                     styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                    <p:commandButton value="Valider"
-                                                     icon="pi pi-check"
-                                                     action="#{confirmSaveBean.prepareSave('CATEGORIE')}"
-                                                     process="@this categoryEditForm"
-                                                     update=":confirmSaveDialogContent"
-                                                     oncomplete="PF('confirmSaveDialog').show();"
-                                                     styleClass="reference-edit-btn reference-edit-btn-validate"/>
                                 </div>
                             </h:panelGroup>
                         </div>
