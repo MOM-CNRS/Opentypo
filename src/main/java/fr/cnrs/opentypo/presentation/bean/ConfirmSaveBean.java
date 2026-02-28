@@ -70,9 +70,8 @@ public class ConfirmSaveBean implements Serializable {
      */
     public String getUpdateIds() {
         String base = ":" + getFormId() + ", :growl, :contentPanels";
-        if (TARGET_REFERENCE.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget)
-                || TARGET_GROUP.equals(saveTarget) || TARGET_SERIE.equals(saveTarget)
-                || TARGET_TYPE.equals(saveTarget)) {
+        if (TARGET_REFERENCE.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget) || TARGET_GROUP.equals(saveTarget)
+                || TARGET_SERIE.equals(saveTarget) || TARGET_TYPE.equals(saveTarget)) {
             return base + ", :leftTreePanel";
         }
         return base;
@@ -87,7 +86,7 @@ public class ConfirmSaveBean implements Serializable {
         if (saveTarget == null) return "Les modifications seront enregistrées dans la base de données.";
         switch (saveTarget) {
             case TARGET_REFERENCE:
-                return "Les modifications apportées à la description et à la référence bibliographique seront enregistrées dans la base de données.";
+                return "Les modifications apportées au référentiel " + label + " seront enregistrées dans la base de données.";
             case TARGET_CATEGORY:
                 return "Les modifications apportées à la catégorie " + label + " seront enregistrées dans la base de données.";
             case TARGET_GROUP:

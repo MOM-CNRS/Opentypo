@@ -5,7 +5,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <!-- Contenu dynamique -->
+    <!-- 1. Image du référentiel -->
     <h:panelGroup class="image-container">
         <!-- Afficher l'image si disponible (clic = plein écran) -->
         <h:panelGroup layout="block" styleClass="clickable-image"
@@ -23,147 +23,128 @@
         </h:panelGroup>
     </h:panelGroup>
 
-    <h:panelGroup class="row">
-        <div class="col-md-12">
-            <div class="concept-info-panel">
-                <!-- En-tête avec titre et actions -->
-                <div class="concept-info-header">
-                    <div class="concept-info-title-section">
-                        <span class="reference-entity-type-badge">Référentiel</span>
-                        <div class="concept-info-language-flag">
-                            <h:graphicImage library="img" name="flag/fr.png"
-                                            styleClass="language-flag"
-                                            alt="Français"
-                                            title="Français"/>
+    <!-- 2. Panneau détail référentiel : en-tête, vue/modifier, liste catégories -->
+    <h:panelGroup id="referenceDetailPanel" class="row collection-page-wrapper">
+        <div class="col-md-12 collection-page-content">
+            <h:form id="referenceEditForm" styleClass="groupe-header-form-inline">
+                <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="concept-info-header #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-header' : ''}">
+                        <div class="concept-info-title-section">
+                            <span class="reference-entity-type-badge">Référentiel</span>
+                            <div class="concept-info-language-flag">
+                                <h:graphicImage library="img" name="flag/fr.png"
+                                                styleClass="language-flag"
+                                                alt="Français"
+                                                title="Français"/>
+                            </div>
+                            <div class="collection-panel-title-wrapper">
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                            </div>
+                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
+                                          styleClass="collection-not-published-icon">
+                                <i class="pi pi-clock"/>
+                                <p:tooltip value="Collection non publiée" position="top"/>
+                            </h:panelGroup>
                         </div>
-                        <div class="collection-panel-title-wrapper">
-                            <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                        </div>
+
+                        <!-- Actions (masquées en mode édition) -->
+                        <h:panelGroup class="concept-info-actions" rendered="#{referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}">
+                            <!-- Bouton Historique -->
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                           process="@this"
+                                           update="@none"
+                                           styleClass="concept-action-button"
+                                           immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
+                            </p:commandLink>
+
+                            <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
+                                           process="@this"
+                                           update=":centerContent"
+                                           styleClass="concept-action-button"
+                                           title="Modifier le référentiel"
+                                           onstart="showLoading('Chargement...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 0);"
+                                           onerror="forceHideLoading();">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
+                            </p:commandLink>
+
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
+                            </p:commandLink>
+
+                            <div class="collection-visibility-card">
+                                <div class="collection-visibility-card-content">
+                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                        <div class="collection-visibility-icon">
+                                            <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                        <div class="collection-visibility-info">
+                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Public' : 'Privé'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="collection-visibility-toggle-wrapper">
+                                        <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                       process="@this"
+                                                       update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
+                                                       action="#{referenceBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
+                                                       oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                            <i class="pi pi-sync" />
+                                            <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup class="concept-info-actions"
+                                      rendered="#{referenceBean.canEditReference() and not referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}">
+                            <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
+                                           process="@this"
+                                           update=":referenceEditForm"
+                                           styleClass="concept-action-button"
+                                           title="Modifier le référentiel"
+                                           onstart="showLoading('Chargement...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                           onerror="forceHideLoading();">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
+                            </p:commandLink>
+                        </h:panelGroup>
+
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAuthenticated() and !referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}">
+                            <h:panelGroup class="collection-visibility-card">
+                                <div class="collection-visibility-card-content">
+                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                        <div class="collection-visibility-icon">
+                                            <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                        <div class="collection-visibility-info">
+                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Publique' : 'Privée'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                        </h:panelGroup>
                     </div>
 
-                    <h:panelGroup class="concept-info-actions" rendered="#{referenceBean.canShowParamsPanel()}">
-                        <!-- Bouton Historique -->
-                        <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                       process="@this"
-                                       update="@none"
-                                       styleClass="concept-action-button"
-                                       immediate="true">
-                            <i class="pi pi-history" />
-                            <p:tooltip value="Voir l'historique" position="top"/>
-                        </p:commandLink>
-
-                        <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
-                                       process="@this"
-                                       update=":referenceEditForm"
-                                       styleClass="concept-action-button">
-                            <i class="pi pi-file-edit" />
-                            <p:tooltip value="Modifier" position="top"/>
-                        </p:commandLink>
-
-                        <p:commandLink action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
-                                       process="@this"
-                                       update=":confirmDeleteDialogContent"
-                                       oncomplete="PF('confirmDeleteDialog').show();"
-                                       styleClass="concept-action-button">
-                            <i class="pi pi-trash" />
-                            <p:tooltip value="Supprimer" position="top"/>
-                        </p:commandLink>
-
-                        <div class="collection-visibility-card">
-                            <div class="collection-visibility-card-content">
-                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                    <div class="collection-visibility-icon">
-                                        <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
-                                    </div>
-                                    <div class="collection-visibility-info">
-                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Public' : 'Privé'}</span>
-                                    </div>
+                    <!-- Vue lecture -->
+                    <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                        <div class="concept-info-grid">
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
                                 </div>
-                                <div class="collection-visibility-toggle-wrapper">
-                                    <p:commandLink styleClass="collection-visibility-toggle-btn"
-                                                   process="@this"
-                                                   update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
-                                                   action="#{referenceBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
-                                                   oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
-                                        <i class="pi pi-sync" />
-                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
-                                    </p:commandLink>
-                                </div>
-                            </div>
-                        </div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{referenceBean.canEditReference()}">
-                        <p:commandLink action="#{referenceBean.startEditingReference(applicationBean)}"
-                                       process="@this"
-                                       update=":referenceEditForm"
-                                       styleClass="concept-action-button">
-                            <i class="pi pi-file-edit" />
-                            <p:tooltip value="Modifier" position="top"/>
-                        </p:commandLink>
-                    </h:panelGroup>
-
-                    <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAuthenticated() and !referenceBean.canShowParamsPanel()}">
-                        <h:panelGroup class="collection-visibility-card">
-                            <div class="collection-visibility-card-content">
-                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                    <div class="collection-visibility-icon">
-                                        <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
-                                    </div>
-                                    <div class="collection-visibility-info">
-                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Publique' : 'Privée'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </h:panelGroup>
-                    </h:panelGroup>
-                </div>
-
-                <!-- Grille d'informations -->
-                <h:form id="referenceEditForm">
-                    <div class="concept-info-grid">
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{referenceBean.editingReference}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-code concept-info-icon" />
-                                <span>Code</span>
-                            </div>
-                            <p:inputText id="editingCodeInput"
-                                         value="#{referenceBean.editingReferenceCode}"
-                                         styleClass="reference-edit-input"
-                                         placeholder="Code (unique, indépendant de la langue)"/>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="labelUpdatePanel" class="concept-info-item concept-info-item-full"
-                                      rendered="#{referenceBean.editingReference}">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" />
-                                <span>Label</span>
-                            </div>
-                            <div class="reference-edit-lang-row">
-                                <p:selectOneMenu value="#{referenceBean.editingLabelLangueCode}"
-                                                 styleClass="reference-edit-lang-select"
-                                                 required="true">
-                                    <f:selectItems value="#{applicationBean.languages}"
-                                                   var="lang"
-                                                   itemValue="#{lang.code}"
-                                                   itemLabel="#{lang.value}"/>
-                                    <p:ajax process="@this" ajax="true"
-                                            listener="#{referenceBean.onLabelLanguageChange(applicationBean)}"
-                                            update=":referenceEditForm:labelUpdatePanel"/>
-                                </p:selectOneMenu>
-                                <p:inputText value="#{referenceBean.editingReferenceLabel}"
-                                             styleClass="reference-edit-input reference-edit-input-flex"
-                                             placeholder="Saisissez le nom pour la langue choisie..."/>
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup id="descriptionUpdatePanel" class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-file concept-info-icon" />
-                                <span>Description</span>
-                            </div>
-                            <ui:fragment rendered="#{not referenceBean.editingReference}">
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                         <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
@@ -172,35 +153,13 @@
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{referenceBean.editingReference}">
-                                <div id="descriptionEditWrapper" class="reference-edit-lang-row">
-                                    <p:selectOneMenu value="#{referenceBean.editingDescriptionLangueCode}"
-                                                     styleClass="reference-edit-lang-select"
-                                                     required="true">
-                                        <f:selectItems value="#{applicationBean.languages}"
-                                                       var="lang"
-                                                       itemValue="#{lang.code}"
-                                                       itemLabel="#{lang.value}"/>
-                                        <p:ajax listener="#{referenceBean.onDescriptionLanguageChange(applicationBean)}"
-                                                process="@this" ajax="true"
-                                                update=":referenceEditForm:descriptionUpdatePanel"/>
-                                    </p:selectOneMenu>
-                                    <p:textEditor value="#{referenceBean.editingReferenceDescription}"
-                                                  secure="false"
-                                                  height="200"
-                                                  styleClass="collection-edit-textarea"
-                                                  placeholder="Saisissez la description de la réference"/>
-                                </div>
-                            </ui:fragment>
-                        </h:panelGroup>
+                            </h:panelGroup>
 
-                        <div class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-book concept-info-icon" />
-                                <span>Référence bibliographique</span>
-                            </div>
-                            <ui:fragment rendered="#{not referenceBean.editingReference}">
+                            <div class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-book concept-info-icon" />
+                                    <span>Référence bibliographique</span>
+                                </div>
                                 <div class="concept-info-value bibliographie-container">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.getReferenceBibliographique()}">
                                         <ui:repeat value="#{fn:split(applicationBean.selectedEntity.getReferenceBibliographique(), ';')}" var="ref" varStatus="status">
@@ -215,23 +174,13 @@
                                                  rendered="#{empty applicationBean.selectedEntity.getReferenceBibliographique()}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{referenceBean.editingReference}">
-                                <p:chips id="editingReferenceBibliographique"
-                                         value="#{referenceBean.editingReferenceBibliographiqueList}"
-                                         styleClass="reference-edit-textarea"
-                                         style="width: 100%"
-                                         placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
-                                         separator=";"/>
-                            </ui:fragment>
-                        </div>
-
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-users concept-info-icon" />
-                                <span>Gestionnaires du référentiel</span>
                             </div>
-                            <ui:fragment rendered="#{not referenceBean.editingReference}">
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-users concept-info-icon" />
+                                    <span>Gestionnaires du référentiel</span>
+                                </div>
                                 <div class="concept-info-value bibliographie-container">
                                     <ui:fragment rendered="#{not empty referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}">
                                         <ui:repeat value="#{referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}" var="gestionnaire">
@@ -244,76 +193,45 @@
                                                  rendered="#{empty referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity)}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{referenceBean.editingReference}">
-                                <div class="collection-edit-field-wrapper collection-edit-gestionnaires-wrapper">
-                                    <p:pickList id="referenceEditGestionnairesPickList"
-                                                value="#{referenceBean.editingGestionnairesPickList}"
-                                                var="userId"
-                                                itemLabel="#{referenceBean.getUtilisateurDisplayName(userId)}"
-                                                itemValue="#{userId}"
-                                                converter="pickListLongConverter"
-                                                styleClass="group-dialog-picklist"
-                                                showSourceFilter="true"
-                                                showTargetFilter="true"
-                                                filterMatchMode="contains"
-                                                sourceFilterPlaceholder="Rechercher..."
-                                                targetFilterPlaceholder="Rechercher..."
-                                                responsive="true"
-                                                rendered="#{not empty referenceBean.gestionnairesList}"/>
-                                    <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                                        <span>Aucun utilisateur disponible</span>
-                                    </h:panelGroup>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur(s)</span>
                                 </div>
-                            </ui:fragment>
-                        </h:panelGroup>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                            <span class="bibliographie-badge">
+                                                <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                            </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun auteur disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  styleClass="bibliographie-empty" />
+                                </div>
+                            </h:panelGroup>
+                        </div>
+                    </ui:fragment>
 
-                        <h:panelGroup class="concept-info-item concept-info-item-full">
-                            <div class="concept-info-label">
-                                <i class="pi pi-user concept-info-icon" />
-                                <span>Auteur(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                    <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                        <span class="bibliographie-badge">
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
-                                    </ui:repeat>
-                                </ui:fragment>
-                                <h:outputText value="Aucun auteur disponible"
-                                              rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                              styleClass="bibliographie-empty" />
-                            </div>
-                        </h:panelGroup>
-
-                        <!-- Boutons Valider et Annuler -->
-                        <h:panelGroup class="concept-info-item concept-info-item-full" rendered="#{referenceBean.editingReference}">
-                            <div class="reference-edit-actions">
-                                <p:commandButton value="Annuler"
-                                                 icon="pi pi-times"
-                                                 action="#{referenceBean.cancelEditingReference()}"
-                                                 process="@this"
-                                                 update=":referenceEditForm"
-                                                 styleClass="reference-edit-btn reference-edit-btn-cancel"/>
-                                <p:commandButton value="Valider"
-                                               icon="pi pi-check"
-                                               action="#{confirmSaveBean.prepareSave('REFERENTIEL')}"
-                                               process="@this referenceEditForm"
-                                               update=":confirmSaveDialogContent"
-                                               oncomplete="PF('confirmSaveDialog').show();"
-                                               styleClass="reference-edit-btn reference-edit-btn-validate"/>
-                            </div>
-                        </h:panelGroup>
-                    </div>
-
-                </h:form>
-            </div>
+                    <!-- Mode édition : formulaire modifier -->
+                    <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
+                        <ui:include src="modifier.xhtml"/>
+                    </ui:fragment>
+                </div>
+            </h:form>
         </div>
     </h:panelGroup>
 
-    <ui:include src="../catalogues/liste_categories.xhtml"/>
+    <!-- 3. Liste des catégories (masquée en mode édition) -->
+    <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+        <ui:include src="../catalogues/liste_categories.xhtml"/>
+    </ui:fragment>
 
     <h:outputStylesheet library="css" name="collection.css"/>
+    <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
+    <h:outputScript library="js" name="treeUtils.js"/>
     <ui:include src="confirmReferenceVisibilityChangeDialog.xhtml"/>
 </ui:composition>

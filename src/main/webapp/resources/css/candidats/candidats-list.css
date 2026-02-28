@@ -41,6 +41,7 @@
             flex-direction: row !important;
             align-items: center !important;
             justify-content: space-between !important;
+            gap: 0.75rem !important;
         }
 
         .candidat-confirm-dialog.candidat-confirm-dialog-custom-header .ui-dialog-titlebar .ui-dialog-title {
@@ -51,13 +52,25 @@
 
         .candidat-confirm-dialog.candidat-confirm-dialog-custom-header .ui-dialog-titlebar-close {
             flex-shrink: 0 !important;
+            margin-left: auto !important;
+        }
+
+        .candidat-confirm-dialog.candidat-confirm-dialog-default-title .ui-dialog-titlebar {
+            justify-content: space-between !important;
         }
 
         .candidat-confirm-dialog.candidat-confirm-dialog-default-title .ui-dialog-titlebar .ui-dialog-title {
             display: block !important;
+            flex: 1 !important;
+            min-width: 0 !important;
             font-size: 1.125rem !important;
             font-weight: 600 !important;
             color: var(--color-text-primary, #333) !important;
+        }
+
+        .candidat-confirm-dialog .ui-dialog-titlebar-close,
+        .candidat-confirm-dialog .ui-dialog-titlebar-close a {
+            text-decoration: none !important;
         }
 
         .candidat-confirm-dialog .ui-dialog-titlebar-close {
@@ -70,7 +83,6 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            text-decoration: none !important;
         }
 
         .candidat-confirm-dialog .ui-dialog-titlebar-close:hover,
@@ -175,6 +187,17 @@
             margin: 0;
         }
 
+        .candidat-confirm-dialog .candidat-confirm-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(71, 98, 77, 0.12);
+        }
+
         .candidat-confirm-footer {
             display: flex;
             justify-content: flex-end;
@@ -185,12 +208,18 @@
 
         .candidat-confirm-dialog .candidat-confirm-btn,
         .candidat-confirm-btn {
-            padding: 0.75rem 1.5rem !important;
+            padding: 0.625rem 1.25rem !important;
             font-weight: 600 !important;
-            border-radius: 8px !important;
-            border: 1px solid transparent !important;
-            transition: all 0.3s ease !important;
-            min-width: 120px !important;
+            font-size: 0.9375rem !important;
+            border-radius: 10px !important;
+            border: 2px solid transparent !important;
+            transition: all 0.25s ease !important;
+            min-width: 130px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            cursor: pointer !important;
         }
 
         .candidat-confirm-btn-confirm {
@@ -219,17 +248,25 @@
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
         }
 
+        .candidat-confirm-dialog .candidat-confirm-btn-cancel,
         .candidat-confirm-btn-cancel {
-            background: #6c757d !important;
-            border-color: #6c757d !important;
-            color: #ffffff !important;
+            background: transparent !important;
+            border-color: rgba(71, 98, 77, 0.35) !important;
+            color: var(--color-text-secondary, #819A91) !important;
         }
 
+        .candidat-confirm-dialog .candidat-confirm-btn-cancel:hover,
         .candidat-confirm-btn-cancel:hover {
-            background: #5a6268 !important;
-            border-color: #5a6268 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            background: rgba(71, 98, 77, 0.06) !important;
+            border-color: rgba(71, 98, 77, 0.5) !important;
+            color: var(--color-text-primary, #333) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(71, 98, 77, 0.12) !important;
+        }
+
+        .candidat-confirm-dialog .candidat-confirm-btn-delete,
+        .candidat-confirm-btn-delete {
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
         }
 
         .candidat-confirm-btn-refuse {
@@ -256,6 +293,18 @@
             border-color: #d66100 !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3) !important;
+        }
+
+        @media (max-width: 480px) {
+            .candidat-confirm-dialog .candidat-confirm-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .candidat-confirm-dialog .candidat-confirm-actions .candidat-confirm-btn {
+                width: 100% !important;
+                min-width: unset !important;
+            }
         }
 
         .candidat-confirm-header-icon-refuse .candidat-confirm-header-icon {

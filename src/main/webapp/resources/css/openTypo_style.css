@@ -8651,6 +8651,213 @@ body .ui-datatable .ui-datatable-data>tr>td {
     opacity: 0.7 !important;
 }
 
+/* Code (référentiel) - Charte couleur, responsive */
+.reference-modifier-code-group {
+    width: 100%;
+}
+
+.reference-modifier-code-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.reference-modifier-code-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 1rem;
+}
+
+.reference-modifier-code-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.reference-modifier-code-input-wrapper {
+    flex: 1;
+    min-width: 180px;
+}
+
+.reference-modifier-code-input {
+    width: 100% !important;
+    padding: 0.625rem 1rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.25) !important;
+    border-radius: 8px !important;
+    font-size: 0.9375rem !important;
+    color: var(--color-text-primary, #333) !important;
+    background: #ffffff !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.reference-modifier-code-input:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.reference-modifier-code-save-btn {
+    padding: 0.625rem 1rem !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    border-radius: 8px !important;
+    background: var(--color-action-main, #47624D) !important;
+    color: #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.reference-modifier-code-save-btn:hover {
+    background: rgba(71, 98, 77, 0.9) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(71, 98, 77, 0.25);
+}
+
+.reference-modifier-code-save-btn .ui-button-icon,
+.reference-modifier-code-save-btn .ui-button-icon-left {
+    font-size: 1.125rem !important;
+}
+
+@media (max-width: 480px) {
+    .reference-modifier-code-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reference-modifier-code-input-wrapper {
+        min-width: 100%;
+    }
+
+    .reference-modifier-code-save-btn {
+        width: 100%;
+    }
+}
+
+/* Référence bibliographique (chips) - Charte couleur, responsive */
+.reference-modifier-bibliographie-group {
+    width: 100%;
+}
+
+.reference-modifier-bibliographie-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.reference-modifier-bibliographie-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 1rem;
+}
+
+.reference-modifier-bibliographie-wrapper {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.reference-modifier-bibliographie-chips.ui-chips,
+.reference-modifier-bibliographie-chips {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chips-input-token input,
+.reference-modifier-bibliographie-chips .ui-inputfield {
+    border: none !important;
+    font-size: 0.9375rem !important;
+    padding: 0.5rem 0 !important;
+    background: transparent !important;
+    color: var(--color-text-primary, #333) !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chips-container {
+    width: 100% !important;
+    min-height: 80px !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid rgba(71, 98, 77, 0.25) !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chips-container:focus-within {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chip,
+.reference-modifier-bibliographie-chips .ui-chips-token {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.12) 0%, rgba(71, 98, 77, 0.06) 100%) !important;
+    border: 1px solid rgba(71, 98, 77, 0.22) !important;
+    border-radius: 6px !important;
+    color: var(--color-text-primary, #333) !important;
+    font-size: 0.875rem !important;
+    padding: 0.4rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chip:hover,
+.reference-modifier-bibliographie-chips .ui-chips-token:hover {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.18) 0%, rgba(71, 98, 77, 0.1) 100%) !important;
+    border-color: var(--color-action-main, #47624D) !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chip-remove-icon,
+.reference-modifier-bibliographie-chips .ui-chips-token-icon {
+    color: rgba(71, 98, 77, 0.6) !important;
+}
+
+.reference-modifier-bibliographie-chips .ui-chip-remove-icon:hover,
+.reference-modifier-bibliographie-chips .ui-chips-token-icon:hover {
+    color: var(--color-danger, #B84A3C) !important;
+}
+
+/* Responsive références bibliographiques */
+@media (max-width: 768px) {
+    .reference-modifier-bibliographie-wrapper {
+        margin-top: 0.5rem;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chips-container {
+        min-height: 72px !important;
+        padding: 0.625rem 0.75rem !important;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chips-input-token input {
+        min-width: 120px !important;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chip-label,
+    .reference-modifier-bibliographie-chips .ui-chips-token-label {
+        max-width: 180px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .reference-modifier-bibliographie-header {
+        flex-wrap: wrap;
+        gap: 0.375rem;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chips-container {
+        min-height: 64px !important;
+        padding: 0.5rem 0.625rem !important;
+        border-radius: 6px !important;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chip,
+    .reference-modifier-bibliographie-chips .ui-chips-token {
+        font-size: 0.8125rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+
+    .reference-modifier-bibliographie-chips .ui-chip-label,
+    .reference-modifier-bibliographie-chips .ui-chips-token-label {
+        max-width: 140px !important;
+    }
+}
+
 /* Ligne édition : liste langue à gauche + champ à droite */
 .reference-edit-lang-row {
     display: flex;
@@ -8964,6 +9171,10 @@ body .ui-datatable .ui-datatable-data>tr>td {
 }
 
 .reference-delete-dialog .ui-dialog-titlebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     background: linear-gradient(135deg, var(--color-danger, #B84A3C) 0%, rgba(184, 74, 60, 0.9) 100%) !important;
     color: white !important;
     border: none !important;
@@ -8971,7 +9182,22 @@ body .ui-datatable .ui-datatable-data>tr>td {
     border-radius: 0 !important;
 }
 
+.reference-delete-dialog .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.reference-delete-dialog .ui-dialog-titlebar-close,
+.reference-delete-dialog .ui-dialog-titlebar-close a,
+.reference-delete-dialog .ui-dialog-titlebar-close:hover,
+.reference-delete-dialog .ui-dialog-titlebar-close:focus,
+.reference-delete-dialog .ui-dialog-titlebar-close:hover a,
+.reference-delete-dialog .ui-dialog-titlebar-close:focus a {
+    text-decoration: none !important;
+}
+
 .reference-delete-dialog .ui-dialog-titlebar-close {
+    flex-shrink: 0 !important;
     color: white !important;
     opacity: 0.9 !important;
     transition: all 0.2s ease !important;
