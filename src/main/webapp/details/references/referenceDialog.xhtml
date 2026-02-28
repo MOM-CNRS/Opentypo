@@ -23,9 +23,10 @@
                              action="#{referenceBean.resetReferenceForm}"
                              update="@form"
                              process="@this"/>
-            <div class="reference-form-content">
-                <!-- Code -->
-                <div class="reference-form-group reference-form-section">
+
+            <!-- Code -->
+            <div class="collection-form-group">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code du référentiel</span>
@@ -39,9 +40,11 @@
                                      placeholder="Ex: REF001"/>
                     </div>
                 </div>
+            </div>
 
-                <!-- Section Labels -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Labels -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
                         <span>Labels</span>
@@ -49,9 +52,9 @@
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputText id="newNameInput"
-                                       value="#{referenceBean.newNameValue}"
-                                       placeholder="Nom"
-                                       styleClass="reference-input"/>
+                                         value="#{referenceBean.newNameValue}"
+                                         placeholder="Nom"
+                                         styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
@@ -59,24 +62,24 @@
                                              styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
                                 <f:selectItems value="#{referenceBean.availableLanguagesForNewName}"
-                                             var="langue"
-                                             itemLabel="#{langue.nom}"
-                                             itemValue="#{langue.code}" />
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
                         <p:commandButton value="Ajouter"
-                                       icon="pi pi-plus"
-                                       styleClass="reference-btn-add"
-                                       actionListener="#{referenceBean.addNameFromInput()}"
-                                       process="@form"
-                                       ajax="true"
-                                       update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameInput :referenceDialogForm:newNameLangue growl"/>
+                                         icon="pi pi-plus"
+                                         styleClass="reference-btn-add"
+                                         actionListener="#{referenceBean.addNameFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameInput :referenceDialogForm:newNameLangue growl"/>
                     </div>
                     <h:panelGroup id="referenceNamesTable" class="reference-names-table-container">
                         <p:dataTable value="#{referenceBean.referenceNames}"
-                                   var="nameItem"
-                                   styleClass="reference-names-table"
-                                   rendered="#{not empty referenceBean.referenceNames}">
+                                     var="nameItem"
+                                     styleClass="reference-names-table"
+                                     rendered="#{not empty referenceBean.referenceNames}">
                             <p:column styleClass="reference-table-name-column">
                                 <div class="reference-table-name-cell">
                                     <h:graphicImage library="img"
@@ -101,22 +104,23 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty referenceBean.referenceNames}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
-                                    </div>
+
+                        <h:panelGroup rendered="#{empty referenceBean.referenceNames}" class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
-                <!-- Section Descriptions -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Descriptions -->
+            <div class="collection-form-group" style=" padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
                         <span>Descriptions</span>
@@ -124,13 +128,13 @@
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
-                                           value="#{referenceBean.newDescriptionValue}"
-                                           placeholder="Description"
-                                           rows="3"
-                                           styleClass="reference-textarea"/>
+                                             value="#{referenceBean.newDescriptionValue}"
+                                             placeholder="Description"
+                                             rows="3"
+                                             styleClass="reference-textarea"/>
                         </div>
                     </div>
-                    <div class="reference-name-input-row">
+                    <div class="reference-name-input-row" style="margin-top: 10px">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{referenceBean.newDescriptionLangueCode}"
@@ -152,10 +156,10 @@
                     </div>
                     <h:panelGroup id="referenceDescriptionsTable" class="reference-names-table-container">
                         <p:dataTable value="#{referenceBean.referenceDescriptions}"
-                                   var="descriptionItem"
-                                   styleClass="reference-names-table"
-                                   emptyMessage="Aucune description ajoutée"
-                                   rendered="#{not empty referenceBean.referenceDescriptions}">
+                                     var="descriptionItem"
+                                     styleClass="reference-names-table"
+                                     emptyMessage="Aucune description ajoutée"
+                                     rendered="#{not empty referenceBean.referenceDescriptions}">
                             <p:column styleClass="reference-table-name-column">
                                 <div class="reference-table-name-cell">
                                     <h:graphicImage library="img"
@@ -180,22 +184,23 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty referenceBean.referenceDescriptions}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
-                                    </div>
+
+                        <h:panelGroup rendered="#{empty referenceBean.referenceDescriptions}" class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
-                <!-- Références bibliographiques -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Références bibliographiques -->
+            <div class="collection-form-group" style=" padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-book reference-section-icon"/>
                         <span>Référence(s) bibliographique(s)</span>
@@ -207,52 +212,54 @@
                              placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
                              separator=";"/>
                 </div>
+            </div>
 
-                <!-- Section Visibilité -->
-                <div class="collection-form-group">
-                    <div class="collection-visibility-section">
-                        <p:outputLabel value="Visibilité du référentiel" styleClass="collection-visibility-label" />
-                        <div class="collection-switch-wrapper">
-                            <h:panelGroup id="referenceSwitchLabel" class="collection-switch-label">
-                                <h:outputText value="Public"
-                                              styleClass="reference-switch-text-public"
-                                              rendered="#{referenceBean.referencePublique}"/>
-                                <h:outputText value="Privé"
-                                              styleClass="reference-switch-text-private"
-                                              rendered="#{not referenceBean.referencePublique}"/>
-                            </h:panelGroup>
-                            <p:selectBooleanCheckbox value="#{referenceBean.referencePublique}"
-                                                     styleClass="collection-switch"
-                                                     id="referencePublique">
-                                <p:ajax event="change" process="@this" update=":referenceDialogForm:referenceSwitchLabel"/>
-                            </p:selectBooleanCheckbox>
-                        </div>
+            <!-- Section Visibilité -->
+            <div class="collection-form-group" style=" padding-top: 15px">
+                <div class="collection-visibility-section" style="padding: 10px;">
+                    <p:outputLabel value="Visibilité du référentiel" styleClass="collection-visibility-label" />
+                    <div class="collection-switch-wrapper">
+                        <h:panelGroup id="referenceSwitchLabel" class="collection-switch-label">
+                            <h:outputText value="Public"
+                                          styleClass="reference-switch-text-public"
+                                          rendered="#{referenceBean.referencePublique}"/>
+                            <h:outputText value="Privé"
+                                          styleClass="reference-switch-text-private"
+                                          rendered="#{not referenceBean.referencePublique}"/>
+                        </h:panelGroup>
+                        <p:selectBooleanCheckbox value="#{referenceBean.referencePublique}"
+                                                 styleClass="collection-switch"
+                                                 id="referencePublique">
+                            <p:ajax event="change" process="@this" update=":referenceDialogForm:referenceSwitchLabel"/>
+                        </p:selectBooleanCheckbox>
                     </div>
                 </div>
+            </div>
 
-                <!-- Section Gestionnaires de référentiel -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Gestionnaires de référentiel -->
+            <div class="collection-form-group" style=" padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px;">
                     <div class="reference-section-label">
                         <i class="pi pi-users reference-section-icon"/>
                         <span>Gestionnaires du référentiel</span>
                     </div>
-                        <p:pickList id="gestionnairesPickList"
-                                    value="#{referenceBean.gestionnairesPickList}"
-                                    var="userId"
-                                    itemLabel="#{referenceBean.getUtilisateurDisplayName(userId)}"
-                                    itemValue="#{userId}"
-                                    converter="pickListLongConverter"
-                                    styleClass="group-dialog-picklist"
-                                    showSourceFilter="true"
-                                    showTargetFilter="true"
-                                    filterMatchMode="contains"
-                                    sourceFilterPlaceholder="Rechercher..."
-                                    targetFilterPlaceholder="Rechercher..."
-                                    responsive="true"
-                                    rendered="#{not empty referenceBean.gestionnairesList}"/>
-                        <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                            <span>Aucun utilisateur disponible</span>
-                        </h:panelGroup>
+                    <p:pickList id="gestionnairesPickList"
+                                value="#{referenceBean.gestionnairesPickList}"
+                                var="userId"
+                                itemLabel="#{referenceBean.getUtilisateurDisplayName(userId)}"
+                                itemValue="#{userId}"
+                                converter="pickListLongConverter"
+                                styleClass="group-dialog-picklist"
+                                showSourceFilter="true"
+                                showTargetFilter="true"
+                                filterMatchMode="contains"
+                                sourceFilterPlaceholder="Rechercher..."
+                                targetFilterPlaceholder="Rechercher..."
+                                responsive="true"
+                                rendered="#{not empty referenceBean.gestionnairesList}"/>
+                    <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
+                        <span>Aucun utilisateur disponible</span>
+                    </h:panelGroup>
                 </div>
             </div>
 
