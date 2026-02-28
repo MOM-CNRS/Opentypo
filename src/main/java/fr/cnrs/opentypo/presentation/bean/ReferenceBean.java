@@ -418,7 +418,9 @@ public class ReferenceBean implements Serializable {
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
             return;
         }
+
         if (referenceNames == null) referenceNames = new ArrayList<>();
+
         Langue langue = langueRepository.findByCode(newNameLangueCode);
         referenceNames.add(new NameItem(newNameValue.trim(), newNameLangueCode, langue));
         newNameValue = null;

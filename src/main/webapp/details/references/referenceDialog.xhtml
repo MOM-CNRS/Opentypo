@@ -6,7 +6,7 @@
 
     <!-- Dialog pour créer ou modifier un référentiel (aligné sur categoryDialog) -->
     <p:dialog id="referenceDialog"
-              header="#{referenceBean.editModeInDialog ? 'Modifier le référentiel' : 'Créer un nouveau référentiel'}"
+              header="Créer un nouveau référentiel"
               widgetVar="referenceDialog"
               modal="true"
               draggable="false"
@@ -19,10 +19,7 @@
               position="center">
 
         <h:form id="referenceDialogForm">
-            <p:remoteCommand name="resetReferenceFormCommand"
-                             action="#{referenceBean.resetReferenceForm}"
-                             update="@form"
-                             process="@this"/>
+            <p:remoteCommand name="resetReferenceFormCommand" action="#{referenceBean.resetReferenceForm}" update="@form" process="@this"/>
 
             <!-- Code -->
             <div class="collection-form-group">
@@ -34,8 +31,6 @@
                     <div class="input-wrapper periode-input-wrapper collection-select">
                         <p:inputText id="referenceCode"
                                      value="#{referenceBean.referenceCode}"
-                                     required="true"
-                                     requiredMessage="Le code du référentiel est requis"
                                      styleClass="reference-input"
                                      placeholder="Ex: REF001"/>
                     </div>
@@ -49,7 +44,7 @@
                         <i class="pi pi-tag reference-section-icon"/>
                         <span>Labels</span>
                     </div>
-                    <div class="reference-name-input-row">
+                    <div class="collection-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputText id="newNameInput"
                                          value="#{referenceBean.newNameValue}"
