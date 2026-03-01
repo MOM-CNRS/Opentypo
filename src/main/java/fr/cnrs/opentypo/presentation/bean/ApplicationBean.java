@@ -34,6 +34,7 @@ import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -43,6 +44,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -158,6 +160,9 @@ public class ApplicationBean implements Serializable {
 
     // Titre de l'écran
     private String selectedEntityLabel;
+
+    /** Statut de visibilité demandé avant confirmation (pour le dialog) */
+    private Boolean requestedVisibilityStatus;
 
 
     @PostConstruct
@@ -866,6 +871,18 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Retourne le libellé de la langue pour un code donné (ex. "fr" → "Français").
+     */
+    public String getLanguageLabel(String code) {
+        if (code == null || code.isEmpty() || languages == null) return "Français";
+        return languages.stream()
+                .filter(l -> code.equalsIgnoreCase(l.getCode()))
+                .findFirst()
+                .map(Language::getValue)
+                .orElse("Français");
+    }
+
+    /**
      * Charge les référentiels depuis la base de données
      */
     public void loadReferences() {
@@ -1168,6 +1185,51 @@ public class ApplicationBean implements Serializable {
         Entity entity = collectionService.findCollectionIdByEntityId(selectedEntity.getId());
         String label = candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
         return "MONNAIE".equals(label) || "CASH".equals(label);
+    }
+
+
+
+    /**
+     * Annule l'édition du référentiel
+     */
+    /**
+     * Prépare l'affichage du dialog de confirmation avant changement de visibilité.
+     * @param makePublic true pour rendre public, false pour rendre privé
+     */
+    public void prepareConfirmVisibilityChange(boolean makePublic) {
+        requestedVisibilityStatus = makePublic;
+    }
+
+    /**
+     * Applique le changement de visibilité après confirmation et persiste en base.
+     */
+    @Transactional
+    public void applyVisibilityChange(ApplicationBean applicationBean) {
+        if (applicationBean == null || requestedVisibilityStatus == null) {
+            return;
+        }
+
+        applicationBean.getSelectedEntity().setPublique(requestedVisibilityStatus);
+        applicationBean.setSelectedEntity(entityRepository.save(applicationBean.getSelectedEntity()));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                        requestedVisibilityStatus ? "L'élément est maintenant public." : "L'élément est maintenant privé."));
+        log.info("La visibilité du {} modifiée: {}", applicationBean.getSelectedEntity().getCode(), requestedVisibilityStatus ? "public" : "privé");
+        requestedVisibilityStatus = null;
+    }
+
+    /** Message pour le dialog de confirmation de changement de visibilité */
+    public String getVisibilityConfirmMessage() {
+        if (requestedVisibilityStatus == null) return "";
+        return requestedVisibilityStatus
+                ? "Voulez-vous rendre cet élément public ? Il sera visible par tous les utilisateurs."
+                : "Voulez-vous rendre cet élément privé ? Seuls les utilisateurs autorisés pourront y accéder.";
+    }
+
+    /** Titre du dialog selon le changement demandé */
+    public String getVisibilityConfirmTitle() {
+        if (requestedVisibilityStatus == null) return "Changer la visibilité";
+        return requestedVisibilityStatus ? "Rendre cet élément public" : "Rendre cet élément privé";
     }
 }
 

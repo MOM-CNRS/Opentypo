@@ -19,41 +19,46 @@
               position="center">
 
         <h:form id="categoryDialogForm">
+
             <p:remoteCommand name="resetCategoryFormCommand"
                            action="#{categoryBean.resetCategoryDialogForm}"
                            update="@form"
                            process="@this"/>
-            <div class="reference-form-content">
                 <!-- Code -->
-                <div class="reference-form-group reference-form-section">
+            <div class="collection-form-group">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code de la catégorie</span>
                     </div>
-                    <p:inputText id="categoryCode"
-                               value="#{categoryBean.categoryDialogCode}"
-                               required="true"
-                               requiredMessage="Le code de la catégorie est requis"
-                               styleClass="reference-input"
-                               placeholder="Ex: CAT001"/>
+                    <div class="input-wrapper periode-input-wrapper collection-select">
+                        <p:inputText id="categoryCode"
+                                     value="#{categoryBean.categoryCode}"
+                                     required="true"
+                                     requiredMessage="Le code de la catégorie est requis"
+                                     styleClass="reference-input"
+                                     placeholder="Ex: CAT001"/>
+                    </div>
                 </div>
+            </div>
 
                 <!-- Section Labels -->
-                <div class="reference-form-group reference-form-section">
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
                         <span>Labels</span>
                     </div>
+
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
-                            <p:inputText id="newNameInput"
-                                       value="#{categoryBean.newNameValue}"
-                                       placeholder="Nom"
-                                       styleClass="reference-input"/>
+                        <div class="reference-form-group reference-form-group-flex collection-select">
+                            <p:inputText value="#{categoryBean.categoryLabel}"
+                                         placeholder="Label"
+                                         styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
-                                             value="#{categoryBean.newNameLangueCode}"
+                                             value="#{categoryBean.labelLangueCode}"
                                              styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
                                 <f:selectItems value="#{categoryBean.availableLanguagesForNewName}"
@@ -70,6 +75,7 @@
                                        ajax="true"
                                        update=":categoryDialogForm:categoryNamesTable :categoryDialogForm:newNameInput :categoryDialogForm:newNameLangue growl"/>
                     </div>
+
                     <h:panelGroup id="categoryNamesTable" class="reference-names-table-container">
                         <p:dataTable value="#{categoryBean.categoryNames}"
                                    var="nameItem"
@@ -99,39 +105,43 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty categoryBean.categoryNames}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
-                                    </div>
+
+                        <h:panelGroup rendered="#{empty categoryBean.categoryNames}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
                 <!-- Section Descriptions -->
-                <div class="reference-form-group reference-form-section">
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
                         <span>Descriptions</span>
                     </div>
+
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
-                                           value="#{categoryBean.newDescriptionValue}"
+                                           value="#{categoryBean.categoryDescription}"
                                            placeholder="Description"
                                            rows="3"
                                            styleClass="reference-textarea"/>
                         </div>
                     </div>
-                    <div class="reference-name-input-row">
+
+                    <div class="reference-name-input-row" style="margin-top: 10px">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newDescriptionLangue"
-                                             value="#{categoryBean.newDescriptionLangueCode}"
+                                             value="#{categoryBean.descriptionLangueCode}"
                                              styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
                                 <f:selectItems value="#{categoryBean.availableLanguagesForNewDescription}"
@@ -148,6 +158,7 @@
                                          ajax="true"
                                          update=":categoryDialogForm:categoryDescriptionsTable :categoryDialogForm:newDescriptionInput :categoryDialogForm:newDescriptionLangue growl"/>
                     </div>
+
                     <h:panelGroup id="categoryDescriptionsTable" class="reference-names-table-container">
                         <p:dataTable value="#{categoryBean.categoryDescriptions}"
                                    var="descriptionItem"
@@ -178,58 +189,76 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty categoryBean.categoryDescriptions}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
-                                    </div>
+
+                        <h:panelGroup rendered="#{empty categoryBean.categoryDescriptions}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
                 <!-- Références bibliographiques -->
-                <div class="reference-form-group reference-form-section">
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-book reference-section-icon"/>
-                        <span>Référence(s) bibliographique(s)</span>
+                        <span>Bibliographie</span>
                     </div>
-                    <p:chips id="categoryBibliographique"
-                             value="#{categoryBean.categoryBibliographiqueList}"
-                             styleClass="reference-chips"
-                             style="width: 100%"
-                             placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
-                             separator=";"/>
-                </div>
-
-                <!-- Section Visibilité -->
-                <div class="collection-form-group">
-                    <div class="collection-visibility-section">
-                        <p:outputLabel value="Visibilité de la catégorie" styleClass="collection-visibility-label" />
-                        <div class="collection-switch-wrapper">
-                            <h:panelGroup id="categorySwitchLabel" class="collection-switch-label">
-                                <h:outputText value="Public"
-                                              styleClass="reference-switch-text-public"
-                                              rendered="#{categoryBean.categoryPublique}"/>
-                                <h:outputText value="Privé"
-                                              styleClass="reference-switch-text-private"
-                                              rendered="#{not categoryBean.categoryPublique}"/>
-                            </h:panelGroup>
-                            <p:selectBooleanCheckbox value="#{categoryBean.categoryPublique}"
-                                                     styleClass="collection-switch"
-                                                     id="categoryPublique">
-                                <p:ajax event="change" process="@this" update=":categoryDialogForm:categorySwitchLabel"/>
-                            </p:selectBooleanCheckbox>
-                        </div>
+                    <div class="reference-form-group reference-form-group-flex collection-select">
+                        <p:inputTextarea value="#{categoryBean.categoryBibliographie}"
+                                         placeholder="Bibliographie"
+                                         rows="3"
+                                         styleClass="reference-textarea"/>
                     </div>
                 </div>
             </div>
 
-            <div class="reference-form-actions">
+            <!-- Références bibliographiques -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
+                    <div class="reference-section-label">
+                        <i class="pi pi-book reference-section-icon"/>
+                        <span>Commentaire</span>
+                    </div>
+                    <div class="reference-form-group reference-form-group-flex collection-select">
+                        <p:inputTextarea value="#{categoryBean.categoryCommentaire}"
+                                         placeholder="Commentaire"
+                                         rows="3"
+                                         styleClass="reference-textarea"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Visibilité -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section">
+                    <p:outputLabel value="Visibilité de la catégorie" styleClass="collection-visibility-label" />
+                    <div class="collection-switch-wrapper">
+                        <h:panelGroup id="categorySwitchLabel" class="collection-switch-label">
+                            <h:outputText value="Public"
+                                          styleClass="reference-switch-text-public"
+                                          rendered="#{categoryBean.categoryPublique}"/>
+                            <h:outputText value="Privé"
+                                          styleClass="reference-switch-text-private"
+                                          rendered="#{not categoryBean.categoryPublique}"/>
+                        </h:panelGroup>
+                        <p:selectBooleanCheckbox value="#{categoryBean.categoryPublique}"
+                                                 styleClass="collection-switch"
+                                                 id="categoryPublique">
+                            <p:ajax event="change" process="@this" update=":categoryDialogForm:categorySwitchLabel"/>
+                        </p:selectBooleanCheckbox>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reference-form-actions" style="padding-top: 15px">
                 <p:commandButton value="Annuler"
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"

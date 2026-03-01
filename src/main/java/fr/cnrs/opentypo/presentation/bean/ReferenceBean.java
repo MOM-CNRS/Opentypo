@@ -134,9 +134,6 @@ public class ReferenceBean implements Serializable {
     /** Code langue pour laquelle on édite la description (ex: fr, en). */
     private String editingDescriptionLangueCode;
 
-    /** Statut de visibilité demandé avant confirmation (pour le dialog) */
-    private Boolean requestedVisibilityStatus;
-
     @Inject
     public ReferenceBean(@Named("collectionBean") CollectionBean collectionBean) {
         this.collectionBean = collectionBean;
@@ -557,64 +554,6 @@ public class ReferenceBean implements Serializable {
         PrimeFaces.current().ajax().update(
                 ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
                         + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
-    }
-
-    /**
-     * Annule l'édition du référentiel
-     */
-    /**
-     * Prépare l'affichage du dialog de confirmation avant changement de visibilité.
-     * @param makePublic true pour rendre public, false pour rendre privé
-     */
-    public void prepareConfirmVisibilityChange(boolean makePublic) {
-        requestedVisibilityStatus = makePublic;
-    }
-
-    /**
-     * Applique le changement de visibilité après confirmation et persiste en base.
-     */
-    @Transactional
-    public void applyVisibilityChange(ApplicationBean applicationBean) {
-        if (applicationBean == null || requestedVisibilityStatus == null) {
-            return;
-        }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference == null || reference.getId() == null) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun référentiel sélectionné."));
-            return;
-        }
-        try {
-            Boolean targetStatus = requestedVisibilityStatus;
-            Entity refreshed = entityRepository.findById(reference.getId()).orElse(reference);
-            refreshed.setPublique(targetStatus);
-            Entity saved = entityRepository.save(refreshed);
-            applicationBean.setSelectedEntity(saved);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            targetStatus ? "Le référentiel est maintenant public." : "Le référentiel est maintenant privé."));
-            log.info("Visibilité du référentiel {} modifiée: {}", saved.getCode(), targetStatus ? "public" : "privé");
-        } catch (Exception e) {
-            log.error("Erreur lors du changement de visibilité du référentiel", e);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur est survenue : " + e.getMessage()));
-        } finally {
-            requestedVisibilityStatus = null;
-        }
-    }
-
-    /** Message pour le dialog de confirmation de changement de visibilité */
-    public String getVisibilityConfirmMessage() {
-        if (requestedVisibilityStatus == null) return "";
-        return requestedVisibilityStatus
-                ? "Voulez-vous rendre ce référentiel public ? Il sera visible par tous les utilisateurs."
-                : "Voulez-vous rendre ce référentiel privé ? Seuls les utilisateurs autorisés pourront y accéder.";
-    }
-
-    /** Titre du dialog selon le changement demandé */
-    public String getVisibilityConfirmTitle() {
-        if (requestedVisibilityStatus == null) return "Changer la visibilité";
-        return requestedVisibilityStatus ? "Rendre le référentiel public" : "Rendre le référentiel privé";
     }
 
     public void cancelEditingReference() {

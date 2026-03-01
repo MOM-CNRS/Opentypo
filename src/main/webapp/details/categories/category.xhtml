@@ -2,34 +2,36 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <div class="category-detail-page">
-        <h:panelGroup class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel">
+    <h:panelGroup id="categoryDetailPanel" class="row collection-page-wrapper">
+        <div class="col-md-12 collection-page-content">
+            <h:form id="categoryEditForm" styleClass="groupe-header-form-inline">
+                <div class="concept-info-panel #{categoryBean.editingCategory ? 'collection-edit-mode' : ''}">
                     <!-- En-tête avec titre et actions -->
-                    <div class="concept-info-header">
+                    <div class="concept-info-header #{categoryBean.editingCategory ? 'collection-edit-header' : ''}">
                         <div class="concept-info-title-section">
                             <span class="reference-entity-type-badge">Catégorie</span>
                             <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png"
+                                <h:graphicImage library="img" name="flag/#{searchBean.langSelected != null and searchBean.langSelected != '' ? searchBean.langSelected : 'fr'}.png"
                                                 styleClass="language-flag"
-                                                alt="Français"
-                                                title="Français"/>
-                            </div>
-                            <div class="collection-panel-title-wrapper">
-                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                                                alt="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"
+                                                title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
                             </div>
                             <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
                                           styleClass="collection-not-published-icon">
                                 <i class="pi pi-clock"/>
-                                <p:tooltip value="Collection non publiée" position="top"/>
+                                <p:tooltip value="Catégorie non publiée" position="top"/>
                             </h:panelGroup>
+                            <div class="collection-panel-title-wrapper">
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                            </div>
                         </div>
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit()}">
-                            <!-- Bouton Historique -->
+
+                        <!-- Actions (masquées en mode édition) -->
+                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not categoryBean.editingCategory}">
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
                                            update="@none"
@@ -40,8 +42,12 @@
                             </p:commandLink>
                             <p:commandLink action="#{categoryBean.startEditingCategory(applicationBean)}"
                                            process="@this"
-                                           update=":categoryEditForm"
-                                           styleClass="concept-action-button">
+                                           update=":centerContent"
+                                           styleClass="concept-action-button"
+                                           title="Modifier la catégorie"
+                                           onstart="showLoading('Chargement...', 'spinner');"
+                                           oncomplete="setTimeout(function(){hideLoading();}, 0);"
+                                           onerror="forceHideLoading();">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
@@ -53,47 +59,69 @@
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
+
+                            <div class="collection-visibility-card">
+                                <div class="collection-visibility-card-content">
+                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                        <div class="collection-visibility-icon">
+                                            <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                        </div>
+                                        <div class="collection-visibility-info">
+                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Public' : 'Privé'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="collection-visibility-toggle-wrapper">
+                                        <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                       process="@this"
+                                                       update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
+                                                       action="#{applicationBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
+                                                       oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                            <i class="pi pi-sync" />
+                                            <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                            </div>
                         </h:panelGroup>
                     </div>
 
-                    <!-- Grille d'informations -->
-                    <h:form id="categoryEditForm">
+                    <!-- Vue lecture -->
+                    <ui:fragment rendered="#{!categoryBean.editingCategory}">
                         <div class="concept-info-grid">
-                            <h:panelGroup id="descriptionUpdatePanel" class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
                                     <i class="pi pi-file concept-info-icon" />
                                     <span>Description</span>
                                 </div>
-                                <ui:fragment rendered="#{!categoryBean.editingCategory}">
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                    <div class="reference-edit-lang-row">
-                                        <p:selectOneMenu value="#{categoryBean.editingDescriptionLangueCode}"
-                                                         styleClass="reference-edit-lang-select"
-                                                         required="true">
-                                            <f:selectItems value="#{applicationBean.languages}"
-                                                           var="lang"
-                                                           itemValue="#{lang.code}"
-                                                           itemLabel="#{lang.value}"/>
-                                            <p:ajax listener="#{categoryBean.onDescriptionLanguageChange(applicationBean)}"
-                                                    process="@this" ajax="true"
-                                                    update=":categoryEditForm:descriptionUpdatePanel"/>
-                                        </p:selectOneMenu>
-                                        <p:textEditor value="#{categoryBean.editingCategoryDescription}"
-                                                      secure="false"
-                                                      height="200"
-                                                      styleClass="collection-edit-textarea"
-                                                      placeholder="Saisissez la description de la réference"/>
-                                    </div>
-                                </ui:fragment>
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-book concept-info-icon" />
+                                    <span>Bibliographie</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.bibliographie, ';')}" var="ref" varStatus="status">
+                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                </span>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
                             </h:panelGroup>
 
                             <h:panelGroup class="concept-info-item concept-info-item-full">
@@ -101,52 +129,12 @@
                                     <i class="pi pi-comment concept-info-icon" />
                                     <span>Commentaire</span>
                                 </div>
-                                <ui:fragment rendered="#{not categoryBean.editingCategory}">
-                                    <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
-                                            #{applicationBean.selectedEntity.metadataCommentaire}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                    <div class="reference-edit-lang-row">
-                                        <p:inputTextarea value="#{categoryBean.editingCategoryCommentaire}"
-                                                         rows="4"
-                                                         cols="50"
-                                                         styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                         placeholder="Saisissez un commentaire..."/>
-                                    </div>
-                                </ui:fragment>
-                            </h:panelGroup>
-
-                            <h:panelGroup rendered="#{applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'MONNAIE'
-                                    and applicationBean.getEntityLabel(applicationBean.selectedEntity) != 'CASH'}">
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-book concept-info-icon" />
-                                        <span>Bibliographie</span>
-                                    </div>
-                                    <ui:fragment rendered="#{not categoryBean.editingCategory}">
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                                #{applicationBean.selectedEntity.bibliographie}
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                        <h:outputText value="#{applicationBean.selectedEntity.metadataCommentaire}" escape="false"/>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{categoryBean.editingCategory}">
-                                        <div class="reference-edit-lang-row">
-                                            <p:inputTextarea value="#{categoryBean.editingCategoryBibliographie}"
-                                                             rows="5"
-                                                             cols="50"
-                                                             styleClass="reference-edit-textarea reference-edit-textarea-flex"
-                                                             placeholder="Saisissez la description pour la langue choisie..."/>
-                                        </div>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                        <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -159,10 +147,9 @@
                                 <div class="concept-info-value bibliographie-container">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
                                         <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
-                                        <span class="bibliographie-badge">
-                                            <i class="pi pi-user bibliographie-badge-icon" />
-                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                        </span>
+                                            <span class="bibliographie-badge">
+                                                <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
+                                            </span>
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Aucun auteur disponible"
@@ -171,11 +158,23 @@
                                 </div>
                             </h:panelGroup>
                         </div>
-                    </h:form>
-                </div>
-            </div>
-        </h:panelGroup>
-    </div>
+                    </ui:fragment>
 
-    <ui:include src="../catalogues/liste_groupes.xhtml"/>
+                    <!-- Mode édition : formulaire modifier -->
+                    <ui:fragment rendered="#{categoryBean.editingCategory}">
+                        <ui:include src="modifier.xhtml"/>
+                    </ui:fragment>
+                </div>
+            </h:form>
+        </div>
+    </h:panelGroup>
+
+    <!-- 3. Liste des groupes (masquée en mode édition) -->
+    <ui:fragment rendered="#{!categoryBean.editingCategory}">
+        <ui:include src="../catalogues/liste_groupes.xhtml"/>
+    </ui:fragment>
+
+    <h:outputStylesheet library="css" name="collection.css"/>
+    <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>
+    <h:outputScript library="js" name="treeUtils.js"/>
 </ui:composition>

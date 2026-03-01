@@ -1232,6 +1232,7 @@
     color: #ffffff !important;
     box-shadow: 0 2px 6px rgba(71, 98, 77, 0.25) !important;
     transition: all 0.25s ease !important;
+    margin-right: 20px !important;
 }
 
 .collection-modifier-btn-save:hover {
@@ -1256,7 +1257,7 @@
     color: var(--color-text-primary, #333) !important;
     border: 2px solid rgba(71, 98, 77, 0.2) !important;
     transition: all 0.25s ease !important;
-    margin-right: 20px !important;
+    margin-right: 10px !important;
 }
 
 .collection-modifier-btn-back:hover {

@@ -15,15 +15,12 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
-import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import lombok.Getter;
@@ -39,7 +36,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -49,143 +46,113 @@ import java.util.Optional;
 @Slf4j
 public class CategoryBean implements Serializable {
 
-    @Inject
+    @Autowired
     private EntityRepository entityRepository;
 
-    @Inject
+    @Autowired
     private EntityTypeRepository entityTypeRepository;
 
-    @Inject
-    private ReferenceOpenthesoRepository referenceOpenthesoRepository;
-
-    @Inject
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Inject
+    @Autowired
     private LoginBean loginBean;
 
-    @Inject
+    @Autowired
     private Provider<TreeBean> treeBeanProvider;
 
-    @Inject
+    @Autowired
     private EntityRelationRepository entityRelationRepository;
 
-    @Inject
+    @Autowired
     private LangueRepository langueRepository;
 
-    @Inject
-    private SearchBean searchBean;
-
-    @Inject
+    @Autowired
     private TreeBean treeBean;
 
-    @Inject
+    @Autowired
     private ApplicationBean applicationBean;
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
-
-
-    private String categoryCode;
-    private String categoryLabel;
-    private String categoryDescription;
-
+    
     private boolean editingCategory = false;
-    private String editingCategoryCode;
-    private String editingLabelLangueCode;
-    private String editingCategoryLabel;
-    private String editingDescriptionLangueCode;
-    private String editingCategoryDescription;
-    private String editingCategoryBibliographie;
-    private String editingCategoryCommentaire;
-
-    // Propriétés pour le dialog de création (même structure que référence)
-    private static final String CATEGORY_DIALOG_FORM = ":categoryDialogForm";
     private List<NameItem> categoryNames = new ArrayList<>();
     private List<DescriptionItem> categoryDescriptions = new ArrayList<>();
-    private List<String> categoryBibliographiqueList = new ArrayList<>();
-    private String categoryDialogCode;
-    private String newNameValue;
-    private String newNameLangueCode;
-    private String newDescriptionValue;
-    private String newDescriptionLangueCode;
+
+    private String categoryCode;
+    private String labelLangueCode;
+    private String categoryLabel;
+    private String descriptionLangueCode;
+    private String categoryDescription;
+    private String categoryBibliographie;
+    private String categoryCommentaire;
     private Boolean categoryPublique = true;
     private List<Langue> availableLanguages;
 
 
-    public void resetCategoryForm() {
-        categoryCode = null;
-        categoryLabel = null;
-        categoryDescription = null;
-    }
-
     public void resetCategoryDialogForm() {
-        categoryDialogCode = null;
+        categoryCode = null;
         categoryNames = new ArrayList<>();
         categoryDescriptions = new ArrayList<>();
-        categoryBibliographiqueList = new ArrayList<>();
-        newNameValue = null;
-        newNameLangueCode = null;
-        newDescriptionValue = null;
-        newDescriptionLangueCode = null;
         categoryPublique = true;
-    }
-
-    public void prepareCreateCategory() {
-        resetCategoryDialogForm();
-    }
-
-    private void loadAvailableLanguages() {
-        if (availableLanguages == null) {
-            try {
-                availableLanguages = langueRepository.findAllByOrderByNomAsc();
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des langues", e);
-                availableLanguages = new ArrayList<>();
-            }
-        }
-    }
-
-    public boolean isLangueAlreadyUsedInNames(String code, NameItem exclude) {
-        if (categoryNames == null || code == null) return false;
-        return categoryNames.stream()
-                .filter(i -> i != exclude && i.getLangueCode() != null)
-                .anyMatch(i -> i.getLangueCode().equals(code));
+        editingCategory = false;
+        labelLangueCode = null;
+        categoryLabel = null;
+        descriptionLangueCode = null;
+        categoryDescription = null;
+        categoryBibliographie = null;
+        categoryCommentaire = null;
     }
 
     public List<Langue> getAvailableLanguagesForNewName() {
-        loadAvailableLanguages();
-        if (availableLanguages == null) return new ArrayList<>();
+
+        if (availableLanguages == null) {
+            availableLanguages = langueRepository.findAllByOrderByNomAsc();
+        }
+
         return availableLanguages.stream()
                 .filter(l -> !isLangueAlreadyUsedInNames(l.getCode(), null))
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    public boolean isLangueAlreadyUsedInNames(String code, NameItem exclude) {
+        if (categoryNames == null || code == null) return false;
+        return categoryNames.stream()
+                .filter(element -> element != exclude && element.getLangueCode() != null)
+                .anyMatch(element -> element.getLangueCode().equalsIgnoreCase(code));
+    }
+
     public void addNameFromInput() {
-        if (newNameValue == null || newNameValue.trim().isEmpty()) {
+        if (categoryLabel == null || categoryLabel.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
             return;
         }
-        if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
+        if (labelLangueCode == null || labelLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
             return;
         }
-        if (isLangueAlreadyUsedInNames(newNameLangueCode, null)) {
+        if (isLangueAlreadyUsedInNames(labelLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
             return;
         }
         if (categoryNames == null) categoryNames = new ArrayList<>();
-        Langue langue = langueRepository.findByCode(newNameLangueCode);
-        categoryNames.add(new NameItem(newNameValue.trim(), newNameLangueCode, langue));
-        newNameValue = null;
-        newNameLangueCode = null;
+        Langue langue = langueRepository.findByCode(labelLangueCode);
+        categoryNames.add(new NameItem(categoryLabel.trim(), labelLangueCode, langue));
+        categoryLabel = null;
+        labelLangueCode = null;
     }
 
     public void removeName(NameItem item) {
-        if (categoryNames != null) categoryNames.remove(item);
+        if (categoryNames != null) {
+            categoryNames = categoryNames.stream()
+                    .filter(element -> !element.getNom().equalsIgnoreCase(item.getNom())
+                            && !element.getLangueCode().equalsIgnoreCase(item.getLangueCode()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
     }
 
     public boolean isLangueAlreadyUsedInDescriptions(String code, DescriptionItem exclude) {
@@ -196,38 +163,47 @@ public class CategoryBean implements Serializable {
     }
 
     public List<Langue> getAvailableLanguagesForNewDescription() {
-        loadAvailableLanguages();
-        if (availableLanguages == null) return new ArrayList<>();
+
+        if (availableLanguages == null) {
+            availableLanguages = langueRepository.findAllByOrderByNomAsc();
+        }
+
         return availableLanguages.stream()
                 .filter(l -> !isLangueAlreadyUsedInDescriptions(l.getCode(), null))
                 .collect(java.util.stream.Collectors.toList());
     }
 
     public void addDescriptionFromInput() {
-        if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
+        if (categoryDescription == null || categoryDescription.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
             return;
         }
-        if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
+        if (descriptionLangueCode == null || descriptionLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
             return;
         }
-        if (isLangueAlreadyUsedInDescriptions(newDescriptionLangueCode, null)) {
+        if (isLangueAlreadyUsedInDescriptions(descriptionLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
             return;
         }
         if (categoryDescriptions == null) categoryDescriptions = new ArrayList<>();
-        Langue langue = langueRepository.findByCode(newDescriptionLangueCode);
-        categoryDescriptions.add(new DescriptionItem(newDescriptionValue.trim(), newDescriptionLangueCode, langue));
-        newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+
+        categoryDescriptions.add(new DescriptionItem(categoryDescription.trim(), descriptionLangueCode,
+                langueRepository.findByCode(descriptionLangueCode)));
+        categoryDescription = null;
+        descriptionLangueCode = null;
     }
 
     public void removeDescription(DescriptionItem item) {
-        if (categoryDescriptions != null) categoryDescriptions.remove(item);
+        if (categoryDescriptions != null) {
+            categoryDescriptions = categoryDescriptions.stream()
+                    .filter(element -> !element.getValeur().equalsIgnoreCase(item.getValeur())
+                            && !element.getLangueCode().equalsIgnoreCase(item.getLangueCode()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
     }
 
     @Transactional
@@ -237,32 +213,27 @@ public class CategoryBean implements Serializable {
         if (applicationBean == null || applicationBean.getSelectedReference() == null) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Aucun référentiel n'est sélectionné. Veuillez sélectionner un référentiel avant de créer une catégorie."));
-            PrimeFaces.current().ajax().update(CATEGORY_DIALOG_FORM + ", " + ":growl");
+            PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
             return;
         }
 
-        if (!EntityValidator.validateCode(categoryDialogCode, entityRepository, CATEGORY_DIALOG_FORM)) {
+        if (!EntityValidator.validateCode(categoryCode, entityRepository, ":categoryDialogForm")) {
             return;
         }
 
         if (categoryNames == null || categoryNames.isEmpty()) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
-            PrimeFaces.current().ajax().update(CATEGORY_DIALOG_FORM + ", " + ":growl");
+            PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
             return;
         }
 
         for (NameItem item : categoryNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
                 facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
-                PrimeFaces.current().ajax().update(CATEGORY_DIALOG_FORM + ", " + ":growl");
+                PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
                 return;
             }
         }
-
-        String codeTrimmed = categoryDialogCode.trim();
-        String bibStr = (categoryBibliographiqueList != null && !categoryBibliographiqueList.isEmpty())
-                ? String.join("; ", categoryBibliographiqueList)
-                : null;
 
         try {
             EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
@@ -270,11 +241,12 @@ public class CategoryBean implements Serializable {
                             "Le type d'entité '" + EntityConstants.ENTITY_TYPE_CATEGORY + "' n'existe pas dans la base de données."));
 
             Entity newCategory = new Entity();
-            newCategory.setCode(codeTrimmed);
-            newCategory.setBibliographie(bibStr);
+            newCategory.setCode(categoryCode.trim());
+            newCategory.setBibliographie(categoryBibliographie);
             newCategory.setEntityType(categoryType);
             newCategory.setPublique(categoryPublique != null ? categoryPublique : true);
             newCategory.setCreateDate(LocalDateTime.now());
+            newCategory.setMetadataCommentaire(categoryCommentaire);
 
             List<Label> labels = new ArrayList<>();
             for (NameItem ni : categoryNames) {
@@ -325,139 +297,23 @@ public class CategoryBean implements Serializable {
             }
 
             applicationBean.refreshReferenceCategoriesList();
-            TreeBean tb = treeBeanProvider.get();
-            if (tb != null) {
-                tb.addEntityToTree(savedCategory, applicationBean.getSelectedReference());
-            }
+            treeBean.addEntityToTree(savedCategory, applicationBean.getSelectedReference());
 
-            String labelPrincipal = categoryNames.get(0).getNom();
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "La catégorie '" + labelPrincipal + "' a été créée avec succès."));
+                    "La catégorie '" + categoryNames.get(0).getNom() + "' a été créée avec succès."));
 
             resetCategoryDialogForm();
             PrimeFaces.current().executeScript("PF('categoryDialog').hide();");
-            PrimeFaces.current().ajax().update(":growl, " + CATEGORY_DIALOG_FORM + ", :categoriesContainer, :centerContent");
+            PrimeFaces.current().ajax().update(":growl, :categoryDialogForm, :categoriesContainer, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la catégorie", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
-            PrimeFaces.current().ajax().update(CATEGORY_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la catégorie", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(CATEGORY_DIALOG_FORM + ", :growl");
-        }
-    }
-
-    public void createCategory() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-
-        // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
-                categoryCode, entityRepository, ":categoryForm")) {
-            return;
-        }
-
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
-                categoryLabel, ":categoryForm")) {
-            return;
-        }
-        
-        // Vérifier qu'un référentiel est sélectionné
-        if (applicationBean == null || applicationBean.getSelectedReference() == null) {
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Aucun référentiel n'est sélectionné. Veuillez sélectionner un référentiel avant de créer une catégorie."));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
-            return;
-        }
-
-        String codeTrimmed = categoryCode.trim();
-        String labelTrimmed = categoryLabel.trim();
-        String descriptionTrimmed = (categoryDescription != null && !categoryDescription.trim().isEmpty())
-                ? categoryDescription.trim() : null;
-
-        try {
-            // Récupérer le type d'entité CATEGORY
-            // Essayer d'abord avec "CATEGORY" puis "CATEGORIE" pour compatibilité
-            EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
-                    .orElse(entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
-                            .orElseThrow(() -> new IllegalStateException(
-                                    "Le type d'entité 'CATEGORY' ou 'CATEGORIE' n'existe pas dans la base de données.")));
-
-            // Créer la nouvelle entité catégorie
-            Entity newCategory = new Entity();
-            newCategory.setCode(codeTrimmed);
-            newCategory.setCommentaire(descriptionTrimmed);
-            newCategory.setEntityType(categoryType);
-            newCategory.setPublique(true);
-            newCategory.setCreateDate(LocalDateTime.now());
-
-            Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
-            if (StringUtils.hasText(labelTrimmed)) {
-                Label labelPrincipal = new Label();
-                labelPrincipal.setNom(labelTrimmed.trim());
-                labelPrincipal.setLangue(languePrincipale);
-                labelPrincipal.setEntity(newCategory);
-                List<Label> labels = new ArrayList<>();
-                labels.add(labelPrincipal);
-                newCategory.setLabels(labels);
-            }
-
-            Utilisateur currentUser = loginBean.getCurrentUser();
-            if (currentUser != null) {
-                newCategory.setCreateBy(currentUser.getEmail());
-                List<Utilisateur> auteurs = new ArrayList<>();
-                auteurs.add(currentUser);
-                newCategory.setAuteurs(auteurs);
-            }
-
-            // Sauvegarder la catégorie
-            Entity savedCategory = entityRepository.save(newCategory);
-
-            // Créer la relation entre le référentiel (parent) et la catégorie (child)
-            if (!entityRelationRepository.existsByParentAndChild(applicationBean.getSelectedReference().getId(), savedCategory.getId())) {
-                EntityRelation relation = new EntityRelation();
-                relation.setParent(applicationBean.getSelectedReference());
-                relation.setChild(savedCategory);
-                entityRelationRepository.save(relation);
-            }
-
-            // Recharger la liste des catégories
-            applicationBean.refreshReferenceCategoriesList();
-
-            // Ajouter la catégorie à l'arbre
-            TreeBean treeBean = treeBeanProvider.get();
-            if (treeBean != null) {
-                treeBean.addEntityToTree(savedCategory, applicationBean.getSelectedReference());
-            }
-
-            // Message de succès
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Succès",
-                            "La catégorie '" + labelTrimmed + "' a été créée avec succès."));
-
-            resetCategoryForm();
-
-            // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des catégories
-            PrimeFaces.current().ajax().update(":growl, :categoryForm, :categoriesContainer");
-
-        } catch (IllegalStateException e) {
-            log.error("Erreur lors de la création de la catégorie", e);
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
-        } catch (Exception e) {
-            log.error("Erreur inattendue lors de la création de la catégorie", e);
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :categoryForm");
+            PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
         }
     }
 
@@ -470,42 +326,35 @@ public class CategoryBean implements Serializable {
         if (applicationBean.getSelectedEntity() == null) {
             return;
         }
-        String codeLang = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
+
         editingCategory = true;
-        editingCategoryCode = applicationBean.getSelectedEntity().getCode() != null ? applicationBean.getSelectedEntity().getCode() : "";
-        editingLabelLangueCode = codeLang;
-        editingDescriptionLangueCode = codeLang;
-        editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
-        editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), codeLang);
-        editingCategoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
-        editingCategoryCommentaire = applicationBean.getSelectedEntity().getMetadataCommentaire() != null ? applicationBean.getSelectedEntity().getMetadataCommentaire() : "";
-    }
+        categoryCode = applicationBean.getSelectedEntity().getCode() != null ? applicationBean.getSelectedEntity().getCode() : "";
+        categoryDescription = "";
+        categoryLabel = "";
+        categoryNames = applicationBean.getSelectedEntity().getLabels().stream()
+                .map(element -> NameItem.builder()
+                        .nom(element.getNom())
+                        .langueCode(element.getLangue().getCode())
+                        .langue(element.getLangue())
+                        .build())
+                .collect(Collectors.toCollection(ArrayList::new));
 
-    /**
-     * Appelé lorsque l'utilisateur change la langue du label dans le menu déroulant.
-     * Recharge la valeur du label pour la nouvelle langue depuis l'entité.
-     */
-    public void onLabelLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedEntity() != null && editingLabelLangueCode != null) {
-            editingCategoryLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedEntity(), editingLabelLangueCode);
-        }
-    }
-
-    /**
-     * Appelé lorsque l'utilisateur change la langue de la description dans le menu déroulant.
-     * Recharge la valeur de la description pour la nouvelle langue depuis l'entité.
-     */
-    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedEntity() != null && editingDescriptionLangueCode != null) {
-            editingCategoryDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedEntity(), editingDescriptionLangueCode);
-        }
+        categoryDescriptions = applicationBean.getSelectedEntity().getDescriptions().stream()
+                .map(element -> DescriptionItem.builder()
+                        .valeur(element.getValeur())
+                        .langueCode(element.getLangue().getCode())
+                        .langue(element.getLangue())
+                        .build())
+                .collect(Collectors.toCollection(ArrayList::new));
+        categoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
+        categoryCommentaire = applicationBean.getSelectedEntity().getMetadataCommentaire() != null ? applicationBean.getSelectedEntity().getMetadataCommentaire() : "";
     }
 
     /**
      * Supprime la category sélectionnée et toutes ses entités rattachées
      */
     @Transactional
-    public void deleteReference(ApplicationBean applicationBean) {
+    public void deleteCategory(ApplicationBean applicationBean) {
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "Erreur", "Aucune category sélectionnée."));
@@ -561,74 +410,52 @@ public class CategoryBean implements Serializable {
         Entity categoryToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
 
         // Mettre à jour le code uniquement si modifié
-        String newCode = editingCategoryCode != null ? editingCategoryCode.trim() : null;
+        String newCode = categoryCode != null ? categoryCode.trim() : null;
         if (!Objects.equals(newCode, categoryToUpdate.getCode()) && newCode != null && !newCode.isEmpty()) {
             categoryToUpdate.setCode(newCode);
         }
 
-        // Langue pour le label (celle choisie dans le menu)
-        String labelLangueCode = editingLabelLangueCode != null ? editingLabelLangueCode : "fr";
-        Langue labelLangue = langueRepository.findByCode(labelLangueCode);
-        // Mettre à jour le label (selon la langue choisie) uniquement si modifié
-        String newLabel = editingCategoryLabel != null ? editingCategoryLabel.trim() : "";
-        String currentLabelValue = EntityUtils.getLabelValueForLanguage(categoryToUpdate, labelLangueCode);
-        if (!Objects.equals(newLabel, currentLabelValue) && labelLangue != null) {
-            Optional<Label> labelOpt = categoryToUpdate.getLabels() != null
-                    ? categoryToUpdate.getLabels().stream()
-                    .filter(l -> l.getLangue() != null && labelLangueCode.equalsIgnoreCase(l.getLangue().getCode()))
-                    .findFirst()
-                    : Optional.empty();
-            if (labelOpt.isPresent()) {
-                labelOpt.get().setNom(newLabel);
-            } else {
-                Label newLabelEntity = new Label();
-                newLabelEntity.setNom(newLabel);
-                newLabelEntity.setEntity(categoryToUpdate);
-                newLabelEntity.setLangue(labelLangue);
-                if (categoryToUpdate.getLabels() == null) {
-                    categoryToUpdate.setLabels(new ArrayList<>());
+        // Mise à jour des labels
+        if (categoryToUpdate.getLabels() == null) {
+            categoryToUpdate.setLabels(new ArrayList<>());
+        }
+        if (categoryNames != null) {
+            for (NameItem item : categoryNames) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
+                    Label lbl = new Label();
+                    lbl.setNom(item.getNom().trim());
+                    lbl.setLangue(item.getLangue());
+                    lbl.setEntity(categoryToUpdate);
+                    categoryToUpdate.getLabels().add(lbl);
                 }
-                categoryToUpdate.getLabels().add(newLabelEntity);
             }
         }
 
-        // Langue pour la description (celle choisie dans le menu)
-        String descLangueCode = editingDescriptionLangueCode != null ? editingDescriptionLangueCode : "fr";
-        Langue descLangue = langueRepository != null ? langueRepository.findByCode(descLangueCode) : null;
-        // Mettre à jour la description (selon la langue choisie) uniquement si modifiée
-        String newDesc = editingCategoryDescription != null ? editingCategoryDescription.trim() : "";
-        String currentDescValue = EntityUtils.getDescriptionValueForLanguage(categoryToUpdate, descLangueCode);
-        if (!Objects.equals(newDesc, currentDescValue) && descLangue != null) {
-            Optional<Description> descOpt = categoryToUpdate.getDescriptions() != null
-                    ? categoryToUpdate.getDescriptions().stream()
-                    .filter(d -> d.getLangue() != null && descLangueCode.equalsIgnoreCase(d.getLangue().getCode()))
-                    .findFirst()
-                    : Optional.empty();
-            if (descOpt.isPresent()) {
-                descOpt.get().setValeur(newDesc);
-            } else {
-                Description newDescription = new Description();
-                newDescription.setValeur(newDesc);
-                newDescription.setEntity(categoryToUpdate);
-                newDescription.setLangue(descLangue);
-                if (categoryToUpdate.getDescriptions() == null) {
-                    categoryToUpdate.setDescriptions(new ArrayList<>());
+        // Mise à jour des descriptions
+        if (categoryToUpdate.getDescriptions() == null) {
+            categoryToUpdate.setDescriptions(new ArrayList<>());
+        }
+        if (categoryDescriptions != null) {
+            for (DescriptionItem item : categoryDescriptions) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
+                    Description desc = new Description();
+                    desc.setValeur(item.getValeur().trim());
+                    desc.setLangue(item.getLangue());
+                    desc.setEntity(categoryToUpdate);
+                    categoryToUpdate.getDescriptions().add(desc);
                 }
-                categoryToUpdate.getDescriptions().add(newDescription);
             }
         }
 
         // Mettre à jour la bibliographique uniquement si modifiée
-        String newCommentaire = editingCategoryCommentaire != null ? editingCategoryCommentaire.trim() : null;
-        String currentCommentaire = categoryToUpdate.getMetadataCommentaire();
-        if (!Objects.equals(newCommentaire, currentCommentaire)) {
+        String newCommentaire = categoryCommentaire != null ? categoryCommentaire.trim() : null;
+        if (!Objects.equals(newCommentaire, categoryToUpdate.getMetadataCommentaire())) {
             categoryToUpdate.setMetadataCommentaire(newCommentaire);
         }
 
-        String newBib = editingCategoryBibliographie != null ? editingCategoryBibliographie.trim() : null;
-        String currentBib = categoryToUpdate.getBibliographie();
-        if (!Objects.equals(newBib, currentBib)) {
-            categoryToUpdate.setBibliographie(newBib);
+        String newBibliographie = categoryBibliographie != null ? categoryBibliographie.trim() : null;
+        if (!Objects.equals(newBibliographie, categoryToUpdate.getBibliographie())) {
+            categoryToUpdate.setBibliographie(newBibliographie);
         }
 
         // Ajouter l'utilisateur courant aux auteurs s'il n'y figure pas
@@ -652,36 +479,17 @@ public class CategoryBean implements Serializable {
         Entity categorySaved = entityRepository.save(categoryToUpdate);
         applicationBean.setSelectedEntity(categorySaved);
 
-        if (treeBean != null) {
-            treeBean.updateEntityInTree(categorySaved);
-        }
+        treeBean.updateEntityInTree(categorySaved);
+        treeBean.expandPathAndSelectEntity(categorySaved);
 
         applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, categorySaved);
 
-        // Actualiser l'arbre : déplier le chemin et sélectionner la catégorie sauvegardée
-        treeBean.expandPathAndSelectEntity(categorySaved);
-
-        initEditForm();
+        resetCategoryDialogForm();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                 "Succès", "Les modifications ont été enregistrées avec succès."));
 
         log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
-    }
-
-    public void cancelEditingCategory() {
-        initEditForm();
-    }
-
-    private void initEditForm() {
-        editingCategory = false;
-        editingCategoryCode = null;
-        editingLabelLangueCode = null;
-        editingCategoryLabel = null;
-        editingDescriptionLangueCode = null;
-        editingCategoryDescription = null;
-        editingCategoryBibliographie = null;
-        editingCategoryCommentaire = null;
     }
 
     public boolean canCreateCategory() {

@@ -178,7 +178,7 @@ public class ConfirmDeleteBean implements Serializable {
                 }
                 break;
             case TARGET_CATEGORY:
-                categoryBean.deleteReference(applicationBean);
+                categoryBean.deleteCategory(applicationBean);
                 break;
             case TARGET_GROUP:
                 groupBean.deleteGroup(applicationBean);
