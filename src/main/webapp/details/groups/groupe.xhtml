@@ -83,9 +83,8 @@
                                             <div class="collection-visibility-toggle-wrapper">
                                                 <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                process="@this"
-                                                               update=":confirmReferenceVisibilityChangeDialog"
-                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}"
-                                                               oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                                               update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                     <i class="pi pi-sync" />
                                                     <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                                 </p:commandLink>

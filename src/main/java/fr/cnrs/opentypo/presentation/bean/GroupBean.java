@@ -27,9 +27,7 @@ import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -63,16 +61,7 @@ public class GroupBean implements Serializable {
     private LoginBean loginBean;
 
     @Autowired
-    private Provider<TreeBean> treeBeanProvider;
-    
-    @Autowired
-    private Provider<ApplicationBean> applicationBeanProvider;
-
-    @Autowired
     private EntityRelationRepository entityRelationRepository;
-
-    @Autowired
-    private SearchBean searchBean;
 
     @Autowired
     private LangueRepository langueRepository;
@@ -95,26 +84,18 @@ public class GroupBean implements Serializable {
     @Autowired
     private TreeBean treeBean;
 
-    private String groupCode;
-    private String groupLabel;
-    private String groupDescription;
 
-    // Propriétés pour le dialog de création (sans bibliographique ni visibilité)
-    private static final String GROUP_DIALOG_FORM = ":groupDialogForm";
     private List<NameItem> groupNames = new ArrayList<>();
     private List<DescriptionItem> groupDescriptions = new ArrayList<>();
-    private String groupDialogCode;
+    private String groupCode;
     private String newNameValue;
+    private String groupDescription;
     private String newNameLangueCode;
     private String newDescriptionValue;
     private String newDescriptionLangueCode;
     private List<Langue> availableLanguages;
-
-    /** Rédacteurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
     private DualListModel<Long> redacteursPickList;
-    /** Relecteurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
     private DualListModel<Long> relecteursPickList;
-    /** Validateurs : modèle dual pour PickList (IDs utilisateurs - source = disponibles, target = sélectionnés) */
     private DualListModel<Long> validateursPickList;
 
     /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
@@ -142,14 +123,8 @@ public class GroupBean implements Serializable {
         }
     }
 
-    public void resetGroupForm() {
-        groupCode = null;
-        groupLabel = null;
-        groupDescription = null;
-    }
-
     public void resetGroupDialogForm() {
-        groupDialogCode = null;
+        groupCode = null;
         groupNames = new ArrayList<>();
         groupDescriptions = new ArrayList<>();
         newNameValue = null;
@@ -467,34 +442,33 @@ public class GroupBean implements Serializable {
     @Transactional
     public void createGroupFromDialog() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        ApplicationBean applicationBean = applicationBeanProvider.get();
 
         if (applicationBean == null || applicationBean.getSelectedCategory() == null) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Aucune catégorie n'est sélectionnée. Veuillez sélectionner une catégorie avant de créer un groupe."));
-            PrimeFaces.current().ajax().update(GROUP_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
             return;
         }
 
-        if (!EntityValidator.validateCode(groupDialogCode, entityRepository, GROUP_DIALOG_FORM)) {
+        if (!EntityValidator.validateCode(groupCode, entityRepository, ":groupDialogForm")) {
             return;
         }
 
         if (groupNames == null || groupNames.isEmpty()) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
-            PrimeFaces.current().ajax().update(GROUP_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
             return;
         }
 
         for (NameItem item : groupNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
                 facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
-                PrimeFaces.current().ajax().update(GROUP_DIALOG_FORM + ", :growl");
+                PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
                 return;
             }
         }
 
-        String codeTrimmed = groupDialogCode.trim();
+        String codeTrimmed = groupCode.trim();
 
         try {
             EntityType groupType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
@@ -569,128 +543,16 @@ public class GroupBean implements Serializable {
 
             resetGroupDialogForm();
             PrimeFaces.current().executeScript("PF('groupDialog').hide();");
-            PrimeFaces.current().ajax().update(":growl, " + GROUP_DIALOG_FORM + ", :groupesContent, :centerContent");
+            PrimeFaces.current().ajax().update(":growl, :groupDialogForm, :groupesContent, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du groupe", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
-            PrimeFaces.current().ajax().update(GROUP_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du groupe", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Une erreur est survenue lors de la création du groupe : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(GROUP_DIALOG_FORM + ", :growl");
-        }
-    }
-
-    public void createGroup() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-
-        // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
-                groupCode, entityRepository, ":groupForm")) {
-            return;
-        }
-
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
-                groupLabel, ":groupForm")) {
-            return;
-        }
-
-        ApplicationBean applicationBean = applicationBeanProvider.get();
-        
-        // Vérifier qu'une catégorie est sélectionnée
-        if (applicationBean == null || applicationBean.getSelectedCategory() == null) {
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Aucune catégorie n'est sélectionnée. Veuillez sélectionner une catégorie avant de créer un groupe."));
-            PrimeFaces.current().ajax().update(":growl, :groupForm");
-            return;
-        }
-
-        String codeTrimmed = groupCode.trim();
-        String labelTrimmed = groupLabel.trim();
-        String descriptionTrimmed = (groupDescription != null && !groupDescription.trim().isEmpty())
-                ? groupDescription.trim() : null;
-
-        try {
-            // Récupérer le type d'entité GROUP
-            // Essayer d'abord avec "GROUP" puis "GROUPE" pour compatibilité
-            EntityType groupType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
-                    .orElse(entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
-                            .orElseThrow(() -> new IllegalStateException(
-                                    "Le type d'entité 'GROUP' ou 'GROUPE' n'existe pas dans la base de données.")));
-
-            // Créer la nouvelle entité groupe
-            Entity newGroup = new Entity();
-            newGroup.setCode(codeTrimmed);
-            newGroup.setCommentaire(descriptionTrimmed);
-            newGroup.setEntityType(groupType);
-            newGroup.setCreateDate(LocalDateTime.now());
-
-            Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());
-            if (StringUtils.hasText(labelTrimmed)) {
-                Label labelPrincipal = new Label();
-                labelPrincipal.setNom(labelTrimmed.trim());
-                labelPrincipal.setLangue(languePrincipale);
-                labelPrincipal.setEntity(newGroup);
-                List<Label> labels = new ArrayList<>();
-                labels.add(labelPrincipal);
-                newGroup.setLabels(labels);
-            }
-
-            Utilisateur currentUser = loginBean.getCurrentUser();
-            if (currentUser != null) {
-                newGroup.setCreateBy(currentUser.getEmail());
-                List<Utilisateur> auteurs = new ArrayList<>();
-                auteurs.add(currentUser);
-                newGroup.setAuteurs(auteurs);
-            }
-
-            // Sauvegarder le groupe
-            Entity savedGroup = entityRepository.save(newGroup);
-
-            // Créer la relation entre la catégorie (parent) et le groupe (child)
-            if (!entityRelationRepository.existsByParentAndChild(
-                    applicationBean.getSelectedCategory().getId(), savedGroup.getId())) {
-                EntityRelation relation = new EntityRelation();
-                relation.setParent(applicationBean.getSelectedCategory());
-                relation.setChild(savedGroup);
-                entityRelationRepository.save(relation);
-            }
-
-            // Recharger la liste des groupes
-            applicationBean.refreshCategoryGroupsList();
-
-            // Ajouter le groupe à l'arbre
-            TreeBean treeBean = treeBeanProvider.get();
-            treeBean.addEntityToTree(savedGroup, applicationBean.getSelectedCategory());
-
-            // Message de succès
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Succès",
-                            "Le groupe '" + labelTrimmed + "' a été créé avec succès."));
-
-            resetGroupForm();
-
-            // Mettre à jour les composants : growl, formulaire, arbre, et conteneur des groupes
-            PrimeFaces.current().ajax().update(":growl, :groupForm, :groupesContainer");
-
-        } catch (IllegalStateException e) {
-            log.error("Erreur lors de la création du groupe", e);
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :groupForm");
-        } catch (Exception e) {
-            log.error("Erreur inattendue lors de la création du groupe", e);
-            facesContext.addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Une erreur est survenue lors de la création du groupe : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(":growl, :groupForm");
+            PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
         }
     }
 
@@ -723,10 +585,8 @@ public class GroupBean implements Serializable {
             } else {
                 applicationBean.getPanelState().showCollections();
             }
-            TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
-            if (tb != null) {
-                tb.initializeTreeWithCollection();
-            }
+
+            treeBean.initializeTreeWithCollection();
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",

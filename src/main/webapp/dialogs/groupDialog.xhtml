@@ -20,37 +20,39 @@
               appendTo="@(body)">
 
         <h:form id="groupDialogForm">
+
             <p:remoteCommand name="resetGroupFormCommand"
                            action="#{groupBean.resetGroupDialogForm}"
                            update="@form"
                            process="@this"/>
-            <div class="reference-form-content">
-                <!-- Code -->
-                <div class="reference-form-group reference-form-section">
+
+            <!-- Code -->
+            <div class="collection-form-group">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code du groupe</span>
                     </div>
-                    <p:inputText id="groupCode"
-                               value="#{groupBean.groupDialogCode}"
-                               required="true"
-                               requiredMessage="Le code du groupe est requis"
-                               styleClass="reference-input"
-                               placeholder="Ex: GRP001"/>
+                    <div class="input-wrapper periode-input-wrapper collection-select">
+                        <p:inputText value="#{groupBean.groupCode}" styleClass="reference-input"
+                                     placeholder="Ex: CAT001"/>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Section Labels -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Labels -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
                         <span>Labels</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputText id="newNameInput"
-                                       value="#{groupBean.newNameValue}"
-                                       placeholder="Nom"
-                                       styleClass="reference-input"/>
+                                         value="#{groupBean.newNameValue}"
+                                         placeholder="Nom"
+                                         styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
@@ -58,24 +60,24 @@
                                              styleClass="collection-select">
                                 <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
                                 <f:selectItems value="#{groupBean.availableLanguagesForNewName}"
-                                             var="langue"
-                                             itemLabel="#{langue.nom}"
-                                             itemValue="#{langue.code}" />
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
                         <p:commandButton value="Ajouter"
-                                       icon="pi pi-plus"
-                                       styleClass="reference-btn-add"
-                                       actionListener="#{groupBean.addNameFromInput()}"
-                                       process="@form"
-                                       ajax="true"
-                                       update=":groupDialogForm:groupNamesTable :groupDialogForm:newNameInput :groupDialogForm:newNameLangue growl"/>
+                                         icon="pi pi-plus"
+                                         styleClass="reference-btn-add"
+                                         actionListener="#{groupBean.addNameFromInput()}"
+                                         process="@form"
+                                         ajax="true"
+                                         update=":groupDialogForm:groupNamesTable :groupDialogForm:newNameInput :groupDialogForm:newNameLangue growl"/>
                     </div>
                     <h:panelGroup id="groupNamesTable" class="reference-names-table-container">
                         <p:dataTable value="#{groupBean.groupNames}"
-                                   var="nameItem"
-                                   styleClass="reference-names-table"
-                                   rendered="#{not empty groupBean.groupNames}">
+                                     var="nameItem"
+                                     styleClass="reference-names-table"
+                                     rendered="#{not empty groupBean.groupNames}">
                             <p:column styleClass="reference-table-name-column">
                                 <div class="reference-table-name-cell">
                                     <h:graphicImage library="img"
@@ -100,36 +102,37 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty groupBean.groupNames}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
-                                    </div>
+                        <h:panelGroup rendered="#{empty groupBean.groupNames}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
-                <!-- Section Descriptions -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Descriptions -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
                         <span>Descriptions</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputTextarea id="newDescriptionInput"
-                                           value="#{groupBean.newDescriptionValue}"
-                                           placeholder="Description"
-                                           rows="3"
-                                           styleClass="reference-textarea"/>
+                                             value="#{groupBean.newDescriptionValue}"
+                                             placeholder="Description"
+                                             rows="3"
+                                             styleClass="reference-textarea"/>
                         </div>
                     </div>
-                    <div class="reference-name-input-row">
+                    <div class="reference-name-input-row" style="margin-top: 10px">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{groupBean.newDescriptionLangueCode}"
@@ -151,10 +154,10 @@
                     </div>
                     <h:panelGroup id="groupDescriptionsTable" class="reference-names-table-container">
                         <p:dataTable value="#{groupBean.groupDescriptions}"
-                                   var="descriptionItem"
-                                   styleClass="reference-names-table"
-                                   emptyMessage="Aucune description ajoutée"
-                                   rendered="#{not empty groupBean.groupDescriptions}">
+                                     var="descriptionItem"
+                                     styleClass="reference-names-table"
+                                     emptyMessage="Aucune description ajoutée"
+                                     rendered="#{not empty groupBean.groupDescriptions}">
                             <p:column styleClass="reference-table-name-column">
                                 <div class="reference-table-name-cell">
                                     <h:graphicImage library="img"
@@ -179,112 +182,108 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty groupBean.groupDescriptions}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
-                                    </div>
+                        <h:panelGroup rendered="#{empty groupBean.groupDescriptions}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
-                <!-- Section Permissions -->
-                <div class="reference-form-group reference-form-section group-dialog-permissions-section">
-                    <div class="reference-section-label">
-                        <i class="pi pi-shield reference-section-icon"/>
-                        <span>Permissions d'accès</span>
-                    </div>
-                    <div class="group-dialog-permissions-row">
-                        <div class="group-dialog-permission-card group-dialog-permission-redacteur">
-                            <div class="group-dialog-permission-card-header">
-                                <div class="group-dialog-permission-icon">
-                                    <i class="pi pi-pencil"/>
-                                </div>
-                                <div class="group-dialog-permission-card-label">
-                                    <label>Rédacteurs</label>
-                                </div>
+            <!-- Section Permissions -->
+            <div class="reference-form-group reference-form-section group-dialog-permissions-section" style="padding-top: 15px">
+                <div class="group-dialog-permissions-row">
+                    <div class="group-dialog-permission-card group-dialog-permission-redacteur">
+                        <div class="group-dialog-permission-card-header">
+                            <div class="group-dialog-permission-icon">
+                                <i class="pi pi-pencil"/>
                             </div>
-                            <p:pickList id="redacteursPickList"
-                                        value="#{groupBean.redacteursPickList}"
-                                        var="userId"
-                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
-                                        itemValue="#{userId}"
-                                        converter="pickListLongConverter"
-                                        styleClass="group-dialog-picklist"
-                                        showSourceFilter="true"
-                                        showTargetFilter="true"
-                                        filterMatchMode="contains"
-                                        sourceFilterPlaceholder="Rechercher..."
-                                        targetFilterPlaceholder="Rechercher..."
-                                        responsive="true"
-                                        rendered="#{not empty groupBean.redacteursList}"/>
-                            <h:panelGroup rendered="#{empty groupBean.redacteursList}" class="group-dialog-no-relecteurs">
-                                <span>Aucun rédacteur disponible</span>
-                            </h:panelGroup>
-                        </div>
-                    </div>
-                    <div class="group-dialog-permissions-row">
-                        <div class="group-dialog-permission-card group-dialog-permission-validateurs">
-                            <div class="group-dialog-permission-card-header">
-                                <div class="group-dialog-permission-icon">
-                                    <i class="pi pi-check-circle"/>
-                                </div>
-                                <div class="group-dialog-permission-card-label">
-                                    <label>Validateurs</label>
-                                </div>
+                            <div class="group-dialog-permission-card-label">
+                                <label>Rédacteurs</label>
                             </div>
-                            <p:pickList id="validateursPickList"
-                                        value="#{groupBean.validateursPickList}"
-                                        var="userId"
-                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
-                                        itemValue="#{userId}"
-                                        converter="pickListLongConverter"
-                                        styleClass="group-dialog-picklist"
-                                        showSourceFilter="true"
-                                        showTargetFilter="true"
-                                        filterMatchMode="contains"
-                                        sourceFilterPlaceholder="Rechercher..."
-                                        targetFilterPlaceholder="Rechercher..."
-                                        responsive="true"
-                                        rendered="#{not empty groupBean.validateursList}"/>
-                            <h:panelGroup rendered="#{empty groupBean.validateursList}" class="group-dialog-no-relecteurs">
-                                <span>Aucun validateur disponible</span>
-                            </h:panelGroup>
                         </div>
+                        <p:pickList id="redacteursPickList"
+                                    value="#{groupBean.redacteursPickList}"
+                                    var="userId"
+                                    itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                    itemValue="#{userId}"
+                                    converter="pickListLongConverter"
+                                    styleClass="group-dialog-picklist"
+                                    showSourceFilter="true"
+                                    showTargetFilter="true"
+                                    filterMatchMode="contains"
+                                    sourceFilterPlaceholder="Rechercher..."
+                                    targetFilterPlaceholder="Rechercher..."
+                                    responsive="true"
+                                    rendered="#{not empty groupBean.redacteursList}"/>
+                        <h:panelGroup rendered="#{empty groupBean.redacteursList}" class="group-dialog-no-relecteurs">
+                            <span>Aucun rédacteur disponible</span>
+                        </h:panelGroup>
                     </div>
-                    <div class="group-dialog-permissions-row">
-                        <div class="group-dialog-permission-card group-dialog-permission-relecteurs">
-                            <div class="group-dialog-permission-card-header">
-                                <div class="group-dialog-permission-icon">
-                                    <i class="pi pi-pencil"/>
-                                </div>
-                                <div class="group-dialog-permission-card-label">
-                                    <label>Relecteurs</label>
-                                </div>
+                </div>
+
+                <div class="group-dialog-permissions-row">
+                    <div class="group-dialog-permission-card group-dialog-permission-validateurs">
+                        <div class="group-dialog-permission-card-header">
+                            <div class="group-dialog-permission-icon">
+                                <i class="pi pi-check-circle"/>
                             </div>
-                            <p:pickList id="relecteursPickList"
-                                        value="#{groupBean.relecteursPickList}"
-                                        var="userId"
-                                        itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
-                                        itemValue="#{userId}"
-                                        converter="pickListLongConverter"
-                                        styleClass="group-dialog-picklist"
-                                        showSourceFilter="true"
-                                        showTargetFilter="true"
-                                        filterMatchMode="contains"
-                                        sourceFilterPlaceholder="Rechercher..."
-                                        targetFilterPlaceholder="Rechercher..."
-                                        responsive="true"
-                                        rendered="#{not empty groupBean.relecteursList}"/>
-                            <h:panelGroup rendered="#{empty groupBean.relecteursList}" class="group-dialog-no-relecteurs">
-                                <span>Aucun relecteur disponible</span>
-                            </h:panelGroup>
+                            <div class="group-dialog-permission-card-label">
+                                <label>Validateurs</label>
+                            </div>
                         </div>
+                        <p:pickList id="validateursPickList"
+                                    value="#{groupBean.validateursPickList}"
+                                    var="userId"
+                                    itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                    itemValue="#{userId}"
+                                    converter="pickListLongConverter"
+                                    styleClass="group-dialog-picklist"
+                                    showSourceFilter="true"
+                                    showTargetFilter="true"
+                                    filterMatchMode="contains"
+                                    sourceFilterPlaceholder="Rechercher..."
+                                    targetFilterPlaceholder="Rechercher..."
+                                    responsive="true"
+                                    rendered="#{not empty groupBean.validateursList}"/>
+                        <h:panelGroup rendered="#{empty groupBean.validateursList}" class="group-dialog-no-relecteurs">
+                            <span>Aucun validateur disponible</span>
+                        </h:panelGroup>
+                    </div>
+                </div>
+                <div class="group-dialog-permissions-row">
+                    <div class="group-dialog-permission-card group-dialog-permission-relecteurs">
+                        <div class="group-dialog-permission-card-header">
+                            <div class="group-dialog-permission-icon">
+                                <i class="pi pi-pencil"/>
+                            </div>
+                            <div class="group-dialog-permission-card-label">
+                                <label>Relecteurs</label>
+                            </div>
+                        </div>
+                        <p:pickList id="relecteursPickList"
+                                    value="#{groupBean.relecteursPickList}"
+                                    var="userId"
+                                    itemLabel="#{groupBean.getUtilisateurDisplayName(userId)}"
+                                    itemValue="#{userId}"
+                                    converter="pickListLongConverter"
+                                    styleClass="group-dialog-picklist"
+                                    showSourceFilter="true"
+                                    showTargetFilter="true"
+                                    filterMatchMode="contains"
+                                    sourceFilterPlaceholder="Rechercher..."
+                                    targetFilterPlaceholder="Rechercher..."
+                                    responsive="true"
+                                    rendered="#{not empty groupBean.relecteursList}"/>
+                        <h:panelGroup rendered="#{empty groupBean.relecteursList}" class="group-dialog-no-relecteurs">
+                            <span>Aucun relecteur disponible</span>
+                        </h:panelGroup>
                     </div>
                 </div>
             </div>
