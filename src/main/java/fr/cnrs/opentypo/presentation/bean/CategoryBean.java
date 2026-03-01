@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.DescriptionItem;
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
@@ -17,6 +18,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -244,6 +246,7 @@ public class CategoryBean implements Serializable {
             newCategory.setCode(categoryCode.trim());
             newCategory.setBibliographie(categoryBibliographie);
             newCategory.setEntityType(categoryType);
+            newCategory.setStatut(EntityStatusEnum.ACCEPTED.name());
             newCategory.setPublique(categoryPublique != null ? categoryPublique : true);
             newCategory.setCreateDate(LocalDateTime.now());
             newCategory.setMetadataCommentaire(categoryCommentaire);

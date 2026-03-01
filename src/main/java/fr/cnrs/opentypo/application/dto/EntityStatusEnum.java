@@ -7,7 +7,6 @@ public enum EntityStatusEnum {
 
     PROPOSITION,
     ACCEPTED,
-    REFUSED,
-    AUTOMATIC;
+    REFUSED;
     
 }

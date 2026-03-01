@@ -606,7 +606,7 @@ public class TreeBean implements Serializable {
         Entity e = getEntityFromNode(node);
         if (e == null || e.getStatut() == null) return false;
         String s = e.getStatut();
-        return EntityStatusEnum.ACCEPTED.name().equals(s) || EntityStatusEnum.AUTOMATIC.name().equals(s);
+        return EntityStatusEnum.ACCEPTED.name().equals(s);
     }
 
     /**

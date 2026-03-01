@@ -33,20 +33,20 @@
                         <div class="concept-info-title-section">
                             <span class="reference-entity-type-badge">Référentiel</span>
                             <div class="concept-info-language-flag">
-                                <h:graphicImage library="img" name="flag/fr.png"
+                                <h:graphicImage library="img" name="flag/#{searchBean.langSelected != null and searchBean.langSelected != '' ? searchBean.langSelected : 'fr'}.png"
                                                 styleClass="language-flag"
-                                                alt="Français"
-                                                title="Français"/>
-                            </div>
-                            <div class="collection-panel-title-wrapper">
-                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                                                alt="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"
+                                                title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
                             </div>
                             <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
                                           styleClass="collection-not-published-icon">
                                 <i class="pi pi-clock"/>
-                                <p:tooltip value="Collection non publiée" position="top"/>
+                                <p:tooltip value="Catégorie non publiée" position="top"/>
                             </h:panelGroup>
+                            <div class="collection-panel-title-wrapper">
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                            </div>
                         </div>
 
                         <!-- Actions (masquées en mode édition) -->
@@ -96,7 +96,7 @@
                                         <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                        process="@this"
                                                        update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
-                                                       action="#{referenceBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
+                                                       action="#{applicationBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
                                                        oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
                                             <i class="pi pi-sync" />
                                             <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>

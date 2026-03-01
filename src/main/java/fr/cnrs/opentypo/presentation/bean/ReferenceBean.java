@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.DescriptionItem;
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
@@ -1087,6 +1088,7 @@ public class ReferenceBean implements Serializable {
 
         newReference.setEntityType(type);
         newReference.setPublique(referencePublique != null ? referencePublique : true);
+        newReference.setStatut(EntityStatusEnum.ACCEPTED.name());
         newReference.setCreateDate(LocalDateTime.now());
 
         if (referenceNames != null && !referenceNames.isEmpty()) {
