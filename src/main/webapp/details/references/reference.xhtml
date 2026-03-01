@@ -38,7 +38,7 @@
                                                 alt="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"
                                                 title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
                             </div>
-                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'ACCEPTED' and applicationBean.selectedEntity.statut != 'AUTOMATIC'}"
+                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                           styleClass="collection-not-published-icon">
                                 <i class="pi pi-clock"/>
                                 <p:tooltip value="Catégorie non publiée" position="top"/>
@@ -84,20 +84,19 @@
 
                             <div class="collection-visibility-card">
                                 <div class="collection-visibility-card-content">
-                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                         <div class="collection-visibility-icon">
-                                            <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                            <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
                                         </div>
                                         <div class="collection-visibility-info">
-                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Public' : 'Privé'}</span>
+                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                         </div>
                                     </div>
                                     <div class="collection-visibility-toggle-wrapper">
                                         <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                        process="@this"
-                                                       update=":confirmReferenceVisibilityChangeDialog :confirmReferenceVisibilityChangeDialogContent"
-                                                       action="#{applicationBean.prepareConfirmVisibilityChange(not applicationBean.selectedEntity.publique)}"
-                                                       oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                                       update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                       action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                             <i class="pi pi-sync" />
                                             <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                         </p:commandLink>
@@ -124,12 +123,12 @@
                         <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAuthenticated() and !referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}">
                             <h:panelGroup class="collection-visibility-card">
                                 <div class="collection-visibility-card-content">
-                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.publique ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                    <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                         <div class="collection-visibility-icon">
-                                            <i class="pi #{applicationBean.selectedEntity.publique ? 'pi-globe' : 'pi-lock'}" />
+                                            <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
                                         </div>
                                         <div class="collection-visibility-info">
-                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.publique ? 'Publique' : 'Privée'}</span>
+                                            <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Publique' : 'Privée'}</span>
                                         </div>
                                     </div>
                                 </div>

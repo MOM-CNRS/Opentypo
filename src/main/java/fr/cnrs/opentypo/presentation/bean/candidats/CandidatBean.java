@@ -725,10 +725,10 @@ public class CandidatBean implements Serializable {
      */
     public void chargerCandidats() {
         try {
-            // Charger les entités avec statut PROPOSITION, ACCEPTED, REFUSED
+            // Charger les entités avec statut PROPOSITION, PUBLIQUE, REFUSED
             List<Entity> entitiesProposition = entityRepository.findByStatut(EntityStatusEnum.PROPOSITION.name());
-            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.ACCEPTED.name());
-            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSED.name());
+            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.PUBLIQUE.name());
+            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSE.name());
             
             // Convertir en Candidat et stocker dans la liste
             candidats.clear();
@@ -743,7 +743,7 @@ public class CandidatBean implements Serializable {
                 .toList());
             
             candidatsLoaded = true;
-            log.info("Chargement des candidats terminé: {} PROPOSITION, {} ACCEPTED, {} REFUSED", 
+            log.info("Chargement des candidats terminé: {} PROPOSITION, {} PUBLIQUE, {} REFUSED", 
                 entitiesProposition.size(), entitiesAccepted.size(), entitiesRefused.size());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des candidats depuis la base de données", e);
@@ -764,7 +764,7 @@ public class CandidatBean implements Serializable {
     }
 
     /**
-     * Retourne la liste des candidats validés (statut ACCEPTED)
+     * Retourne la liste des candidats validés (statut PUBLIQUE)
      */
     public List<Candidat> getCandidatsValides() {
         // Recharger les données si nécessaire (lazy loading)
@@ -829,7 +829,7 @@ public class CandidatBean implements Serializable {
     public boolean isCurrentBrouillonReadOnly() {
         if (currentEntity == null || currentEntity.getStatut() == null) return true;
         String s = currentEntity.getStatut();
-        return EntityStatusEnum.ACCEPTED.name().equals(s) || EntityStatusEnum.REFUSED.name().equals(s);
+        return EntityStatusEnum.PUBLIQUE.name().equals(s) || EntityStatusEnum.REFUSE.name().equals(s);
     }
 
     /**
@@ -1234,7 +1234,7 @@ public class CandidatBean implements Serializable {
     }
 
     /**
-     * Valide un candidat après confirmation (change le statut à ACCEPTED)
+     * Valide un candidat après confirmation (change le statut à PUBLIQUE)
      */
     public void validerCandidatConfirm() {
         if (candidatAValider != null) {
@@ -1441,7 +1441,7 @@ public class CandidatBean implements Serializable {
     }
 
     /**
-     * Valide le candidat depuis la page de visualisation (change le statut à ACCEPTED)
+     * Valide le candidat depuis la page de visualisation (change le statut à PUBLIQUE)
      */
     public String getCollectionLabel(Entity collection) {
         return collection == null

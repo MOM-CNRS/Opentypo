@@ -94,7 +94,6 @@ public class CandidatSauvegardeService {
         newEntity.setCode(req.getEntityCode().trim());
         newEntity.setEntityType(entityType);
         newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
-        newEntity.setPublique(false);
         newEntity.setCreateDate(LocalDateTime.now());
 
         if (req.getCurrentUser() != null) {
@@ -192,7 +191,6 @@ public class CandidatSauvegardeService {
             if (req.getCollectionDescription() != null && !req.getCollectionDescription().trim().isEmpty()) {
                 entity.setCommentaire(req.getCollectionDescription().trim());
             }
-            entity.setPublique(false);
         }
     }
 

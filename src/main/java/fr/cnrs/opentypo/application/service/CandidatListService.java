@@ -31,20 +31,20 @@ public class CandidatListService {
 
     /**
      * Charge tous les candidats depuis la base de données
-     * @return Liste de tous les candidats (PROPOSITION, ACCEPTED, REFUSED)
+     * @return Liste de tous les candidats (PROPOSITION, PUBLIQUE, REFUSED)
      */
     public List<Candidat> loadAllCandidats() {
         try {
             List<Entity> entitiesProposition = entityRepository.findByStatut(EntityStatusEnum.PROPOSITION.name());
-            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.ACCEPTED.name());
-            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSED.name());
+            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.PUBLIQUE.name());
+            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSE.name());
             
             List<Candidat> allCandidats = new ArrayList<>();
             allCandidats.addAll(convertToCandidats(entitiesProposition));
             allCandidats.addAll(convertToCandidats(entitiesAccepted));
             allCandidats.addAll(convertToCandidats(entitiesRefused));
             
-            log.info("Chargement des candidats terminé: {} PROPOSITION, {} ACCEPTED, {} REFUSED", 
+            log.info("Chargement des candidats terminé: {} PROPOSITION, {} PUBLIQUE, {} REFUSED", 
                 entitiesProposition.size(), entitiesAccepted.size(), entitiesRefused.size());
             
             return allCandidats;
@@ -117,9 +117,9 @@ public class CandidatListService {
         // Statut
         if (EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.EN_COURS);
-        } else if (EntityStatusEnum.ACCEPTED.name().equals(entity.getStatut())) {
+        } else if (EntityStatusEnum.PUBLIQUE.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.VALIDE);
-        } else if (EntityStatusEnum.REFUSED.name().equals(entity.getStatut())) {
+        } else if (EntityStatusEnum.REFUSE.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.REFUSE);
         } else {
             candidat.setStatut(Candidat.Statut.EN_COURS);

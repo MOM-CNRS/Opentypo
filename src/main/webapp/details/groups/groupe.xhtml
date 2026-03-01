@@ -15,16 +15,22 @@
                                 <div class="concept-info-title-section">
                                     <span class="reference-entity-type-badge">Groupe</span>
                                     <div class="concept-info-language-flag">
-                                        <h:graphicImage library="img" name="flag/fr.png"
+                                        <h:graphicImage library="img" name="flag/#{searchBean.langSelected != null and searchBean.langSelected != '' ? searchBean.langSelected : 'fr'}.png"
                                                         styleClass="language-flag"
-                                                        alt="Français"
-                                                        title="Français"/>
+                                                        alt="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"
+                                                        title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
                                     </div>
+                                    <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
+                                                  styleClass="collection-not-published-icon">
+                                        <i class="pi pi-clock"/>
+                                        <p:tooltip value="Catégorie non publiée" position="top"/>
+                                    </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                         <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                     </div>
                                 </div>
+
                                 <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not entityEditModeBean.editingEntityInCatalog}">
                                     <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
                                     <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
@@ -36,6 +42,7 @@
                                         <i class="pi pi-cog" />
                                         <p:tooltip value="Paramétrage" position="top"/>
                                     </p:commandLink>
+
                                     <!-- Bouton Historique -->
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this"
@@ -45,6 +52,7 @@
                                         <i class="pi pi-history" />
                                         <p:tooltip value="Voir l'historique" position="top"/>
                                     </p:commandLink>
+
                                     <p:commandLink action="#{groupBean.startEditingGroupe(applicationBean)}"
                                                    process="@this"
                                                    update=":groupeEditForm"
@@ -52,6 +60,7 @@
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
+
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
                                                    process="@this"
                                                    update=":confirmDeleteDialogContent"
@@ -60,6 +69,29 @@
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
+
+                                    <div class="collection-visibility-card">
+                                        <div class="collection-visibility-card-content">
+                                            <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                                <div class="collection-visibility-icon">
+                                                    <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                                </div>
+                                                <div class="collection-visibility-info">
+                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                </div>
+                                            </div>
+                                            <div class="collection-visibility-toggle-wrapper">
+                                                <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                               process="@this"
+                                                               update=":confirmReferenceVisibilityChangeDialog"
+                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}"
+                                                               oncomplete="PF('confirmReferenceVisibilityChangeDialog').show();">
+                                                    <i class="pi pi-sync" />
+                                                    <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                </p:commandLink>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </h:panelGroup>
                             </div>
 

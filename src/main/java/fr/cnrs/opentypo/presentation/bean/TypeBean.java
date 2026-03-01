@@ -157,7 +157,6 @@ public class TypeBean implements Serializable {
             Entity newType = new Entity();
             newType.setCode(codeTrimmed);
             newType.setEntityType(typeEntityType);
-            newType.setPublique(true);
             newType.setCreateDate(LocalDateTime.now());
             newType.setStatut(EntityStatusEnum.PROPOSITION.name());
 
@@ -243,7 +242,7 @@ public class TypeBean implements Serializable {
             newType.setCode(codeTrimmed);
             newType.setCommentaire(descriptionTrimmed);
             newType.setEntityType(typeEntityType);
-            newType.setPublique(true);
+            newType.setStatut(EntityStatusEnum.PROPOSITION.name());
             newType.setCreateDate(LocalDateTime.now());
 
             Utilisateur currentUser = loginBean.getCurrentUser();

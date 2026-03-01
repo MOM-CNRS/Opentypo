@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
@@ -139,9 +140,9 @@ public class CandidatFormSaveService {
     public void saveCollectionPublique(Long entityId, Boolean publique, String entityStatut) {
         updateEntity(entityId, e -> {
             if ("PROPOSITION".equals(entityStatut)) {
-                e.setPublique(false); // Brouillon toujours privé
+                // Brouillon : rester en PROPOSITION (la visibilité est définie à la validation)
             } else {
-                e.setPublique(publique != null ? publique : true);
+                e.setStatut(Boolean.TRUE.equals(publique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
             }
         });
     }

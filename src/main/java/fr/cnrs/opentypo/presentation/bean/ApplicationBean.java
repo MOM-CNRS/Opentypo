@@ -42,9 +42,11 @@ import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -229,39 +231,29 @@ public class ApplicationBean implements Serializable {
         }
 
         // 0) Administrateur technique : voit tous les éléments (y compris REFUSED)
-        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
-        if (isAdminTechnique) {
+        if (loginBean.isAdminTechnique()) {
             return true;
         }
 
         // 1) Ne jamais afficher les entités au statut REFUSED (pour les non-admin)
-        if (EntityStatusEnum.REFUSED.name().equals(entity.getStatut())) {
+        if (EntityStatusEnum.REFUSE.name().equals(entity.getStatut())) {
             return false;
         }
 
-        boolean authenticated = loginBean != null && loginBean.isAuthenticated();
-
-        // 2) Utilisateur non connecté (offline) : uniquement les entités publique = true
+        // 2) Utilisateur non connecté (offline) : uniquement les entités statut = PUBLIQUE
         //    et statut différent de REFUSED et PROPOSITION
-        if (!authenticated) {
-            if (!Boolean.TRUE.equals(entity.getPublique())) {
-                return false;
-            }
-            String statut = entity.getStatut();
-            return statut != null
-                    && !EntityStatusEnum.REFUSED.name().equals(statut)
-                    && !EntityStatusEnum.PROPOSITION.name().equals(statut);
+        if (!loginBean.isAuthenticated()) {
+            return entity.getStatut() != null && EntityStatusEnum.PUBLIQUE.name().equals(entity.getStatut());
         }
 
-        // 2b) Utilisateur connecté : pour les collections, afficher toutes (publique = true et false)
-        //     (liste collections + select recherche)
+        // 2b) Utilisateur connecté : pour les collections, afficher toutes
         if (entity.getEntityType() != null
                 && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
             return true;
         }
 
         // 3) Utilisateur connecté : règle des collections publiques — toutes les collections
-        //    publiques et tous leurs éléments sont visibles.
+        //    avec statut PUBLIQUE et tous leurs éléments sont visibles.
         Entity collectionAncestorForPublicRule = null;
         if (entity.getEntityType() != null
                 && EntityConstants.ENTITY_TYPE_COLLECTION.equals(entity.getEntityType().getCode())) {
@@ -270,7 +262,7 @@ public class ApplicationBean implements Serializable {
             collectionAncestorForPublicRule = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_COLLECTION);
         }
         if (collectionAncestorForPublicRule != null
-                && Boolean.TRUE.equals(collectionAncestorForPublicRule.getPublique())) {
+                && EntityStatusEnum.PUBLIQUE.name().equals(collectionAncestorForPublicRule.getStatut())) {
             return true;
         }
 
@@ -341,7 +333,7 @@ public class ApplicationBean implements Serializable {
         }
 
         String statut = entity.getStatut();
-        boolean isRefused = EntityStatusEnum.REFUSED.name().equals(statut);
+        boolean isRefused = EntityStatusEnum.REFUSE.name().equals(statut);
         boolean isProposition = EntityStatusEnum.PROPOSITION.name().equals(statut);
         boolean authenticated = loginBean != null && loginBean.isAuthenticated();
 
@@ -350,10 +342,9 @@ public class ApplicationBean implements Serializable {
             return false;
         }
 
-        // 2) Mode offline : publique = true ET statut différent de REFUSED et PROPOSITION
+        // 2) Mode offline : statut = PUBLIQUE ET différent de PROPOSITION
         if (!authenticated) {
-            return Boolean.TRUE.equals(entity.getPublique())
-                    && !isProposition;
+            return EntityStatusEnum.PUBLIQUE.name().equals(statut) && !isProposition;
         }
 
         // 3) Connecté : statut != PROPOSITION -> visible si isEntityVisibleForCurrentUser
@@ -907,24 +898,16 @@ public class ApplicationBean implements Serializable {
     public void loadAllCollections() {
 
         collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
-
-        // Initialiser les descriptions pour chaque collection (évite le problème MultipleBagFetchException)
-        for (Entity collection : collections) {
-            if (collection.getDescriptions() != null) {
-                // Forcer l'initialisation de la collection lazy
-                collection.getDescriptions().size();
-            }
+        if (!CollectionUtils.isEmpty(collections)) {
+            collections = collections.stream()
+                    .filter(this::isEntityVisibleForCurrentUser)
+                    .sorted((c1, c2) -> {
+                        String nom1 = getEntityLabel(c1);
+                        String nom2 = getEntityLabel(c2);
+                        return nom1.compareToIgnoreCase(nom2);
+                    })
+                    .collect(Collectors.toList());
         }
-
-        collections = collections.stream()
-                // Filtrer selon les droits et le statut
-                .filter(this::isEntityVisibleForCurrentUser)
-                .sorted((c1, c2) -> {
-                    String nom1 = getEntityLabel(c1);
-                    String nom2 = getEntityLabel(c2);
-                    return nom1.compareToIgnoreCase(nom2);
-                })
-                .collect(Collectors.toList());
     }
     
     /**
@@ -1187,8 +1170,6 @@ public class ApplicationBean implements Serializable {
         return "MONNAIE".equals(label) || "CASH".equals(label);
     }
 
-
-
     /**
      * Annule l'édition du référentiel
      */
@@ -1197,7 +1178,14 @@ public class ApplicationBean implements Serializable {
      * @param makePublic true pour rendre public, false pour rendre privé
      */
     public void prepareConfirmVisibilityChange(boolean makePublic) {
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            String msg = getEntityLabel(selectedEntity) + " est une proposition, elle doit être approuvée avant pour pouvoir changer le statut";
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", msg));
+            return;
+        }
         requestedVisibilityStatus = makePublic;
+        PrimeFaces.current().executeScript("PF('confirmReferenceVisibilityChangeDialog').show();");
     }
 
     /**
@@ -1209,8 +1197,8 @@ public class ApplicationBean implements Serializable {
             return;
         }
 
-        applicationBean.getSelectedEntity().setPublique(requestedVisibilityStatus);
-        applicationBean.setSelectedEntity(entityRepository.save(applicationBean.getSelectedEntity()));
+        selectedEntity.setStatut(requestedVisibilityStatus ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
+        selectedEntity = entityRepository.save(applicationBean.getSelectedEntity());
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                         requestedVisibilityStatus ? "L'élément est maintenant public." : "L'élément est maintenant privé."));

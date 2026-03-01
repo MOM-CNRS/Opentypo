@@ -30,7 +30,7 @@
                 <h:panelGroup rendered="#{candidatBean.isCurrentBrouillonReadOnly()}">
                     <div class="users-form-panel wizard-form-panel brouillon-readonly-message candidats-mt-20">
                         <div class="summary-content text-justify">
-                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'ACCEPTED'}">
+                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'PUBLIQUE'}">
                                 <i class="pi pi-check-circle candidats-icon-success"/>
                                 Ce brouillon a été validé. Vous ne pouvez que le visualiser.
                             </h:panelGroup>

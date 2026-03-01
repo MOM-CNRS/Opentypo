@@ -256,7 +256,6 @@ public class SerieBean implements Serializable {
             Entity newSerie = new Entity();
             newSerie.setCode(serieDialogCode.trim());
             newSerie.setEntityType(serieType);
-            newSerie.setPublique(true);
             newSerie.setCreateDate(LocalDateTime.now());
 
             List<Label> labels = new ArrayList<>();
@@ -382,7 +381,7 @@ public class SerieBean implements Serializable {
             newSerie.setCode(codeTrimmed);
             newSerie.setCommentaire(descriptionTrimmed);
             newSerie.setEntityType(serieType);
-            newSerie.setPublique(true);
+            newSerie.setStatut(EntityStatusEnum.PROPOSITION.name());
             newSerie.setCreateDate(LocalDateTime.now());
 
             CollectionBean.createCollectionLabel(labelTrimmed, newSerie, langueRepository, searchBean, loginBean);

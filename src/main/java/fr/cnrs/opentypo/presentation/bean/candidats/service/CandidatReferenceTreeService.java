@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -60,7 +61,7 @@ public class CandidatReferenceTreeService {
                 refreshedCollection, EntityConstants.ENTITY_TYPE_REFERENCE);
 
         List<Entity> filteredReferences = allReferences.stream()
-                .filter(r -> isAuthenticated || (r.getPublique() != null && r.getPublique()))
+                .filter(r -> isAuthenticated || EntityStatusEnum.PUBLIQUE.name().equals(r.getStatut()))
                 .toList();
 
         for (Entity reference : filteredReferences) {
@@ -88,7 +89,7 @@ public class CandidatReferenceTreeService {
 
         List<Entity> allDirectEntities = entityRelationRepository.findChildrenByParent(refreshedCollection);
         return allDirectEntities.stream()
-                .filter(e -> isAuthenticated || (e.getPublique() != null && e.getPublique()))
+                .filter(e -> isAuthenticated || EntityStatusEnum.PUBLIQUE.name().equals(e.getStatut()))
                 .toList();
     }
 
@@ -106,7 +107,7 @@ public class CandidatReferenceTreeService {
             return null;
         }
 
-        if (!isAuthenticated && (selectedReference.getPublique() == null || !selectedReference.getPublique())) {
+        if (!isAuthenticated && !EntityStatusEnum.PUBLIQUE.name().equals(selectedReference.getStatut())) {
             log.debug("Référence {} non accessible (non publique)", selectedReference.getCode());
             return null;
         }
@@ -122,7 +123,7 @@ public class CandidatReferenceTreeService {
         try {
             List<Entity> children = entityRelationRepository.findChildrenByParent(parentEntity);
             List<Entity> filteredChildren = children.stream()
-                    .filter(child -> isAuthenticated || (child.getPublique() != null && child.getPublique()))
+                    .filter(child -> isAuthenticated || EntityStatusEnum.PUBLIQUE.name().equals(child.getStatut()))
                     .toList();
 
             for (Entity child : filteredChildren) {

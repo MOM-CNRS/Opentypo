@@ -3049,6 +3049,12 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     border: 1px solid rgba(184, 74, 60, 0.25);
 }
 
+.tree-node-indicator.reference-indicator-refused {
+    background: rgba(107, 114, 128, 0.15);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
 .simple-tree .ui-treenode-content.ui-state-highlight .tree-node-indicator.reference-indicator-public {
     background: rgba(71, 98, 77, 0.2);
     border-color: var(--color-action-main, #47624D);

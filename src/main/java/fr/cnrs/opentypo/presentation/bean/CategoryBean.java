@@ -246,8 +246,7 @@ public class CategoryBean implements Serializable {
             newCategory.setCode(categoryCode.trim());
             newCategory.setBibliographie(categoryBibliographie);
             newCategory.setEntityType(categoryType);
-            newCategory.setStatut(EntityStatusEnum.ACCEPTED.name());
-            newCategory.setPublique(categoryPublique != null ? categoryPublique : true);
+            newCategory.setStatut(Boolean.TRUE.equals(categoryPublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
             newCategory.setCreateDate(LocalDateTime.now());
             newCategory.setMetadataCommentaire(categoryCommentaire);
 

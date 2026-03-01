@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -401,10 +402,10 @@ public class SearchBean implements Serializable {
                             return true; // Tous
                         }
                         if ("public".equals(statutFilter)) {
-                            return e.getPublique() != null && e.getPublique();
+                            return EntityStatusEnum.PUBLIQUE.name().equals(e.getStatut());
                         }
                         if ("prive".equals(statutFilter)) {
-                            return e.getPublique() == null || !e.getPublique();
+                            return EntityStatusEnum.PRIVEE.name().equals(e.getStatut());
                         }
                         return true;
                     })
@@ -414,9 +415,9 @@ public class SearchBean implements Serializable {
                             return true; // Tous
                         }
                         if ("publie".equals(etatFilter)) {
-                            // Publié = ACCEPTED ou AUTOMATIC
+                            // Publié = PUBLIQUE
                             String statut = e.getStatut();
-                            return statut != null && ("ACCEPTED".equals(statut) || "AUTOMATIC".equals(statut));
+                            return EntityStatusEnum.PUBLIQUE.name().equals(statut);
                         }
                         if ("proposition".equals(etatFilter)) {
                             // Proposition = PROPOSITION

@@ -43,8 +43,7 @@ public class CandidatValidationActionService {
 
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
 
-        entity.setStatut(EntityStatusEnum.ACCEPTED.name());
-        entity.setPublique(true);
+        entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
@@ -60,7 +59,7 @@ public class CandidatValidationActionService {
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
 
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
-        entity.setStatut(EntityStatusEnum.REFUSED.name());
+        entity.setStatut(EntityStatusEnum.REFUSE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
@@ -115,8 +114,7 @@ public class CandidatValidationActionService {
         if (!candidatValidationService.validateRequiredFieldsForEntity(entity)) {
             return new ActionResult(false, null, "Validation des champs obligatoires échouée.");
         }
-        entity.setStatut(EntityStatusEnum.ACCEPTED.name());
-        entity.setPublique(true);
+        entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
         String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
@@ -133,7 +131,7 @@ public class CandidatValidationActionService {
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
         applyModifications(entity, selectedAuteurs, attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
-        entity.setStatut(EntityStatusEnum.REFUSED.name());
+        entity.setStatut(EntityStatusEnum.REFUSE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
         String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";

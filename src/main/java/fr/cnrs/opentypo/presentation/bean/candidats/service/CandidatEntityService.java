@@ -55,7 +55,6 @@ public class CandidatEntityService {
         newEntity.setCode(code.trim());
         newEntity.setEntityType(entityType);
         newEntity.setStatut(EntityStatusEnum.PROPOSITION.name());
-        newEntity.setPublique(false); // Brouillon toujours privé tant qu'il n'est pas validé
         newEntity.setCreateDate(LocalDateTime.now());
         
         // Définir l'utilisateur actuel si fourni

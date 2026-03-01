@@ -53,44 +53,47 @@ import java.util.Objects;
 @Slf4j
 public class GroupBean implements Serializable {
 
-    @Inject
+    @Autowired
     private EntityRepository entityRepository;
 
-    @Inject
+    @Autowired
     private EntityTypeRepository entityTypeRepository;
 
-    @Inject
+    @Autowired
     private LoginBean loginBean;
 
-    @Inject
+    @Autowired
     private Provider<TreeBean> treeBeanProvider;
     
-    @Inject
+    @Autowired
     private Provider<ApplicationBean> applicationBeanProvider;
 
-    @Inject
+    @Autowired
     private EntityRelationRepository entityRelationRepository;
 
-    @Inject
+    @Autowired
     private SearchBean searchBean;
 
-    @Inject
+    @Autowired
     private LangueRepository langueRepository;
 
-    @Inject
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Inject
+    @Autowired
     private UserPermissionRepository userPermissionRepository;
 
     @Autowired
     private ApplicationBean applicationBean;
 
-    @Inject
+    @Autowired
     private CandidatBean candidatBean;
 
-    @Inject
+    @Autowired
     private EntityEditModeBean entityEditModeBean;
+
+    @Autowired
+    private TreeBean treeBean;
 
     private String groupCode;
     private String groupLabel;
@@ -501,7 +504,6 @@ public class GroupBean implements Serializable {
             Entity newGroup = new Entity();
             newGroup.setCode(codeTrimmed);
             newGroup.setEntityType(groupType);
-            newGroup.setPublique(true);
             newGroup.setCreateDate(LocalDateTime.now());
 
             List<Label> labels = new ArrayList<>();
@@ -556,10 +558,7 @@ public class GroupBean implements Serializable {
             }
 
             applicationBean.refreshCategoryGroupsList();
-            TreeBean tb = treeBeanProvider.get();
-            if (tb != null) {
-                tb.addEntityToTree(savedGroup, applicationBean.getSelectedCategory());
-            }
+            treeBean.addEntityToTree(savedGroup, applicationBean.getSelectedCategory());
 
             // Créer une ligne user_permission par utilisateur sélectionné (rédacteur + relecteurs)
             saveUserPermissionsForGroup(savedGroup);
@@ -627,7 +626,6 @@ public class GroupBean implements Serializable {
             newGroup.setCode(codeTrimmed);
             newGroup.setCommentaire(descriptionTrimmed);
             newGroup.setEntityType(groupType);
-            newGroup.setPublique(true);
             newGroup.setCreateDate(LocalDateTime.now());
 
             Langue languePrincipale = langueRepository.findByCode(searchBean.getLangSelected());

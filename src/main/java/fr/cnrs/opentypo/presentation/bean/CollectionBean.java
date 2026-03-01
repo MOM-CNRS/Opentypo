@@ -30,14 +30,13 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.inject.Provider;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -47,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Getter
@@ -57,38 +55,35 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CollectionBean implements Serializable {
 
-    @Inject
+    @Autowired
     private EntityRepository entityRepository;
 
-    @Inject
+    @Autowired
     private EntityTypeRepository entityTypeRepository;
 
-    @Inject
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Inject
+    @Autowired
     private UserPermissionRepository userPermissionRepository;
 
-    @Inject
+    @Autowired
     private LangueRepository langueRepository;
 
-    @Inject
+    @Autowired
     private LoginBean loginBean;
 
-    @Inject
-    private Provider<SearchBean> searchBeanProvider;
-
-    @Inject
-    private Provider<TreeBean> treeBeanProvider;
-
-    @Inject
+    @Autowired
     private SearchBean searchBean;
 
-    @Inject
+    @Autowired
     private EntityEditModeBean entityEditModeBean;
 
-    @Inject
+    @Autowired
     private CandidatBean candidatBean;
+
+    @Autowired
+    private TreeBean treeBean;
 
     // Propriétés pour le formulaire de création de collection
     private String collectionDescription;
@@ -245,7 +240,6 @@ public class CollectionBean implements Serializable {
         // Recharger la collection depuis la base de données pour avoir toutes les données à jour
         Entity refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
         applicationBean.setSelectedEntity(refreshedCollection);
-
         applicationBean.setSelectedEntityLabel(applicationBean.getSelectedEntityLabel());
 
         String langSelected = (searchBean.getLangSelected() != null) ? searchBean.getLangSelected() : "fr";
@@ -254,7 +248,7 @@ public class CollectionBean implements Serializable {
                 .findFirst()
                 .orElse(null);
 
-        editingStatus = refreshedCollection.getPublique();
+        editingStatus = EntityStatusEnum.PUBLIQUE.name().equals(refreshedCollection.getStatut());
 
         applicationBean.refreshCollectionReferencesList();
 
@@ -267,10 +261,7 @@ public class CollectionBean implements Serializable {
         applicationBean.setBeadCrumbElements(applicationBean.buildBreadcrumbFromSelectedEntity());
 
         // Initialiser l'arbre avec les référentiels de la collection
-        TreeBean treeBean = treeBeanProvider != null ? treeBeanProvider.get() : null;
-        if (treeBean != null) {
-            treeBean.initializeTreeWithCollection();
-        }
+        treeBean.initializeTreeWithCollection();
 
         applicationBean.showCollectionDetail();
     }
@@ -285,7 +276,6 @@ public class CollectionBean implements Serializable {
             return;
         }
 
-        SearchBean searchBean = searchBeanProvider.get();
         String langCode = searchBean != null && searchBean.getLangSelected() != null
             ? searchBean.getLangSelected()
             : "fr";
@@ -383,7 +373,7 @@ public class CollectionBean implements Serializable {
             editingDescriptionValue = refreshedCollection.getCommentaire() != null ? refreshedCollection.getCommentaire() : "";
         }
 
-        editingStatus = refreshedCollection.getPublique();
+        editingStatus = EntityStatusEnum.PUBLIQUE.name().equals(refreshedCollection.getStatut());
     }
 
     /**
@@ -422,7 +412,6 @@ public class CollectionBean implements Serializable {
         } else {
             log.warn("Tentative de changement de langue avec un code null ou vide. editingLanguageCode: {}", editingLanguageCode);
             // Essayer de récupérer depuis SearchBean comme fallback
-            SearchBean searchBean = searchBeanProvider.get();
             if (searchBean != null && searchBean.getLangSelected() != null) {
                 langCode = searchBean.getLangSelected();
                 editingLanguageCode = langCode;
@@ -467,7 +456,7 @@ public class CollectionBean implements Serializable {
         try {
             Boolean targetStatus = requestedVisibilityStatus;
             Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
-            refreshed.setPublique(targetStatus);
+            refreshed.setStatut(targetStatus ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
             Entity saved = entityRepository.save(refreshed);
             applicationBean.setSelectedEntity(saved);
             editingStatus = targetStatus;
@@ -507,7 +496,7 @@ public class CollectionBean implements Serializable {
         Entity collection = applicationBean.getSelectedCollection();
         if (collection == null || collection.getId() == null) return;
         Entity refreshed = entityRepository.findById(collection.getId()).orElse(collection);
-        refreshed.setPublique(editingStatus != null ? editingStatus : true);
+        refreshed.setStatut(Boolean.TRUE.equals(editingStatus) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
         entityRepository.save(refreshed);
         applicationBean.setSelectedEntity(refreshed);
         FacesContext.getCurrentInstance().addMessage(null,
@@ -605,14 +594,14 @@ public class CollectionBean implements Serializable {
             }
         }
 
-        refreshedCollection.setPublique(editingStatus != null ? editingStatus : true);
+        refreshedCollection.setStatut(Boolean.TRUE.equals(editingStatus) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
 
         Entity savedCollection = entityRepository.save(refreshedCollection);
         applicationBean.setSelectedEntity(savedCollection);
 
         saveUserPermissionsForCollection(savedCollection);
 
-        treeBeanProvider.get().updateEntityInTree(savedCollection);
+        treeBean.updateEntityInTree(savedCollection);
 
         updateCollectionLanguage(applicationBean);
         applicationBean.loadAllCollections();
@@ -705,7 +694,7 @@ public class CollectionBean implements Serializable {
             }
         }
 
-        refreshedCollection.setPublique(editingStatus);
+        refreshedCollection.setStatut(Boolean.TRUE.equals(editingStatus) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
 
         // Sauvegarder la collection
         Entity savedCollection = entityRepository.save(refreshedCollection);
@@ -1089,8 +1078,7 @@ public class CollectionBean implements Serializable {
         Entity nouvelleCollection = new Entity();
         nouvelleCollection.setCode(code);
         nouvelleCollection.setEntityType(type);
-        nouvelleCollection.setStatut(EntityStatusEnum.ACCEPTED.name());
-        nouvelleCollection.setPublique(collectionPublique != null ? collectionPublique : true);
+        nouvelleCollection.setStatut(Boolean.TRUE.equals(collectionPublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
         nouvelleCollection.setCreateDate(LocalDateTime.now());
 
         createCollectionLabel(nomPrincipal, nouvelleCollection, langueRepository, searchBean, loginBean);

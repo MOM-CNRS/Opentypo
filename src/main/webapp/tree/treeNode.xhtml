@@ -36,18 +36,11 @@
                 #{treeBean.getNodeLabel(node)}
             </span>
 
-            <!-- Indicateurs visibilité + brouillon (visible uniquement pour Rédacteur, Valideur, Admin technique, Gestionnaire référentiels) -->
+            <!-- Icône unique selon le statut (visible pour Rédacteur, Valideur, Admin, Gestionnaire référentiels) -->
             <h:panelGroup class="simple-tree-node-indicators" rendered="#{treeBean.getEntityFromNode(node) != null and loginBean.canCreateOrEdit()}">
-                <!-- Icône brouillon : affichée uniquement si statut = PROPOSITION -->
-                <h:panelGroup rendered="#{treeBean.isEntityStatusProposition(node)}">
-                    <span class="tree-node-indicator reference-indicator-brouillon" title="Brouillon">
-                        <i class="pi pi-clock"/>
-                    </span>
-                </h:panelGroup>
-                <!-- Icône visibilité : globe (public) ou cadenas (privé) -->
-                <span class="tree-node-indicator #{treeBean.isEntityPublic(node) ? 'reference-indicator-public' : 'reference-indicator-private'}"
-                      title="#{treeBean.isEntityPublic(node) ? 'Public' : 'Privé'}">
-                    <i class="pi #{treeBean.isEntityPublic(node) ? 'pi-globe' : 'pi-lock'}"/>
+                <span class="tree-node-indicator #{treeBean.getUnifiedIndicatorCssClass(node)}"
+                      title="#{treeBean.getUnifiedIndicatorTitle(node)}">
+                    <i class="pi #{treeBean.getUnifiedIndicatorIcon(node)}"/>
                 </span>
             </h:panelGroup>
         </div>

@@ -572,9 +572,12 @@ public class TreeBean implements Serializable {
      * Indique si l'élément du nœud est public (true) ou privé (false).
      * Par défaut true si pas d'entité.
      */
+    /**
+     * Indique si l'entité est publique (statut = PUBLIQUE).
+     */
     public boolean isEntityPublic(Object node) {
         Entity e = getEntityFromNode(node);
-        return e == null || Boolean.TRUE.equals(e.getPublique());
+        return e == null || EntityStatusEnum.PUBLIQUE.name().equals(e.getStatut());
     }
 
     /**
@@ -600,18 +603,18 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Indique si le statut de l'entité est validé (ACCEPTED ou AUTOMATIC).
+     * Indique si le statut de l'entité est validé (PUBLIQUE).
      */
     public boolean isEntityStatusValidated(Object node) {
         Entity e = getEntityFromNode(node);
         if (e == null || e.getStatut() == null) return false;
         String s = e.getStatut();
-        return EntityStatusEnum.ACCEPTED.name().equals(s);
+        return EntityStatusEnum.PUBLIQUE.name().equals(s);
     }
 
     /**
      * Classe CSS pour l'indicateur de statut (tree-node-status-proposition ou tree-node-status-validated).
-     * Retourne une chaîne vide si le statut n'est ni PROPOSITION ni ACCEPTED/AUTOMATIC.
+     * Retourne une chaîne vide si le statut n'est ni PROPOSITION ni PUBLIQUE.
      */
     public String getEntityStatusCssClass(Object node) {
         if (isEntityStatusProposition(node)) return "tree-node-status-proposition";
@@ -629,28 +632,43 @@ public class TreeBean implements Serializable {
     }
 
     /**
-     * Indicateur unique : brouillon → icône brouillon ; validé → icône public/privé.
-     * Retourne la classe CSS pour l'indicateur unifié.
+     * Indicateur unique selon le statut : une seule icône par entité.
+     * PROPOSITION → brouillon, PUBLIQUE → globe, PRIVEE → cadenas, REFUSED → interdit.
      */
     public String getUnifiedIndicatorCssClass(Object node) {
-        if (isEntityStatusProposition(node)) return "reference-indicator-brouillon";
-        return isEntityPublic(node) ? "reference-indicator-public" : "reference-indicator-private";
+        Entity e = getEntityFromNode(node);
+        if (e == null || e.getStatut() == null) return "reference-indicator-private";
+        return switch (e.getStatut()) {
+            case "PROPOSITION" -> "reference-indicator-brouillon";
+            case "PUBLIQUE" -> "reference-indicator-public";
+            case "PRIVEE" -> "reference-indicator-private";
+            case "REFUSED" -> "reference-indicator-refused";
+            default -> "reference-indicator-private";
+        };
     }
 
-    /**
-     * Titre (tooltip) pour l'indicateur unifié.
-     */
     public String getUnifiedIndicatorTitle(Object node) {
-        if (isEntityStatusProposition(node)) return "Brouillon";
-        return isEntityPublic(node) ? "Public" : "Privé";
+        Entity e = getEntityFromNode(node);
+        if (e == null || e.getStatut() == null) return "Privé";
+        return switch (e.getStatut()) {
+            case "PROPOSITION" -> "Brouillon";
+            case "PUBLIQUE" -> "Public";
+            case "PRIVEE" -> "Privé";
+            case "REFUSED" -> "Refusé";
+            default -> "Privé";
+        };
     }
 
-    /**
-     * Classe de l'icône PrimeIcons pour l'indicateur unifié.
-     */
     public String getUnifiedIndicatorIcon(Object node) {
-        if (isEntityStatusProposition(node)) return "pi-clock";
-        return isEntityPublic(node) ? "pi-globe" : "pi-lock";
+        Entity e = getEntityFromNode(node);
+        if (e == null || e.getStatut() == null) return "pi-lock";
+        return switch (e.getStatut()) {
+            case "PROPOSITION" -> "pi-clock";
+            case "PUBLIQUE" -> "pi-globe";
+            case "PRIVEE" -> "pi-lock";
+            case "REFUSED" -> "pi-ban";
+            default -> "pi-lock";
+        };
     }
 
     /**

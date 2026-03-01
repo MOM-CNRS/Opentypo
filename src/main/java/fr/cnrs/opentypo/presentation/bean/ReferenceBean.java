@@ -339,7 +339,7 @@ public class ReferenceBean implements Serializable {
                 .orElseThrow(() -> new IllegalStateException("Référentiel introuvable (id: " + referenceId + ")"));
         editingReferenceId = refLoaded.getId();
         referenceCode = refLoaded.getCode();
-        referencePublique = refLoaded.getPublique() != null ? refLoaded.getPublique() : true;
+        referencePublique = EntityStatusEnum.PUBLIQUE.name().equals(refLoaded.getStatut());
         initGestionnairesPickListForEdit(refLoaded.getId());
 
         referenceNames = new ArrayList<>();
@@ -988,7 +988,7 @@ public class ReferenceBean implements Serializable {
                     .orElseThrow(() -> new IllegalStateException("Référentiel introuvable."));
 
             referenceToUpdate.setCode(codeTrimmed);
-            referenceToUpdate.setPublique(referencePublique != null ? referencePublique : true);
+            referenceToUpdate.setStatut(Boolean.TRUE.equals(referencePublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
 
             String bibJoined = null;
             if (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty()) {
@@ -1087,8 +1087,7 @@ public class ReferenceBean implements Serializable {
         newReference.setReferenceBibliographique(bibJoined);
 
         newReference.setEntityType(type);
-        newReference.setPublique(referencePublique != null ? referencePublique : true);
-        newReference.setStatut(EntityStatusEnum.ACCEPTED.name());
+        newReference.setStatut(Boolean.TRUE.equals(referencePublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
         newReference.setCreateDate(LocalDateTime.now());
 
         if (referenceNames != null && !referenceNames.isEmpty()) {

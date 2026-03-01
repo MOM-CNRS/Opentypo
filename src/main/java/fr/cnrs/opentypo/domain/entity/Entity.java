@@ -48,9 +48,6 @@ public class Entity implements Serializable {
     @Column(name = "statut", length = 50)
     private String statut;
 
-    @Column(name = "publique", nullable = false)
-    private Boolean publique = true; // Par défaut, l'entité est publique
-
     @Column(name = "image_principale_url", length = 500)
     private String imagePrincipaleUrl;
 

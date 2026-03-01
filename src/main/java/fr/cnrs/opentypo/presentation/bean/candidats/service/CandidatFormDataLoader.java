@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
+import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.*;
@@ -243,7 +244,7 @@ public class CandidatFormDataLoader {
                 .identifiantPerenne(refreshedEntity.getIdentifiantPerenne())
                 .ancienneVersion(refreshedEntity.getAncienneVersion())
                 .candidatProduction(production)
-                .collectionPublique(refreshedEntity.getPublique())
+                .collectionPublique(EntityStatusEnum.PUBLIQUE.name().equals(refreshedEntity.getStatut()))
                 .typeDescription(typeDescription)
                 .tpq(refreshedEntity.getTpq())
                 .taq(refreshedEntity.getTaq())
