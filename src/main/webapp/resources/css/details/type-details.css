@@ -15,6 +15,10 @@
     --type-border: rgba(var(--type-main-rgb), 0.12);
     --type-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     --type-shadow-hover: 0 8px 24px rgba(var(--type-main-rgb), 0.1);
+    /* Pour boutons Publier/Refuser (réutilise styles groupe-details.css) */
+    --gp-main: var(--type-main);
+    --gp-main-rgb: var(--type-main-rgb);
+    --gp-border: var(--type-border);
 }
 
 /* ---- Container principal ---- */

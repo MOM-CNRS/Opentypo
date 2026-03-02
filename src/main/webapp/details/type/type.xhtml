@@ -23,48 +23,56 @@
                                         </div>
                                     </div>
                                 </div>
-                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not entityEditModeBean.editingEntityInCatalog}">
+
+                                <h:panelGroup class="concept-info-actions">
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this" update="@none" styleClass="concept-action-button" immediate="true">
                                         <i class="pi pi-history" />
                                         <p:tooltip value="Voir l'historique" position="top"/>
                                     </p:commandLink>
+
                                     <p:commandLink action="#{groupUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":contentPanels"
+                                                   rendered="#{applicationBean.canEditGroup()}"
                                                    styleClass="concept-action-button">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
+
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
                                                    process="@this"
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
-                                                   styleClass="concept-action-button">
+                                                   styleClass="concept-action-button"
+                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
-                                    <div class="collection-visibility-card">
-                                        <div class="collection-visibility-card-content">
-                                            <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                                <div class="collection-visibility-icon">
-                                                    <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+
+                                    <h:panelGroup rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                        <div class="collection-visibility-card">
+                                            <div class="collection-visibility-card-content">
+                                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                                    <div class="collection-visibility-icon">
+                                                        <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                                    </div>
+                                                    <div class="collection-visibility-info">
+                                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                    </div>
                                                 </div>
-                                                <div class="collection-visibility-info">
-                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                <div class="collection-visibility-toggle-wrapper">
+                                                    <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                                   process="@this"
+                                                                   update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                                   action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
+                                                        <i class="pi pi-sync" />
+                                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                    </p:commandLink>
                                                 </div>
-                                            </div>
-                                            <div class="collection-visibility-toggle-wrapper">
-                                                <p:commandLink styleClass="collection-visibility-toggle-btn"
-                                                               process="@this"
-                                                               update=":confirmReferenceVisibilityChangeDialog :growl"
-                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
-                                                    <i class="pi pi-sync" />
-                                                    <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
-                                                </p:commandLink>
                                             </div>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
                                 </h:panelGroup>
                             </div>
 
@@ -146,7 +154,31 @@
 
                             <ui:include src="../communs/bibliographie.xhtml"/>
                             <ui:include src="../communs/commentaire.xhtml"/>
+
+                            <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
+                                <ui:include src="../communs/commentaires.xhtml"/>
+                            </h:panelGroup>
                         </ui:fragment>
+                    </h:form>
+
+                    <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
+                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not groupUpdateBean.editingEntity}"
+                            styleClass="groupe-proposition-actions candidats-mt-20">
+                        <div class="groupe-proposition-actions-wrapper">
+                            <p:commandButton value="Publier"
+                                             icon="pi pi-check-circle"
+                                             styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
+                                             process="@this"
+                                             update=":confirmPropositionActionDialog"
+                                             action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
+
+                            <p:commandButton value="Refuser"
+                                             icon="pi pi-times-circle"
+                                             styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
+                                             process="@this"
+                                             update=":confirmPropositionActionDialog"
+                                             action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
+                        </div>
                     </h:form>
                 </div>
             </div>

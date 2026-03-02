@@ -27,10 +27,11 @@
                             </div>
                         </div>
                         <!-- Actions (masquées en mode édition) -->
-                        <h:panelGroup class="concept-info-actions" rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}">
+                        <h:panelGroup class="concept-info-actions" >
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            process="@this"
                                            update="@none"
+                                           rendered="#{loginBean.currentUser != null}"
                                            styleClass="concept-action-button"
                                            immediate="true">
                                 <i class="pi pi-history" />
@@ -44,6 +45,7 @@
                                            title="Modifier la collection"
                                            onstart="showLoading('Chargement...', 'spinner');"
                                            oncomplete="setTimeout(function(){hideLoading();}, 0);"
+                                           rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}"
                                            onerror="forceHideLoading();">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
@@ -54,12 +56,14 @@
                                            update=":confirmDeleteDialogContent"
                                            oncomplete="PF('confirmDeleteDialog').show();"
                                            styleClass="concept-action-button"
+                                           rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}"
                                            title="Supprimer la collection">
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <div class="collection-visibility-card">
+                            <h:panelGroup class="collection-visibility-card"
+                                          rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}">
                                 <div class="collection-visibility-card-content">
                                     <div class="collection-visibility-indicator #{collectionBean.editingStatus ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                         <div class="collection-visibility-icon">
@@ -80,7 +84,7 @@
                                         </p:commandLink>
                                     </div>
                                 </div>
-                            </div>
+                            </h:panelGroup>
                         </h:panelGroup>
 
                         <h:panelGroup class="concept-info-actions"

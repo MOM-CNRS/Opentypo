@@ -395,3 +395,44 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ---- Boutons Publier / Refuser (statut PROPOSITION) ---- */
+.groupe-proposition-actions {
+    padding-top: 1rem;
+    border-top: 1px solid var(--gp-border);
+}
+
+.groupe-proposition-actions-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.groupe-proposition-btn {
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.groupe-proposition-btn-publish {
+    background: linear-gradient(135deg, var(--gp-main) 0%, rgba(var(--gp-main-rgb), 0.9) 100%) !important;
+    border: 1px solid rgba(var(--gp-main-rgb), 0.3) !important;
+    color: #ffffff !important;
+}
+
+.groupe-proposition-btn-publish:hover {
+    background: linear-gradient(135deg, rgba(var(--gp-main-rgb), 0.85) 0%, var(--gp-main) 100%) !important;
+    box-shadow: 0 4px 12px rgba(var(--gp-main-rgb), 0.25) !important;
+}
+
+.groupe-proposition-btn-refuse {
+    background: rgba(184, 74, 60, 0.08) !important;
+    border: 1px solid rgba(184, 74, 60, 0.35) !important;
+    color: var(--color-danger, #B84A3C) !important;
+}
+
+.groupe-proposition-btn-refuse:hover {
+    background: rgba(184, 74, 60, 0.15) !important;
+    border-color: var(--color-danger, #B84A3C) !important;
+}

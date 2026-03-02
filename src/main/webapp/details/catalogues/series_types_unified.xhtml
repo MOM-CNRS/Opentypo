@@ -25,6 +25,7 @@
 
             <p:commandButton value="Créer une nouvelle série"
                              icon="pi pi-plus"
+                             rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}"
                              styleClass="collection-create-btn"
                              action="#{serieBean.prepareCreateSerie}"
                              process="@this"
@@ -178,8 +179,7 @@
     </h:form>
 
     <!-- Types directs du groupe (sans série) – ID distinct pour éviter conflit avec liste_types (vue série) -->
-    <h:panelGroup rendered="#{not empty applicationBean.childsTypes}"
-                  styleClass="categories-unified-block details-mt-20">
+    <h:panelGroup styleClass="categories-unified-block details-mt-20">
         <ui:include src="liste_types.xhtml">
             <ui:param name="typesPanelId" value="directTypesTogglePanel"/>
         </ui:include>

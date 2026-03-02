@@ -502,6 +502,18 @@ public class CategoryBean implements Serializable {
                 applicationBean.getSelectedEntity().getId(),
                 PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
 
-        return isGestionnaireReference || loginBean.isAdminTechnique();
+        if (isGestionnaireReference) {
+            return true;
+        }
+
+        boolean isGestionnaireCollection= userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                applicationBean.getSelectedCollection().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
+        if (isGestionnaireCollection) {
+            return true;
+        }
+
+        return loginBean.isAdminTechnique();
     }
 }

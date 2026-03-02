@@ -11,8 +11,8 @@
                     <i class="pi pi-comments commentaires-panel-icon"/>
                     <h3 class="commentaires-panel-title">Commentaires</h3>
                 </div>
-                <h:form id="commentairesForm" styleClass="commentaires-form">
-                    <p:messages id="commentairesMessages" for="commentairesForm" showDetail="true" closable="true" redisplay="true"/>
+                <h:form styleClass="commentaires-form">
+                    <p:messages id="commentairesMessages" showDetail="true" closable="true" redisplay="true"/>
                     <!-- Formulaire d'ajout (utilisateurs connectés uniquement) -->
                     <ui:fragment rendered="#{loginBean.authenticated}">
                         <div class="commentaires-add-section">
@@ -80,7 +80,7 @@
                                                          icon="pi pi-check"
                                                          styleClass="commentaires-action-btn commentaires-action-btn-save"
                                                          action="#{commentaireBean.saveCommentaire()}"
-                                                         process=":commentairesForm"
+                                                         process="@this"
                                                          update=":commentairesForm :growl"/>
                                     </div>
                                 </ui:fragment>

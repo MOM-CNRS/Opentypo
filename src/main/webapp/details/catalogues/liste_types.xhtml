@@ -23,6 +23,7 @@
             <h:panelGroup class="collection-references-actions" rendered="#{categoryBean.canCreateCategory()}">
                 <p:commandButton value="Créer un nouveau type"
                                  icon="pi pi-plus"
+                                 rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}"
                                  styleClass="collection-create-btn"
                                  action="#{typeBean.prepareCreateType}"
                                  process="@this"
@@ -54,7 +55,7 @@
                     <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
                         <p:commandLink action="#{applicationBean.showType(type)}"
                                        styleClass="typologie-card"
-                                       process="@form"
+                                       process="@this"
                                        update=":centerContent"
                                        onstart="showLoading('Chargement du type...', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"

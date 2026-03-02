@@ -18,7 +18,7 @@
                 #{applicationBean.filteredGroupesSize} groupe#{applicationBean.filteredGroupesSize gt 1 ? 's' : ''}
             </span>
 
-            <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
+            <h:panelGroup class="collection-references-actions" rendered="#{groupBean.canCreateGroup()}">
                 <p:commandButton value="Créer un nouveau groupe"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

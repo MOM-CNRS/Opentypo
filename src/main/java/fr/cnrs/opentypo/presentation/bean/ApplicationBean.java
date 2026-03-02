@@ -166,6 +166,8 @@ public class ApplicationBean implements Serializable {
     /** Statut de visibilité demandé avant confirmation (pour le dialog) */
     private Boolean requestedVisibilityStatus;
 
+    /** Action proposition demandée : true = publier (PUBLIQUE), false = refuser (REFUSE) */
+    private Boolean requestedPropositionAction;
 
     @PostConstruct
     public void initialization() {
@@ -1170,6 +1172,11 @@ public class ApplicationBean implements Serializable {
     }
 
     public boolean showCommentaireBloc() {
+
+        if (EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
+            return false;
+        }
+
         return loginBean.getCurrentUser() != null
             && (selectedEntity.getEntityType().getId() == 3 || selectedEntity.getEntityType().getId() == 4 || selectedEntity.getEntityType().getId() == 5);
     }
@@ -1261,6 +1268,204 @@ public class ApplicationBean implements Serializable {
     public String getVisibilityConfirmTitle() {
         if (requestedVisibilityStatus == null) return "Changer la visibilité";
         return requestedVisibilityStatus ? "Rendre cet élément public" : "Rendre cet élément privé";
+    }
+
+    // ==================== Publier / Refuser (entité PROPOSITION) ====================
+
+    /**
+     * Prépare l'affichage du dialog de confirmation pour Publier ou Refuser une proposition.
+     * @param publish true pour publier (PUBLIQUE), false pour refuser (REFUSE)
+     */
+    public void prepareConfirmPropositionAction(boolean publish) {
+        if (selectedEntity == null || !EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            return;
+        }
+        requestedPropositionAction = publish;
+        PrimeFaces.current().executeScript("PF('confirmPropositionActionDialog').show();");
+    }
+
+    /**
+     * Applique Publier ou Refuser après confirmation et persiste en base.
+     * Met à jour le statut de l'élément et de tous ses fils (directs et indirects).
+     */
+    @Transactional
+    public void applyPropositionAction(ApplicationBean applicationBean) {
+        if (applicationBean == null || requestedPropositionAction == null || selectedEntity == null) {
+            return;
+        }
+        if (!EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
+                            "L'entité n'est plus en statut proposition."));
+            requestedPropositionAction = null;
+            return;
+        }
+        String newStatut = requestedPropositionAction ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.REFUSE.name();
+        Set<Long> entityIdsToUpdate = collectEntityAndDescendantIds(selectedEntity.getId());
+        for (Long entityId : entityIdsToUpdate) {
+            entityRepository.findById(entityId).ifPresent(entity -> {
+                entity.setStatut(newStatut);
+                entityRepository.save(entity);
+            });
+        }
+        selectedEntity = entityRepository.findById(selectedEntity.getId()).orElse(selectedEntity);
+        selectedEntity.setStatut(newStatut);
+        int count = entityIdsToUpdate.size();
+        String msg = requestedPropositionAction
+                ? (count > 1
+                        ? "L'élément et " + (count - 1) + " sous-élément(s) ont été publiés avec succès."
+                        : "L'élément a été publié avec succès.")
+                : (count > 1
+                        ? "L'élément et " + (count - 1) + " sous-élément(s) ont été refusés."
+                        : "L'élément a été refusé.");
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", msg));
+        log.info("Statut modifié ({} éléments): {} -> {}", count, selectedEntity.getCode(),
+                requestedPropositionAction ? "PUBLIQUE" : "REFUSE");
+        requestedPropositionAction = null;
+    }
+
+    /** Collecte l'ID de l'entité et de tous ses descendants (directs et indirects). */
+    private Set<Long> collectEntityAndDescendantIds(Long rootId) {
+        Set<Long> ids = new HashSet<>();
+        if (rootId == null) return ids;
+        ids.add(rootId);
+        try {
+            List<Object[]> relations = entityRelationRepository.findAllDescendantRelations(rootId);
+            if (relations != null) {
+                for (Object[] row : relations) {
+                    if (row != null && row.length >= 2 && row[1] != null) {
+                        ids.add(((Number) row[1]).longValue());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Erreur lors de la collecte des descendants pour entity {}: {}", rootId, e.getMessage());
+        }
+        return ids;
+    }
+
+    /** Message pour le dialog de confirmation Publier/Refuser */
+    public String getPropositionConfirmMessage() {
+        if (requestedPropositionAction == null) return "";
+        return requestedPropositionAction
+                ? "Voulez-vous publier cet élément ? Lui et tous ses sous-éléments (séries, types, etc.) seront visibles par tous les utilisateurs."
+                : "Voulez-vous refuser cette proposition ? L'élément et tous ses sous-éléments ne seront plus visibles dans le référentiel.";
+    }
+
+    /** Titre du dialog Publier/Refuser */
+    public String getPropositionConfirmTitle() {
+        if (requestedPropositionAction == null) return "";
+        return requestedPropositionAction ? "Publier cette proposition" : "Refuser cette proposition";
+    }
+
+    /** Indique si l'entité sélectionnée est en statut PROPOSITION */
+    public boolean isSelectedEntityProposition() {
+        return selectedEntity != null && EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut());
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut publier ou refuser une proposition (groupe).
+     * Visible si : administrateur technique, gestionnaire de la collection, validateur du groupe,
+     * ou gestionnaire de la référence contenant le groupe.
+     */
+    public boolean canPublishOrRefuseProposition() {
+        if (!loginBean.isAuthenticated() || selectedEntity == null
+                || !EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut modifier le groupe (bouton Modifier).
+     * Visible si : administrateur technique, gestionnaire de la collection, rédacteur ou relecteur du groupe,
+     * ou gestionnaire de la référence contenant le groupe.
+     */
+    public boolean canEditGroup() {
+        if (!loginBean.isAuthenticated() || selectedEntity == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.REDACTEUR.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.RELECTEUR.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut supprimer l'entité ou modifier sa visibilité.
+     * Visible uniquement pour : administrateur technique, gestionnaire de la collection,
+     * ou gestionnaire de la référence contenant l'entité.
+     * Utilisable pour groupe, série, type, etc.
+     */
+    public boolean canDeleteOrChangeVisibilityGroup() {
+        if (!loginBean.isAuthenticated() || selectedEntity == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
     }
 }
 

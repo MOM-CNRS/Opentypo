@@ -31,13 +31,15 @@
                                     </div>
                                 </div>
 
-                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not groupUpdateBean.editingEntity}">
+                                <h:panelGroup class="concept-info-actions">
+
                                     <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
                                     <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
                                                    process="@this"
                                                    update=":collectionParametrageForm"
                                                    styleClass="concept-action-button"
                                                    title="Paramétrage OpenTheso"
+                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}"
                                                    oncomplete="PF('collectionParametrageDialog').show();">
                                         <i class="pi pi-cog" />
                                         <p:tooltip value="Paramétrage" position="top"/>
@@ -56,7 +58,8 @@
                                     <p:commandLink action="#{groupUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":groupeEditForm"
-                                                   styleClass="concept-action-button">
+                                                   styleClass="concept-action-button"
+                                                   rendered="#{applicationBean.canEditGroup()}">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
@@ -65,13 +68,15 @@
                                                    process="@this"
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
-                                                   styleClass="concept-action-button">
+                                                   styleClass="concept-action-button"
+                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
 
-                                    <div class="collection-visibility-card">
-                                        <div class="collection-visibility-card-content">
+                                    <h:panelGroup rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                        <div class="collection-visibility-card">
+                                            <div class="collection-visibility-card-content">
                                             <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                                 <div class="collection-visibility-icon">
                                                     <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
@@ -89,8 +94,9 @@
                                                     <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                                 </p:commandLink>
                                             </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
                                 </h:panelGroup>
                             </div>
 
@@ -245,6 +251,26 @@
                             <ui:include src="../communs/commentaires.xhtml"/>
                         </h:panelGroup>
                     </ui:fragment>
+
+                    <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
+                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not groupUpdateBean.editingEntity}"
+                            styleClass="groupe-proposition-actions candidats-mt-20">
+                        <div class="groupe-proposition-actions-wrapper">
+                            <p:commandButton value="Publier"
+                                            icon="pi pi-check-circle"
+                                            styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
+                                            process="@this"
+                                            update=":confirmPropositionActionDialog"
+                                            action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
+
+                            <p:commandButton value="Refuser"
+                                            icon="pi pi-times-circle"
+                                            styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
+                                            process="@this"
+                                            update=":confirmPropositionActionDialog"
+                                            action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
+                        </div>
+                    </h:form>
                 </div>
             </div>
         </div>

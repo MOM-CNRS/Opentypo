@@ -15,6 +15,13 @@
     --dp-shadow-hover: 0 8px 24px rgba(var(--dp-main-rgb), 0.1);
 }
 
+/* Variables pour boutons Publier/Refuser (réutilise gp-* de groupe-details.css) */
+.serie-detail-page {
+    --gp-main: var(--dp-main);
+    --gp-main-rgb: var(--dp-main-rgb);
+    --gp-border: var(--dp-border);
+}
+
 /* ---- Container principal ---- */
 .collection-detail-page,
 .reference-detail-page,

@@ -96,6 +96,8 @@ public class GroupBean implements Serializable {
     private DualListModel<Long> redacteursPickList;
     private DualListModel<Long> relecteursPickList;
     private DualListModel<Long> validateursPickList;
+    @Autowired
+    private ReferenceBean referenceBean;
 
 
     /**
@@ -641,5 +643,28 @@ public class GroupBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                             "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
+    }
+
+    public boolean canCreateGroup() {
+        if (!loginBean.isAuthenticated()) return false;
+
+        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+
+        if (isGestionnaireReference) {
+            return true;
+        }
+
+        boolean isGestionnaireCollection= userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                applicationBean.getSelectedCollection().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
+        if (isGestionnaireCollection) {
+            return true;
+        }
+
+        return loginBean.isAdminTechnique();
     }
 }
