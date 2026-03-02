@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h:form id="groupeEditForm" styleClass="groupe-header-form-inline">
-                        <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                        <div class="concept-info-panel #{groupUpdateBean.editingEntity ? 'collection-edit-mode' : ''}">
                             <!-- En-tête avec titre et actions (form pour éviter NPE @form) -->
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
@@ -31,7 +31,7 @@
                                     </div>
                                 </div>
 
-                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not entityEditModeBean.editingEntityInCatalog}">
+                                <h:panelGroup class="concept-info-actions" rendered="#{loginBean.canCreateOrEdit() and not groupUpdateBean.editingEntity}">
                                     <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
                                     <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
                                                    process="@this"
@@ -53,7 +53,7 @@
                                         <p:tooltip value="Voir l'historique" position="top"/>
                                     </p:commandLink>
 
-                                    <p:commandLink action="#{groupBean.startEditingGroupe(applicationBean)}"
+                                    <p:commandLink action="#{groupUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":groupeEditForm"
                                                    styleClass="concept-action-button">
@@ -94,7 +94,7 @@
                                 </h:panelGroup>
                             </div>
 
-                            <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                            <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                                 <div class="concept-info-item concept-info-item-full">
                                     <div class="concept-info-label">
                                         <i class="pi pi-file concept-info-icon" />
@@ -128,7 +128,10 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                                    #{applicationBean.selectedEntity.periode.valeur}
+                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                        <i class="pi pi-link-slash"/>
+                                                        #{applicationBean.selectedEntity.periode.valeur}
+                                                    </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
@@ -168,28 +171,47 @@
                                     </div>
                                 </div>
 
-                                <div class="concept-info-item concept-info-item-full">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-link concept-info-icon" />
-                                        <span>Alignement externe</span>
+                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                    <div class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-link concept-info-icon" />
+                                            <span>Alignement externe</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
+                                                #{applicationBean.selectedEntity.alignementExterne}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
                                     </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
-                                            #{applicationBean.selectedEntity.alignementExterne}
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo()}">
+                                    <div class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-link concept-info-icon" />
+                                            <span>Corpus externe</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.corpusExterne}">
+                                                #{applicationBean.selectedEntity.metadata.corpusExterne}
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.corpusExterne}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
                                     </div>
-                                </div>
+                                </h:panelGroup>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
-                                <ui:include src="modifier.xhtml"/>
+                            <ui:fragment rendered="#{groupUpdateBean.editingEntity}">
+                                <ui:include src="../../commun/modifier/modifier.xhtml"/>
                             </ui:fragment>
                         </div>
 
-                        <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                        <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                             <ui:include src="../communs/production.xhtml"/>
 
                             <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
@@ -197,9 +219,16 @@
                                 <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                             </h:panelGroup>
 
-                            <h:panelGroup rendered="#{!applicationBean.isCashTypo()}">
+                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
                                 <ui:include src="../communs/description.xhtml"/>
-                                <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+
+                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
+                                </h:panelGroup>
                             </h:panelGroup>
 
                             <ui:include src="../communs/bibliographie.xhtml"/>
@@ -208,6 +237,14 @@
                             <ui:include src="intervenants.xhtml"/>
                         </ui:fragment>
                     </h:form>
+
+                    <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
+                        <ui:include src="../catalogues/series_types_unified.xhtml"/>
+
+                        <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
+                            <ui:include src="../communs/commentaires.xhtml"/>
+                        </h:panelGroup>
+                    </ui:fragment>
                 </div>
             </div>
         </div>

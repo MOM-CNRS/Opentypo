@@ -20,9 +20,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
-import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
+import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
+import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -84,7 +84,6 @@ public class GroupBean implements Serializable {
     @Autowired
     private TreeBean treeBean;
 
-
     private List<NameItem> groupNames = new ArrayList<>();
     private List<DescriptionItem> groupDescriptions = new ArrayList<>();
     private String groupCode;
@@ -98,29 +97,73 @@ public class GroupBean implements Serializable {
     private DualListModel<Long> relecteursPickList;
     private DualListModel<Long> validateursPickList;
 
-    /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
-    public void startEditingGroupe(ApplicationBean appBean) {
-        if (appBean == null || appBean.getSelectedEntity() == null) return;
-        Entity entity = appBean.getSelectedEntity();
-        if (entity.getEntityType() == null || !Long.valueOf(3L).equals(entity.getEntityType().getId())) return;
-        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
-        candidatBean.visualiserCandidat(candidat);
-        entityEditModeBean.startEditing();
-    }
 
-    /** Annule le mode édition et rafraîchit l'entité. */
-    public void cancelEditingGroupe(ApplicationBean appBean) {
+    /**
+     * Sauvegarde toutes les modifications du groupe (labels, descriptions, tpq, taq, commentaire).
+     * Appelé par le bouton Enregistrer du formulaire modifier.
+     */
+    @Transactional
+    public void saveGroupe(ApplicationBean appBean) {
+        if (appBean == null || appBean.getSelectedEntity() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucun groupe sélectionné."));
+            return;
+        }
+        Entity group = appBean.getSelectedEntity();
+        if (group.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Groupe invalide."));
+            return;
+        }
+
+        Entity refreshed = entityRepository.findById(group.getId()).orElse(group);
+        appBean.setSelectedEntity(refreshed);
+
+        // Labels depuis candidatBean
+        List<CategoryLabelItem> labels = candidatBean.getCandidatLabels();
+        if (labels != null && !labels.isEmpty()) {
+            if (refreshed.getLabels() == null) refreshed.setLabels(new ArrayList<>());
+            refreshed.getLabels().clear();
+            for (CategoryLabelItem item : labels) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
+                    Label lbl = new Label();
+                    lbl.setNom(item.getNom().trim());
+                    lbl.setLangue(item.getLangue());
+                    lbl.setEntity(refreshed);
+                    refreshed.getLabels().add(lbl);
+                }
+            }
+        }
+
+        // Descriptions depuis candidatBean
+        List<CategoryDescriptionItem> descs = candidatBean.getDescriptions();
+        if (descs != null && !descs.isEmpty()) {
+            if (refreshed.getDescriptions() == null) refreshed.setDescriptions(new ArrayList<>());
+            refreshed.getDescriptions().clear();
+            for (CategoryDescriptionItem item : descs) {
+                if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
+                    Description desc = new Description();
+                    desc.setValeur(item.getValeur().trim());
+                    desc.setLangue(item.getLangue());
+                    desc.setEntity(refreshed);
+                    refreshed.getDescriptions().add(desc);
+                }
+            }
+        }
+
+        refreshed.setTpq(candidatBean.getTpq());
+        refreshed.setTaq(candidatBean.getTaq());
+        refreshed.setCommentaire(candidatBean.getGroupDescription() != null ? candidatBean.getGroupDescription().trim() : null);
+
+        Entity saved = entityRepository.save(refreshed);
+        appBean.setSelectedEntity(saved);
+
+        treeBean.updateEntityInTree(saved);
         entityEditModeBean.cancelEditing();
-        if (appBean != null && appBean.getSelectedEntity() != null && appBean.getSelectedEntity().getId() != null) {
-            appBean.setSelectedEntity(entityRepository.findById(appBean.getSelectedEntity().getId()).orElse(appBean.getSelectedEntity()));
-        }
-    }
 
-    /** Enregistre les modifications et sort du mode édition si succès. */
-    public void saveEditingGroupe(ApplicationBean appBean) {
-        if (candidatBean.performEnregistrerModifications()) {
-            cancelEditingGroupe(appBean);
-        }
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
+                FacesMessage.SEVERITY_INFO, "Succès", "Les modifications ont été enregistrées avec succès."));
+        log.info("Groupe modifié avec succès: {} (ID: {})", saved.getCode(), saved.getId());
     }
 
     public void resetGroupDialogForm() {

@@ -17,10 +17,12 @@ public enum ReferenceOpenthesoEnum {
     NATURE_PATE,
     INCLUSIONS,
     CUISSON_POST_CUISSON,
-    MATERIAU,
+    MATERIAUX,
     DENOMINATION,
     VALEUR,
     TECHNIQUE,
+    DIMENSIONS,
+    FORME,
     FABRICATION;
 
 

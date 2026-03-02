@@ -30,7 +30,10 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.production.url}">
-                                    #{applicationBean.selectedEntity.production.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.production.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.production}">
@@ -48,9 +51,9 @@
                             <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata and not empty applicationBean.selectedEntity.metadata.ateliers}">
                                 <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.ateliers, ';')}" var="ref" varStatus="status">
                                     <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                <span class="bibliographie-badge">
-                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                </span>
+                                        <span class="bibliographie-badge">
+                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                        </span>
                                     </ui:fragment>
                                 </ui:repeat>
                             </ui:fragment>

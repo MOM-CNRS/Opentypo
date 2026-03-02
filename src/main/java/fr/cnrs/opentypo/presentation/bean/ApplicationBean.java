@@ -700,6 +700,25 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Types directs du groupe filtrés par la recherche série (vue unifiée Séries & Types).
+     * Permet d'afficher et filtrer les types rattachés directement au groupe dans la même grille.
+     */
+    public List<Entity> getFilteredDirectTypesForUnifiedView() {
+        List<Entity> list = getChildsTypes();
+        if (list == null || list.isEmpty()) return new ArrayList<>();
+        String q = seriesSearchQuery != null ? seriesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String nom = e.getNom() != null ? e.getNom().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    return code.contains(q) || nom.contains(q) || label.contains(q);
+                })
+                .collect(Collectors.toList());
+    }
+
     /** Types pour la page courante (6 par page). */
     public List<Entity> getPaginatedTypes() {
         List<Entity> filtered = getFilteredTypes();
@@ -1168,6 +1187,30 @@ public class ApplicationBean implements Serializable {
         Entity entity = collectionService.findCollectionIdByEntityId(selectedEntity.getId());
         String label = candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
         return "MONNAIE".equals(label) || "CASH".equals(label);
+    }
+
+    /** Retourne le label (ou code) de la collection de l'entité sélectionnée. */
+    public String getSelectedCollectionLabel() {
+        if (selectedEntity == null || selectedEntity.getId() == null) return "";
+        Entity collection = collectionService.findCollectionIdByEntityId(selectedEntity.getId());
+        if (collection == null) return "";
+        String label = candidatReferenceTreeService.getCollectionLabel(collection, searchBean.getLangSelected());
+        return label != null ? label : (collection.getCode() != null ? collection.getCode() : "");
+    }
+
+    /** Indique si l'entité sélectionnée appartient à une collection Céramique. */
+    public boolean isCeramiqueTypo() {
+        String label = getSelectedCollectionLabel();
+        if (label == null || label.isBlank()) return false;
+        String upper = label.toUpperCase();
+        return upper.contains("CERAMIQUE") || upper.contains("CERAMIC");
+    }
+
+    /** Indique si l'entité sélectionnée appartient à une collection Instrumentum. */
+    public boolean isInstrumentumTypo() {
+        String label = getSelectedCollectionLabel();
+        if (label == null || label.isBlank()) return false;
+        return label.toUpperCase().contains("INSTRUMENTUM");
     }
 
     /**

@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <!-- Matériau -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full">
+        <div class="periode-header-row">
+            <p:outputLabel value="Matériaux" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-arrows-h input-icon periode-autocomplete-icon" />
+                <p:autoComplete value="#{groupUpdateBean.materiauxAutocompleteSelection}"
+                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                converter="pactolsConceptConverter"
+                                var="concept"
+                                itemLabel="#{concept.selectedTerm}"
+                                itemValue="#{concept}"
+                                dropdown="false"
+                                minQueryLength="2"
+                                appendTo="#materiauxAutocompleteWrapper"
+                                my="left top"
+                                at="left bottom"
+                                panelStyleClass="periode-autocomplete-panel"
+                                scrollHeight="280"
+                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAUX')}"
+                                placeholder="Ex. Or, Argent..."
+                                styleClass="users-input periode-autocomplete-input"
+                                forceSelection="false"/>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <!-- Dénomination -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
+        <div class="periode-header-row">
+            <p:outputLabel value="Forme" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div id="denominationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-wrench input-icon periode-autocomplete-icon" />
+                <p:autoComplete value="#{groupUpdateBean.formeAutocompleteSelection}"
+                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                converter="pactolsConceptConverter"
+                                var="concept"
+                                itemLabel="#{concept.selectedTerm}"
+                                itemValue="#{concept}"
+                                dropdown="false"
+                                minQueryLength="2"
+                                appendTo="#denominationAutocompleteWrapper"
+                                my="left top"
+                                at="left bottom"
+                                panelStyleClass="periode-autocomplete-panel"
+                                scrollHeight="280"
+                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FORME')}"
+                                placeholder="Ex. Sphérique, Plat..."
+                                styleClass="users-input periode-autocomplete-input"
+                                forceSelection="false"
+                                rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <!-- Dimensions -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
+        <div class="periode-header-row">
+            <p:outputLabel value="Dimensions" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div id="dimensionsAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-cog input-icon periode-autocomplete-icon" />
+                <p:autoComplete value="#{groupUpdateBean.dimensionsAutocompleteSelection}"
+                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                converter="pactolsConceptConverter"
+                                var="concept"
+                                itemLabel="#{concept.selectedTerm}"
+                                itemValue="#{concept}"
+                                dropdown="false"
+                                minQueryLength="2"
+                                appendTo="#dimensionsAutocompleteWrapper"
+                                my="left top"
+                                at="left bottom"
+                                panelStyleClass="periode-autocomplete-panel"
+                                scrollHeight="280"
+                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('DIMENSIONS')}"
+                                placeholder="Ex. Poids, diamètre..."
+                                styleClass="users-input periode-autocomplete-input"
+                                forceSelection="false"
+                                rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <!-- Technique -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
+        <div class="periode-header-row">
+            <p:outputLabel value="Technique" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div id="techniqueAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-th-large input-icon periode-autocomplete-icon" />
+                <p:autoComplete value="#{groupUpdateBean.techniqueAutocompleteSelection}"
+                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                converter="pactolsConceptConverter"
+                                var="concept"
+                                itemLabel="#{concept.selectedTerm}"
+                                itemValue="#{concept}"
+                                dropdown="false"
+                                minQueryLength="2"
+                                appendTo="#techniqueAutocompleteWrapper"
+                                my="left top"
+                                at="left bottom"
+                                panelStyleClass="periode-autocomplete-panel"
+                                scrollHeight="280"
+                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('TECHNIQUE')}"
+                                placeholder="Ex. Frappé, Coulé..."
+                                styleClass="users-input periode-autocomplete-input"
+                                forceSelection="false"
+                                rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <!-- Fabrication -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
+        <div class="periode-header-row">
+            <p:outputLabel value="Fabrication" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div id="fabricationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-circle input-icon periode-autocomplete-icon" />
+                <p:autoComplete  value="#{groupUpdateBean.fabricationAutocompleteSelection}"
+                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                 converter="pactolsConceptConverter"
+                                 var="concept"
+                                 itemLabel="#{concept.selectedTerm}"
+                                 itemValue="#{concept}"
+                                 dropdown="false"
+                                 minQueryLength="2"
+                                 appendTo="#fabricationAutocompleteWrapper"
+                                 my="left top"
+                                 at="left bottom"
+                                 panelStyleClass="periode-autocomplete-panel"
+                                 scrollHeight="280"
+                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION')}"
+                                 placeholder="Ex. Frappé, Coulé..."
+                                 styleClass="users-input periode-autocomplete-input"
+                                 forceSelection="false"
+                                 rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+            </div>
+        </div>
+    </h:panelGroup>
+</ui:composition>

@@ -55,18 +55,10 @@
                             <ui:include src="details/type/type.xhtml"/>
                         </h:panelGroup>
 
-                        <!-- Groupe : composant unifié séries + types. Série : liste des types uniquement. Un seul bloc évite les IDs dupliqués. -->
-                        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3 or applicationBean.selectedEntity.entityType.id == 4}">
-                            <ui:include src="#{applicationBean.selectedEntity.entityType.id == 3 ? 'details/catalogues/series_types_unified.xhtml' : 'details/catalogues/liste_types.xhtml'}"/>
-                        </h:panelGroup>
-
-                        <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
-                            <ui:include src="details/communs/commentaires.xhtml"/>
-                        </h:panelGroup>
-
                         <!-- Dialog paramétrage OpenTheso (utilisé par collection et groupe) -->
                         <ui:include src="details/collections/collectionParametrageDialog.xhtml"/>
                         <ui:include src="details/communs/confirmVisibilityChangeDialog.xhtml"/>
+                        <ui:include src="dialogs/typeDialog.xhtml"/>
                     </h:panelGroup>
                 </div>
             </h:panelGroup>

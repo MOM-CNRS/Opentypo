@@ -37,7 +37,7 @@ public class CandidatSauvegardeRequest {
     private String revers;
     private String legendeRevers;
     private String coinsMonetairesRevers;
-    private ReferenceOpentheso materiau;
+    private ReferenceOpentheso materiaux;
     private ReferenceOpentheso denomination;
     private String metrologieMonnaie;
     private ReferenceOpentheso valeur;

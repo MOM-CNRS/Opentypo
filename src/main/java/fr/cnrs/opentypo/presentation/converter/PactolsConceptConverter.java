@@ -18,11 +18,14 @@ public class PactolsConceptConverter implements Converter<PactolsConcept> {
     public PactolsConcept getAsObject(FacesContext context, UIComponent component, String value) {
         if (value == null || value.isBlank()) return null;
         String[] parts = value.split("\\|\\|\\|", -1);
-        if (parts.length < 2) return null;
-        String id = parts[0];
-        String term = parts.length > 1 ? parts[1] : id;
-        String uri = parts.length > 2 ? parts[2] : null;
-        return new PactolsConcept(id, uri, term);
+        if (parts.length >= 2) {
+            String id = parts[0];
+            String term = parts.length > 1 ? parts[1] : id;
+            String uri = parts.length > 2 ? parts[2] : null;
+            return new PactolsConcept(id, uri, term);
+        }
+        /* Saisie manuelle : valeur brute sans séparateur (forceSelection="false") */
+        return new PactolsConcept(null, null, value.trim());
     }
 
     @Override

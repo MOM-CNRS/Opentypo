@@ -1316,6 +1316,18 @@
             justify-content: space-between;
         }
 
+        .periode-header-row-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .periode-field-icon {
+            color: var(--color-action-main, #47624D);
+            font-size: 0.95rem;
+        }
+
         .periode-header-row .ui-outputlabel {
             font-weight: 600;
             color: var(--color-text-primary, #333);

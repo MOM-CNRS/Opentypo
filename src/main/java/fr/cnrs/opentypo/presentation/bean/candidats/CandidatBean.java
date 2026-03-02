@@ -216,7 +216,7 @@ public class CandidatBean implements Serializable {
     private String legendeRevers;
     private String coinsMonetairesRevers;
     // Caractéristiques physiques monnaie (collection MONNAIE)
-    private ReferenceOpentheso materiau;
+    private ReferenceOpentheso materiaux;
     private ReferenceOpentheso denomination;
     private String metrologieMonnaie;
     private ReferenceOpentheso valeur;
@@ -288,7 +288,7 @@ public class CandidatBean implements Serializable {
     private PactolsConcept naturePateAutocompleteSelection;
     private PactolsConcept inclusionsAutocompleteSelection;
     private PactolsConcept cuissonPostCuissonAutocompleteSelection;
-    private PactolsConcept materiauAutocompleteSelection;
+    private PactolsConcept materiauxAutocompleteSelection;
     private PactolsConcept denominationAutocompleteSelection;
     private PactolsConcept valeurAutocompleteSelection;
     private PactolsConcept techniqueAutocompleteSelection;
@@ -928,7 +928,7 @@ public class CandidatBean implements Serializable {
         revers = null;
         legendeRevers = null;
         coinsMonetairesRevers = null;
-        materiau = null;
+        materiaux = null;
         denomination = null;
         metrologieMonnaie = null;
         valeur = null;
@@ -949,7 +949,7 @@ public class CandidatBean implements Serializable {
         naturePateAutocompleteSelection = null;
         inclusionsAutocompleteSelection = null;
         cuissonPostCuissonAutocompleteSelection = null;
-        materiauAutocompleteSelection = null;
+        materiauxAutocompleteSelection = null;
         denominationAutocompleteSelection = null;
         valeurAutocompleteSelection = null;
         techniqueAutocompleteSelection = null;
@@ -994,7 +994,7 @@ public class CandidatBean implements Serializable {
         revers = data.getRevers();
         legendeRevers = data.getLegendeRevers();
         coinsMonetairesRevers = data.getCoinsMonetairesRevers();
-        materiau = data.getMateriau();
+        materiaux = data.getMateriaux();
         denomination = data.getDenomination();
         metrologieMonnaie = data.getMetrologieMonnaie();
         valeur = data.getValeur();
@@ -1145,7 +1145,7 @@ public class CandidatBean implements Serializable {
                 .revers(revers)
                 .legendeRevers(legendeRevers)
                 .coinsMonetairesRevers(coinsMonetairesRevers)
-                .materiau(materiau)
+                .materiaux(materiaux)
                 .denomination(denomination)
                 .metrologieMonnaie(metrologieMonnaie)
                 .valeur(valeur)
@@ -1819,7 +1819,7 @@ public class CandidatBean implements Serializable {
     public void deleteInclusions() { deleteRefAndRefresh(candidatOpenThesoService::deleteInclusions, r -> inclusions = null); }
     public void deleteCuissonPostCuisson() { deleteRefAndRefresh(candidatOpenThesoService::deleteCuissonPostCuisson, r -> cuissonPostCuisson = null); }
 
-    public void deleteMateriau() { deleteRefAndRefresh(candidatOpenThesoService::deleteMateriau, r -> materiau = null); }
+    public void deleteMateriau() { deleteRefAndRefresh(candidatOpenThesoService::deleteMateriaux, r -> materiaux = null); }
     public void deleteDenomination() { deleteRefAndRefresh(candidatOpenThesoService::deleteDenomination, r -> denomination = null); }
     public void deleteValeur() { deleteRefAndRefresh(candidatOpenThesoService::deleteValeur, r -> valeur = null); }
     public void deleteTechnique() { deleteRefAndRefresh(candidatOpenThesoService::deleteTechnique, r -> technique = null); }
@@ -1831,13 +1831,13 @@ public class CandidatBean implements Serializable {
         ReferenceOpentheso r = loader.apply(currentEntity.getId()); setter.accept(r); return r != null;
     }
 
-    public boolean hasMateriau() { return hasRefMonnaie(() -> materiau, candidatOpenThesoService::loadMateriau, r -> materiau = r); }
+    public boolean hasMateriau() { return hasRefMonnaie(() -> materiaux, candidatOpenThesoService::loadMateriaux, r -> materiaux = r); }
     public boolean hasDenomination() { return hasRefMonnaie(() -> denomination, candidatOpenThesoService::loadDenomination, r -> denomination = r); }
     public boolean hasValeur() { return hasRefMonnaie(() -> valeur, candidatOpenThesoService::loadValeur, r -> valeur = r); }
     public boolean hasTechnique() { return hasRefMonnaie(() -> technique, candidatOpenThesoService::loadTechnique, r -> technique = r); }
     public boolean hasFabrication() { return hasRefMonnaie(() -> fabrication, candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
 
-    public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriau, r -> { materiau = r; materiauAutocompleteSelection = refToConcept(r); }); }
+    public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriaux, r -> { materiaux = r; materiauxAutocompleteSelection = refToConcept(r); }); }
     public void updateDenominationFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadDenomination, r -> { denomination = r; denominationAutocompleteSelection = refToConcept(r); }); }
     public void updateValeurFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadValeur, r -> { valeur = r; valeurAutocompleteSelection = refToConcept(r); }); }
     public void updateTechniqueFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadTechnique, r -> { technique = r; techniqueAutocompleteSelection = refToConcept(r); }); }
@@ -2044,7 +2044,7 @@ public class CandidatBean implements Serializable {
     public void prepareConfirmDeleteNaturePate() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("NATURE_PATE")); }
     public void prepareConfirmDeleteInclusions() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("INCLUSIONS")); }
     public void prepareConfirmDeleteCuissonPostCuisson() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("CUISSON_POST_CUISSON")); }
-    public void prepareConfirmDeleteMateriau() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("MATERIAU")); }
+    public void prepareConfirmDeleteMateriau() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("MATERIAUX")); }
     public void prepareConfirmDeleteDenomination() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("DENOMINATION")); }
     public void prepareConfirmDeleteValeur() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("VALEUR")); }
     public void prepareConfirmDeleteTechnique() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("TECHNIQUE")); }
@@ -2059,7 +2059,7 @@ public class CandidatBean implements Serializable {
             case "AIRE_CIRCULATION" -> deleteAireCirculation();
             case "FONCTION_USAGE" -> deleteFonctionUsage();
             case "METROLOGIE" -> deleteMetrologie();
-            case "MATERIAU" -> deleteMateriau();
+            case "MATERIAUX" -> deleteMateriau();
             case "DENOMINATION" -> deleteDenomination();
             case "VALEUR" -> deleteValeur();
             case "TECHNIQUE" -> deleteTechnique();
@@ -2136,7 +2136,7 @@ public class CandidatBean implements Serializable {
         naturePateAutocompleteSelection = refToConcept(naturePate);
         inclusionsAutocompleteSelection = refToConcept(inclusions);
         cuissonPostCuissonAutocompleteSelection = refToConcept(cuissonPostCuisson);
-        materiauAutocompleteSelection = refToConcept(materiau);
+        materiauxAutocompleteSelection = refToConcept(materiaux);
         denominationAutocompleteSelection = refToConcept(denomination);
         valeurAutocompleteSelection = refToConcept(valeur);
         techniqueAutocompleteSelection = refToConcept(technique);
@@ -2205,9 +2205,9 @@ public class CandidatBean implements Serializable {
         cuissonPostCuissonAutocompleteSelection = null;
     }
     public void saveMateriauFromAutocomplete() {
-        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.MATERIAU, materiauAutocompleteSelection, "matériau");
+        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.MATERIAUX, materiauxAutocompleteSelection, "matériau");
         updateMateriauFromOpenTheso();
-        materiauAutocompleteSelection = null;
+        materiauxAutocompleteSelection = null;
     }
     public void saveDenominationFromAutocomplete() {
         openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.DENOMINATION, denominationAutocompleteSelection, "dénomination");

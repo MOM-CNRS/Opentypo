@@ -195,7 +195,7 @@ public class CandidatSauvegardeService {
     }
 
     private void applyCaracteristiquePhysiqueMonnaie(Entity entity, CandidatSauvegardeRequest req) {
-        boolean hasAny = (req.getMateriau() != null) || (req.getDenomination() != null)
+        boolean hasAny = (req.getMateriaux() != null) || (req.getDenomination() != null)
                 || (req.getMetrologieMonnaie() != null && !req.getMetrologieMonnaie().trim().isEmpty())
                 || (req.getValeur() != null) || (req.getTechnique() != null) || (req.getFabrication() != null);
         if (!hasAny) return;
@@ -205,7 +205,7 @@ public class CandidatSauvegardeService {
             cpm.setEntity(entity);
             entity.setCaracteristiquePhysiqueMonnaie(cpm);
         }
-        if (req.getMateriau() != null) cpm.setMateriau(req.getMateriau());
+        if (req.getMateriaux() != null) cpm.setMateriaux(req.getMateriaux());
         if (req.getDenomination() != null) cpm.setDenomination(req.getDenomination());
         if (req.getMetrologieMonnaie() != null) cpm.setMetrologie(req.getMetrologieMonnaie().trim().isEmpty() ? null : req.getMetrologieMonnaie().trim());
         if (req.getValeur() != null) cpm.setValeur(req.getValeur());

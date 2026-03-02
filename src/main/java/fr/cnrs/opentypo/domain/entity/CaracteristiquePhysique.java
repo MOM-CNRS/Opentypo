@@ -1,6 +1,5 @@
 package fr.cnrs.opentypo.domain.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,8 +40,9 @@ public class CaracteristiquePhysique implements Serializable {
     @JoinColumn(name = "metrologie_id")
     private ReferenceOpentheso metrologie;
 
-    @Column(name = "materiaux", columnDefinition = "TEXT")
-    private String materiaux;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "materiaux_id")
+    private ReferenceOpentheso materiaux;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "forme_id")

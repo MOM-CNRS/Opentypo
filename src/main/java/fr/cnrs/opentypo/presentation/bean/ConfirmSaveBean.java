@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 
@@ -40,6 +41,8 @@ public class ConfirmSaveBean implements Serializable {
     private SerieBean serieBean;
     @Inject
     private TypeBean typeBean;
+    @Autowired
+    private GroupUpdateBean groupUpdateBean;
 
     private String saveTarget;
 
@@ -120,6 +123,9 @@ public class ConfirmSaveBean implements Serializable {
                 break;
             case TARGET_CATEGORY:
                 categoryBean.saveCategory(applicationBean);
+                break;
+            case TARGET_GROUP:
+                groupUpdateBean.saveModification();
                 break;
             case TARGET_TYPE:
                 typeBean.saveEditingType(applicationBean);

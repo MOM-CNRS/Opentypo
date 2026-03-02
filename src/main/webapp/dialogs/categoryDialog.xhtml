@@ -270,8 +270,7 @@
                                styleClass="reference-btn reference-btn-validate"
                                action="#{categoryBean.createCategoryFromDialog}"
                                process="@form" ajax="true"
-                               update="@form :growl :centerContent"
-                               oncomplete="if(!args.validationFailed) {PF('categoryDialog').hide();}"/>
+                               update="@form :growl :centerContent"/>
             </div>
         </h:form>
     </p:dialog>

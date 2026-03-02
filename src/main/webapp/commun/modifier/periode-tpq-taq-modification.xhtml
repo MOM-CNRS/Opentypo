@@ -1,0 +1,111 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Période, TPQ et TAQ -->
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <!-- TPQ et TAQ sur la même ligne -->
+        <div class="users-form-group users-form-group-full">
+            <div class="users-form-grid">
+                <div class="users-form-group">
+                    <div class="periode-header-row">
+                        <p:outputLabel for="groupTpq" value="TPQ (Terminus Post Quem)" />
+                    </div>
+                    <div class="periode-field-row">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-calendar-plus input-icon" />
+                            <p:inputNumber id="groupTpq"
+                                           value="#{groupUpdateBean.tpq}"
+                                           styleClass="users-input"
+                                           placeholder="Ex: 1500"
+                                           minValue="-9999"
+                                           maxValue="9999"
+                                           decimalPlaces="0"/>
+                        </div>
+                    </div>
+                    <p:message for="groupTpq" display="icon"/>
+                </div>
+
+                <div class="users-form-group">
+                    <div class="periode-header-row">
+                        <p:outputLabel for="groupTaq" value="TAQ (Terminus Ante Quem)" />
+                    </div>
+                    <div class="periode-field-row">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-calendar-plus input-icon" />
+                            <p:inputNumber id="groupTaq"
+                                           value="#{groupUpdateBean.taq}"
+                                           styleClass="users-input"
+                                           placeholder="Ex: 1500"
+                                           minValue="-9999"
+                                           maxValue="9999"
+                                           decimalPlaces="0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-15" id="periode">
+            <div class="periode-header-row">
+                <p:outputLabel value="Période" />
+            </div>
+            <div class="periode-field-row periode-autocomplete-row">
+                <div id="periodeAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper">
+                    <i class="pi pi-calendar input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="periodeAutocomplete"
+                                   value="#{groupUpdateBean.periodeAutocompleteSelection}"
+                                   completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                   converter="pactolsConceptConverter"
+                                   var="concept"
+                                   itemLabel="#{concept.selectedTerm}"
+                                   itemValue="#{concept}"
+                                   dropdown="false"
+                                   minQueryLength="2"
+                                   appendTo="#periodeAutocompleteWrapper"
+                                   my="left top"
+                                   at="left bottom"
+                                   panelStyleClass="periode-autocomplete-panel"
+                                   scrollHeight="280"
+                                   emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                   placeholder="Ex. Antiquité, Moyen Âge..."
+                                   styleClass="users-input periode-autocomplete-input"
+                                   forceSelection="false"/>
+                </div>
+            </div>
+        </div>
+
+        <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo()}">
+            <div class="users-form-group users-form-group-full candidats-mt-15" id="corpusExterneGroup">
+                <p:outputLabel value="Corpus externe" />
+                <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                        <i class="pi pi-cog input-icon" />
+                        <p:inputText value="#{groupUpdateBean.corpusExterne}"
+                                     styleClass="users-input"
+                                     placeholder="Ex. Corpus externe..."
+                                     rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+                    </div>
+                </div>
+            </div>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+            <div class="users-form-group users-form-group-full candidats-mt-15" id="alignementExterneGroup">
+                <p:outputLabel value="Alignement externe" />
+                <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                        <i class="pi pi-link input-icon" />
+                        <p:inputText value="#{groupUpdateBean.alignementExterne}"
+                                     styleClass="users-input"
+                                     placeholder="Ex. URL d'alignement externe..."
+                                     rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+                    </div>
+                </div>
+            </div>
+        </h:panelGroup>
+    </div>
+</ui:composition>
+

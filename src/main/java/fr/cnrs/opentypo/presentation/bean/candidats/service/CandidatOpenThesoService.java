@@ -82,8 +82,8 @@ public class CandidatOpenThesoService {
         });
     }
 
-    public ReferenceOpentheso loadMateriau(Long entityId) {
-        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getMateriau);
+    public ReferenceOpentheso loadMateriaux(Long entityId) {
+        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getMateriaux);
     }
 
     public ReferenceOpentheso loadDenomination(Long entityId) {
@@ -263,7 +263,7 @@ public class CandidatOpenThesoService {
     }
 
     @Transactional
-    public DeleteResult deleteMateriau(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setMateriau(null)); }
+    public DeleteResult deleteMateriaux(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setMateriaux(null)); }
     @Transactional
     public DeleteResult deleteDenomination(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setDenomination(null)); }
     @Transactional

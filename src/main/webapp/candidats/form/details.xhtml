@@ -11,15 +11,14 @@
         <!-- Décors -->
         <div class="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel for="groupDecors" value="Décors" />
+                <p:outputLabel value="Décors" />
             </div>
             <div class="periode-field-row">
                 <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                     <div class="candidat-description-textarea-wrapper">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-palette input-icon" />
-                            <p:inputTextarea id="groupDecors"
-                                             value="#{candidatBean.decors}"
+                            <p:inputTextarea value="#{candidatBean.decors}"
                                              placeholder="Saisissez le décors du groupe..."
                                              rows="4"
                                              styleClass="users-textarea"
@@ -45,7 +44,6 @@
                                  title="Enregistrer le décors"/>
                 </div>
             </div>
-            <p:message for="groupDecors" display="icon"/>
         </div>
 
         <!-- Marques/estampilles -->

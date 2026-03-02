@@ -9,31 +9,30 @@
         <!-- Matériau -->
         <h:panelGroup styleClass="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel for="materiauAutocomplete" value="Matériau" />
+                <p:outputLabel value="Matériau" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="materiauAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-arrows-h input-icon periode-autocomplete-icon" />
-                    <p:autoComplete id="materiauAutocomplete"
-                                   value="#{candidatBean.materiauAutocompleteSelection}"
-                                   completeMethod="#{openThesoDialogBean.completeMateriau}"
+                    <p:autoComplete value="#{candidatBean.materiauxAutocompleteSelection}"
+                                   completeMethod="#{openThesoDialogBean.completeMateriaux}"
                                    converter="pactolsConceptConverter"
                                    var="concept"
                                    itemLabel="#{concept.selectedTerm}"
                                    itemValue="#{concept}"
                                    dropdown="false"
                                    minQueryLength="2"
-                                   appendTo="#materiauAutocompleteWrapper"
+                                   appendTo="#materiauxAutocompleteWrapper"
                                    my="left top"
                                    at="left bottom"
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
-                                   emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAU')}"
+                                   emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAUX')}"
                                    placeholder="Ex. Or, Argent..."
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
-                    <p:inputText value="#{candidatBean.materiau != null ? candidatBean.materiau.valeur : ''}"
+                    <p:inputText value="#{candidatBean.materiaux != null ? candidatBean.materiaux.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
                                  placeholder="Aucun matériau sélectionné"
@@ -44,33 +43,31 @@
                                      styleClass="candidat-btn-save periode-save-btn"
                                      title="Enregistrer le matériau"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.saveMateriauFromAutocomplete}"
+                                     actionListener="#{candidatBean.saveMateriauxFromAutocomplete}"
                                      process="@form"
                                      ajax="true"
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      title="Supprimer le matériau"
-                                     rendered="#{candidatBean.hasMateriau() and candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteMateriau()}"
+                                     rendered="#{candidatBean.hasMateriaux() and candidatBean.canEditCurrentBrouillon()}"
+                                     actionListener="#{candidatBean.prepareConfirmDeleteMateriaux()}"
                                      process="@this"
                                      update="@none"
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
             </div>
-            <p:message for="materiauAutocomplete" display="icon"/>
         </h:panelGroup>
 
         <!-- Dénomination -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="denominationAutocomplete" value="Dénomination" />
+                <p:outputLabel value="Dénomination" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="denominationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-wrench input-icon periode-autocomplete-icon" />
-                    <p:autoComplete id="denominationAutocomplete"
-                                   value="#{candidatBean.denominationAutocompleteSelection}"
+                    <p:autoComplete value="#{candidatBean.denominationAutocompleteSelection}"
                                    completeMethod="#{openThesoDialogBean.completeDenomination}"
                                    converter="pactolsConceptConverter"
                                    var="concept"
@@ -113,7 +110,6 @@
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
             </div>
-            <p:message for="denominationAutocomplete" display="icon"/>
         </h:panelGroup>
 
         <!-- Métrologie (texte libre) -->
@@ -152,13 +148,12 @@
         <!-- Valeur -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="valeurAutocomplete" value="Valeur" />
+                <p:outputLabel value="Valeur" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="valeurAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-palette input-icon periode-autocomplete-icon" />
-                    <p:autoComplete id="valeurAutocomplete"
-                                   value="#{candidatBean.valeurAutocompleteSelection}"
+                    <p:autoComplete value="#{candidatBean.valeurAutocompleteSelection}"
                                    completeMethod="#{openThesoDialogBean.completeValeur}"
                                    converter="pactolsConceptConverter"
                                    var="concept"
@@ -201,7 +196,6 @@
                                      oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
                 </div>
             </div>
-            <p:message for="valeurAutocomplete" display="icon"/>
         </h:panelGroup>
 
         <!-- Technique -->

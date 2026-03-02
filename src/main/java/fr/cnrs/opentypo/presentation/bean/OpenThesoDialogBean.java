@@ -70,6 +70,9 @@ public class OpenThesoDialogBean implements Serializable {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private ApplicationBean applicationBean;
+
     // État de la boîte de dialogue
     private String dialogWidgetVar;
     private String targetFieldId; // ID du champ cible où insérer la valeur
@@ -241,6 +244,31 @@ public class OpenThesoDialogBean implements Serializable {
                 collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
     }
 
+    public List<PactolsConcept> searchInOpenTheso(String query) {
+
+        Optional<Entity> groupeParent = groupService.findGroupByEntityId(applicationBean.getSelectedEntity().getId());
+        if (groupeParent.isPresent()) {
+            Optional<Parametrage> parametrage = parametrageRepository.findByEntityId(groupeParent.get().getId());
+            if (parametrage.isEmpty()) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
+                                "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
+                PrimeFaces.current().ajax().update(":growl");
+                return new ArrayList<>();
+            }
+
+            String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
+            if (term.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return pactolsService.searchConcepts(parametrage.get().getIdTheso(), term, parametrage.get().getIdLangue(),
+                    parametrage.get().getIdGroupe());
+        }
+
+        return new ArrayList<>();
+    }
+
     private void ensurePeriodeThesaurusLoaded(CandidatBean cb) {
         ensureThesaurusLoaded(cb, ReferenceOpenthesoEnum.PERIODE);
     }
@@ -295,7 +323,7 @@ public class OpenThesoDialogBean implements Serializable {
     public List<PactolsConcept> completeNaturePate(String query) { return completeThesaurus(ReferenceOpenthesoEnum.NATURE_PATE, query); }
     public List<PactolsConcept> completeInclusions(String query) { return completeThesaurus(ReferenceOpenthesoEnum.INCLUSIONS, query); }
     public List<PactolsConcept> completeCuissonPostCuisson(String query) { return completeThesaurus(ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, query); }
-    public List<PactolsConcept> completeMateriau(String query) { return completeThesaurus(ReferenceOpenthesoEnum.MATERIAU, query); }
+    public List<PactolsConcept> completeMateriaux(String query) { return completeThesaurus(ReferenceOpenthesoEnum.MATERIAUX, query); }
     public List<PactolsConcept> completeDenomination(String query) { return completeThesaurus(ReferenceOpenthesoEnum.DENOMINATION, query); }
     public List<PactolsConcept> completeValeur(String query) { return completeThesaurus(ReferenceOpenthesoEnum.VALEUR, query); }
     public List<PactolsConcept> completeTechnique(String query) { return completeThesaurus(ReferenceOpenthesoEnum.TECHNIQUE, query); }
@@ -307,7 +335,7 @@ public class OpenThesoDialogBean implements Serializable {
     }
 
     public String getEmptyMessageFor(String typeCode) {
-        return isPeriodeParametrageMissing()
+        return isOpenThesoParametrageMissing()
                 ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
                 : "Aucun résultat trouvé";
     }
@@ -316,7 +344,7 @@ public class OpenThesoDialogBean implements Serializable {
      * Indique si le paramétrage OpenTheso est manquant pour le groupe de l'entité en cours.
      * Utilisé pour afficher un message d'information dans le champ Période.
      */
-    public boolean isPeriodeParametrageMissing() {
+    public boolean isOpenThesoParametrageMissing() {
         CandidatBean cb = candidatBeanForAutocomplete;
         if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
             return false;
@@ -340,7 +368,7 @@ public class OpenThesoDialogBean implements Serializable {
      * Différencie le cas « paramétrage manquant » du cas « aucun résultat ».
      */
     public String getPeriodeEmptyMessage() {
-        return isPeriodeParametrageMissing()
+        return isOpenThesoParametrageMissing()
                 ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
                 : "Aucun résultat trouvé";
     }
@@ -596,7 +624,22 @@ public class OpenThesoDialogBean implements Serializable {
                 entityRepository.save(entity);
                 candidatBean.updateCuissonPostCuissonFromOpenTheso();
                 break;
-            case ReferenceOpenthesoEnum.MATERIAU:
+            case ReferenceOpenthesoEnum.MATERIAUX:
+                referenceOpentheso.setEntity(entity);
+                createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
+                if (entity.getCaracteristiquePhysiqueMonnaie() != null) {
+                    entity.getCaracteristiquePhysiqueMonnaie().setMateriaux(createdReference);
+                    candidatBean.updateMateriauFromOpenTheso();
+                } else if (entity.getCaracteristiquePhysique() != null) {
+                    entity.getCaracteristiquePhysique().setMateriaux(createdReference);
+                } else {
+                    CaracteristiquePhysique cp = new CaracteristiquePhysique();
+                    cp.setEntity(entity);
+                    cp.setMateriaux(createdReference);
+                    entity.setCaracteristiquePhysique(cp);
+                }
+                entityRepository.save(entity);
+                break;
             case ReferenceOpenthesoEnum.DENOMINATION:
             case ReferenceOpenthesoEnum.VALEUR:
             case ReferenceOpenthesoEnum.TECHNIQUE:
@@ -637,7 +680,7 @@ public class OpenThesoDialogBean implements Serializable {
         }
         ref = referenceOpenthesoRepository.save(ref);
         switch (code) {
-            case MATERIAU -> { cpm.setMateriau(ref); candidatBean.updateMateriauFromOpenTheso(); }
+            case MATERIAUX -> { cpm.setMateriaux(ref); candidatBean.updateMateriauFromOpenTheso(); }
             case DENOMINATION -> { cpm.setDenomination(ref); candidatBean.updateDenominationFromOpenTheso(); }
             case VALEUR -> { cpm.setValeur(ref); candidatBean.updateValeurFromOpenTheso(); }
             case TECHNIQUE -> { cpm.setTechnique(ref); candidatBean.updateTechniqueFromOpenTheso(); }

@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- PRODUCTION -->
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <!-- Production -->
+        <div class="users-form-group users-form-group-full" id="productionGroup">
+            <div class="periode-header-row">
+                <p:outputLabel value="Production" />
+            </div>
+            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                <div id="productionAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-cog input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="productionAutocomplete"
+                                    value="#{groupUpdateBean.productionAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="2"
+                                    appendTo="#productionAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                    placeholder="Ex. Céramique, Verre..."
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Atelier(s) (Saisie libre avec tags) -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <div class="periode-header-row">
+                <p:outputLabel value="Atelier(s)" />
+            </div>
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                <i class="pi pi-wrench input-icon" />
+                <p:chips value="#{groupUpdateBean.ateliers}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez un atelier et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+        </div>
+
+        <!-- Aire de circulation -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <div class="periode-header-row">
+                <p:outputLabel value="Aire de circulation" />
+            </div>
+            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group candidat-aires-row">
+                <div id="aireAutocompleteWrapper" class="candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper candidats-production-flex">
+                    <i class="pi pi-map-marker input-icon periode-autocomplete-icon candidat-aires-icon" />
+                    <p:autoComplete value="#{groupUpdateBean.aireCirculationAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="2"
+                                    appendTo="#aireAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                    placeholder="Ex. Gaule, Italie..."
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{groupUpdateBean.addAireCirculationFromAutocomplete}"
+                                process="@form"
+                                update="@form :growl"/>
+                    </p:autoComplete>
+                    <div class="candidat-aires-circulation-chips">
+                        <ui:repeat value="#{groupUpdateBean.airesCirculation}" var="aire" id="airesRepeat">
+                                    <span class="candidat-aire-chip">
+                                        <span class="candidat-aire-chip-label">#{aire.valeur}</span>
+                                        <p:commandButton icon="pi pi-times"
+                                                         styleClass="candidat-aire-chip-delete"
+                                                         action="#{groupUpdateBean.deleteAireCirculation(aire.valeur)}"
+                                                         process="@form"
+                                                         ajax="true"
+                                                         update="@form :growl" />
+                                    </span>
+                        </ui:repeat>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

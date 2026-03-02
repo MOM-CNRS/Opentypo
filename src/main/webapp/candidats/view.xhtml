@@ -110,7 +110,7 @@
                         <div class="#{candidatBean.isCurrentBrouillonReadOnly() ? 'brouillon-consultation-only' : ''}">
                             <div class="wizard-content candidats-p-20">
 
-                                <h:panelGroup rendered="#{openThesoDialogBean.isPeriodeParametrageMissing() and candidatBean.canEditCurrentBrouillon()}" layout="block" styleClass="periode-parametrage-info-banner">
+                                <h:panelGroup rendered="#{openThesoDialogBean.isOpenThesoParametrageMissing() and candidatBean.canEditCurrentBrouillon()}" layout="block" styleClass="periode-parametrage-info-banner">
                                     <i class="pi pi-info-circle periode-parametrage-info-icon" />
                                     <div class="periode-parametrage-info-content">
                                         <strong>Connexion OpenTheso non paramétrée</strong>

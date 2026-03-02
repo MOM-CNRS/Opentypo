@@ -203,11 +203,11 @@ public class CandidatFormDataLoader {
 
         // CaracteristiquePhysiqueMonnaie (collection MONNAIE)
         CaracteristiquePhysiqueMonnaie cpm = refreshedEntity.getCaracteristiquePhysiqueMonnaie();
-        ReferenceOpentheso materiau = null, denomination = null, valeur = null, technique = null;
+        ReferenceOpentheso materiaux = null, denomination = null, valeur = null, technique = null;
         String metrologieMonnaie = null;
         if (cpm != null) {
-            materiau = cpm.getMateriau();
-            if (materiau != null) materiau.getValeur();
+            materiaux = cpm.getMateriaux();
+            if (materiaux != null) materiaux.getValeur();
             denomination = cpm.getDenomination();
             if (denomination != null) denomination.getValeur();
             metrologieMonnaie = cpm.getMetrologie();
@@ -256,7 +256,7 @@ public class CandidatFormDataLoader {
                 .revers(revers)
                 .legendeRevers(legendeRevers)
                 .coinsMonetairesRevers(coinsMonetairesRevers)
-                .materiau(materiau)
+                .materiaux(materiaux)
                 .denomination(denomination)
                 .metrologieMonnaie(metrologieMonnaie)
                 .valeur(valeur)

@@ -15,7 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PactolsConcept implements Serializable {
-    private static final long serialVersionUID = 1L;
     
     private String idConcept;
     private String uri;

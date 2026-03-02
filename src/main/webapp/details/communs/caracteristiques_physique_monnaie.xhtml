@@ -21,21 +21,24 @@
                             <span>Matériau</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie and not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau}">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau.url}">
-                                    <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau.url}"
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie and not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux}">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.url}">
+                                    <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.url}"
                                                   target="_blank"
                                                   rel="noopener noreferrer"
                                                   styleClass="concept-value-external-link">
-                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau.valeur}
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.valeur}
                                         <i class="pi pi-external-link concept-value-external-link-icon"/>
                                     </h:outputLink>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau.url}">
-                                    #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau.valeur}
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.url}">
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiau}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -59,7 +62,10 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination.url}">
-                                    #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination}">
@@ -103,7 +109,10 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur.url}">
-                                    #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
@@ -131,7 +140,10 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique.url}">
-                                    #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
@@ -159,7 +171,10 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.url}">
-                                    #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie

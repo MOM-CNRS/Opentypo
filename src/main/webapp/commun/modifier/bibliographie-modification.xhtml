@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <!-- Commentaire et bibliographie (communs) -->
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <!-- Commentaire (entity_metadata) -->
+        <div class="users-form-group users-form-group-full" id="commentaire-metadata">
+            <p:outputLabel value="Commentaire" style="margin-bottom: 13px !important" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
+                    <i class="pi pi-comment input-icon input-icon-textarea" />
+                    <p:inputTextarea value="#{groupUpdateBean.commentaire}"
+                                     rows="4"
+                                     styleClass="users-textarea"
+                                     placeholder="Saisissez un commentaire..."
+                                     maxlength="2000"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bibliographie -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Bibliographie" style="margin-bottom: 13px !important" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
+                    <i class="pi pi-book input-icon input-icon-textarea" />
+                    <p:inputTextarea value="#{groupUpdateBean.bibliographie}"
+                                     rows="5"
+                                     styleClass="users-textarea"
+                                     placeholder="Saisissez des informations bibliographiques complémentaires..."
+                                     maxlength="2000"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

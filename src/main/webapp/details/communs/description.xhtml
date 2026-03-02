@@ -45,10 +45,10 @@
                         </div>
                     </div>
 
-                    <div class="concept-info-item">
+                    <h:panelGroup class="concept-info-item" rendered="#{applicationBean.isCeramiqueTypo()}">
                         <div class="concept-info-label">
                             <i class="pi pi-sitemap monnaie-communs-icon" />
-                            <span>Catégorie fonctionnelle</span>
+                            <span>Fonction/usage</span>
                         </div>
                         <div class="concept-info-value">
                             <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail.fonction}">
@@ -62,14 +62,46 @@
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.fonction.url}">
-                                    #{applicationBean.selectedEntity.descriptionDetail.fonction.valeur}
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.descriptionDetail.fonction.valeur}
+                                    </span>
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.fonction}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
-                    </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup class="concept-info-item" rendered="#{applicationBean.isInstrumentumTypo()}">
+                        <div class="concept-info-label">
+                            <i class="pi pi-sitemap monnaie-communs-icon" />
+                            <span>Catégorie fonctionnelle</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle}">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.categorieFonctionnelle.url}">
+                                    <h:outputLink value="#{applicationBean.selectedEntity.categorieFonctionnelle.url}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  styleClass="concept-value-external-link">
+                                        #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
+                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                    </h:outputLink>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle.url}">
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
+                                    </span>
+                                </ui:fragment>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </h:panelGroup>
                 </div>
             </div>
         </div>

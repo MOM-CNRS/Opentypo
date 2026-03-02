@@ -230,6 +230,24 @@
     opacity: 0.8;
 }
 
+/* Valeur sans lien OpenTheso - même présentation que le lien, icône lien coupé */
+.groupe-detail-page .concept-info-value .concept-value-no-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #db670f;
+    font-weight: 400;
+    font-style: italic;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border-radius: 6px;
+}
+
+.groupe-detail-page .concept-info-value .concept-value-no-link .concept-value-no-link-icon {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
 /* ---- Cartes séries (reference-card) et types (typologie-card) ---- */
 .groupe-detail-page .reference-cards-container {
     padding: 1.25rem;
