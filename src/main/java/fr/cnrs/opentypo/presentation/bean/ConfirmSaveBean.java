@@ -54,29 +54,12 @@ public class ConfirmSaveBean implements Serializable {
     }
 
     /**
-     * Id du formulaire à traiter selon le type (pour process/update dans le dialog).
-     * Ne doit jamais être vide pour éviter l'expression ":" invalide en JSF.
-     */
-    public String getFormId() {
-        if (saveTarget == null) return "growl";
-        switch (saveTarget) {
-            case TARGET_REFERENCE: return "referenceEditForm";
-            case TARGET_COLLECTION: return "collectionEditForm";
-            case TARGET_CATEGORY:  return "categoryEditForm";
-            case TARGET_GROUP:     return "groupeEditForm";
-            case TARGET_SERIE:     return "serieEditForm";
-            case TARGET_TYPE:      return "typeEditForm";
-            default:               return "growl";
-        }
-    }
-
-    /**
      * Cibles d'update pour le dialog (formulaire, growl, panels, arbre).
      * Inclut :leftTreePanel pour les entités affichées dans l'arbre afin de rafraîchir
      * le code après sauvegarde.
      */
     public String getUpdateIds() {
-        String base = ":" + getFormId() + ", :growl, :contentPanels";
+        String base = ":growl, :contentPanels";
         if (TARGET_REFERENCE.equals(saveTarget) || TARGET_COLLECTION.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget)
                 || TARGET_GROUP.equals(saveTarget) || TARGET_SERIE.equals(saveTarget) || TARGET_TYPE.equals(saveTarget)) {
             return base + ", :leftTreePanel";

@@ -33,17 +33,39 @@
 
             <ui:include src="periode-tpq-taq-modification.xhtml"/>
 
+            <!-- Appellation usuelle -->
+            <h:panelGroup styleClass="users-form-group users-form-group-full periode-group candidats-mt-20"
+                          rendered="#{applicationBean.selectedEntity.entityType.id == 4}">
+                <div class="users-form-group users-form-group-full">
+                    <p:outputLabel value="Commentaire datation" />
+                    <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-cog input-icon" />
+                            <p:inputText value="#{groupUpdateBean.appellationUsuelle}"
+                                         styleClass="users-input"
+                                         placeholder="Aucun valeur pour l'appellation usuelle"/>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+
             <ui:include src="production-modification.xhtml"/>
 
             <ui:include src="description-modification.xhtml"/>
 
             <ui:include src="caracteristiques_physique-modification.xhtml"/>
 
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
+                <ui:include src="details_type-modification.xhtml"/>
+            </h:panelGroup>
+
             <!-- Commentaire et bibliographie -->
             <ui:include src="bibliographie-modification.xhtml"/>
 
             <!-- Section Permissions -->
-            <ui:include src="habilitations-modification.xhtml"/>
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
+                <ui:include src="habilitations-modification.xhtml"/>
+            </h:panelGroup>
         </div>
 
         <div class="collection-edit-actions collection-modifier-actions candidats-mt-20">
@@ -53,7 +75,7 @@
                              action="#{groupUpdateBean.cancelEditingGroupe()}"
                              process="@this"
                              ajax="true"
-                             update=":groupeEditForm :growl"
+                             update=":contentPanels :growl"
                              oncomplete="window.scrollTo(0, 0);"
                              styleClass="collection-modifier-btn collection-modifier-btn-back"
                              immediate="true"/>

@@ -2984,7 +2984,7 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     font-size: 0.8125rem !important;
     color: var(--color-text-secondary, #819A91) !important;
     flex-shrink: 0 !important;
-    width: 0.9375rem !important;
+    width: 0rem !important;
     text-align: center !important;
 }
 

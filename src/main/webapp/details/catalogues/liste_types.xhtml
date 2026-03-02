@@ -54,7 +54,7 @@
                     <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
                         <p:commandLink action="#{applicationBean.showType(type)}"
                                        styleClass="typologie-card"
-                                       process="@this"
+                                       process="@form"
                                        update=":centerContent"
                                        onstart="showLoading('Chargement du type...', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"

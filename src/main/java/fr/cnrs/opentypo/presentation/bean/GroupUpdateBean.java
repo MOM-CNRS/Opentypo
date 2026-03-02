@@ -113,9 +113,20 @@ public class GroupUpdateBean implements Serializable {
     private String newDescriptionValue;
     private String bibliographie;
     private String commentaire;
+    private String commentaireDatation;
     private String decors;
+    private String appellationUsuelle;
+    private String identifiantPerenne;
+    private String typologieScientifique;
+    private String ancienneVersion;
     private String ateliersValue;
     private List<String> ateliers;
+    private String referentielValue;
+    private List<String> referentiels;
+    private String siteArcheologiqueValue;
+    private List<String> sitesArcheologiques;
+    private String attestationValue;
+    private List<String> attestations;
     private List<Langue> availableLanguages;
     private List<ReferenceOpentheso> airesCirculation;
     private ReferenceOpentheso fonctionUsage;
@@ -186,7 +197,34 @@ public class GroupUpdateBean implements Serializable {
             ateliers = new ArrayList<>();
         }
 
+        attestationValue = e.getAttestations();
+        if (e.getAttestations() != null && !e.getAttestations().isEmpty()) {
+            attestations = new ArrayList<>(java.util.Arrays.asList(e.getAttestations().split(";\\s*")));
+        } else {
+            attestations = new ArrayList<>();
+        }
+
+        siteArcheologiqueValue = e.getSitesArcheologiques();
+        if (e.getSitesArcheologiques() != null && !e.getSitesArcheologiques().isEmpty()) {
+            sitesArcheologiques = new ArrayList<>(java.util.Arrays.asList(e.getSitesArcheologiques().split(";\\s*")));
+        } else {
+            sitesArcheologiques = new ArrayList<>();
+        }
+
+        referentielValue = e.getReference();
+        if (e.getReference() != null && !e.getReference().isEmpty()) {
+            referentiels = new ArrayList<>(java.util.Arrays.asList(e.getReference().split(";\\s*")));
+        } else {
+            referentiels = new ArrayList<>();
+        }
+
         decors = e.getDescriptionDetail() == null ? "" : (e.getDescriptionDetail().getDecors() != null ? e.getDescriptionDetail().getDecors() : "");
+        appellationUsuelle = e.getAppellation() == null ? "" : e.getAppellation();
+        identifiantPerenne = e.getIdentifiantPerenne() == null ? "" : e.getIdentifiantPerenne();
+        typologieScientifique =e.getTypologieScientifique() == null ? "" : e.getTypologieScientifique();
+
+        ancienneVersion = e.getAncienneVersion() == null ? "" : e.getAncienneVersion();
+        commentaireDatation = e.getCommentaireDatation() == null ? "" : e.getCommentaireDatation();
 
         marquesEstampilles = new ArrayList<>();
         if (e.getDescriptionDetail() != null && e.getDescriptionDetail().getMarques() != null && !e.getDescriptionDetail().getMarques().isEmpty()) {
@@ -254,9 +292,20 @@ public class GroupUpdateBean implements Serializable {
         bibliographie = null;
         commentaire = null;
         decors = null;
+        commentaireDatation = null;
+        appellationUsuelle = null;
+        typologieScientifique = null;
+        identifiantPerenne = null;
+        ancienneVersion = null;
         descriptionPate = null;
         ateliers = new ArrayList<>();
         ateliersValue = null;
+        attestationValue = null;
+        attestations = new ArrayList<>();
+        referentielValue = null;
+        referentiels = new ArrayList<>();
+        siteArcheologiqueValue = null;
+        sitesArcheologiques = new ArrayList<>();
         metrologie = null;
         airesCirculation = new ArrayList<>();
         marquesEstampilles = new ArrayList<>();
@@ -520,6 +569,13 @@ public class GroupUpdateBean implements Serializable {
             }
         }
 
+        if (categorieFonctionnelleAutocompleteSelection != null && StringUtils.hasText(categorieFonctionnelleAutocompleteSelection.getSelectedTerm())) {
+            ReferenceOpentheso fonc = conceptToReferenceOpentheso(categorieFonctionnelleAutocompleteSelection, ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE.name(), entityToUpdate);
+            entityToUpdate.setCategorieFonctionnelle(referenceOpenthesoRepository.save(fonc));
+        } else {
+            entityToUpdate.setCategorieFonctionnelle(null);
+        }
+
         // Mise à jour des descriptions (remplacer, pas ajouter)
         if (entityToUpdate.getDescriptions() == null) {
             entityToUpdate.setDescriptions(new ArrayList<>());
@@ -634,45 +690,44 @@ public class GroupUpdateBean implements Serializable {
             entityMetadata.setCode(newCode);
         }
 
-        //commentaireDatation
+        entityMetadata.setCommentaireDatation(commentaireDatation);
 
         String newBibliographie = bibliographie != null ? bibliographie.trim() : null;
         if (!Objects.equals(newBibliographie, entityToUpdate.getBibliographie())) {
             entityMetadata.setBibliographie(newBibliographie);
         }
 
-        if (categorieFonctionnelleAutocompleteSelection != null && StringUtils.hasText(categorieFonctionnelleAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso fonc = conceptToReferenceOpentheso(categorieFonctionnelleAutocompleteSelection, ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE.name(), entityToUpdate);
-            entityToUpdate.setCategorieFonctionnelle(referenceOpenthesoRepository.save(fonc));
-        } else {
-            entityToUpdate.setCategorieFonctionnelle(null);
-        }
+        entityMetadata.setAppellation(appellationUsuelle);
 
-        //appellation
-
-        //Alignement Externe
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
 
-        //typologieScientifique
+        entityMetadata.setTypologieScientifique(typologieScientifique);
 
-        //identifiantPerenne
+        entityMetadata.setIdentifiantPerenne(identifiantPerenne);
 
-        //ancienneVersion
+        entityMetadata.setAncienneVersion(ancienneVersion);
 
-        entityToUpdate.setTpq(tpq);
+        entityMetadata.setTpq(tpq);
 
-        entityToUpdate.setTaq(taq);
+        entityMetadata.setTaq(taq);
 
         //relationExterne
 
-        String ateliersStr = (ateliers != null && !ateliers.isEmpty())
+        entityMetadata.setAteliers((ateliers != null && !ateliers.isEmpty())
                 ? String.join("; ", ateliers.stream().filter(s -> s != null && !s.isBlank()).toList())
-                : null;
-        entityToUpdate.setAteliers(ateliersStr);
+                : null);
 
-        //attestations
+        entityMetadata.setAttestations((attestations != null && !attestations.isEmpty())
+                ? String.join("; ", attestations.stream().filter(s -> s != null && !s.isBlank()).toList())
+                : null);
 
-        //sitesArcheologiques
+        entityMetadata.setSitesArcheologiques((sitesArcheologiques != null && !sitesArcheologiques.isEmpty())
+                ? String.join("; ", sitesArcheologiques.stream().filter(s -> s != null && !s.isBlank()).toList())
+                : null);
+
+        entityMetadata.setReference((referentiels != null && !referentiels.isEmpty())
+                ? String.join("; ", referentiels.stream().filter(s -> s != null && !s.isBlank()).toList())
+                : null);
 
         entityMetadata.setCorpusExterne(corpusExterne != null && !corpusExterne.isBlank() ? corpusExterne.trim() : null);
 
@@ -860,6 +915,30 @@ public class GroupUpdateBean implements Serializable {
             if (ateliers == null) ateliers = new ArrayList<>();
             ateliers.add(ateliersValue.trim());
             ateliersValue = "";
+        }
+    }
+
+    public void saveReferences() {
+        if (referentielValue != null && !referentielValue.isBlank()) {
+            if (referentiels == null) referentiels = new ArrayList<>();
+            referentiels.add(referentielValue.trim());
+            referentielValue = "";
+        }
+    }
+
+    public void saveAttestations() {
+        if (attestationValue != null && !attestationValue.isBlank()) {
+            if (attestations == null) attestations = new ArrayList<>();
+            attestations.add(attestationValue.trim());
+            attestationValue = "";
+        }
+    }
+
+    public void saveSitesArcheologiques() {
+        if (siteArcheologiqueValue != null && !siteArcheologiqueValue.isBlank()) {
+            if (sitesArcheologiques == null) sitesArcheologiques = new ArrayList<>();
+            sitesArcheologiques.add(siteArcheologiqueValue.trim());
+            siteArcheologiqueValue = "";
         }
     }
 

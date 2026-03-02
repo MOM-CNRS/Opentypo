@@ -12,6 +12,11 @@
                             <div class="concept-info-header">
                                 <div class="concept-info-title-section">
                                     <span class="reference-entity-type-badge">Type</span>
+                                    <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
+                                                  styleClass="collection-not-published-icon">
+                                        <i class="pi pi-clock"/>
+                                        <p:tooltip value="Catégorie non publiée" position="top"/>
+                                    </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <div class="collection-panel-title-wrapper">
                                             <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
@@ -24,9 +29,9 @@
                                         <i class="pi pi-history" />
                                         <p:tooltip value="Voir l'historique" position="top"/>
                                     </p:commandLink>
-                                    <p:commandLink action="#{typeBean.startEditingType(applicationBean)}"
+                                    <p:commandLink action="#{groupUpdateBean.startEditing()}"
                                                    process="@this"
-                                                   update=":typeEditForm"
+                                                   update=":contentPanels"
                                                    styleClass="concept-action-button">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
@@ -39,10 +44,31 @@
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
+                                    <div class="collection-visibility-card">
+                                        <div class="collection-visibility-card-content">
+                                            <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                                <div class="collection-visibility-icon">
+                                                    <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                                </div>
+                                                <div class="collection-visibility-info">
+                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                </div>
+                                            </div>
+                                            <div class="collection-visibility-toggle-wrapper">
+                                                <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                               process="@this"
+                                                               update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
+                                                    <i class="pi pi-sync" />
+                                                    <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                </p:commandLink>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </h:panelGroup>
                             </div>
 
-                            <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                            <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                                 <div class="concept-info-grid">
                                     <h:panelGroup id="typeDescUpdatePanel" class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
@@ -81,12 +107,12 @@
                                 </div>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{entityEditModeBean.editingEntityInCatalog}">
-                                <ui:include src="modifier.xhtml"/>
+                            <ui:fragment rendered="#{groupUpdateBean.editingEntity}">
+                                <ui:include src="../../commun/modifier/modifier.xhtml"/>
                             </ui:fragment>
                         </div>
 
-                        <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                        <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                             <ui:include src="dotation.xhtml"/>
 
                             <ui:include src="galerie_images.xhtml"/>
@@ -95,14 +121,21 @@
 
                             <ui:include src="../communs/production.xhtml"/>
 
-                            <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                                    or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
+                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
                                 <ui:include src="../communs/description_monnaie.xhtml"/>
+                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                             </h:panelGroup>
 
-                            <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
-                                    or typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'CASH'}">
-                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                                <ui:include src="../communs/description.xhtml"/>
+
+                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
+                                </h:panelGroup>
                             </h:panelGroup>
 
                             <ui:include src="attestations.xhtml"/>
