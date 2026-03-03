@@ -15,7 +15,7 @@
                 <div id="productionAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                     <i class="pi pi-cog input-icon periode-autocomplete-icon" />
                     <p:autoComplete id="productionAutocomplete"
-                                    value="#{groupUpdateBean.productionAutocompleteSelection}"
+                                    value="#{entityUpdateBean.productionAutocompleteSelection}"
                                     completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                     converter="pactolsConceptConverter"
                                     var="concept"
@@ -43,14 +43,14 @@
             </div>
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-wrench input-icon" />
-                <p:chips value="#{groupUpdateBean.ateliers}"
+                <p:chips value="#{entityUpdateBean.ateliers}"
                          styleClass="users-chips"
                          placeholder="Saisissez un atelier et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{groupUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAteliers}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveAteliers}" process="@this" update="@none"/>
                 </p:chips>
             </div>
         </div>
@@ -63,7 +63,7 @@
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group candidat-aires-row">
                 <div id="aireAutocompleteWrapper" class="candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper candidats-production-flex">
                     <i class="pi pi-map-marker input-icon periode-autocomplete-icon candidat-aires-icon" />
-                    <p:autoComplete value="#{groupUpdateBean.aireCirculationAutocompleteSelection}"
+                    <p:autoComplete value="#{entityUpdateBean.aireCirculationAutocompleteSelection}"
                                     completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                     converter="pactolsConceptConverter"
                                     var="concept"
@@ -81,17 +81,17 @@
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
-                                listener="#{groupUpdateBean.addAireCirculationFromAutocomplete}"
+                                listener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
                                 process="@form"
                                 update="@form :growl"/>
                     </p:autoComplete>
                     <div class="candidat-aires-circulation-chips">
-                        <ui:repeat value="#{groupUpdateBean.airesCirculation}" var="aire" id="airesRepeat">
+                        <ui:repeat value="#{entityUpdateBean.airesCirculation}" var="aire" id="airesRepeat">
                                     <span class="candidat-aire-chip">
                                         <span class="candidat-aire-chip-label">#{aire.valeur}</span>
                                         <p:commandButton icon="pi pi-times"
                                                          styleClass="candidat-aire-chip-delete"
-                                                         action="#{groupUpdateBean.deleteAireCirculation(aire.valeur)}"
+                                                         action="#{entityUpdateBean.deleteAireCirculation(aire.valeur)}"
                                                          process="@form"
                                                          ajax="true"
                                                          update="@form :growl" />

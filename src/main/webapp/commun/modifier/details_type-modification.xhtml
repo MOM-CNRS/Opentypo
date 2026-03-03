@@ -12,7 +12,7 @@
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{groupUpdateBean.commentaireDatation}"
+                    <p:inputText value="#{entityUpdateBean.commentaireDatation}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour le commentaire datation"/>
                 </div>
@@ -24,14 +24,14 @@
             <p:outputLabel value="Attestations" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
-                <p:chips value="#{groupUpdateBean.attestations}"
+                <p:chips value="#{entityUpdateBean.attestations}"
                          styleClass="users-chips"
                          placeholder="Saisissez une attestation et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{groupUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
                 </p:chips>
             </div>
         </div>
@@ -41,14 +41,14 @@
             <p:outputLabel value="Sites archéologiques" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
-                <p:chips value="#{groupUpdateBean.sitesArcheologiques}"
+                <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
                          styleClass="users-chips"
                          placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{groupUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                 </p:chips>
             </div>
         </div>
@@ -58,14 +58,14 @@
             <p:outputLabel value="Référentiel" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
-                <p:chips value="#{groupUpdateBean.referentiels}"
+                <p:chips value="#{entityUpdateBean.referentiels}"
                          styleClass="users-chips"
                          placeholder="Saisissez un référentiel et appuyez sur Entrée..."
                          maxlength="500"
                          addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{groupUpdateBean.saveReferences}" process="@this" update="@none"/>
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
                 </p:chips>
             </div>
         </div>
@@ -76,7 +76,7 @@
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{groupUpdateBean.typologieScientifique}"
+                    <p:inputText value="#{entityUpdateBean.typologieScientifique}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour typologie scientifique"/>
                 </div>
@@ -89,7 +89,7 @@
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{groupUpdateBean.identifiantPerenne}"
+                    <p:inputText value="#{entityUpdateBean.identifiantPerenne}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour l'identifiant perenne"/>
                 </div>
@@ -102,7 +102,7 @@
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{groupUpdateBean.ancienneVersion}"
+                    <p:inputText value="#{entityUpdateBean.ancienneVersion}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour l'ancienne version"/>
                 </div>

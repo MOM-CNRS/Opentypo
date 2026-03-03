@@ -24,7 +24,7 @@
                 <li class="breadcrumb-item #{status.last ? 'breadcrumb-item-current' : ''}">
                     <ui:fragment rendered="#{not status.last}">
                         <p:commandLink styleClass="breadcrumb-link"
-                                       action="#{applicationBean.navigateToBreadcrumbElement(element, groupUpdateBean)}"
+                                       action="#{applicationBean.navigateToBreadcrumbElement(element, entityUpdateBean)}"
                                        process="@this"
                                        update=":centerContent">
                             <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />

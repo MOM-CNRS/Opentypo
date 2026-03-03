@@ -56,9 +56,9 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @SessionScoped
-@Named(value = "groupUpdateBean")
+@Named(value = "entityUpdateBean")
 @Slf4j
-public class GroupUpdateBean implements Serializable {
+public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private LoginBean loginBean;
@@ -95,6 +95,12 @@ public class GroupUpdateBean implements Serializable {
 
     @Autowired
     private DescriptionPateRepository descriptionPateRepository;
+    
+    @Autowired
+    private EntityMetadataRepository entityMetadataRepository;
+    
+    @Autowired
+    private CaracteristiquePhysiqueMonnaieRepository caracteristiquePhysiqueMonnaieRepository;
 
 
     private DualListModel<Long> redacteursPickList;
@@ -166,89 +172,85 @@ public class GroupUpdateBean implements Serializable {
     private PactolsConcept techniqueAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fabricationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept formeAutocompleteSelection = new PactolsConcept();
-    @Autowired
-    private EntityMetadataRepository entityMetadataRepository;
-    @Autowired
-    private CaracteristiquePhysiqueMonnaieRepository caracteristiquePhysiqueMonnaieRepository;
 
 
     /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
     public void startEditing() {
         editingEntity = true;
-        Entity e = applicationBean.getSelectedEntity();
-        code = e.getCode() != null ? e.getCode() : "";
+        Entity entity = applicationBean.getSelectedEntity();
+        code = entity.getCode() != null ? entity.getCode() : "";
         newLabelLangueCode = "fr";
         newLabelValue = "";
         newDescriptionLangueCode = "fr";
         newDescriptionValue = "";
-        bibliographie = e.getBibliographie();
-        commentaire = e.getCommentaire();
+        bibliographie = entity.getBibliographie();
+        commentaire = entity.getCommentaire();
 
-        List<ReferenceOpentheso> airesSrc = e.getAiresCirculation();
+        List<ReferenceOpentheso> airesSrc = entity.getAiresCirculation();
         if (airesSrc == null) airesSrc = new ArrayList<>();
         airesCirculation = airesSrc.stream()
                 .filter(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        ateliersValue = e.getAteliers();
-        if (e.getAteliers() != null && !e.getAteliers().isEmpty()) {
-            ateliers = new ArrayList<>(java.util.Arrays.asList(e.getAteliers().split(";\\s*")));
+        ateliersValue = entity.getAteliers();
+        if (entity.getAteliers() != null && !entity.getAteliers().isEmpty()) {
+            ateliers = new ArrayList<>(java.util.Arrays.asList(entity.getAteliers().split(";\\s*")));
         } else {
             ateliers = new ArrayList<>();
         }
 
-        attestationValue = e.getAttestations();
-        if (e.getAttestations() != null && !e.getAttestations().isEmpty()) {
-            attestations = new ArrayList<>(java.util.Arrays.asList(e.getAttestations().split(";\\s*")));
+        attestationValue = entity.getAttestations();
+        if (entity.getAttestations() != null && !entity.getAttestations().isEmpty()) {
+            attestations = new ArrayList<>(java.util.Arrays.asList(entity.getAttestations().split(";\\s*")));
         } else {
             attestations = new ArrayList<>();
         }
 
-        siteArcheologiqueValue = e.getSitesArcheologiques();
-        if (e.getSitesArcheologiques() != null && !e.getSitesArcheologiques().isEmpty()) {
-            sitesArcheologiques = new ArrayList<>(java.util.Arrays.asList(e.getSitesArcheologiques().split(";\\s*")));
+        siteArcheologiqueValue = entity.getSitesArcheologiques();
+        if (entity.getSitesArcheologiques() != null && !entity.getSitesArcheologiques().isEmpty()) {
+            sitesArcheologiques = new ArrayList<>(java.util.Arrays.asList(entity.getSitesArcheologiques().split(";\\s*")));
         } else {
             sitesArcheologiques = new ArrayList<>();
         }
 
-        referentielValue = e.getReference();
-        if (e.getReference() != null && !e.getReference().isEmpty()) {
-            referentiels = new ArrayList<>(java.util.Arrays.asList(e.getReference().split(";\\s*")));
+        referentielValue = entity.getReference();
+        if (entity.getReference() != null && !entity.getReference().isEmpty()) {
+            referentiels = new ArrayList<>(java.util.Arrays.asList(entity.getReference().split(";\\s*")));
         } else {
             referentiels = new ArrayList<>();
         }
 
-        decors = e.getDescriptionDetail() == null ? "" : (e.getDescriptionDetail().getDecors() != null ? e.getDescriptionDetail().getDecors() : "");
-        appellationUsuelle = e.getAppellation() == null ? "" : e.getAppellation();
-        identifiantPerenne = e.getIdentifiantPerenne() == null ? "" : e.getIdentifiantPerenne();
-        typologieScientifique =e.getTypologieScientifique() == null ? "" : e.getTypologieScientifique();
+        decors = entity.getDescriptionDetail() == null ? "" : (entity.getDescriptionDetail().getDecors() != null ? entity.getDescriptionDetail().getDecors() : "");
+        appellationUsuelle = entity.getAppellation() == null ? "" : entity.getAppellation();
+        identifiantPerenne = entity.getIdentifiantPerenne() == null ? "" : entity.getIdentifiantPerenne();
+        typologieScientifique = entity.getTypologieScientifique() == null ? "" : entity.getTypologieScientifique();
 
-        ancienneVersion = e.getAncienneVersion() == null ? "" : e.getAncienneVersion();
-        commentaireDatation = e.getCommentaireDatation() == null ? "" : e.getCommentaireDatation();
+        ancienneVersion = entity.getAncienneVersion() == null ? "" : entity.getAncienneVersion();
+        commentaireDatation = entity.getCommentaireDatation() == null ? "" : entity.getCommentaireDatation();
 
         marquesEstampilles = new ArrayList<>();
-        if (e.getDescriptionDetail() != null && e.getDescriptionDetail().getMarques() != null && !e.getDescriptionDetail().getMarques().isEmpty()) {
-            marquesEstampilles = new ArrayList<>(java.util.Arrays.asList(e.getDescriptionDetail().getMarques().split(";\\s*")));
+        if (entity.getDescriptionDetail() != null && entity.getDescriptionDetail().getMarques() != null && !entity.getDescriptionDetail().getMarques().isEmpty()) {
+            marquesEstampilles = new ArrayList<>(java.util.Arrays.asList(entity.getDescriptionDetail().getMarques().split(";\\s*")));
         }
 
-        productionAutocompleteSelection = refToConcept(e.getProduction());
-        fonctionUsageAutocompleteSelection = refToConcept(e.getDescriptionDetail() != null ? e.getDescriptionDetail().getFonction() : null);
-        categorieFonctionnelleAutocompleteSelection = refToConcept(e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
-        metrologie = e.getCaracteristiquePhysiqueMonnaie() == null ? "" : e.getCaracteristiquePhysiqueMonnaie().getMetrologie();
-        descriptionPate = e.getDescriptionPate() == null ? "" : (e.getDescriptionPate().getDescription() != null ? e.getDescriptionPate().getDescription() : "");
+        productionAutocompleteSelection = refToConcept(entity.getProduction());
+        fonctionUsageAutocompleteSelection = refToConcept(entity.getDescriptionDetail() != null ? entity.getDescriptionDetail().getFonction() : null);
+        categorieFonctionnelleAutocompleteSelection = refToConcept(entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
+        metrologie = entity.getCaracteristiquePhysiqueMonnaie() == null ? "" : entity.getCaracteristiquePhysiqueMonnaie().getMetrologie();
+        descriptionPate = entity.getDescriptionPate() == null ? "" : (entity.getDescriptionPate().getDescription() != null ? entity.getDescriptionPate().getDescription() : "");
 
-        periodeAutocompleteSelection = refToConcept(e.getPeriode());
-        metrologieAutocompleteSelection = refToConcept(e.getCaracteristiquePhysique() != null ? e.getCaracteristiquePhysique().getMetrologie() : null);
-        fabricationFaconnageAutocompleteSelection = refToConcept(e.getCaracteristiquePhysique() != null ? e.getCaracteristiquePhysique().getFabrication() : null);
-        couleurPateAutocompleteSelection = refToConcept(e.getDescriptionPate() != null ? e.getDescriptionPate().getCouleur() : null);
-        naturePateAutocompleteSelection = refToConcept(e.getDescriptionPate() != null ? e.getDescriptionPate().getNature() : null);
-        inclusionsAutocompleteSelection = refToConcept(e.getDescriptionPate() != null ? e.getDescriptionPate().getInclusion() : null);
-        cuissonPostCuissonAutocompleteSelection = refToConcept(e.getDescriptionPate() != null ? e.getDescriptionPate().getCuisson() : null);
-        dimensionsAutocompleteSelection = refToConcept(e.getCaracteristiquePhysique() != null ? e.getCaracteristiquePhysique().getDimensions() : null);
-        formeAutocompleteSelection = refToConcept(e.getCaracteristiquePhysique() != null ? e.getCaracteristiquePhysique().getForme() : null);
-        materiauxAutocompleteSelection = refToConcept(e.getCaracteristiquePhysique() != null ? e.getCaracteristiquePhysique().getMateriaux() : null);
+        periodeAutocompleteSelection = refToConcept(entity.getPeriode());
+        metrologieAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getMetrologie() : null);
+        fabricationFaconnageAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getFabrication() : null);
+        couleurPateAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getCouleur() : null);
+        naturePateAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getNature() : null);
+        inclusionsAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getInclusion() : null);
+        cuissonPostCuissonAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getCuisson() : null);
+        dimensionsAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getDimensions() : null);
+        formeAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getForme() : null);
+        materiauxAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getMateriaux() : null);
 
-        noms = e.getLabels().stream()
+        noms = entity.getLabels().stream()
                 .map(element -> NameItem.builder()
                         .nom(element.getNom())
                         .langueCode(element.getLangue().getCode())
@@ -256,7 +258,7 @@ public class GroupUpdateBean implements Serializable {
                         .build())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        descriptions = e.getDescriptions().stream()
+        descriptions = entity.getDescriptions().stream()
                 .map(element -> DescriptionItem.builder()
                         .valeur(element.getValeur())
                         .langueCode(element.getLangue().getCode())
@@ -264,19 +266,19 @@ public class GroupUpdateBean implements Serializable {
                         .build())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        tpq = e.getTpq();
-        taq = e.getTaq();
-        corpusExterne = e.getMetadata() != null ? e.getMetadata().getCorpusExterne() : null;
-        alignementExterne = e.getMetadata() != null ? e.getMetadata().getAlignementExterne() : null;
+        tpq = entity.getTpq();
+        taq = entity.getTaq();
+        corpusExterne = entity.getMetadata() != null ? entity.getMetadata().getCorpusExterne() : null;
+        alignementExterne = entity.getMetadata() != null ? entity.getMetadata().getAlignementExterne() : null;
 
-        droit = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getDroit() : null;
-        legendeDroit = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getLegendeDroit() : null;
-        coinsMonetairesDroit = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getCoinsMonetairesDroit() : null;
-        revers = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getRevers() : null;
-        legendeRevers = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getLegendeRevers() : null;
-        coinsMonetairesRevers = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getCoinsMonetairesRevers() : null;
+        droit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getDroit() : null;
+        legendeDroit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getLegendeDroit() : null;
+        coinsMonetairesDroit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getCoinsMonetairesDroit() : null;
+        revers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getRevers() : null;
+        legendeRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getLegendeRevers() : null;
+        coinsMonetairesRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getCoinsMonetairesRevers() : null;
 
-        initHabilitationsPickLists(e.getId());
+        initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
     }
@@ -403,7 +405,7 @@ public class GroupUpdateBean implements Serializable {
                 .anyMatch(element -> element.getLangueCode().equalsIgnoreCase(code));
     }
 
-    public void addTempLabelFromInput() {
+    public void addTempLabel() {
 
         if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
             addErrorMessage("Le label est requis.");

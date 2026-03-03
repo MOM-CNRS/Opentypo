@@ -10,7 +10,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="metrologieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-arrows-h input-icon periode-autocomplete-icon" />
-                <p:autoComplete value="#{groupUpdateBean.metrologieAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.metrologieAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -40,7 +40,7 @@
             <div id="fabricationFaconnageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-wrench input-icon periode-autocomplete-icon" />
                 <p:autoComplete id="fabricationFaconnageAutocomplete"
-                                value="#{groupUpdateBean.fabricationFaconnageAutocompleteSelection}"
+                                value="#{entityUpdateBean.fabricationFaconnageAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -66,7 +66,7 @@
         <p:outputLabel value="Description pâte" />
         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
             <i class="pi pi-align-left input-icon" />
-            <p:inputText value="#{groupUpdateBean.descriptionPate}"
+            <p:inputText value="#{entityUpdateBean.descriptionPate}"
                          styleClass="users-input"
                          placeholder="Saisissez la description de la pâte..."
                          maxlength="255"/>
@@ -81,7 +81,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="couleurPateAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-palette input-icon periode-autocomplete-icon" />
-                <p:autoComplete value="#{groupUpdateBean.couleurPateAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.couleurPateAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -111,7 +111,7 @@
             <div id="naturePateAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-th-large input-icon periode-autocomplete-icon" />
                 <p:autoComplete id="naturePateAutocomplete"
-                                value="#{groupUpdateBean.naturePateAutocompleteSelection}"
+                                value="#{entityUpdateBean.naturePateAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -141,7 +141,7 @@
             <div id="inclusionsAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-circle input-icon periode-autocomplete-icon" />
                 <p:autoComplete id="inclusionsAutocomplete"
-                                value="#{groupUpdateBean.inclusionsAutocompleteSelection}"
+                                value="#{entityUpdateBean.inclusionsAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -172,7 +172,7 @@
             <div id="cuissonPostCuissonAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-credit-card input-icon periode-autocomplete-icon" />
                 <p:autoComplete id="cuissonPostCuissonAutocomplete"
-                                value="#{groupUpdateBean.cuissonPostCuissonAutocompleteSelection}"
+                                value="#{entityUpdateBean.cuissonPostCuissonAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"

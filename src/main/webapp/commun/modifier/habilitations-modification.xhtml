@@ -16,9 +16,9 @@
                     </div>
                 </div>
                 <p:pickList id="redacteursPickList"
-                            value="#{groupUpdateBean.redacteursPickList}"
+                            value="#{entityUpdateBean.redacteursPickList}"
                             var="userId"
-                            itemLabel="#{groupUpdateBean.getUtilisateurDisplayName(userId)}"
+                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
                             itemValue="#{userId}"
                             converter="pickListLongConverter"
                             styleClass="group-dialog-picklist"
@@ -28,8 +28,8 @@
                             sourceFilterPlaceholder="Rechercher..."
                             targetFilterPlaceholder="Rechercher..."
                             responsive="true"
-                            rendered="#{not empty groupUpdateBean.redacteursList}"/>
-                <h:panelGroup rendered="#{empty groupUpdateBean.redacteursList}" class="group-dialog-no-relecteurs">
+                            rendered="#{not empty entityUpdateBean.redacteursList}"/>
+                <h:panelGroup rendered="#{empty entityUpdateBean.redacteursList}" class="group-dialog-no-relecteurs">
                     <span>Aucun rédacteur disponible</span>
                 </h:panelGroup>
             </div>
@@ -46,9 +46,9 @@
                     </div>
                 </div>
                 <p:pickList id="validateursPickList"
-                            value="#{groupUpdateBean.validateursPickList}"
+                            value="#{entityUpdateBean.validateursPickList}"
                             var="userId"
-                            itemLabel="#{groupUpdateBean.getUtilisateurDisplayName(userId)}"
+                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
                             itemValue="#{userId}"
                             converter="pickListLongConverter"
                             styleClass="group-dialog-picklist"
@@ -58,8 +58,8 @@
                             sourceFilterPlaceholder="Rechercher..."
                             targetFilterPlaceholder="Rechercher..."
                             responsive="true"
-                            rendered="#{not empty groupUpdateBean.validateursList}"/>
-                <h:panelGroup rendered="#{empty groupUpdateBean.validateursList}" class="group-dialog-no-relecteurs">
+                            rendered="#{not empty entityUpdateBean.validateursList}"/>
+                <h:panelGroup rendered="#{empty entityUpdateBean.validateursList}" class="group-dialog-no-relecteurs">
                     <span>Aucun validateur disponible</span>
                 </h:panelGroup>
             </div>
@@ -75,9 +75,9 @@
                     </div>
                 </div>
                 <p:pickList id="relecteursPickList"
-                            value="#{groupUpdateBean.relecteursPickList}"
+                            value="#{entityUpdateBean.relecteursPickList}"
                             var="userId"
-                            itemLabel="#{groupUpdateBean.getUtilisateurDisplayName(userId)}"
+                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
                             itemValue="#{userId}"
                             converter="pickListLongConverter"
                             styleClass="group-dialog-picklist"
@@ -87,8 +87,8 @@
                             sourceFilterPlaceholder="Rechercher..."
                             targetFilterPlaceholder="Rechercher..."
                             responsive="true"
-                            rendered="#{not empty groupUpdateBean.relecteursList}"/>
-                <h:panelGroup rendered="#{empty groupUpdateBean.relecteursList}" class="group-dialog-no-relecteurs">
+                            rendered="#{not empty entityUpdateBean.relecteursList}"/>
+                <h:panelGroup rendered="#{empty entityUpdateBean.relecteursList}" class="group-dialog-no-relecteurs">
                     <span>Aucun relecteur disponible</span>
                 </h:panelGroup>
             </div>

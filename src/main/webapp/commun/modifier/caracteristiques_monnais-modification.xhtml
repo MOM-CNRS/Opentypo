@@ -11,7 +11,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="materiauMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-box input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                <p:autoComplete value="#{groupUpdateBean.materiauxAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.materiauxAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -40,7 +40,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="denominationMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-tag input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                <p:autoComplete value="#{groupUpdateBean.denominationAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.denominationAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -69,7 +69,7 @@
         <div class="periode-field-row candidat-production-wrapper candidat-production-group">
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-sliders-h input-icon" aria-hidden="true"/>
-                <p:inputText value="#{groupUpdateBean.metrologie}"
+                <p:inputText value="#{entityUpdateBean.metrologie}"
                              styleClass="users-input"
                              placeholder="Ex. Poids, diamètre..."/>
             </div>
@@ -84,7 +84,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="valeurMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-dollar input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                <p:autoComplete value="#{groupUpdateBean.valeurAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.valeurAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -113,7 +113,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="techniqueMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-hammer input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                <p:autoComplete value="#{groupUpdateBean.techniqueAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.techniqueAutocompleteSelection}"
                                 completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                 converter="pactolsConceptConverter"
                                 var="concept"
@@ -142,7 +142,7 @@
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="fabricationMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                 <i class="pi pi-wrench input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                <p:autoComplete value="#{groupUpdateBean.fabricationAutocompleteSelection}"
+                <p:autoComplete value="#{entityUpdateBean.fabricationAutocompleteSelection}"
                                  completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                  converter="pactolsConceptConverter"
                                  var="concept"

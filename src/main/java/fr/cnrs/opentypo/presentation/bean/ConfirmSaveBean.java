@@ -42,7 +42,7 @@ public class ConfirmSaveBean implements Serializable {
     @Inject
     private TypeBean typeBean;
     @Autowired
-    private GroupUpdateBean groupUpdateBean;
+    private EntityUpdateBean entityUpdateBean;
 
     private String saveTarget;
 
@@ -108,7 +108,7 @@ public class ConfirmSaveBean implements Serializable {
                 categoryBean.saveCategory(applicationBean);
                 break;
             case TARGET_GROUP:
-                groupUpdateBean.saveModification();
+                entityUpdateBean.saveModification();
                 break;
             case TARGET_TYPE:
                 typeBean.saveEditingType(applicationBean);

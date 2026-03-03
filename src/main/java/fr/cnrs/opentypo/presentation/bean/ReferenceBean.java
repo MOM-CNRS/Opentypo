@@ -391,12 +391,7 @@ public class ReferenceBean implements Serializable {
 
     private void loadAvailableLanguages() {
         if (availableLanguages == null) {
-            try {
-                availableLanguages = langueRepository.findAllByOrderByNomAsc();
-            } catch (Exception e) {
-                log.error("Erreur lors du chargement des langues", e);
-                availableLanguages = new ArrayList<>();
-            }
+            availableLanguages = langueRepository.findAllByOrderByNomAsc();
         }
     }
 

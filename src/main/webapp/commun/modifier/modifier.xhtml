@@ -19,7 +19,7 @@
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-align-left input-icon" />
-                        <p:inputText value="#{groupUpdateBean.code}"
+                        <p:inputText value="#{entityUpdateBean.code}"
                                      styleClass="users-input"
                                      placeholder="Saisissez le code ..."
                                      maxlength="255"/>
@@ -41,7 +41,7 @@
                     <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-cog input-icon" />
-                            <p:inputText value="#{groupUpdateBean.appellationUsuelle}"
+                            <p:inputText value="#{entityUpdateBean.appellationUsuelle}"
                                          styleClass="users-input"
                                          placeholder="Aucun valeur pour l'appellation usuelle"/>
                         </div>
@@ -72,7 +72,7 @@
             <p:commandButton value="Retour"
                              icon="pi pi-arrow-left"
                              iconPos="left"
-                             action="#{groupUpdateBean.cancelEditingGroupe()}"
+                             action="#{entityUpdateBean.cancelEditingGroupe()}"
                              process="@this"
                              ajax="true"
                              update=":contentPanels :growl"

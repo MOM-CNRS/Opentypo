@@ -17,7 +17,7 @@
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-calendar-plus input-icon" />
                             <p:inputNumber id="groupTpq"
-                                           value="#{groupUpdateBean.tpq}"
+                                           value="#{entityUpdateBean.tpq}"
                                            styleClass="users-input"
                                            placeholder="Ex: 1500"
                                            minValue="-9999"
@@ -36,7 +36,7 @@
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-calendar-plus input-icon" />
                             <p:inputNumber id="groupTaq"
-                                           value="#{groupUpdateBean.taq}"
+                                           value="#{entityUpdateBean.taq}"
                                            styleClass="users-input"
                                            placeholder="Ex: 1500"
                                            minValue="-9999"
@@ -56,7 +56,7 @@
                 <div id="periodeAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper">
                     <i class="pi pi-calendar input-icon periode-autocomplete-icon" />
                     <p:autoComplete id="periodeAutocomplete"
-                                   value="#{groupUpdateBean.periodeAutocompleteSelection}"
+                                   value="#{entityUpdateBean.periodeAutocompleteSelection}"
                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                    converter="pactolsConceptConverter"
                                    var="concept"
@@ -83,10 +83,10 @@
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-cog input-icon" />
-                        <p:inputText value="#{groupUpdateBean.corpusExterne}"
+                        <p:inputText value="#{entityUpdateBean.corpusExterne}"
                                      styleClass="users-input"
                                      placeholder="Ex. Corpus externe..."
-                                     rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+                                     rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
                     </div>
                 </div>
             </div>
@@ -98,10 +98,10 @@
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-link input-icon" />
-                        <p:inputText value="#{groupUpdateBean.alignementExterne}"
+                        <p:inputText value="#{entityUpdateBean.alignementExterne}"
                                      styleClass="users-input"
                                      placeholder="Ex. URL d'alignement externe..."
-                                     rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+                                     rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
                     </div>
                 </div>
             </div>
@@ -113,10 +113,10 @@
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-link input-icon" />
-                        <p:inputText value="#{groupUpdateBean.alignementExterne}"
+                        <p:inputText value="#{entityUpdateBean.alignementExterne}"
                                      styleClass="users-input"
                                      placeholder="Ex. URL d'alignement externe..."
-                                     rendered="#{groupUpdateBean.canEditCurrentBrouillon()}"/>
+                                     rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
                     </div>
                 </div>
             </div>

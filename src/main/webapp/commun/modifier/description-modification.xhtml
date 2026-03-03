@@ -20,7 +20,7 @@
                         <div class="candidat-description-textarea-wrapper">
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-palette input-icon" aria-hidden="true"/>
-                                <p:inputTextarea value="#{groupUpdateBean.decors}"
+                                <p:inputTextarea value="#{entityUpdateBean.decors}"
                                                  placeholder="Saisissez le décor du groupe..."
                                                  rows="4"
                                                  styleClass="users-textarea"
@@ -38,14 +38,14 @@
                 </div>
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-tag input-icon" />
-                    <p:chips value="#{groupUpdateBean.marquesEstampilles}"
+                    <p:chips value="#{entityUpdateBean.marquesEstampilles}"
                              styleClass="users-chips"
                              placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
                              maxlength="500"
                              addOnBlur="true">
-                        <p:ajax event="itemSelect" listener="#{groupUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                        <p:ajax event="itemUnselect" listener="#{groupUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                        <p:ajax event="change" listener="#{groupUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                        <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                        <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
+                        <p:ajax event="change" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
                     </p:chips>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                     <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                         <i class="pi pi-briefcase input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                        <p:autoComplete value="#{groupUpdateBean.fonctionUsageAutocompleteSelection}"
+                        <p:autoComplete value="#{entityUpdateBean.fonctionUsageAutocompleteSelection}"
                                         completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                         converter="pactolsConceptConverter"
                                         var="concept"
@@ -87,7 +87,7 @@
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                     <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                         <i class="pi pi-cog input-icon periode-autocomplete-icon" />
-                        <p:autoComplete value="#{groupUpdateBean.categorieFonctionnelleAutocompleteSelection}"
+                        <p:autoComplete value="#{entityUpdateBean.categorieFonctionnelleAutocompleteSelection}"
                                         completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
                                         converter="pactolsConceptConverter"
                                         var="concept"
@@ -119,7 +119,7 @@
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-arrow-circle-right input-icon" aria-hidden="true"/>
-                            <p:inputText value="#{groupUpdateBean.droit}"
+                            <p:inputText value="#{entityUpdateBean.droit}"
                                          placeholder="Saisissez la description de la face droite (avers)..."
                                          styleClass="users-input"
                                          maxlength="500"/>
@@ -138,7 +138,7 @@
                         <div class="candidat-description-textarea-wrapper">
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-align-left input-icon" aria-hidden="true"/>
-                                <p:inputText value="#{groupUpdateBean.legendeDroit}"
+                                <p:inputText value="#{entityUpdateBean.legendeDroit}"
                                              placeholder="Saisissez l'inscription ou légende du droit..."
                                              styleClass="users-input"
                                              maxlength="500"/>
@@ -158,7 +158,7 @@
                         <div class="candidat-description-textarea-wrapper">
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                                <p:inputText value="#{groupUpdateBean.coinsMonetairesDroit}"
+                                <p:inputText value="#{entityUpdateBean.coinsMonetairesDroit}"
                                              placeholder="Saisissez la description des bords de la face droite..."
                                              styleClass="users-input"
                                              maxlength="500"/>
@@ -177,7 +177,7 @@
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                            <p:inputText value="#{groupUpdateBean.coinsMonetairesDroit}"
+                            <p:inputText value="#{entityUpdateBean.coinsMonetairesDroit}"
                                          placeholder="Saisissez la description des bords de la face droite..."
                                          styleClass="users-input"
                                          maxlength="500"/>
@@ -195,7 +195,7 @@
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-palette input-icon" />
-                            <p:inputText value="#{groupUpdateBean.legendeRevers}"
+                            <p:inputText value="#{entityUpdateBean.legendeRevers}"
                                          placeholder="Saisissez la déscription de la façe droite..."
                                          styleClass="users-input"
                                          maxlength="500"/>
@@ -214,7 +214,7 @@
                         <div class="candidat-description-textarea-wrapper">
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                                <p:inputText value="#{groupUpdateBean.coinsMonetairesRevers}"
+                                <p:inputText value="#{entityUpdateBean.coinsMonetairesRevers}"
                                              placeholder="Saisissez la description des bords de la face revers..."
                                              styleClass="users-input"
                                              maxlength="500"/>

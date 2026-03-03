@@ -32,14 +32,14 @@
                                     </div>
                                 </div>
 
-                                <h:panelGroup class="concept-info-actions" rendered="#{!groupUpdateBean.editingEntity}">
+                                <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this" update="@none" styleClass="concept-action-button" immediate="true">
                                         <i class="pi pi-history" />
                                         <p:tooltip value="Voir l'historique" position="top"/>
                                     </p:commandLink>
 
-                                    <p:commandLink action="#{groupUpdateBean.startEditing()}"
+                                    <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":contentPanels"
                                                    rendered="#{applicationBean.canEditGroup()}"
@@ -82,7 +82,7 @@
                                 </h:panelGroup>
                             </div>
 
-                            <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
+                            <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                                 <div class="concept-info-grid">
 
                                     <h:panelGroup id="serieDescUpdatePanel" class="concept-info-item concept-info-item-full">
@@ -173,12 +173,12 @@
                                 </div>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{groupUpdateBean.editingEntity}">
+                            <ui:fragment rendered="#{entityUpdateBean.editingEntity}">
                                 <ui:include src="../../commun/modifier/modifier.xhtml"/>
                             </ui:fragment>
                         </div>
 
-                        <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
+                        <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                             <ui:include src="../communs/production.xhtml"/>
 
                             <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
@@ -204,7 +204,7 @@
                         </ui:fragment>
                     </h:form>
 
-                    <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
+                    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                         <ui:include src="../catalogues/liste_types.xhtml"/>
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
                             <ui:include src="../communs/commentaires.xhtml"/>
@@ -212,7 +212,7 @@
                     </ui:fragment>
 
                     <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
-                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not groupUpdateBean.editingEntity}"
+                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not entityUpdateBean.editingEntity}"
                             styleClass="groupe-proposition-actions candidats-mt-20">
                         <div class="groupe-proposition-actions-wrapper">
                             <p:commandButton value="Publier"
