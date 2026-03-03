@@ -31,7 +31,8 @@
                                         <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                     </div>
                                 </div>
-                                <h:panelGroup class="concept-info-actions">
+
+                                <h:panelGroup class="concept-info-actions" rendered="#{!groupUpdateBean.editingEntity}">
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this" update="@none" styleClass="concept-action-button" immediate="true">
                                         <i class="pi pi-history" />
@@ -177,7 +178,7 @@
                             </ui:fragment>
                         </div>
 
-                        <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                        <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                             <ui:include src="../communs/production.xhtml"/>
 
                             <h:panelGroup rendered="#{typeBean.getCollectionLabel(applicationBean.selectedEntity.id) == 'MONNAIE'
@@ -203,7 +204,7 @@
                         </ui:fragment>
                     </h:form>
 
-                    <ui:fragment rendered="#{!entityEditModeBean.editingEntityInCatalog}">
+                    <ui:fragment rendered="#{!groupUpdateBean.editingEntity}">
                         <ui:include src="../catalogues/liste_types.xhtml"/>
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
                             <ui:include src="../communs/commentaires.xhtml"/>

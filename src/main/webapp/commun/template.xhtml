@@ -7,14 +7,14 @@
 <!-- ========== HEAD : métadonnées, CSS, scripts globaux ========== -->
 <h:head>
     <title>OpenTypo</title>
-    <link rel="icon" type="image/png" href="#{resource['img:o.png']}"/>
+    <link rel="icon" type="image/png" href="#{request.contextPath}/resources/img/o.png"/>
 
-    <!-- Font Awesome : webjar local (évite les problèmes CDN sur serveur sans accès internet) -->
-    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/webjars/font-awesome/6.7.2/css/all.min.css"/>
-    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/webjars/font-awesome/6.7.2/css/v4-shims.min.css"/>
+    <!-- Font Awesome : CDN (fallback si webjars non disponibles en déploiement externe) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/font-awesome@6.7.2/css/all.min.css" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/font-awesome@6.7.2/css/v4-shims.min.css" crossorigin="anonymous"/>
 
-    <!-- Bootstrap : webjar local (évite les problèmes CDN sur serveur) -->
-    <link rel="stylesheet" type="text/css" href="#{request.contextPath}/webjars/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <!-- Bootstrap : CDN (fallback si webjars non disponibles en déploiement externe) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous"/>
 
     <!-- PrimeFaces theme + PrimeIcons : chargement APRÈS Bootstrap/FontAwesome pour éviter les conflits de font-family -->
     <h:outputStylesheet library="primefaces" name="theme.css"/>
@@ -56,8 +56,11 @@
 <h:body styleClass="app-body">
     <!-- Scripts globaux (ordre de chargement) -->
     <h:outputScript library="js" name="constants.js"/>
-    
-    <!-- Charger le script JavaScript en premier pour garantir la disponibilité des fonctions -->
+    <!-- Compatibilité PrimeFaces 14 (addOnStart/addOnComplete/addOnUpdate) - avant tout script AJAX -->
+    <h:outputScript library="js" name="pf-ajax-compat.js"/>
+    <!-- SidebarUtils DOIT être chargé avant theso_responsiveMenu_optimized.js -->
+    <h:outputScript library="js" name="sidebarUtils.js"/>
+    <!-- Charger le script JavaScript du menu après SidebarUtils -->
     <h:outputScript library="js" name="theso_responsiveMenu_optimized.js"/>
 
     <!-- Délégation data-action (remplace les onclick inline) -->

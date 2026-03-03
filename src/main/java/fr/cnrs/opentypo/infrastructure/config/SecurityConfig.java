@@ -40,7 +40,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // IMPORTANT: Les ressources doivent être autorisées EN PREMIER
                 // Permettre l'accès aux ressources JSF/PrimeFaces (doit être avant anyRequest)
-                .requestMatchers("/javax.faces.resource/**").permitAll()
+                // Jakarta Faces utilise /jakarta.faces.resource/, conserver javax pour rétrocompatibilité
+                .requestMatchers("/javax.faces.resource/**", "/jakarta.faces.resource/**").permitAll()
                 
                 // Permettre l'accès aux ressources JSF avec paramètres de requête (ex: ?ln=primefaces&v=...)
                 .requestMatchers(request -> {
@@ -106,6 +107,7 @@ public class SecurityConfig {
                     // Ne PAS rediriger les ressources JSF/statiques - laisser JSF les servir
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
+                        requestPath.startsWith("/jakarta.faces.resource/") ||
                         requestPath.startsWith("/resources/") ||
                         requestPath.endsWith(".css") ||
                         requestPath.endsWith(".js") ||
@@ -131,6 +133,7 @@ public class SecurityConfig {
                     // Ne PAS rediriger les ressources JSF/statiques
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
+                        requestPath.startsWith("/jakarta.faces.resource/") ||
                         requestPath.startsWith("/resources/") ||
                         requestPath.endsWith(".css") ||
                         requestPath.endsWith(".js") ||
@@ -163,7 +166,7 @@ public class SecurityConfig {
                         "default-src 'self'; " +
                         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://use.fontawesome.com; " +
                         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://use.fontawesome.com; " +
-                        "font-src 'self' https://use.fontawesome.com data:; " +
+                        "font-src 'self' https://cdn.jsdelivr.net https://use.fontawesome.com data: blob:; " +
                         "img-src 'self' data: https:; " +
                         "connect-src 'self' https://cdn.jsdelivr.net; " +
                         "frame-ancestors 'self';"

@@ -31,7 +31,7 @@
                                     </div>
                                 </div>
 
-                                <h:panelGroup class="concept-info-actions">
+                                <h:panelGroup class="concept-info-actions" rendered="#{!groupUpdateBean.editingEntity}">
 
                                     <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
                                     <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"

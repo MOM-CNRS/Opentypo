@@ -959,10 +959,11 @@ public class ApplicationBean implements Serializable {
     /**
      * Navigation depuis le fil d'Ariane : affiche le détail correspondant au type d'entité.
      */
-    public void navigateToBreadcrumbElement(Entity entity) {
+    public void navigateToBreadcrumbElement(Entity entity, GroupUpdateBean groupUpdateBean) {
         if (entity == null || entity.getEntityType() == null) {
             return;
         }
+        groupUpdateBean.setEditingEntity(false);
         String code = entity.getEntityType().getCode();
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
             collectionBean.showCollectionDetail(this, entity);

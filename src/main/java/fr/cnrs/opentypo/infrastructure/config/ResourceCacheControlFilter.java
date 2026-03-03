@@ -21,7 +21,7 @@ import java.io.IOException;
 @Component
 @Profile("local")
 @Order(1)
-@WebFilter(urlPatterns = "/javax.faces.resource/*")
+@WebFilter(urlPatterns = {"/javax.faces.resource/*", "/jakarta.faces.resource/*"})
 public class ResourceCacheControlFilter implements Filter {
 
     @Override

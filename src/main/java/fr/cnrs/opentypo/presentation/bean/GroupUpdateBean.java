@@ -233,7 +233,7 @@ public class GroupUpdateBean implements Serializable {
 
         productionAutocompleteSelection = refToConcept(e.getProduction());
         fonctionUsageAutocompleteSelection = refToConcept(e.getDescriptionDetail() != null ? e.getDescriptionDetail().getFonction() : null);
-        categorieFonctionnelleAutocompleteSelection = refToConcept(e.getDescriptionDetail() != null ? e.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
+        categorieFonctionnelleAutocompleteSelection = refToConcept(e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
         metrologie = e.getCaracteristiquePhysiqueMonnaie() == null ? "" : e.getCaracteristiquePhysiqueMonnaie().getMetrologie();
         descriptionPate = e.getDescriptionPate() == null ? "" : (e.getDescriptionPate().getDescription() != null ? e.getDescriptionPate().getDescription() : "");
 
@@ -277,7 +277,7 @@ public class GroupUpdateBean implements Serializable {
         coinsMonetairesRevers = e.getDescriptionMonnaie() != null ? e.getDescriptionMonnaie().getCoinsMonetairesRevers() : null;
 
         initHabilitationsPickLists(e.getId());
-
+        updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
     }
 
