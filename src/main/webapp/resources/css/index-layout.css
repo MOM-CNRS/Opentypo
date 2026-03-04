@@ -10,9 +10,11 @@
     --index-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ---- 1. Barre de recherche - fluide et responsive ---- */
+/* ---- 1. Barre de recherche - pleine largeur ---- */
 .app-search {
     flex-shrink: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
     padding: 0.5rem var(--index-padding) !important;
     transition: padding var(--index-transition) !important;
 }
@@ -142,10 +144,15 @@
     box-sizing: border-box !important;
 }
 
-/* ---- 12. Barre de recherche (search.xhtml) - responsive ---- */
+/* ---- 12. Barre de recherche (search.xhtml) - pleine largeur ---- */
 .search-bar-compact {
     flex-wrap: wrap !important;
     gap: 0.5rem !important;
+    width: 100% !important;
+}
+
+.search-bar-compact .search-input-group {
+    flex: 1 1 300px !important;
 }
 
 @media (max-width: 768px) {

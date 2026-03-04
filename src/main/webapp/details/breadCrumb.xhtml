@@ -8,9 +8,9 @@
             <li class="breadcrumb-item">
                 <h:form id="breadcrumbForm" styleClass="breadcrumb-form">
                     <p:commandLink styleClass="breadcrumb-link breadcrumb-link-home"
-                                   action="#{applicationBean.showCollections()}"
+                                   action="#{applicationBean.showCollections(entityUpdateBean)}"
                                    process="@this"
-                                   update=":centerContent :selectedEntityLabel :searchForm">
+                                   update=":centerContent :selectedEntityLabel :searchForm :growl">
                         <i class="pi pi-home" aria-hidden="true" />
                         <span class="breadcrumb-link-text">Accueil</span>
                     </p:commandLink>
@@ -26,7 +26,7 @@
                         <p:commandLink styleClass="breadcrumb-link"
                                        action="#{applicationBean.navigateToBreadcrumbElement(element, entityUpdateBean)}"
                                        process="@this"
-                                       update=":centerContent">
+                                       update=":centerContent :growl">
                             <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
                             <span class="breadcrumb-link-text">#{element.entityType != null and element.entityType.code == 'COLLECTION' ? applicationBean.getEntityLabel(element) : element.code}</span>
                         </p:commandLink>

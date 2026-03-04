@@ -198,8 +198,8 @@ public class SecurityConfig {
         // En production, spécifier les domaines exacts
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:8080",
-            "http://localhost:3000",
-            "https://votre-domaine.com"
+            "https://opentypo.mom.fr",
+            "http://opentypo.mom.fr"
         ));
 
         // Méthodes HTTP autorisées

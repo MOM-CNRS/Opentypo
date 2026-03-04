@@ -2025,7 +2025,43 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
     outline: none !important;
 }
 
-/* Zone de recherche compacte */
+/* Groupe de recherche unifié - design type "search box" - occupe tout l'espace disponible */
+.search-input-group {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 200px;
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.18);
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    overflow: hidden;
+}
+
+.search-input-group:focus-within {
+    border-color: var(--color-action-main, #47624D);
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.12);
+}
+
+.search-input-group-icon {
+    flex-shrink: 0;
+    padding: 0 0.75rem 0 1rem;
+    color: var(--color-text-secondary, #819A91);
+    font-size: 1rem;
+    transition: color 0.2s ease;
+}
+
+.search-input-group:focus-within .search-input-group-icon {
+    color: var(--color-action-main, #47624D);
+}
+
+.search-input-group .search-input-msg {
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Zone de recherche compacte - à l'intérieur du groupe */
 .search-input-compact-wrapper {
     display: flex;
     align-items: center;
@@ -2034,53 +2070,58 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
     min-width: 200px;
 }
 
+.search-input-group .search-input-compact,
 .search-input-compact {
     flex: 1;
-    min-width: 150px;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    border: 1px solid #d0d0d0;
-    border-radius: 4px;
-    background-color: #ffffff;
+    min-width: 100px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
     color: var(--color-text-primary, #333);
-    transition: all 0.2s ease;
-    font-family: 'Roboto', 'Segoe UI', sans-serif;
-    height: 38px;
+    transition: none;
+    font-family: inherit;
+    height: 42px;
+    box-shadow: none !important;
+}
+
+.search-input-group .search-input-compact:focus,
+.search-input-compact:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .search-input-compact:hover {
-    border-color: var(--color-hover, #A7C1A8) !important;
-    box-shadow: 0 0 0 2px rgba(167, 193, 168, 0.2) !important;
-}
-
-.search-input-compact:focus {
-    border-color: var(--color-action-main, #47624D);
-    box-shadow: 0 0 0 2px rgba(71, 98, 77, 0.1);
-    outline: none;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .search-input-compact::placeholder {
-    color: #999;
-    font-size: 0.875rem;
+    color: #8a9a94;
+    font-size: 0.9375rem;
 }
 
-/* Bouton de recherche compact */
+/* Bouton de recherche compact - intégré au groupe */
+.search-input-group .search-button-compact,
 .search-button-compact {
-    padding: 0.5rem 1rem !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    background-color: var(--color-action-main, #47624D) !important;
-    border: 1px solid var(--color-action-main, #47624D) !important;
+    padding: 0 1rem !important;
+    height: 42px !important;
+    min-width: 48px !important;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.92) 100%) !important;
+    border: none !important;
     color: #ffffff !important;
-    border-radius: 4px !important;
-    font-size: 0.875rem !important;
-    transition: all 0.2s ease !important;
+    border-radius: 0 !important;
+    font-size: 0.9375rem !important;
+    transition: opacity 0.2s ease, background 0.2s ease !important;
     flex-shrink: 0;
+    margin: 0 !important;
 }
 
+.search-input-group .search-button-compact:hover,
 .search-button-compact:hover {
-    background-color: #3a4f3e !important;
-    border-color: #3a4f3e !important;
+    opacity: 0.95 !important;
+    background: linear-gradient(135deg, #3a4f3e 0%, rgba(58, 79, 62, 0.95) 100%) !important;
 }
 
 /* Bouton recherche avancée compact */
@@ -2135,9 +2176,11 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
         flex: 1 1 auto;
     }
     
+    .search-input-group,
     .search-input-compact-wrapper {
         flex: 1 1 100%;
         min-width: 100%;
+        max-width: none;
     }
 }
 
@@ -2156,11 +2199,21 @@ body .ui-chkbox .ui-chkbox-box .ui-chkbox-icon {
         font-size: 0.8125rem;
     }
     
+    .search-input-group .search-input-compact,
     .search-input-compact {
-        font-size: 0.8125rem;
-        padding: 0.5rem;
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
     }
     
+    .search-input-group {
+        max-width: none;
+    }
+    
+    .search-input-group .search-input-compact {
+        height: 36px;
+    }
+    
+    .search-input-group .search-button-compact,
     .search-button-compact,
     .search-advanced-compact,
     .search-toggle-compact {

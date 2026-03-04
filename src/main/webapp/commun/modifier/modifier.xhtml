@@ -27,7 +27,9 @@
                 </div>
             </div>
 
-            <ui:include src="label-modification.xhtml"/>
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 5}">
+                <ui:include src="label-modification.xhtml"/>
+            </h:panelGroup>
 
             <ui:include src="definition-modification.xhtml"/>
 

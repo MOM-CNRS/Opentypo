@@ -17,7 +17,7 @@
                 <!-- Menu items dynamiques -->
                 <nav class="sidebar-nav">
                     <!-- Accueil item -->
-                    <p:commandLink action="#{applicationBean.goToAccueil}"
+                    <p:commandLink action="#{applicationBean.goToAccueil(entityUpdateBean)}"
                                    styleClass="sidebar-menu-item"
                                    data-menu-item="accueil"
                                    ajax="false">
@@ -30,30 +30,36 @@
                         </div>
                     </p:commandLink>
 
-                    <!-- Candidats item - Visible uniquement si connecté -->
                     <h:panelGroup rendered="#{loginBean.authenticated}">
-                        <h:link outcome="/candidats/candidats.xhtml" styleClass="sidebar-menu-item" data-menu-item="candidats">
+                        <!-- Candidats item - Visible uniquement si connecté -->
+                        <p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
+                                       styleClass="sidebar-menu-item"
+                                       data-menu-item="candidats"
+                                       ajax="false">
                             <div class="sidebar-menu-item-content">
                                 <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-users"/>
+                                    <i class="pi pi-users" />
                                 </div>
-                            <span class="sidebar-menu-item-text">Brouillons</span>
-                            <span class="sidebar-menu-item-tooltip">Brouillons</span>
+                                <span class="sidebar-menu-item-text">Brouillons</span>
+                                <span class="sidebar-menu-item-tooltip">Brouillons</span>
                             </div>
-                        </h:link>
-                    </h:panelGroup>
+                        </p:commandLink>
 
-                    <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
-                    <h:panelGroup rendered="#{loginBean.authenticated and loginBean.isAdminTechnique()}">
-                        <h:link outcome="/users/users.xhtml" styleClass="sidebar-menu-item" data-menu-item="users">
-                            <div class="sidebar-menu-item-content">
-                                <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-user-edit" />
+                        <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
+                        <h:panelGroup rendered="#{loginBean.isAdminTechnique()}">
+                            <p:commandLink action="#{applicationBean.goToUtilisateurs(entityUpdateBean)}"
+                                           styleClass="sidebar-menu-item"
+                                           data-menu-item="users"
+                                           ajax="false">
+                                <div class="sidebar-menu-item-content">
+                                    <div class="sidebar-menu-item-icon">
+                                        <i class="pi pi-user-edit" />
+                                    </div>
+                                    <span class="sidebar-menu-item-text">Utilisateurs</span>
+                                    <span class="sidebar-menu-item-tooltip">Utilisateurs</span>
                                 </div>
-                                <span class="sidebar-menu-item-text">Gestion des utilisateurs</span>
-                                <span class="sidebar-menu-item-tooltip">Gestion des utilisateurs</span>
-                            </div>
-                        </h:link>
+                            </p:commandLink>
+                        </h:panelGroup>
                     </h:panelGroup>
                 </nav>
 

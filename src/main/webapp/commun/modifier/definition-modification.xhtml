@@ -22,7 +22,7 @@
             <div class="candidat-label-select-wrapper">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-globe input-icon" />
-                    <p:selectOneMenu value="#{entityUpdateBean.newLabelLangueCode}"
+                    <p:selectOneMenu value="#{entityUpdateBean.newDescriptionLangueCode}"
                                      styleClass="users-select">
                         <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
                         <f:selectItems value="#{entityUpdateBean.availableTmpLanguagesForDefinition}"
@@ -38,7 +38,7 @@
                              actionListener="#{entityUpdateBean.addTempDescription()}"
                              process="@form"
                              ajax="true"
-                             update=":groupeEditForm :growl"/>
+                             update=":centerContent :growl"/>
         </h:panelGroup>
 
         <p:dataTable value="#{entityUpdateBean.descriptions}"
@@ -62,7 +62,7 @@
                                      action="#{entityUpdateBean.removeTmpDescription(labelItem)}"
                                      process="@form"
                                      ajax="true"
-                                     update=":groupeEditForm :growl"
+                                     update=":centerContent :growl"
                                      title="Supprimer cette traduction"/>
                 </div>
             </p:column>

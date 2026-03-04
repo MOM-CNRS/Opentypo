@@ -77,7 +77,7 @@ public class SearchBean implements Serializable {
     /**
      * Gère le changement de sélection de collection
      */
-    public void onCollectionChange() {
+    public void onCollectionChange(EntityUpdateBean entityUpdateBean) {
         ApplicationBean appBean = applicationBeanProvider.get();
         TreeBean treeBean = treeBeanProvider.get();
         if (appBean == null || treeBean == null) {
@@ -87,7 +87,7 @@ public class SearchBean implements Serializable {
         if (collectionSelected == null || collectionSelected.isEmpty()) {
             // "Toutes les collections" est sélectionné - recharger les collections selon l'état de connexion
             appBean.loadAllCollections();
-            appBean.showCollections();
+            appBean.showCollections(entityUpdateBean);
         } else {
             Entity selectedEntity = null;
             

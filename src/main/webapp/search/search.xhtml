@@ -25,7 +25,7 @@
                              filter="true"
                              filterMatchMode="contains">
                 <f:selectItems value="#{searchBean.hierarchicalCollectionItems}"/>
-                <p:ajax event="change" listener="#{searchBean.onCollectionChange()}" 
+                <p:ajax event="change" listener="#{searchBean.onCollectionChange(entityUpdateBean)}"
                         update=":centerContent, :selectedEntityLabel, :collectionsForm" process="@this"
                         onstart="showLoading('Chargement...', 'spinner');"
                         oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
@@ -45,8 +45,9 @@
                         process="@this"/>
             </p:selectOneMenu>
 
-            <!-- Zone de recherche principale - Compacte -->
-            <div class="input-wrapper periode-input-wrapper collection-select">
+            <!-- Zone de recherche principale - Design unifié type "search box" -->
+            <div class="search-input-group">
+                <i class="pi pi-search search-input-group-icon" aria-hidden="true"/>
                 <p:inputText id="searchInput" 
                              value="#{searchBean.searchTerm}"
                              placeholder="Rechercher (min. 2 caractères)..." 
@@ -55,7 +56,7 @@
                              maxlength="255">
                     <f:validator validatorId="searchTermMinLengthValidator" />
                 </p:inputText>
-                <p:message for="searchInput" display="icon" />
+                <p:message for="searchInput" display="icon" styleClass="search-input-msg"/>
                 <p:commandButton id="searchButton"
                                  icon="pi pi-search"
                                  styleClass="search-button-compact"

@@ -1020,4 +1020,8 @@ public class EntityUpdateBean implements Serializable {
                 .entity(entity)
                 .build();
     }
+
+    public void onLangChange() {
+        log.info(">> " + newLabelLangueCode);
+    }
 }

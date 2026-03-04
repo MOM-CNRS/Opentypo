@@ -12,6 +12,7 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -43,6 +44,9 @@ public class TreeBean implements Serializable {
 
     @Inject
     private transient Provider<CollectionBean> collectionBeanProvider;
+
+    @Inject
+    private transient Provider<EntityUpdateBean> entityUpdateBeanProvider;
 
     @Inject
     private transient CategoryService categoryService;
@@ -183,6 +187,14 @@ public class TreeBean implements Serializable {
      * Sélectionne un nœud par ID d'entité (appel AJAX depuis le client).
      */
     public void selectEntityById() {
+
+        if (entityUpdateBeanProvider.get().isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return;
+        }
+
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         String idStr = params != null ? params.get("entityId") : null;
         if ((idStr == null || idStr.isBlank()) && selectedEntityIdForAjax != null) {

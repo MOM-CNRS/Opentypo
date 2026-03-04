@@ -30,31 +30,6 @@ public class CandidatListService {
     private EntityRepository entityRepository;
 
     /**
-     * Charge tous les candidats depuis la base de données
-     * @return Liste de tous les candidats (PROPOSITION, PUBLIQUE, REFUSED)
-     */
-    public List<Candidat> loadAllCandidats() {
-        try {
-            List<Entity> entitiesProposition = entityRepository.findByStatut(EntityStatusEnum.PROPOSITION.name());
-            List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.PUBLIQUE.name());
-            List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSE.name());
-            
-            List<Candidat> allCandidats = new ArrayList<>();
-            allCandidats.addAll(convertToCandidats(entitiesProposition));
-            allCandidats.addAll(convertToCandidats(entitiesAccepted));
-            allCandidats.addAll(convertToCandidats(entitiesRefused));
-            
-            log.info("Chargement des candidats terminé: {} PROPOSITION, {} PUBLIQUE, {} REFUSED", 
-                entitiesProposition.size(), entitiesAccepted.size(), entitiesRefused.size());
-            
-            return allCandidats;
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des candidats depuis la base de données", e);
-            return new ArrayList<>();
-        }
-    }
-
-    /**
      * Convertit une liste d'entités en candidats
      */
     public List<Candidat> convertToCandidats(List<Entity> entities) {

@@ -169,6 +169,7 @@ public class ApplicationBean implements Serializable {
     /** Action proposition demandée : true = publier (PUBLIQUE), false = refuser (REFUSE) */
     private Boolean requestedPropositionAction;
 
+
     @PostConstruct
     public void initialization() {
         checkSessionExpiration();
@@ -963,6 +964,14 @@ public class ApplicationBean implements Serializable {
         if (entity == null || entity.getEntityType() == null) {
             return;
         }
+
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return;
+        }
+
         entityUpdateBean.setEditingEntity(false);
         String code = entity.getEntityType().getCode();
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
@@ -984,7 +993,15 @@ public class ApplicationBean implements Serializable {
         return panelState.isShowDetail();
     }
 
-    public void showCollections() {
+    public void showCollections(EntityUpdateBean entityUpdateBean) {
+
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return;
+        }
+
         this.selectedEntityLabel = "";
         this.selectedEntity = null;
         this.beadCrumbElements = new ArrayList<>();
@@ -996,9 +1013,35 @@ public class ApplicationBean implements Serializable {
     /**
      * Appelé au clic sur le menu Accueil. Réinitialise l'interface (panelState.showCollections) puis redirige vers l'Accueil.
      */
-    public String goToAccueil() {
-        showCollections();
+    public String goToAccueil(EntityUpdateBean entityUpdateBean) throws Exception {
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return "";
+        }
+        showCollections(entityUpdateBean);
         return "/index.xhtml?faces-redirect=true";
+    }
+
+    public String goToBrouillons(EntityUpdateBean entityUpdateBean) {
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return "";
+        }
+        return "/candidats/candidats.xhtml";
+    }
+
+    public String goToUtilisateurs(EntityUpdateBean entityUpdateBean) {
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return "";
+        }
+        return "/users/users.xhtml";
     }
     
     public void showCollectionDetail() {

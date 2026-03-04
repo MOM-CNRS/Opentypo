@@ -117,7 +117,10 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                                    #{applicationBean.selectedEntity.periode.valeur}
+                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                        <i class="pi pi-link-slash"/>
+                                                        #{applicationBean.selectedEntity.periode.valeur}
+                                                    </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">

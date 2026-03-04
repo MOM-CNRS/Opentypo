@@ -56,8 +56,6 @@
 <h:body styleClass="app-body">
     <!-- Scripts globaux (ordre de chargement) -->
     <h:outputScript library="js" name="constants.js"/>
-    <!-- Compatibilité PrimeFaces 14 (addOnStart/addOnComplete/addOnUpdate) - avant tout script AJAX -->
-    <h:outputScript library="js" name="pf-ajax-compat.js"/>
     <!-- SidebarUtils DOIT être chargé avant theso_responsiveMenu_optimized.js -->
     <h:outputScript library="js" name="sidebarUtils.js"/>
     <!-- Charger le script JavaScript du menu après SidebarUtils -->
