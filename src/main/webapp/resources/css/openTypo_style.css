@@ -3035,10 +3035,14 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
 
 .simple-tree-node-icon {
     font-size: 0.8125rem !important;
+    width: 1.125em !important;
+    min-width: 1.125em !important;
     color: var(--color-text-secondary, #819A91) !important;
     flex-shrink: 0 !important;
-    width: 0rem !important;
     text-align: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .simple-tree .ui-treenode-content.ui-state-highlight .simple-tree-node-icon {

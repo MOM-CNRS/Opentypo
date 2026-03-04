@@ -1,0 +1,37 @@
+/**
+ * Styles de la barre de recherche - chargés après les autres pour priorité en production.
+ * Haute spécificité pour surcharger PrimeFaces après déploiement.
+ */
+.search-bar-compact .search-advanced-compact,
+.search-bar-compact .ui-button.search-advanced-compact,
+body .ui-button.search-advanced-compact {
+    padding: 0.5rem !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    background-color: transparent !important;
+    border: 1px solid #d0d0d0 !important;
+    color: #819A91 !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0;
+}
+
+#searchForm .search-bar-compact .search-advanced-compact:hover,
+#searchForm .search-bar-compact .ui-button.search-advanced-compact:hover,
+.search-bar-compact .search-advanced-compact:hover {
+    background-color: #6C757D !important;
+    border-color: #6C757D !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+    .search-bar-compact .search-advanced-compact,
+    .search-bar-compact .ui-button.search-advanced-compact,
+    body .ui-button.search-advanced-compact {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        padding: 0.5rem !important;
+    }
+}
