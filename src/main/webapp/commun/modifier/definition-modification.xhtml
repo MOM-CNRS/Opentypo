@@ -2,24 +2,24 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20 candidat-definition-form">
         <div class="periode-header-row">
-            <p:outputLabel value="Traductions de la déscription" />
+            <p:outputLabel value="Traductions de la définition" />
         </div>
-        <h:panelGroup layout="block" styleClass="candidat-label-input-row">
-            <div class="candidat-label-input-wrapper">
-                <div class="input-wrapper periode-input-wrapper collection-select">
-                    <i class="pi pi-tag input-icon" />
-                    <p:inputText value="#{entityUpdateBean.newDescriptionValue}"
+        <div class="candidat-definition-textarea-row">
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidat-definition-textarea-inner">
+                <i class="pi pi-align-left input-icon input-icon-textarea" />
+                <p:inputTextarea value="#{entityUpdateBean.newDescriptionValue}"
                                  placeholder="Saisissez la traduction de la définition..."
-                                 styleClass="users-input"
-                                 maxlength="255"/>
-                </div>
+                                 styleClass="users-input candidat-definition-textarea"
+                                 rows="3"
+                                 maxlength="1000"/>
             </div>
-            <div class="candidat-label-select-wrapper">
+        </div>
+        <div class="candidat-definition-actions-row">
+            <div class="candidat-label-select-wrapper candidat-definition-lang-select">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-globe input-icon" />
                     <p:selectOneMenu value="#{entityUpdateBean.newDescriptionLangueCode}"
@@ -39,20 +39,20 @@
                              process="@form"
                              ajax="true"
                              update=":centerContent :growl"/>
-        </h:panelGroup>
+        </div>
 
         <p:dataTable value="#{entityUpdateBean.descriptions}"
                      var="labelItem"
                      styleClass="candidat-labels-table candidats-mt-10"
                      emptyMessage="Aucune traduction ajoutée"
                      rendered="#{not empty entityUpdateBean.descriptions}">
-            <p:column headerText="Labels" styleClass="candidat-table-label-column candidats-table-label-padding">
+            <p:column headerText="Définitions" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
                         <h:graphicImage library="img" name="flag/#{labelItem.langueCode}.png"
                                         styleClass="candidat-table-flag" alt="#{labelItem.langue.nom}" title="#{labelItem.langue.nom}"/>
                     </h:panelGroup>
-                    <h:outputText value="#{labelItem.valeur}" styleClass="candidat-table-label-text" />
+                    <h:outputText value="#{labelItem.valeur}" styleClass="candidat-table-label-text" escape="false" />
                 </div>
             </p:column>
             <p:column styleClass="candidat-table-action-column">
@@ -63,7 +63,7 @@
                                      process="@form"
                                      ajax="true"
                                      update=":centerContent :growl"
-                                     title="Supprimer cette traduction"/>
+                                     title="Supprimer cette définition"/>
                 </div>
             </p:column>
         </p:dataTable>

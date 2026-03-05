@@ -101,9 +101,6 @@ public class ConfirmSaveBean implements Serializable {
             case TARGET_REFERENCE:
                 referenceBean.saveReference(applicationBean);
                 break;
-            case TARGET_COLLECTION:
-                collectionBean.saveCollection(applicationBean);
-                break;
             case TARGET_CATEGORY:
                 categoryBean.saveCategory(applicationBean);
                 break;

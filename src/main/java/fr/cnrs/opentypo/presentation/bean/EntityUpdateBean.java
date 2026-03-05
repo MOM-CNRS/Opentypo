@@ -106,10 +106,13 @@ public class EntityUpdateBean implements Serializable {
     @Autowired
     private CaracteristiquePhysiqueMonnaieRepository caracteristiquePhysiqueMonnaieRepository;
 
+    @Autowired
+    private CollectionBean collectionBean;
 
     private DualListModel<Long> redacteursPickList;
     private DualListModel<Long> validateursPickList;
     private DualListModel<Long> relecteursPickList;
+    private DualListModel<Long> gestionnairesPickList;
 
     private List<NameItem> noms = new ArrayList<>();
     private List<DescriptionItem> descriptions = new ArrayList<>();
@@ -298,6 +301,10 @@ public class EntityUpdateBean implements Serializable {
         } else {
             newDescriptionLangueCode = CollectionUtils.isEmpty(availableTmpLanguagesForLabel)
                     ? "" : availableTmpLanguagesForLabel.stream().findFirst().get().getCode();
+        }
+
+        if (entity.getEntityType().getId() == 6) {
+            collectionBean.initEditingGestionnairesPickList(entity);
         }
     }
 
@@ -632,7 +639,12 @@ public class EntityUpdateBean implements Serializable {
         }
 
         Entity entitySaved = entityRepository.save(entityToUpdate);
-        saveUserPermissionsForGroup(entitySaved);
+        if (entityToUpdate.getEntityType() != null && entityToUpdate.getEntityType().getId() != null
+                && entityToUpdate.getEntityType().getId() == 6) {
+            collectionBean.saveCollectionGestionnaires(entitySaved);
+        } else {
+            saveUserPermissionsForGroup(entitySaved);
+        }
 
         applicationBean.setSelectedEntity(entitySaved);
 
@@ -1041,5 +1053,30 @@ public class EntityUpdateBean implements Serializable {
 
     public void onLangChange() {
         log.info(">> " + newLabelLangueCode);
+    }
+
+
+    /**
+     * Initialise le PickList des gestionnaires pour l'édition d'une collection existante.
+     * Les gestionnaires actuels sont placés dans la liste cible (à droite).
+     */
+    private void initGestionnairesPickListForEdit(Long entityId) {
+        List<Long> sourceIds = getGestionnairesList().stream()
+                .map(Utilisateur::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        List<Long> targetIds = (entityId != null && userPermissionRepository != null)
+                ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())
+                : new ArrayList<>();
+        List<Long> sourceFiltered = sourceIds.stream().filter(id -> !targetIds.contains(id)).toList();
+        gestionnairesPickList = new DualListModel<>(new ArrayList<>(sourceFiltered), new ArrayList<>(targetIds));
+    }
+
+
+    /** Liste des utilisateurs éligibles comme gestionnaires (groupe Utilisateur) */
+    public List<Utilisateur> getGestionnairesList() {
+        if (utilisateurRepository == null) return new ArrayList<>();
+        List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
+        return list != null ? list : new ArrayList<>();
     }
 }
