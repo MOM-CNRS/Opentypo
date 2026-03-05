@@ -1,0 +1,5 @@
+# Configuration commune (local et prod)
+# Exclut ErrorMvcAutoConfiguration pour éviter le conflit avec notre ErrorController personnalisé
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration

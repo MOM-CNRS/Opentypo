@@ -33,6 +33,16 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     boolean existsByEmail(String email);
 
     /**
+     * Vérifie si un utilisateur existe avec l'email donné, en excluant un utilisateur.
+     *
+     * @param email L'email à vérifier
+     * @param excludeUserId ID de l'utilisateur à exclure (ex: utilisateur en cours de modification)
+     * @return true si un autre utilisateur existe avec cet email, false sinon
+     */
+    @Query("SELECT COUNT(u) > 0 FROM Utilisateur u WHERE LOWER(u.email) = LOWER(:email) AND u.id != :excludeUserId")
+    boolean existsByEmailExcludingUserId(@Param("email") String email, @Param("excludeUserId") Long excludeUserId);
+
+    /**
      * Trouve tous les utilisateurs appartenant à un groupe donné
      * 
      * @param groupe Le groupe
