@@ -34,6 +34,7 @@ import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -150,9 +151,9 @@ public class ReferenceBean implements Serializable {
         referenceNames = new ArrayList<>();
         referenceDescriptions = new ArrayList<>();
         newNameValue = null;
-        newNameLangueCode = null;
+        newNameLangueCode = searchBean.getLangSelected();
         newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+        newDescriptionLangueCode = searchBean.getLangSelected();
         referencePublique = true;
         gestionnairesPickList = null;
     }

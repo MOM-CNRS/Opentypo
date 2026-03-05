@@ -18,7 +18,6 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -76,6 +75,9 @@ public class CategoryBean implements Serializable {
     private ApplicationBean applicationBean;
 
     @Autowired
+    private SearchBean searchBean;
+
+    @Autowired
     private UserPermissionRepository userPermissionRepository;
     
     private boolean editingCategory = false;
@@ -99,9 +101,9 @@ public class CategoryBean implements Serializable {
         categoryDescriptions = new ArrayList<>();
         categoryPublique = true;
         editingCategory = false;
-        labelLangueCode = null;
+        labelLangueCode = searchBean.getLangSelected();
         categoryLabel = null;
-        descriptionLangueCode = null;
+        descriptionLangueCode = searchBean.getLangSelected();
         categoryDescription = null;
         categoryBibliographie = null;
         categoryCommentaire = null;

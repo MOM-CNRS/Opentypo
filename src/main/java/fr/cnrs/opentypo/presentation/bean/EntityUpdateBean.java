@@ -41,6 +41,7 @@ import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -86,6 +87,9 @@ public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private TreeBean treeBean;
+
+    @Autowired
+    private SearchBean searchBean;
 
     @Autowired
     private DescriptionMonnaieRepository descriptionMonnaieRepository;
@@ -179,9 +183,8 @@ public class EntityUpdateBean implements Serializable {
         editingEntity = true;
         Entity entity = applicationBean.getSelectedEntity();
         code = entity.getCode() != null ? entity.getCode() : "";
-        newLabelLangueCode = "fr";
+
         newLabelValue = "";
-        newDescriptionLangueCode = "fr";
         newDescriptionValue = "";
         bibliographie = entity.getBibliographie();
         commentaire = entity.getCommentaire();
@@ -281,6 +284,21 @@ public class EntityUpdateBean implements Serializable {
         initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
+
+        if (availableTmpLanguagesForLabel.stream().anyMatch(element -> element.getCode().equals(searchBean.getLangSelected()))) {
+            newLabelLangueCode = searchBean.getLangSelected();
+        } else {
+            newLabelLangueCode = CollectionUtils.isEmpty(availableTmpLanguagesForLabel)
+                    ? "" : availableTmpLanguagesForLabel.stream().findFirst().get().getCode();
+        }
+
+
+        if (availableTmpLanguagesForLabel.stream().anyMatch(element -> element.getCode().equals(searchBean.getLangSelected()))) {
+            newDescriptionLangueCode = searchBean.getLangSelected();
+        } else {
+            newDescriptionLangueCode = CollectionUtils.isEmpty(availableTmpLanguagesForLabel)
+                    ? "" : availableTmpLanguagesForLabel.stream().findFirst().get().getCode();
+        }
     }
 
     public void resetCategoryDialogForm() {

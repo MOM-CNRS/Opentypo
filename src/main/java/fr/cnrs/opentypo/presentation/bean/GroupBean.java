@@ -84,6 +84,12 @@ public class GroupBean implements Serializable {
     @Autowired
     private TreeBean treeBean;
 
+    @Autowired
+    private ReferenceBean referenceBean;
+
+    @Autowired
+    private SearchBean searchBean;
+
     private List<NameItem> groupNames = new ArrayList<>();
     private List<DescriptionItem> groupDescriptions = new ArrayList<>();
     private String groupCode;
@@ -96,8 +102,6 @@ public class GroupBean implements Serializable {
     private DualListModel<Long> redacteursPickList;
     private DualListModel<Long> relecteursPickList;
     private DualListModel<Long> validateursPickList;
-    @Autowired
-    private ReferenceBean referenceBean;
 
 
     /**
@@ -173,9 +177,9 @@ public class GroupBean implements Serializable {
         groupNames = new ArrayList<>();
         groupDescriptions = new ArrayList<>();
         newNameValue = null;
-        newNameLangueCode = null;
+        newNameLangueCode = searchBean.getLangSelected();
         newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+        newDescriptionLangueCode = searchBean.getLangSelected();
         initRedacteursPickList();
         initRelecteursPickList();
         initValidateursPickList();

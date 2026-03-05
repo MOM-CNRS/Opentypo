@@ -102,9 +102,9 @@ public class SerieBean implements Serializable {
         serieNames = new ArrayList<>();
         serieDescriptions = new ArrayList<>();
         newNameValue = null;
-        newNameLangueCode = null;
+        newNameLangueCode = searchBean.getLangSelected();
         newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+        newDescriptionLangueCode = searchBean.getLangSelected();
     }
 
     /** Active le mode édition in-place pour la série sélectionnée (comme GroupBean.startEditingGroupe). */

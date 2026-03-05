@@ -34,10 +34,12 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -740,11 +742,12 @@ public class CollectionBean implements Serializable {
         collectionNames = new ArrayList<>();
         collectionDescriptions = new ArrayList<>();
         newNameValue = null;
-        newNameLangueCode = null;
+        newNameLangueCode = searchBean.getLangSelected();
         newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+        newDescriptionLangueCode = searchBean.getLangSelected();
         collectionPublique = true; // Par défaut, la collection est publique
         gestionnairesPickList = null; // Sera réinitialisé au prochain get
+
 
         PrimeFaces.current().executeScript("PF('addCollectionDialog').show();");
         log.debug("Formulaire de collection réinitialisé");
@@ -832,17 +835,6 @@ public class CollectionBean implements Serializable {
         return availableLanguages.stream()
             .filter(langue -> !isLangueAlreadyUsedInNames(langue.getCode(), null))
             .collect(java.util.stream.Collectors.toList());
-    }
-
-    /**
-     * Obtient toutes les langues disponibles pour le sélecteur en mode édition
-     */
-    public List<Langue> getAvailableLanguagesForSelector() {
-        if (availableLanguages == null || availableLanguages.isEmpty()) {
-            // Si les langues ne sont pas chargées, les charger maintenant
-            availableLanguages = langueRepository.findAllByOrderByNomAsc();
-        }
-        return availableLanguages != null ? availableLanguages : new ArrayList<>();
     }
 
     /**
