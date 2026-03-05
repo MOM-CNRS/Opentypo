@@ -20,10 +20,23 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.infrastructure.persistence.AuteurRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueMonnaieRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.CommentaireRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.DescriptionDetailRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.DescriptionMonnaieRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.DescriptionRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.LabelRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
@@ -123,8 +136,46 @@ public class ApplicationBean implements Serializable {
     private CollectionService collectionService;
 
     @Autowired
+    private ParametrageRepository parametrageRepository;
+
+    @Autowired
     private CandidatReferenceTreeService candidatReferenceTreeService;
 
+    @Autowired
+    private ReferenceOpenthesoRepository referenceOpenthesoRepository;
+
+    @Autowired
+    private AuteurRepository auteurRepository;
+
+    @Autowired
+    private CommentaireRepository commentaireRepository;
+
+    @Autowired
+    private DescriptionRepository descriptionRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
+    private EntityMetadataRepository entityMetadataRepository;
+
+    @Autowired
+    private DescriptionDetailRepository descriptionDetailRepository;
+
+    @Autowired
+    private CaracteristiquePhysiqueRepository caracteristiquePhysiqueRepository;
+
+    @Autowired
+    private DescriptionPateRepository descriptionPateRepository;
+
+    @Autowired
+    private DescriptionMonnaieRepository descriptionMonnaieRepository;
+
+    @Autowired
+    private CaracteristiquePhysiqueMonnaieRepository caracteristiquePhysiqueMonnaieRepository;
 
     private final PanelStateManager panelState = new PanelStateManager();
     private List<Language> languages;
@@ -1146,38 +1197,80 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
-     * Supprime récursivement une entité et toutes ses entités enfants
+     * Supprime récursivement une entité et toutes ses entités enfants.
+     * Respecte l'ordre des contraintes de clés étrangères.
+     *
      * @param entity L'entité à supprimer
      */
+    @Transactional
     public void deleteEntityRecursively(Entity entity) {
         if (entity == null || entity.getId() == null) {
             return;
         }
 
-        // Trouver tous les enfants de cette entité
-        List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
+        Long entityId = entity.getId();
+        String entityCode = entity.getCode();
 
-        // Supprimer récursivement tous les enfants
+        // 1. Supprimer récursivement tous les enfants
+        List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
         for (Entity child : children) {
             deleteEntityRecursively(child);
         }
 
-        // Supprimer toutes les relations où cette entité est parent
+        // 2. Supprimer les EntityRelation (parent et enfant)
         List<EntityRelation> parentRelations = entityRelationRepository.findByParent(entity);
         if (parentRelations != null && !parentRelations.isEmpty()) {
             entityRelationRepository.deleteAll(parentRelations);
         }
-
-        // Supprimer toutes les relations où cette entité est enfant
         List<EntityRelation> childRelations = entityRelationRepository.findByChild(entity);
         if (childRelations != null && !childRelations.isEmpty()) {
             entityRelationRepository.deleteAll(childRelations);
         }
 
-        // Supprimer l'entité elle-même
-        entityRepository.delete(entity);
+        // 3. Supprimer la table de jointure Auteur (entity <-> utilisateur)
+        auteurRepository.deleteByEntityId(entityId);
 
-        log.info("Entité supprimée avec succès: {} (ID: {})", entity.getCode(), entity.getId());
+        // 4. Supprimer les permissions utilisateur
+        userPermissionRepository.deleteByEntityId(entityId);
+
+        // 5. Supprimer les commentaires
+        commentaireRepository.deleteByEntityId(entityId);
+
+        // 6. Supprimer les labels
+        labelRepository.deleteByEntityId(entityId);
+
+        // 7. Supprimer les descriptions
+        descriptionRepository.deleteByEntityId(entityId);
+
+        // 8. Supprimer les images
+        imageRepository.deleteByEntityId(entityId);
+
+        // 9. Supprimer le paramétrage
+        parametrageRepository.deleteByEntityId(entityId);
+
+        // 10. Supprimer les entités détaillées AVANT ReferenceOpentheso
+        // (caracteristique_physique, description_detail, etc. ont des FK vers reference_opentheso)
+        descriptionDetailRepository.deleteByEntityId(entityId);
+        caracteristiquePhysiqueRepository.deleteByEntityId(entityId);
+        descriptionPateRepository.deleteByEntityId(entityId);
+        descriptionMonnaieRepository.deleteByEntityId(entityId);
+        caracteristiquePhysiqueMonnaieRepository.deleteByEntityId(entityId);
+
+        // 11. Libérer les références entity -> reference_opentheso (periode, production, categorieFonctionnelle)
+        referenceOpenthesoRepository.clearEntityPeriodeRefsToAires(entityId);
+        referenceOpenthesoRepository.clearEntityProductionRefsToAires(entityId);
+        referenceOpenthesoRepository.clearEntityCategorieFonctionnelleRefsToAires(entityId);
+
+        // 12. Supprimer les références Opentheso (aires de circulation)
+        referenceOpenthesoRepository.deleteByEntityId(entityId);
+
+        // 13. Supprimer les métadonnées
+        entityMetadataRepository.deleteByEntityId(entityId);
+
+        // 14. Supprimer l'entité elle-même
+        entityRepository.deleteById(entityId);
+
+        log.info("Entité supprimée avec succès: {} (ID: {})", entityCode, entityId);
     }
 
 

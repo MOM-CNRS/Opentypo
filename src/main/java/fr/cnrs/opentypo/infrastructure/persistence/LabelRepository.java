@@ -1,6 +1,6 @@
 package fr.cnrs.opentypo.infrastructure.persistence;
 
-import fr.cnrs.opentypo.domain.entity.Commentaire;
+import fr.cnrs.opentypo.domain.entity.Label;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository pour l'entité Commentaire.
+ * Repository pour l'entité Label.
  */
 @Repository
-public interface CommentaireRepository extends JpaRepository<Commentaire, Long> {
+public interface LabelRepository extends JpaRepository<Label, Long> {
 
-    List<Commentaire> findByEntity_IdOrderByDateCreationDesc(Long entityId);
+    List<Label> findByEntity_Id(Long entityId);
 
     @Modifying
-    @Query("DELETE FROM Commentaire c WHERE c.entity.id = :entityId")
+    @Query("DELETE FROM Label l WHERE l.entity.id = :entityId")
     void deleteByEntityId(@Param("entityId") Long entityId);
 }

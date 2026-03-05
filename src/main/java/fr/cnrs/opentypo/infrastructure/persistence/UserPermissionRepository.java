@@ -45,6 +45,13 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
     boolean existsByUserIdAndEntityId(@Param("userId") Long userId, @Param("entityId") Long entityId);
 
     /**
+     * Supprime toutes les permissions d'une entité (tous rôles confondus)
+     */
+    @Modifying
+    @Query("DELETE FROM UserPermission up WHERE up.id.entityId = :entityId")
+    void deleteByEntityId(@Param("entityId") Long entityId);
+
+    /**
      * Supprime toutes les permissions d'un rôle donné pour une entité
      */
     @Modifying

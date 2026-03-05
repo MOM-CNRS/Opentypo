@@ -2,9 +2,11 @@ package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,5 +45,30 @@ public interface ReferenceOpenthesoRepository extends JpaRepository<ReferenceOpe
      */
     @Query("SELECT r FROM ReferenceOpentheso r WHERE r.entity.id = :entityId")
     List<ReferenceOpentheso> findByEntityId(@Param("entityId") Long entityId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ReferenceOpentheso ref WHERE ref.entity.id = :idEntity")
+    void deleteByEntityId(@Param("idEntity") Long idEntity);
+
+    /**
+     * Libère periode_id, production_id, categorie_fonctionnelle de toutes les entités
+     * qui pointent vers des ReferenceOpentheso dont entity_id = :entityId.
+     * Requis avant deleteByEntityId car ces ReferenceOpentheso peuvent être référencées par entity.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE entity SET periode_id = NULL WHERE periode_id IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)
+    void clearEntityPeriodeRefsToAires(@Param("entityId") Long entityId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE entity SET production_id = NULL WHERE production_id IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)
+    void clearEntityProductionRefsToAires(@Param("entityId") Long entityId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE entity SET categorie_fonctionnelle = NULL WHERE categorie_fonctionnelle IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)
+    void clearEntityCategorieFonctionnelleRefsToAires(@Param("entityId") Long entityId);
 }
 
