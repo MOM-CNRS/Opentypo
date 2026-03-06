@@ -3,9 +3,11 @@ package fr.cnrs.opentypo.infrastructure.persistence;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +42,15 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
      */
     @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.labels l JOIN l.langue lang WHERE l.nom = :nom AND lang.code = :langueCode")
     boolean existsByLabelNomAndLangueCode(@Param("nom") String nom, @Param("langueCode") String langueCode);
+
+    /**
+     * Vérifie si une entité du type donné existe avec un label ayant le même nom et la même langue
+     * (comparaison insensible à la casse pour le nom).
+     */
+    @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.labels l JOIN l.langue lang JOIN e.entityType et " +
+           "WHERE LOWER(l.nom) = LOWER(:nom) AND lang.code = :langueCode AND et.code = :entityTypeCode")
+    boolean existsByLabelNomAndLangueCodeAndEntityTypeCode(@Param("nom") String nom, @Param("langueCode") String langueCode,
+                                                          @Param("entityTypeCode") String entityTypeCode);
 
     /**
      * Trouve toutes les entités d'un type donné
@@ -170,5 +181,14 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
            "LEFT JOIN FETCH e.images " +
            "WHERE e.id = :id")
     Optional<Entity> findByIdWithImages(@Param("id") Long id);
+
+    /**
+     * Supprime une entité par ID sans la charger (évite la cascade sur metadata
+     * qui provoquerait une double suppression).
+     */
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Entity e WHERE e.id = :id")
+    void deleteByIdDirect(@Param("id") Long id);
 }
 

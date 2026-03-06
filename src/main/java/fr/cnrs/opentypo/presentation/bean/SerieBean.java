@@ -234,7 +234,7 @@ public class SerieBean implements Serializable {
     @Transactional
     public void createSerieFromDialog() {
 
-        if (!EntityValidator.validateCode(serieDialogCode, entityRepository, ":serieDialogForm")) {
+        if (!EntityValidator.validateCode(serieDialogCode, entityRepository)) {
             return;
         }
 
@@ -343,13 +343,11 @@ public class SerieBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(
-                serieCode, entityRepository, ":serieForm")) {
+        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(serieCode, entityRepository)) {
             return;
         }
 
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
-                serieLabel, ":serieForm")) {
+        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(serieLabel)) {
             return;
         }
         

@@ -418,6 +418,24 @@ public class CollectionBean implements Serializable {
             return;
         }
 
+        // Vérifier si une collection existe déjà avec ce nom et cette langue
+        String nomTrimmed = newNameValue.trim();
+        String langueCode = newNameLangueCode.trim();
+        if (entityRepository.existsByLabelNomAndLangueCodeAndEntityTypeCode(
+                nomTrimmed, langueCode, EntityConstants.ENTITY_TYPE_COLLECTION)) {
+            String langueNom = Optional.ofNullable(langueRepository.findByCode(langueCode))
+                    .map(Langue::getNom)
+                    .orElse(langueCode);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "Attention",
+                        "Une collection existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
+            }
+            return;
+        }
+
         if (collectionNames == null) {
             collectionNames = new ArrayList<>();
         }
@@ -648,15 +666,7 @@ public class CollectionBean implements Serializable {
             }
         }
 
-        // Utiliser le premier nom comme nom principal et code
-        EntityType collectionType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_COLLECTION)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Le type d'entité '" + EntityConstants.ENTITY_TYPE_COLLECTION + "' n'existe pas dans la base de données."));
-
-        Entity nouvelleCollection = entityRepository.save(createNewCollection(
-                collectionNames.getFirst().getNom().trim().toUpperCase(),
-                collectionNames.getFirst().getNom().trim(),
-                collectionType));
+        Entity nouvelleCollection = entityRepository.save(createNewCollection());
 
         // Sauvegarder les permissions des gestionnaires sélectionnés (optionnel)
         saveUserPermissionsForCollection(nouvelleCollection);
@@ -674,14 +684,20 @@ public class CollectionBean implements Serializable {
     /**
      * Crée une nouvelle entité collection avec les labels et descriptions pour chaque langue
      */
-    private Entity createNewCollection(String code, String nomPrincipal, EntityType type) {
+    private Entity createNewCollection() {
+
+        // Utiliser le premier nom comme nom principal et code
+        EntityType collectionType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_COLLECTION)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Le type d'entité '" + EntityConstants.ENTITY_TYPE_COLLECTION + "' n'existe pas dans la base de données."));
+
         Entity nouvelleCollection = new Entity();
-        nouvelleCollection.setCode(code);
-        nouvelleCollection.setEntityType(type);
+        nouvelleCollection.setCode(collectionNames.getFirst().getNom().trim().toUpperCase());
+        nouvelleCollection.setEntityType(collectionType);
         nouvelleCollection.setStatut(Boolean.TRUE.equals(collectionPublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
         nouvelleCollection.setCreateDate(LocalDateTime.now());
 
-        createCollectionLabel(nomPrincipal, nouvelleCollection, langueRepository, searchBean, loginBean);
+        createCollectionLabel(collectionNames.getFirst().getNom().trim(), nouvelleCollection, langueRepository, searchBean, loginBean);
 
         // Créer les labels pour chaque langue
         if (collectionNames != null && !collectionNames.isEmpty()) {

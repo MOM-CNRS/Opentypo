@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Repository Spring Data JPA pour l'entité CaracteristiquePhysique
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public interface CaracteristiquePhysiqueRepository extends JpaRepository<CaracteristiquePhysique, Long> {
 
     @Modifying
+    @Transactional
     @Query("DELETE FROM CaracteristiquePhysique cp WHERE cp.entity.id = :entityId")
     void deleteByEntityId(@Param("entityId") Long entityId);
 }

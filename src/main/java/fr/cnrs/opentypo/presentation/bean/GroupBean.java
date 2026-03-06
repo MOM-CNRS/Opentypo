@@ -499,7 +499,7 @@ public class GroupBean implements Serializable {
             return;
         }
 
-        if (!EntityValidator.validateCode(groupCode, entityRepository, ":groupDialogForm")) {
+        if (!EntityValidator.validateCode(groupCode, entityRepository)) {
             return;
         }
 

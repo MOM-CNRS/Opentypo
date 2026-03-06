@@ -20,12 +20,10 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,13 +32,11 @@ import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,9 +49,6 @@ import java.util.stream.Collectors;
 @Named(value = "referenceBean")
 @Slf4j
 public class ReferenceBean implements Serializable {
-
-    private static final String reference_FORM = ":referenceDialogForm";
-    private final CollectionBean collectionBean;
 
     @Autowired
     private EntityRepository entityRepository;
@@ -90,6 +83,9 @@ public class ReferenceBean implements Serializable {
     @Autowired
     private UserPermissionRepository userPermissionRepository;
 
+    @Autowired
+    private CollectionBean collectionBean;
+
     /** PickList pour sélectionner les gestionnaires de référentiel (IDs) - création dialog */
     private DualListModel<Long> gestionnairesPickList;
 
@@ -101,9 +97,7 @@ public class ReferenceBean implements Serializable {
 
     // Propriétés pour le formulaire de création de référentiel
     private String referenceCode;
-    private String periodeId; // ID de la période (referenceOpentheso)
     private List<String> referenceBibliographiqueList = new ArrayList<>();
-    private String categorieIds; // IDs des catégories (Entity de type Catégorie)
 
     // Liste des noms (labels) multilingues
     private List<NameItem> referenceNames = new ArrayList<>();
@@ -123,8 +117,6 @@ public class ReferenceBean implements Serializable {
     /** ID du référentiel en cours d'édition dans le dialog (null = mode création). */
     private Long editingReferenceId;
 
-    // État d'édition pour le référentiel
-    private boolean editingReference = false;
     private String editingReferenceCode;
     private String editingReferenceDescription;
     private String editingReferenceLabel;
@@ -133,30 +125,9 @@ public class ReferenceBean implements Serializable {
     private List<String> editingReferenceBibliographiqueList = new ArrayList<>();
     /** Code langue pour laquelle on édite le label (ex: fr, en). */
     private String editingLabelLangueCode;
-    /** Code langue pour laquelle on édite la description (ex: fr, en). */
     private String editingDescriptionLangueCode;
 
-    @Inject
-    public ReferenceBean(@Named("collectionBean") CollectionBean collectionBean) {
-        this.collectionBean = collectionBean;
-    }
 
-
-    public void resetReferenceForm() {
-        editingReferenceId = null;
-        referenceCode = null;
-        periodeId = null;
-        referenceBibliographiqueList = new ArrayList<>();
-        categorieIds = null;
-        referenceNames = new ArrayList<>();
-        referenceDescriptions = new ArrayList<>();
-        newNameValue = null;
-        newNameLangueCode = searchBean.getLangSelected();
-        newDescriptionValue = null;
-        newDescriptionLangueCode = searchBean.getLangSelected();
-        referencePublique = true;
-        gestionnairesPickList = null;
-    }
 
     /** Liste des utilisateurs éligibles comme gestionnaires de référentiel (groupe Utilisateur) */
     public List<Utilisateur> getGestionnairesList() {
@@ -176,7 +147,7 @@ public class ReferenceBean implements Serializable {
      * PickList pour l'édition inline des gestionnaires. Retourne une liste vide si non initialisé.
      */
     public DualListModel<Long> getEditingGestionnairesPickList() {
-        if (editingGestionnairesPickList == null && editingReference) {
+        if (editingGestionnairesPickList == null) {
             editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
         }
         return editingGestionnairesPickList;
@@ -316,75 +287,19 @@ public class ReferenceBean implements Serializable {
      * Prépare le dialog pour la création : réinitialise le formulaire et passe en mode création.
      */
     public void prepareCreateReference() {
-        resetReferenceForm();
-    }
-
-    /**
-     * Prépare le dialog pour l'édition à partir de l'ID du référentiel.
-     * Utilisé lorsque le passage direct de l'entité depuis ui:repeat pose problème.
-     */
-    public void prepareEditReferenceInDialogById(Long referenceId) {
-        if (referenceId == null) {
-            return;
-        }
-        loadReferenceIntoForm(referenceId);
-    }
-
-    /**
-     * Prépare le dialog pour l'édition : charge les données du référentiel sélectionné.
-     */
-    public void prepareEditReferenceInDialog(Entity reference) {
-        if (reference == null || reference.getId() == null) {
-            return;
-        }
-        loadReferenceIntoForm(reference.getId());
-    }
-
-    /**
-     * Charge les données du référentiel dans le formulaire du dialog.
-     */
-    private void loadReferenceIntoForm(Long referenceId) {
-        Entity refLoaded = entityRepository.findById(referenceId)
-                .orElseThrow(() -> new IllegalStateException("Référentiel introuvable (id: " + referenceId + ")"));
-        editingReferenceId = refLoaded.getId();
-        referenceCode = refLoaded.getCode();
-        referencePublique = EntityStatusEnum.PUBLIQUE.name().equals(refLoaded.getStatut());
-        initGestionnairesPickListForEdit(refLoaded.getId());
-
-        referenceNames = new ArrayList<>();
-        if (refLoaded.getLabels() != null) {
-            for (Label l : refLoaded.getLabels()) {
-                if (l != null && l.getLangue() != null && StringUtils.hasText(l.getNom())) {
-                    referenceNames.add(new NameItem(l.getNom(), l.getLangue().getCode(), l.getLangue()));
-                }
-            }
-        }
-
-        referenceDescriptions = new ArrayList<>();
-        if (refLoaded.getDescriptions() != null) {
-            for (Description d : refLoaded.getDescriptions()) {
-                if (d != null && d.getLangue() != null && StringUtils.hasText(d.getValeur())) {
-                    referenceDescriptions.add(new DescriptionItem(d.getValeur(), d.getLangue().getCode(), d.getLangue()));
-                }
-            }
-        }
-
+        editingReferenceId = null;
+        referenceCode = null;
         referenceBibliographiqueList = new ArrayList<>();
-        String bib = refLoaded.getBibliographie();
-        if (StringUtils.hasText(bib)) {
-            for (String part : bib.split(";")) {
-                String t = part != null ? part.trim() : "";
-                if (!t.isEmpty()) {
-                    referenceBibliographiqueList.add(t);
-                }
-            }
-        }
-
+        referenceNames = new ArrayList<>();
+        referenceDescriptions = new ArrayList<>();
         newNameValue = null;
-        newNameLangueCode = null;
+        newNameLangueCode = searchBean.getLangSelected();
         newDescriptionValue = null;
-        newDescriptionLangueCode = null;
+        newDescriptionLangueCode = searchBean.getLangSelected();
+        referencePublique = true;
+        gestionnairesPickList = null;
     }
+
 
     /**
      * Indique si le dialog est en mode édition (true) ou création (false).
@@ -418,6 +333,20 @@ public class ReferenceBean implements Serializable {
         if (isLangueAlreadyUsedInNames(newNameLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+            return;
+        }
+
+        // Vérifier si un référentiel existe déjà avec le même nom et la même langue
+        String nomTrimmed = newNameValue.trim();
+        String langueCode = newNameLangueCode.trim();
+        if (entityRepository.existsByLabelNomAndLangueCodeAndEntityTypeCode(
+                nomTrimmed, langueCode, EntityConstants.ENTITY_TYPE_REFERENCE)) {
+            String langueNom = Optional.ofNullable(langueRepository.findByCode(langueCode))
+                    .map(Langue::getNom)
+                    .orElse(langueCode);
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
+                    "Un référentiel existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
             return;
         }
 
@@ -489,16 +418,16 @@ public class ReferenceBean implements Serializable {
             .filter(l -> !isLangueAlreadyUsedInDescriptions(l.getCode(), null))
             .collect(java.util.stream.Collectors.toList());
     }
-    
+
     @Transactional
     public void createReference() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         boolean validCode;
         if (editingReferenceId != null) {
-            validCode = EntityValidator.validateCodeForEdit(referenceCode, editingReferenceId, entityRepository, reference_FORM);
+            validCode = EntityValidator.validateCodeForEdit(referenceCode, editingReferenceId, entityRepository);
         } else {
-            validCode = EntityValidator.validateCode(referenceCode, entityRepository, reference_FORM);
+            validCode = EntityValidator.validateCode(referenceCode, entityRepository);
         }
         if (!validCode) {
             return;
@@ -517,12 +446,6 @@ public class ReferenceBean implements Serializable {
         }
 
         String codeTrimmed = referenceCode.trim();
-
-        if (editingReferenceId != null) {
-            updateReferenceFromDialog(facesContext, codeTrimmed);
-            return;
-        }
-
         EntityType referenceType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
                 .orElseThrow(() -> new IllegalStateException(
                         "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
@@ -550,108 +473,15 @@ public class ReferenceBean implements Serializable {
         facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                 "Le référentiel '" + labelPrincipal + "' a été créé avec succès."));
 
-        resetReferenceForm();
+        prepareCreateReference();
 
         // Fermer le dialog
         PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
 
         // Mettre à jour les composants
         PrimeFaces.current().ajax().update(
-                ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
-                        + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
-    }
-
-    public void cancelEditingReference() {
-        entityEditModeBean.cancelEditing();
-        editingReference = false;
-        editingReferenceCode = null;
-        editingReferenceDescription = null;
-        editingReferenceLabel = null;
-        editingReferenceBibliographie = null;
-        editingReferenceBibliographiqueList = new ArrayList<>();
-        editingLabelLangueCode = null;
-        editingDescriptionLangueCode = null;
-        editingGestionnairesPickList = new DualListModel<>(new ArrayList<>(), new ArrayList<>());
-    }
-
-    /**
-     * Sauvegarde uniquement le code du référentiel en base.
-     * Appelé par le bouton Enregistrer à côté du champ Code.
-     */
-    @Transactional
-    public void saveCodeOnly(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedReference() == null) {
-            return;
-        }
-
-        if (editingReferenceCode == null || editingReferenceCode.isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Code requis",
-                    "Le code ne peut pas être vide."));
-            return;
-        }
-        Entity referenceToUpdate = entityRepository.findById(applicationBean.getSelectedReference().getId()).orElse(null);
-        if (referenceToUpdate == null) return;
-        referenceToUpdate.setCode(editingReferenceCode);
-        Entity savedEntity = entityRepository.save(referenceToUpdate);
-        applicationBean.setSelectedEntity(savedEntity);
-
-        if (treeBean != null) {
-            treeBean.updateEntityInTree(savedEntity);
-        }
-
-        applicationBean.getBeadCrumbElements().getLast().setCode(editingReferenceCode);
-
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Enregistré", "Le code a été mis à jour."));
-    }
-
-    /**
-     * Sauvegarde uniquement la référence bibliographique en base (auto-save).
-     * Appelé via p:ajax sur le composant chips à chaque ajout/suppression.
-     */
-    @Transactional
-    public void saveBibliographieOnly(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedReference() == null) {
-            return;
-        }
-        try {
-            Entity referenceToUpdate = entityRepository.findById(applicationBean.getSelectedReference().getId())
-                    .orElse(null);
-            if (referenceToUpdate == null) return;
-
-            String newBib = (editingReferenceBibliographiqueList != null && !editingReferenceBibliographiqueList.isEmpty())
-                    ? editingReferenceBibliographiqueList.stream()
-                            .filter(s -> s != null && !s.trim().isEmpty())
-                            .map(String::trim)
-                            .collect(Collectors.joining("; "))
-                    : null;
-            if (newBib != null && newBib.isEmpty()) newBib = null;
-
-            referenceToUpdate.setReferenceBibliographique(newBib);
-            Entity savedEntity = entityRepository.save(referenceToUpdate);
-            applicationBean.setSelectedEntity(savedEntity);
-
-            if (treeBean != null) {
-                treeBean.updateEntityInTree(savedEntity);
-            }
-
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_INFO,
-                        "Enregistré",
-                        "La référence bibliographique a été mise à jour."));
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors de la sauvegarde de la référence bibliographique", e);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Une erreur est survenue : " + e.getMessage()));
-            }
-        }
+                ViewConstants.COMPONENT_GROWL + ", :referenceDialogForm, :collectionReferencesContainer, "
+                        + ViewConstants.COMPONENT_TREE_WIDGET);
     }
 
     /**
@@ -790,15 +620,6 @@ public class ReferenceBean implements Serializable {
             applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
 
             entityEditModeBean.cancelEditing();
-            editingReference = false;
-            editingReferenceCode = null;
-            editingReferenceDescription = null;
-            editingReferenceLabel = null;
-            editingReferenceBibliographie = null;
-            editingReferenceBibliographiqueList = new ArrayList<>();
-            editingLabelLangueCode = null;
-            editingDescriptionLangueCode = null;
-            editingGestionnairesPickList = null;
 
             FacesContext facesContext = FacesContext.getCurrentInstance();
             if (facesContext != null) {
@@ -888,188 +709,12 @@ public class ReferenceBean implements Serializable {
             }
 
             // Afficher le panel de la collection
-            if (applicationBean.getSelectedReference() != null) {
-                applicationBean.getPanelState().showCollectionDetail();
-            } else {
-                applicationBean.getPanelState().showCollections();
-            }
+            applicationBean.getPanelState().showCollections();
 
             log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du référentiel", e);
             addErrorMessage("Une erreur est survenue lors de la suppression : " + e.getMessage());
-        }
-    }
-
-    /**
-     * Active le mode édition pour le référentiel sélectionné.
-     * Charge le code, la description, le label et la référence bibliographique.
-     * Les langues d'édition label/description sont initialisées avec la langue sélectionnée (SearchBean).
-     */
-    public void startEditingReference(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedReference() == null) {
-            return;
-        }
-        entityEditModeBean.startEditing();
-        String codeLang = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
-        editingReference = true;
-        editingReferenceCode = applicationBean.getSelectedReference().getCode() != null ? applicationBean.getSelectedReference().getCode() : "";
-        editingLabelLangueCode = codeLang;
-        editingDescriptionLangueCode = codeLang;
-        editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), codeLang);
-        String bibStr = applicationBean.getSelectedReference().getReferenceBibliographique();
-        editingReferenceBibliographie = bibStr != null ? bibStr : "";
-        editingReferenceBibliographiqueList = new ArrayList<>();
-        if (bibStr != null && !bibStr.isEmpty()) {
-            editingReferenceBibliographiqueList = Arrays.stream(bibStr.split("[;；]"))
-                    .map(s -> s != null ? s.trim() : "")
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-        }
-        if (applicationBean.getSelectedReference().getId() != null) {
-            initEditingGestionnairesPickListForEdit(applicationBean.getSelectedReference().getId());
-        }
-        // Initialiser les listes labels et descriptions pour le bloc Traductions/Descriptions du modifier
-        initEditingLabelsAndDescriptions(applicationBean.getSelectedReference());
-    }
-
-    /**
-     * Initialise referenceNames et referenceDescriptions à partir des labels/descriptions
-     * du référentiel sélectionné (pour le formulaire modifier).
-     */
-    private void initEditingLabelsAndDescriptions(Entity reference) {
-        if (reference == null) return;
-        referenceNames = new ArrayList<>();
-        if (reference.getLabels() != null) {
-            for (Label l : reference.getLabels()) {
-                if (l != null && l.getLangue() != null && StringUtils.hasText(l.getNom())) {
-                    referenceNames.add(new NameItem(l.getNom(), l.getLangue().getCode(), l.getLangue()));
-                }
-            }
-        }
-        referenceDescriptions = new ArrayList<>();
-        if (reference.getDescriptions() != null) {
-            for (Description d : reference.getDescriptions()) {
-                if (d != null && d.getLangue() != null && StringUtils.hasText(d.getValeur())) {
-                    referenceDescriptions.add(new DescriptionItem(d.getValeur(), d.getLangue().getCode(), d.getLangue()));
-                }
-            }
-        }
-        newNameValue = null;
-        newNameLangueCode = null;
-        newDescriptionValue = null;
-        newDescriptionLangueCode = null;
-    }
-
-    /**
-     * Appelé lorsque l'utilisateur change la langue du label dans le menu déroulant.
-     * Recharge la valeur du label pour la nouvelle langue depuis l'entité.
-     */
-    public void onLabelLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedReference() != null && editingLabelLangueCode != null) {
-            editingReferenceLabel = EntityUtils.getLabelValueForLanguage(applicationBean.getSelectedReference(), editingLabelLangueCode);
-        }
-    }
-
-    /**
-     * Appelé lorsque l'utilisateur change la langue de la description dans le menu déroulant.
-     * Recharge la valeur de la description pour la nouvelle langue depuis l'entité.
-     */
-    public void onDescriptionLanguageChange(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedReference() != null && editingDescriptionLangueCode != null) {
-            editingReferenceDescription = EntityUtils.getDescriptionValueForLanguage(applicationBean.getSelectedReference(), editingDescriptionLangueCode);
-        }
-    }
-
-    /**
-     * Met à jour le référentiel à partir des données du dialog (mode édition).
-     */
-    @Transactional
-    protected void updateReferenceFromDialog(FacesContext facesContext, String codeTrimmed) {
-        try {
-            Entity referenceToUpdate = entityRepository.findById(editingReferenceId)
-                    .orElseThrow(() -> new IllegalStateException("Référentiel introuvable."));
-
-            referenceToUpdate.setCode(codeTrimmed);
-            referenceToUpdate.setStatut(Boolean.TRUE.equals(referencePublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
-
-            String bibJoined = null;
-            if (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty()) {
-                bibJoined = referenceBibliographiqueList.stream()
-                        .filter(s -> s != null && !s.trim().isEmpty())
-                        .map(String::trim)
-                        .collect(Collectors.joining("; "));
-                if (bibJoined.isEmpty()) bibJoined = null;
-            }
-            referenceToUpdate.setReferenceBibliographique(bibJoined);
-
-            // Mise à jour des labels
-            if (referenceToUpdate.getLabels() == null) {
-                referenceToUpdate.setLabels(new ArrayList<>());
-            }
-            referenceToUpdate.getLabels().clear();
-            if (referenceNames != null) {
-                for (NameItem item : referenceNames) {
-                    if (item.getLangue() != null && StringUtils.hasText(item.getNom())) {
-                        Label lbl = new Label();
-                        lbl.setNom(item.getNom().trim());
-                        lbl.setLangue(item.getLangue());
-                        lbl.setEntity(referenceToUpdate);
-                        referenceToUpdate.getLabels().add(lbl);
-                    }
-                }
-            }
-
-            // Mise à jour des descriptions
-            if (referenceToUpdate.getDescriptions() == null) {
-                referenceToUpdate.setDescriptions(new ArrayList<>());
-            }
-            referenceToUpdate.getDescriptions().clear();
-            if (referenceDescriptions != null) {
-                for (DescriptionItem item : referenceDescriptions) {
-                    if (item.getLangue() != null && StringUtils.hasText(item.getValeur())) {
-                        Description desc = new Description();
-                        desc.setValeur(item.getValeur().trim());
-                        desc.setLangue(item.getLangue());
-                        desc.setEntity(referenceToUpdate);
-                        referenceToUpdate.getDescriptions().add(desc);
-                    }
-                }
-            }
-
-            entityRepository.save(referenceToUpdate);
-            saveUserPermissionsForReference(referenceToUpdate);
-
-            if (editingReferenceId.equals(applicationBean.getSelectedEntity().getId())) {
-                applicationBean.setSelectedEntity(referenceToUpdate);
-            }
-
-            applicationBean.refreshCollectionReferencesList();
-
-            applicationBean.loadReferences();
-            searchBean.loadReferences();
-
-            if (treeBean != null) {
-                treeBean.initializeTreeWithCollection();
-            }
-
-            String labelPrincipal = (referenceNames != null && !referenceNames.isEmpty())
-                    ? referenceNames.get(0).getNom() : codeTrimmed;
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le référentiel '" + labelPrincipal + "' a été modifié avec succès."));
-
-            resetReferenceForm();
-            PrimeFaces.current().executeScript("PF('referenceDialog').hide();");
-            PrimeFaces.current().ajax().update(
-                    ViewConstants.COMPONENT_GROWL + ", " + reference_FORM + ", "
-                            + ViewConstants.COMPONENT_TREE_WIDGET + ", :collectionReferencesContainer");
-        } catch (IllegalStateException e) {
-            log.error("Erreur lors de la modification du référentiel", e);
-            addErrorMessage(e.getMessage());
-        } catch (Exception e) {
-            log.error("Erreur inattendue lors de la modification du référentiel", e);
-            addErrorMessage("Une erreur est survenue lors de la modification : " + e.getMessage());
         }
     }
 
@@ -1154,16 +799,12 @@ public class ReferenceBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
-        PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", " + reference_FORM);
+        PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :referenceDialogForm");
     }
 
     public boolean canCreateReference() {
         return collectionBean.canEditCollectionAsGestionnaire(applicationBean.getSelectedCollection())
                 || loginBean.isAdminTechnique();
-    }
-
-    public boolean canShowParamsPanel() {
-        return canCreateReference() && !editingReference;
     }
 
     public boolean canEditReference() {
@@ -1175,7 +816,7 @@ public class ReferenceBean implements Serializable {
                 applicationBean.getSelectedEntity().getId(),
                 PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
 
-        return loginBean.isAuthenticated() && isGestionnaireReference && !editingReference;
+        return loginBean.isAuthenticated() && isGestionnaireReference;
     }
 
     public boolean showReferenceStatut() {

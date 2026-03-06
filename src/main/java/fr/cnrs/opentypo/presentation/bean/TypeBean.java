@@ -143,7 +143,7 @@ public class TypeBean implements Serializable {
         }
 
         // Validation : unicité du code (EntityValidator.validateCode vérifie aussi vide et longueur)
-        if (!EntityValidator.validateCode(typeDialogCode, entityRepository, TYPE_DIALOG_FORM)) {
+        if (!EntityValidator.validateCode(typeDialogCode, entityRepository)) {
             return;
         }
 
@@ -205,12 +205,7 @@ public class TypeBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         // Validation des champs obligatoires
-        if (!EntityValidator.validateCode(typeCode, entityRepository, ":typeForm")) {
-            return;
-        }
-
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateLabel(
-                typeLabel, ":typeForm")) {
+        if (!EntityValidator.validateCode(typeCode, entityRepository) || !EntityValidator.validateLabel(typeLabel)) {
             return;
         }
 

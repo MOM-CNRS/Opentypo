@@ -72,15 +72,15 @@ public class ConfirmDeleteBean implements Serializable {
 
     public String getDialogTitle() {
         if (deleteTarget == null) return "Confirmer la suppression";
-        switch (deleteTarget) {
-            case TARGET_COLLECTION: return "Confirmer la suppression";
-            case TARGET_REFERENCE:   return "Confirmer la suppression";
-            case TARGET_CATEGORY:   return "Confirmer la suppression";
-            case TARGET_GROUP:      return "Confirmer la suppression du groupe";
-            case TARGET_SERIE:     return "Confirmer la suppression de la série";
-            case TARGET_TYPE:      return "Confirmer la suppression du type";
-            default:                return "Confirmer la suppression";
-        }
+        return switch (deleteTarget) {
+            case TARGET_COLLECTION -> "Confirmer la suppression de la collection";
+            case TARGET_REFERENCE -> "Confirmer la suppression de la référence";
+            case TARGET_CATEGORY -> "Confirmer la suppression de la catégorie";
+            case TARGET_GROUP -> "Confirmer la suppression du groupe";
+            case TARGET_SERIE -> "Confirmer la suppression de la série";
+            case TARGET_TYPE -> "Confirmer la suppression du type";
+            default -> "Confirmer la suppression";
+        };
     }
 
     public String getEntityLabel() {
@@ -102,15 +102,15 @@ public class ConfirmDeleteBean implements Serializable {
     /** Libellé du type d'entité (la collection, le référentiel, …). */
     public String getEntityTypeLabel() {
         if (deleteTarget == null) return "l'élément";
-        switch (deleteTarget) {
-            case TARGET_COLLECTION: return "la collection";
-            case TARGET_REFERENCE:  return "le référentiel";
-            case TARGET_CATEGORY:   return "la catégorie";
-            case TARGET_GROUP:      return "le groupe";
-            case TARGET_SERIE:     return "la série";
-            case TARGET_TYPE:      return "le type";
-            default:                return "l'élément";
-        }
+        return switch (deleteTarget) {
+            case TARGET_COLLECTION -> "la collection";
+            case TARGET_REFERENCE -> "le référentiel";
+            case TARGET_CATEGORY -> "la catégorie";
+            case TARGET_GROUP -> "le groupe";
+            case TARGET_SERIE -> "la série";
+            case TARGET_TYPE -> "le type";
+            default -> "l'élément";
+        };
     }
 
     /** True si le message doit afficher une liste à puces (détails des entités rattachées). */

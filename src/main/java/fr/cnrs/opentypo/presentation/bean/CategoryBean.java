@@ -221,7 +221,7 @@ public class CategoryBean implements Serializable {
             return;
         }
 
-        if (!EntityValidator.validateCode(categoryCode, entityRepository, ":categoryDialogForm")) {
+        if (!EntityValidator.validateCode(categoryCode, entityRepository)) {
             return;
         }
 

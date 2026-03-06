@@ -1264,11 +1264,11 @@ public class ApplicationBean implements Serializable {
         // 12. Supprimer les références Opentheso (aires de circulation)
         referenceOpenthesoRepository.deleteByEntityId(entityId);
 
-        // 13. Supprimer les métadonnées
+        // 13. Supprimer les métadonnées (avant l'entité car FK entity_id dans entity_metadata)
         entityMetadataRepository.deleteByEntityId(entityId);
 
-        // 14. Supprimer l'entité elle-même
-        entityRepository.deleteById(entityId);
+        // 14. Supprimer l'entité via requête bulk (évite le chargement et la cascade qui provoquerait une double suppression des métadonnées)
+        entityRepository.deleteByIdDirect(entityId);
 
         log.info("Entité supprimée avec succès: {} (ID: {})", entityCode, entityId);
     }

@@ -65,7 +65,7 @@
                                            process="@this"
                                            update=":centerContent"
                                            styleClass="concept-action-button"
-                                           rendered="#{not entityEditModeBean.editingEntityInCatalog and (referenceBean.canShowParamsPanel() or (referenceBean.canEditReference() and not referenceBean.canShowParamsPanel()))}">
+                                           rendered="#{referenceBean.canCreateReference() or referenceBean.canEditReference()}">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
@@ -74,13 +74,13 @@
                                            process="@this"
                                            update=":confirmDeleteDialogContent"
                                            oncomplete="PF('confirmDeleteDialog').show();"
-                                           rendered="#{referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}"
+                                           rendered="#{referenceBean.canCreateReference()}"
                                            styleClass="concept-action-button">
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <h:panelGroup rendered="#{referenceBean.canShowParamsPanel() and not entityEditModeBean.editingEntityInCatalog}">
+                            <h:panelGroup rendered="#{referenceBean.canCreateReference()}">
                                 <div class="collection-visibility-card">
                                     <div class="collection-visibility-card-content">
                                         <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">

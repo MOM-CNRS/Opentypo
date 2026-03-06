@@ -20,24 +20,23 @@ public final class EntityValidator {
      * 
      * @param code Le code à valider
      * @param entityRepository Le repository pour vérifier l'unicité
-     * @param formId L'ID du formulaire à mettre à jour en cas d'erreur
      * @return true si valide, false sinon
      */
-    public static boolean validateCode(String code, EntityRepository entityRepository, String formId) {
+    public static boolean validateCode(String code, EntityRepository entityRepository) {
         if (code == null || code.trim().isEmpty()) {
-            addErrorMessage(EntityConstants.ERROR_CODE_REQUIRED, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_REQUIRED);
             return false;
         }
         
         String codeTrimmed = code.trim();
         
         if (codeTrimmed.length() > EntityConstants.MAX_CODE_LENGTH) {
-            addErrorMessage(EntityConstants.ERROR_CODE_TOO_LONG, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_TOO_LONG);
             return false;
         }
         
         if (entityRepository.existsByCode(codeTrimmed)) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
             return false;
         }
         
@@ -50,26 +49,24 @@ public final class EntityValidator {
      * @param code Le code à valider
      * @param excludeEntityId ID de l'entité à exclure (celle en cours d'édition)
      * @param entityRepository Le repository pour vérifier l'unicité
-     * @param formId L'ID du formulaire à mettre à jour en cas d'erreur
      * @return true si valide, false sinon
      */
-    public static boolean validateCodeForEdit(String code, Long excludeEntityId,
-            EntityRepository entityRepository, String formId) {
+    public static boolean validateCodeForEdit(String code, Long excludeEntityId, EntityRepository entityRepository) {
         if (code == null || code.trim().isEmpty()) {
-            addErrorMessage(EntityConstants.ERROR_CODE_REQUIRED, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_REQUIRED);
             return false;
         }
         String codeTrimmed = code.trim();
         if (codeTrimmed.length() > EntityConstants.MAX_CODE_LENGTH) {
-            addErrorMessage(EntityConstants.ERROR_CODE_TOO_LONG, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_TOO_LONG);
             return false;
         }
         if (excludeEntityId != null && entityRepository.existsByCodeExcludingEntityId(codeTrimmed, excludeEntityId)) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
             return false;
         }
         if (excludeEntityId == null && entityRepository.existsByCode(codeTrimmed)) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS, formId);
+            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
             return false;
         }
         return true;
@@ -79,18 +76,17 @@ public final class EntityValidator {
      * Valide le label d'une entité
      * 
      * @param label Le label à valider
-     * @param formId L'ID du formulaire à mettre à jour en cas d'erreur
      * @return true si valide, false sinon
      */
-    public static boolean validateLabel(String label, String formId) {
+    public static boolean validateLabel(String label) {
         if (label == null || label.trim().isEmpty()) {
-            addErrorMessage(EntityConstants.ERROR_LABEL_REQUIRED, formId);
+            addErrorMessage(EntityConstants.ERROR_LABEL_REQUIRED);
             return false;
         }
         
         String labelTrimmed = label.trim();
         if (labelTrimmed.length() > EntityConstants.MAX_LABEL_LENGTH) {
-            addErrorMessage(EntityConstants.ERROR_LABEL_TOO_LONG, formId);
+            addErrorMessage(EntityConstants.ERROR_LABEL_TOO_LONG);
             return false;
         }
         
@@ -100,11 +96,11 @@ public final class EntityValidator {
     /**
      * Ajoute un message d'erreur
      */
-    private static void addErrorMessage(String message, String formId) {
+    private static void addErrorMessage(String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
-        PrimeFaces.current().ajax().update(":growl, " + formId);
+        PrimeFaces.current().ajax().update(":growl");
     }
 }
 

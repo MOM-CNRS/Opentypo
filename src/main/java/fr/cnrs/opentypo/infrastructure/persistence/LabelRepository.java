@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public interface LabelRepository extends JpaRepository<Label, Long> {
     List<Label> findByEntity_Id(Long entityId);
 
     @Modifying
+    @Transactional
     @Query("DELETE FROM Label l WHERE l.entity.id = :entityId")
     void deleteByEntityId(@Param("entityId") Long entityId);
 }
