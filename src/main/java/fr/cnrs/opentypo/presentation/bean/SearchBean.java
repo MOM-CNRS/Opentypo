@@ -222,7 +222,7 @@ public class SearchBean implements Serializable {
         List<SelectItem> items = new ArrayList<>();
         
         // Ajouter l'option "Toutes les collections"
-        items.add(new SelectItem("", "Toutes les collections"));
+        items.add(new SelectItem("", "Toutes les typologies"));
 
         ApplicationBean appBean = applicationBeanProvider != null ? applicationBeanProvider.get() : null;
         

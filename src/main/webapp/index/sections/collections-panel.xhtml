@@ -6,7 +6,7 @@
     <!-- Section d'action pour créer une collection (admin) -->
     <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar"
          rendered="#{loginBean.isAdminTechnique()}">
-        <p:commandButton value="Créer une nouvelle collection"
+        <p:commandButton value="Créer une nouvelle typologie"
                          icon="pi pi-plus"
                          styleClass="collection-btn collection-btn-validate"
                          process="@this"
@@ -60,7 +60,7 @@
                         <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
                             <i class="pi pi-info-circle" />
                             <span>Il n'y a actuellement aucune collection dans la base de données.<br/>
-                                Utilisez le bouton "Créer une nouvelle collection" pour en ajouter une.</span>
+                                Utilisez le bouton "Créer une nouvelle typologie" pour en ajouter une.</span>
                         </h:panelGroup>
                     </div>
                 </h:panelGroup>

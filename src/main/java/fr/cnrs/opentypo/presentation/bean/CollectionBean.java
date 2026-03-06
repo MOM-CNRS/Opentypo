@@ -320,7 +320,7 @@ public class CollectionBean implements Serializable {
         Entity collection = applicationBean.getSelectedCollection();
         if (collection == null || collection.getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune collection sélectionnée."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune typologie sélectionnée."));
             return;
         }
         try {
@@ -331,8 +331,8 @@ public class CollectionBean implements Serializable {
             applicationBean.setSelectedEntity(saved);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            targetStatus ? "La collection est maintenant publique." : "La collection est maintenant privée."));
-            log.info("Visibilité de la collection {} modifiée: {}", saved.getCode(), targetStatus ? "publique" : "privée");
+                            targetStatus ? "La typologie est maintenant publique." : "La typologie est maintenant privée."));
+            log.info("Visibilité de la typologie {} modifiée: {}", saved.getCode(), targetStatus ? "publique" : "privée");
         } catch (Exception e) {
             log.error("Erreur lors du changement de visibilité", e);
             FacesContext.getCurrentInstance().addMessage(null,
@@ -346,14 +346,14 @@ public class CollectionBean implements Serializable {
     public String getVisibilityConfirmMessage() {
         if (requestedVisibilityStatus == null) return "";
         return requestedVisibilityStatus
-                ? "Voulez-vous rendre cette collection publique ? Elle sera visible par tous les utilisateurs."
-                : "Voulez-vous rendre cette collection privée ? Seuls les utilisateurs autorisés pourront y accéder.";
+                ? "Voulez-vous rendre cette typologie publique ? Elle sera visible par tous les utilisateurs."
+                : "Voulez-vous rendre cette typologie privée ? Seuls les utilisateurs autorisés pourront y accéder.";
     }
 
     /** Titre du dialog selon le changement demandé */
     public String getVisibilityConfirmTitle() {
         if (requestedVisibilityStatus == null) return "Changer la visibilité";
-        return requestedVisibilityStatus ? "Rendre la collection publique" : "Rendre la collection privée";
+        return requestedVisibilityStatus ? "Rendre la typologie publique" : "Rendre la typologie privée";
     }
 
     /**
@@ -425,7 +425,7 @@ public class CollectionBean implements Serializable {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
                         "Attention",
-                        "Une collection existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
+                        "Une typologie existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
             }
             return;
         }
@@ -669,7 +669,7 @@ public class CollectionBean implements Serializable {
         searchBean.loadCollections();
 
         facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                "La collection '" + collectionNames.getFirst().getNom().trim() + "' a été créée avec succès."));
+                "La typologie '" + collectionNames.getFirst().getNom().trim() + "' a été créée avec succès."));
 
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :collectionForm, "
                 + ViewConstants.COMPONENT_CARDS_CONTAINER + ", :searchForm");
@@ -771,7 +771,7 @@ public class CollectionBean implements Serializable {
     public void deleteCollection(ApplicationBean applicationBean) {
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucune collection sélectionnée."));
+                    "Erreur", "Aucune typologie sélectionnée."));
             return;
         }
 
@@ -799,7 +799,7 @@ public class CollectionBean implements Serializable {
         if (FacesContext.getCurrentInstance() != null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                     "Succès",
-                    "La collection '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
+                    "La typologie '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
         }
 
         // Afficher le panel des collections
