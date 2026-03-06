@@ -152,3 +152,57 @@
     padding: 0.5rem 0;
     margin-bottom: 0.75rem;
 }
+
+/* Effet au clic breadcrumb : ripple + enfoncement plus marqué */
+.breadcrumb-link::before {
+    background: radial-gradient(circle at center, rgba(71, 98, 77, 0.35) 0%, transparent 55%);
+}
+.breadcrumb-link:active::before {
+    transform: scale(3);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+.breadcrumb-link:active {
+    transform: scale(0.93);
+    box-shadow: inset 0 2px 6px rgba(71, 98, 77, 0.18);
+}
+
+/* Effet au clic breadcrumb : ripple + enfoncement plus marqué */
+.breadcrumb-link:active {
+    transform: scale(0.93);
+}
+.breadcrumb-link:active::before {
+    opacity: 1;
+    transform: scale(3);
+}
+
+/* Effet au clic breadcrumb : ripple + enfoncement plus marqué */
+.breadcrumb-link {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+}
+.breadcrumb-link:active {
+    transform: scale(0.94) !important;
+    box-shadow: inset 0 2px 6px rgba(71, 98, 77, 0.18) !important;
+}
+.breadcrumb-link::before {
+    background: radial-gradient(circle at center, rgba(71, 98, 77, 0.35) 0%, transparent 55%) !important;
+}
+.breadcrumb-link:active::before {
+    transform: scale(2.8) !important;
+    transition: transform 0.25s ease-out, opacity 0.12s ease !important;
+}
+
+/* Effet au clic breadcrumb - renforcé pour un feedback plus perceptible */
+.breadcrumb-link {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+}
+.breadcrumb-link:active {
+    transform: scale(0.93) !important;
+    box-shadow: inset 0 2px 6px rgba(71, 98, 77, 0.18) !important;
+}
+.breadcrumb-link::before {
+    background: radial-gradient(circle at center, rgba(71, 98, 77, 0.35) 0%, transparent 55%) !important;
+}
+.breadcrumb-link:active::before {
+    transform: scale(3) !important;
+    transition: transform 0.25s ease-out !important;
+}

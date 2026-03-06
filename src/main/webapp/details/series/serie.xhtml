@@ -209,8 +209,9 @@
 
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                         <ui:include src="../catalogues/liste_types.xhtml"/>
+
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
-                            <ui:include src="../communs/commentaires.xhtml"/>
+                            <ui:include src="../communs/discussion.xhtml"/>
                         </h:panelGroup>
                     </ui:fragment>
 

@@ -33,7 +33,7 @@
             }
         });
     }
-    btn.addEventListener('click', scrollToTop);
+    btn.addEventListener('click', window.scrollToTopOfPage);
     window.addEventListener('scroll', updateVisibility, { passive: true });
     bindScrollListeners();
     updateVisibility();

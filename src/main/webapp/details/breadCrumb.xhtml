@@ -10,7 +10,10 @@
                     <p:commandLink styleClass="breadcrumb-link breadcrumb-link-home"
                                    action="#{applicationBean.showCollections(entityUpdateBean)}"
                                    process="@this"
-                                   update=":centerContent :selectedEntityLabel :searchForm :growl">
+                                   update=":centerContent :selectedEntityLabel :searchForm :growl"
+                                   onstart="showLoading('Chargement...', 'spinner');"
+                                   oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll();"
+                                   onerror="forceHideLoading();">
                         <i class="pi pi-home" aria-hidden="true" />
                         <span class="breadcrumb-link-text">Accueil</span>
                     </p:commandLink>
@@ -26,7 +29,10 @@
                         <p:commandLink styleClass="breadcrumb-link"
                                        action="#{applicationBean.navigateToBreadcrumbElement(element, entityUpdateBean)}"
                                        process="@this"
-                                       update=":centerContent :growl">
+                                       update=":centerContent :growl"
+                                       onstart="showLoading('Chargement...', 'spinner');"
+                                       oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll();"
+                                       onerror="forceHideLoading();">
                             <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
                             <span class="breadcrumb-link-text">#{element.entityType != null and element.entityType.code == 'COLLECTION' ? applicationBean.getEntityLabel(element) : element.code}</span>
                         </p:commandLink>

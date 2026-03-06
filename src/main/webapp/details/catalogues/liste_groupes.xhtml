@@ -54,7 +54,7 @@
                                        process="@this"
                                        update=":centerContent"
                                        onstart="showLoading('Chargement du groupe...', 'spinner');"
-                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
+                                       oncomplete="setTimeout(function(){window.scrollTo({ top: 0, behavior: 'smooth' }); hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
                                        onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
                                 <header class="reference-category-card-header">

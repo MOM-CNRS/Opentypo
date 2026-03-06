@@ -3743,14 +3743,46 @@ body .ui-panel .ui-panel-titlebar {
     color: var(--color-text-primary, #333);
     text-decoration: none;
     font-weight: 500;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
 
 .breadcrumb-link:hover {
     background-color: rgba(71, 98, 77, 0.1);
     color: var(--color-action-main, #47624D);
     text-decoration: none;
+}
+
+/* Effet ripple au clic : onde qui s'étend depuis le centre */
+.breadcrumb-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(71, 98, 77, 0.35) 0%, transparent 55%);
+    opacity: 0;
+    transform: scale(0);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.breadcrumb-link:active::before {
+    opacity: 1;
+    transform: scale(2.8);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.1s ease;
+}
+
+/* Effet au clic : léger enfoncement + feedback visuel */
+.breadcrumb-link:active {
+    transform: scale(0.94);
+    background-color: rgba(71, 98, 77, 0.2);
+    box-shadow: inset 0 2px 6px rgba(71, 98, 77, 0.15);
+}
+
+.breadcrumb-link:focus-visible {
+    outline: 2px solid var(--color-action-main, #47624D);
+    outline-offset: 2px;
 }
 
 .breadcrumb-link-home .breadcrumb-link-text {
