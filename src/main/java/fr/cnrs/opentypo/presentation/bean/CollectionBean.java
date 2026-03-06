@@ -243,12 +243,6 @@ public class CollectionBean implements Serializable {
         applicationBean.setSelectedEntity(refreshedCollection);
         applicationBean.setSelectedEntityLabel(applicationBean.getSelectedEntityLabel());
 
-        String langSelected = (searchBean.getLangSelected() != null) ? searchBean.getLangSelected() : "fr";
-        descriptionSelected = refreshedCollection.getDescriptions().stream()
-                .filter(element -> element.getLangue() != null && element.getLangue().getCode().equalsIgnoreCase(langSelected))
-                .findFirst()
-                .orElse(null);
-
         applicationBean.refreshCollectionReferencesList();
 
         if (refreshedCollection.getCode() != null) {

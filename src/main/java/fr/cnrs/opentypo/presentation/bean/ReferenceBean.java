@@ -679,43 +679,33 @@ public class ReferenceBean implements Serializable {
     }
 
     private void doDeleteReference(ApplicationBean applicationBean, Entity reference) {
-        try {
-            String referenceCode = reference.getCode();
-            String referenceName = reference.getNom();
-            Long referenceId = reference.getId();
 
-            // Supprimer récursivement le référentiel et toutes ses entités enfants
-            applicationBean.deleteEntityRecursively(reference);
+        applicationBean.setSelectedEntity(applicationBean.getSelectedCollection());
+        // Supprimer récursivement le référentiel et toutes ses entités enfants
+        applicationBean.deleteEntityRecursively(reference);
+        applicationBean.setChilds(new ArrayList<>());
 
-            // Réinitialiser la sélection
-            applicationBean.setSelectedEntity(null);
-            applicationBean.setChilds(new ArrayList<>());
+        // Recharger les référentiels de la collection
+        applicationBean.refreshCollectionReferencesList();
 
-            // Recharger les référentiels de la collection
-            if (applicationBean.getSelectedCollection() != null) {
-                applicationBean.refreshCollectionReferencesList();
-            }
+        // Mettre à jour l'arbre
+        treeBean.initializeTreeWithCollection();
 
-            // Mettre à jour l'arbre
-            treeBean.initializeTreeWithCollection();
-
-            // Afficher un message de succès
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                facesContext.addMessage(null, new FacesMessage(
-                        FacesMessage.SEVERITY_INFO,
-                        "Succès",
-                        "Le référentiel '" + referenceName + "' et toutes ses entités rattachées ont été supprimés avec succès."));
-            }
-
-            // Afficher le panel de la collection
-            applicationBean.getPanelState().showCollections();
-
-            log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, referenceId);
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression du référentiel", e);
-            addErrorMessage("Une erreur est survenue lors de la suppression : " + e.getMessage());
+        // Afficher un message de succès
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Succès",
+                    "Le référentiel '" + reference.getNom() + "' et toutes ses entités rattachées ont été supprimés avec succès."));
         }
+
+        collectionBean.showCollectionDetail(applicationBean, applicationBean.getSelectedEntity());
+
+        // Afficher le panel de la collection
+        applicationBean.getPanelState().showCollectionDetail();
+
+        log.info("Référentiel supprimé avec succès: {} (ID: {})", referenceCode, reference.getId());
     }
 
     /**
