@@ -33,6 +33,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +48,7 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +63,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EntityUpdateBean implements Serializable {
 
+    private final ReferenceBean referenceBean;
     @Autowired
     private LoginBean loginBean;
 
@@ -158,10 +161,9 @@ public class EntityUpdateBean implements Serializable {
     private String revers;
     private String legendeRevers;
     private String coinsMonetairesRevers;
+    private List<String> referenceBibliographiqueList;
 
-    /** Sélection Période pour l'autocomplete */
     private PactolsConcept periodeAutocompleteSelection;
-    /** Sélections autocomplete pour les thésaurus (remplace la popup OpenTheso) */
     private PactolsConcept productionAutocompleteSelection = new PactolsConcept();
     private PactolsConcept aireCirculationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fonctionUsageAutocompleteSelection = new PactolsConcept();
@@ -179,6 +181,11 @@ public class EntityUpdateBean implements Serializable {
     private PactolsConcept techniqueAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fabricationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept formeAutocompleteSelection = new PactolsConcept();
+
+    @Inject
+    public EntityUpdateBean(@Named("referenceBean") ReferenceBean referenceBean) {
+        this.referenceBean = referenceBean;
+    }
 
 
     /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
@@ -284,6 +291,14 @@ public class EntityUpdateBean implements Serializable {
         legendeRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getLegendeRevers() : null;
         coinsMonetairesRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getCoinsMonetairesRevers() : null;
 
+        referenceBibliographiqueList = new ArrayList<>();
+        if ( entity.getReferenceBibliographique() != null && ! entity.getReferenceBibliographique().isEmpty()) {
+            referenceBibliographiqueList = Arrays.stream( entity.getReferenceBibliographique().split("[;；]"))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
         initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
@@ -305,6 +320,8 @@ public class EntityUpdateBean implements Serializable {
 
         if (entity.getEntityType().getId() == 6) {
             collectionBean.initEditingGestionnairesPickList(entity);
+        } else if (entity.getEntityType().getId() == 1) {
+            referenceBean.initEditingGestionnairesPickListForEdit(entity.getId());
         }
     }
 
@@ -363,6 +380,7 @@ public class EntityUpdateBean implements Serializable {
         redacteursPickList = null;
         validateursPickList = null;
         relecteursPickList = null;
+        referenceBibliographiqueList = new ArrayList<>();
     }
 
     private void initHabilitationsPickLists(Long entityId) {
@@ -564,6 +582,14 @@ public class EntityUpdateBean implements Serializable {
             }
         }
 
+        String newBib = (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty())
+                ? referenceBibliographiqueList.stream()
+                .filter(s -> s != null && !s.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.joining("; "))
+                : null;
+        entityToUpdate.setReferenceBibliographique((newBib != null && newBib.isEmpty()) ? null : newBib);
+
         // DescriptionDetail
         entityToUpdate.setDescriptionDetail(saveDescriptionDetail(entityToUpdate));
 
@@ -639,9 +665,15 @@ public class EntityUpdateBean implements Serializable {
         }
 
         Entity entitySaved = entityRepository.save(entityToUpdate);
-        if (entityToUpdate.getEntityType() != null && entityToUpdate.getEntityType().getId() != null
-                && entityToUpdate.getEntityType().getId() == 6) {
-            collectionBean.saveCollectionGestionnaires(entitySaved);
+        if (entityToUpdate.getEntityType() != null && entityToUpdate.getEntityType().getId() != null) {
+            long typeId = entityToUpdate.getEntityType().getId();
+            if (typeId == 6) {
+                collectionBean.saveCollectionGestionnaires(entitySaved);
+            } else if (typeId == 1) {
+                referenceBean.saveReferenceGestionnaires(entitySaved);
+            } else {
+                saveUserPermissionsForGroup(entitySaved);
+            }
         } else {
             saveUserPermissionsForGroup(entitySaved);
         }

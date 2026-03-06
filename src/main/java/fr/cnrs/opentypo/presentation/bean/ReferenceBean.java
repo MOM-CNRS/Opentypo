@@ -205,7 +205,7 @@ public class ReferenceBean implements Serializable {
     /**
      * Initialise le PickList des gestionnaires pour l'édition inline d'un référentiel existant.
      */
-    private void initEditingGestionnairesPickListForEdit(Long entityId) {
+    public void initEditingGestionnairesPickListForEdit(Long entityId) {
         List<Long> sourceIds = getGestionnairesList().stream()
                 .map(Utilisateur::getId)
                 .filter(Objects::nonNull)
@@ -273,10 +273,18 @@ public class ReferenceBean implements Serializable {
         return null;
     }
 
+    /**
+     * Sauvegarde les gestionnaires du référentiel (appelé par EntityUpdateBean.saveModification pour entity type 1).
+     */
+    @Transactional
+    public void saveReferenceGestionnaires(Entity savedReference) {
+        saveUserPermissionsForReference(savedReference);
+    }
+
     @Transactional
     protected void saveUserPermissionsForReference(Entity savedReference) {
         if (userPermissionRepository == null || savedReference == null || savedReference.getId() == null) return;
-        DualListModel<Long> pickListToUse = (editingReference && editingGestionnairesPickList != null)
+        DualListModel<Long> pickListToUse = (editingGestionnairesPickList != null)
                 ? editingGestionnairesPickList
                 : gestionnairesPickList;
         userPermissionRepository.deleteByEntityIdAndRole(savedReference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());

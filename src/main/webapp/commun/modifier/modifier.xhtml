@@ -34,7 +34,7 @@
 
             <ui:include src="definition-modification.xhtml"/>
 
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 1}">
                 <ui:include src="periode-tpq-taq-modification.xhtml"/>
 
                 <!-- Appellation usuelle -->
@@ -70,6 +70,40 @@
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
                     <ui:include src="habilitations-modification.xhtml"/>
                 </h:panelGroup>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}">
+                <!-- Référence bibliographique -->
+                <div class="users-form-group users-form-group-full periode-group candidats-mt-20 reference-modifier-bibliographie-group">
+                    <p:outputLabel value="Référence bibliographique" style="margin-bottom: 13px !important" />
+                    <div class="reference-modifier-bibliographie-wrapper">
+                        <p:chips value="#{entityUpdateBean.referenceBibliographiqueList}"
+                                 styleClass="reference-modifier-bibliographie-chips"
+                                 placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
+                                 separator=";"/>
+                    </div>
+                </div>
+
+                <!-- Gestionnaires du référentiel -->
+                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+                    <p:outputLabel value="Gestionnaires du référentiel" style="margin-bottom: 13px !important" />
+                    <p:pickList value="#{referenceBean.editingGestionnairesPickList}"
+                                var="userId"
+                                itemLabel="#{referenceBean.getUtilisateurDisplayName(userId)}"
+                                itemValue="#{userId}"
+                                converter="pickListLongConverter"
+                                styleClass="group-dialog-picklist"
+                                showSourceFilter="true"
+                                showTargetFilter="true"
+                                filterMatchMode="contains"
+                                sourceFilterPlaceholder="Rechercher..."
+                                targetFilterPlaceholder="Rechercher..."
+                                responsive="true"
+                                rendered="#{not empty referenceBean.gestionnairesList}"/>
+                    <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
+                        <span>Aucun utilisateur disponible</span>
+                    </h:panelGroup>
+                </div>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 6}">
@@ -109,7 +143,7 @@
             <p:commandButton value="Enregistrer"
                              icon="pi pi-check"
                              iconPos="left"
-                             action="#{confirmSaveBean.prepareSave('GROUPE')}"
+                             action="#{confirmSaveBean.prepareSaveForSelectedEntity()}"
                              process="@form"
                              update=":confirmSaveDialogContent"
                              oncomplete="window.scrollTo({ top: 0, behavior: 'smooth' }); PF('confirmSaveDialog').show();"

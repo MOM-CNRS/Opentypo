@@ -42,7 +42,7 @@
                                            process="@this"
                                            update=":centerContent"
                                            styleClass="concept-action-button"
-                                           rendered="#{applicationBean.canEditGroup()}">
+                                           rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>

@@ -54,6 +54,26 @@ public class ConfirmSaveBean implements Serializable {
     }
 
     /**
+     * Prépare la sauvegarde en fonction du type de l'entité sélectionnée
+     * (entityType.id: 1=REFERENTIEL, 6=COLLECTION, autre=GROUPE).
+     */
+    public void prepareSaveForSelectedEntity() {
+        Entity e = applicationBean != null ? applicationBean.getSelectedEntity() : null;
+        if (e == null || e.getEntityType() == null || e.getEntityType().getId() == null) {
+            prepareSave(TARGET_GROUP);
+            return;
+        }
+        long typeId = e.getEntityType().getId();
+        if (typeId == 1) {
+            prepareSave(TARGET_REFERENCE);
+        } else if (typeId == 6) {
+            prepareSave(TARGET_COLLECTION);
+        } else {
+            prepareSave(TARGET_GROUP);
+        }
+    }
+
+    /**
      * Cibles d'update pour le dialog (formulaire, growl, panels, arbre).
      * Inclut :leftTreePanel pour les entités affichées dans l'arbre afin de rafraîchir
      * le code après sauvegarde.
@@ -99,13 +119,12 @@ public class ConfirmSaveBean implements Serializable {
         if (saveTarget == null) return;
         switch (saveTarget) {
             case TARGET_REFERENCE:
-                referenceBean.saveReference(applicationBean);
+            case TARGET_COLLECTION:
+            case TARGET_GROUP:
+                entityUpdateBean.saveModification();
                 break;
             case TARGET_CATEGORY:
                 categoryBean.saveCategory(applicationBean);
-                break;
-            case TARGET_GROUP:
-                entityUpdateBean.saveModification();
                 break;
             case TARGET_TYPE:
                 typeBean.saveEditingType(applicationBean);
