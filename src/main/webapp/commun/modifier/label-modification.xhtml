@@ -4,7 +4,7 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="users-form-group users-form-group-full periode-group">
+    <div class="#{applicationBean.selectedEntity.entityType.id != 6 ? 'users-form-group users-form-group-full periode-group candidats-mt-20' : 'users-form-group users-form-group-full periode-group'}">
         <div class="periode-header-row">
             <p:outputLabel value="Traductions des labels" />
         </div>

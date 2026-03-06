@@ -13,12 +13,8 @@
                 </div>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 5}">
-                <ui:include src="label-modification.xhtml"/>
-            </h:panelGroup>
-
             <!-- Code -->
-            <h:panelGroup class="users-form-group users-form-group-full candidats-mt-20"
+            <h:panelGroup class="users-form-group users-form-group-full"
                           rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
                 <p:outputLabel value="Code" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
@@ -30,6 +26,10 @@
                                      maxlength="255"/>
                     </div>
                 </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 5}">
+                <ui:include src="label-modification.xhtml"/>
             </h:panelGroup>
 
             <ui:include src="definition-modification.xhtml"/>

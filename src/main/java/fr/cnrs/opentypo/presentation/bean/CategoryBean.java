@@ -79,8 +79,7 @@ public class CategoryBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
-    
-    private boolean editingCategory = false;
+
     private List<NameItem> categoryNames = new ArrayList<>();
     private List<DescriptionItem> categoryDescriptions = new ArrayList<>();
 
@@ -100,7 +99,6 @@ public class CategoryBean implements Serializable {
         categoryNames = new ArrayList<>();
         categoryDescriptions = new ArrayList<>();
         categoryPublique = true;
-        editingCategory = false;
         labelLangueCode = searchBean.getLangSelected();
         categoryLabel = null;
         descriptionLangueCode = searchBean.getLangSelected();
@@ -319,39 +317,6 @@ public class CategoryBean implements Serializable {
                     "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
         }
-    }
-
-    /**
-     * Active le mode édition pour le référentiel sélectionné.
-     * Charge le code, la description, le label et la référence bibliographique.
-     * Les langues d'édition label/description sont initialisées avec la langue sélectionnée (SearchBean).
-     */
-    public void startEditingCategory(ApplicationBean applicationBean) {
-        if (applicationBean.getSelectedEntity() == null) {
-            return;
-        }
-
-        editingCategory = true;
-        categoryCode = applicationBean.getSelectedEntity().getCode() != null ? applicationBean.getSelectedEntity().getCode() : "";
-        categoryDescription = "";
-        categoryLabel = "";
-        categoryNames = applicationBean.getSelectedEntity().getLabels().stream()
-                .map(element -> NameItem.builder()
-                        .nom(element.getNom())
-                        .langueCode(element.getLangue().getCode())
-                        .langue(element.getLangue())
-                        .build())
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        categoryDescriptions = applicationBean.getSelectedEntity().getDescriptions().stream()
-                .map(element -> DescriptionItem.builder()
-                        .valeur(element.getValeur())
-                        .langueCode(element.getLangue().getCode())
-                        .langue(element.getLangue())
-                        .build())
-                .collect(Collectors.toCollection(ArrayList::new));
-        categoryBibliographie = applicationBean.getSelectedEntity().getBibliographie() != null ? applicationBean.getSelectedEntity().getBibliographie() : "";
-        categoryCommentaire = applicationBean.getSelectedEntity().getMetadataCommentaire() != null ? applicationBean.getSelectedEntity().getMetadataCommentaire() : "";
     }
 
     /**
