@@ -302,6 +302,124 @@
     object-fit: cover !important;
 }
 
+/* Section image principale - alignée sur les autres sections */
+.reference-image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.reference-image-upload-wrapper {
+    width: 100%;
+}
+
+/* Ligne URL : input + bouton côte à côte */
+.reference-image-url-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.reference-image-url-row .reference-image-url-input {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.reference-image-url-row .reference-btn-add {
+    flex-shrink: 0;
+}
+
+.reference-image-clear-btn {
+    margin-left: auto !important;
+}
+
+/* Nom de l'image uploadée (affiché après clic sur Uploader) */
+.reference-image-uploaded-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(71, 98, 77, 0.2);
+}
+
+.reference-image-uploaded-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 1rem;
+}
+
+.reference-image-uploaded-name {
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #333);
+    font-weight: 500;
+}
+
+/* FileUpload - style homogène avec le projet */
+.reference-dialog .reference-dialog-image-upload {
+    width: 100% !important;
+}
+
+.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar {
+    background: transparent !important;
+    border: 1px solid rgba(71, 98, 77, 0.3) !important;
+    border-radius: 0.25rem !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar .ui-button {
+    background-color: var(--color-action-main, #47624D) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar .ui-button:hover {
+    background-color: #3a4f3f !important;
+}
+
+.reference-dialog .reference-dialog-image-upload .ui-fileupload-content {
+    border: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+.reference-dialog-image-preview-wrapper {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Placeholder quand aucune image (aligné sur reference-no-names) */
+.reference-dialog-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
+    border: 2px dashed rgba(71, 98, 77, 0.25);
+    border-radius: 8px;
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9rem;
+}
+
+.reference-dialog-image-placeholder i {
+    font-size: 1.5rem;
+    color: var(--color-action-main, #47624D);
+}
+
+.reference-dialog-image-preview {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid rgba(71, 98, 77, 0.2);
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.08);
+}
+
 .reference-table-action-column {
     width: 3rem !important;
     text-align: right !important;

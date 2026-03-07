@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
@@ -15,6 +16,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -85,6 +87,16 @@ public class ReferenceBean implements Serializable {
 
     @Autowired
     private CollectionBean collectionBean;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    /** URL de l'image saisie (avant sauvegarde en base) */
+    private String uploadedImageUrl;
+    /** Libellé affiché pour l'image ("URL externe") */
+    private String uploadedImageName;
+    /** Saisie manuelle d'une URL d'image */
+    private String imageUrlInput;
 
     /** PickList pour sélectionner les gestionnaires de référentiel (IDs) - création dialog */
     private DualListModel<Long> gestionnairesPickList;
@@ -298,8 +310,10 @@ public class ReferenceBean implements Serializable {
         newDescriptionLangueCode = searchBean.getLangSelected();
         referencePublique = true;
         gestionnairesPickList = null;
+        uploadedImageUrl = null;
+        uploadedImageName = null;
+        imageUrlInput = null;
     }
-
 
     /**
      * Indique si le dialog est en mode édition (true) ou création (false).
@@ -317,6 +331,40 @@ public class ReferenceBean implements Serializable {
         if (availableLanguages == null) {
             availableLanguages = langueRepository.findAllByOrderByNomAsc();
         }
+    }
+
+    /**
+     * Applique une URL d'image saisie manuellement.
+     * L'URL sera enregistrée dans la table image lors de la création du référentiel.
+     */
+    public void applyImageUrl() {
+        if (imageUrlInput == null || imageUrlInput.trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir une URL."));
+            return;
+        }
+        String url = imageUrlInput.trim();
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "L'URL doit commencer par http:// ou https://"));
+            return;
+        }
+        uploadedImageUrl = url;
+        uploadedImageName = "URL externe";
+        imageUrlInput = null;
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "URL de l'image enregistrée."));
+        PrimeFaces.current().ajax().update(":referenceDialogForm:imageSection growl");
+    }
+
+    /**
+     * Supprime l'image sélectionnée (URL).
+     */
+    public void clearImage() {
+        uploadedImageUrl = null;
+        uploadedImageName = null;
+        imageUrlInput = null;
+        PrimeFaces.current().ajax().update(":referenceDialogForm:imageSection growl");
     }
 
     public void addNameFromInput() {
@@ -724,6 +772,16 @@ public class ReferenceBean implements Serializable {
             if (bibJoined.isEmpty()) bibJoined = null;
         }
         newReference.setReferenceBibliographique(bibJoined);
+
+        if (StringUtils.hasText(uploadedImageUrl)) {
+            Image image = new Image();
+            image.setUrl(uploadedImageUrl.trim());
+            image.setEntity(newReference);
+            if (newReference.getImages() == null) {
+                newReference.setImages(new ArrayList<>());
+            }
+            newReference.getImages().add(image);
+        }
 
         newReference.setEntityType(type);
         newReference.setStatut(Boolean.TRUE.equals(referencePublique) ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());

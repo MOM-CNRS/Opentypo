@@ -64,6 +64,9 @@ public class SecurityConfig {
                 // Permettre l'accès aux WebJars (Font Awesome, Bootstrap, etc. - chargement local)
                 .requestMatchers("/webjars/**").permitAll()
 
+                // Permettre l'accès aux images uploadées (répertoire à côté du JAR)
+                .requestMatchers("/uploaded-images/**").permitAll()
+
                 // Permettre l'accès aux ressources statiques (CSS, JS, images, etc.)
                 .requestMatchers(
                     "/resources/**",

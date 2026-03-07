@@ -48,9 +48,6 @@ public class Entity implements Serializable {
     @Column(name = "statut", length = 50)
     private String statut;
 
-    @Column(name = "image_principale_url", length = 500)
-    private String imagePrincipaleUrl;
-
     @Column(name = "id_ark", length = 255)
     private String idArk;
 
@@ -71,10 +68,18 @@ public class Entity implements Serializable {
     private List<Image> images = new ArrayList<>();
 
     /**
-     * Retourne la première image (compatibilité avec l'affichage d'une image principale).
+     * Retourne la première image (image principale).
      */
     public Image getImage() {
         return (images != null && !images.isEmpty()) ? images.get(0) : null;
+    }
+
+    /**
+     * Retourne l'URL de l'image principale (première image). Compatibilité avec les vues.
+     */
+    public String getImagePrincipaleUrl() {
+        Image img = getImage();
+        return img != null ? img.getUrl() : null;
     }
 
     // Relations auto-référencées

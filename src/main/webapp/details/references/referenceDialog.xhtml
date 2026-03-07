@@ -19,7 +19,7 @@
               position="center">
 
         <h:form id="referenceDialogForm">
-            <p:remoteCommand name="resetReferenceFormCommand" action="#{referenceBean.resetReferenceForm}" update="@form" process="@this"/>
+            <p:remoteCommand name="resetReferenceFormCommand" action="#{referenceBean.prepareCreateReference}" update="@form" process="@this"/>
 
             <!-- Code -->
             <div class="collection-form-group">
@@ -192,6 +192,53 @@
                                     <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
                                 </div>
                             </div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </div>
+            </div>
+
+            <!-- Image principale -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
+                    <div class="reference-section-label">
+                        <i class="pi pi-image reference-section-icon"/>
+                        <span>Image principale</span>
+                    </div>
+                    <h:panelGroup id="imageSection" class="reference-image-section">
+                        <h:panelGroup id="imageUrlSection" class="reference-image-url-row">
+                            <p:inputText id="imageUrlInput"
+                                        value="#{referenceBean.imageUrlInput}"
+                                        styleClass="reference-input reference-image-url-input"
+                                        placeholder="https://exemple.com/image.jpg"/>
+                            <p:commandButton id="imageUrlApplyBtn"
+                                             value="Utiliser cette URL"
+                                             icon="pi pi-link"
+                                             styleClass="reference-btn-add"
+                                             actionListener="#{referenceBean.applyImageUrl}"
+                                             process="@this :referenceDialogForm:imageUrlInput"
+                                             update=":referenceDialogForm:imageSection growl"/>
+                        </h:panelGroup>
+                        <h:panelGroup id="imageUploadedInfo" class="reference-image-uploaded-info" rendered="#{not empty referenceBean.uploadedImageName}">
+                            <i class="pi pi-check-circle reference-image-uploaded-icon"/>
+                            <span class="reference-image-uploaded-name">#{referenceBean.uploadedImageName}</span>
+                            <p:commandButton icon="pi pi-times"
+                                             styleClass="reference-btn-remove reference-image-clear-btn"
+                                             actionListener="#{referenceBean.clearImage}"
+                                             process="@this"
+                                             update=":referenceDialogForm:imageSection growl"
+                                             title="Supprimer l'image"/>
+                        </h:panelGroup>
+                        <h:panelGroup id="imagePreview" class="reference-dialog-image-preview-wrapper">
+                            <img src="#{referenceBean.uploadedImageUrl}"
+                                 class="reference-dialog-image-preview"
+                                 alt="Aperçu"
+                                 rendered="#{not empty referenceBean.uploadedImageUrl}"/>
+                            <h:panelGroup rendered="#{empty referenceBean.uploadedImageUrl}"
+                                           layout="block"
+                                           styleClass="reference-dialog-image-placeholder">
+                                <i class="pi pi-image"/>
+                                <span>Aucune image</span>
+                            </h:panelGroup>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>

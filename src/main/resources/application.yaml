@@ -3,3 +3,18 @@
 spring:
   autoconfigure:
     exclude: org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# PrimeFaces : "commons" pour upload fiable (native ne déclenche pas le listener avec JoinFaces)
+# JSF : state-saving=server (client provoque "Illegal base64 character 3a" avec upload multipart)
+# Mojarra : nombre de vues augmenté pour limiter ViewExpiredException
+joinfaces:
+  primefaces:
+    uploader: commons
+  jsf:
+    state-saving-method: server
+  mojarra:
+    numberOfViewsInSession: 100

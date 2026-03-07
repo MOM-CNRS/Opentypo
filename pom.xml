@@ -31,6 +31,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
@@ -54,6 +59,13 @@
             <groupId>org.joinfaces</groupId>
             <artifactId>faces-spring-boot-starter</artifactId>
             <version>${joinfaces.version}</version>
+        </dependency>
+
+        <!-- Apache Commons FileUpload (requis pour PrimeFaces uploader=commons) -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.5</version>
         </dependency>
 
         <!-- PrimeFaces Jakarta -->
