@@ -18,7 +18,7 @@
               responsive="true"
               position="center">
 
-        <h:form id="referenceDialogForm">
+        <h:form id="referenceDialogForm" enctype="multipart/form-data">
             <p:remoteCommand name="resetReferenceFormCommand" action="#{referenceBean.prepareCreateReference}" update="@form" process="@this"/>
 
             <!-- Code -->
@@ -197,52 +197,100 @@
                 </div>
             </div>
 
-            <!-- Image principale -->
-            <div class="collection-form-group" style="padding-top: 15px">
-                <div class="collection-visibility-section" style="display: block; padding: 10px">
+            <!-- Image principale : URL ou fichier local (enregistré à la validation) -->
+            <div class="collection-form-group reference-image-form-group">
+                <h:panelGroup id="imageSection" class="reference-image-card">
                     <div class="reference-section-label">
                         <i class="pi pi-image reference-section-icon"/>
                         <span>Image principale</span>
                     </div>
-                    <h:panelGroup id="imageSection" class="reference-image-section">
-                        <h:panelGroup id="imageUrlSection" class="reference-image-url-row">
+                    <div class="reference-image-sources">
+                        <label class="reference-image-file-zone">
+                            <h:inputFile id="imageFileInput"
+                                         value="#{referenceBean.uploadedFilePart}"
+                                         styleClass="reference-image-file-input-hidden"
+                                         accept="image/jpeg,image/png,image/gif,image/webp"
+                                         onchange="previewReferenceLocalImage(this)"/>
+                            <i class="pi pi-upload reference-image-file-icon"/>
+                            <span class="reference-image-file-label">Choisir un fichier</span>
+                            <span class="reference-image-file-hint">JPG, PNG, GIF ou WebP</span>
+                        </label>
+                        <div class="reference-image-divider">
+                            <span class="reference-image-divider-line"/>
+                            <span class="reference-image-divider-text">ou</span>
+                            <span class="reference-image-divider-line"/>
+                        </div>
+                        <div class="reference-image-url-group">
                             <p:inputText id="imageUrlInput"
-                                        value="#{referenceBean.imageUrlInput}"
-                                        styleClass="reference-input reference-image-url-input"
-                                        placeholder="https://exemple.com/image.jpg"/>
+                                         value="#{referenceBean.imageUrlInput}"
+                                         styleClass="reference-input reference-image-url-input reference-input"
+                                         placeholder="https://exemple.com/image.jpg"/>
                             <p:commandButton id="imageUrlApplyBtn"
-                                             value="Utiliser cette URL"
+                                             value="Utiliser"
                                              icon="pi pi-link"
-                                             styleClass="reference-btn-add"
+                                             styleClass="reference-btn-add reference-image-url-btn"
                                              actionListener="#{referenceBean.applyImageUrl}"
                                              process="@this :referenceDialogForm:imageUrlInput"
                                              update=":referenceDialogForm:imageSection growl"/>
-                        </h:panelGroup>
-                        <h:panelGroup id="imageUploadedInfo" class="reference-image-uploaded-info" rendered="#{not empty referenceBean.uploadedImageName}">
-                            <i class="pi pi-check-circle reference-image-uploaded-icon"/>
-                            <span class="reference-image-uploaded-name">#{referenceBean.uploadedImageName}</span>
-                            <p:commandButton icon="pi pi-times"
-                                             styleClass="reference-btn-remove reference-image-clear-btn"
-                                             actionListener="#{referenceBean.clearImage}"
-                                             process="@this"
-                                             update=":referenceDialogForm:imageSection growl"
-                                             title="Supprimer l'image"/>
-                        </h:panelGroup>
-                        <h:panelGroup id="imagePreview" class="reference-dialog-image-preview-wrapper">
-                            <img src="#{referenceBean.uploadedImageUrl}"
-                                 class="reference-dialog-image-preview"
-                                 alt="Aperçu"
-                                 rendered="#{not empty referenceBean.uploadedImageUrl}"/>
-                            <h:panelGroup rendered="#{empty referenceBean.uploadedImageUrl}"
-                                           layout="block"
-                                           styleClass="reference-dialog-image-placeholder">
-                                <i class="pi pi-image"/>
-                                <span>Aucune image</span>
-                            </h:panelGroup>
-                        </h:panelGroup>
+                        </div>
+                    </div>
+                    <h:panelGroup id="imageUploadedInfo" class="reference-image-uploaded-badge" rendered="#{not empty referenceBean.uploadedImageName}">
+                        <i class="pi pi-check-circle reference-image-uploaded-icon"/>
+                        <span class="reference-image-uploaded-name">#{referenceBean.uploadedImageName}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="reference-btn-remove reference-image-clear-btn"
+                                         actionListener="#{referenceBean.clearImage}"
+                                         process="@this"
+                                         update=":referenceDialogForm:imageSection growl"
+                                         title="Supprimer l'image"/>
                     </h:panelGroup>
-                </div>
+                    <div class="reference-image-preview-container">
+                        <img id="referenceImagePreview"
+                             src="#{referenceBean.uploadedImageUrl}"
+                             class="reference-dialog-image-preview"
+                             alt="Aperçu"
+                             style="display:#{not empty referenceBean.uploadedImageUrl ? 'block' : 'none'};"/>
+                        <img id="referenceImagePreviewLocal"
+                             class="reference-dialog-image-preview"
+                             alt="Aperçu local"
+                             style="display:none;"/>
+                        <h:panelGroup id="imagePlaceholder"
+                                      layout="block"
+                                      styleClass="reference-dialog-image-placeholder"
+                                      style="display:#{empty referenceBean.uploadedImageUrl ? 'flex' : 'none'}">
+                            <i class="pi pi-image reference-image-placeholder-icon"/>
+                            <span>Aucune image sélectionnée</span>
+                        </h:panelGroup>
+                    </div>
+                </h:panelGroup>
             </div>
+            <script type="text/javascript">
+                function previewReferenceLocalImage(input) {
+                    var container = document.querySelector('.reference-image-preview-container');
+                    if (!container) return;
+                    var imgs = container.querySelectorAll('img.reference-dialog-image-preview');
+                    var previewUrl = imgs[0];
+                    var previewLocal = imgs[1];
+                    var placeholder = container.querySelector('.reference-dialog-image-placeholder');
+                    if (!input.files || input.files.length === 0) {
+                        if (previewLocal) { previewLocal.style.display = 'none'; previewLocal.src = ''; }
+                        if (previewUrl) previewUrl.style.display = 'none';
+                        if (placeholder) placeholder.style.display = 'flex';
+                        container.classList.remove('reference-image-has-preview');
+                        return;
+                    }
+                    var file = input.files[0];
+                    if (!file.type.match('image.*')) return;
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (previewLocal) { previewLocal.src = e.target.result; previewLocal.style.display = 'block'; }
+                        if (previewUrl) previewUrl.style.display = 'none';
+                        if (placeholder) placeholder.style.display = 'none';
+                        container.classList.add('reference-image-has-preview');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            </script>
 
             <!-- Références bibliographiques -->
             <div class="collection-form-group" style=" padding-top: 15px">

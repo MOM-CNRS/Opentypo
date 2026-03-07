@@ -1,6 +1,8 @@
 package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.Image;
+
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
+
+    List<Image> findByEntity_Id(@Param("entityId") Long entityId);
 
     @Modifying
     @Transactional

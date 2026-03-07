@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean.candidats.service;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.*;
+import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -35,6 +36,9 @@ public class CandidatEntityService {
 
     @Inject
     private LangueRepository langueRepository;
+
+    @Inject
+    private EntityImageService entityImageService;
 
     /**
      * Crée une nouvelle entité avec les données de base (étape 1 du wizard)
@@ -144,7 +148,10 @@ public class CandidatEntityService {
             entityRelationRepository.deleteAll(childRelations);
         }
 
-        // Supprimer l'entité elle-même
+        // Supprimer les fichiers physiques des images uploadées localement
+        entityImageService.deletePhysicalFilesForEntity(refreshedEntity.getId());
+
+        // Supprimer l'entité elle-même (cascade supprime les images en base)
         entityRepository.delete(refreshedEntity);
         
         log.info("Entité ID={} et toutes ses relations ont été supprimées", refreshedEntity.getId());

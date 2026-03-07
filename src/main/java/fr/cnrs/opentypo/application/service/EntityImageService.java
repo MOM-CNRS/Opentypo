@@ -1,8 +1,12 @@
 package fr.cnrs.opentypo.application.service;
 
 import fr.cnrs.opentypo.OpenTypoApplication;
+import fr.cnrs.opentypo.domain.entity.Image;
+import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
+import fr.cnrs.opentypo.presentation.bean.PartToMultipartFileAdapter;
 import fr.cnrs.opentypo.presentation.bean.candidats.UploadedFileToMultipartFileAdapter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,6 +41,9 @@ public class EntityImageService {
 
     @Value("${opentypo.images.path:}")
     private String imagesPathOverride;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     /**
      * Sauvegarde un fichier image uploadé et retourne l'URL à stocker en base.
@@ -73,6 +80,17 @@ public class EntityImageService {
 
         String urlPath = (contextPath != null ? contextPath : "") + "/uploaded-images/" + uniqueFilename;
         return urlPath;
+    }
+
+    /**
+     * Sauvegarde un fichier depuis jakarta.servlet.http.Part (h:inputFile).
+     */
+    public String saveUploadedImage(jakarta.servlet.http.Part part, String contextPath) throws IOException {
+        if (part == null || part.getSize() == 0) {
+            throw new IllegalArgumentException("Le fichier est vide ou null");
+        }
+        MultipartFile multipartFile = new PartToMultipartFileAdapter(part);
+        return saveUploadedImage(multipartFile, contextPath);
     }
 
     /**
@@ -130,5 +148,39 @@ public class EntityImageService {
             log.warn("Impossible de déterminer l'emplacement du JAR, utilisation de user.dir: {}", e.getMessage());
         }
         return Paths.get(System.getProperty("user.dir", "."), "images");
+    }
+
+    /**
+     * Supprime les fichiers physiques des images uploadées localement pour une entité.
+     * Les URLs contenant "/uploaded-images/" correspondent à des fichiers locaux.
+     * Les URLs externes (http://, https://) sont ignorées.
+     *
+     * @param entityId l'ID de l'entité
+     */
+    public void deletePhysicalFilesForEntity(Long entityId) {
+        if (entityId == null) {
+            return;
+        }
+        List<Image> images = imageRepository.findByEntity_Id(entityId);
+        Path basePath = getImagesBasePath();
+        for (Image image : images) {
+            String url = image.getUrl();
+            if (url == null || !url.contains("/uploaded-images/")) {
+                continue;
+            }
+            String filename = url.substring(url.lastIndexOf("/") + 1);
+            if (filename.isEmpty()) {
+                continue;
+            }
+            Path filePath = basePath.resolve(filename);
+            try {
+                if (Files.exists(filePath)) {
+                    Files.delete(filePath);
+                    log.info("Fichier image supprimé: {}", filePath.toAbsolutePath());
+                }
+            } catch (IOException e) {
+                log.warn("Impossible de supprimer le fichier image {}: {}", filePath, e.getMessage());
+            }
+        }
     }
 }

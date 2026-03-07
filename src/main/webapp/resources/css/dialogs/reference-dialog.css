@@ -302,122 +302,200 @@
     object-fit: cover !important;
 }
 
-/* Section image principale - alignée sur les autres sections */
-.reference-image-section {
+/* ============================================
+   Section image principale - design homogène et responsive
+   ============================================ */
+
+.reference-image-form-group {
+    padding-top: 15px;
+}
+
+/* Titre "Image principale" sur sa propre ligne, séparé du contenu */
+.reference-image-header {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.1);
+}
+
+.reference-image-section-inner {
+    display: block;
+    padding: 10px;
+}
+
+/* Carte principale du composant image */
+.reference-image-card {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.04) 0%, rgba(71, 98, 77, 0.02) 100%);
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 10px;
+}
+
+/* Zone des sources : fichier + séparateur + URL */
+.reference-image-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Zone de sélection de fichier (style drop zone) */
+.reference-image-file-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: #fff;
+    border: 2px dashed rgba(71, 98, 77, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reference-image-file-zone:hover {
+    border-color: var(--color-action-main, #47624D);
+    background: rgba(71, 98, 77, 0.03);
+}
+
+.reference-image-file-icon {
+    font-size: 1.5rem;
+    color: var(--color-action-main, #47624D);
+}
+
+.reference-image-file-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-primary, #333);
+}
+
+.reference-image-file-hint {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary, #666);
+}
+
+/* Input fichier caché (déclenché par le label) */
+.reference-image-file-input-hidden,
+.reference-dialog input.reference-image-file-input-hidden {
+    position: absolute !important;
+    width: 0.1px !important;
+    height: 0.1px !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    z-index: -1 !important;
+}
+
+/* Séparateur "ou" */
+.reference-image-divider {
+    display: flex;
+    align-items: center;
     gap: 0.75rem;
 }
 
-.reference-image-upload-wrapper {
-    width: 100%;
+.reference-image-divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(71, 98, 77, 0.2);
 }
 
-/* Ligne URL : input + bouton côte à côte */
-.reference-image-url-row {
+.reference-image-divider-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary, #666);
+    text-transform: lowercase;
+}
+
+/* Groupe URL : input + bouton */
+.reference-image-url-group {
     display: flex;
     gap: 0.75rem;
-    align-items: center;
+    align-items: stretch;
     flex-wrap: wrap;
 }
 
-.reference-image-url-row .reference-image-url-input {
-    flex: 1 1 200px;
+.reference-image-url-group .reference-image-url-input {
+    flex: 1 1 180px;
     min-width: 0;
 }
 
-.reference-image-url-row .reference-btn-add {
+.reference-image-url-group .reference-image-url-btn {
     flex-shrink: 0;
 }
 
-.reference-image-clear-btn {
-    margin-left: auto !important;
-}
-
-/* Nom de l'image uploadée (affiché après clic sur Uploader) */
-.reference-image-uploaded-info {
+/* Badge image sélectionnée */
+.reference-image-uploaded-badge {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, rgba(71, 98, 77, 0.08) 0%, rgba(71, 98, 77, 0.04) 100%);
-    border-radius: 0.5rem;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%);
+    border-radius: 8px;
     border: 1px solid rgba(71, 98, 77, 0.2);
 }
 
-.reference-image-uploaded-icon {
+.reference-image-uploaded-badge .reference-image-uploaded-icon {
     color: var(--color-action-main, #47624D);
     font-size: 1rem;
 }
 
-.reference-image-uploaded-name {
+.reference-image-uploaded-badge .reference-image-uploaded-name {
+    flex: 1;
     font-size: 0.9rem;
     color: var(--color-text-primary, #333);
     font-weight: 500;
 }
 
-/* FileUpload - style homogène avec le projet */
-.reference-dialog .reference-dialog-image-upload {
-    width: 100% !important;
+.reference-image-clear-btn {
+    flex-shrink: 0;
 }
 
-.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar {
-    background: transparent !important;
-    border: 1px solid rgba(71, 98, 77, 0.3) !important;
-    border-radius: 0.25rem !important;
-    padding: 0.5rem 0.75rem !important;
+/* Conteneur aperçu */
+.reference-image-preview-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+    padding: 0.75rem;
+    background: #fff;
+    border: 1px solid rgba(71, 98, 77, 0.12);
+    border-radius: 8px;
 }
 
-.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar .ui-button {
-    background-color: var(--color-action-main, #47624D) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 0.25rem !important;
-    font-size: 0.9rem !important;
-    padding: 0.5rem 1rem !important;
+/* Masquer le placeholder quand une image est affichée (fichier local ou URL) */
+.reference-image-preview-container.reference-image-has-preview .reference-dialog-image-placeholder {
+    display: none !important;
 }
 
-.reference-dialog .reference-dialog-image-upload .ui-fileupload-buttonbar .ui-button:hover {
-    background-color: #3a4f3f !important;
-}
-
-.reference-dialog .reference-dialog-image-upload .ui-fileupload-content {
-    border: none !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-}
-
-.reference-dialog-image-preview-wrapper {
-    display: block;
-    margin-top: 0.25rem;
-}
-
-/* Placeholder quand aucune image (aligné sur reference-no-names) */
+/* Placeholder quand aucune image */
 .reference-dialog-image-placeholder {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(71, 98, 77, 0.06) 0%, rgba(71, 98, 77, 0.03) 100%);
-    border: 2px dashed rgba(71, 98, 77, 0.25);
-    border-radius: 8px;
     color: var(--color-text-secondary, #666);
     font-size: 0.9rem;
 }
 
-.reference-dialog-image-placeholder i {
-    font-size: 1.5rem;
-    color: var(--color-action-main, #47624D);
+.reference-image-placeholder-icon {
+    font-size: 2rem;
+    color: rgba(71, 98, 77, 0.35);
 }
 
+/* Aperçu image */
 .reference-dialog-image-preview {
-    max-width: 200px;
-    max-height: 150px;
+    max-width: 100%;
+    max-height: 200px;
+    width: auto;
+    height: auto;
     object-fit: contain;
     border-radius: 8px;
-    border: 1px solid rgba(71, 98, 77, 0.2);
-    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.08);
+    box-shadow: 0 2px 12px rgba(71, 98, 77, 0.1);
 }
 
 .reference-table-action-column {
@@ -660,6 +738,16 @@
 
     .reference-table-name-cell {
         flex-wrap: wrap;
+    }
+
+    /* Section image : empiler URL + bouton sur mobile */
+    .reference-image-url-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reference-image-url-group .reference-image-url-btn {
+        width: 100%;
     }
 }
 

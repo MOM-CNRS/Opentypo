@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.CollectionService;
+import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
@@ -155,6 +156,9 @@ public class ApplicationBean implements Serializable {
 
     @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
+    private EntityImageService entityImageService;
 
     @Autowired
     private LabelRepository labelRepository;
@@ -1242,7 +1246,8 @@ public class ApplicationBean implements Serializable {
         // 7. Supprimer les descriptions
         descriptionRepository.deleteByEntityId(entityId);
 
-        // 8. Supprimer les images
+        // 8. Supprimer les fichiers physiques des images puis les enregistrements en base
+        entityImageService.deletePhysicalFilesForEntity(entityId);
         imageRepository.deleteByEntityId(entityId);
 
         // 9. Supprimer le paramétrage

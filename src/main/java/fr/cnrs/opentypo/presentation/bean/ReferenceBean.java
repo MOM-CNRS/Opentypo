@@ -15,6 +15,7 @@ import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import jakarta.servlet.http.Part;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -89,14 +91,19 @@ public class ReferenceBean implements Serializable {
     private CollectionBean collectionBean;
 
     @Autowired
+    private EntityImageService entityImageService;
+
+    @Autowired
     private ImageRepository imageRepository;
 
-    /** URL de l'image saisie (avant sauvegarde en base) */
+    /** URL de l'image (URL saisie ou fichier enregistré à la validation) */
     private String uploadedImageUrl;
     /** Libellé affiché pour l'image ("URL externe") */
     private String uploadedImageName;
     /** Saisie manuelle d'une URL d'image */
     private String imageUrlInput;
+    /** Fichier image sélectionné localement (enregistré dans images/ à la validation) */
+    private Part uploadedFilePart;
 
     /** PickList pour sélectionner les gestionnaires de référentiel (IDs) - création dialog */
     private DualListModel<Long> gestionnairesPickList;
@@ -313,6 +320,7 @@ public class ReferenceBean implements Serializable {
         uploadedImageUrl = null;
         uploadedImageName = null;
         imageUrlInput = null;
+        uploadedFilePart = null;
     }
 
     /**
@@ -364,6 +372,7 @@ public class ReferenceBean implements Serializable {
         uploadedImageUrl = null;
         uploadedImageName = null;
         imageUrlInput = null;
+        uploadedFilePart = null;
         PrimeFaces.current().ajax().update(":referenceDialogForm:imageSection growl");
     }
 
@@ -470,6 +479,24 @@ public class ReferenceBean implements Serializable {
     @Transactional
     public void createReference() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
+
+        // Si un fichier local a été sélectionné, l'enregistrer dans le répertoire images avant création
+        if (uploadedFilePart != null && uploadedFilePart.getSize() > 0) {
+            try {
+                String contextPath = facesContext.getExternalContext().getRequestContextPath();
+                String url = entityImageService.saveUploadedImage(uploadedFilePart, contextPath);
+                String fileName = uploadedFilePart.getSubmittedFileName();
+                if (fileName == null || fileName.isBlank()) fileName = "image";
+                uploadedImageUrl = url;
+                uploadedImageName = fileName;
+                uploadedFilePart = null;
+            } catch (Exception e) {
+                log.error("Erreur lors de l'enregistrement de l'image", e);
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                        "Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue")));
+                return;
+            }
+        }
 
         boolean validCode;
         if (editingReferenceId != null) {
