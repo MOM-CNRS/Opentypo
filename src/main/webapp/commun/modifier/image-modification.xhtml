@@ -26,8 +26,8 @@
                                  update=":contentPanels"
                                  styleClass="candidat-btn-add modifier-image-add-file-btn"
                                  actionListener="#{entityUpdateBean.addImageFromFile()}"
-                                 process="@this"
-                                 ajax="false"/>
+                                 process="@form"
+                                 ajax="true"/>
             </h:panelGroup>
 
             <div class="reference-image-divider">
@@ -39,7 +39,8 @@
             <div class="reference-image-url-group">
                 <div class="input-wrapper periode-input-wrapper collection-select">
                     <i class="pi pi-tag input-icon" />
-                    <p:inputText value="#{entityUpdateBean.newImageUrlInput}"
+                    <p:inputText id="newImageUrlInput"
+                                 value="#{entityUpdateBean.newImageUrlInput}"
                                  placeholder="https://exemple.com/image.jpg"
                                  styleClass="users-input"/>
                 </div>
@@ -47,7 +48,7 @@
                                  icon="pi pi-plus"
                                  styleClass="reference-btn-add reference-image-url-btn"
                                  actionListener="#{entityUpdateBean.addImageFromUrl()}"
-                                 process="@this"
+                                 process="@form"
                                  ajax="true"
                                  update=":contentPanels :growl"/>
             </div>
