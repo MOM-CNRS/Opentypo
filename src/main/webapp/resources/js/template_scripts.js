@@ -565,14 +565,45 @@ window.showOnlyCardsContainer = function() {
     }
 };
 
-// Scroll vers le haut : fenêtre + conteneurs internes (info-concept, cardsContainer)
-function scrollToTopAll() {
-    if (typeof window.scrollTo === 'function') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+// Easing easeOutQuart : démarrage vif puis ralentissement progressif (effet dépilement/remontée fluide)
+function easeOutQuart(t) {
+    return 1 - Math.pow(1 - t, 4);
+}
+
+// Scroll animé vers le haut pour un élément (fenêtre ou conteneur) – effet dépilement progressif
+function scrollElementToTop(element, duration) {
+    duration = duration || 1200;
+    var isWindow = element === window || element === document.documentElement;
+    var getScrollTop = function() {
+        return isWindow ? (window.scrollY || document.documentElement.scrollTop) : element.scrollTop;
+    };
+    var setScrollTop = function(v) {
+        if (isWindow) {
+            window.scrollTo(0, v);
+        } else if (element) {
+            element.scrollTop = v;
+        }
+    };
+    var start = getScrollTop();
+    if (start <= 0) return;
+    var startTime = null;
+    function animateScroll(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        var elapsed = currentTime - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = easeOutQuart(progress);
+        setScrollTop(start * (1 - eased));
+        if (progress < 1) requestAnimationFrame(animateScroll);
     }
+    requestAnimationFrame(animateScroll);
+}
+
+// Scroll vers le haut : fenêtre + conteneurs internes avec effet dépilement (non instantané)
+function scrollToTopAll() {
+    scrollElementToTop(window, 1500);
     document.querySelectorAll('.info-concept, [id$="contentPanels"], [id$="cardsContainer"]').forEach(function(el) {
         if (el && el.scrollTop > 0) {
-            el.scrollTo({ top: 0, behavior: 'smooth' });
+            scrollElementToTop(el, 1200);
         }
     });
 }
@@ -585,4 +616,16 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(scrollToTopAll, 50);
         }
     });
+
+    // Scroll en haut avec effet après confirmation de sauvegarde (param scrollTop dans l'URL)
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('scrollTop') === '1' && typeof scrollToTopAll === 'function') {
+        setTimeout(scrollToTopAll, 100);
+        if (typeof history.replaceState === 'function') {
+            urlParams.delete('scrollTop');
+            var newSearch = urlParams.toString();
+            var cleanUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+            history.replaceState({}, document.title, cleanUrl);
+        }
+    }
 });

@@ -148,9 +148,10 @@ public class ConfirmSaveBean implements Serializable {
 
     /**
      * Exécute la sauvegarde puis redirige (PRG) pour éviter la resoumission au rafraîchissement.
+     * Le paramètre scrollTop permet de déclencher le scroll en haut avec effet au chargement.
      */
     public String performSaveAndRedirect() {
         performSave();
-        return "/index.xhtml?faces-redirect=true";
+        return "/index.xhtml?faces-redirect=true&scrollTop=1";
     }
 }
