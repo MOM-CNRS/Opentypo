@@ -107,6 +107,21 @@
 
                             <h:panelGroup class="concept-info-item concept-info-item-full">
                                 <div class="concept-info-label">
+                                    <i class="pi pi-comment concept-info-icon" />
+                                    <span>Commentaire</span>
+                                </div>
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                        <h:outputText value="#{applicationBean.selectedEntity.metadataCommentaire}" escape="false"/>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
                                     <i class="pi pi-book concept-info-icon" />
                                     <span>Bibliographie</span>
                                 </div>
@@ -121,21 +136,6 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-comment concept-info-icon" />
-                                    <span>Commentaire</span>
-                                </div>
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
-                                        <h:outputText value="#{applicationBean.selectedEntity.metadataCommentaire}" escape="false"/>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>

@@ -32,7 +32,7 @@
             </div>
 
             <!-- Marques/estampilles -->
-            <div class="users-form-group users-form-group-full">
+            <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
                     <p:outputLabel value="Marques/estampilles" />
                 </div>
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Fonction/usage -->
-            <h:panelGroup styleClass="users-form-group users-form-group-full" rendered="#{applicationBean.isCeramiqueTypo()}">
+            <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isCeramiqueTypo()}">
                 <div class="periode-header-row">
                     <p:outputLabel value="Fonction/usage" />
                 </div>
@@ -80,7 +80,8 @@
             </h:panelGroup>
 
             <!-- Catégorie fonctionnelle -->
-            <h:panelGroup styleClass="users-form-group users-form-group-full" rendered="#{applicationBean.isInstrumentumTypo() or applicationBean.isInstrumentumTypo()}">
+            <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10"
+                          rendered="#{applicationBean.isInstrumentumTypo() or applicationBean.isInstrumentumTypo()}">
                 <div class="periode-header-row">
                     <p:outputLabel value="Catégorie fonctionnelle" />
                 </div>
@@ -111,7 +112,7 @@
 
         <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
             <!-- Droit (avers) -->
-            <div class="users-form-group users-form-group-full">
+            <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
                     <p:outputLabel value="Droit" />
                 </div>

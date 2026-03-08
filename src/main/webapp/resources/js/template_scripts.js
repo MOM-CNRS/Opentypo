@@ -205,12 +205,13 @@ window.updateActiveMenuItem = updateActiveMenuItem;
             });
         }
 
-        // Rediriger vers index.xhtml immédiatement (utiliser replace pour éviter de revenir en arrière)
-        const redirectUrl = window.location.pathname.includes('/index.xhtml')
-            ? window.location.pathname + '?sessionExpired=true'
-            : '/index.xhtml?sessionExpired=true';
+        // Construire l'URL index avec context path et forcer l'actualisation complète de la page
+        var contextPath = (document.body && document.body.getAttribute('data-context-path')) || '';
+        if (contextPath && !contextPath.startsWith('/')) contextPath = '/' + contextPath;
+        var indexPath = (contextPath || '') + '/index.xhtml';
+        var redirectUrl = indexPath + '?sessionExpired=true&_r=' + Date.now();
 
-        // Utiliser replace pour forcer la navigation
+        // Redirection + rechargement complet (évite le cache)
         window.location.replace(redirectUrl);
     }
 

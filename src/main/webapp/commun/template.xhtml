@@ -54,7 +54,7 @@
 </h:head>
 
 <!-- ========== BODY : scripts, layout, contenu ========== -->
-<h:body styleClass="app-body">
+<h:body styleClass="app-body" data-context-path="#{request.contextPath}">
     <!-- Scripts globaux (ordre de chargement) -->
     <h:outputScript library="js" name="constants.js"/>
     <!-- SidebarUtils DOIT être chargé avant theso_responsiveMenu_optimized.js -->

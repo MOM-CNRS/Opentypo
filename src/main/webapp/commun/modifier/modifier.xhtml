@@ -35,16 +35,33 @@
             <ui:include src="definition-modification.xhtml"/>
 
             <!-- Images : ajouter, modifier, supprimer -->
-            <h:panelGroup layout="block" class="periode-group candidats-mt-20">
+            <h:panelGroup layout="block" class="periode-group candidats-mt-20"
+                          rendered="#{applicationBean.selectedEntity.entityType.id == 1 or applicationBean.selectedEntity.entityType.id == 5}">
                 <ui:include src="image-modification.xhtml"/>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 1}">
+            <h:panelGroup layout="block" rendered="#{applicationBean.selectedEntity.entityType.id != 2}">
                 <ui:include src="periode-tpq-taq-modification.xhtml"/>
+            </h:panelGroup>
+
+            <!-- Référence bibliographique -->
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}"
+                          class="users-form-group users-form-group-full periode-group candidats-mt-20 reference-modifier-bibliographie-group">
+                <p:outputLabel value="Référence bibliographique" style="margin-bottom: 13px !important" />
+                <div class="reference-modifier-bibliographie-wrapper">
+                    <p:chips value="#{entityUpdateBean.referenceBibliographiqueList}"
+                             styleClass="reference-modifier-bibliographie-chips"
+                             placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
+                             separator=";"/>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 1
+                                            and applicationBean.selectedEntity.entityType.id != 2}">
 
                 <!-- Appellation usuelle -->
                 <h:panelGroup styleClass="users-form-group users-form-group-full periode-group candidats-mt-20"
-                              rendered="#{applicationBean.selectedEntity.entityType.id == 4}">
+                              rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
                     <div class="users-form-group users-form-group-full">
                         <p:outputLabel value="Commentaire datation" />
                         <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
@@ -68,27 +85,18 @@
                     <ui:include src="details_type-modification.xhtml"/>
                 </h:panelGroup>
 
-                <!-- Commentaire et bibliographie -->
-                <ui:include src="bibliographie-modification.xhtml"/>
-
                 <!-- Section Permissions -->
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
                     <ui:include src="habilitations-modification.xhtml"/>
                 </h:panelGroup>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}">
-                <!-- Référence bibliographique -->
-                <div class="users-form-group users-form-group-full periode-group candidats-mt-20 reference-modifier-bibliographie-group">
-                    <p:outputLabel value="Référence bibliographique" style="margin-bottom: 13px !important" />
-                    <div class="reference-modifier-bibliographie-wrapper">
-                        <p:chips value="#{entityUpdateBean.referenceBibliographiqueList}"
-                                 styleClass="reference-modifier-bibliographie-chips"
-                                 placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
-                                 separator=";"/>
-                    </div>
-                </div>
+            <h:panelGroup layout="block" class="{applicationBean.selectedEntity.entityType.id != 5 and applicationBean.selectedEntity.entityType.id != 1}">
+                <!-- Commentaire et bibliographie -->
+                <ui:include src="bibliographie-modification.xhtml"/>
+            </h:panelGroup>
 
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}">
                 <!-- Gestionnaires du référentiel -->
                 <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
                     <p:outputLabel value="Gestionnaires du référentiel" style="margin-bottom: 13px !important" />

@@ -93,10 +93,10 @@
                                     <span>Description</span>
                                 </div>
                                 <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getSelectedCollectionLabel()}">
-                                        <h:outputText value="#{applicationBean.getSelectedCollectionLabel()}" escape="false"/>
+                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.getSelectedEntity())}">
+                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.getSelectedEntity())}" escape="false"/>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getSelectedCollectionLabel()}">
+                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.getSelectedEntity())}">
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>

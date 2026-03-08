@@ -8,13 +8,14 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ExceptionQueuedEvent;
 import jakarta.faces.event.ExceptionQueuedEventContext;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.Iterator;
 
 /**
  * Gestionnaire d'exceptions personnalisé pour gérer les ViewExpiredException.
- * Redirige vers index.xhtml en nettoyant la session.
+ * Redirige vers index.xhtml avec actualisation complète de la page (comme F5).
  */
 public class ViewExpiredExceptionHandler extends ExceptionHandlerWrapper {
 
@@ -46,12 +47,12 @@ public class ViewExpiredExceptionHandler extends ExceptionHandlerWrapper {
             }
         }
 
-        // Laisser le gestionnaire parent gérer les autres exceptions
         getWrapped().handle();
     }
 
     /**
-     * Gère une ViewExpiredException en nettoyant la session et redirigeant vers la page d'accueil.
+     * Gère une ViewExpiredException : nettoyage de la session puis actualisation complète vers index.xhtml.
+     * Pour les requêtes AJAX, écrit une réponse HTML qui force un rechargement total (window.location.replace).
      */
     private void handleViewExpiredException(Iterator<ExceptionQueuedEvent> events, ExceptionQueuedEvent event) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -62,21 +63,34 @@ public class ViewExpiredExceptionHandler extends ExceptionHandlerWrapper {
         }
 
         try {
-            // Nettoyer le contexte de sécurité et invalider la session
             ExceptionHandlerUtils.cleanupSecurityContext(facesContext, true);
             
-            // Rediriger vers index.xhtml
-            HttpServletRequest request = (HttpServletRequest) facesContext
-                .getExternalContext().getRequest();
-            String redirectUrl = request.getContextPath() + INDEX_PAGE + "?" + VIEW_EXPIRED_PARAM;
-            facesContext.getExternalContext().redirect(redirectUrl);
-            facesContext.responseComplete();
+            HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+            String contextPath = request.getContextPath();
+            String redirectUrl = contextPath + INDEX_PAGE + "?" + VIEW_EXPIRED_PARAM + "&_r=" + System.currentTimeMillis();
+
+            boolean isAjaxRequest = facesContext.getPartialViewContext().isAjaxRequest();
+
+            if (isAjaxRequest) {
+                // Requête AJAX : envoie une page HTML minimale qui force l'actualisation totale (comme F5).
+                HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+                response.reset();
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("text/html;charset=UTF-8");
+                response.getWriter().write(
+                    "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/></head><body>" +
+                    "<script>window.location.replace('" + redirectUrl + "');</script>" +
+                    "<p>Redirection...</p></body></html>"
+                );
+                response.getWriter().flush();
+            } else {
+                facesContext.getExternalContext().redirect(redirectUrl);
+            }
             
-            // Retirer l'événement de la queue
+            facesContext.responseComplete();
             events.remove();
             
         } catch (IOException e) {
-            // Si la redirection échoue, retirer quand même l'événement pour éviter une boucle
             events.remove();
             throw new FacesException("Erreur lors de la redirection après ViewExpiredException", e);
         }

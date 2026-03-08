@@ -163,32 +163,6 @@
                     <div class="concept-info-item">
                         <div class="concept-info-label">
                             <i class="pi pi-wrench monnaie-communs-icon" />
-                            <span>Inclusions</span>
-                        </div>
-                        <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionPate.inclusion}">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionPate.inclusion.url}">
-                                    <h:outputLink value="#{applicationBean.selectedEntity.descriptionPate.inclusion.url}"
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  styleClass="concept-value-external-link">
-                                        #{applicationBean.selectedEntity.descriptionPate.inclusion.valeur}
-                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                    </h:outputLink>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionPate.inclusion.url}">
-                                    #{applicationBean.selectedEntity.descriptionPate.inclusion.valeur}
-                                </ui:fragment>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionPate.inclusion}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
-                        </div>
-                    </div>
-
-                    <div class="concept-info-item">
-                        <div class="concept-info-label">
-                            <i class="pi pi-wrench monnaie-communs-icon" />
                             <span>Cuisson/post-cuisson</span>
                         </div>
                         <div class="concept-info-value">
