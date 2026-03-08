@@ -51,13 +51,11 @@
 
                     <p:commandButton value="Oui, enregistrer"
                                      icon="pi pi-check"
-                                     action="#{confirmSaveBean.performSave()}"
+                                     action="#{confirmSaveBean.performSaveAndRedirect()}"
                                      process="@this"
-                                     ajax="true"
-                                     update="#{confirmSaveBean.updateIds}"
+                                     ajax="false"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
-                                     oncomplete="if(!args.validationFailed){setTimeout(function(){PF('confirmSaveDialog').hide();}, 100);}"
-                                     onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
+                                     oncomplete="if(typeof forceHideLoading==='function') forceHideLoading();"/>
                 </div>
             </h:form>
         </h:panelGroup>

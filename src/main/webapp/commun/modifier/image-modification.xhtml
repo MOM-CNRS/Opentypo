@@ -10,32 +10,27 @@
 
         <div class="reference-image-sources modifier-image-sources candidats-mt-10">
             <p class="modifier-image-deferred-hint">
-                <i class="pi pi-info-circle"/> Les images seront enregistrées sur le serveur lorsque vous cliquerez sur Enregistrer.
+                <i class="pi pi-info-circle"/>Les images chargées seront enregistrées à la validation.
             </p>
-            <div class="modifier-image-simple">
-                <ui:repeat value="#{entityUpdateBean.pendingFileSlots}" var="slot" varStatus="slotStatus">
+            <div class="modifier-image-unitaire">
+                <div class="modifier-slot-wrapper modifier-slot-add-visible">
                     <label class="modifier-slot-add-zone">
-                        <h:inputFile id="imageFileInput"
-                                     value="#{slot.part}"
-                                     styleClass="modifier-slot-file-input modifier-pending-file-input"
+                        <h:inputFile value="#{entityUpdateBean.pendingFileParts}"
+                                     styleClass="modifier-slot-file-input modifier-slot-input modifier-pending-file-input"
                                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                                     onchange="ModifierImage.onFileSelected(this);"/>
+                                     multiple="true"
+                                     onchange="ModifierImage.onFilesSelected(this);"/>
                         <i class="pi pi-plus-circle modifier-add-icon"/>
-                        <span class="modifier-add-main">Cliquez ici pour choisir une image</span>
-                        <span class="modifier-add-sub">ou glissez-déposez une image</span>
+                        <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
                         <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
                     </label>
-                </ui:repeat>
-                <div class="modifier-pending-preview modifier-pending-file-preview" style="display:none;">
-                    <div class="modifier-pending-preview-content">
-                        <img class="modifier-pending-thumb" alt="" />
-                        <div class="modifier-pending-info">
-                            <span class="modifier-pending-filename"></span>
-                            <span class="modifier-pending-hint">Sera enregistré à l'enregistrement</span>
-                            <button type="button" class="modifier-pending-clear" onclick="ModifierImage.clearPending();" title="Changer de fichier">
-                                <i class="pi pi-times"/>
-                            </button>
-                        </div>
+                </div>
+                <div class="modifier-pending-preview" style="display:none;">
+                    <div class="modifier-pending-preview-list"></div>
+                    <div class="modifier-pending-actions">
+                        <button type="button" class="modifier-pending-clear" onclick="ModifierImage.clearPending();" title="Supprimer la sélection">
+                            <i class="pi pi-times"/> Supprimer la sélection
+                        </button>
                     </div>
                 </div>
             </div>
@@ -133,6 +128,79 @@
             flex-direction: column;
             gap: 1rem;
         }
+        .modifier-image-unitaire {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .modifier-slot-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        .modifier-slot-wrapper .modifier-slot-add-zone {
+            min-height: 120px;
+            padding: 1rem 1.25rem;
+            width: 100%;
+        }
+        .modifier-pending-preview {
+            padding: 0.75rem 1rem;
+            background: rgba(71, 98, 77, 0.08);
+            border: 1px dashed rgba(71, 98, 77, 0.3);
+            border-radius: 8px;
+        }
+        .modifier-pending-preview-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .modifier-pending-preview-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid rgba(71, 98, 77, 0.15);
+        }
+        .modifier-pending-preview-item .modifier-slot-thumb {
+            width: 64px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: #f5f5f5;
+        }
+        .modifier-pending-preview-item .modifier-slot-filename {
+            font-size: 0.8rem;
+            color: #333;
+            text-align: center;
+            word-break: break-all;
+            max-width: 120px;
+        }
+        .modifier-pending-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .modifier-pending-hint {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .modifier-pending-clear {
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px solid rgba(71, 98, 77, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .modifier-pending-clear:hover {
+            background: rgba(71, 98, 77, 0.1);
+            color: var(--color-action-main, #47624D);
+        }
         .modifier-image-add-block {
             padding: 1.25rem;
             background: #f8faf8;
@@ -195,86 +263,53 @@
         .modifier-image-preview-cell:hover {
             opacity: 0.85;
         }
-        .modifier-pending-preview {
-            margin-top: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: rgba(71, 98, 77, 0.08);
-            border: 1px dashed rgba(71, 98, 77, 0.3);
-            border-radius: 8px;
-        }
-        .modifier-pending-preview-content {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .modifier-pending-thumb {
-            width: 64px;
-            height: 48px;
-            object-fit: contain;
-            border-radius: 4px;
-            background: #fff;
-        }
-        .modifier-pending-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
-        }
-        .modifier-pending-filename {
-            font-weight: 600;
-            color: #333;
-            font-size: 0.95rem;
-        }
-        .modifier-pending-hint {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        .modifier-pending-clear {
-            align-self: flex-start;
-            padding: 0.25rem 0.5rem;
-            background: transparent;
-            border: 1px solid rgba(71, 98, 77, 0.3);
-            border-radius: 4px;
-            cursor: pointer;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .modifier-pending-clear:hover {
-            background: rgba(71, 98, 77, 0.1);
-            color: var(--color-action-main, #47624D);
-        }
     </style>
     <script>
     (function() {
         window.ModifierImage = {
-            onFileSelected: function(input) {
-                var file = input &amp;&amp; input.files &amp;&amp; input.files[0];
-                var preview = document.querySelector('.modifier-pending-file-preview');
-                var thumb = preview &amp;&amp; preview.querySelector('.modifier-pending-thumb');
-                var filename = preview &amp;&amp; preview.querySelector('.modifier-pending-filename');
-                if (!preview || !thumb || !filename) return; 
-                if (!file) {
+            onFilesSelected: function(input) {
+                var files = input &amp;&amp; input.files;
+                var preview = document.querySelector('.modifier-pending-preview');
+                var listEl = preview &amp;&amp; preview.querySelector('.modifier-pending-preview-list');
+                if (!preview || !listEl) return;
+                listEl.innerHTML = '';
+                if (!files || files.length === 0) {
                     preview.style.display = 'none';
                     return;
                 }
-                filename.textContent = file.name;
-                if (file.type &amp;&amp; file.type.indexOf('image') === 0) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        thumb.src = e.target.result;
-                        thumb.style.display = '';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    thumb.style.display = 'none';
+                var count = files.length;
+                for (var i = 0; i &lt; count; i++) {
+                    var file = files[i];
+                    var item = document.createElement('div');
+                    item.className = 'modifier-pending-preview-item';
+                    var thumb = document.createElement('img');
+                    thumb.className = 'modifier-slot-thumb';
+                    thumb.alt = file.name;
+                    var nameSpan = document.createElement('span');
+                    nameSpan.className = 'modifier-slot-filename';
+                    nameSpan.textContent = file.name;
+                    item.appendChild(thumb);
+                    item.appendChild(nameSpan);
+                    listEl.appendChild(item);
+                    if (file.type &amp;&amp; file.type.indexOf('image') === 0) {
+                        var reader = new FileReader();
+                        reader.onload = (function(img) { return function(e) { img.src = e.target.result; }; })(thumb);
+                        reader.readAsDataURL(file);
+                    } else {
+                        thumb.style.display = 'none';
+                    }
                 }
                 preview.style.display = 'block';
             },
             clearPending: function() {
                 var input = document.querySelector('.modifier-pending-file-input');
-                var preview = document.querySelector('.modifier-pending-file-preview');
+                var preview = document.querySelector('.modifier-pending-preview');
                 if (input) input.value = '';
-                if (preview) preview.style.display = 'none';
+                if (preview) {
+                    preview.style.display = 'none';
+                    var listEl = preview.querySelector('.modifier-pending-preview-list');
+                    if (listEl) listEl.innerHTML = '';
+                }
             }
         };
     })();

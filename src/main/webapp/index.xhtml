@@ -2,9 +2,11 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{applicationBean.ensureStateConsistencyOnRefresh}"/>
         <!-- 1. Barre de recherche -->
         <section class="app-search">
             <ui:include src="search/search.xhtml"/>

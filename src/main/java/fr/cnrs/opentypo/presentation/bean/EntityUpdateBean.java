@@ -35,9 +35,11 @@ import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
+import jakarta.servlet.http.Part;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -133,14 +136,34 @@ public class EntityUpdateBean implements Serializable {
     /** Retourne la liste des URLs sans doublons (évite duplication après rafraîchissement). */
     public List<String> getEditingImageUrls() {
         if (editingImageUrls == null) return new ArrayList<>();
-        return new ArrayList<>(new LinkedHashSet<>(editingImageUrls));
+        List<String> deduped = new ArrayList<>(new LinkedHashSet<>(editingImageUrls));
+        if (deduped.size() != editingImageUrls.size()) {
+            editingImageUrls = deduped;
+        }
+        return new ArrayList<>(editingImageUrls);
     }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
     /** Emplacements pour fichiers en attente (stockage serveur à la validation uniquement) */
     private List<PendingFileSlot> pendingFileSlots = new ArrayList<>();
+    /** Holder pour fichiers multiples (classe simple non proxied, évite PropertyNotWritableException). */
+    private final PendingFilePartsHolder pendingFilePartsHolder = new PendingFilePartsHolder();
+
+    public PendingFilePartsHolder getPendingFilePartsHolder() {
+        return pendingFilePartsHolder;
+    }
+
+    /** Délégation pour lier h:inputFile (évite PropertyNotWritableException sur holder.parts). */
+    public List<Part> getPendingFileParts() {
+        return pendingFilePartsHolder != null ? pendingFilePartsHolder.getParts() : new ArrayList<>();
+    }
+    public void setPendingFileParts(List<Part> parts) {
+        if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(parts);
+    }
     /** URLs ajoutées depuis pendingFileSlots lors de prepareSave (à annuler si l'utilisateur annule) */
     private List<String> uploadedUrlsToRevertOnCancel = new ArrayList<>();
+    /** URLs d'images supprimées par l'utilisateur ; les fichiers physiques seront effacés à l'enregistrement */
+    private List<String> removedImageUrlsToDeleteOnSave = new ArrayList<>();
     /** Hash SHA-256 des fichiers uploadés (pour détecter les doublons) */
     private Map<String, String> uploadedFileUrlToHash = new HashMap<>();
 
@@ -347,8 +370,10 @@ public class EntityUpdateBean implements Serializable {
         }
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
-        pendingFileSlots.add(new PendingFileSlot());
+        for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
+        if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(new ArrayList<>());
         uploadedFileUrlToHash = new HashMap<>();
+        removedImageUrlsToDeleteOnSave = new ArrayList<>();
 
         initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
@@ -435,8 +460,10 @@ public class EntityUpdateBean implements Serializable {
         editingImageUrls = new ArrayList<>();
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
-        pendingFileSlots.add(new PendingFileSlot());
+        for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
+        if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(new ArrayList<>());
         uploadedFileUrlToHash = new HashMap<>();
+        removedImageUrlsToDeleteOnSave = new ArrayList<>();
     }
 
     private void initHabilitationsPickLists(Long entityId) {
@@ -682,26 +709,31 @@ public class EntityUpdateBean implements Serializable {
      * Appelé par ConfirmSaveBean dans prepareSaveForSelectedEntity (car Part n'est valide que pendant la requête).
      */
     public void uploadPendingFilesAndMergeToEditingUrls() {
-        if (pendingFileSlots == null || entityImageService == null) {
-            return;
-        }
+        if (entityImageService == null) return;
         uploadedUrlsToRevertOnCancel = new ArrayList<>();
         String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
-        if (editingImageUrls == null) {
-            editingImageUrls = new ArrayList<>();
+        if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
+        if (uploadedFileUrlToHash == null) uploadedFileUrlToHash = new HashMap<>();
+
+        List<Part> toProcess = new ArrayList<>();
+        if (pendingFilePartsHolder != null && pendingFilePartsHolder.getParts() != null && !pendingFilePartsHolder.getParts().isEmpty()) {
+            toProcess.addAll(pendingFilePartsHolder.getParts());
         }
-        for (PendingFileSlot slot : pendingFileSlots) {
-            if (slot.getPart() == null || slot.getPart().getSize() == 0) {
-                continue;
+        List<PendingFileSlot> slots = pendingFileSlots != null ? pendingFileSlots : new ArrayList<>();
+        for (PendingFileSlot slot : slots) {
+            if (slot != null && slot.getPart() != null && slot.getPart().getSize() > 0) {
+                toProcess.add(slot.getPart());
             }
+        }
+
+        for (Part part : toProcess) {
+            if (part == null || part.getSize() <= 0) continue;
             try {
-                byte[] content = slot.getPart().getInputStream().readAllBytes();
+                byte[] content = part.getInputStream().readAllBytes();
                 String hash = computeSha256Hex(content);
-                if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) {
-                    continue; // doublon, on ignore
-                }
-                String url = entityImageService.saveUploadedImage(content, slot.getPart().getSubmittedFileName(),
-                        slot.getPart().getContentType(), contextPath);
+                if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) continue;
+                String url = entityImageService.saveUploadedImage(content, part.getSubmittedFileName(),
+                        part.getContentType(), contextPath);
                 editingImageUrls.add(url);
                 uploadedUrlsToRevertOnCancel.add(url);
                 if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.put(url, hash);
@@ -710,8 +742,9 @@ public class EntityUpdateBean implements Serializable {
                 addErrorMessage("Impossible d'enregistrer un fichier : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
             }
         }
+        if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(new ArrayList<>());
         pendingFileSlots = new ArrayList<>();
-        pendingFileSlots.add(new PendingFileSlot()); // garde une zone d'ajout
+        for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
     }
 
     /** Annule les uploads effectués lors du dernier prepareSave (si l'utilisateur a cliqué Annuler). */
@@ -739,15 +772,15 @@ public class EntityUpdateBean implements Serializable {
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
     }
 
-    /** Supprime l'image par son URL et le fichier physique sur le serveur si c'est un upload local. */
+    /** Retire l'image de la liste d'édition. La suppression physique du fichier est reportée à l'enregistrement. */
     public void removeImageByUrl(String url) {
         if (editingImageUrls != null && url != null && editingImageUrls.remove(url)) {
-            if (entityImageService != null && url.contains("/uploaded-images/")) {
-                entityImageService.deletePhysicalFileByUrl(url);
+            if (url.contains("/uploaded-images/") && removedImageUrlsToDeleteOnSave != null) {
+                removedImageUrlsToDeleteOnSave.add(url);
             }
             if (uploadedUrlsToRevertOnCancel != null) uploadedUrlsToRevertOnCancel.remove(url);
             if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.remove(url);
-            addInfoMessage("Image supprimée.");
+            addInfoMessage("Image retirée (suppression effective à l'enregistrement).");
         }
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
     }
@@ -899,6 +932,17 @@ public class EntityUpdateBean implements Serializable {
         }
 
         Entity entitySaved = entityRepository.save(entityToUpdate);
+
+        // Supprimer les fichiers physiques des images retirées par l'utilisateur
+        if (entityImageService != null && removedImageUrlsToDeleteOnSave != null && !removedImageUrlsToDeleteOnSave.isEmpty()) {
+            for (String url : removedImageUrlsToDeleteOnSave) {
+                if (url != null && url.contains("/uploaded-images/")) {
+                    entityImageService.deletePhysicalFileByUrl(url);
+                }
+            }
+            removedImageUrlsToDeleteOnSave.clear();
+        }
+
         if (entityToUpdate.getEntityType() != null && entityToUpdate.getEntityType().getId() != null) {
             long typeId = entityToUpdate.getEntityType().getId();
             if (typeId == 6) {

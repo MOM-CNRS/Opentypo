@@ -54,6 +54,18 @@ public class ConfirmSaveBean implements Serializable {
     }
 
     /**
+     * Enregistre immédiatement : upload des images (fichiers physiques) puis sauvegarde en base.
+     * Les images sont chargées sur le serveur et les URLs en base lors du clic sur Enregistrer.
+     * Redirige après sauvegarde (PRG) pour éviter la resoumission du formulaire au rafraîchissement.
+     */
+    public String saveWithImagesImmediately() {
+        entityUpdateBean.uploadPendingFilesAndMergeToEditingUrls();
+        prepareSaveForSelectedEntity();
+        performSave();
+        return "/index.xhtml?faces-redirect=true";
+    }
+
+    /**
      * Prépare la sauvegarde en fonction du type de l'entité sélectionnée
      * (entityType.id: 1=REFERENTIEL, 6=COLLECTION, autre=GROUPE).
      * Upload les fichiers en attente (stockage différé) avant d'ouvrir le dialog.
@@ -132,5 +144,13 @@ public class ConfirmSaveBean implements Serializable {
                 typeBean.saveEditingType(applicationBean);
                 break;
         }
+    }
+
+    /**
+     * Exécute la sauvegarde puis redirige (PRG) pour éviter la resoumission au rafraîchissement.
+     */
+    public String performSaveAndRedirect() {
+        performSave();
+        return "/index.xhtml?faces-redirect=true";
     }
 }

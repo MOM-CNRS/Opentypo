@@ -240,6 +240,17 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Appelé en preRenderView (requête GET / rafraîchissement). Resynchronise l'arbre avec selectedEntity
+     * pour préserver le mode édition et la sélection après un rafraîchissement manuel.
+     */
+    public void ensureStateConsistencyOnRefresh() {
+        jakarta.faces.context.FacesContext fc = jakarta.faces.context.FacesContext.getCurrentInstance();
+        if (fc == null || fc.isPostback() || selectedEntity == null) return;
+        TreeBean tb = getTreeBean();
+        if (tb != null) tb.expandPathAndSelectEntity(selectedEntity);
+    }
+
+    /**
      * Retourne le CandidatBean (résolution paresseuse via Provider pour éviter la dépendance circulaire).
      */
     public CandidatBean getCandidatBean() {

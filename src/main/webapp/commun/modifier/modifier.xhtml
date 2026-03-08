@@ -150,8 +150,9 @@
                              iconPos="left"
                              action="#{confirmSaveBean.prepareSaveForSelectedEntity()}"
                              process="@form"
-                             update=":confirmSaveDialogContent :centerContent"
-                             oncomplete="window.scrollTo({ top: 0, behavior: 'smooth' }); PF('confirmSaveDialog').show();"
+                             ajax="true"
+                             update=":growl"
+                             oncomplete="PF('confirmSaveDialog').show();"
                              styleClass="collection-modifier-btn collection-modifier-btn-save"/>
         </div>
     </h:panelGroup>
