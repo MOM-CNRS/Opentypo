@@ -1,5 +1,11 @@
 # Configuration commune (local et prod)
 # Exclut ErrorMvcAutoConfiguration pour éviter le conflit avec notre ErrorController personnalisé
+
+# Images uploadées : répertoire racine (par défaut : répertoire de travail + /images)
+opentypo:
+  images:
+    path: ${OPENTYPO_IMAGES_PATH:${user.dir}/images}
+
 spring:
   autoconfigure:
     exclude: org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration

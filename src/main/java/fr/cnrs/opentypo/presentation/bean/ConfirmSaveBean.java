@@ -56,8 +56,10 @@ public class ConfirmSaveBean implements Serializable {
     /**
      * Prépare la sauvegarde en fonction du type de l'entité sélectionnée
      * (entityType.id: 1=REFERENTIEL, 6=COLLECTION, autre=GROUPE).
+     * Upload les fichiers en attente (stockage différé) avant d'ouvrir le dialog.
      */
     public void prepareSaveForSelectedEntity() {
+        entityUpdateBean.uploadPendingFilesAndMergeToEditingUrls();
         Entity e = applicationBean != null ? applicationBean.getSelectedEntity() : null;
         if (e == null || e.getEntityType() == null || e.getEntityType().getId() == null) {
             prepareSave(TARGET_GROUP);

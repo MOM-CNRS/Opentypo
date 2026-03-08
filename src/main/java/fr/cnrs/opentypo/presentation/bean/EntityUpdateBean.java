@@ -48,15 +48,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import jakarta.servlet.http.Part;
-
+import java.io.IOException;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -134,8 +137,12 @@ public class EntityUpdateBean implements Serializable {
     }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
-    /** Fichier sélectionné pour ajout (h:inputFile, soumission non-AJAX requise) */
-    private Part uploadedFilePart;
+    /** Emplacements pour fichiers en attente (stockage serveur à la validation uniquement) */
+    private List<PendingFileSlot> pendingFileSlots = new ArrayList<>();
+    /** URLs ajoutées depuis pendingFileSlots lors de prepareSave (à annuler si l'utilisateur annule) */
+    private List<String> uploadedUrlsToRevertOnCancel = new ArrayList<>();
+    /** Hash SHA-256 des fichiers uploadés (pour détecter les doublons) */
+    private Map<String, String> uploadedFileUrlToHash = new HashMap<>();
 
     private DualListModel<Long> redacteursPickList;
     private DualListModel<Long> validateursPickList;
@@ -339,7 +346,9 @@ public class EntityUpdateBean implements Serializable {
             editingImageUrls = new ArrayList<>();
         }
         newImageUrlInput = null;
-        uploadedFilePart = null;
+        pendingFileSlots = new ArrayList<>();
+        pendingFileSlots.add(new PendingFileSlot());
+        uploadedFileUrlToHash = new HashMap<>();
 
         initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
@@ -425,7 +434,9 @@ public class EntityUpdateBean implements Serializable {
         referenceBibliographiqueList = new ArrayList<>();
         editingImageUrls = new ArrayList<>();
         newImageUrlInput = null;
-        uploadedFilePart = null;
+        pendingFileSlots = new ArrayList<>();
+        pendingFileSlots.add(new PendingFileSlot());
+        uploadedFileUrlToHash = new HashMap<>();
     }
 
     private void initHabilitationsPickLists(Long entityId) {
@@ -593,35 +604,130 @@ public class EntityUpdateBean implements Serializable {
         if (editingImageUrls == null) {
             editingImageUrls = new ArrayList<>();
         }
+        if (editingImageUrls.stream().anyMatch(u -> u != null && u.trim().equalsIgnoreCase(url))) {
+            addErrorMessage("Cette URL a déjà été ajoutée.");
+            PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+            return;
+        }
         editingImageUrls.add(url);
         newImageUrlInput = null;
         addInfoMessage("Image ajoutée.");
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
     }
 
-    /** Ajoute une image à partir d'un fichier uploadé. Appelé après soumission non-AJAX du formulaire. */
-    public void addImageFromFile() {
-        if (uploadedFilePart == null || uploadedFilePart.getSize() == 0) {
-            addErrorMessage("Veuillez sélectionner un fichier.");
+    /**
+     * Appelé quand l'utilisateur sélectionne un fichier : enregistre immédiatement et ajoute un nouveau slot.
+     * Un seul slot vide reste affiché pour la prochaine sélection.
+     * Vérifie les doublons par hash du contenu.
+     */
+    public void addImageFromFileAndAddSlot() {
+        if (pendingFileSlots == null || pendingFileSlots.isEmpty() || entityImageService == null) {
+            addErrorMessage("Impossible d'ajouter l'image.");
+            PrimeFaces.current().ajax().update(":centerContent", ":growl");
             return;
         }
-        if (entityImageService == null) {
-            addErrorMessage("Service d'images non disponible.");
+        PendingFileSlot slot = pendingFileSlots.get(0);
+        if (slot.getPart() == null || slot.getPart().getSize() == 0) {
+            addErrorMessage("Veuillez sélectionner un fichier.");
+            PrimeFaces.current().ajax().update(":centerContent", ":growl");
             return;
         }
         try {
-            String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
-            String url = entityImageService.saveUploadedImage(uploadedFilePart, contextPath);
-            if (editingImageUrls == null) {
-                editingImageUrls = new ArrayList<>();
+            byte[] content = slot.getPart().getInputStream().readAllBytes();
+            String hash = computeSha256Hex(content);
+            if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) {
+                addErrorMessage("Ce fichier a déjà été ajouté.");
+                pendingFileSlots.set(0, new PendingFileSlot());
+                PrimeFaces.current().ajax().update(":centerContent", ":growl");
+                return;
             }
+            String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+            String filename = slot.getPart().getSubmittedFileName();
+            String contentType = slot.getPart().getContentType();
+            String url = entityImageService.saveUploadedImage(content, filename, contentType, contextPath);
+            if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
             editingImageUrls.add(url);
+            if (uploadedUrlsToRevertOnCancel == null) uploadedUrlsToRevertOnCancel = new ArrayList<>();
+            uploadedUrlsToRevertOnCancel.add(url);
+            if (uploadedFileUrlToHash == null) uploadedFileUrlToHash = new HashMap<>();
+            uploadedFileUrlToHash.put(url, hash);
             addInfoMessage("Image ajoutée.");
+        } catch (IOException e) {
+            log.error("Erreur lors de la lecture du fichier", e);
+            addErrorMessage("Impossible de lire le fichier.");
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement de l'image", e);
             addErrorMessage("Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
         }
-        uploadedFilePart = null;
+        pendingFileSlots.set(0, new PendingFileSlot());
+        PrimeFaces.current().ajax().update(":centerContent", ":growl");
+    }
+
+    private static String computeSha256Hex(byte[] data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(data);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 non disponible", e);
+        }
+    }
+
+    /**
+     * Upload les fichiers en attente et les fusionne dans editingImageUrls.
+     * Appelé par ConfirmSaveBean dans prepareSaveForSelectedEntity (car Part n'est valide que pendant la requête).
+     */
+    public void uploadPendingFilesAndMergeToEditingUrls() {
+        if (pendingFileSlots == null || entityImageService == null) {
+            return;
+        }
+        uploadedUrlsToRevertOnCancel = new ArrayList<>();
+        String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+        if (editingImageUrls == null) {
+            editingImageUrls = new ArrayList<>();
+        }
+        for (PendingFileSlot slot : pendingFileSlots) {
+            if (slot.getPart() == null || slot.getPart().getSize() == 0) {
+                continue;
+            }
+            try {
+                byte[] content = slot.getPart().getInputStream().readAllBytes();
+                String hash = computeSha256Hex(content);
+                if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) {
+                    continue; // doublon, on ignore
+                }
+                String url = entityImageService.saveUploadedImage(content, slot.getPart().getSubmittedFileName(),
+                        slot.getPart().getContentType(), contextPath);
+                editingImageUrls.add(url);
+                uploadedUrlsToRevertOnCancel.add(url);
+                if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.put(url, hash);
+            } catch (Exception e) {
+                log.error("Erreur lors de l'upload d'une image en attente", e);
+                addErrorMessage("Impossible d'enregistrer un fichier : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+            }
+        }
+        pendingFileSlots = new ArrayList<>();
+        pendingFileSlots.add(new PendingFileSlot()); // garde une zone d'ajout
+    }
+
+    /** Annule les uploads effectués lors du dernier prepareSave (si l'utilisateur a cliqué Annuler). */
+    public void revertPendingFileUploads() {
+        if (uploadedUrlsToRevertOnCancel != null && editingImageUrls != null) {
+            editingImageUrls.removeAll(uploadedUrlsToRevertOnCancel);
+            if (entityImageService != null) {
+                for (String url : uploadedUrlsToRevertOnCancel) {
+                    entityImageService.deletePhysicalFileByUrl(url);
+                }
+            }
+            if (uploadedFileUrlToHash != null) {
+                uploadedUrlsToRevertOnCancel.forEach(uploadedFileUrlToHash::remove);
+            }
+            uploadedUrlsToRevertOnCancel = new ArrayList<>();
+        }
     }
 
     /** Supprime l'image à l'index donné. */
@@ -633,9 +739,14 @@ public class EntityUpdateBean implements Serializable {
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
     }
 
-    /** Supprime l'image par son URL (évite ClassCastException avec idx dans action). */
+    /** Supprime l'image par son URL et le fichier physique sur le serveur si c'est un upload local. */
     public void removeImageByUrl(String url) {
         if (editingImageUrls != null && url != null && editingImageUrls.remove(url)) {
+            if (entityImageService != null && url.contains("/uploaded-images/")) {
+                entityImageService.deletePhysicalFileByUrl(url);
+            }
+            if (uploadedUrlsToRevertOnCancel != null) uploadedUrlsToRevertOnCancel.remove(url);
+            if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.remove(url);
             addInfoMessage("Image supprimée.");
         }
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");

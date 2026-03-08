@@ -1,6 +1,5 @@
 package fr.cnrs.opentypo.application.service;
 
-import fr.cnrs.opentypo.OpenTypoApplication;
 import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.presentation.bean.PartToMultipartFileAdapter;
@@ -12,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,6 +82,29 @@ public class EntityImageService {
     }
 
     /**
+     * Sauvegarde un fichier depuis un tableau d'octets (pour permettre calcul de hash avant sauvegarde).
+     */
+    public String saveUploadedImage(byte[] content, String originalFilename, String contentType, String contextPath) throws IOException {
+        if (content == null || content.length == 0) {
+            throw new IllegalArgumentException("Le fichier est vide ou null");
+        }
+        if (!isAllowedImage(contentType, originalFilename)) {
+            throw new IllegalArgumentException("Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WebP.");
+        }
+        Path basePath = getImagesBasePath();
+        Files.createDirectories(basePath);
+        String extension = getExtension(originalFilename);
+        String uniqueFilename = UUID.randomUUID().toString() + extension;
+        Path targetPath = basePath.resolve(uniqueFilename);
+        try (InputStream is = new ByteArrayInputStream(content)) {
+            Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+        log.info("Image sauvegardée: {}", targetPath.toAbsolutePath());
+        String urlPath = (contextPath != null ? contextPath : "") + "/uploaded-images/" + uniqueFilename;
+        return urlPath;
+    }
+
+    /**
      * Sauvegarde un fichier depuis jakarta.servlet.http.Part (h:inputFile).
      */
     public String saveUploadedImage(jakarta.servlet.http.Part part, String contextPath) throws IOException {
@@ -129,23 +151,12 @@ public class EntityImageService {
     }
 
     /**
-     * Retourne le chemin du répertoire images.
-     * Priorité : opentypo.images.path > répertoire du JAR/images > user.dir/images
+     * Retourne le chemin du répertoire racine pour les images.
+     * Utilise opentypo.images.path (configurable) ou user.dir/images par défaut.
      */
     public Path getImagesBasePath() {
         if (StringUtils.hasText(imagesPathOverride)) {
             return Paths.get(imagesPathOverride);
-        }
-        try {
-            URI uri = OpenTypoApplication.class.getProtectionDomain()
-                    .getCodeSource().getLocation().toURI();
-            Path codePath = Paths.get(uri);
-            if (codePath.toString().endsWith(".jar")) {
-                return codePath.getParent().resolve("images");
-            }
-            return codePath.resolve("images");
-        } catch (Exception e) {
-            log.warn("Impossible de déterminer l'emplacement du JAR, utilisation de user.dir: {}", e.getMessage());
         }
         return Paths.get(System.getProperty("user.dir", "."), "images");
     }
@@ -181,6 +192,29 @@ public class EntityImageService {
             } catch (IOException e) {
                 log.warn("Impossible de supprimer le fichier image {}: {}", filePath, e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Supprime un fichier physique à partir de son URL (ex: /opentypo/uploaded-images/xxx.jpg).
+     */
+    public void deletePhysicalFileByUrl(String url) {
+        if (url == null || !url.contains("/uploaded-images/")) {
+            return;
+        }
+        String filename = url.substring(url.lastIndexOf("/") + 1);
+        if (filename.isEmpty()) {
+            return;
+        }
+        Path basePath = getImagesBasePath();
+        Path filePath = basePath.resolve(filename);
+        try {
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                log.info("Fichier image supprimé: {}", filePath.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.warn("Impossible de supprimer le fichier image {}: {}", filePath, e.getMessage());
         }
     }
 }

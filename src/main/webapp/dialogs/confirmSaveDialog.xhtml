@@ -43,11 +43,11 @@
                 <div class="reference-confirm-actions">
                     <p:commandButton value="Annuler"
                                      icon="pi pi-times"
-                                     type="button"
                                      styleClass="reference-confirm-btn reference-confirm-btn-cancel"
+                                     action="#{entityUpdateBean.revertPendingFileUploads()}"
                                      process="@this"
-                                     update="@none"
-                                     onclick="PF('confirmSaveDialog').hide(); return false;"/>
+                                     update=":contentPanels"
+                                     oncomplete="PF('confirmSaveDialog').hide();"/>
 
                     <p:commandButton value="Oui, enregistrer"
                                      icon="pi pi-check"
