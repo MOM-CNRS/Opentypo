@@ -624,6 +624,14 @@ public class EntityUpdateBean implements Serializable {
         PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
     }
 
+    /** Supprime l'image par son URL (évite ClassCastException avec idx dans action). */
+    public void removeImageByUrl(String url) {
+        if (editingImageUrls != null && url != null && editingImageUrls.remove(url)) {
+            addInfoMessage("Image supprimée.");
+        }
+        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+    }
+
     /**
      * Sauvegarde les modifications du référentiel.
      * Enregistre : code, label (selon langue choisie), description (selon langue choisie),

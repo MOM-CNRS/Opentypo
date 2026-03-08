@@ -10,23 +10,25 @@
 
         <!-- Zone d'ajout : design aligné sur referenceDialog (référence-image-*) -->
         <div class="reference-image-sources modifier-image-sources candidats-mt-10">
-            <label class="reference-image-file-zone">
-                <h:inputFile id="imageFileInput"
-                             update=":contentPanels"
-                             value="#{entityUpdateBean.uploadedFilePart}"
-                             styleClass="reference-image-file-input-hidden"
-                             accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"/>
-                <i class="pi pi-upload reference-image-file-icon"/>
-                <span class="reference-image-file-label">Choisir un fichier</span>
-                <span class="reference-image-file-hint">JPG, PNG, GIF ou WebP</span>
-            </label>
-            <p:commandButton value="Ajouter le fichier"
-                             icon="pi pi-plus"
-                             update=":contentPanels"
-                             styleClass="candidat-btn-add modifier-image-add-file-btn"
-                             actionListener="#{entityUpdateBean.addImageFromFile()}"
-                             process="@form"
-                             ajax="false"/>
+
+            <h:panelGroup style="text-align: center">
+                <label class="reference-image-file-zone">
+                    <h:inputFile id="imageFileInput"
+                                 value="#{entityUpdateBean.uploadedFilePart}"
+                                 styleClass="reference-image-file-input-hidden"
+                                 accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"/>
+                    <i class="pi pi-upload reference-image-file-icon"/>
+                    <span class="reference-image-file-label">Choisir un fichier</span>
+                    <span class="reference-image-file-hint">JPG, PNG, GIF ou WebP</span>
+                </label>
+                <p:commandButton value="Ajouter le fichier"
+                                 icon="pi pi-plus"
+                                 update=":contentPanels"
+                                 styleClass="candidat-btn-add modifier-image-add-file-btn"
+                                 actionListener="#{entityUpdateBean.addImageFromFile()}"
+                                 process="@this"
+                                 ajax="false"/>
+            </h:panelGroup>
 
             <div class="reference-image-divider">
                 <span class="reference-image-divider-line"/>
@@ -35,16 +37,17 @@
             </div>
 
             <div class="reference-image-url-group">
-                <p:inputText value="#{entityUpdateBean.newImageUrlInput}"
-                             id="newImageUrlInput"
-                             styleClass="reference-input reference-image-url-input"
-                             placeholder="https://exemple.com/image.jpg"
-                             maxlength="2048"/>
+                <div class="input-wrapper periode-input-wrapper collection-select">
+                    <i class="pi pi-tag input-icon" />
+                    <p:inputText value="#{entityUpdateBean.newImageUrlInput}"
+                                 placeholder="https://exemple.com/image.jpg"
+                                 styleClass="users-input"/>
+                </div>
                 <p:commandButton value="Ajouter par URL"
                                  icon="pi pi-plus"
                                  styleClass="reference-btn-add reference-image-url-btn"
                                  actionListener="#{entityUpdateBean.addImageFromUrl()}"
-                                 process="@form"
+                                 process="@this"
                                  ajax="true"
                                  update=":contentPanels :growl"/>
             </div>
@@ -73,7 +76,7 @@
                 <div class="candidat-table-action-cell">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     action="#{entityUpdateBean.removeImageAtIndex(idx)}"
+                                     action="#{entityUpdateBean.removeImageByUrl(imgUrl)}"
                                      process="@this"
                                      ajax="true"
                                      update=":contentPanels :growl"
@@ -109,6 +112,7 @@
             align-self: flex-start;
         }
         .modifier-image-add-file-btn {
+            margin-top: 10px;
             align-self: flex-start;
         }
     </style>
