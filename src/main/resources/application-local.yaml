@@ -1,3 +1,9 @@
+# En dev local : stocker les images hors du projet pour éviter que DevTools
+# redémarre l'app à chaque upload (Spring Boot DevTools surveille les fichiers du projet)
+opentypo:
+  images:
+    path: ${java.io.tmpdir}/opentypo-images
+
 server:
   port: 8080
   servlet:
@@ -59,4 +65,3 @@ iiif:
   server:
     url: ${IIIF_SERVER_URL:http://localhost:8182}  # URL de base du serveur IIIF
     api-key: ${IIIF_API_KEY:}  # Clé API optionnelle pour l'authentification
-

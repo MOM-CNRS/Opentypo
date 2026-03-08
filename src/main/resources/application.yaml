@@ -3,6 +3,10 @@
 spring:
   autoconfigure:
     exclude: org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration
+  devtools:
+    restart:
+      # Évite le redémarrage quand on upload une image (fichiers sauvegardés dans images/)
+      additional-exclude: "**/images/**"
   servlet:
     multipart:
       max-file-size: 10MB

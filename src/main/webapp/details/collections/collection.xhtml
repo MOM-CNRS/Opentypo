@@ -6,7 +6,7 @@
     <!-- 1. Panneau détail collection : en-tête, vue/modifier, liste référentiels -->
     <h:panelGroup id="collectionDetailPanel" class="row collection-page-wrapper">
         <div class="col-md-12 collection-page-content">
-            <h:form id="collectionEditForm" styleClass="groupe-header-form-inline">
+            <h:form id="collectionEditForm" styleClass="groupe-header-form-inline" enctype="multipart/form-data">
                 <div class="concept-info-panel #{entityUpdateBean.editingEntity ? 'collection-edit-mode' : ''}">
                     <div class="concept-info-header #{entityUpdateBean.editingEntity ? 'collection-edit-header' : ''}">
                         <div class="concept-info-title-section">

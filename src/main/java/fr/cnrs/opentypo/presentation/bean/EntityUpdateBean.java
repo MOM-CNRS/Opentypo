@@ -14,6 +14,7 @@ import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityMetadata;
+import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
@@ -23,9 +24,11 @@ import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueMonnai
 import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionDetailRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionMonnaieRepository;
+import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
@@ -44,6 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import jakarta.servlet.http.Part;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -111,6 +116,19 @@ public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private CollectionBean collectionBean;
+
+    @Autowired
+    private EntityImageService entityImageService;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    /** Images en cours d'édition (URLs) */
+    private List<String> editingImageUrls = new ArrayList<>();
+    /** URL saisie pour ajouter une nouvelle image */
+    private String newImageUrlInput;
+    /** Fichier sélectionné pour ajout (h:inputFile, soumission non-AJAX requise) */
+    private Part uploadedFilePart;
 
     private DualListModel<Long> redacteursPickList;
     private DualListModel<Long> validateursPickList;
@@ -299,6 +317,21 @@ public class EntityUpdateBean implements Serializable {
                     .collect(Collectors.toList());
         }
 
+        // Charger les images existantes (via repository pour éviter LazyInitializationException)
+        if (imageRepository != null && entity.getId() != null) {
+            List<Image> images = imageRepository.findByEntity_Id(entity.getId());
+            editingImageUrls = images != null
+                    ? images.stream()
+                            .map(Image::getUrl)
+                            .filter(url -> url != null && !url.isBlank())
+                            .collect(Collectors.toList())
+                    : new ArrayList<>();
+        } else {
+            editingImageUrls = new ArrayList<>();
+        }
+        newImageUrlInput = null;
+        uploadedFilePart = null;
+
         initHabilitationsPickLists(entity.getId());
         updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
@@ -381,6 +414,9 @@ public class EntityUpdateBean implements Serializable {
         validateursPickList = null;
         relecteursPickList = null;
         referenceBibliographiqueList = new ArrayList<>();
+        editingImageUrls = new ArrayList<>();
+        newImageUrlInput = null;
+        uploadedFilePart = null;
     }
 
     private void initHabilitationsPickLists(Long entityId) {
@@ -538,6 +574,56 @@ public class EntityUpdateBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", msg));
     }
 
+    /** Ajoute une image par URL. */
+    public void addImageFromUrl() {
+        if (newImageUrlInput == null || newImageUrlInput.trim().isEmpty()) {
+            addErrorMessage("Veuillez saisir une URL.");
+            return;
+        }
+        String url = newImageUrlInput.trim();
+        if (editingImageUrls == null) {
+            editingImageUrls = new ArrayList<>();
+        }
+        editingImageUrls.add(url);
+        newImageUrlInput = null;
+        addInfoMessage("Image ajoutée.");
+        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+    }
+
+    /** Ajoute une image à partir d'un fichier uploadé. Appelé après soumission non-AJAX du formulaire. */
+    public void addImageFromFile() {
+        if (uploadedFilePart == null || uploadedFilePart.getSize() == 0) {
+            addErrorMessage("Veuillez sélectionner un fichier.");
+            return;
+        }
+        if (entityImageService == null) {
+            addErrorMessage("Service d'images non disponible.");
+            return;
+        }
+        try {
+            String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+            String url = entityImageService.saveUploadedImage(uploadedFilePart, contextPath);
+            if (editingImageUrls == null) {
+                editingImageUrls = new ArrayList<>();
+            }
+            editingImageUrls.add(url);
+            addInfoMessage("Image ajoutée.");
+        } catch (Exception e) {
+            log.error("Erreur lors de l'enregistrement de l'image", e);
+            addErrorMessage("Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+        }
+        uploadedFilePart = null;
+    }
+
+    /** Supprime l'image à l'index donné. */
+    public void removeImageAtIndex(int index) {
+        if (editingImageUrls != null && index >= 0 && index < editingImageUrls.size()) {
+            editingImageUrls.remove(index);
+            addInfoMessage("Image supprimée.");
+        }
+        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+    }
+
     /**
      * Sauvegarde les modifications du référentiel.
      * Enregistre : code, label (selon langue choisie), description (selon langue choisie),
@@ -660,6 +746,26 @@ public class EntityUpdateBean implements Serializable {
                         .anyMatch(u -> u.getId() != null && u.getId().equals(managedUser.getId()));
                 if (!alreadyAuthor) {
                     auteurs.add(managedUser);
+                }
+            }
+        }
+
+        // Mise à jour des images
+        if (imageRepository != null) {
+            imageRepository.deleteByEntityId(entityToUpdate.getId());
+        }
+        if (entityToUpdate.getImages() == null) {
+            entityToUpdate.setImages(new ArrayList<>());
+        } else {
+            entityToUpdate.getImages().clear();
+        }
+        if (editingImageUrls != null) {
+            for (String url : editingImageUrls) {
+                if (StringUtils.hasText(url)) {
+                    Image image = new Image();
+                    image.setUrl(url.trim());
+                    image.setEntity(entityToUpdate);
+                    entityToUpdate.getImages().add(image);
                 }
             }
         }

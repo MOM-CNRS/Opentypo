@@ -25,7 +25,7 @@
     <!-- 2. Panneau détail référentiel : en-tête, vue/modifier, liste catégories -->
     <h:panelGroup id="referenceDetailPanel" class="row collection-page-wrapper">
         <div class="col-md-12 collection-page-content">
-            <h:form id="referenceEditForm" styleClass="groupe-header-form-inline">
+            <h:form id="referenceEditForm" styleClass="groupe-header-form-inline" enctype="multipart/form-data">
                 <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
                     <!-- En-tête avec titre et actions -->
                     <div class="concept-info-header #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-header' : ''}">

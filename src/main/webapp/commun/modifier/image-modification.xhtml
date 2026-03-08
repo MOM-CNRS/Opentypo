@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGroup id="imageModificationSection" layout="block" class="users-form-group users-form-group-full periode-group">
+        <div class="periode-header-row">
+            <p:outputLabel value="Images" />
+        </div>
+
+        <!-- Zone d'ajout : design aligné sur referenceDialog (référence-image-*) -->
+        <div class="reference-image-sources modifier-image-sources candidats-mt-10">
+            <label class="reference-image-file-zone">
+                <h:inputFile id="imageFileInput"
+                             update=":contentPanels"
+                             value="#{entityUpdateBean.uploadedFilePart}"
+                             styleClass="reference-image-file-input-hidden"
+                             accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"/>
+                <i class="pi pi-upload reference-image-file-icon"/>
+                <span class="reference-image-file-label">Choisir un fichier</span>
+                <span class="reference-image-file-hint">JPG, PNG, GIF ou WebP</span>
+            </label>
+            <p:commandButton value="Ajouter le fichier"
+                             icon="pi pi-plus"
+                             update=":contentPanels"
+                             styleClass="candidat-btn-add modifier-image-add-file-btn"
+                             actionListener="#{entityUpdateBean.addImageFromFile()}"
+                             process="@form"
+                             ajax="false"/>
+
+            <div class="reference-image-divider">
+                <span class="reference-image-divider-line"/>
+                <span class="reference-image-divider-text">ou</span>
+                <span class="reference-image-divider-line"/>
+            </div>
+
+            <div class="reference-image-url-group">
+                <p:inputText value="#{entityUpdateBean.newImageUrlInput}"
+                             id="newImageUrlInput"
+                             styleClass="reference-input reference-image-url-input"
+                             placeholder="https://exemple.com/image.jpg"
+                             maxlength="2048"/>
+                <p:commandButton value="Ajouter par URL"
+                                 icon="pi pi-plus"
+                                 styleClass="reference-btn-add reference-image-url-btn"
+                                 actionListener="#{entityUpdateBean.addImageFromUrl()}"
+                                 process="@form"
+                                 ajax="true"
+                                 update=":contentPanels :growl"/>
+            </div>
+        </div>
+
+        <!-- Liste des images -->
+        <p:dataTable value="#{entityUpdateBean.editingImageUrls}"
+                     var="imgUrl"
+                     rowIndexVar="idx"
+                     styleClass="candidat-labels-table candidats-mt-10"
+                     emptyMessage="Aucune image ajoutée"
+                     rendered="#{not empty entityUpdateBean.editingImageUrls}">
+            <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
+                <div class="candidat-table-label-cell">
+                    <p:graphicImage value="#{imgUrl}"
+                                   alt="Aperçu"
+                                   style="max-width: 48px; max-height: 36px; object-fit: contain;"/>
+                </div>
+            </p:column>
+            <p:column headerText="URL" styleClass="candidat-table-label-column candidats-table-label-padding">
+                <div class="candidat-table-label-cell">
+                    <h:outputText value="#{imgUrl}" styleClass="candidat-table-label-text"/>
+                </div>
+            </p:column>
+            <p:column styleClass="candidat-table-action-column">
+                <div class="candidat-table-action-cell">
+                    <p:commandButton icon="pi pi-trash"
+                                     styleClass="candidat-btn-remove"
+                                     action="#{entityUpdateBean.removeImageAtIndex(idx)}"
+                                     process="@this"
+                                     ajax="true"
+                                     update=":contentPanels :growl"
+                                     title="Supprimer cette image"/>
+                </div>
+            </p:column>
+        </p:dataTable>
+
+        <ui:fragment rendered="#{empty entityUpdateBean.editingImageUrls}">
+            <div class="candidat-no-labels candidats-mt-10">
+                <div class="candidat-no-labels-content">
+                    <div class="candidat-no-labels-icon"><i class="pi pi-images" /></div>
+                    <div class="candidat-no-labels-text">
+                        <h4 class="candidat-no-labels-title">Aucune image</h4>
+                        <p class="candidat-no-labels-message">Choisissez un fichier ou collez une URL pour ajouter une image.</p>
+                    </div>
+                </div>
+            </div>
+        </ui:fragment>
+    </h:panelGroup>
+
+    <style>
+        .modifier-image-sources {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid rgba(71, 98, 77, 0.15);
+            border-radius: 8px;
+        }
+        .modifier-image-sources .reference-image-file-zone {
+            align-self: flex-start;
+        }
+        .modifier-image-add-file-btn {
+            align-self: flex-start;
+        }
+    </style>
+</ui:composition>

@@ -34,6 +34,11 @@
 
             <ui:include src="definition-modification.xhtml"/>
 
+            <!-- Images : ajouter, modifier, supprimer -->
+            <h:panelGroup layout="block" class="periode-group candidats-mt-20">
+                <ui:include src="image-modification.xhtml"/>
+            </h:panelGroup>
+
             <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 1}">
                 <ui:include src="periode-tpq-taq-modification.xhtml"/>
 
