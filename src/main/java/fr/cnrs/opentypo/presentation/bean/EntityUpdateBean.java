@@ -55,6 +55,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -125,6 +126,12 @@ public class EntityUpdateBean implements Serializable {
 
     /** Images en cours d'édition (URLs) */
     private List<String> editingImageUrls = new ArrayList<>();
+
+    /** Retourne la liste des URLs sans doublons (évite duplication après rafraîchissement). */
+    public List<String> getEditingImageUrls() {
+        if (editingImageUrls == null) return new ArrayList<>();
+        return new ArrayList<>(new LinkedHashSet<>(editingImageUrls));
+    }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
     /** Fichier sélectionné pour ajout (h:inputFile, soumission non-AJAX requise) */
@@ -318,12 +325,14 @@ public class EntityUpdateBean implements Serializable {
         }
 
         // Charger les images existantes (via repository pour éviter LazyInitializationException)
+        // distinct() évite les doublons (jointures JPA ou rafraîchissement page)
         if (imageRepository != null && entity.getId() != null) {
             List<Image> images = imageRepository.findByEntity_Id(entity.getId());
             editingImageUrls = images != null
                     ? images.stream()
                             .map(Image::getUrl)
                             .filter(url -> url != null && !url.isBlank())
+                            .distinct()
                             .collect(Collectors.toList())
                     : new ArrayList<>();
         } else {
@@ -768,7 +777,7 @@ public class EntityUpdateBean implements Serializable {
             entityToUpdate.getImages().clear();
         }
         if (editingImageUrls != null) {
-            for (String url : editingImageUrls) {
+            for (String url : new LinkedHashSet<>(editingImageUrls)) {
                 if (StringUtils.hasText(url)) {
                     Image image = new Image();
                     image.setUrl(url.trim());
