@@ -1334,14 +1334,6 @@ public class ApplicationBean implements Serializable {
             && (selectedEntity.getEntityType().getId() == 3 || selectedEntity.getEntityType().getId() == 4 || selectedEntity.getEntityType().getId() == 5);
     }
 
-    public void editEntity() throws IOException {
-        Candidat candidat = new CandidatConverter().convertEntityToCandidat(selectedEntity);
-        getCandidatBean().visualiserCandidat(candidat);
-
-        FacesContext.getCurrentInstance().getExternalContext()
-                .redirect(FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/candidats/view.xhtml");
-    }
-
     public boolean isCashTypo() {
 
         Entity entity = collectionService.findCollectionIdByEntityId(selectedEntity.getId());

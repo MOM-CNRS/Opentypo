@@ -49,6 +49,7 @@
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this"
                                                    update="@none"
+                                                   rendered="#{loginBean.currentUser != null}"
                                                    styleClass="concept-action-button"
                                                    immediate="true">
                                         <i class="pi pi-history" />

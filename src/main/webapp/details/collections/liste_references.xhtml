@@ -14,7 +14,8 @@
                     <h3 class="collection-references-title">Liste des référentiels</h3>
                 </div>
             </div>
-            <h:panelGroup class="collection-references-actions" rendered="#{referenceBean.canCreateReference()}">
+            <h:panelGroup class="collection-references-actions"
+                          rendered="#{collectionBean.canEditCollection(applicationBean)}">
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

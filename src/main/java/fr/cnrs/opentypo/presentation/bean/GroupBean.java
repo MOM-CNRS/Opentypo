@@ -652,20 +652,18 @@ public class GroupBean implements Serializable {
     public boolean canCreateGroup() {
         if (!loginBean.isAuthenticated()) return false;
 
-        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+        List<Entity> parent = entityRelationRepository.findParentsByChild(applicationBean.getSelectedEntity());
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(
                 loginBean.getCurrentUser().getId(),
-                applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
-
-        if (isGestionnaireReference) {
+                parent.get(0).getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
             return true;
         }
 
-        boolean isGestionnaireCollection= userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(
                 loginBean.getCurrentUser().getId(),
                 applicationBean.getSelectedCollection().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
-        if (isGestionnaireCollection) {
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
             return true;
         }
 

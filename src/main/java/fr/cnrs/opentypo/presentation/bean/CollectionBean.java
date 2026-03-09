@@ -219,21 +219,6 @@ public class CollectionBean implements Serializable {
     }
 
     /**
-     * Indique si l'utilisateur connecté est gestionnaire de la collection (rôle "Gestionnaire de collection"
-     * dans user_permission pour cette entité).
-     */
-    public boolean canEditCollectionAsGestionnaire(Entity entity) {
-        if (entity == null || entity.getId() == null || loginBean.getCurrentUser() == null) {
-            return false;
-        }
-
-        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                entity.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
-    }
-
-    /**
      * Affiche les détails d'une collection spécifique
      */
     public void showCollectionDetail(ApplicationBean applicationBean, Entity collection) {
@@ -808,7 +793,21 @@ public class CollectionBean implements Serializable {
         log.info("Collection supprimée avec succès: {} (ID: {})", collectionCode, collectionId);
     }
 
-    public boolean showCollectionStatut() {
-        return !loginBean.isAuthenticated() || (loginBean.isAdminTechnique() || entityEditModeBean.isEditingEntityInCatalog());
+    public boolean canEditCollection(ApplicationBean applicationBean) {
+
+        if (!loginBean.isAuthenticated()) {
+            return false;
+        }
+
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        return applicationBean.getSelectedEntity() != null && applicationBean.getSelectedEntity().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
     }
 }

@@ -877,21 +877,32 @@ public class ReferenceBean implements Serializable {
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :referenceDialogForm");
     }
 
-    public boolean canCreateReference() {
-        return collectionBean.canEditCollectionAsGestionnaire(applicationBean.getSelectedCollection())
-                || loginBean.isAdminTechnique();
-    }
+    public boolean canEditReference(ApplicationBean applicationBean) {
 
-    public boolean canEditReference() {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
 
-        if (!loginBean.isAuthenticated()) return false;
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
 
-        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
 
-        return loginBean.isAuthenticated() && isGestionnaireReference;
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedEntity() != null && applicationBean.getSelectedEntity().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
     }
 
     public boolean showReferenceStatut() {

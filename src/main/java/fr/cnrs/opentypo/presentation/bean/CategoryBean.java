@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -58,9 +59,6 @@ public class CategoryBean implements Serializable {
 
     @Autowired
     private LoginBean loginBean;
-
-    @Autowired
-    private Provider<TreeBean> treeBeanProvider;
 
     @Autowired
     private EntityRelationRepository entityRelationRepository;
@@ -464,12 +462,10 @@ public class CategoryBean implements Serializable {
     public boolean canCreateCategory() {
         if (!loginBean.isAuthenticated()) return false;
 
-        boolean isGestionnaireReference = userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
-
-        if (isGestionnaireReference) {
+        List<Entity> parent = entityRelationRepository.findParentsByChild(applicationBean.getSelectedEntity());
+        if (!CollectionUtils.isEmpty(parent) && userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(), parent.get(0).getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
             return true;
         }
 

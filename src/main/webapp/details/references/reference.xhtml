@@ -65,7 +65,7 @@
                                            process="@this"
                                            update=":centerContent"
                                            styleClass="concept-action-button"
-                                           rendered="#{referenceBean.canCreateReference() or referenceBean.canEditReference()}">
+                                           rendered="#{referenceBean.canEditReference(applicationBean)}">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
@@ -74,13 +74,13 @@
                                            process="@this"
                                            update=":confirmDeleteDialogContent"
                                            oncomplete="PF('confirmDeleteDialog').show();"
-                                           rendered="#{referenceBean.canCreateReference()}"
+                                           rendered="#{referenceBean.canEditReference(applicationBean)}"
                                            styleClass="concept-action-button">
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <h:panelGroup rendered="#{referenceBean.canCreateReference()}">
+                            <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                 <div class="collection-visibility-card">
                                     <div class="collection-visibility-card-content">
                                         <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -91,7 +91,8 @@
                                                 <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                             </div>
                                         </div>
-                                        <div class="collection-visibility-toggle-wrapper">
+                                        <h:panelGroup rendered="#{referenceBean.canEditReference(applicationBean)}"
+                                                      styleClass="collection-visibility-toggle-wrapper">
                                             <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                            process="@this"
                                                            update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -99,7 +100,7 @@
                                                 <i class="pi pi-sync" />
                                                 <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                             </p:commandLink>
-                                        </div>
+                                        </h:panelGroup>
                                     </div>
                                 </div>
                             </h:panelGroup>

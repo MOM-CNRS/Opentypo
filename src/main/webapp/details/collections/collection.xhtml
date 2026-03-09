@@ -42,7 +42,7 @@
                                            process="@this"
                                            update=":centerContent"
                                            styleClass="concept-action-button"
-                                           rendered="#{loginBean.isAdminTechnique() and not entityEditModeBean.editingEntityInCatalog}">
+                                           rendered="#{collectionBean.canEditCollection(applicationBean)}">
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
@@ -52,13 +52,13 @@
                                            update=":confirmDeleteDialogContent"
                                            oncomplete="PF('confirmDeleteDialog').show();"
                                            styleClass="concept-action-button"
-                                           rendered="#{loginBean.isAdminTechnique() and not entityUpdateBean.editingEntity}"
+                                           rendered="#{collectionBean.canEditCollection(applicationBean)}"
                                            title="Supprimer la collection">
                                 <i class="pi pi-trash" />
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <h:panelGroup rendered="#{referenceBean.canCreateReference()}">
+                            <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                 <div class="collection-visibility-card">
                                     <div class="collection-visibility-card-content">
                                         <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -69,7 +69,8 @@
                                                 <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                             </div>
                                         </div>
-                                        <div class="collection-visibility-toggle-wrapper">
+                                        <h:panelGroup rendered="#{collectionBean.canEditCollection(applicationBean)}"
+                                                      class="collection-visibility-toggle-wrapper">
                                             <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                            process="@this"
                                                            update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -77,7 +78,7 @@
                                                 <i class="pi pi-sync" />
                                                 <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                             </p:commandLink>
-                                        </div>
+                                        </h:panelGroup>
                                     </div>
                                 </div>
                             </h:panelGroup>

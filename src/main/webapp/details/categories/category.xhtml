@@ -31,7 +31,7 @@
                         </div>
 
                         <!-- Actions (masquées en mode édition) -->
-                        <h:panelGroup class="concept-info-actions" rendered="#{not entityUpdateBean.editingEntity}">
+                        <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            rendered="#{loginBean.currentUser != null}"
                                            process="@this"
@@ -41,6 +41,7 @@
                                 <i class="pi pi-history" />
                                 <p:tooltip value="Voir l'historique" position="top"/>
                             </p:commandLink>
+
                             <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                            process="@this"
                                            update=":centerContent"
@@ -53,6 +54,7 @@
                                 <i class="pi pi-file-edit" />
                                 <p:tooltip value="Modifier" position="top"/>
                             </p:commandLink>
+
                             <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
                                            process="@this"
                                            update=":confirmDeleteDialogContent"
@@ -63,7 +65,7 @@
                                 <p:tooltip value="Supprimer" position="top"/>
                             </p:commandLink>
 
-                            <h:panelGroup class="collection-visibility-card" rendered="#{categoryBean.canCreateCategory()}">
+                            <h:panelGroup class="collection-visibility-card" rendered="#{loginBean.currentUser != null}">
                                 <div class="collection-visibility-card-content">
                                     <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
                                         <div class="collection-visibility-icon">
@@ -73,7 +75,7 @@
                                             <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                         </div>
                                     </div>
-                                    <div class="collection-visibility-toggle-wrapper">
+                                    <h:panelGroup rendered="#{categoryBean.canCreateCategory()}" styleClass="collection-visibility-toggle-wrapper">
                                         <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                        process="@this"
                                                        update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -81,7 +83,7 @@
                                             <i class="pi pi-sync" />
                                             <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                         </p:commandLink>
-                                    </div>
+                                    </h:panelGroup>
                                 </div>
                             </h:panelGroup>
                         </h:panelGroup>

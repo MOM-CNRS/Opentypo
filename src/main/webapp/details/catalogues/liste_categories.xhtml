@@ -18,7 +18,8 @@
                 #{applicationBean.filteredCategoriesSize} catégorie#{applicationBean.filteredCategoriesSize gt 1 ? 's' : ''}
             </span>
 
-            <h:panelGroup class="collection-references-actions" rendered="#{categoryBean.canCreateCategory()}">
+            <h:panelGroup class="collection-references-actions"
+                          rendered="#{referenceBean.canEditReference(applicationBean)}">
                 <p:commandButton value="Créer une nouvelle catégorie"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"
