@@ -111,4 +111,12 @@ public class EntityMetadata implements Serializable {
     // Commentaire (visible dans formulaires groupe, catégorie, série, type)
     @Column(name = "commentaire", columnDefinition = "TEXT")
     private String commentaire;
+
+    // Appartient
+    @Column(name = "appartient", length = 255)
+    private String appartient;
+
+    // Associé
+    @Column(name = "associe", length = 255)
+    private String associe;
 }

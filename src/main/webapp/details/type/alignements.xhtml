@@ -7,7 +7,7 @@
                 <div class="concept-info-header monnaie-communs-header">
                     <div class="concept-info-title-section monnaie-communs-title-wrapper">
                         <i class="pi pi-sitemap monnaie-communs-title-icon" />
-                        <h2 class="concept-info-title monnaie-communs-title">Alignements</h2>
+                        <h2 class="concept-info-title monnaie-communs-title">Relations</h2>
                     </div>
                 </div>
 
@@ -18,10 +18,10 @@
                             <span>Alignement opentypo, appartient à</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.getSelectedGroup()}">
-                                #{applicationBean.getSelectedGroup().nom}
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appartient}">
+                                #{applicationBean.selectedEntity.metadata.appartient}
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.getSelectedGroup()}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appartient}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -33,10 +33,10 @@
                             <span>Alignement opentypo, associé à</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.relationExterne}">
-                                #{applicationBean.selectedEntity.relationExterne}
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.associe}">
+                                #{applicationBean.selectedEntity.metadata.associe}
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.relationExterne}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.associe}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>
@@ -48,10 +48,10 @@
                             <span>Alignement externe</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.alignementExterne}">
-                                #{applicationBean.selectedEntity.alignementExterne}
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.alignementExterne}">
+                                #{applicationBean.selectedEntity.metadata.alignementExterne}
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.alignementExterne}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.alignementExterne}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>

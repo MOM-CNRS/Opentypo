@@ -28,9 +28,7 @@
                 </div>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 5}">
-                <ui:include src="label-modification.xhtml"/>
-            </h:panelGroup>
+            <ui:include src="label-modification.xhtml"/>
 
             <ui:include src="definition-modification.xhtml"/>
 
@@ -60,17 +58,15 @@
                                             and applicationBean.selectedEntity.entityType.id != 2}">
 
                 <!-- Appellation usuelle -->
-                <h:panelGroup styleClass="users-form-group users-form-group-full periode-group candidats-mt-20"
-                              rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
-                    <div class="users-form-group users-form-group-full">
-                        <p:outputLabel value="Commentaire datation" />
-                        <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
-                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                                <i class="pi pi-cog input-icon" />
-                                <p:inputText value="#{entityUpdateBean.appellationUsuelle}"
-                                             styleClass="users-input"
-                                             placeholder="Aucun valeur pour l'appellation usuelle"/>
-                            </div>
+                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
+                              class="users-form-group users-form-group-full periode-group candidats-mt-20 reference-modifier-bibliographie-group">
+                    <p:outputLabel value="Commentaire datation" style="margin-bottom: 13px !important" />
+                    <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-cog input-icon" />
+                            <p:inputText value="#{entityUpdateBean.appellationUsuelle}"
+                                         styleClass="users-input"
+                                         placeholder="Aucun valeur pour l'appellation usuelle"/>
                         </div>
                     </div>
                 </h:panelGroup>
@@ -82,6 +78,8 @@
                 <ui:include src="caracteristiques_physique-modification.xhtml"/>
 
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
+                    <ui:include src="relations-modification.xhtml"/>
+
                     <ui:include src="details_type-modification.xhtml"/>
                 </h:panelGroup>
 

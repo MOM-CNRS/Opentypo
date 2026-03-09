@@ -435,6 +435,36 @@ public class Entity implements Serializable {
     }
 
     /**
+     * Obtient appartient depuis les métadonnées
+     */
+    public String getAppartient() {
+        return metadata != null ? metadata.getAppartient() : null;
+    }
+
+    /**
+     * Définit appartient dans les métadonnées
+     */
+    public void setAppartient(String appartient) {
+        ensureMetadata();
+        metadata.setAppartient(appartient);
+    }
+
+    /**
+     * Obtient associe depuis les métadonnées
+     */
+    public String getAssocie() {
+        return metadata != null ? metadata.getAssocie() : null;
+    }
+
+    /**
+     * Définit associe dans les métadonnées
+     */
+    public void setAssocie(String associe) {
+        ensureMetadata();
+        metadata.setAssocie(associe);
+    }
+
+    /**
      * Obtient TPQ depuis les métadonnées
      */
     public Integer getTpq() {

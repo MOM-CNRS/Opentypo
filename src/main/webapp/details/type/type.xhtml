@@ -20,6 +20,7 @@
                                     <div class="collection-panel-title-wrapper">
                                         <div class="collection-panel-title-wrapper">
                                             <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -78,7 +79,7 @@
 
                             <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                                 <div class="concept-info-grid">
-                                    <h:panelGroup id="typeDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                    <div class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
                                             <i class="pi pi-file concept-info-icon" />
                                             <span>Description</span>
@@ -88,6 +89,22 @@
                                                 <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </div>
+
+                                    <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
+                                                  class="concept-info-item concept-info-item-full">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-file concept-info-icon" />
+                                            <span>Appellation usuelle</span>
+                                        </div>
+                                        <div class="concept-info-value concept-info-description">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appellation}">
+                                                <h:outputText value="#{applicationBean.selectedEntity.metadata.appellation}" escape="false"/>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appellation}">
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
@@ -152,9 +169,9 @@
 
                             <ui:include src="gestion.xhtml"/>
 
-                            <ui:include src="../communs/bibliographie.xhtml"/>
-
                             <ui:include src="../communs/commentaire.xhtml"/>
+
+                            <ui:include src="../communs/bibliographie.xhtml"/>
 
                             <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
                                 <ui:include src="../communs/discussion.xhtml"/>

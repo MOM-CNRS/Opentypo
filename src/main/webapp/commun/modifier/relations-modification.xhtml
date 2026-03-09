@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <!-- Commentaire et bibliographie (communs) -->
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+
+        <b><p:outputLabel value="Relations" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Alignement opentypo, appartient à" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-link input-icon" />
+                    <p:inputText value="#{entityUpdateBean.appartient}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Alignement opentypo, associé à" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-link input-icon" />
+                    <p:inputText value="#{entityUpdateBean.associe}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Alignement externe" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-link input-icon" />
+                    <p:inputText value="#{entityUpdateBean.alignementExterne}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour l'identifiant perenne"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

@@ -80,7 +80,8 @@
             </div>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1 and applicationBean.selectedEntity.entityType.id != 6}">
+        <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1
+                and applicationBean.selectedEntity.entityType.id != 5 and applicationBean.selectedEntity.entityType.id != 6}">
             <div class="users-form-group users-form-group-full candidats-mt-15" id="corpusExterneGroup">
                 <p:outputLabel value="Corpus externe" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
@@ -95,7 +96,8 @@
             </div>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1 and applicationBean.selectedEntity.entityType.id != 6}">
+        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1
+                    and applicationBean.selectedEntity.entityType.id != 5 and applicationBean.selectedEntity.entityType.id != 6}">
             <div class="users-form-group users-form-group-full candidats-mt-15" id="alignementExterneGroup">
                 <p:outputLabel value="Alignement externe" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
@@ -110,7 +112,7 @@
             </div>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4}">
+        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4 or applicationBean.selectedEntity.entityType.id == 5}">
             <div class="users-form-group users-form-group-full candidats-mt-15" id="alignementExterneGroup">
                 <p:outputLabel value="Appellation usuelle" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">

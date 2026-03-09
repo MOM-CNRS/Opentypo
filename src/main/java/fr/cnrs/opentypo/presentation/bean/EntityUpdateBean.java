@@ -190,6 +190,8 @@ public class EntityUpdateBean implements Serializable {
     private String identifiantPerenne;
     private String typologieScientifique;
     private String ancienneVersion;
+    private String appartient;
+    private String associe;
     private String ateliersValue;
     private List<String> ateliers;
     private String referentielValue;
@@ -294,6 +296,8 @@ public class EntityUpdateBean implements Serializable {
         typologieScientifique = entity.getTypologieScientifique() == null ? "" : entity.getTypologieScientifique();
 
         ancienneVersion = entity.getAncienneVersion() == null ? "" : entity.getAncienneVersion();
+        appartient = entity.getAppartient() == null ? "" : entity.getAppartient();
+        associe = entity.getAssocie() == null ? "" : entity.getAssocie();
         commentaireDatation = entity.getCommentaireDatation() == null ? "" : entity.getCommentaireDatation();
 
         marquesEstampilles = new ArrayList<>();
@@ -417,6 +421,8 @@ public class EntityUpdateBean implements Serializable {
         typologieScientifique = null;
         identifiantPerenne = null;
         ancienneVersion = null;
+        appartient = null;
+        associe = null;
         descriptionPate = null;
         ateliers = new ArrayList<>();
         ateliersValue = null;
@@ -1043,11 +1049,18 @@ public class EntityUpdateBean implements Serializable {
 
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
 
+        entityMetadata.setAppartient(appartient != null && !appartient.isBlank() ? appartient.trim() : null);
+
+        entityMetadata.setAssocie(associe != null && !associe.isBlank() ? associe.trim() : null);
+
         entityMetadata.setTypologieScientifique(typologieScientifique);
 
         entityMetadata.setIdentifiantPerenne(identifiantPerenne);
 
         entityMetadata.setAncienneVersion(ancienneVersion);
+
+        entityMetadata.setAppartient(appartient != null && !appartient.isBlank() ? appartient.trim() : null);
+        entityMetadata.setAssocie(associe != null && !associe.isBlank() ? associe.trim() : null);
 
         entityMetadata.setTpq(tpq);
 

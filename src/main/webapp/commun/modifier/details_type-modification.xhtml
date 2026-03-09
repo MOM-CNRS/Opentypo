@@ -1,29 +1,14 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-
-        <!-- Commentaire Datation -->
-        <div class="users-form-group users-form-group-full">
-            <p:outputLabel value="Commentaire datation" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-cog input-icon" />
-                    <p:inputText value="#{entityUpdateBean.commentaireDatation}"
-                                 styleClass="users-input"
-                                 placeholder="Aucun valeur pour le commentaire datation"/>
-                </div>
-            </div>
-        </div>
 
         <!-- Attestations -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Attestations" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-tag input-icon" />
+                <i class="pi pi-check-circle input-icon" title="Attestations"/>
                 <p:chips value="#{entityUpdateBean.attestations}"
                          styleClass="users-chips"
                          placeholder="Saisissez une attestation et appuyez sur Entrée..."
@@ -40,7 +25,7 @@
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Sites archéologiques" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-tag input-icon" />
+                <i class="pi pi-map-marker input-icon" title="Sites archéologiques"/>
                 <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
                          styleClass="users-chips"
                          placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
@@ -57,7 +42,7 @@
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Référentiel" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-tag input-icon" />
+                <i class="pi pi-book input-icon" title="Référentiel"/>
                 <p:chips value="#{entityUpdateBean.referentiels}"
                          styleClass="users-chips"
                          placeholder="Saisissez un référentiel et appuyez sur Entrée..."
@@ -75,7 +60,7 @@
             <p:outputLabel value="Typologie scientifique" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-cog input-icon" />
+                    <i class="pi pi-sitemap input-icon" title="Typologie scientifique"/>
                     <p:inputText value="#{entityUpdateBean.typologieScientifique}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour typologie scientifique"/>
@@ -88,7 +73,7 @@
             <p:outputLabel value="Identifiant pérenne" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-cog input-icon" />
+                    <i class="pi pi-link input-icon" title="Identifiant pérenne"/>
                     <p:inputText value="#{entityUpdateBean.identifiantPerenne}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour l'identifiant perenne"/>
@@ -101,10 +86,36 @@
             <p:outputLabel value="Ancienne version" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-cog input-icon" />
+                    <i class="pi pi-history input-icon" title="Ancienne version"/>
                     <p:inputText value="#{entityUpdateBean.ancienneVersion}"
                                  styleClass="users-input"
                                  placeholder="Aucun valeur pour l'ancienne version"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appartient -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Appartient" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-folder input-icon" title="Appartient"/>
+                    <p:inputText value="#{entityUpdateBean.appartient}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour appartient"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Associé -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Associé" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-users input-icon" title="Associé"/>
+                    <p:inputText value="#{entityUpdateBean.associe}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour associé"/>
                 </div>
             </div>
         </div>
