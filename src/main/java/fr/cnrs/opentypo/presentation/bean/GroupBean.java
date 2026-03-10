@@ -669,4 +669,70 @@ public class GroupBean implements Serializable {
 
         return loginBean.isAdminTechnique();
     }
+
+    /**
+     * Indique si l'utilisateur connecté peut supprimer l'entité ou modifier sa visibilité.
+     * Visible uniquement pour : administrateur technique, gestionnaire de la collection,
+     * ou gestionnaire de la référence contenant l'entité.
+     * Utilisable pour groupe, série, type, etc.
+     */
+    public boolean canDeleteOrChangeVisibilityGroup(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut modifier le groupe (bouton Modifier).
+     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
+     * rédacteur ou valideur du groupe.
+     */
+    public boolean canEditGroup(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.REDACTEUR.getLabel())) {
+            return true;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel());
+    }
 }

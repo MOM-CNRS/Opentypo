@@ -1,9 +1,11 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
@@ -82,6 +84,9 @@ public class TypeBean implements Serializable {
 
     @Inject
     private EntityEditModeBean entityEditModeBean;
+
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
 
     private String typeCode;
     private String typeLabel;
@@ -478,5 +483,118 @@ public class TypeBean implements Serializable {
     public String getCollectionLabel(Long entityId) {
         Entity entity = collectionService.findCollectionIdByEntityId(entityId);
         return candidatReferenceTreeService.getCollectionLabel(entity, searchBean.getLangSelected());
+    }
+
+
+    /**
+     * Indique si l'utilisateur connecté peut créer un type (bouton Créer un nouveau type).
+     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
+     * ou rédacteur du groupe contenant l'entité.
+     * Utilisé quand selectedEntity est une série ou un groupe.
+     */
+    public boolean canCreateType(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        Entity group = applicationBean.getSelectedGroup();
+        return group != null && group.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut modifier le type (bouton Modifier sur un type).
+     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
+     * rédacteur ou valideur du groupe contenant le type.
+     */
+    public boolean canEditType(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        Entity group = applicationBean.getSelectedGroup();
+        if (group != null && group.getId() != null) {
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
+                return true;
+            }
+            return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
+        }
+        return false;
+    }
+
+
+    /**
+     * Indique si l'utilisateur connecté peut publier ou refuser une proposition (type).
+     * Visible si : type en statut PROPOSITION, et l'un des rôles : administrateur technique,
+     * gestionnaire de la collection, gestionnaire du référentiel, ou valideur du groupe contenant le type.
+     */
+    public boolean canPublishOrRefusePropositionType(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null
+                || !EntityStatusEnum.PROPOSITION.name().equals(applicationBean.getSelectedEntity().getStatut())) {
+            return false;
+        }
+        if (applicationBean.getSelectedEntity().getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_TYPE.equals(applicationBean.getSelectedEntity().getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = applicationBean.getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        Entity group = applicationBean.getSelectedGroup();
+        if (group != null && group.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel())) {
+            return true;
+        }
+        return false;
     }
 }

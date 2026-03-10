@@ -3,7 +3,9 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.DescriptionItem;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.NameItem;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
@@ -29,6 +31,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -76,6 +79,9 @@ public class SerieBean implements Serializable {
 
     @Inject
     private EntityEditModeBean entityEditModeBean;
+
+    @Autowired
+    private UserPermissionRepository userPermissionRepository;
 
     private String serieCode;
     private String serieLabel;
@@ -453,7 +459,7 @@ public class SerieBean implements Serializable {
 
             applicationBean.setSelectedEntity(parentGroup);
             applicationBean.setChilds(parentGroup != null ? new ArrayList<>() : new ArrayList<>());
-            if (applicationBean.getBeadCrumbElements().size() > 0) {
+            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
                 applicationBean.getBeadCrumbElements().remove(applicationBean.getBeadCrumbElements().size() - 1);
             }
             if (parentGroup != null) {
@@ -476,5 +482,111 @@ public class SerieBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                             "Une erreur est survenue lors de la suppression : " + e.getMessage()));
         }
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut modifier la série (bouton Modifier sur une série).
+     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
+     * rédacteur ou valideur du groupe contenant la série.
+     */
+    public boolean canEditSerie(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedCollection().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedGroup() != null && applicationBean.getSelectedGroup().getId() != null) {
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId,
+                    applicationBean.getSelectedGroup().getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
+                return true;
+            }
+            return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId,
+                    applicationBean.getSelectedGroup().getId(), PermissionRoleEnum.VALIDEUR.getLabel());
+        }
+        return false;
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut créer une série (bouton Créer une nouvelle série).
+     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
+     * ou rédacteur du groupe. Utilisé quand selectedEntity est un groupe.
+     */
+    public boolean canCreateSerie(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedCollection().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
+                PermissionRoleEnum.REDACTEUR.getLabel());
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut publier ou refuser une proposition (série).
+     * Visible si : série en statut PROPOSITION, et l'un des rôles : administrateur technique,
+     * gestionnaire de la collection, gestionnaire du référentiel, ou valideur du groupe contenant la série.
+     */
+    public boolean canPublishOrRefusePropositionSerie(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null
+                || !EntityStatusEnum.PROPOSITION.name().equals(applicationBean.getSelectedEntity().getStatut())) {
+            return false;
+        }
+        if (applicationBean.getSelectedEntity().getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_SERIES.equals(applicationBean.getSelectedEntity().getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = applicationBean.getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+
+        return applicationBean.getSelectedGroup() != null && applicationBean.getSelectedGroup().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedGroup().getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel());
     }
 }

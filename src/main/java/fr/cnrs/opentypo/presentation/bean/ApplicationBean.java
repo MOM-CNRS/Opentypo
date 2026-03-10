@@ -1334,6 +1334,147 @@ public class ApplicationBean implements Serializable {
             && (selectedEntity.getEntityType().getId() == 3 || selectedEntity.getEntityType().getId() == 4 || selectedEntity.getEntityType().getId() == 5);
     }
 
+    /**
+     * Indique si le bloc commentaires/discussion doit être visible sur la page groupe.
+     * Visible si : entité privée, utilisateur connecté, et l'un des rôles : administrateur technique,
+     * gestionnaire de collection, gestionnaire de référentiel, rédacteur, relecteur ou valideur du groupe.
+     */
+    public boolean showCommentaireBlocGroup() {
+        if (selectedEntity == null || EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
+            return false;
+        }
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        if (selectedEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.REDACTEUR.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.RELECTEUR.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Indique si le bloc commentaires/discussion doit être visible sur la page série.
+     * Visible si : entité privée, utilisateur connecté, et l'un des rôles : administrateur technique,
+     * gestionnaire de collection, gestionnaire de référentiel, rédacteur, relecteur ou valideur du groupe contenant la série.
+     */
+    public boolean showCommentaireBlocSerie() {
+        if (selectedEntity == null || EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
+            return false;
+        }
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        if (selectedEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_SERIES.equals(selectedEntity.getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        Entity group = getSelectedGroup();
+        if (group != null && group.getId() != null) {
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
+                return true;
+            }
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.RELECTEUR.getLabel())) {
+                return true;
+            }
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.VALIDEUR.getLabel())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Indique si le bloc commentaires/discussion doit être visible sur la page type.
+     * Visible si : entité privée, utilisateur connecté, et l'un des rôles : administrateur technique,
+     * gestionnaire de collection, gestionnaire de référentiel, rédacteur, relecteur ou valideur du groupe contenant le type.
+     */
+    public boolean showCommentaireBlocType() {
+        if (selectedEntity == null || EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
+            return false;
+        }
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        if (selectedEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_TYPE.equals(selectedEntity.getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity collection = getSelectedCollection();
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = getSelectedReference();
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        Entity group = getSelectedGroup();
+        if (group != null && group.getId() != null) {
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
+                return true;
+            }
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.RELECTEUR.getLabel())) {
+                return true;
+            }
+            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.VALIDEUR.getLabel())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isCashTypo() {
 
         Entity entity = collectionService.findCollectionIdByEntityId(selectedEntity.getId());
@@ -1533,75 +1674,6 @@ public class ApplicationBean implements Serializable {
         }
         if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
                 PermissionRoleEnum.VALIDEUR.getLabel())) {
-            return true;
-        }
-        Entity reference = getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Indique si l'utilisateur connecté peut modifier le groupe (bouton Modifier).
-     * Visible si : administrateur technique, gestionnaire de la collection, rédacteur ou relecteur du groupe,
-     * ou gestionnaire de la référence contenant le groupe.
-     */
-    public boolean canEditGroup() {
-        if (!loginBean.isAuthenticated() || selectedEntity == null) {
-            return false;
-        }
-        if (loginBean.isAdminTechnique()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
-                PermissionRoleEnum.REDACTEUR.getLabel())) {
-            return true;
-        }
-        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, selectedEntity.getId(),
-                PermissionRoleEnum.RELECTEUR.getLabel())) {
-            return true;
-        }
-        Entity reference = getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Indique si l'utilisateur connecté peut supprimer l'entité ou modifier sa visibilité.
-     * Visible uniquement pour : administrateur technique, gestionnaire de la collection,
-     * ou gestionnaire de la référence contenant l'entité.
-     * Utilisable pour groupe, série, type, etc.
-     */
-    public boolean canDeleteOrChangeVisibilityGroup() {
-        if (!loginBean.isAuthenticated() || selectedEntity == null) {
-            return false;
-        }
-        if (loginBean.isAdminTechnique()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
             return true;
         }
         Entity reference = getSelectedReference();

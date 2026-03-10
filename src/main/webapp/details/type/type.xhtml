@@ -35,7 +35,7 @@
                                     <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":contentPanels"
-                                                   rendered="#{applicationBean.canEditGroup()}"
+                                                   rendered="#{typeBean.canEditType(applicationBean)}"
                                                    styleClass="concept-action-button">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
@@ -46,12 +46,12 @@
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
                                                    styleClass="concept-action-button"
-                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                                   rendered="#{typeBean.canEditType(applicationBean)}">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
 
-                                    <h:panelGroup rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                    <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                         <div class="collection-visibility-card">
                                             <div class="collection-visibility-card-content">
                                                 <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -62,7 +62,8 @@
                                                         <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                                     </div>
                                                 </div>
-                                                <div class="collection-visibility-toggle-wrapper">
+                                                <h:panelGroup styleClass="collection-visibility-toggle-wrapper"
+                                                     rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
                                                     <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                    process="@this"
                                                                    update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -70,7 +71,7 @@
                                                         <i class="pi pi-sync" />
                                                         <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
                                                     </p:commandLink>
-                                                </div>
+                                                </h:panelGroup>
                                             </div>
                                         </div>
                                     </h:panelGroup>
@@ -173,14 +174,14 @@
 
                             <ui:include src="../communs/bibliographie.xhtml"/>
 
-                            <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
+                            <h:panelGroup rendered="#{applicationBean.showCommentaireBlocType()}">
                                 <ui:include src="../communs/discussion.xhtml"/>
                             </h:panelGroup>
                         </ui:fragment>
                     </h:form>
 
                     <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
-                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not entityUpdateBean.editingEntity}"
+                    <h:form rendered="#{typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
                             styleClass="groupe-proposition-actions candidats-mt-20">
                         <div class="groupe-proposition-actions-wrapper">
                             <p:commandButton value="Publier"

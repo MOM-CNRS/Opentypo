@@ -39,7 +39,7 @@
                                                    update=":collectionParametrageForm"
                                                    styleClass="concept-action-button"
                                                    title="Paramétrage OpenTheso"
-                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}"
+                                                   rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"
                                                    oncomplete="PF('collectionParametrageDialog').show();">
                                         <i class="pi pi-cog" />
                                         <p:tooltip value="Paramétrage" position="top"/>
@@ -60,7 +60,7 @@
                                                    process="@this"
                                                    update=":centerContent"
                                                    styleClass="concept-action-button"
-                                                   rendered="#{applicationBean.canEditGroup()}">
+                                                   rendered="#{groupBean.canEditGroup(applicationBean)}">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
@@ -70,31 +70,32 @@
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
                                                    styleClass="concept-action-button"
-                                                   rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                                   rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>
 
-                                    <h:panelGroup rendered="#{applicationBean.canDeleteOrChangeVisibilityGroup()}">
+                                    <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                         <div class="collection-visibility-card">
                                             <div class="collection-visibility-card-content">
-                                            <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                                <div class="collection-visibility-icon">
-                                                    <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                                    <div class="collection-visibility-icon">
+                                                        <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                                    </div>
+                                                    <div class="collection-visibility-info">
+                                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                    </div>
                                                 </div>
-                                                <div class="collection-visibility-info">
-                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
-                                                </div>
-                                            </div>
-                                            <div class="collection-visibility-toggle-wrapper">
-                                                <p:commandLink styleClass="collection-visibility-toggle-btn"
-                                                               process="@this"
-                                                               update=":confirmReferenceVisibilityChangeDialog :growl"
-                                                               action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
-                                                    <i class="pi pi-sync" />
-                                                    <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
-                                                </p:commandLink>
-                                            </div>
+                                                <h:panelGroup class="collection-visibility-toggle-wrapper"
+                                                              rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
+                                                    <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                                process="@this"
+                                                                update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                                action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
+                                                        <i class="pi pi-sync" />
+                                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                    </p:commandLink>
+                                                </h:panelGroup>
                                             </div>
                                         </div>
                                     </h:panelGroup>
@@ -249,7 +250,7 @@
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                         <ui:include src="../catalogues/series_types_unified.xhtml"/>
 
-                        <h:panelGroup rendered="#{applicationBean.showCommentaireBloc()}">
+                        <h:panelGroup rendered="#{applicationBean.showCommentaireBlocGroup()}">
                             <ui:include src="../communs/discussion.xhtml"/>
                         </h:panelGroup>
                     </ui:fragment>
