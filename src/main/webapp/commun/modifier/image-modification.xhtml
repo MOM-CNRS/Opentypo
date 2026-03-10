@@ -3,31 +3,35 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <h:panelGroup id="imageModificationSection" layout="block" class="users-form-group users-form-group-full periode-group">
+    <h:panelGroup id="imageModificationSection" layout="block" class="users-form-group users-form-group-full periode-group modifier-image-section">
         <div class="periode-header-row">
             <p:outputLabel value="Images" />
         </div>
 
+        <div class="modifier-image-container">
         <div class="reference-image-sources modifier-image-sources candidats-mt-10">
             <div class="modifier-image-unitaire">
                 <div class="modifier-slot-wrapper modifier-slot-add-visible">
-                    <label class="modifier-slot-add-zone">
-                        <h:inputFile value="#{entityUpdateBean.pendingFileParts}"
-                                     styleClass="modifier-slot-file-input modifier-slot-input modifier-pending-file-input"
-                                     accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    <div class="modifier-slot-add-zone modifier-file-upload-zone">
+                        <div class="modifier-slot-add-content">
+                            <i class="pi pi-plus-circle modifier-add-icon"/>
+                            <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
+                            <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
+                        </div>
+                        <p:fileUpload listener="#{entityUpdateBean.handleFileUpload}"
+                                     mode="advanced"
+                                     auto="true"
                                      multiple="true"
-                                     onchange="ModifierImage.onFilesSelected(this);"/>
-                        <i class="pi pi-plus-circle modifier-add-icon"/>
-                        <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
-                        <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
-                    </label>
-                </div>
-                <div class="modifier-pending-preview" style="display:none;">
-                    <div class="modifier-pending-preview-list"></div>
-                    <div class="modifier-pending-actions">
-                        <button type="button" class="modifier-pending-clear" onclick="ModifierImage.clearPending();" title="Supprimer la sélection">
-                            <i class="pi pi-times"/> Supprimer la sélection
-                        </button>
+                                     accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                     update=":contentPanels :growl"
+                                     allowTypes="/(\.|\/)(jpe?g|png|gif|webp)$/"
+                                     label=""
+                                     invalidFileMessage="Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WebP."
+                                     fileLimitMessage="Fichiers en trop."
+                                     styleClass="modifier-file-upload"
+                                     onstart="ModifierImage.showUploading();"
+                                     oncomplete="ModifierImage.hideUploading();"
+                                     onerror="ModifierImage.hideUploading();"/>
                     </div>
                 </div>
             </div>
@@ -56,11 +60,19 @@
             </div>
         </div>
 
+        <!-- Overlay de chargement pendant l'upload -->
+        <div id="modifierImageUploadOverlay" class="modifier-upload-overlay" style="display:none;" aria-hidden="true">
+            <div class="modifier-upload-overlay-content">
+                <i class="pi pi-spin pi-spinner modifier-upload-spinner"/>
+                <span class="modifier-upload-text">Chargement de l'image...</span>
+            </div>
+        </div>
+
         <!-- Liste des images -->
         <p:dataTable value="#{entityUpdateBean.editingImageUrls}"
                      var="imgUrl"
                      rowIndexVar="idx"
-                     styleClass="candidat-labels-table candidats-mt-10"
+                     styleClass="candidat-labels-table candidats-mt-10 modifier-images-table"
                      emptyMessage="Aucune image"
                      rendered="#{not empty entityUpdateBean.editingImageUrls}">
             <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
@@ -103,6 +115,7 @@
                 </div>
             </div>
         </ui:fragment>
+        </div>
     </h:panelGroup>
 
     <style>
@@ -228,6 +241,69 @@
             border-color: var(--color-action-main, #47624D);
             background: rgba(71, 98, 77, 0.04);
         }
+        /* Zone upload avec design ancien : le bouton PrimeFaces est masqué, notre contenu est affiché */
+        .modifier-file-upload-zone {
+            position: relative;
+            min-height: 140px;
+        }
+        .modifier-file-upload-zone .modifier-slot-add-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            pointer-events: none;
+            min-height: 140px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        .modifier-file-upload-zone .ui-fileupload {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: none;
+            background: transparent;
+            z-index: 2;
+        }
+        .modifier-file-upload-zone .ui-fileupload-buttonbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent !important;
+            border: none !important;
+            padding: 0;
+            box-shadow: none !important;
+        }
+        .modifier-file-upload-zone .ui-fileupload-buttonbar .ui-button,
+        .modifier-file-upload-zone .ui-fileupload-choose,
+        .modifier-file-upload-zone .ui-fileupload-buttonbar button {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 140px !important;
+            opacity: 0 !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            z-index: 3 !important;
+        }
+        .modifier-file-upload-zone .ui-fileupload-content,
+        .modifier-file-upload-zone .ui-fileupload-upload,
+        .modifier-file-upload-zone .ui-fileupload-cancel,
+        .modifier-file-upload-zone .ui-fileupload-progress {
+            display: none !important;
+        }
         .modifier-slot-file-input {
             position: absolute !important;
             width: 0.1px !important;
@@ -259,6 +335,52 @@
         }
         .modifier-image-preview-cell:hover {
             opacity: 0.85;
+        }
+        /* Overlay de chargement pendant l'upload */
+        .modifier-image-container {
+            position: relative;
+        }
+        .modifier-upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 8px;
+            min-height: 120px;
+        }
+        .modifier-upload-overlay-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .modifier-upload-spinner {
+            font-size: 2rem;
+            color: var(--color-action-main, #47624D);
+        }
+        .modifier-upload-text {
+            font-size: 0.95rem;
+            color: #555;
+        }
+        /* Animation d'apparition des lignes du tableau */
+        .modifier-images-table tbody tr {
+            animation: modifier-image-row-fade-in 0.5s ease-out;
+        }
+        @keyframes modifier-image-row-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
     <script>
@@ -306,6 +428,20 @@
                     preview.style.display = 'none';
                     var listEl = preview.querySelector('.modifier-pending-preview-list');
                     if (listEl) listEl.innerHTML = '';
+                }
+            },
+            showUploading: function() {
+                var overlay = document.getElementById('modifierImageUploadOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    overlay.setAttribute('aria-hidden', 'false');
+                }
+            },
+            hideUploading: function() {
+                var overlay = document.getElementById('modifierImageUploadOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    overlay.setAttribute('aria-hidden', 'true');
                 }
             }
         };

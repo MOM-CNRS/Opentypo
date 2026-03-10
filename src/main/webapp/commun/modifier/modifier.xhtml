@@ -34,7 +34,7 @@
 
             <!-- Images : ajouter, modifier, supprimer -->
             <h:panelGroup layout="block" class="periode-group candidats-mt-20"
-                          rendered="#{applicationBean.selectedEntity.entityType.id == 1 or applicationBean.selectedEntity.entityType.id == 5}">
+                          rendered="#{applicationBean.selectedEntity.entityType.code == 'REFERENTIEL' or applicationBean.selectedEntity.entityType.code == 'TYPE'}">
                 <ui:include src="image-modification.xhtml"/>
             </h:panelGroup>
 

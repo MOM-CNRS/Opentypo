@@ -39,10 +39,10 @@ import jakarta.servlet.http.Part;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -627,6 +626,35 @@ public class EntityUpdateBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", msg));
     }
 
+    /**
+     * Gère l'upload immédiat d'un fichier image (p:fileUpload).
+     * Sauvegarde sur le serveur et ajoute l'URL à editingImageUrls.
+     */
+    public void handleFileUpload(FileUploadEvent event) {
+        if (event == null || event.getFile() == null || entityImageService == null) {
+            addErrorMessage("Impossible d'ajouter l'image.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        try {
+            String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
+            String url = entityImageService.saveUploadedImage(event.getFile(), contextPath);
+            if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
+            if (editingImageUrls.stream().anyMatch(u -> u != null && u.trim().equalsIgnoreCase(url))) {
+                addWarnMessage("Cette image a déjà été ajoutée.");
+            } else {
+                editingImageUrls.add(url);
+                if (uploadedUrlsToRevertOnCancel == null) uploadedUrlsToRevertOnCancel = new ArrayList<>();
+                uploadedUrlsToRevertOnCancel.add(url);
+                addInfoMessage("Image ajoutée.");
+            }
+        } catch (Exception e) {
+            log.error("Erreur lors de l'upload d'une image", e);
+            addErrorMessage("Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+        }
+        PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+    }
+
     /** Ajoute une image par URL. */
     public void addImageFromUrl() {
         if (newImageUrlInput == null || newImageUrlInput.trim().isEmpty()) {
@@ -639,13 +667,13 @@ public class EntityUpdateBean implements Serializable {
         }
         if (editingImageUrls.stream().anyMatch(u -> u != null && u.trim().equalsIgnoreCase(url))) {
             addErrorMessage("Cette URL a déjà été ajoutée.");
-            PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
         editingImageUrls.add(url);
         newImageUrlInput = null;
         addInfoMessage("Image ajoutée.");
-        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+        PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
 
     /**
@@ -775,7 +803,7 @@ public class EntityUpdateBean implements Serializable {
             editingImageUrls.remove(index);
             addInfoMessage("Image supprimée.");
         }
-        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+        PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
 
     /** Retire l'image de la liste d'édition. La suppression physique du fichier est reportée à l'enregistrement. */
@@ -788,7 +816,7 @@ public class EntityUpdateBean implements Serializable {
             if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.remove(url);
             addInfoMessage("Image retirée (suppression effective à l'enregistrement).");
         }
-        PrimeFaces.current().ajax().update(":groupeModifierForm", ":growl");
+        PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
 
     /**
@@ -917,21 +945,18 @@ public class EntityUpdateBean implements Serializable {
             }
         }
 
-        // Mise à jour des images
-        if (imageRepository != null) {
-            imageRepository.deleteByEntityId(entityToUpdate.getId());
-        }
-        if (entityToUpdate.getImages() == null) {
-            entityToUpdate.setImages(new ArrayList<>());
-        } else {
+        // Mise à jour des images (orphanRemoval : clear() déclenche la suppression des anciennes)
+        if (entityToUpdate.getImages() != null) {
             entityToUpdate.getImages().clear();
+        } else {
+            entityToUpdate.setImages(new ArrayList<>());
         }
         if (editingImageUrls != null) {
             for (String url : new LinkedHashSet<>(editingImageUrls)) {
                 if (StringUtils.hasText(url)) {
                     Image image = new Image();
-                    image.setUrl(url.trim());
                     image.setEntity(entityToUpdate);
+                    image.setUrl(url.trim());
                     entityToUpdate.getImages().add(image);
                 }
             }
@@ -955,11 +980,9 @@ public class EntityUpdateBean implements Serializable {
                 collectionBean.saveCollectionGestionnaires(entitySaved);
             } else if (typeId == 1) {
                 referenceBean.saveReferenceGestionnaires(entitySaved);
-            } else {
+            } else if (typeId == 3) {
                 saveUserPermissionsForGroup(entitySaved);
             }
-        } else {
-            saveUserPermissionsForGroup(entitySaved);
         }
 
         applicationBean.setSelectedEntity(entitySaved);
