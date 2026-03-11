@@ -214,6 +214,10 @@ public class ApplicationBean implements Serializable {
     /** Page courante pour la pagination des types (1-based). */
     private int typesCurrentPage = 1;
     private static final int TYPES_PAGE_SIZE = 6;
+    /** Liste des IDs des types pour le dialog de réorganisation (ordre modifiable). */
+    private List<Long> typesForOrderingIds = new ArrayList<>();
+    /** Map code par ID pour l'affichage dans le dialog. */
+    private java.util.Map<Long, String> typesCodeById = new java.util.HashMap<>();
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -561,10 +565,16 @@ public class ApplicationBean implements Serializable {
 
     private List<Entity> filterChildsByTypeWithVisibility(String entityTypeCode) {
         if (childs == null) return new ArrayList<>();
-        return childs.stream()
+        var filtered = childs.stream()
                 .filter(e -> e != null && e.getEntityType() != null
                         && entityTypeCode.equals(e.getEntityType().getCode())
                         && isEntityVisibleInCatalogList(e, entityTypeCode))
+                .collect(Collectors.toList());
+        // Types : ordre personnalisé (display_order) ou alphabétique — déjà appliqué par TypeService
+        if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
+            return filtered;
+        }
+        return filtered.stream()
                 .sorted(Comparator.comparing(e -> e.getCode() != null ? e.getCode() : "", String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
@@ -1302,6 +1312,61 @@ public class ApplicationBean implements Serializable {
      */
     public void refreshGroupTypesList() {
         refreshChilds();
+    }
+
+    /**
+     * Enregistre l'ordre d'affichage des types pour l'entité sélectionnée (série ou groupe).
+     * @param orderedTypeIds Liste des IDs des types dans l'ordre souhaité
+     */
+    public void saveTypesOrder(List<Long> orderedTypeIds) {
+        if (selectedEntity == null || selectedEntity.getId() == null || orderedTypeIds == null) return;
+        typeService.updateTypesDisplayOrder(selectedEntity.getId(), orderedTypeIds);
+        refreshChilds();
+    }
+
+    /** Prépare le dialog de réorganisation : copie la liste des IDs des types pour modification. */
+    public void prepareTypesOrderDialog() {
+        List<Entity> types = getChildsTypes();
+        if (types == null || types.isEmpty()) {
+            typesForOrderingIds = new ArrayList<>();
+            typesCodeById = new java.util.HashMap<>();
+            return;
+        }
+        typesForOrderingIds = types.stream()
+                .filter(e -> e != null && e.getId() != null)
+                .map(Entity::getId)
+                .filter(id -> id != null)
+                .collect(Collectors.toList());
+        typesCodeById = types.stream()
+                .filter(e -> e != null && e.getId() != null)
+                .collect(Collectors.toMap(Entity::getId, e -> e.getCode() != null ? e.getCode() : "", (a, b) -> a));
+    }
+
+    /** Enregistre l'ordre depuis le dialog et ferme. */
+    public void saveTypesOrderFromDialog() {
+        if (typesForOrderingIds != null && !typesForOrderingIds.isEmpty()) {
+            List<Long> validIds = typesForOrderingIds.stream()
+                    .filter(id -> id != null && id > 0)
+                    .collect(Collectors.toList());
+            if (!validIds.isEmpty()) {
+                saveTypesOrder(validIds);
+            }
+        }
+    }
+
+    public List<Long> getTypesForOrderingIds() {
+        return typesForOrderingIds;
+    }
+
+    public void setTypesForOrderingIds(List<Long> typesForOrderingIds) {
+        this.typesForOrderingIds = typesForOrderingIds != null
+                ? typesForOrderingIds.stream().filter(id -> id != null).collect(Collectors.toList())
+                : new ArrayList<>();
+    }
+
+    /** Retourne le code d'un type par son ID (pour l'affichage dans le OrderList). */
+    public String getTypeCodeById(Long id) {
+        return id != null && typesCodeById != null ? typesCodeById.getOrDefault(id, "") : "";
     }
 
     public String getEntityLabel(Entity entitySelected) {

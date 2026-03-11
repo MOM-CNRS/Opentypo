@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.application.service;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -22,27 +24,40 @@ public class TypeService implements Serializable {
 
 
     /**
-     * Charge les types rattachés au groupe sélectionné depuis la table entity_relation
-     * Les types sont des entités de type "TYPE" qui ont une relation parent-enfant
-     * avec le groupe sélectionné dans la table entity_relation
-     * 
-     * @param selectedGroup Le groupe pour lequel charger les types
-     * @return Liste des entités de type TYPE rattachées au groupe via entity_relation
+     * Charge les types rattachés au groupe sélectionné, ordonnés par display_order puis par code.
+     * Ordre par défaut : alphabétique croissant quand display_order est null.
      */
     public List<Entity> loadGroupTypes(Entity selectedGroup) {
-
-        return entityRelationRepository.findChildrenByParentAndType(selectedGroup, EntityConstants.ENTITY_TYPE_TYPE);
+        return loadTypesOrdered(selectedGroup, EntityConstants.ENTITY_TYPE_TYPE);
     }
 
     /**
-     * Charge les types rattachés à la série sélectionnée depuis la table entity_relation
-     * Les types sont des entités de type "TYPE" qui ont une relation parent-enfant
-     * avec la série sélectionnée dans la table entity_relation
-     * 
-     * @param selectedSerie La série pour laquelle charger les types
-     * @return Liste des entités de type TYPE rattachées à la série via entity_relation
+     * Charge les types rattachés à la série sélectionnée, ordonnés par display_order puis par code.
+     * Ordre par défaut : alphabétique croissant quand display_order est null.
      */
     public List<Entity> loadSerieTypes(Entity selectedSerie) {
-        return entityRelationRepository.findChildrenByParentAndType(selectedSerie, EntityConstants.ENTITY_TYPE_TYPE);
+        return loadTypesOrdered(selectedSerie, EntityConstants.ENTITY_TYPE_TYPE);
+    }
+
+    private List<Entity> loadTypesOrdered(Entity parent, String typeCode) {
+        List<EntityRelation> relations = entityRelationRepository.findRelationsByParentAndTypeOrdered(parent, typeCode);
+        return relations.stream()
+                .map(EntityRelation::getChild)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Met à jour l'ordre d'affichage des types pour un parent donné.
+     * @param parentId ID du parent (série ou groupe)
+     * @param orderedChildIds Liste des IDs des types dans l'ordre souhaité
+     */
+    public void updateTypesDisplayOrder(Long parentId, List<Long> orderedChildIds) {
+        if (parentId == null || orderedChildIds == null || orderedChildIds.isEmpty()) return;
+        for (int i = 0; i < orderedChildIds.size(); i++) {
+            final int order = i;
+            Long childId = orderedChildIds.get(i);
+            entityRelationRepository.findByParentIdAndChildId(parentId, childId)
+                    .ifPresent(rel -> rel.setDisplayOrder(order));
+        }
     }
 }

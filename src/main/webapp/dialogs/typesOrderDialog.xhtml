@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputStylesheet library="css" name="dialogs/types-order-dialog.css"/>
+    <p:dialog id="typesOrderDialog"
+              widgetVar="typesOrderDialog"
+              header=""
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="500"
+              height="auto"
+              appendTo="@(body)"
+              styleClass="types-order-dialog">
+
+        <f:facet name="header">
+            <div class="types-order-dialog-header">
+                <div class="types-order-dialog-header-icon-wrapper">
+                    <i class="pi pi-sort-alt types-order-dialog-header-icon"/>
+                </div>
+                <div class="types-order-dialog-header-content">
+                    <h3 class="types-order-dialog-header-title">Réorganiser l'ordre des types</h3>
+                </div>
+            </div>
+        </f:facet>
+
+        <p:outputPanel id="typesOrderDialogContent">
+            <div class="types-order-dialog-message-wrapper">
+                <div class="types-order-dialog-icon-info">
+                    <i class="pi pi-info-circle"/>
+                </div>
+                <p class="types-order-dialog-message-text">
+                    L'ordre sera enregistré de manière permanente dans la base de données.
+                </p>
+            </div>
+            <h:form id="typesOrderForm" styleClass="types-order-dialog-form">
+                <p:orderList value="#{applicationBean.typesForOrderingIds}"
+                             var="typeId"
+                             itemLabel="#{typeId != null ? applicationBean.getTypeCodeById(typeId) : ''}"
+                             itemValue="#{typeId}"
+                             converter="pickListLongConverter"
+                             controlsLocation="left"
+                             responsive="true"
+                             styleClass="types-order-list"/>
+                <div class="types-order-dialog-actions">
+                    <p:commandButton value="Annuler"
+                                    icon="pi pi-times"
+                                    styleClass="types-order-dialog-btn types-order-dialog-btn-cancel"
+                                    process="@this"
+                                    update="@none"
+                                    oncomplete="PF('typesOrderDialog').hide();"/>
+                    <p:commandButton value="Enregistrer l'ordre"
+                                    icon="pi pi-check"
+                                    styleClass="types-order-dialog-btn types-order-dialog-btn-validate"
+                                    action="#{applicationBean.saveTypesOrderFromDialog()}"
+                                    process="@form"
+                                    update=":mainContentArea :growl"
+                                    oncomplete="PF('typesOrderDialog').hide();"/>
+                </div>
+            </h:form>
+        </p:outputPanel>
+    </p:dialog>
+</ui:composition>

@@ -20,7 +20,15 @@
                 #{applicationBean.filteredTypesSize} type#{applicationBean.filteredTypesSize gt 1 ? 's' : ''}
             </span>
 
-            <h:panelGroup class="collection-references-actions" rendered="#{typeBean.canCreateType(applicationBean)}">
+            <h:panelGroup class="collection-references-actions" rendered="#{typeBean.canCreateType(applicationBean) or typeBean.canEditType(applicationBean)}">
+                <p:commandButton value="Réorganiser l'ordre"
+                                 icon="pi pi-sort-alt"
+                                 rendered="#{typeBean.canEditType(applicationBean) and applicationBean.filteredTypesSize gt 1}"
+                                 styleClass="collection-create-btn collection-reorder-btn"
+                                 action="#{applicationBean.prepareTypesOrderDialog()}"
+                                 process="@this"
+                                 update=":typesOrderDialog"
+                                 oncomplete="PF('typesOrderDialog').show();"/>
                 <p:commandButton value="Créer un nouveau type"
                                  icon="pi pi-plus"
                                  rendered="#{typeBean.canCreateType(applicationBean)}"
@@ -39,7 +47,7 @@
                 <div class="reference-categories-search-input-wrapper collection-select">
                     <i class="pi pi-search reference-categories-search-icon"/>
                     <p:inputText id="categoriesSearchInput"
-                                 value="#{applicationBean.categoriesSearchQuery}"
+                                 value="#{applicationBean.typesSearchQuery}"
                                  styleClass="reference-categories-search-input"
                                  placeholder="Rechercher par code ou label...">
                         <p:ajax event="keyup"
@@ -108,7 +116,7 @@
                         <p:commandButton icon="pi pi-chevron-left"
                                          styleClass="reference-categories-page-btn"
                                          process="@this"
-                                         update="typesContent"
+                                         update="categoriesContent"
                                          action="#{applicationBean.typesPreviousPage()}"
                                          disabled="#{applicationBean.typesFirstPage}"
                                          title="Page précédente"/>
@@ -118,7 +126,7 @@
                         <p:commandButton icon="pi pi-chevron-right"
                                          styleClass="reference-categories-page-btn"
                                          process="@this"
-                                         update="typesContent"
+                                         update="categoriesContent"
                                          action="#{applicationBean.typesNextPage()}"
                                          disabled="#{applicationBean.typesLastPage}"
                                          title="Page suivante"/>

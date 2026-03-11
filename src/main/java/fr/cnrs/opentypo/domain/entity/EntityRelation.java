@@ -35,6 +35,13 @@ public class EntityRelation implements Serializable {
     private Entity child;
 
     /**
+     * Ordre d'affichage personnalisé pour les enfants (ex. types dans une série).
+     * NULL = ordre par défaut alphabétique croissant.
+     */
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
+    /**
      * Clé composite pour EntityRelation
      */
     @Embeddable
