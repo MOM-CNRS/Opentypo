@@ -20,6 +20,14 @@
 
             <h:panelGroup class="collection-references-actions"
                           rendered="#{referenceBean.canEditReference(applicationBean)}">
+                <p:commandButton value="Réorganiser l'ordre"
+                                 icon="pi pi-sort-alt"
+                                 rendered="#{applicationBean.filteredCategoriesSize gt 1}"
+                                 styleClass="collection-create-btn collection-reorder-btn"
+                                 action="#{applicationBean.prepareCategoriesOrderDialog()}"
+                                 process="@this"
+                                 update=":orderListDialog"
+                                 oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="Créer une nouvelle catégorie"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

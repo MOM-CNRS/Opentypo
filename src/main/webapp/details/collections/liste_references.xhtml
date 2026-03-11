@@ -16,6 +16,14 @@
             </div>
             <h:panelGroup class="collection-references-actions"
                           rendered="#{collectionBean.canEditCollection(applicationBean)}">
+                <p:commandButton value="Réorganiser l'ordre"
+                                 icon="pi pi-sort-alt"
+                                 rendered="#{not empty applicationBean.childsReferences and fn:length(applicationBean.childsReferences) gt 1}"
+                                 styleClass="collection-create-btn collection-reorder-btn"
+                                 action="#{applicationBean.prepareReferencesOrderDialog()}"
+                                 process="@this"
+                                 update=":orderListDialog"
+                                 oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

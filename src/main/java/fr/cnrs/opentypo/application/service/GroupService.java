@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.application.service;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -28,11 +30,25 @@ public class GroupService implements Serializable {
 
 
     /**
-     * Charge les groupes rattachés à la catégorie sélectionnée
+     * Charge les groupes rattachés à la catégorie sélectionnée, ordonnés par display_order puis par code.
+     * Ordre par défaut : alphabétique croissant.
      */
     public List<Entity> loadCategoryGroups(Entity selectedCategory) {
+        List<EntityRelation> relations = entityRelationRepository.findRelationsByParentAndTypeOrdered(
+                selectedCategory, EntityConstants.ENTITY_TYPE_GROUP);
+        return relations.stream().map(EntityRelation::getChild).collect(Collectors.toList());
+    }
 
-        return entityRelationRepository.findChildrenByParentAndType(selectedCategory, EntityConstants.ENTITY_TYPE_GROUP);
+    /**
+     * Met à jour l'ordre d'affichage des groupes pour une catégorie donnée.
+     */
+    public void updateDisplayOrder(Long parentId, List<Long> orderedChildIds) {
+        if (parentId == null || orderedChildIds == null || orderedChildIds.isEmpty()) return;
+        for (int i = 0; i < orderedChildIds.size(); i++) {
+            final int order = i;
+            entityRelationRepository.findByParentIdAndChildId(parentId, orderedChildIds.get(i))
+                    .ifPresent(rel -> rel.setDisplayOrder(order));
+        }
     }
 
     /**

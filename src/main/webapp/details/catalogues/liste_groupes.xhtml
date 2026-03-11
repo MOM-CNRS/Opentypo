@@ -18,7 +18,15 @@
                 #{applicationBean.filteredGroupesSize} groupe#{applicationBean.filteredGroupesSize gt 1 ? 's' : ''}
             </span>
 
-            <h:panelGroup class="collection-references-actions" rendered="#{groupBean.canCreateGroup()}">
+            <h:panelGroup class="collection-references-actions" rendered="#{groupBean.canCreateGroup() or groupBean.canEditGroup(applicationBean)}">
+                <p:commandButton value="Réorganiser l'ordre"
+                                 icon="pi pi-sort-alt"
+                                 rendered="#{groupBean.canEditGroup(applicationBean) and applicationBean.filteredGroupesSize gt 1}"
+                                 styleClass="collection-create-btn collection-reorder-btn"
+                                 action="#{applicationBean.prepareGroupesOrderDialog()}"
+                                 process="@this"
+                                 update=":orderListDialog"
+                                 oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="Créer un nouveau groupe"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"

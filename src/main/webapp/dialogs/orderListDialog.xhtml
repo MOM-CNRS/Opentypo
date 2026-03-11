@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputStylesheet library="css" name="dialogs/order-list-dialog.css"/>
+    <p:dialog id="orderListDialog"
+              widgetVar="orderListDialog"
+              header=""
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="500"
+              height="auto"
+              appendTo="@(body)"
+              styleClass="order-list-dialog">
+
+        <f:facet name="header">
+            <div class="order-list-dialog-header">
+                <div class="order-list-dialog-header-icon-wrapper">
+                    <i class="pi pi-sort-alt order-list-dialog-header-icon"/>
+                </div>
+                <div class="order-list-dialog-header-content">
+                    <h3 class="order-list-dialog-header-title">#{applicationBean.orderingDialogTitle}</h3>
+                </div>
+            </div>
+        </f:facet>
+
+        <p:outputPanel id="orderListDialogContent">
+            <div class="order-list-dialog-message-wrapper">
+                <div class="order-list-dialog-icon-info">
+                    <i class="pi pi-info-circle"/>
+                </div>
+                <p class="order-list-dialog-message-text">
+                    L'ordre sera enregistré de manière permanente dans la base de données.
+                </p>
+            </div>
+            <h:form id="orderListForm" styleClass="order-list-dialog-form">
+                <p:orderList value="#{applicationBean.orderingIds}"
+                             var="itemId"
+                             itemLabel="#{itemId != null ? applicationBean.getOrderingLabel(itemId) : ''}"
+                             itemValue="#{itemId}"
+                             converter="pickListLongConverter"
+                             controlsLocation="left"
+                             responsive="true"
+                             styleClass="order-list-items"/>
+                <div class="order-list-dialog-actions">
+                    <p:commandButton value="Annuler"
+                                    icon="pi pi-times"
+                                    styleClass="order-list-dialog-btn order-list-dialog-btn-cancel"
+                                    process="@this"
+                                    update="@none"
+                                    oncomplete="PF('orderListDialog').hide();"/>
+                    <p:commandButton value="Enregistrer l'ordre"
+                                    icon="pi pi-check"
+                                    styleClass="order-list-dialog-btn order-list-dialog-btn-validate"
+                                    action="#{applicationBean.saveOrderFromDialog()}"
+                                    process="@form"
+                                    update=":mainContentArea :growl"
+                                    oncomplete="PF('orderListDialog').hide();"/>
+                </div>
+            </h:form>
+        </p:outputPanel>
+    </p:dialog>
+</ui:composition>

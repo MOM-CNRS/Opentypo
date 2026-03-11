@@ -256,7 +256,7 @@
                     </ui:fragment>
 
                     <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
-                    <h:form rendered="#{applicationBean.canPublishOrRefuseProposition() and not entityUpdateBean.editingEntity}"
+                    <h:form rendered="#{groupBean.canPublishOrRefuseProposition(applicationBean) and not entityUpdateBean.editingEntity}"
                             styleClass="groupe-proposition-actions candidats-mt-20">
                         <div class="groupe-proposition-actions-wrapper">
                             <p:commandButton value="Publier"

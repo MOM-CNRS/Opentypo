@@ -27,8 +27,8 @@
                                  styleClass="collection-create-btn collection-reorder-btn"
                                  action="#{applicationBean.prepareTypesOrderDialog()}"
                                  process="@this"
-                                 update=":typesOrderDialog"
-                                 oncomplete="PF('typesOrderDialog').show();"/>
+                                 update=":orderListDialog"
+                                 oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="Créer un nouveau type"
                                  icon="pi pi-plus"
                                  rendered="#{typeBean.canCreateType(applicationBean)}"

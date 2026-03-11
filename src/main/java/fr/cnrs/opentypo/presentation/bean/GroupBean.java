@@ -735,4 +735,39 @@ public class GroupBean implements Serializable {
         return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
                 PermissionRoleEnum.VALIDEUR.getLabel());
     }
+
+
+    /**
+     * Indique si l'utilisateur connecté peut publier ou refuser une proposition (groupe).
+     * Visible si : administrateur technique, gestionnaire de la collection, validateur du groupe,
+     * ou gestionnaire de la référence contenant le groupe.
+     */
+    public boolean canPublishOrRefuseProposition(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null
+                || !EntityStatusEnum.PROPOSITION.name().equals(applicationBean.getSelectedEntity().getStatut())) {
+            return false;
+        }
+        if (loginBean.isAdminTechnique()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedCollection().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.VALIDEUR.getLabel())) {
+            return true;
+        }
+
+        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
+    }
 }

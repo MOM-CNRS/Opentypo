@@ -214,10 +214,32 @@ public class ApplicationBean implements Serializable {
     /** Page courante pour la pagination des types (1-based). */
     private int typesCurrentPage = 1;
     private static final int TYPES_PAGE_SIZE = 6;
-    /** Liste des IDs des types pour le dialog de réorganisation (ordre modifiable). */
-    private List<Long> typesForOrderingIds = new ArrayList<>();
-    /** Map code par ID pour l'affichage dans le dialog. */
-    private java.util.Map<Long, String> typesCodeById = new java.util.HashMap<>();
+
+    /** Type de liste en cours de réorganisation (un seul dialog générique). */
+    public enum OrderingType {
+        TYPES("Réorganiser l'ordre des types"),
+        SERIES("Réorganiser l'ordre des séries"),
+        GROUPES("Réorganiser l'ordre des groupes"),
+        CATEGORIES("Réorganiser l'ordre des catégories"),
+        REFERENCES("Réorganiser l'ordre des référentiels");
+
+        private final String title;
+
+        OrderingType(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
+
+    /** Liste des IDs pour le dialog de réorganisation (ordre modifiable). */
+    private List<Long> orderingIds = new ArrayList<>();
+    /** Map label par ID pour l'affichage dans le dialog. */
+    private java.util.Map<Long, String> orderingLabelsById = new java.util.HashMap<>();
+    /** Type de liste actuellement en cours de réorganisation. */
+    private OrderingType currentOrderingType;
 
     // Titre de l'écran
     private String selectedEntityLabel;
@@ -570,8 +592,12 @@ public class ApplicationBean implements Serializable {
                         && entityTypeCode.equals(e.getEntityType().getCode())
                         && isEntityVisibleInCatalogList(e, entityTypeCode))
                 .collect(Collectors.toList());
-        // Types : ordre personnalisé (display_order) ou alphabétique — déjà appliqué par TypeService
-        if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
+        // Ordre personnalisé (display_order) ou alphabétique — déjà appliqué par les services
+        if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)
+                || EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)
+                || EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)
+                || EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode)
+                || EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
             return filtered;
         }
         return filtered.stream()
@@ -1324,50 +1350,103 @@ public class ApplicationBean implements Serializable {
         refreshChilds();
     }
 
-    /** Prépare le dialog de réorganisation : copie la liste des IDs des types pour modification. */
-    public void prepareTypesOrderDialog() {
-        List<Entity> types = getChildsTypes();
-        if (types == null || types.isEmpty()) {
-            typesForOrderingIds = new ArrayList<>();
-            typesCodeById = new java.util.HashMap<>();
+    /* === Réorganisation unifiée (un seul dialog pour types, séries, groupes, catégories, référentiels) === */
+
+    /** Prépare le dialog de réorganisation pour le type donné. */
+    public void prepareOrderDialog(OrderingType type) {
+        currentOrderingType = type;
+        List<Entity> list = getChildsForOrdering(type);
+        if (list == null || list.isEmpty()) {
+            orderingIds = new ArrayList<>();
+            orderingLabelsById = new java.util.HashMap<>();
             return;
         }
-        typesForOrderingIds = types.stream()
+        orderingIds = list.stream()
                 .filter(e -> e != null && e.getId() != null)
                 .map(Entity::getId)
                 .filter(id -> id != null)
                 .collect(Collectors.toList());
-        typesCodeById = types.stream()
+        orderingLabelsById = list.stream()
                 .filter(e -> e != null && e.getId() != null)
-                .collect(Collectors.toMap(Entity::getId, e -> e.getCode() != null ? e.getCode() : "", (a, b) -> a));
+                .collect(Collectors.toMap(Entity::getId, e -> buildOrderingLabel(e, type), (a, b) -> a));
+    }
+
+    private List<Entity> getChildsForOrdering(OrderingType type) {
+        return switch (type) {
+            case TYPES -> getChildsTypes();
+            case SERIES -> getChildsSeries();
+            case GROUPES -> getChildsGroupes();
+            case CATEGORIES -> getChildsCategories();
+            case REFERENCES -> getChildsReferences();
+        };
+    }
+
+    private String buildOrderingLabel(Entity e, OrderingType type) {
+        String code = e.getCode() != null ? e.getCode() : "";
+        if (type == OrderingType.GROUPES && e.getNom() != null) {
+            return code + " - " + e.getNom();
+        }
+        return code;
     }
 
     /** Enregistre l'ordre depuis le dialog et ferme. */
-    public void saveTypesOrderFromDialog() {
-        if (typesForOrderingIds != null && !typesForOrderingIds.isEmpty()) {
-            List<Long> validIds = typesForOrderingIds.stream()
-                    .filter(id -> id != null && id > 0)
-                    .collect(Collectors.toList());
-            if (!validIds.isEmpty()) {
-                saveTypesOrder(validIds);
+    public void saveOrderFromDialog() {
+        if (orderingIds == null || orderingIds.isEmpty() || currentOrderingType == null
+                || selectedEntity == null || selectedEntity.getId() == null) {
+            return;
+        }
+        List<Long> validIds = orderingIds.stream()
+                .filter(id -> id != null && id > 0)
+                .collect(Collectors.toList());
+        if (validIds.isEmpty()) return;
+
+        switch (currentOrderingType) {
+            case TYPES -> saveTypesOrder(validIds);
+            case SERIES -> {
+                serieService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                refreshChilds();
+            }
+            case GROUPES -> {
+                groupService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                refreshChilds();
+            }
+            case CATEGORIES -> {
+                categoryService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                refreshChilds();
+            }
+            case REFERENCES -> {
+                referenceService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                refreshChilds();
             }
         }
     }
 
-    public List<Long> getTypesForOrderingIds() {
-        return typesForOrderingIds;
+    public List<Long> getOrderingIds() {
+        return orderingIds;
     }
 
-    public void setTypesForOrderingIds(List<Long> typesForOrderingIds) {
-        this.typesForOrderingIds = typesForOrderingIds != null
-                ? typesForOrderingIds.stream().filter(id -> id != null).collect(Collectors.toList())
+    public void setOrderingIds(List<Long> ids) {
+        this.orderingIds = ids != null
+                ? ids.stream().filter(id -> id != null).collect(Collectors.toList())
                 : new ArrayList<>();
     }
 
-    /** Retourne le code d'un type par son ID (pour l'affichage dans le OrderList). */
-    public String getTypeCodeById(Long id) {
-        return id != null && typesCodeById != null ? typesCodeById.getOrDefault(id, "") : "";
+    /** Retourne le label d'un élément par son ID (pour l'affichage dans le OrderList). */
+    public String getOrderingLabel(Long id) {
+        return id != null && orderingLabelsById != null ? orderingLabelsById.getOrDefault(id, "") : "";
     }
+
+    /** Titre du dialog (affiché dynamiquement selon le type). */
+    public String getOrderingDialogTitle() {
+        return currentOrderingType != null ? currentOrderingType.getTitle() : "";
+    }
+
+    /* === Méthodes de convenance (conservées pour compatibilité des vues) === */
+    public void prepareTypesOrderDialog() { prepareOrderDialog(OrderingType.TYPES); }
+    public void prepareSeriesOrderDialog() { prepareOrderDialog(OrderingType.SERIES); }
+    public void prepareGroupesOrderDialog() { prepareOrderDialog(OrderingType.GROUPES); }
+    public void prepareCategoriesOrderDialog() { prepareOrderDialog(OrderingType.CATEGORIES); }
+    public void prepareReferencesOrderDialog() { prepareOrderDialog(OrderingType.REFERENCES); }
 
     public String getEntityLabel(Entity entitySelected) {
 
