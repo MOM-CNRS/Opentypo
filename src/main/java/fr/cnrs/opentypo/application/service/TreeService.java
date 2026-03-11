@@ -51,15 +51,7 @@ public class TreeService implements Serializable {
         Long rootId = collection.getId();
 
         try {
-            List<Entity> directChildren = entityRelationRepository.findChildrenByParent(collection);
-            Set<Long> childIds = directChildren.stream()
-                    .map(Entity::getId)
-                    .filter(id -> id != null)
-                    .collect(Collectors.toSet());
-
-            List<Entity> childrenWithType = childIds.isEmpty()
-                    ? new ArrayList<>()
-                    : entityRepository.findByIdInWithEntityType(new ArrayList<>(childIds));
+            List<Entity> directChildren = entityRelationRepository.findChildrenByParentOrdered(collection);
 
             Entity rootEntity = collection;
             if (rootEntity.getEntityType() == null) {
@@ -71,10 +63,7 @@ public class TreeService implements Serializable {
             DefaultTreeNode rootNode = new DefaultTreeNode(rootLabel, null);
             rootNode.setData(rootEntity);
 
-            List<Entity> sorted = new ArrayList<>(childrenWithType);
-            sorted.sort(Comparator.comparing(TreeService::getEntitySortLabel, String.CASE_INSENSITIVE_ORDER));
-
-            for (Entity childEntity : sorted) {
+            for (Entity childEntity : directChildren) {
                 String label = childEntity.getNom() != null ? childEntity.getNom() : childEntity.getCode();
                 if (label == null) label = "?";
                 DefaultTreeNode childNode = new DefaultTreeNode(label, rootNode);
@@ -82,7 +71,7 @@ public class TreeService implements Serializable {
             }
 
             log.debug("Arbre (enfants directs uniquement) chargé pour la collection {} : {} enfants",
-                    rootId, sorted.size());
+                    rootId, directChildren.size());
             return rootNode;
         } catch (Exception e) {
             log.error("Erreur lors du chargement de l'arbre (enfants directs) pour la collection {}", rootId, e);
@@ -107,19 +96,20 @@ public class TreeService implements Serializable {
         Long rootId = collection.getId();
 
         try {
-            // 1) Toutes les relations (parent_id, child_id) du sous-arbre
+            // 1) Toutes les relations (parent_id, child_id, display_order) du sous-arbre
             List<Object[]> relations = entityRelationRepository.findAllDescendantRelations(rootId);
 
             Set<Long> allIds = new HashSet<>();
             allIds.add(rootId);
-            Map<Long, List<Long>> parentToChildIds = new HashMap<>();
+            Map<Long, List<ChildOrder>> parentToChildOrders = new HashMap<>();
 
             for (Object[] row : relations) {
                 Long parentId = asLong(row[0]);
                 Long childId = asLong(row[1]);
+                int displayOrder = asInt(row[2], 999999);
                 if (parentId != null && childId != null) {
                     allIds.add(childId);
-                    parentToChildIds.computeIfAbsent(parentId, k -> new ArrayList<>()).add(childId);
+                    parentToChildOrders.computeIfAbsent(parentId, k -> new ArrayList<>()).add(new ChildOrder(childId, displayOrder));
                 }
             }
 
@@ -136,7 +126,7 @@ public class TreeService implements Serializable {
             DefaultTreeNode rootNode = new DefaultTreeNode(rootLabel, null);
             rootNode.setData(rootEntity);
 
-            buildChildren(rootNode, rootId, parentToChildIds, entityMap);
+            buildChildren(rootNode, rootId, parentToChildOrders, entityMap);
 
             log.debug("Arbre complet chargé pour la collection {} : {} entités, {} relations",
                     rootId, entities.size(), relations.size());
@@ -156,6 +146,14 @@ public class TreeService implements Serializable {
         return null;
     }
 
+    private static int asInt(Object o, int defaultValue) {
+        if (o == null) return defaultValue;
+        if (o instanceof Number n) return n.intValue();
+        return defaultValue;
+    }
+
+    private record ChildOrder(long childId, int displayOrder) {}
+
     /** Retourne le libellé utilisé pour le tri (nom ou code), jamais null. */
     private static String getEntitySortLabel(Entity e) {
         if (e == null) return "";
@@ -165,25 +163,26 @@ public class TreeService implements Serializable {
     }
 
     private void buildChildren(TreeNode parentNode, Long parentId,
-                               Map<Long, List<Long>> parentToChildIds,
+                               Map<Long, List<ChildOrder>> parentToChildOrders,
                                Map<Long, Entity> entityMap) {
-        List<Long> childIds = parentToChildIds.get(parentId);
-        if (childIds == null || childIds.isEmpty()) return;
+        List<ChildOrder> childOrders = parentToChildOrders.get(parentId);
+        if (childOrders == null || childOrders.isEmpty()) return;
 
-        // Tri alphabétique croissant par libellé (nom ou code) à chaque niveau
-        List<Long> sortedChildIds = new ArrayList<>(childIds);
-        sortedChildIds.sort(Comparator.comparing(
-                id -> getEntitySortLabel(entityMap.get(id)),
-                String.CASE_INSENSITIVE_ORDER));
+        // Tri par display_order puis alphabétique par libellé
+        List<ChildOrder> sorted = new ArrayList<>(childOrders);
+        sorted.sort(Comparator
+                .comparingInt(ChildOrder::displayOrder)
+                .thenComparing(co -> getEntitySortLabel(entityMap.get(co.childId())), String.CASE_INSENSITIVE_ORDER));
 
-        for (Long childId : sortedChildIds) {
+        for (ChildOrder co : sorted) {
+            Long childId = co.childId();
             Entity childEntity = entityMap.get(childId);
             if (childEntity == null) continue;
             String label = childEntity.getNom() != null ? childEntity.getNom() : childEntity.getCode();
             if (label == null) label = "?";
             DefaultTreeNode childNode = new DefaultTreeNode(label, parentNode);
             childNode.setData(childEntity);
-            buildChildren(childNode, childId, parentToChildIds, entityMap);
+            buildChildren(childNode, childId, parentToChildOrders, entityMap);
         }
     }
 }

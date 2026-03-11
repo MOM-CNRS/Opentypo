@@ -1419,6 +1419,11 @@ public class ApplicationBean implements Serializable {
                 refreshChilds();
             }
         }
+        // Rafraîchir l'arbre pour refléter le nouvel ordre
+        TreeBean tb = getTreeBean();
+        if (tb != null) {
+            tb.reloadChildrenForEntity(selectedEntity);
+        }
     }
 
     public List<Long> getOrderingIds() {

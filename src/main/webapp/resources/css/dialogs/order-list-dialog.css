@@ -275,9 +275,9 @@
     .order-list-dialog-actions {
         flex-direction: column !important;
     }
+}
 
-    .order-list-dialog-btn {
-        width: 100% !important;
-        justify-content: center !important;
-    }
+.ui-orderlist.ui-grid-responsive .ui-orderlist-list, .ui-orderlist.ui-grid-responsive .ui-orderlist-caption {
+    width: 100%;
+    height: 100% !important;
 }

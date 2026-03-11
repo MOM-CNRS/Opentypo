@@ -334,6 +334,28 @@ public class TreeBean implements Serializable {
     }
 
     /**
+     * Recharge les enfants d'un nœud (après réorganisation de l'ordre).
+     * Vide les enfants existants et les recharge dans le nouvel ordre.
+     */
+    public void reloadChildrenForEntity(Entity parentEntity) {
+        if (root == null || parentEntity == null || parentEntity.getId() == null) {
+            return;
+        }
+        TreeNode node = findNodeByEntity(root, parentEntity);
+        if (node == null) {
+            return;
+        }
+        if (node.getChildren() != null) {
+            node.getChildren().clear();
+        }
+        if (entityIdsWithNoChildren != null) {
+            entityIdsWithNoChildren.remove(parentEntity.getId());
+        }
+        loadChildForEntity(node, parentEntity);
+        log.debug("Enfants rechargés pour le nœud {} (id={})", parentEntity.getCode(), parentEntity.getId());
+    }
+
+    /**
      * Filtre les enfants d'un nœud racine selon les règles de visibilité catalogue.
      * Crée un nouveau nœud racine ne contenant que les enfants visibles.
      */

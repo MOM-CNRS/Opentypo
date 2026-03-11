@@ -32,6 +32,18 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
     List<Entity> findChildrenByParent(@Param("parent") Entity parent);
 
     /**
+     * Trouve tous les enfants d'une entité parent, ordonnés par display_order puis par code.
+     * Ordre par défaut alphabétique quand display_order est null.
+     */
+    @Query("""
+        SELECT er.child FROM EntityRelation er
+        LEFT JOIN FETCH er.child.entityType
+        WHERE er.parent = :parent
+        ORDER BY COALESCE(er.displayOrder, 999999) ASC, LOWER(COALESCE(er.child.metadata.code, '')) ASC
+        """)
+    List<Entity> findChildrenByParentOrdered(@Param("parent") Entity parent);
+
+    /**
      * Trouve tous les parents d'une entité enfant
      */
     @Query("SELECT er.parent FROM EntityRelation er WHERE er.child = :child")
@@ -67,17 +79,18 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
     boolean existsByParentAndChild(@Param("parentId") Long parentId, @Param("childId") Long childId);
 
     /**
-     * Retourne toutes les relations (parent_id, child_id) du sous-arbre dont la racine est l'entité donnée.
-     * Utilise une CTE récursive (PostgreSQL). Chaque ligne est (parent_id, child_id).
+     * Retourne toutes les relations (parent_id, child_id, display_order) du sous-arbre dont la racine est l'entité donnée.
+     * Utilise une CTE récursive (PostgreSQL). Chaque ligne est (parent_id, child_id, display_order).
+     * display_order NULL est retourné comme 999999 pour le tri.
      */
     @Query(value = """
         WITH RECURSIVE subtree AS (
-            SELECT parent_id, child_id FROM entity_relation WHERE parent_id = :rootId
+            SELECT parent_id, child_id, display_order FROM entity_relation WHERE parent_id = :rootId
             UNION ALL
-            SELECT r.parent_id, r.child_id FROM entity_relation r
+            SELECT r.parent_id, r.child_id, r.display_order FROM entity_relation r
             INNER JOIN subtree s ON r.parent_id = s.child_id
         )
-        SELECT parent_id, child_id FROM subtree
+        SELECT parent_id, child_id, COALESCE(display_order, 999999) FROM subtree
         """, nativeQuery = true)
     List<Object[]> findAllDescendantRelations(@Param("rootId") Long rootId);
 }

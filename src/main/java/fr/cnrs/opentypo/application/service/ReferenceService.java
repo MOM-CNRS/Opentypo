@@ -49,12 +49,12 @@ public class ReferenceService implements Serializable {
     }
 
     /**
-     * Charge les référentiels rattachés à la collection sélectionnée
+     * Charge les enfants d'une entité parent, ordonnés par display_order puis par code.
+     * Ordre par défaut alphabétique quand display_order est null.
      */
     public List<Entity> loadChildOfEntity(Entity parent) {
-
         if (parent != null) {
-            return entityRelationRepository.findChildrenByParent(parent);
+            return entityRelationRepository.findChildrenByParentOrdered(parent);
         }
         return new ArrayList<>();
     }
