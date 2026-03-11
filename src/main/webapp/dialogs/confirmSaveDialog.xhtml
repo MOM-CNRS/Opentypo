@@ -46,7 +46,7 @@
                                      styleClass="reference-confirm-btn reference-confirm-btn-cancel"
                                      action="#{entityUpdateBean.revertPendingFileUploads()}"
                                      process="@this"
-                                     update=":centerContent"
+                                     update=":mainContentArea :growl"
                                      oncomplete="PF('confirmSaveDialog').hide();"/>
 
                     <p:commandButton value="Oui, enregistrer"

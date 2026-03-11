@@ -101,7 +101,9 @@
     <div class="app-container">
         <ui:include src="menu.xhtml" />
         <main class="app-main">
-            <ui:insert name="mainContent"/>
+            <h:panelGroup id="mainContentArea" layout="block">
+                <ui:insert name="mainContent"/>
+            </h:panelGroup>
         </main>
     </div>
     <ui:include src="footer.xhtml" />
