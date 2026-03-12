@@ -20,7 +20,7 @@
             </div>
 
             <span class="reference-categories-count-badge">
-                #{applicationBean.filteredSeriesSize} série#{applicationBean.filteredSeriesSize gt 1 ? 's' : ''}
+                #{applicationBean.childsSeriesSize} série#{applicationBean.childsSeriesSize gt 1 ? 's' : ''}
             </span>
 
             <p:commandButton value="Réorganiser l'ordre"
@@ -43,8 +43,8 @@
         </div>
 
         <h:panelGroup id="categoriesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
-            <!-- Barre de recherche -->
-            <div class="reference-categories-search-bar">
+            <!-- Barre de recherche + option tout afficher -->
+            <div class="reference-categories-search-bar series-types-search-row">
                 <div class="reference-categories-search-input-wrapper collection-select">
                     <i class="pi pi-search reference-categories-search-icon"/>
                     <p:inputText id="seriesTypesSearchInput"
@@ -57,6 +57,14 @@
                                 delay="300"/>
                     </p:inputText>
                 </div>
+                <p:commandLink value="#{applicationBean.seriesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                               icon="#{applicationBean.seriesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
+                               styleClass="series-types-view-all-btn"
+                               rendered="#{applicationBean.filteredSeriesSize gt 6}"
+                               process="@this"
+                               update="categoriesContainer"
+                               action="#{applicationBean.toggleSeriesViewAll()}"
+                               title="#{applicationBean.seriesViewAll ? 'Revenir à la pagination' : 'Afficher toutes les séries en une seule page'}"/>
             </div>
 
             <h:panelGroup id="seriesTypesContent">
@@ -160,8 +168,8 @@
                     </h:panelGroup>
                 </div>
 
-                <!-- Pagination -->
-                <h:panelGroup rendered="#{applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
+                <!-- Pagination (masquée si tout afficher) -->
+                <h:panelGroup rendered="#{not applicationBean.seriesViewAll and applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
                     <p:commandButton icon="pi pi-chevron-left"
                                      styleClass="reference-categories-page-btn"
                                      process="@this"

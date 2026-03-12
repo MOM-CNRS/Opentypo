@@ -20,6 +20,40 @@
     width: 100%;
 }
 
+/* Barre de recherche + bouton tout afficher */
+.series-types-search-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+}
+
+.series-types-search-row .reference-categories-search-input-wrapper {
+    flex: 1 !important;
+    min-width: 180px !important;
+}
+
+.series-types-view-all-btn {
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    padding: 0.5rem 0.875rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(var(--st-main-rgb), 0.2) !important;
+    background: rgba(var(--st-main-rgb), 0.06) !important;
+    color: var(--st-main) !important;
+    text-decoration: none !important;
+    transition: background var(--st-transition), border-color var(--st-transition), color var(--st-transition) !important;
+}
+
+.series-types-view-all-btn:hover {
+    background: rgba(var(--st-main-rgb), 0.12) !important;
+    border-color: rgba(var(--st-main-rgb), 0.35) !important;
+}
+
 /* Grille des cartes série - 1 élément par ligne */
 .series-types-unified .series-types-grid {
     display: grid;

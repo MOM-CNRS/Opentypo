@@ -191,28 +191,44 @@ public class ApplicationBean implements Serializable {
     /** Enfants directs de l'entité sélectionnée (référentiels, catégories, groupes, séries ou types selon le niveau). */
     private List<Entity> childs = new ArrayList<>();
 
+    /** Filtre de recherche pour les référentiels de la collection. */
+    private String referencesSearchQuery = "";
+    /** Page courante pour la pagination des référentiels (1-based). */
+    private int referencesCurrentPage = 1;
+    /** Afficher tous les référentiels en une seule page. */
+    private boolean referencesViewAll = false;
+    private static final int REFERENCES_PAGE_SIZE = 6;
+
     /** Filtre de recherche pour les catégories du référentiel. */
     private String categoriesSearchQuery = "";
     /** Page courante pour la pagination des catégories (1-based). */
     private int categoriesCurrentPage = 1;
+    /** Afficher toutes les catégories en une seule page. */
+    private boolean categoriesViewAll = false;
     private static final int CATEGORIES_PAGE_SIZE = 6;
 
     /** Filtre de recherche pour les groupes de la catégorie. */
     private String groupesSearchQuery = "";
     /** Page courante pour la pagination des groupes (1-based). */
     private int groupesCurrentPage = 1;
+    /** Afficher tous les groupes en une seule page. */
+    private boolean groupesViewAll = false;
     private static final int GROUPES_PAGE_SIZE = 6;
 
     /** Filtre de recherche pour les séries du groupe. */
     private String seriesSearchQuery = "";
     /** Page courante pour la pagination des séries (1-based). */
     private int seriesCurrentPage = 1;
+    /** Afficher toutes les séries en une seule page (sans pagination). */
+    private boolean seriesViewAll = false;
     private static final int SERIES_PAGE_SIZE = 6;
 
     /** Filtre de recherche pour les types de la série. */
     private String typesSearchQuery = "";
     /** Page courante pour la pagination des types (1-based). */
     private int typesCurrentPage = 1;
+    /** Afficher tous les types en une seule page. */
+    private boolean typesViewAll = false;
     private static final int TYPES_PAGE_SIZE = 6;
 
     /** Type de liste en cours de réorganisation (un seul dialog générique). */
@@ -525,16 +541,21 @@ public class ApplicationBean implements Serializable {
         switch(selectedEntity.getEntityType().getCode()) {
             case EntityConstants.ENTITY_TYPE_COLLECTION:
                 childs = referenceService.loadReferencesByCollection(selectedEntity);
+                referencesCurrentPage = 1;
+                referencesSearchQuery = "";
+                referencesViewAll = false;
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 childs = categoryService.loadCategoriesByReference(selectedEntity);
                 categoriesCurrentPage = 1;
                 categoriesSearchQuery = "";
+                categoriesViewAll = false;
                 break;
             case EntityConstants.ENTITY_TYPE_CATEGORY:
                 childs = groupService.loadCategoryGroups(selectedEntity);
                 groupesCurrentPage = 1;
                 groupesSearchQuery = "";
+                groupesViewAll = false;
                 break;
             case EntityConstants.ENTITY_TYPE_GROUP:
                 List<Entity> series = serieService.loadGroupSeries(selectedEntity);
@@ -544,6 +565,7 @@ public class ApplicationBean implements Serializable {
                 if (types != null) childs.addAll(types);
                 seriesCurrentPage = 1;
                 seriesSearchQuery = "";
+                seriesViewAll = false;
                 typesCurrentPage = 1;
                 typesSearchQuery = "";
                 break;
@@ -551,6 +573,7 @@ public class ApplicationBean implements Serializable {
                 childs = typeService.loadSerieTypes(selectedEntity);
                 typesCurrentPage = 1;
                 typesSearchQuery = "";
+                typesViewAll = false;
                 break;
             default:
                 childs = new ArrayList<>();
@@ -606,10 +629,78 @@ public class ApplicationBean implements Serializable {
     }
 
     /** Taille des listes filtrées (évite fn:length en EL). */
+    public int getFilteredReferencesSize() { return getFilteredReferences().size(); }
     public int getFilteredCategoriesSize() { return getFilteredCategories().size(); }
     public int getFilteredGroupesSize() { return getFilteredGroupes().size(); }
     public int getFilteredSeriesSize() { return getFilteredSeries().size(); }
     public int getFilteredTypesSize() { return getFilteredTypes().size(); }
+    /** Nombre total d'éléments (sans filtre de recherche). */
+    public int getChildsReferencesSize() { return getChildsReferences().size(); }
+    public int getChildsCategoriesSize() { return getChildsCategories().size(); }
+    public int getChildsGroupesSize() { return getChildsGroupes().size(); }
+    public int getChildsSeriesSize() { return getChildsSeries().size(); }
+    public int getChildsTypesSize() { return getChildsTypes().size(); }
+
+    /** Référentiels filtrés par la recherche. */
+    public List<Entity> getFilteredReferences() {
+        List<Entity> list = getChildsReferences();
+        if (list == null) return new ArrayList<>();
+        String q = referencesSearchQuery != null ? referencesSearchQuery.trim().toLowerCase() : "";
+        if (q.isEmpty()) return new ArrayList<>(list);
+        return list.stream()
+                .filter(e -> {
+                    String code = e.getCode() != null ? e.getCode().toLowerCase() : "";
+                    String label = getEntityLabel(e) != null ? getEntityLabel(e).toLowerCase() : "";
+                    String desc = getEntityDescriptionPlainText(e) != null ? getEntityDescriptionPlainText(e).toLowerCase() : "";
+                    return code.contains(q) || label.contains(q) || desc.contains(q);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /** Référentiels pour la page courante ou tous si referencesViewAll. */
+    public List<Entity> getPaginatedReferences() {
+        List<Entity> filtered = getFilteredReferences();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        if (referencesViewAll) return new ArrayList<>(filtered);
+        int from = (referencesCurrentPage - 1) * REFERENCES_PAGE_SIZE;
+        if (from >= filtered.size()) {
+            referencesCurrentPage = 1;
+            from = 0;
+        }
+        int to = Math.min(from + REFERENCES_PAGE_SIZE, filtered.size());
+        return filtered.subList(from, to);
+    }
+
+    public int getReferencesTotalPages() {
+        int size = getFilteredReferences().size();
+        return size == 0 ? 0 : (int) Math.ceil((double) size / REFERENCES_PAGE_SIZE);
+    }
+
+    public void referencesGoToPage(int page) {
+        int total = getReferencesTotalPages();
+        if (page >= 1 && page <= total) referencesCurrentPage = page;
+    }
+
+    public void referencesNextPage() { referencesGoToPage(referencesCurrentPage + 1); }
+    public void referencesPreviousPage() { referencesGoToPage(referencesCurrentPage - 1); }
+    public boolean isReferencesFirstPage() { return referencesCurrentPage <= 1; }
+    public boolean isReferencesLastPage() { return referencesCurrentPage >= getReferencesTotalPages(); }
+    public int getReferencesCurrentPage() { return referencesCurrentPage; }
+    public String getReferencesSearchQuery() { return referencesSearchQuery; }
+    public void setReferencesSearchQuery(String referencesSearchQuery) {
+        this.referencesSearchQuery = referencesSearchQuery != null ? referencesSearchQuery : "";
+        this.referencesCurrentPage = 1;
+    }
+
+    public boolean isReferencesViewAll() { return referencesViewAll; }
+    public void setReferencesViewAll(boolean referencesViewAll) { this.referencesViewAll = referencesViewAll; }
+    public String getReferencesViewAllToggleTitle() {
+        return referencesViewAll ? "Revenir à la pagination" : "Afficher tous les référentiels en une seule page";
+    }
+    public void toggleReferencesViewAll() {
+        referencesViewAll = !referencesViewAll;
+        if (!referencesViewAll) referencesCurrentPage = 1;
+    }
 
     /** Catégories filtrées par la recherche. */
     public List<Entity> getFilteredCategories() {
@@ -626,10 +717,11 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /** Catégories pour la page courante (6 par page). */
+    /** Catégories pour la page courante ou toutes si categoriesViewAll. */
     public List<Entity> getPaginatedCategories() {
         List<Entity> filtered = getFilteredCategories();
         if (filtered.isEmpty()) return new ArrayList<>();
+        if (categoriesViewAll) return new ArrayList<>(filtered);
         int from = (categoriesCurrentPage - 1) * CATEGORIES_PAGE_SIZE;
         if (from >= filtered.size()) {
             categoriesCurrentPage = 1;
@@ -637,6 +729,13 @@ public class ApplicationBean implements Serializable {
         }
         int to = Math.min(from + CATEGORIES_PAGE_SIZE, filtered.size());
         return filtered.subList(from, to);
+    }
+
+    public boolean isCategoriesViewAll() { return categoriesViewAll; }
+    public void setCategoriesViewAll(boolean categoriesViewAll) { this.categoriesViewAll = categoriesViewAll; }
+    public void toggleCategoriesViewAll() {
+        categoriesViewAll = !categoriesViewAll;
+        if (!categoriesViewAll) categoriesCurrentPage = 1;
     }
 
     public int getCategoriesTotalPages() {
@@ -676,10 +775,11 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /** Groupes pour la page courante (6 par page). */
+    /** Groupes pour la page courante ou tous si groupesViewAll. */
     public List<Entity> getPaginatedGroupes() {
         List<Entity> filtered = getFilteredGroupes();
         if (filtered.isEmpty()) return new ArrayList<>();
+        if (groupesViewAll) return new ArrayList<>(filtered);
         int from = (groupesCurrentPage - 1) * GROUPES_PAGE_SIZE;
         if (from >= filtered.size()) {
             groupesCurrentPage = 1;
@@ -687,6 +787,16 @@ public class ApplicationBean implements Serializable {
         }
         int to = Math.min(from + GROUPES_PAGE_SIZE, filtered.size());
         return filtered.subList(from, to);
+    }
+
+    public boolean isGroupesViewAll() { return groupesViewAll; }
+    public void setGroupesViewAll(boolean groupesViewAll) { this.groupesViewAll = groupesViewAll; }
+    public String getGroupesViewAllToggleTitle() {
+        return groupesViewAll ? "Revenir à la pagination" : "Afficher tous les groupes en une seule page";
+    }
+    public void toggleGroupesViewAll() {
+        groupesViewAll = !groupesViewAll;
+        if (!groupesViewAll) groupesCurrentPage = 1;
     }
 
     public int getGroupesTotalPages() {
@@ -776,10 +886,11 @@ public class ApplicationBean implements Serializable {
         return result;
     }
 
-    /** Séries avec types pour la page courante (pagination). */
+    /** Séries avec types pour la page courante (pagination) ou toutes si seriesViewAll. */
     public List<SerieWithTypes> getPaginatedSeriesWithTypes() {
         List<SerieWithTypes> all = getSeriesWithTypesFiltered();
         if (all.isEmpty()) return new ArrayList<>();
+        if (seriesViewAll) return new ArrayList<>(all);
         int from = (seriesCurrentPage - 1) * SERIES_PAGE_SIZE;
         if (from >= all.size()) {
             seriesCurrentPage = 1;
@@ -787,6 +898,14 @@ public class ApplicationBean implements Serializable {
         }
         int to = Math.min(from + SERIES_PAGE_SIZE, all.size());
         return all.subList(from, to);
+    }
+
+    public boolean isSeriesViewAll() { return seriesViewAll; }
+    public void setSeriesViewAll(boolean seriesViewAll) { this.seriesViewAll = seriesViewAll; }
+    /** Bascule l'affichage tout / paginé et réinitialise la page. */
+    public void toggleSeriesViewAll() {
+        seriesViewAll = !seriesViewAll;
+        if (!seriesViewAll) seriesCurrentPage = 1;
     }
 
     /** Types filtrés par la recherche. */
@@ -824,10 +943,11 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /** Types pour la page courante (6 par page). */
+    /** Types pour la page courante ou tous si typesViewAll. */
     public List<Entity> getPaginatedTypes() {
         List<Entity> filtered = getFilteredTypes();
         if (filtered.isEmpty()) return new ArrayList<>();
+        if (typesViewAll) return new ArrayList<>(filtered);
         int from = (typesCurrentPage - 1) * TYPES_PAGE_SIZE;
         if (from >= filtered.size()) {
             typesCurrentPage = 1;
@@ -835,6 +955,13 @@ public class ApplicationBean implements Serializable {
         }
         int to = Math.min(from + TYPES_PAGE_SIZE, filtered.size());
         return filtered.subList(from, to);
+    }
+
+    public boolean isTypesViewAll() { return typesViewAll; }
+    public void setTypesViewAll(boolean typesViewAll) { this.typesViewAll = typesViewAll; }
+    public void toggleTypesViewAll() {
+        typesViewAll = !typesViewAll;
+        if (!typesViewAll) typesCurrentPage = 1;
     }
 
     public int getTypesTotalPages() {
