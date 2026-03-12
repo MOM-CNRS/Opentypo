@@ -81,8 +81,9 @@
                 e.preventDefault();
                 e.stopPropagation();
                 var url = el.getAttribute('data-image-url');
+                var legend = el.getAttribute('data-image-legende') || '';
                 if (url && typeof window.showFullscreenImage === 'function') {
-                    window.showFullscreenImage(url);
+                    window.showFullscreenImage(url, legend);
                 }
                 break;
 

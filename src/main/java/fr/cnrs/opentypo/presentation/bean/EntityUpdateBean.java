@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -129,17 +128,27 @@ public class EntityUpdateBean implements Serializable {
     @Autowired
     private ImageRepository imageRepository;
 
-    /** Images en cours d'édition (URLs) */
-    private List<String> editingImageUrls = new ArrayList<>();
+    /** Images en cours d'édition (URL + légende) */
+    private List<EditingImageItem> editingImages = new ArrayList<>();
 
-    /** Retourne la liste des URLs sans doublons (évite duplication après rafraîchissement). */
-    public List<String> getEditingImageUrls() {
-        if (editingImageUrls == null) return new ArrayList<>();
-        List<String> deduped = new ArrayList<>(new LinkedHashSet<>(editingImageUrls));
-        if (deduped.size() != editingImageUrls.size()) {
-            editingImageUrls = deduped;
+    /** Retourne la liste des images sans doublons d'URL (évite duplication après rafraîchissement). */
+    public List<EditingImageItem> getEditingImages() {
+        if (editingImages == null) return new ArrayList<>();
+        List<EditingImageItem> deduped = new ArrayList<>();
+        Set<String> seenUrls = new HashSet<>();
+        for (EditingImageItem item : editingImages) {
+            if (item != null && StringUtils.hasText(item.getUrl())) {
+                String url = item.getUrl().trim();
+                if (!seenUrls.contains(url)) {
+                    seenUrls.add(url);
+                    deduped.add(item);
+                }
+            }
         }
-        return new ArrayList<>(editingImageUrls);
+        if (deduped.size() != editingImages.size()) {
+            editingImages = deduped;
+        }
+        return new ArrayList<>(editingImages);
     }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
@@ -358,18 +367,16 @@ public class EntityUpdateBean implements Serializable {
         }
 
         // Charger les images existantes (via repository pour éviter LazyInitializationException)
-        // distinct() évite les doublons (jointures JPA ou rafraîchissement page)
         if (imageRepository != null && entity.getId() != null) {
             List<Image> images = imageRepository.findByEntity_Id(entity.getId());
-            editingImageUrls = images != null
+            editingImages = images != null
                     ? images.stream()
-                            .map(Image::getUrl)
-                            .filter(url -> url != null && !url.isBlank())
-                            .distinct()
+                            .filter(img -> img != null && img.getUrl() != null && !img.getUrl().isBlank())
+                            .map(img -> new EditingImageItem(img.getUrl(), img.getLegende()))
                             .collect(Collectors.toList())
                     : new ArrayList<>();
         } else {
-            editingImageUrls = new ArrayList<>();
+            editingImages = new ArrayList<>();
         }
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
@@ -462,7 +469,7 @@ public class EntityUpdateBean implements Serializable {
         validateursPickList = null;
         relecteursPickList = null;
         referenceBibliographiqueList = new ArrayList<>();
-        editingImageUrls = new ArrayList<>();
+        editingImages = new ArrayList<>();
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
         for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
@@ -639,11 +646,11 @@ public class EntityUpdateBean implements Serializable {
         try {
             String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
             String url = entityImageService.saveUploadedImage(event.getFile(), contextPath);
-            if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
-            if (editingImageUrls.stream().anyMatch(u -> u != null && u.trim().equalsIgnoreCase(url))) {
+            if (editingImages == null) editingImages = new ArrayList<>();
+            if (editingImages.stream().anyMatch(i -> i != null && i.getUrl() != null && i.getUrl().trim().equalsIgnoreCase(url))) {
                 addWarnMessage("Cette image a déjà été ajoutée.");
             } else {
-                editingImageUrls.add(url);
+                editingImages.add(new EditingImageItem(url, null));
                 if (uploadedUrlsToRevertOnCancel == null) uploadedUrlsToRevertOnCancel = new ArrayList<>();
                 uploadedUrlsToRevertOnCancel.add(url);
                 addInfoMessage("Image ajoutée.");
@@ -662,15 +669,15 @@ public class EntityUpdateBean implements Serializable {
             return;
         }
         String url = newImageUrlInput.trim();
-        if (editingImageUrls == null) {
-            editingImageUrls = new ArrayList<>();
+        if (editingImages == null) {
+            editingImages = new ArrayList<>();
         }
-        if (editingImageUrls.stream().anyMatch(u -> u != null && u.trim().equalsIgnoreCase(url))) {
+        if (editingImages.stream().anyMatch(i -> i != null && i.getUrl() != null && i.getUrl().trim().equalsIgnoreCase(url))) {
             addErrorMessage("Cette URL a déjà été ajoutée.");
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
-        editingImageUrls.add(url);
+        editingImages.add(new EditingImageItem(url, null));
         newImageUrlInput = null;
         addInfoMessage("Image ajoutée.");
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
@@ -706,8 +713,8 @@ public class EntityUpdateBean implements Serializable {
             String filename = slot.getPart().getSubmittedFileName();
             String contentType = slot.getPart().getContentType();
             String url = entityImageService.saveUploadedImage(content, filename, contentType, contextPath);
-            if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
-            editingImageUrls.add(url);
+            if (editingImages == null) editingImages = new ArrayList<>();
+            editingImages.add(new EditingImageItem(url, null));
             if (uploadedUrlsToRevertOnCancel == null) uploadedUrlsToRevertOnCancel = new ArrayList<>();
             uploadedUrlsToRevertOnCancel.add(url);
             if (uploadedFileUrlToHash == null) uploadedFileUrlToHash = new HashMap<>();
@@ -746,7 +753,7 @@ public class EntityUpdateBean implements Serializable {
         if (entityImageService == null) return;
         uploadedUrlsToRevertOnCancel = new ArrayList<>();
         String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
-        if (editingImageUrls == null) editingImageUrls = new ArrayList<>();
+        if (editingImages == null) editingImages = new ArrayList<>();
         if (uploadedFileUrlToHash == null) uploadedFileUrlToHash = new HashMap<>();
 
         List<Part> toProcess = new ArrayList<>();
@@ -768,7 +775,7 @@ public class EntityUpdateBean implements Serializable {
                 if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) continue;
                 String url = entityImageService.saveUploadedImage(content, part.getSubmittedFileName(),
                         part.getContentType(), contextPath);
-                editingImageUrls.add(url);
+                editingImages.add(new EditingImageItem(url, null));
                 uploadedUrlsToRevertOnCancel.add(url);
                 if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.put(url, hash);
             } catch (Exception e) {
@@ -783,8 +790,8 @@ public class EntityUpdateBean implements Serializable {
 
     /** Annule les uploads effectués lors du dernier prepareSave (si l'utilisateur a cliqué Annuler). */
     public void revertPendingFileUploads() {
-        if (uploadedUrlsToRevertOnCancel != null && editingImageUrls != null) {
-            editingImageUrls.removeAll(uploadedUrlsToRevertOnCancel);
+        if (uploadedUrlsToRevertOnCancel != null && editingImages != null) {
+            editingImages.removeIf(item -> item != null && uploadedUrlsToRevertOnCancel.contains(item.getUrl()));
             if (entityImageService != null) {
                 for (String url : uploadedUrlsToRevertOnCancel) {
                     entityImageService.deletePhysicalFileByUrl(url);
@@ -799,8 +806,8 @@ public class EntityUpdateBean implements Serializable {
 
     /** Supprime l'image à l'index donné. */
     public void removeImageAtIndex(int index) {
-        if (editingImageUrls != null && index >= 0 && index < editingImageUrls.size()) {
-            editingImageUrls.remove(index);
+        if (editingImages != null && index >= 0 && index < editingImages.size()) {
+            editingImages.remove(index);
             addInfoMessage("Image supprimée.");
         }
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
@@ -808,7 +815,7 @@ public class EntityUpdateBean implements Serializable {
 
     /** Retire l'image de la liste d'édition. La suppression physique du fichier est reportée à l'enregistrement. */
     public void removeImageByUrl(String url) {
-        if (editingImageUrls != null && url != null && editingImageUrls.remove(url)) {
+        if (editingImages != null && url != null && editingImages.removeIf(item -> item != null && url.equals(item.getUrl()))) {
             if (url.contains("/uploaded-images/") && removedImageUrlsToDeleteOnSave != null) {
                 removedImageUrlsToDeleteOnSave.add(url);
             }
@@ -951,12 +958,13 @@ public class EntityUpdateBean implements Serializable {
         } else {
             entityToUpdate.setImages(new ArrayList<>());
         }
-        if (editingImageUrls != null) {
-            for (String url : new LinkedHashSet<>(editingImageUrls)) {
-                if (StringUtils.hasText(url)) {
+        if (editingImages != null) {
+            for (EditingImageItem item : editingImages) {
+                if (item != null && StringUtils.hasText(item.getUrl())) {
                     Image image = new Image();
                     image.setEntity(entityToUpdate);
-                    image.setUrl(url.trim());
+                    image.setUrl(item.getUrl().trim());
+                    image.setLegende(StringUtils.hasText(item.getLegende()) ? item.getLegende().trim() : null);
                     entityToUpdate.getImages().add(image);
                 }
             }

@@ -7,12 +7,15 @@
     <!-- 1. Image du référentiel -->
     <h:panelGroup class="image-container">
         <!-- Afficher l'image si disponible (clic = plein écran) -->
-        <h:panelGroup layout="block" styleClass="clickable-image"
-                      onclick="showFullscreenImage('#{applicationBean.selectedEntity.imagePrincipaleUrl}'); return false;"
-                      rendered="#{not empty applicationBean.selectedEntity.imagePrincipaleUrl}">
-            <p:graphicImage value="#{applicationBean.selectedEntity.imagePrincipaleUrl}"
-                           styleClass="research-image"
-                           alt="Image du référentiel"/>
+        <h:panelGroup rendered="#{not empty applicationBean.selectedEntity.imagePrincipaleUrl}">
+            <div class="clickable-image"
+                 data-image-url="#{applicationBean.selectedEntity.imagePrincipaleUrl}"
+                 data-image-legende="#{applicationBean.selectedEntity.image != null and applicationBean.selectedEntity.image.legende != null ? applicationBean.selectedEntity.image.legende : ''}"
+                 onclick="var el=this;var u=el.getAttribute('data-image-url');var l=el.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;">
+                <p:graphicImage value="#{applicationBean.selectedEntity.imagePrincipaleUrl}"
+                               styleClass="research-image"
+                               alt="Image du référentiel"/>
+            </div>
         </h:panelGroup>
 
         <!-- Afficher le texte "OpenTypo" si pas d'image -->

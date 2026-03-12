@@ -6402,6 +6402,7 @@ body .reference-card a {
     width: 100% !important;
     height: 100% !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
     max-width: 100% !important;
@@ -6437,6 +6438,16 @@ body .reference-card a {
 
 .fullscreen-image-close i {
     line-height: 1 !important;
+}
+
+.fullscreen-image-legend {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    max-width: 90% !important;
+    padding: 1rem 1.5rem 0 !important;
+    margin: 0 !important;
 }
 
 .fullscreen-image-content {

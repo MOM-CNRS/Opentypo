@@ -37,6 +37,9 @@ public class Image implements Serializable {
     @Column(name = "url", nullable = false, length = 500)
     private String url;
 
+    @Column(name = "legende", length = 500)
+    private String legende;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = fr.cnrs.opentypo.domain.entity.Entity.class)
     @JoinColumn(name = "entity_id")
     private fr.cnrs.opentypo.domain.entity.Entity entity;

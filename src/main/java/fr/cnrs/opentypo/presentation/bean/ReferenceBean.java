@@ -98,6 +98,8 @@ public class ReferenceBean implements Serializable {
 
     /** URL de l'image (URL saisie ou fichier enregistré à la validation) */
     private String uploadedImageUrl;
+    /** Légende de l'image principale */
+    private String uploadedImageLegende;
     /** Libellé affiché pour l'image ("URL externe") */
     private String uploadedImageName;
     /** Saisie manuelle d'une URL d'image */
@@ -318,6 +320,7 @@ public class ReferenceBean implements Serializable {
         referencePublique = true;
         gestionnairesPickList = null;
         uploadedImageUrl = null;
+        uploadedImageLegende = null;
         uploadedImageName = null;
         imageUrlInput = null;
         uploadedFilePart = null;
@@ -370,6 +373,7 @@ public class ReferenceBean implements Serializable {
      */
     public void clearImage() {
         uploadedImageUrl = null;
+        uploadedImageLegende = null;
         uploadedImageName = null;
         imageUrlInput = null;
         uploadedFilePart = null;
@@ -803,6 +807,7 @@ public class ReferenceBean implements Serializable {
         if (StringUtils.hasText(uploadedImageUrl)) {
             Image image = new Image();
             image.setUrl(uploadedImageUrl.trim());
+            image.setLegende(StringUtils.hasText(uploadedImageLegende) ? uploadedImageLegende.trim() : null);
             image.setEntity(newReference);
             if (newReference.getImages() == null) {
                 newReference.setImages(new ArrayList<>());

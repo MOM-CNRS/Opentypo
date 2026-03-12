@@ -244,6 +244,13 @@
                                          update=":referenceDialogForm:imageSection growl"
                                          title="Supprimer l'image"/>
                     </h:panelGroup>
+                    <div class="reference-image-legende-group" style="margin-top: 10px;" rendered="#{not empty referenceBean.uploadedImageUrl}">
+                        <p:inputText id="imageLegendeInput"
+                                     value="#{referenceBean.uploadedImageLegende}"
+                                     styleClass="reference-input"
+                                     placeholder="Légende de l'image (optionnel)"
+                                     maxlength="500"/>
+                    </div>
                     <div class="reference-image-preview-container">
                         <img id="referenceImagePreview"
                              src="#{referenceBean.uploadedImageUrl}"

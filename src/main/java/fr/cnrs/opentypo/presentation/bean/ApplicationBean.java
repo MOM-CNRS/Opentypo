@@ -998,8 +998,10 @@ public class ApplicationBean implements Serializable {
         int index = 1;
         for (Image img : selectedEntity.getImages()) {
             if (img != null && img.getUrl() != null && !img.getUrl().trim().isEmpty()) {
-                String title = entityLabel != null ? entityLabel + " - " + index : "Image " + index;
-                photos.add(new Photo(img.getUrl(), img.getUrl(), title, title));
+                String fallbackTitle = entityLabel != null ? entityLabel + " - " + index : "Image " + index;
+                String legende = (img.getLegende() != null && !img.getLegende().trim().isEmpty())
+                        ? img.getLegende().trim() : fallbackTitle;
+                photos.add(new Photo(img.getUrl(), img.getUrl(), legende, legende));
                 index++;
             }
         }

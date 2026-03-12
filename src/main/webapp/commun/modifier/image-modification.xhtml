@@ -69,33 +69,37 @@
         </div>
 
         <!-- Liste des images -->
-        <p:dataTable value="#{entityUpdateBean.editingImageUrls}"
-                     var="imgUrl"
+        <p:dataTable value="#{entityUpdateBean.editingImages}"
+                     var="imgItem"
                      rowIndexVar="idx"
                      styleClass="candidat-labels-table candidats-mt-10 modifier-images-table"
                      emptyMessage="Aucune image"
-                     rendered="#{not empty entityUpdateBean.editingImageUrls}">
+                     rendered="#{not empty entityUpdateBean.editingImages}">
             <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
                 <div class="candidat-table-label-cell modifier-image-preview-cell"
-                     data-image-url="#{imgUrl}"
-                     onclick="var u=this.getAttribute('data-image-url');if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u);}return false;"
+                     data-image-url="#{imgItem.url}"
+                     data-image-legende="#{imgItem.legende}"
+                     onclick="var u=this.getAttribute('data-image-url');var l=this.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;"
                      role="button"
                      title="Cliquer pour afficher en plein écran">
-                    <p:graphicImage value="#{imgUrl}"
+                    <p:graphicImage value="#{imgItem.url}"
                                    alt="Aperçu"
                                    style="max-width: 48px; max-height: 36px; object-fit: contain;"/>
                 </div>
             </p:column>
-            <p:column headerText="URL" styleClass="candidat-table-label-column candidats-table-label-padding">
+            <p:column headerText="Légende" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
-                    <h:outputText value="#{imgUrl}" styleClass="candidat-table-label-text"/>
+                    <p:inputText value="#{imgItem.legende}"
+                                 styleClass="users-input modifier-image-legende-input"
+                                 placeholder="Légende de l'image"
+                                 maxlength="500"/>
                 </div>
             </p:column>
             <p:column styleClass="candidat-table-action-column">
                 <div class="candidat-table-action-cell">
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     action="#{entityUpdateBean.removeImageByUrl(imgUrl)}"
+                                     action="#{entityUpdateBean.removeImageByUrl(imgItem.url)}"
                                      process="@this"
                                      ajax="true"
                                      update=":contentPanels :growl"
@@ -104,7 +108,7 @@
             </p:column>
         </p:dataTable>
 
-        <ui:fragment rendered="#{empty entityUpdateBean.editingImageUrls}">
+        <ui:fragment rendered="#{empty entityUpdateBean.editingImages}">
             <div class="candidat-no-labels candidats-mt-10">
                 <div class="candidat-no-labels-content">
                     <div class="candidat-no-labels-icon"><i class="pi pi-images" /></div>
