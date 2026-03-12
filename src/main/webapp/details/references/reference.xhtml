@@ -53,6 +53,18 @@
 
                         <!-- Actions (masquées en mode édition) -->
                         <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
+                            <!-- Paramétrage OpenTheso (associé au référentiel) -->
+                            <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
+                                           process="@this"
+                                           update=":collectionParametrageForm"
+                                           styleClass="concept-action-button"
+                                           title="Paramétrage OpenTheso"
+                                           rendered="#{referenceBean.canEditReference(applicationBean)}"
+                                           oncomplete="PF('collectionParametrageDialog').show();">
+                                <i class="pi pi-cog" />
+                                <p:tooltip value="Paramétrage" position="top"/>
+                            </p:commandLink>
+
                             <!-- Bouton Historique -->
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            rendered="#{loginBean.currentUser != null}"

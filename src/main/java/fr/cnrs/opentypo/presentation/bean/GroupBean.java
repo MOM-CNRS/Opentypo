@@ -14,9 +14,11 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
@@ -42,6 +44,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Getter
@@ -89,6 +92,9 @@ public class GroupBean implements Serializable {
 
     @Autowired
     private SearchBean searchBean;
+
+    @Autowired
+    private ParametrageRepository parametrageRepository;
 
     private List<NameItem> groupNames = new ArrayList<>();
     private List<DescriptionItem> groupDescriptions = new ArrayList<>();
@@ -586,6 +592,9 @@ public class GroupBean implements Serializable {
             // Créer une ligne user_permission par utilisateur sélectionné (rédacteur + relecteurs)
             saveUserPermissionsForGroup(savedGroup);
 
+            // Copier le paramétrage OpenTheso de la référence parente si il existe
+            copyParametrageFromReferenceToGroup(applicationBean.getSelectedCategory(), savedGroup);
+
             String labelPrincipal = groupNames.get(0).getNom();
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                     "Le groupe '" + labelPrincipal + "' a été créé avec succès."));
@@ -603,6 +612,42 @@ public class GroupBean implements Serializable {
                     "Une erreur est survenue lors de la création du groupe : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
         }
+    }
+
+    /**
+     * Copie le paramétrage OpenTheso de la référence à laquelle la catégorie est rattachée vers le nouveau groupe,
+     * si un paramétrage existe pour cette référence.
+     */
+    private void copyParametrageFromReferenceToGroup(Entity category, Entity newGroup) {
+        if (category == null || newGroup == null || parametrageRepository == null) {
+            return;
+        }
+        List<Entity> parents = entityRelationRepository.findParentsByChild(category);
+        Entity reference = parents.stream()
+                .filter(p -> p != null && p.getEntityType() != null
+                        && EntityConstants.ENTITY_TYPE_REFERENCE.equals(p.getEntityType().getCode()))
+                .findFirst()
+                .orElse(null);
+        if (reference == null || reference.getId() == null) {
+            return;
+        }
+        Optional<Parametrage> refParamOpt = parametrageRepository.findByEntityId(reference.getId());
+        if (refParamOpt.isEmpty()) {
+            return;
+        }
+        Parametrage refParam = refParamOpt.get();
+        if (refParam.getBaseUrl() == null || refParam.getBaseUrl().isBlank()
+                || refParam.getIdTheso() == null || refParam.getIdTheso().isBlank()) {
+            return;
+        }
+        Parametrage groupParam = new Parametrage();
+        groupParam.setEntity(entityRepository.findById(newGroup.getId()).orElse(newGroup));
+        groupParam.setBaseUrl(refParam.getBaseUrl());
+        groupParam.setIdTheso(refParam.getIdTheso());
+        groupParam.setIdLangue(refParam.getIdLangue());
+        groupParam.setIdGroupe(refParam.getIdGroupe());
+        parametrageRepository.save(groupParam);
+        log.debug("Paramétrage OpenTheso copié de la référence {} vers le nouveau groupe {}", reference.getCode(), newGroup.getCode());
     }
 
     /**
