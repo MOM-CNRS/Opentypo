@@ -1264,7 +1264,7 @@
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12) !important;
     padding: 1rem 1.5rem !important;
     display: flex !important;
-    justify-content: flex-end !important;
+    justify-content: center !important;
     gap: 1rem !important;
     border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
 }

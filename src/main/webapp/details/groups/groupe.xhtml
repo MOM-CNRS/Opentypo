@@ -60,7 +60,10 @@
                                                    process="@this"
                                                    update=":centerContent :searchSectionWrapper"
                                                    styleClass="concept-action-button"
-                                                   rendered="#{groupBean.canEditGroup(applicationBean)}">
+                                                   rendered="#{groupBean.canEditGroup(applicationBean)}"
+                                                   onstart="if(typeof showLoading === 'function') showLoading('Chargement du formulaire...', 'spinner');"
+                                                   oncomplete="setTimeout(function(){ if(typeof hideLoading === 'function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
+                                                   onerror="if(typeof hideLoading === 'function') hideLoading();">
                                         <i class="pi pi-file-edit" />
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>

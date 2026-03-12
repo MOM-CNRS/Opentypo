@@ -599,12 +599,12 @@ function scrollElementToTop(element, duration) {
     requestAnimationFrame(animateScroll);
 }
 
-// Scroll vers le haut : fenêtre + conteneurs internes avec effet dépilement (non instantané)
+// Scroll vers le haut : fenêtre + conteneurs internes avec effet dépilement (glissement fluide)
 function scrollToTopAll() {
-    scrollElementToTop(window, 300);
-    document.querySelectorAll('.info-concept, [id$="contentPanels"], [id$="cardsContainer"]').forEach(function(el) {
+    scrollElementToTop(window, 500);
+    document.querySelectorAll('.info-concept, .content-panels-wrapper, .center-content, [id$="contentPanels"], [id$="cardsContainer"]').forEach(function(el) {
         if (el && el.scrollTop > 0) {
-            scrollElementToTop(el, 550);
+            scrollElementToTop(el, 700);
         }
     });
 }
@@ -620,10 +620,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Scroll en haut avec effet après confirmation de sauvegarde (param scrollTop dans l'URL)
+    // Scroll en haut avec effet de glissement après confirmation de sauvegarde (param scrollTop dans l'URL)
     var urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('scrollTop') === '1' && typeof scrollToTopAll === 'function') {
-        setTimeout(scrollToTopAll, 100);
+        setTimeout(scrollToTopAll, 250);
         if (typeof history.replaceState === 'function') {
             urlParams.delete('scrollTop');
             var newSearch = urlParams.toString();
