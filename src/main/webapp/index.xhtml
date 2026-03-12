@@ -7,16 +7,16 @@
 
     <ui:define name="mainContent">
         <f:event type="preRenderView" listener="#{applicationBean.ensureStateConsistencyOnRefresh}"/>
-        <!-- 1. Barre de recherche -->
-        <section class="app-search">
+        <!-- 1. Barre de recherche - désactivée en mode modification -->
+        <h:panelGroup id="searchSectionWrapper" layout="block" styleClass="app-search #{entityUpdateBean.editingEntity ? 'app-search-disabled' : ''}">
             <ui:include src="search/search.xhtml"/>
-        </section>
+        </h:panelGroup>
 
         <!-- 2. Contenu principal (arbre + zone centrale + résultats recherche) -->
         <h:panelGroup id="centerContent" class="app-content">
 
-            <!-- 2.1 Panneau arbre (gauche) -->
-            <h:panelGroup id="leftTreePanel" class="left-tree" rendered="#{applicationBean.showTreePanel}">
+            <!-- 2.1 Panneau arbre (gauche) - désactivé en mode modification -->
+            <h:panelGroup id="leftTreePanel" styleClass="left-tree #{entityUpdateBean.editingEntity ? 'left-tree-disabled' : ''}" rendered="#{applicationBean.showTreePanel}">
                 <ui:include src="tree/tree.xhtml"/>
             </h:panelGroup>
 

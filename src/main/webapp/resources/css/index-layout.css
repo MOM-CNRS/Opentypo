@@ -25,6 +25,13 @@
     }
 }
 
+/* Barre de recherche désactivée en mode modification */
+.app-search-disabled {
+    pointer-events: none !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+}
+
 /* ---- 2. Contenu principal - layout flex fluid ---- */
 .app-content {
     flex: 1 1 auto !important;
@@ -63,6 +70,13 @@
         flex: 0 0 300px !important;
         max-width: 320px !important;
     }
+}
+
+/* Arbre désactivé en mode modification - figé jusqu'au clic Retour ou Enregistrer */
+.left-tree-disabled {
+    pointer-events: none !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
 }
 
 /* ---- 4. Zone centrale - prend l'espace restant ---- */

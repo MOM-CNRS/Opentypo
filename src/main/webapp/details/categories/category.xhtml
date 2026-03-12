@@ -44,7 +44,7 @@
 
                             <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                            process="@this"
-                                           update=":centerContent"
+                                           update=":centerContent :searchSectionWrapper"
                                            rendered="#{categoryBean.canCreateCategory()}"
                                            styleClass="concept-action-button"
                                            title="Modifier la catégorie"

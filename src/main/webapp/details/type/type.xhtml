@@ -34,7 +34,7 @@
 
                                     <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                    process="@this"
-                                                   update=":contentPanels"
+                                                   update=":contentPanels :leftTreePanel :searchSectionWrapper"
                                                    rendered="#{typeBean.canEditType(applicationBean)}"
                                                    styleClass="concept-action-button">
                                         <i class="pi pi-file-edit" />

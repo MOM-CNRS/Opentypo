@@ -40,7 +40,7 @@
 
                             <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                            process="@this"
-                                           update=":centerContent"
+                                           update=":centerContent :searchSectionWrapper"
                                            styleClass="concept-action-button"
                                            rendered="#{collectionBean.canEditCollection(applicationBean)}">
                                 <i class="pi pi-file-edit" />
