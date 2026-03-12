@@ -20,10 +20,10 @@
     width: 100%;
 }
 
-/* Grille des cartes série - 3 colonnes desktop, responsive */
+/* Grille des cartes série - 1 élément par ligne */
 .series-types-unified .series-types-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     width: 100%;
 }
@@ -344,22 +344,16 @@
     opacity: 0.8;
 }
 
-/* Responsive - Tablette (2 colonnes) */
+/* Responsive - Tablette */
 @media (max-width: 992px) {
-    .series-types-unified .series-types-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-    }
-
     .series-types-type-thumb {
         width: 90px;
     }
 }
 
-/* Responsive - Mobile (1 colonne) */
+/* Responsive - Mobile */
 @media (max-width: 768px) {
     .series-types-unified .series-types-grid {
-        grid-template-columns: 1fr;
         gap: 1.125rem;
     }
 
