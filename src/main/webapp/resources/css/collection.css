@@ -1222,22 +1222,35 @@
     gap: 0.5rem;
 }
 
+/* ---- Boutons modifier : design moderne et fluide ---- */
 .collection-modifier-btn-save {
-    padding: 0.625rem 1.25rem !important;
+    padding: 0.75rem 1.5rem !important;
     font-size: 0.9375rem !important;
     font-weight: 600 !important;
-    border-radius: 8px !important;
-    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.9) 100%) !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3d5342 100%) !important;
     border: none !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(71, 98, 77, 0.25) !important;
-    transition: all 0.25s ease !important;
-    margin-right: 20px !important;
+    box-shadow: 0 4px 14px rgba(71, 98, 77, 0.28), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                background 0.35s ease !important;
+    margin-right: 0 !important;
 }
 
 .collection-modifier-btn-save:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+    transform: translate3d(0, -3px, 0) scale(1.02) !important;
+    box-shadow: 0 8px 24px rgba(71, 98, 77, 0.35), 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.collection-modifier-btn-save:active {
+    transform: translate3d(0, -1px, 0) scale(0.98) !important;
+}
+
+.collection-modifier-btn-save:focus-visible,
+.collection-modifier-btn-back:focus-visible {
+    outline: 2px solid var(--color-action-main, #47624D) !important;
+    outline-offset: 2px !important;
 }
 
 .collection-modifier-actions {
@@ -1245,57 +1258,156 @@
     justify-content: flex-end;
     gap: 1rem;
     padding: 1rem 0 !important;
-    border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
+    border-top: 1px solid rgba(71, 98, 77, 0.08) !important;
 }
 
-/* Wrapper : réserve l'espace quand la barre est fixée (évite que le contenu soit masqué) */
+/* Wrapper : réserve l'espace quand la barre est fixée */
 .modifier-actions-wrapper.modifier-actions-sticky {
-    min-height: 70px;
+    min-height: 76px;
 }
 
-/* Barre d'actions fixée en bas du viewport quand le contenu dépasse l'écran */
+/* Animation : glissement vers le haut à l'apparition - courbe fluide */
+@keyframes modifierBarSlideUp {
+    from {
+        transform: translate3d(0, 100%, 0);
+        opacity: 0;
+    }
+    to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+}
+
+/* Animation : glissement vers le bas à la fermeture - courbe fluide */
+@keyframes modifierBarSlideDown {
+    0% {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, 100%, 0);
+        opacity: 0;
+    }
+}
+
+.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down {
+    pointer-events: none !important;
+}
+
+.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-actions {
+    animation: modifierBarSlideDown 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+}
+
+/* Feedback visuel fluide des boutons pendant la fermeture */
+.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-btn-back,
+.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-btn-save {
+    opacity: 0.7 !important;
+    transform: scale(0.97) !important;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Barre d'actions fixée : design glassmorphism moderne + slide-up à l'apparition */
 .collection-modifier-actions.modifier-actions-sticky {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 1050 !important;
-    background: #ffffff !important;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 0 -1px 0 rgba(71, 98, 77, 0.06),
+                0 -8px 32px rgba(0, 0, 0, 0.08),
+                0 -2px 8px rgba(0, 0, 0, 0.04) !important;
     padding: 1rem 1.5rem !important;
     display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
     gap: 1rem !important;
-    border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
+    border-top: 1px solid rgba(71, 98, 77, 0.06) !important;
+    transition: box-shadow 0.3s ease, background 0.3s ease !important;
+    animation: modifierBarSlideUp 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
 }
 
 @media (min-width: 992px) {
     .collection-modifier-actions.modifier-actions-sticky {
-        padding: 1rem 2rem !important;
+        padding: 1.25rem 2rem !important;
+        gap: 1.25rem !important;
     }
 }
 
+@media (max-width: 480px) {
+    .collection-modifier-actions.modifier-actions-sticky {
+        padding: 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .collection-modifier-btn-back,
+    .collection-modifier-btn-save {
+        padding: 0.625rem 1.125rem !important;
+        font-size: 0.875rem !important;
+    }
+}
+
+.collection-modifier-btn-back,
+.collection-modifier-btn-save {
+    display: inline-flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+}
+
 .collection-modifier-btn-back {
-    padding: 0.625rem 1.25rem !important;
+    padding: 0.75rem 1.5rem !important;
     font-size: 0.9375rem !important;
     font-weight: 600 !important;
-    border-radius: 8px !important;
-    background: #ffffff !important;
-    color: var(--color-text-primary, #333) !important;
-    border: 2px solid rgba(71, 98, 77, 0.2) !important;
-    transition: all 0.25s ease !important;
-    margin-right: 10px !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: var(--color-text-primary, #374151) !important;
+    border: 1px solid rgba(71, 98, 77, 0.18) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                background 0.35s ease,
+                border-color 0.35s ease,
+                color 0.35s ease !important;
+    margin-right: 0 !important;
 }
 
 .collection-modifier-btn-back:hover {
     background: rgba(71, 98, 77, 0.06) !important;
-    border-color: rgba(71, 98, 77, 0.35) !important;
+    border-color: rgba(71, 98, 77, 0.3) !important;
     color: var(--color-action-main, #47624D) !important;
-    transform: translateX(-4px) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.12) !important;
+    transform: translate3d(-2px, 0, 0) !important;
+}
+
+.collection-modifier-btn-back:active {
+    transform: translateX(0) scale(0.98) !important;
 }
 
 .collection-modifier-btn-back .ui-button-icon-left,
-.collection-modifier-btn-back .ui-button-icon {
+.collection-modifier-btn-back .ui-button-icon,
+.collection-modifier-btn-back .modifier-btn-icon {
+    margin-right: 0.5rem !important;
+    font-size: 0.875rem !important;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.collection-modifier-btn-back:hover .ui-button-icon-left,
+.collection-modifier-btn-back:hover .ui-button-icon,
+.collection-modifier-btn-back:hover .modifier-btn-icon {
+    transform: translateX(-2px) !important;
+}
+
+.collection-modifier-btn-save .modifier-btn-icon {
     margin-right: 0.5rem !important;
     font-size: 0.875rem !important;
 }
