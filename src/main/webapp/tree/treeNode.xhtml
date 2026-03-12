@@ -5,14 +5,20 @@
 
     <li class="simple-tree-node #{node.expanded ? 'expanded' : ''}"
         data-entity-id="#{treeBean.getEntityIdFromNode(node)}"
+        data-entity-type="#{treeBean.getEntityFromNode(node) != null and treeBean.getEntityFromNode(node).entityType != null ? treeBean.getEntityFromNode(node).entityType.code : ''}"
         data-has-children="#{node.childCount > 0}"
-        data-can-have-children="#{treeBean.canHaveChildren(node)}">
+        data-can-have-children="#{treeBean.canHaveChildren(node)}"
+        draggable="#{treeBean.isLeafEntityType(node) and typeBean.canMoveType(treeBean.getEntityFromNode(node))}"
+        data-draggable-type="#{treeBean.isLeafEntityType(node) and typeBean.canMoveType(treeBean.getEntityFromNode(node)) ? 'true' : 'false'}">
 
         <div class="simple-tree-node-content ui-treenode-content #{treeBean.isNodeSelected(node) ? 'ui-state-highlight' : ''}"
              role="button"
              tabindex="0"
              data-entity-id="#{treeBean.getEntityIdFromNode(node)}"
-             data-code="#{treeBean.getEntityCodeFromNode(node)}">
+             data-entity-type="#{treeBean.getEntityFromNode(node) != null and treeBean.getEntityFromNode(node).entityType != null ? treeBean.getEntityFromNode(node).entityType.code : ''}"
+             data-code="#{treeBean.getEntityCodeFromNode(node)}"
+             data-drop-target="#{treeBean.isGroupOrSerieNode(node) ? 'true' : 'false'}"
+             data-drop-forbidden="#{treeBean.isGroupOrSerieNode(node) ? 'false' : 'true'}">
 
             <!-- Toggler : chevron cliquable si enfants possibles ; icône fixe si aucun enfant ; placeholder pour feuilles (alignement) -->
             <h:panelGroup rendered="#{node.childCount > 0 or treeBean.canHaveChildren(node) or treeBean.isLeafEntityType(node)}">
@@ -52,6 +58,7 @@
                     <ui:include src="treeNode.xhtml">
                         <ui:param name="node" value="#{childNode}"/>
                         <ui:param name="treeBean" value="#{treeBean}"/>
+                        <ui:param name="typeBean" value="#{typeBean}"/>
                     </ui:include>
                 </c:forEach>
             </ul>

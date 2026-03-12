@@ -3344,6 +3344,35 @@ body .modern-tree .ui-tree-container .ui-treenode-children {
     transition: max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1),
                 opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
+/* Drag-and-drop : type déplaçable, groupe/série cible de drop */
+.simple-tree .simple-tree-node[draggable="true"] .simple-tree-node-content {
+    cursor: grab;
+}
+.simple-tree .simple-tree-node[draggable="true"] .simple-tree-node-content:active {
+    cursor: grabbing;
+}
+.simple-tree .simple-tree-node.simple-tree-dragging .simple-tree-node-content {
+    opacity: 0.5;
+}
+.simple-tree .simple-tree-node-content.simple-tree-drop-target-active {
+    background-color: rgba(71, 98, 77, 0.2) !important;
+    border: 2px dashed var(--color-action-main, #47624D);
+    border-radius: 4px;
+}
+
+/* Pendant un drag : identifier les cibles valides vs interdites */
+.simple-tree.simple-tree-drag-in-progress .simple-tree-node-content[data-drop-forbidden="true"] {
+    opacity: 0.4 !important;
+    pointer-events: none !important;
+    filter: grayscale(0.6);
+    cursor: not-allowed !important;
+}
+.simple-tree.simple-tree-drag-in-progress .simple-tree-node-content[data-drop-target="true"] {
+    background-color: rgba(71, 98, 77, 0.12) !important;
+    border: 1px dashed rgba(71, 98, 77, 0.5);
+    border-radius: 4px;
+}
+
 .simple-tree .simple-tree-node.expanded > .simple-tree-children {
     max-height: 3000px;
     opacity: 1;

@@ -12,11 +12,10 @@
                     <ui:include src="treeNode.xhtml">
                         <ui:param name="node" value="#{childNode}"/>
                         <ui:param name="treeBean" value="#{treeBean}"/>
+                        <ui:param name="typeBean" value="#{typeBean}"/>
                     </ui:include>
                 </c:forEach>
             </ul>
         </div>
     </h:panelGroup>
-
-    <h:outputScript library="js" name="tree.js" target="body"/>
 </ui:fragment>

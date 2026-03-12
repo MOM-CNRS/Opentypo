@@ -63,6 +63,7 @@
                         <ui:include src="details/communs/confirmPropositionActionDialog.xhtml"/>
                         <ui:include src="dialogs/typeDialog.xhtml"/>
                         <ui:include src="dialogs/moveTypeDialog.xhtml"/>
+                        <ui:include src="dialogs/confirmMoveTypeDialog.xhtml"/>
                     </h:panelGroup>
                 </div>
             </h:panelGroup>
@@ -97,6 +98,28 @@
                                 onstart="if(typeof showPanelLoading === 'function') showPanelLoading('leftTreePanel', 'Chargement...', 'spinner');"
                                 oncomplete="var inp=document.querySelector('[id$=treeExpandEntityId]'); var eid=inp?inp.value:null; if(typeof injectTreeChildrenFragment==='function'&amp;&amp;eid){injectTreeChildrenFragment(eid);} if(typeof hidePanelLoading==='function') hidePanelLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();"
                                 onerror="if(typeof hidePanelLoading==='function') hidePanelLoading();"/>
+            </h:form>
+
+            <!-- Formulaire pour déplacement de type par drag-and-drop dans l'arbre -->
+            <h:form id="treeMoveForm" styleClass="utility-hidden">
+                <h:inputHidden id="treeMoveTypeId" value="#{typeBean.moveTypeIdForDrag}"/>
+                <h:inputHidden id="treeMoveNewParentId" value="#{typeBean.moveTypeNewParentIdForDrag}"/>
+                <p:commandButton id="prepareConfirmMoveBtn"
+                                styleClass="utility-hidden"
+                                action="#{typeBean.prepareConfirmMoveFromDrag}"
+                                process="@this treeMoveTypeId treeMoveNewParentId"
+                                update=":confirmMoveTypeDialogContent"
+                                ajax="true"
+                                oncomplete="PF('confirmMoveTypeDialog').show();"/>
+                <p:commandButton id="moveTypeByDragBtn"
+                                styleClass="utility-hidden"
+                                action="#{typeBean.moveTypeByDragAndDrop}"
+                                process="@this treeMoveTypeId treeMoveNewParentId"
+                                update=":growl :mainContentArea :leftTreePanel :contentPanels :selectedEntityLabel"
+                                ajax="true"
+                                onstart="if(typeof showLoading==='function') showLoading('Déplacement...', 'spinner');"
+                                oncomplete="if(typeof hideLoading==='function') hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof initTreeDragAndDrop==='function') initTreeDragAndDrop();"
+                                onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
             </h:form>
 
             <!-- Panneau droit pour les résultats de recherche -->

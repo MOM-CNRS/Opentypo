@@ -71,11 +71,10 @@
                 <p:commandButton value="Déplacer"
                                icon="pi pi-folder-open"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-validate"
-                               action="#{typeBean.changeTypeParentFromDialog}"
+                               action="#{typeBean.prepareConfirmMoveFromDialog}"
                                process="@form"
-                               update=":growl :moveTypeDialogForm :mainContentArea :leftTreePanel :contentPanels :selectedEntityLabel"
-                               onstart="if(typeof showLoading==='function') showLoading('Déplacement...', 'spinner');"
-                               onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
+                               update=":confirmMoveTypeDialogContent :growl :moveTypeDialogForm"
+                               oncomplete="if(!args.validationFailed) PF('confirmMoveTypeDialog').show();"/>
             </div>
         </h:form>
     </p:dialog>

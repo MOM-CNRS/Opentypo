@@ -98,7 +98,8 @@ public class TypeService implements Serializable {
         return result;
     }
 
-    private Entity findReferenceAncestor(Entity entity) {
+    /** Retourne le référentiel ancêtre d'une entité (pour vérification des permissions). */
+    public Entity findReferenceAncestor(Entity entity) {
         if (entity == null) return null;
         Entity current = entity;
         while (current != null) {

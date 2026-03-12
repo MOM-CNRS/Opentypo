@@ -73,6 +73,88 @@
         });
     };
 
+    function initTreeDragAndDrop() {
+        var tree = findTreeContainer();
+        if (!tree) return;
+        tree.removeEventListener('dragstart', handleTreeDragStart);
+        tree.removeEventListener('dragend', handleTreeDragEnd);
+        tree.removeEventListener('dragover', handleTreeDragOver);
+        tree.removeEventListener('dragleave', handleTreeDragLeave);
+        tree.removeEventListener('drop', handleTreeDrop);
+        tree.addEventListener('dragstart', handleTreeDragStart);
+        tree.addEventListener('dragend', handleTreeDragEnd);
+        tree.addEventListener('dragover', handleTreeDragOver);
+        tree.addEventListener('dragleave', handleTreeDragLeave);
+        tree.addEventListener('drop', handleTreeDrop);
+    }
+
+    function handleTreeDragStart(ev) {
+        var li = ev.target.closest('li.simple-tree-node');
+        if (!li || li.getAttribute('draggable') !== 'true') return;
+        var content = li.querySelector('.simple-tree-node-content');
+        var entityId = content ? content.getAttribute('data-entity-id') : li.getAttribute('data-entity-id');
+        var entityType = content ? content.getAttribute('data-entity-type') : li.getAttribute('data-entity-type');
+        if (entityType !== 'TYPE' || !entityId) return;
+        ev.dataTransfer.setData('text/plain', entityId);
+        ev.dataTransfer.effectAllowed = 'move';
+        ev.dataTransfer.setData('application/x-opentypo-type-id', entityId);
+        if (li.classList) li.classList.add('simple-tree-dragging');
+        var treeEl = findTreeContainer();
+        if (treeEl) treeEl.classList.add('simple-tree-drag-in-progress');
+    }
+
+    function handleTreeDragEnd(ev) {
+        clearTreeDragState();
+    }
+
+    function handleTreeDragOver(ev) {
+        var content = ev.target.closest('.simple-tree-node-content[data-drop-target="true"]');
+        if (!content) return;
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = 'move';
+        if (content.classList) content.classList.add('simple-tree-drop-target-active');
+    }
+
+    function handleTreeDragLeave(ev) {
+        var content = ev.target.closest('.simple-tree-node-content');
+        if (content && content.classList) content.classList.remove('simple-tree-drop-target-active');
+    }
+
+    function handleTreeDrop(ev) {
+        var content = ev.target.closest('.simple-tree-node-content[data-drop-target="true"]');
+        if (!content) return;
+        ev.preventDefault();
+        if (content.classList) content.classList.remove('simple-tree-drop-target-active');
+        var typeId = ev.dataTransfer.getData('application/x-opentypo-type-id') || ev.dataTransfer.getData('text/plain');
+        var newParentId = content.getAttribute('data-entity-id');
+        if (!typeId || !newParentId) return;
+        if (typeId === newParentId) return;
+        var form = document.getElementById('treeMoveForm') || document.querySelector('[id$="treeMoveForm"]');
+        if (!form) return;
+        var typeInput = form.querySelector('input[id$="treeMoveTypeId"]') || form.querySelector('input[name*="treeMoveTypeId"]');
+        var parentInput = form.querySelector('input[id$="treeMoveNewParentId"]') || form.querySelector('input[name*="treeMoveNewParentId"]');
+        var btn = form.querySelector('[id$="prepareConfirmMoveBtn"]');
+        if (typeInput && parentInput && btn) {
+            typeInput.value = typeId;
+            parentInput.value = newParentId;
+            btn.click();
+        }
+        clearTreeDragState();
+    }
+
+    function clearTreeDragState() {
+        var treeEl = findTreeContainer();
+        if (treeEl) {
+            treeEl.classList.remove('simple-tree-drag-in-progress');
+            treeEl.querySelectorAll('.simple-tree-node.simple-tree-dragging').forEach(function(el) {
+                el.classList.remove('simple-tree-dragging');
+            });
+            treeEl.querySelectorAll('.simple-tree-node-content.simple-tree-drop-target-active').forEach(function(el) {
+                el.classList.remove('simple-tree-drop-target-active');
+            });
+        }
+    }
+
     function handleTreeClick(ev) {
         var toggler = ev.target.closest('[data-tree-toggler]');
         if (toggler && findTreeContainer() && findTreeContainer().contains(toggler)) {
@@ -142,7 +224,37 @@
     function init() {
         document.removeEventListener('click', handleTreeClick, true);
         document.addEventListener('click', handleTreeClick, true);
+        initTreeDragAndDrop();
+        setupTreeAppearObserver();
+        /* Retry après un court délai (gère le chargement initial en mode privé / timing) */
+        setTimeout(function() { initTreeDragAndDrop(); }, 300);
     }
+
+    /** Observe l'apparition de l'arbre dans le DOM (chargement initial ou mise à jour AJAX). */
+    function setupTreeAppearObserver() {
+        if (typeof MutationObserver === 'undefined') return;
+        var observer = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var added = mutations[i].addedNodes;
+                if (!added || added.length === 0) continue;
+                for (var j = 0; j < added.length; j++) {
+                    var node = added[j];
+                    if (node.nodeType !== 1) continue;
+                    if (node.classList && node.classList.contains('simple-tree')) {
+                        initTreeDragAndDrop();
+                        return;
+                    }
+                    if (node.querySelector && node.querySelector('.simple-tree')) {
+                        initTreeDragAndDrop();
+                        return;
+                    }
+                }
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    window.initTreeDragAndDrop = initTreeDragAndDrop;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

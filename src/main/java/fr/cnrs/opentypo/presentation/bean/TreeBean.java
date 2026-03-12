@@ -570,6 +570,14 @@ public class TreeBean implements Serializable {
                 && EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode());
     }
 
+    /** Indique si le nœud est un groupe ou une série (cible valide pour drop d'un type). */
+    public boolean isGroupOrSerieNode(Object node) {
+        Entity entity = getEntityFromNode(node);
+        if (entity == null || entity.getEntityType() == null) return false;
+        String code = entity.getEntityType().getCode();
+        return EntityConstants.ENTITY_TYPE_GROUP.equals(code) || EntityConstants.ENTITY_TYPE_SERIES.equals(code);
+    }
+
     /**
      * Indique si on sait que ce nœud n'a aucun enfant (chargement déjà fait, résultat 0).
      * Permet de masquer le toggler quand l'élément est déplié et n'a pas d'enfant.

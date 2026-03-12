@@ -114,6 +114,14 @@ public class TypeBean implements Serializable {
     /** ID du parent sélectionné pour le déplacement du type. */
     private Long moveTypeSelectedParentId;
 
+    /** IDs pour le déplacement par drag-and-drop depuis l'arbre. */
+    private Long moveTypeIdForDrag;
+    private Long moveTypeNewParentIdForDrag;
+
+    /** Message et contexte pour le dialogue de confirmation de déplacement. */
+    private String confirmMoveMessage;
+    private boolean confirmMoveFromDialog;
+
 
     public void resetTypeForm() {
         typeCode = null;
@@ -281,6 +289,42 @@ public class TypeBean implements Serializable {
         return parent != null ? getParentOptionLabel(parent) : "—";
     }
 
+    /** Prépare le message pour le dialogue de confirmation (depuis le dialog de déplacement). */
+    public void prepareConfirmMoveFromDialog() {
+        ApplicationBean appBean = applicationBeanProvider.get();
+        Entity type = appBean != null ? appBean.getSelectedEntity() : null;
+        Entity newParent = moveTypeSelectedParentId != null ? entityRepository.findById(moveTypeSelectedParentId).orElse(null) : null;
+        confirmMoveFromDialog = true;
+        if (type != null && newParent != null) {
+            confirmMoveMessage = "Voulez-vous déplacer le type \"" + (type.getCode() != null ? type.getCode() : type.getNom()) + "\" vers "
+                    + getParentOptionLabel(newParent) + " ?";
+        } else {
+            confirmMoveMessage = "Voulez-vous déplacer ce type vers le nouveau parent sélectionné ?";
+        }
+    }
+
+    /** Prépare le message pour le dialogue de confirmation (depuis le drag-and-drop). */
+    public void prepareConfirmMoveFromDrag() {
+        Entity type = moveTypeIdForDrag != null ? entityRepository.findById(moveTypeIdForDrag).orElse(null) : null;
+        Entity newParent = moveTypeNewParentIdForDrag != null ? entityRepository.findById(moveTypeNewParentIdForDrag).orElse(null) : null;
+        confirmMoveFromDialog = false;
+        if (type != null && newParent != null) {
+            confirmMoveMessage = "Voulez-vous déplacer le type \"" + (type.getCode() != null ? type.getCode() : type.getNom()) + "\" vers "
+                    + getParentOptionLabel(newParent) + " ?";
+        } else {
+            confirmMoveMessage = "Voulez-vous déplacer ce type vers ce parent ?";
+        }
+    }
+
+    /** Exécute le déplacement après confirmation (dialog ou drag). */
+    public void performConfirmMove() {
+        if (confirmMoveFromDialog) {
+            changeTypeParentFromDialog();
+        } else {
+            moveTypeByDragAndDrop();
+        }
+    }
+
     /** Libellé formaté pour une option parent (Groupe ou Série). */
     public String getParentOptionLabel(Entity parent) {
         if (parent == null) return "";
@@ -358,6 +402,56 @@ public class TypeBean implements Serializable {
                 "Le type a été déplacé vers " + getParentOptionLabel(newParent) + "."));
         PrimeFaces.current().executeScript("PF('moveTypeDialog').hide();");
         PrimeFaces.current().executeScript("setTimeout(function(){ if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof hideLoading==='function') hideLoading(); }, 400);");
+    }
+
+    /**
+     * Déplace un type vers un nouveau parent (appelé depuis le drag-and-drop dans l'arbre).
+     * Lit moveTypeIdForDrag et moveTypeNewParentIdForDrag depuis le formulaire,
+     * puis délègue à changeTypeParentFromDialog.
+     */
+    public void moveTypeByDragAndDrop() {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (moveTypeIdForDrag == null || moveTypeNewParentIdForDrag == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Paramètres de déplacement invalides."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        Entity type = entityRepository.findById(moveTypeIdForDrag).orElse(null);
+        Entity newParent = entityRepository.findById(moveTypeNewParentIdForDrag).orElse(null);
+        if (type == null || newParent == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Type ou parent introuvable."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "L'élément déplacé n'est pas un type."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        if (newParent.getEntityType() == null
+                || (!EntityConstants.ENTITY_TYPE_GROUP.equals(newParent.getEntityType().getCode())
+                && !EntityConstants.ENTITY_TYPE_SERIES.equals(newParent.getEntityType().getCode()))) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le parent cible doit être un groupe ou une série."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        List<Entity> oldParents = entityRelationRepository.findParentsByChild(type);
+        Entity oldParent = (oldParents != null && !oldParents.isEmpty()) ? oldParents.get(0) : null;
+        if (oldParent != null && oldParent.getId().equals(newParent.getId())) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Le type est déjà à cet emplacement."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        if (!canMoveType(type)) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Vous n'avez pas les droits pour déplacer ce type."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        ApplicationBean appBean = applicationBeanProvider.get();
+        appBean.setSelectedEntity(type);
+        moveTypeSelectedParentId = newParent.getId();
+        changeTypeParentFromDialog();
     }
 
     public void createType() {
@@ -661,6 +755,35 @@ public class TypeBean implements Serializable {
         Entity group = applicationBean.getSelectedGroup();
         return group != null && group.getId() != null
                 && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+    }
+
+    /**
+     * Indique si l'utilisateur connecté peut déplacer un type (drag-and-drop dans l'arbre).
+     * Restreint à : administrateur technique, gestionnaire de la collection, ou gestionnaire du référentiel.
+     */
+    public boolean canMoveType(Entity type) {
+        if (type == null || type.getId() == null) return false;
+        if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
+            return false;
+        }
+        if (!loginBean.isAuthenticated()) return false;
+        if (loginBean.isAdminTechnique()) return true;
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) return false;
+
+        Entity collection = collectionService.findCollectionIdByEntityId(type.getId());
+        if (collection != null && collection.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
+            return true;
+        }
+        Entity reference = typeService.findReferenceAncestor(type);
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return false;
     }
 
     /**
