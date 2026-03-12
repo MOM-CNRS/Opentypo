@@ -41,6 +41,16 @@
                                         <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
 
+                                    <p:commandLink action="#{typeBean.prepareMoveTypeDialog()}"
+                                                   process="@this"
+                                                   update=":moveTypeDialog"
+                                                   oncomplete="PF('moveTypeDialog').show();"
+                                                   styleClass="concept-action-button"
+                                                   rendered="#{typeBean.canEditType(applicationBean)}">
+                                        <i class="pi pi-arrow-right-arrow-left" />
+                                        <p:tooltip value="Déplacer vers un autre groupe ou série" position="top"/>
+                                    </p:commandLink>
+
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
                                                    process="@this"
                                                    update=":confirmDeleteDialogContent"

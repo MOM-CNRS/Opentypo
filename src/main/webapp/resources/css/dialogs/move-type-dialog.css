@@ -1,0 +1,247 @@
+/* ============================================
+   DIALOG DÉPLACER TYPE
+   Charte OpenTypo - compact, responsive
+   ============================================ */
+
+:root {
+    --mt-main: var(--color-action-main, #47624D);
+    --mt-main-rgb: 71, 98, 77;
+    --mt-text: var(--color-text-primary, #333);
+    --mt-text-muted: var(--color-text-secondary, #819A91);
+}
+
+.move-type-dialog.ui-dialog,
+.move-type-dialog .ui-dialog {
+    border-radius: 12px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(var(--mt-main-rgb), 0.12) !important;
+    overflow: hidden !important;
+    max-width: min(420px, 95vw) !important;
+}
+
+/* Barre de titre - compacte */
+.move-type-dialog .ui-dialog-titlebar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    background: linear-gradient(135deg, var(--mt-main) 0%, rgba(var(--mt-main-rgb), 0.92) 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0 0.5rem 0 0 !important;
+    min-height: 52px !important;
+}
+
+.move-type-dialog .ui-dialog-titlebar .ui-dialog-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.move-type-dialog .ui-dialog-titlebar-close {
+    flex-shrink: 0 !important;
+    color: white !important;
+    opacity: 0.9 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.move-type-dialog .ui-dialog-titlebar-close:hover,
+.move-type-dialog .ui-dialog-titlebar-close:focus {
+    background: rgba(255, 255, 255, 0.2) !important;
+    opacity: 1 !important;
+}
+
+/* En-tête - compact */
+.move-type-dialog-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.875rem !important;
+    padding: 0.75rem 1rem 0.75rem 1.25rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.move-type-dialog-header-icon-wrapper {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.move-type-dialog-header-icon {
+    font-size: 1.25rem !important;
+    color: white !important;
+}
+
+.move-type-dialog-header-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: white !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+}
+
+/* Contenu - compact */
+.move-type-dialog .ui-dialog-content {
+    padding: 1.25rem 1.5rem !important;
+    background: #fff !important;
+}
+
+.move-type-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.move-type-current-section,
+.move-type-new-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.move-type-section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--mt-text);
+}
+
+.move-type-section-icon {
+    color: var(--mt-main);
+    font-size: 0.875rem;
+}
+
+.move-type-current-value {
+    padding: 0.5rem 0.75rem;
+    background: rgba(var(--mt-main-rgb), 0.05);
+    border: 1px solid rgba(var(--mt-main-rgb), 0.12);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--mt-text);
+}
+
+.move-type-arrow-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(var(--mt-main-rgb), 0.35);
+    font-size: 1rem;
+    margin: -0.25rem 0;
+}
+
+/* Select - charte */
+.move-type-select,
+.move-type-dialog .move-type-select.ui-selectonemenu {
+    width: 100% !important;
+    min-height: 38px !important;
+    border: 1px solid rgba(var(--mt-main-rgb), 0.2) !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+}
+
+.move-type-select:focus,
+.move-type-select.ui-state-focus,
+.move-type-dialog .ui-selectonemenu.ui-state-focus {
+    border-color: var(--mt-main) !important;
+    box-shadow: 0 0 0 2px rgba(var(--mt-main-rgb), 0.15) !important;
+}
+
+/* Actions - compact */
+.move-type-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(var(--mt-main-rgb), 0.1);
+}
+
+.move-type-dialog-btn {
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.move-type-dialog-btn-cancel {
+    background: rgba(108, 117, 125, 0.1) !important;
+    color: var(--color-action-secondary, #6C757D) !important;
+}
+
+.move-type-dialog-btn-cancel:hover {
+    background: rgba(108, 117, 125, 0.18) !important;
+}
+
+.move-type-dialog-btn-validate {
+    background: var(--mt-main) !important;
+    color: white !important;
+}
+
+.move-type-dialog-btn-validate:hover {
+    background: rgba(var(--mt-main-rgb), 0.88) !important;
+    box-shadow: 0 2px 8px rgba(var(--mt-main-rgb), 0.25);
+}
+
+/* Message erreur */
+.move-type-dialog .ui-message {
+    font-size: 0.8125rem !important;
+    margin-top: 0.25rem !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .move-type-dialog.ui-dialog,
+    .move-type-dialog .ui-dialog {
+        max-width: 100vw !important;
+        margin: 0.5rem !important;
+    }
+
+    .move-type-dialog .ui-dialog-content {
+        padding: 1rem 1.25rem !important;
+    }
+
+    .move-type-dialog-header {
+        padding: 0.625rem 0.875rem !important;
+    }
+
+    .move-type-dialog-header-icon-wrapper {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .move-type-dialog-header-title {
+        font-size: 1rem !important;
+    }
+
+    .move-type-dialog-body {
+        gap: 0.75rem;
+    }
+
+    .move-type-dialog-actions {
+        flex-direction: column-reverse;
+        padding-top: 0.875rem;
+        margin-top: 0.875rem;
+    }
+
+    .move-type-dialog-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem 1rem !important;
+    }
+}
