@@ -70,7 +70,7 @@
                                                     </div>
                                                 </div>
                                                 <h:panelGroup class="collection-visibility-toggle-wrapper"
-                                                              rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
+                                                              rendered="#{typeBean.canEditType(applicationBean)}">
                                                     <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                    process="@this"
                                                                    update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -207,6 +207,9 @@
                         </div>
 
                         <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+
+                            <ui:include src="../catalogues/liste_types.xhtml"/>
+
                             <ui:include src="../communs/production.xhtml"/>
 
                             <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
@@ -235,8 +238,6 @@
                     </h:form>
 
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                        <ui:include src="../catalogues/liste_types.xhtml"/>
-
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBlocSerie()}">
                             <ui:include src="../communs/discussion.xhtml"/>
                         </h:panelGroup>

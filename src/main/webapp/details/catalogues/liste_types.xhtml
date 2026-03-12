@@ -5,7 +5,7 @@
 
     <ui:param name="typesPanelId" value="typesTogglePanel"/>
 
-    <h:form class="references-list-view references-list-frame">
+    <div class="references-list-view references-list-frame">
         <div class="collection-references-header collection-select">
             <div class="collection-references-title-section">
                 <div class="collection-references-icon">
@@ -41,7 +41,7 @@
             </h:panelGroup>
         </div>
 
-        <h:panelGroup id="categoriesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
+        <h:panelGroup id="categoriesContainer2" class="reference-categories-section reference-cards-container reference-categories-form">
             <!-- Barre de recherche + option tout afficher -->
             <div class="reference-categories-search-bar reference-categories-search-row">
                 <div class="reference-categories-search-input-wrapper collection-select">
@@ -61,7 +61,7 @@
                                styleClass="list-view-all-btn"
                                rendered="#{applicationBean.filteredTypesSize gt 6}"
                                process="@this"
-                               update="categoriesContainer"
+                               update="categoriesContainer2"
                                action="#{applicationBean.toggleTypesViewAll()}"
                                title="#{applicationBean.typesViewAll ? 'Revenir à la pagination' : 'Afficher tous les types en une seule page'}"/>
             </div>
@@ -142,5 +142,5 @@
                 </div>
             </h:panelGroup>
         </h:panelGroup>
-    </h:form>
+    </div>
 </ui:composition>

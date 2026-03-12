@@ -245,6 +245,8 @@
                         </div>
 
                         <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+                            <ui:include src="../catalogues/series_types_unified.xhtml"/>
+
                             <ui:include src="../communs/production.xhtml"/>
 
                             <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
@@ -273,8 +275,6 @@
                     </h:form>
 
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                        <ui:include src="../catalogues/series_types_unified.xhtml"/>
-
                         <h:panelGroup rendered="#{applicationBean.showCommentaireBlocGroup()}">
                             <ui:include src="../communs/discussion.xhtml"/>
                         </h:panelGroup>

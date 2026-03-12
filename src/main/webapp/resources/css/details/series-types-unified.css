@@ -8,16 +8,103 @@
     --st-main: var(--ref-main, #47624D);
     --st-main-rgb: 71, 98, 77;
     --st-bg: var(--ref-bg, #ffffff);
-    --st-border: rgba(var(--st-main-rgb), 0.1);
+    --st-border: rgba(var(--st-main-rgb), 0.12);
     --st-text: var(--ref-text, #333);
     --st-text-muted: rgba(var(--st-main-rgb), 0.65);
-    --st-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-    --st-shadow-hover: 0 12px 28px rgba(var(--st-main-rgb), 0.14), 0 4px 8px rgba(0, 0, 0, 0.04);
+    --st-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --st-shadow-hover: 0 12px 28px rgba(var(--st-main-rgb), 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
     --st-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
 }
 
-.series-types-unified-content {
-    width: 100%;
+/* Bloc unique fusionné (Séries + Types) */
+.series-types-section-merged {
+    background: var(--st-bg);
+    border: 1px solid var(--st-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--st-shadow);
+    transition: box-shadow var(--st-transition), border-color var(--st-transition);
+}
+
+.series-types-section-merged:hover {
+    border-color: rgba(var(--st-main-rgb), 0.2);
+    box-shadow: var(--st-shadow-hover);
+}
+
+/* Sous-sections (Séries et Types) dans le bloc fusionné */
+.series-types-subsection {
+    border-bottom: 1px solid var(--st-border);
+}
+
+.series-types-subsection:last-child {
+    border-bottom: none;
+}
+
+/* En-tête de section unifié */
+.series-types-section-merged .series-types-section-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.75rem 1rem !important;
+    padding: 1rem 1.25rem !important;
+    background: linear-gradient(135deg, rgba(var(--st-main-rgb), 0.06) 0%, rgba(var(--st-main-rgb), 0.02) 100%) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--st-border) !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.series-types-section-header .collection-references-title-section {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+.series-types-section-header .collection-references-icon {
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: linear-gradient(135deg, rgba(var(--st-main-rgb), 0.12) 0%, rgba(var(--st-main-rgb), 0.06) 100%) !important;
+    border-radius: 10px !important;
+    color: var(--st-main) !important;
+    font-size: 1.1rem !important;
+}
+
+.series-types-section-header .collection-references-title {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--st-text) !important;
+    margin: 0 !important;
+}
+
+.series-types-section-header .reference-categories-count-badge {
+    background: rgba(var(--st-main-rgb), 0.1) !important;
+    color: var(--st-main) !important;
+    font-weight: 600 !important;
+    padding: 0.4rem 0.75rem !important;
+    border-radius: 8px !important;
+}
+
+.series-types-section-header .collection-create-btn {
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+    transition: all var(--st-transition) !important;
+}
+
+.series-types-section-header .collection-create-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(var(--st-main-rgb), 0.2) !important;
+}
+
+.series-types-section-header .collection-references-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-shrink: 0 !important;
 }
 
 /* Barre de recherche + bouton tout afficher */
@@ -52,6 +139,27 @@
 .series-types-view-all-btn:hover {
     background: rgba(var(--st-main-rgb), 0.12) !important;
     border-color: rgba(var(--st-main-rgb), 0.35) !important;
+}
+
+/* Contenu des sections */
+.series-types-series-content,
+.series-types-types-content {
+    padding: 1.25rem !important;
+    background: linear-gradient(180deg, transparent 0%, rgba(var(--st-main-rgb), 0.01) 100%);
+}
+
+/* Barre de recherche section Types */
+.series-types-types-content .reference-categories-search-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 1rem !important;
+}
+
+.series-types-types-content .reference-categories-search-row .reference-categories-search-input-wrapper {
+    flex: 1 !important;
+    min-width: 180px !important;
 }
 
 /* Grille des cartes série - 1 élément par ligne */
@@ -378,6 +486,92 @@
     opacity: 0.8;
 }
 
+/* ===== Section Types (cartes typologie) ===== */
+.series-types-types-content .reference-categories-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)) !important;
+    gap: 1.25rem !important;
+}
+
+.series-types-types-content .typologie-card {
+    border: 1px solid var(--st-border) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: var(--st-shadow) !important;
+    transition: all var(--st-transition) !important;
+}
+
+.series-types-types-content .typologie-card:hover {
+    border-color: rgba(var(--st-main-rgb), 0.35) !important;
+    box-shadow: var(--st-shadow-hover) !important;
+    transform: translateY(-4px) !important;
+}
+
+.series-types-types-content .typologie-card::before {
+    background: linear-gradient(90deg, var(--st-main) 0%, rgba(var(--st-main-rgb), 0.6) 100%) !important;
+}
+
+.series-types-types-content .typologie-card-image-wrapper {
+    background: rgba(var(--st-main-rgb), 0.04) !important;
+}
+
+.series-types-types-content .typologie-card-title {
+    color: var(--st-text) !important;
+    font-weight: 600 !important;
+    transition: color var(--st-transition) !important;
+}
+
+.series-types-types-content .typologie-card:hover .typologie-card-title {
+    color: var(--st-main) !important;
+}
+
+.series-types-types-content .typologie-card-overlay {
+    background: linear-gradient(to bottom, transparent 0%, rgba(var(--st-main-rgb), 0.08) 100%) !important;
+    transition: background var(--st-transition) !important;
+}
+
+.series-types-types-content .typologie-card:hover .typologie-card-overlay {
+    background: linear-gradient(to bottom, transparent 0%, rgba(var(--st-main-rgb), 0.18) 100%) !important;
+}
+
+/* Bouton "Tout afficher" section Types */
+.series-types-types-content .list-view-all-btn {
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    padding: 0.5rem 0.875rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(var(--st-main-rgb), 0.2) !important;
+    background: rgba(var(--st-main-rgb), 0.06) !important;
+    color: var(--st-main) !important;
+    text-decoration: none !important;
+    transition: background var(--st-transition), border-color var(--st-transition), color var(--st-transition) !important;
+}
+
+.series-types-types-content .list-view-all-btn:hover {
+    background: rgba(var(--st-main-rgb), 0.12) !important;
+    border-color: rgba(var(--st-main-rgb), 0.35) !important;
+}
+
+/* Messages vides et pagination */
+.series-types-types-content .reference-categories-empty,
+.series-types-series-content .reference-categories-empty {
+    background: linear-gradient(135deg, rgba(var(--st-main-rgb), 0.04) 0%, rgba(var(--st-main-rgb), 0.02) 100%) !important;
+    border: 1px dashed var(--st-border) !important;
+    border-radius: 12px !important;
+    padding: 2rem 1.5rem !important;
+}
+
+.series-types-types-content .reference-categories-pagination,
+.series-types-series-content .reference-categories-pagination {
+    margin-top: 1rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid var(--st-border) !important;
+}
+
 /* Responsive - Tablette */
 @media (max-width: 992px) {
     .series-types-type-thumb {
@@ -387,6 +581,15 @@
 
 /* Responsive - Mobile */
 @media (max-width: 768px) {
+    .series-types-section-header {
+        padding: 0.875rem 1rem !important;
+    }
+
+    .series-types-series-content,
+    .series-types-types-content {
+        padding: 1rem !important;
+    }
+
     .series-types-unified .series-types-grid {
         gap: 1.125rem;
     }
@@ -427,10 +630,29 @@
         font-size: 0.7rem;
         padding: 0.4rem 0.45rem;
     }
+
+    .series-types-types-content .reference-categories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)) !important;
+        gap: 1rem !important;
+    }
 }
 
 /* Très petit écran */
 @media (max-width: 480px) {
+    .series-types-section-merged {
+        border-radius: 12px;
+    }
+
+    .series-types-section-header {
+        padding: 0.75rem 0.875rem !important;
+    }
+
+    .series-types-section-header .collection-references-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+    }
+
     .series-types-serie-header {
         padding: 0.875rem 1rem;
     }
@@ -447,5 +669,9 @@
     .series-types-carousel-nav {
         width: 30px;
         height: 30px;
+    }
+
+    .series-types-types-content .reference-categories-grid {
+        grid-template-columns: 1fr !important;
     }
 }

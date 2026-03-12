@@ -4,232 +4,228 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <h:panelGroup id="contentTypePanels" layout="block">
-        <div class="type-detail-page">
-            <div class="row">
-                <div class="col-md-12">
-                    <h:form id="typeEditForm" styleClass="groupe-header-form-inline" enctype="multipart/form-data">
-                        <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
-                            <div class="concept-info-header">
-                                <div class="concept-info-title-section">
-                                    <span class="reference-entity-type-badge">Type</span>
-                                    <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                                  styleClass="collection-not-published-icon">
-                                        <i class="pi pi-clock"/>
-                                        <p:tooltip value="Catégorie non publiée" position="top"/>
-                                    </h:panelGroup>
-                                    <div class="collection-panel-title-wrapper">
-                                        <div class="collection-panel-title-wrapper">
-                                            <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                            <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                                        </div>
-                                    </div>
+        <div class="type-detail-page row col-md-12">
+            <h:form id="typeEditForm" styleClass="groupe-header-form-inline" enctype="multipart/form-data">
+                <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                    <div class="concept-info-header">
+                        <div class="concept-info-title-section">
+                            <span class="reference-entity-type-badge">Type</span>
+                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
+                                          styleClass="collection-not-published-icon">
+                                <i class="pi pi-clock"/>
+                                <p:tooltip value="Catégorie non publiée" position="top"/>
+                            </h:panelGroup>
+                            <div class="collection-panel-title-wrapper">
+                                <div class="collection-panel-title-wrapper">
+                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                                 </div>
+                            </div>
+                        </div>
 
-                                <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                                   process="@this" update="@none" styleClass="concept-action-button" immediate="true">
-                                        <i class="pi pi-history" />
-                                        <p:tooltip value="Voir l'historique" position="top"/>
-                                    </p:commandLink>
+                        <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
+                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                           process="@this" update="@none" styleClass="concept-action-button" immediate="true">
+                                <i class="pi pi-history" />
+                                <p:tooltip value="Voir l'historique" position="top"/>
+                            </p:commandLink>
 
-                                    <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                                   process="@this"
-                                                   update=":contentPanels :leftTreePanel :searchSectionWrapper"
-                                                   rendered="#{typeBean.canEditType(applicationBean)}"
-                                                   styleClass="concept-action-button">
-                                        <i class="pi pi-file-edit" />
-                                        <p:tooltip value="Modifier" position="top"/>
-                                    </p:commandLink>
+                            <p:commandLink action="#{entityUpdateBean.startEditing()}"
+                                           process="@this"
+                                           update=":contentPanels :leftTreePanel :searchSectionWrapper"
+                                           rendered="#{typeBean.canEditType(applicationBean)}"
+                                           styleClass="concept-action-button">
+                                <i class="pi pi-file-edit" />
+                                <p:tooltip value="Modifier" position="top"/>
+                            </p:commandLink>
 
-                                    <p:commandLink action="#{typeBean.prepareMoveTypeDialog()}"
-                                                   process="@this"
-                                                   update=":moveTypeDialog"
-                                                   oncomplete="PF('moveTypeDialog').show();"
-                                                   styleClass="concept-action-button"
-                                                   rendered="#{typeBean.canEditType(applicationBean)}">
-                                        <i class="pi pi-arrow-right-arrow-left" />
-                                        <p:tooltip value="Déplacer vers un autre groupe ou série" position="top"/>
-                                    </p:commandLink>
+                            <p:commandLink action="#{typeBean.prepareMoveTypeDialog()}"
+                                           process="@this"
+                                           update=":moveTypeDialog"
+                                           oncomplete="PF('moveTypeDialog').show();"
+                                           styleClass="concept-action-button"
+                                           rendered="#{typeBean.canEditType(applicationBean)}">
+                                <i class="pi pi-arrow-right-arrow-left" />
+                                <p:tooltip value="Déplacer vers un autre groupe ou série" position="top"/>
+                            </p:commandLink>
 
-                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
-                                                   process="@this"
-                                                   update=":confirmDeleteDialogContent"
-                                                   oncomplete="PF('confirmDeleteDialog').show();"
-                                                   styleClass="concept-action-button"
-                                                   rendered="#{typeBean.canEditType(applicationBean)}">
-                                        <i class="pi pi-trash" />
-                                        <p:tooltip value="Supprimer" position="top"/>
-                                    </p:commandLink>
+                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
+                                           process="@this"
+                                           update=":confirmDeleteDialogContent"
+                                           oncomplete="PF('confirmDeleteDialog').show();"
+                                           styleClass="concept-action-button"
+                                           rendered="#{typeBean.canEditType(applicationBean)}">
+                                <i class="pi pi-trash" />
+                                <p:tooltip value="Supprimer" position="top"/>
+                            </p:commandLink>
 
-                                    <h:panelGroup rendered="#{loginBean.currentUser != null}">
-                                        <div class="collection-visibility-card">
-                                            <div class="collection-visibility-card-content">
-                                                <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
-                                                    <div class="collection-visibility-icon">
-                                                        <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
-                                                    </div>
-                                                    <div class="collection-visibility-info">
-                                                        <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
-                                                    </div>
-                                                </div>
-                                                <h:panelGroup rendered="#{typeBean.canEditType(applicationBean)}"
-                                                              styleClass="collection-visibility-toggle-wrapper">
-                                                    <p:commandLink styleClass="collection-visibility-toggle-btn"
-                                                                   process="@this"
-                                                                   update=":confirmReferenceVisibilityChangeDialog :growl"
-                                                                   action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
-                                                        <i class="pi pi-sync" />
-                                                        <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
-                                                    </p:commandLink>
-                                                </h:panelGroup>
+                            <h:panelGroup rendered="#{loginBean.currentUser != null}">
+                                <div class="collection-visibility-card">
+                                    <div class="collection-visibility-card-content">
+                                        <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
+                                            <div class="collection-visibility-icon">
+                                                <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
+                                            </div>
+                                            <div class="collection-visibility-info">
+                                                <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                             </div>
                                         </div>
-                                    </h:panelGroup>
-                                </h:panelGroup>
-                            </div>
+                                        <h:panelGroup rendered="#{typeBean.canEditType(applicationBean)}"
+                                                      styleClass="collection-visibility-toggle-wrapper">
+                                            <p:commandLink styleClass="collection-visibility-toggle-btn"
+                                                           process="@this"
+                                                           update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                           action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
+                                                <i class="pi pi-sync" />
+                                                <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                            </p:commandLink>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </div>
 
-                            <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                                <div class="concept-info-grid">
-                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}"
-                                                  styleClass="concept-info-item concept-info-item-full" layout="block">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-file concept-info-icon" />
-                                            <span>Description</span>
-                                        </div>
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                                <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
-                                                    <div class="concept-info-description-wrapper concept-info-description-char-based">
-                                                        <div class="concept-info-description-truncated" data-description-truncated="true">
-                                                            <h:outputText value="#{applicationBean.getEntityDescriptionTruncated(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}" escape="true"/>
-                                                        </div>
-                                                        <div class="concept-info-description-full" data-description-full="true">
-                                                            <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                                        </div>
-                                                        <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
-                                                            afficher la suite
-                                                        </button>
-                                                    </div>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{!applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
-                                                    <div class="concept-info-description-content concept-info-description-expanded">
-                                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                                    </div>
-                                                </ui:fragment>
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </h:panelGroup>
+                    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+                        <div class="concept-info-grid">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}"
+                                          styleClass="concept-info-item concept-info-item-full" layout="block">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Description</span>
+                                </div>
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                            <div class="concept-info-description-wrapper concept-info-description-char-based">
+                                                <div class="concept-info-description-truncated" data-description-truncated="true">
+                                                    <h:outputText value="#{applicationBean.getEntityDescriptionTruncated(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}" escape="true"/>
+                                                </div>
+                                                <div class="concept-info-description-full" data-description-full="true">
+                                                    <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                                </div>
+                                                <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
+                                                    afficher la suite
+                                                </button>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{!applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                            <div class="concept-info-description-content concept-info-description-expanded">
+                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                            </div>
+                                        </ui:fragment>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </h:panelGroup>
 
-                                    <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5 and applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.appellation : null)}"
-                                                  class="concept-info-item concept-info-item-full">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-file concept-info-icon" />
-                                            <span>Appellation usuelle</span>
-                                        </div>
-                                        <div class="concept-info-value concept-info-description">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appellation}">
-                                                <h:outputText value="#{applicationBean.selectedEntity.metadata.appellation}" escape="false"/>
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appellation}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
-                                        </div>
-                                    </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5 and applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.appellation : null)}"
+                                          class="concept-info-item concept-info-item-full">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-file concept-info-icon" />
+                                    <span>Appellation usuelle</span>
+                                </div>
+                                <div class="concept-info-value concept-info-description">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appellation}">
+                                        <h:outputText value="#{applicationBean.selectedEntity.metadata.appellation}" escape="false"/>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appellation}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </h:panelGroup>
 
-                                    <h:panelGroup class="concept-info-item concept-info-item-full"
-                                                  rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteurs)}">
-                                        <div class="concept-info-label">
-                                            <i class="pi pi-user concept-info-icon" />
-                                            <span>Auteur(s)</span>
-                                        </div>
-                                        <div class="concept-info-value bibliographie-container">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                                <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteurs)}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
                                                 <span class="bibliographie-badge">
                                                     <i class="pi pi-user bibliographie-badge-icon" />
                                                     <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                                 </span>
-                                                </ui:repeat>
-                                            </ui:fragment>
-                                            <h:outputText value="Aucun auteur disponible"
-                                                          rendered="#{empty applicationBean.selectedEntity.auteurs}"
-                                                          styleClass="bibliographie-empty" />
-                                        </div>
-                                    </h:panelGroup>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun auteur disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  styleClass="bibliographie-empty" />
                                 </div>
-                            </ui:fragment>
-
-                            <ui:fragment rendered="#{entityUpdateBean.editingEntity}">
-                                <ui:include src="../../commun/modifier/modifier.xhtml"/>
-                            </ui:fragment>
+                            </h:panelGroup>
                         </div>
+                    </ui:fragment>
 
-                        <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                            <ui:include src="dotation.xhtml"/>
-
-                            <ui:include src="galerie_images.xhtml"/>
-
-                            <ui:include src="alignements.xhtml"/>
-
-                            <ui:include src="../communs/production.xhtml"/>
-
-                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
-                                <ui:include src="../communs/description_monnaie.xhtml"/>
-                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                            </h:panelGroup>
-
-                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
-                                <ui:include src="../communs/description.xhtml"/>
-
-                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
-                                </h:panelGroup>
-                            </h:panelGroup>
-
-                            <ui:include src="attestations.xhtml"/>
-
-                            <ui:include src="sites_archeologiques.xhtml"/>
-
-                            <ui:include src="gestion.xhtml"/>
-
-                            <ui:include src="../communs/commentaire.xhtml"/>
-
-                            <ui:include src="../communs/bibliographie.xhtml"/>
-
-                            <h:panelGroup rendered="#{applicationBean.showCommentaireBlocType()}">
-                                <ui:include src="../communs/discussion.xhtml"/>
-                            </h:panelGroup>
-                        </ui:fragment>
-                    </h:form>
-
-                    <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
-                    <h:form rendered="#{typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
-                            styleClass="groupe-proposition-actions candidats-mt-20">
-                        <div class="groupe-proposition-actions-wrapper">
-                            <p:commandButton value="Publier"
-                                             icon="pi pi-check-circle"
-                                             styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
-                                             process="@this"
-                                             update=":confirmPropositionActionDialog"
-                                             action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
-
-                            <p:commandButton value="Refuser"
-                                             icon="pi pi-times-circle"
-                                             styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
-                                             process="@this"
-                                             update=":confirmPropositionActionDialog"
-                                             action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
-                        </div>
-                    </h:form>
+                    <ui:fragment rendered="#{entityUpdateBean.editingEntity}">
+                        <ui:include src="../../commun/modifier/modifier.xhtml"/>
+                    </ui:fragment>
                 </div>
-            </div>
+
+                <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+                    <ui:include src="dotation.xhtml"/>
+
+                    <ui:include src="galerie_images.xhtml"/>
+
+                    <ui:include src="alignements.xhtml"/>
+
+                    <ui:include src="../communs/production.xhtml"/>
+
+                    <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
+                        <ui:include src="../communs/description_monnaie.xhtml"/>
+                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                        <ui:include src="../communs/description.xhtml"/>
+
+                        <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                            <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                            <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
+                        </h:panelGroup>
+                    </h:panelGroup>
+
+                    <ui:include src="attestations.xhtml"/>
+
+                    <ui:include src="sites_archeologiques.xhtml"/>
+
+                    <ui:include src="gestion.xhtml"/>
+
+                    <ui:include src="../communs/commentaire.xhtml"/>
+
+                    <ui:include src="../communs/bibliographie.xhtml"/>
+
+                    <h:panelGroup rendered="#{applicationBean.showCommentaireBlocType()}">
+                        <ui:include src="../communs/discussion.xhtml"/>
+                    </h:panelGroup>
+                </ui:fragment>
+            </h:form>
+
+            <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
+            <h:form rendered="#{typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
+                    styleClass="groupe-proposition-actions candidats-mt-20">
+                <div class="groupe-proposition-actions-wrapper">
+                    <p:commandButton value="Publier"
+                                     icon="pi pi-check-circle"
+                                     styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
+                                     process="@this"
+                                     update=":confirmPropositionActionDialog"
+                                     action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
+
+                    <p:commandButton value="Refuser"
+                                     icon="pi pi-times-circle"
+                                     styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
+                                     process="@this"
+                                     update=":confirmPropositionActionDialog"
+                                     action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
+                </div>
+            </h:form>
         </div>
     </h:panelGroup>
 </ui:composition>

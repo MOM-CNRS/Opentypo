@@ -1,205 +1,346 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <h:outputStylesheet library="css" name="details/series-types-unified.css"/>
-    <h:outputStylesheet library="css" name="details/collection.css"/>
+    <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputScript library="js" name="seriesTypesCarousel.js"/>
 
-    <h:form id="seriesTypesForm" styleClass="references-list-view references-list-frame series-types-unified">
-        <div class="collection-references-header collection-select">
-            <div class="collection-references-title-section">
-                <div class="collection-references-icon">
-                    <i class="pi pi-database" />
+    <div id="seriesTypesForm" class="series-types-unified" style="margin-top: 20px">
+        <section class="series-types-section series-types-section-merged">
+            <!-- Bloc Séries -->
+            <div class="series-types-subsection series-types-subsection-series">
+                <div class="collection-references-header collection-select series-types-section-header">
+                    <div class="collection-references-title-section">
+                        <div class="collection-references-icon">
+                            <i class="pi pi-database" />
+                        </div>
+                        <div class="collection-references-title-wrapper">
+                            <h3 class="collection-references-title">Liste des séries</h3>
+                        </div>
+                    </div>
+
+                    <span class="reference-categories-count-badge">
+                        #{applicationBean.childsSeriesSize} série#{applicationBean.childsSeriesSize gt 1 ? 's' : ''}
+                    </span>
+
+                    <h:panelGroup class="collection-references-actions">
+                        <p:commandButton value="Réorganiser l'ordre"
+                                         icon="pi pi-sort-alt"
+                                         rendered="#{serieBean.canEditSerie(applicationBean) and applicationBean.filteredSeriesSize gt 1}"
+                                         styleClass="collection-create-btn collection-reorder-btn"
+                                         action="#{applicationBean.prepareSeriesOrderDialog()}"
+                                         process="@this"
+                                         update=":orderListDialog"
+                                         oncomplete="PF('orderListDialog').show();"/>
+                        <p:commandButton value="Créer une nouvelle série"
+                                         icon="pi pi-plus"
+                                         rendered="#{serieBean.canCreateSerie(applicationBean)}"
+                                         styleClass="collection-create-btn"
+                                         action="#{serieBean.prepareCreateSerie}"
+                                         process="@this"
+                                             update=":serieDialog :serieDialogForm"
+                                             partialSubmit="true"
+                                             oncomplete="PF('serieDialog').show();"/>
+                    </h:panelGroup>
                 </div>
-                <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des séries</h3>
-                </div>
+
+                <h:panelGroup id="categoriesContainer"
+                              class="reference-categories-section reference-cards-container reference-categories-form series-types-series-content">
+                    <!-- Barre de recherche + option tout afficher -->
+                    <div class="reference-categories-search-bar series-types-search-row"
+                         style="margin-left: 20px; margin-right: 20px;">
+                        <div class="reference-categories-search-input-wrapper collection-select">
+                            <i class="pi pi-search reference-categories-search-icon"/>
+                            <p:inputText id="seriesTypesSearchInput"
+                                         value="#{applicationBean.seriesSearchQuery}"
+                                         styleClass="reference-categories-search-input"
+                                         placeholder="Rechercher par code ou label...">
+                                <p:ajax event="keyup"
+                                        process="@this"
+                                        update="seriesTypesContent"
+                                        delay="300"/>
+                            </p:inputText>
+                        </div>
+
+                        <p:commandLink value="#{applicationBean.seriesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                                       icon="#{applicationBean.seriesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
+                                       styleClass="series-types-view-all-btn"
+                                       rendered="#{applicationBean.filteredSeriesSize gt 6}"
+                                       process="@this"
+                                       update="categoriesContainer"
+                                       action="#{applicationBean.toggleSeriesViewAll()}"
+                                       title="#{applicationBean.seriesViewAll ? 'Revenir à la pagination' : 'Afficher toutes les séries en une seule page'}"/>
+                    </div>
+
+                    <h:panelGroup id="seriesTypesContent">
+                        <!-- Grille paginée des séries, chacune avec carousel de types -->
+                        <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
+                            <article class="series-types-serie-card"
+                                     style="margin-left: 20px; margin-right: 20px;">
+                                <header class="series-types-serie-header">
+                                    <p:commandLink action="#{applicationBean.showSerie(swt.serie())}"
+                                                   styleClass="series-types-serie-link"
+                                                   process="@this"
+                                                   update=":centerContent"
+                                                   onstart="showLoading('Chargement de la série...', 'spinner');"
+                                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();}, 500);"
+                                                   onerror="forceHideLoading();">
+                                        <div class="series-types-serie-icon">
+                                            <i class="pi pi-list" aria-hidden="true"/>
+                                        </div>
+                                        <div class="series-types-serie-heading">
+                                            <h3 class="series-types-serie-title">#{swt.serie().code}</h3>
+                                            <span class="series-types-serie-label">#{applicationBean.getEntityLabel(swt.serie())}</span>
+                                        </div>
+                                        <span class="series-types-serie-badge">#{swt.typesCount()} type#{swt.typesCount() gt 1 ? 's' : ''}</span>
+                                        <i class="pi pi-chevron-right series-types-serie-arrow"/>
+                                    </p:commandLink>
+                                </header>
+
+                                <!-- Carousel horizontal des types -->
+                                <div class="series-types-carousel-wrapper">
+                                    <button type="button" class="series-types-carousel-nav series-types-carousel-prev"
+                                            aria-label="Types précédents"
+                                            onclick="seriesTypesScrollPrev(this)">
+                                        <i class="pi pi-chevron-left"/>
+                                    </button>
+                                    <div class="series-types-carousel-scroll" data-serie-idx="#{status.index}">
+                                        <div class="series-types-carousel-track">
+                                            <ui:repeat value="#{swt.types()}" var="type">
+                                                <p:commandLink action="#{applicationBean.showType(type)}"
+                                                               styleClass="series-types-type-thumb"
+                                                               process="@this"
+                                                               update=":centerContent"
+                                                               onstart="showLoading('Chargement du type...', 'spinner');"
+                                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();}, 500);"
+                                                               onerror="forceHideLoading();">
+                                                    <div class="series-types-type-thumb-image">
+                                                        <p:graphicImage value="#{type.image.url}"
+                                                                        styleClass="series-types-type-img"
+                                                                        alt="#{type.code}"
+                                                                        rendered="#{not empty type.image and not empty type.image.url}"/>
+                                                        <ui:fragment rendered="#{empty type.image or empty type.image.url}">
+                                                            <div class="series-types-type-placeholder">
+                                                                <i class="pi pi-image"/>
+                                                            </div>
+                                                        </ui:fragment>
+                                                    </div>
+                                                    <span class="series-types-type-label">#{type.nom}</span>
+                                                </p:commandLink>
+                                            </ui:repeat>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="series-types-carousel-nav series-types-carousel-next"
+                                            aria-label="Types suivants"
+                                            onclick="seriesTypesScrollNext(this)">
+                                        <i class="pi pi-chevron-right"/>
+                                    </button>
+                                </div>
+
+                                <ui:fragment rendered="#{empty swt.types()}">
+                                    <p class="series-types-empty-types">
+                                        <i class="pi pi-info-circle"/> Aucun type dans cette série
+                                    </p>
+                                </ui:fragment>
+                            </article>
+                        </ui:repeat>
+
+                        <!-- Message si aucune série -->
+                        <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsSeries and empty applicationBean.childsTypes}">
+                            <div class="reference-categories-empty-icon">
+                                <i class="pi pi-inbox" aria-hidden="true"/>
+                            </div>
+                            <div class="reference-categories-empty-content">
+                                <h4 class="reference-categories-empty-title">Aucune série disponible</h4>
+                                <p class="reference-categories-empty-text">Ce groupe ne contient actuellement aucune série ni type.</p>
+                                <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                    <i class="pi pi-info-circle" aria-hidden="true"/>
+                                    <span>Il faut passer par un brouillon pour en ajouter.</span>
+                                </h:panelGroup>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Message si recherche sans résultat -->
+                        <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                                      rendered="#{not empty applicationBean.childsSeries and empty applicationBean.filteredSeries}">
+                            <div class="reference-categories-empty-icon">
+                                <i class="pi pi-search" aria-hidden="true"/>
+                            </div>
+                            <div class="reference-categories-empty-content">
+                                <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                                <p class="reference-categories-empty-text">Aucune série ne correspond à votre recherche.</p>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Pagination (masquée si tout afficher) -->
+                        <h:panelGroup rendered="#{not applicationBean.seriesViewAll and applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
+                            <p:commandButton icon="pi pi-chevron-left"
+                                             styleClass="reference-categories-page-btn"
+                                             process="@this"
+                                             update="seriesTypesContent"
+                                             action="#{applicationBean.seriesPreviousPage()}"
+                                             disabled="#{applicationBean.seriesFirstPage}"
+                                             title="Page précédente"/>
+
+                            <span class="reference-categories-page-info">
+                                Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
+                            </span>
+
+                            <p:commandButton icon="pi pi-chevron-right"
+                                             styleClass="reference-categories-page-btn"
+                                             process="@this"
+                                             update="seriesTypesContent"
+                                             action="#{applicationBean.seriesNextPage()}"
+                                             disabled="#{applicationBean.seriesLastPage}"
+                                             title="Page suivante"/>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </h:panelGroup>
             </div>
 
-            <span class="reference-categories-count-badge">
-                #{applicationBean.childsSeriesSize} série#{applicationBean.childsSeriesSize gt 1 ? 's' : ''}
-            </span>
+            <!-- Bloc Types directs (sans série) -->
+            <div class="series-types-subsection series-types-subsection-types">
+                <div class="collection-references-header collection-select series-types-section-header">
+                    <div class="collection-references-title-section">
+                        <div class="collection-references-icon">
+                            <i class="pi pi-tag" />
+                        </div>
+                        <div class="collection-references-title-wrapper">
+                            <h3 class="collection-references-title">Liste des types</h3>
+                        </div>
+                    </div>
 
-            <p:commandButton value="Réorganiser l'ordre"
-                             icon="pi pi-sort-alt"
-                             rendered="#{serieBean.canEditSerie(applicationBean) and applicationBean.filteredSeriesSize gt 1}"
-                             styleClass="collection-create-btn collection-reorder-btn"
-                             action="#{applicationBean.prepareSeriesOrderDialog()}"
-                             process="@this"
-                             update=":orderListDialog"
-                             oncomplete="PF('orderListDialog').show();"/>
-            <p:commandButton value="Créer une nouvelle série"
-                             icon="pi pi-plus"
-                             rendered="#{serieBean.canCreateSerie(applicationBean)}"
-                             styleClass="collection-create-btn"
-                             action="#{serieBean.prepareCreateSerie}"
-                             process="@this"
-                             update=":serieDialog :serieDialogForm"
-                             partialSubmit="true"
-                             oncomplete="PF('serieDialog').show();"/>
-        </div>
+                    <span class="reference-categories-count-badge">
+                        #{applicationBean.childsTypesSize} type#{applicationBean.childsTypesSize gt 1 ? 's' : ''}
+                    </span>
 
-        <h:panelGroup id="categoriesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
-            <!-- Barre de recherche + option tout afficher -->
-            <div class="reference-categories-search-bar series-types-search-row">
-                <div class="reference-categories-search-input-wrapper collection-select">
-                    <i class="pi pi-search reference-categories-search-icon"/>
-                    <p:inputText id="seriesTypesSearchInput"
-                                 value="#{applicationBean.seriesSearchQuery}"
-                                 styleClass="reference-categories-search-input"
-                                 placeholder="Rechercher par code ou label...">
-                        <p:ajax event="keyup"
-                                process="@this"
-                                update="seriesTypesContent"
-                                delay="300"/>
-                    </p:inputText>
+                    <h:panelGroup class="collection-references-actions" rendered="#{typeBean.canCreateType(applicationBean) or typeBean.canEditType(applicationBean)}">
+                        <p:commandButton value="Réorganiser l'ordre"
+                                         icon="pi pi-sort-alt"
+                                         rendered="#{typeBean.canEditType(applicationBean) and applicationBean.filteredTypesSize gt 1}"
+                                         styleClass="collection-create-btn collection-reorder-btn"
+                                         action="#{applicationBean.prepareTypesOrderDialog()}"
+                                         process="@this"
+                                         update=":orderListDialog"
+                                         oncomplete="PF('orderListDialog').show();"/>
+
+                        <p:commandButton value="Créer un nouveau type"
+                                         icon="pi pi-plus"
+                                         rendered="#{typeBean.canCreateType(applicationBean)}"
+                                         styleClass="collection-create-btn"
+                                         action="#{typeBean.prepareCreateType}"
+                                         process="@this"
+                                         update=":typeDialog :typeDialogForm"
+                                         partialSubmit="true"
+                                         oncomplete="PF('typeDialog').show();"/>
+                    </h:panelGroup>
                 </div>
-                <p:commandLink value="#{applicationBean.seriesViewAll ? 'Afficher par page' : 'Tout afficher'}"
-                               icon="#{applicationBean.seriesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
-                               styleClass="series-types-view-all-btn"
-                               rendered="#{applicationBean.filteredSeriesSize gt 6}"
-                               process="@this"
-                               update="categoriesContainer"
-                               action="#{applicationBean.toggleSeriesViewAll()}"
-                               title="#{applicationBean.seriesViewAll ? 'Revenir à la pagination' : 'Afficher toutes les séries en une seule page'}"/>
-            </div>
+        
+                <h:panelGroup id="categoriesContainer2"
+                              class="reference-categories-section reference-cards-container reference-categories-form series-types-types-content">
+                    <!-- Barre de recherche + option tout afficher -->
+                    <div class="reference-categories-search-bar reference-categories-search-row"
+                         style="margin-left: 20px; margin-right: 20px;">
+                        <div class="reference-categories-search-input-wrapper collection-select">
+                            <i class="pi pi-search reference-categories-search-icon"/>
+                            <p:inputText id="categoriesSearchInput"
+                                         value="#{applicationBean.typesSearchQuery}"
+                                         styleClass="reference-categories-search-input"
+                                         placeholder="Rechercher par code ou label...">
+                                <p:ajax event="keyup"
+                                        process="@this"
+                                        update="categoriesContent"
+                                        delay="300"/>
+                            </p:inputText>
+                        </div>
+                        <p:commandLink value="#{applicationBean.typesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                                       icon="#{applicationBean.typesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
+                                       styleClass="list-view-all-btn"
+                                       rendered="#{applicationBean.filteredTypesSize gt 6}"
+                                       process="@this"
+                                       update="categoriesContainer2"
+                                       action="#{applicationBean.toggleTypesViewAll()}"
+                                       title="#{applicationBean.typesViewAll ? 'Revenir à la pagination' : 'Afficher tous les types en une seule page'}"/>
+                    </div>
 
-            <h:panelGroup id="seriesTypesContent">
-                <!-- Grille paginée des séries, chacune avec carousel de types -->
-                <div class="series-types-grid">
-                    <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
-                        <article class="series-types-serie-card">
-                            <header class="series-types-serie-header">
-                                <p:commandLink action="#{applicationBean.showSerie(swt.serie())}"
-                                               styleClass="series-types-serie-link"
+                    <h:panelGroup id="categoriesContent">
+                        <div class="reference-categories-grid">
+                            <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
+                                <p:commandLink action="#{applicationBean.showType(type)}"
+                                               styleClass="typologie-card"
                                                process="@this"
                                                update=":centerContent"
-                                               onstart="showLoading('Chargement de la série...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();}, 500);"
+                                               onstart="showLoading('Chargement du type...', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
                                                onerror="forceHideLoading();">
-                                    <div class="series-types-serie-icon">
-                                        <i class="pi pi-list" aria-hidden="true"/>
+                                    <div class="typologie-card-image-wrapper">
+                                        <p:graphicImage value="#{type.image.url}"
+                                                        styleClass="typologie-card-image"
+                                                        alt="Typologie"
+                                                        rendered="#{not empty type.image and not empty type.image.url}"/>
+                                        <div class="typologie-card-overlay"></div>
+                                        <h:panelGroup class="reference-image-placeholder"
+                                                      rendered="#{empty type.image or empty type.image.url}">
+                                            <span class="reference-placeholder-text">OpenTypo</span>
+                                        </h:panelGroup>
                                     </div>
-                                    <div class="series-types-serie-heading">
-                                        <h3 class="series-types-serie-title">#{swt.serie().code}</h3>
-                                        <span class="series-types-serie-label">#{applicationBean.getEntityLabel(swt.serie())}</span>
+                                    <div class="typologie-card-content">
+                                        <h3 class="typologie-card-title">#{type.code}</h3>
                                     </div>
-                                    <span class="series-types-serie-badge">#{swt.typesCount()} type#{swt.typesCount() gt 1 ? 's' : ''}</span>
-                                    <i class="pi pi-chevron-right series-types-serie-arrow"/>
                                 </p:commandLink>
-                            </header>
+                            </ui:repeat>
 
-                            <!-- Carousel horizontal des types -->
-                            <div class="series-types-carousel-wrapper">
-                                <button type="button" class="series-types-carousel-nav series-types-carousel-prev"
-                                        aria-label="Types précédents"
-                                        onclick="seriesTypesScrollPrev(this)">
-                                    <i class="pi pi-chevron-left"/>
-                                </button>
-                                <div class="series-types-carousel-scroll" data-serie-idx="#{status.index}">
-                                    <div class="series-types-carousel-track">
-                                        <ui:repeat value="#{swt.types()}" var="type">
-                                            <p:commandLink action="#{applicationBean.showType(type)}"
-                                                           styleClass="series-types-type-thumb"
-                                                           process="@this"
-                                                           update=":centerContent"
-                                                           onstart="showLoading('Chargement du type...', 'spinner');"
-                                                           oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();}, 500);"
-                                                           onerror="forceHideLoading();">
-                                                <div class="series-types-type-thumb-image">
-                                                    <p:graphicImage value="#{type.image.url}"
-                                                                    styleClass="series-types-type-img"
-                                                                    alt="#{type.code}"
-                                                                    rendered="#{not empty type.image and not empty type.image.url}"/>
-                                                    <ui:fragment rendered="#{empty type.image or empty type.image.url}">
-                                                        <div class="series-types-type-placeholder">
-                                                            <i class="pi pi-image"/>
-                                                        </div>
-                                                    </ui:fragment>
-                                                </div>
-                                                <span class="series-types-type-label">#{type.nom}</span>
-                                            </p:commandLink>
-                                        </ui:repeat>
-                                    </div>
+                            <!-- Message si aucun type -->
+                            <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsTypes}">
+                                <div class="reference-categories-empty-icon">
+                                    <i class="pi pi-inbox" aria-hidden="true"/>
                                 </div>
-                                <button type="button" class="series-types-carousel-nav series-types-carousel-next"
-                                        aria-label="Types suivants"
-                                        onclick="seriesTypesScrollNext(this)">
-                                    <i class="pi pi-chevron-right"/>
-                                </button>
-                            </div>
+                                <div class="reference-categories-empty-content">
+                                    <h4 class="reference-categories-empty-title">Aucun type disponible</h4>
+                                    <p class="reference-categories-empty-text">Aucun type n'est rattaché à l'élément sélectionné.</p>
+                                    <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
+                                        <i class="pi pi-info-circle" aria-hidden="true"/>
+                                        <span>Il faut passer par un brouillon pour en ajouter un.</span>
+                                    </h:panelGroup>
+                                </div>
+                            </h:panelGroup>
+                            <!-- Message si recherche sans résultat -->
+                            <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                                          rendered="#{empty applicationBean.childsTypes ? false : empty applicationBean.filteredTypes}">
+                                <div class="reference-categories-empty-icon">
+                                    <i class="pi pi-search" aria-hidden="true"/>
+                                </div>
+                                <div class="reference-categories-empty-content">
+                                    <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                                    <p class="reference-categories-empty-text">Aucun type ne correspond à votre recherche.</p>
+                                </div>
+                            </h:panelGroup>
 
-                            <ui:fragment rendered="#{empty swt.types()}">
-                                <p class="series-types-empty-types">
-                                    <i class="pi pi-info-circle"/> Aucun type dans cette série
-                                </p>
-                            </ui:fragment>
-                        </article>
-                    </ui:repeat>
-
-                    <!-- Message si aucune série -->
-                    <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsSeries and empty applicationBean.childsTypes}">
-                        <div class="reference-categories-empty-icon">
-                            <i class="pi pi-inbox" aria-hidden="true"/>
-                        </div>
-                        <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucune série disponible</h4>
-                            <p class="reference-categories-empty-text">Ce groupe ne contient actuellement aucune série ni type.</p>
-                            <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
-                                <i class="pi pi-info-circle" aria-hidden="true"/>
-                                <span>Il faut passer par un brouillon pour en ajouter.</span>
+                            <!-- Pagination (masquée si tout afficher) -->
+                            <h:panelGroup rendered="#{not applicationBean.typesViewAll and applicationBean.typesTotalPages gt 1}" class="reference-categories-pagination">
+                                <p:commandButton icon="pi pi-chevron-left"
+                                                 styleClass="reference-categories-page-btn"
+                                                 process="@this"
+                                                 update="categoriesContent"
+                                                 action="#{applicationBean.typesPreviousPage()}"
+                                                 disabled="#{applicationBean.typesFirstPage}"
+                                                 title="Page précédente"/>
+                                <span class="reference-categories-page-info">
+                                    Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
+                                </span>
+                                <p:commandButton icon="pi pi-chevron-right"
+                                                 styleClass="reference-categories-page-btn"
+                                                 process="@this"
+                                                 update="categoriesContent"
+                                                 action="#{applicationBean.typesNextPage()}"
+                                                 disabled="#{applicationBean.typesLastPage}"
+                                                 title="Page suivante"/>
                             </h:panelGroup>
                         </div>
                     </h:panelGroup>
-
-                    <!-- Message si recherche sans résultat -->
-                    <h:panelGroup class="reference-categories-empty reference-categories-no-results"
-                                  rendered="#{not empty applicationBean.childsSeries and empty applicationBean.filteredSeries}">
-                        <div class="reference-categories-empty-icon">
-                            <i class="pi pi-search" aria-hidden="true"/>
-                        </div>
-                        <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                            <p class="reference-categories-empty-text">Aucune série ne correspond à votre recherche.</p>
-                        </div>
-                    </h:panelGroup>
-                </div>
-
-                <!-- Pagination (masquée si tout afficher) -->
-                <h:panelGroup rendered="#{not applicationBean.seriesViewAll and applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
-                    <p:commandButton icon="pi pi-chevron-left"
-                                     styleClass="reference-categories-page-btn"
-                                     process="@this"
-                                     update="seriesTypesContent"
-                                     action="#{applicationBean.seriesPreviousPage()}"
-                                     disabled="#{applicationBean.seriesFirstPage}"
-                                     title="Page précédente"/>
-
-                        <span class="reference-categories-page-info">
-                        Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
-                    </span>
-
-                    <p:commandButton icon="pi pi-chevron-right"
-                                     styleClass="reference-categories-page-btn"
-                                     process="@this"
-                                     update="seriesTypesContent"
-                                     action="#{applicationBean.seriesNextPage()}"
-                                     disabled="#{applicationBean.seriesLastPage}"
-                                     title="Page suivante"/>
                 </h:panelGroup>
-            </h:panelGroup>
-        </h:panelGroup>
-    </h:form>
-
-    <!-- Types directs du groupe (sans série) – ID distinct pour éviter conflit avec liste_types (vue série) -->
-    <h:panelGroup styleClass="categories-unified-block details-mt-20">
-        <ui:include src="liste_types.xhtml">
-            <ui:param name="typesPanelId" value="directTypesTogglePanel"/>
-        </ui:include>
-    </h:panelGroup>
-
-    <ui:include src="../../dialogs/serieDialog.xhtml"/>
+            </div>
+        </section>
+    </div>
 </ui:composition>

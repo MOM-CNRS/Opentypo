@@ -229,10 +229,8 @@
     gap: 1.25rem !important;
     width: 100% !important;
     align-items: stretch !important;
-    border: 1px solid rgba(71, 98, 77, 0.12) !important;
-    border-radius: 10px !important;
-    padding: 1rem 1.25rem !important;
-    background: rgba(71, 98, 77, 0.02) !important;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 /* Cartes */
