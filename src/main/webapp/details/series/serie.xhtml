@@ -88,7 +88,8 @@
                             <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                                 <div class="concept-info-grid">
 
-                                    <h:panelGroup id="serieDescUpdatePanel" class="concept-info-item concept-info-item-full">
+                                    <h:panelGroup id="serieDescUpdatePanel" class="concept-info-item concept-info-item-full"
+                                                  rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                         <div class="concept-info-label">
                                             <i class="pi pi-file concept-info-icon" />
                                             <span>Description</span>
@@ -120,7 +121,8 @@
                                         </div>
                                     </h:panelGroup>
 
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periode)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-info-circle concept-info-icon" />
                                             <span>Période</span>
@@ -147,9 +149,10 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
 
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.tpq)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-calendar-minus concept-info-icon" />
                                             <span>TPQ</span>
@@ -162,9 +165,10 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
 
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.taq)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-calendar-plus concept-info-icon" />
                                             <span>TAQ</span>
@@ -177,9 +181,9 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
 
-                                    <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo()}"
+                                    <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.appellation)}"
                                                   class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
                                             <i class="pi pi-tag concept-info-icon" />

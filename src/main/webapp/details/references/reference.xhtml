@@ -113,7 +113,8 @@
                     <!-- Vue lecture -->
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                         <div class="concept-info-grid">
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-file concept-info-icon" />
                                     <span>Description</span>
@@ -145,7 +146,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periode)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-file concept-info-icon" />
                                     <span>Période</span>
@@ -174,7 +176,9 @@
                                 </div>
                             </h:panelGroup>
 
-                            <div class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.getReferenceBibliographique())}"
+                                          layout="block">
                                 <div class="concept-info-label">
                                     <i class="pi pi-book concept-info-icon" />
                                     <span>Référence bibliographique</span>
@@ -193,9 +197,10 @@
                                                  rendered="#{empty applicationBean.selectedEntity.getReferenceBibliographique()}"
                                                  styleClass="bibliographie-empty" />
                                 </div>
-                            </div>
+                            </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(referenceBean.getReferenceGestionnairesDisplayNames(applicationBean.selectedEntity))}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-users concept-info-icon" />
                                     <span>Gestionnaires du référentiel</span>
@@ -214,7 +219,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteurs)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-user concept-info-icon" />
                                     <span>Auteur(s)</span>

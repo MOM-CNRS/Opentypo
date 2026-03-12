@@ -3,6 +3,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
+    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}" layout="block">
     <div class="row mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
         <div class="col-md-12">
             <div class="concept-info-panel">
@@ -14,7 +15,8 @@
                 </div>
 
                 <div class="concept-info-grid">
-                    <div class="concept-info-item concept-info-item-full">
+                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
+                                  styleClass="concept-info-item concept-info-item-full" layout="block">
                         <div class="concept-info-label">
                             <i class="pi pi-check-circle monnaie-communs-icon" />
                             <span>Attestations</span>
@@ -33,9 +35,10 @@
                                           rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
                                           styleClass="bibliographie-empty"/>
                         </div>
-                    </div>
+                    </h:panelGroup>
                 </div>
             </div>
         </div>
     </div>
+    </h:panelGroup>
 </ui:composition>

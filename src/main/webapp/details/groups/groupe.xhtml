@@ -103,7 +103,9 @@
                             </div>
 
                             <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                                <div class="concept-info-item concept-info-item-full">
+                                <h:panelGroup class="concept-info-item concept-info-item-full"
+                                              rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}"
+                                              layout="block">
                                     <div class="concept-info-label">
                                         <i class="pi pi-file concept-info-icon" />
                                         <span>Description</span>
@@ -133,10 +135,11 @@
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>
-                                </div>
+                                </h:panelGroup>
 
                                 <div class="concept-info-grid">
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periode)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-info-circle concept-info-icon" />
                                             <span>Période</span>
@@ -163,9 +166,10 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
 
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.tpq)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-calendar-minus concept-info-icon" />
                                             <span>TPQ</span>
@@ -178,9 +182,10 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
 
-                                    <div class="concept-info-item">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.taq)}"
+                                                  styleClass="concept-info-item" layout="block">
                                         <div class="concept-info-label">
                                             <i class="pi pi-calendar-plus concept-info-icon" />
                                             <span>TAQ</span>
@@ -193,10 +198,10 @@
                                                 <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
                                         </div>
-                                    </div>
+                                    </h:panelGroup>
                                 </div>
 
-                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.alignementExterne)}">
                                     <div class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
                                             <i class="pi pi-link concept-info-icon" />
@@ -239,21 +244,21 @@
                         <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                             <ui:include src="../communs/production.xhtml"/>
 
+                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                                <ui:include src="../communs/description.xhtml"/>
+                            </h:panelGroup>
+
                             <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
                                 <ui:include src="../communs/description_monnaie.xhtml"/>
                                 <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                             </h:panelGroup>
 
-                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
-                                <ui:include src="../communs/description.xhtml"/>
+                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                                <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                            </h:panelGroup>
 
-                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
-                                </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                             </h:panelGroup>
 
                             <ui:include src="../communs/commentaire.xhtml"/>

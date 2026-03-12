@@ -3,6 +3,7 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
+    <h:panelGroup rendered="#{applicationBean.showDotationBlock()}" layout="block">
     <div class="row mt-20 details-row-mt-15 monnaie-communs-section">
         <div class="col-md-12">
             <div class="concept-info-panel">
@@ -88,4 +89,5 @@
             </div>
         </div>
     </div>
+    </h:panelGroup>
 </ui:composition>

@@ -1961,6 +1961,116 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Indique si un champ doit être affiché.
+     * Si statut = PROPOSITION : toujours afficher (même vide).
+     * Sinon : afficher uniquement si le champ a une valeur.
+     */
+    public boolean showFieldWithValue(Object value) {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (value == null) return false;
+        if (value instanceof String s) return !s.trim().isEmpty();
+        if (value instanceof java.util.Collection<?> c) return !c.isEmpty();
+        return true;
+    }
+
+    /**
+     * Indique si un bloc doit être affiché (au moins un champ avec valeur, ou statut PROPOSITION).
+     */
+    private boolean hasAnyValue(Object v) {
+        if (v == null) return false;
+        if (v instanceof String s) return !s.trim().isEmpty();
+        if (v instanceof java.util.Collection<?> c) return !c.isEmpty();
+        return true;
+    }
+
+    /** Bloc Gestion : référence, typologique, identifiant, ancienne version */
+    public boolean showGestionBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var m = selectedEntity.getMetadata();
+        return hasAnyValue(m != null ? m.getReference() : null) || hasAnyValue(selectedEntity.getTypologieScientifique())
+                || hasAnyValue(selectedEntity.getIdentifiantPerenne()) || hasAnyValue(selectedEntity.getAncienneVersion());
+    }
+
+    /** Bloc Caractéristiques physiques (céramique) */
+    public boolean showCaracteristiquesPhysiqueBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var cp = selectedEntity.getCaracteristiquePhysique();
+        var dp = selectedEntity.getDescriptionPate();
+        return hasAnyValue(cp != null ? cp.getMetrologie() : null) || hasAnyValue(cp != null ? cp.getFabrication() : null)
+                || hasAnyValue(dp != null ? dp.getDescription() : null) || hasAnyValue(dp != null ? dp.getCouleur() : null)
+                || hasAnyValue(dp != null ? dp.getNature() : null) || hasAnyValue(dp != null ? dp.getInclusion() : null)
+                || hasAnyValue(dp != null ? dp.getCuisson() : null);
+    }
+
+    /** Bloc Caractéristiques physiques monnaie */
+    public boolean showCaracteristiquesPhysiqueMonnaieBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var cpm = selectedEntity.getCaracteristiquePhysiqueMonnaie();
+        if (cpm == null) return false;
+        return hasAnyValue(cpm.getMateriaux()) || hasAnyValue(cpm.getDenomination()) || hasAnyValue(cpm.getMetrologie())
+                || hasAnyValue(cpm.getValeur()) || hasAnyValue(cpm.getTechnique()) || hasAnyValue(cpm.getFabrication());
+    }
+
+    /** Bloc Caractéristiques physiques instrumentum */
+    public boolean showCaracteristiquesPhysiqueInstrumentumBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var cp = selectedEntity.getCaracteristiquePhysique();
+        if (cp == null) return false;
+        return hasAnyValue(cp.getMateriaux()) || hasAnyValue(cp.getForme()) || hasAnyValue(cp.getDimensions())
+                || hasAnyValue(cp.getTechnique()) || hasAnyValue(cp.getFabrication());
+    }
+
+    /** Bloc Description (décors, marques, fonction, catégorie fonctionnelle) */
+    public boolean showDescriptionBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var dd = selectedEntity.getDescriptionDetail();
+        return hasAnyValue(dd != null ? dd.getDecors() : null) || hasAnyValue(dd != null ? dd.getMarques() : null)
+                || hasAnyValue(dd != null ? dd.getFonction() : null) || hasAnyValue(selectedEntity.getCategorieFonctionnelle());
+    }
+
+    /** Bloc Production */
+    public boolean showProductionBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var m = selectedEntity.getMetadata();
+        return hasAnyValue(selectedEntity.getProduction()) || hasAnyValue(m != null ? m.getAteliers() : null)
+                || hasAnyValue(selectedEntity.getAiresCirculation());
+    }
+
+    /** Bloc Description monnaie */
+    public boolean showDescriptionMonnaieBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var dm = selectedEntity.getDescriptionMonnaie();
+        if (dm == null) return false;
+        return hasAnyValue(dm.getDroit()) || hasAnyValue(dm.getLegendeDroit()) || hasAnyValue(dm.getCoinsMonetairesDroit())
+                || hasAnyValue(dm.getRevers()) || hasAnyValue(dm.getLegendeRevers()) || hasAnyValue(dm.getCoinsMonetairesRevers());
+    }
+
+    /** Bloc Dotation (période, TPQ, TAQ, commentaire datation) */
+    public boolean showDotationBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        return hasAnyValue(selectedEntity.getPeriode()) || hasAnyValue(selectedEntity.getTpq())
+                || hasAnyValue(selectedEntity.getTaq()) || hasAnyValue(selectedEntity.getCommentaireDatation());
+    }
+
+    /** Bloc Alignements (appartient, associe, alignement externe) */
+    public boolean showAlignementsBlock() {
+        if (selectedEntity == null) return false;
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        var m = selectedEntity.getMetadata();
+        return hasAnyValue(m != null ? m.getAppartient() : null) || hasAnyValue(m != null ? m.getAssocie() : null)
+                || hasAnyValue(m != null ? m.getAlignementExterne() : null);
+    }
+
+    /**
      * Indique si l'utilisateur connecté peut publier ou refuser une proposition (groupe).
      * Visible si : administrateur technique, gestionnaire de la collection, validateur du groupe,
      * ou gestionnaire de la référence contenant le groupe.

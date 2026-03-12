@@ -92,7 +92,8 @@
                     <!-- Vue lecture -->
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
                         <div class="concept-info-grid">
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-file concept-info-icon" />
                                     <span>Description</span>
@@ -124,7 +125,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-comment concept-info-icon" />
                                     <span>Commentaire</span>
@@ -139,7 +141,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-book concept-info-icon" />
                                     <span>Bibliographie</span>
@@ -160,7 +163,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full">
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteurs)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-user concept-info-icon" />
                                     <span>Auteur(s)</span>
