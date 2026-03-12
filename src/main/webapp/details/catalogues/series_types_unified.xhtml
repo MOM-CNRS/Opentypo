@@ -77,7 +77,7 @@
                         <!-- Grille paginée des séries, chacune avec carousel de types -->
                         <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
                             <article class="series-types-serie-card"
-                                     style="margin-left: 20px; margin-right: 20px;">
+                                     style="margin-left: 20px; margin-right: 20px; margin-top: 15px">
                                 <header class="series-types-serie-header">
                                     <p:commandLink action="#{applicationBean.showSerie(swt.serie())}"
                                                    styleClass="series-types-serie-link"
@@ -265,7 +265,7 @@
                     </div>
 
                     <h:panelGroup id="categoriesContent">
-                        <div class="reference-categories-grid">
+                        <div class="reference-categories-grid" style="background-color: transparent !important; border-color: transparent !important;">
                             <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
                                 <p:commandLink action="#{applicationBean.showType(type)}"
                                                styleClass="typologie-card"

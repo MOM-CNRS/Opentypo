@@ -229,8 +229,22 @@
     gap: 1.25rem !important;
     width: 100% !important;
     align-items: stretch !important;
-    padding-left: 20px;
-    padding-right: 20px;
+    border: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 10px !important;
+    padding: 1rem 1.25rem !important;
+    background: rgba(71, 98, 77, 0.02) !important;
+}
+
+.reference-categories-section .reference-categories-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)) !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    border: 1px solid rgba(71, 98, 77, 0.12) !important;
+    border-radius: 10px !important;
+    padding: 1rem 1.25rem !important;
+    background: rgba(71, 98, 77, 0.02) !important;
 }
 
 /* Cartes */
