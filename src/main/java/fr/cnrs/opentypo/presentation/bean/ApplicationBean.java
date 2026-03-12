@@ -1463,6 +1463,12 @@ public class ApplicationBean implements Serializable {
                 .orElse("Non renseigné");
     }
 
+    private static final int DESCRIPTION_MAX_CHARS = 400;
+
+    public int getDescriptionMaxChars() {
+        return DESCRIPTION_MAX_CHARS;
+    }
+
     public String getEntityDescription(Entity entitySelected) {
 
         String codeLang = searchBean.getLangSelected();
@@ -1471,6 +1477,32 @@ public class ApplicationBean implements Serializable {
                 .findFirst()
                 .map(Description::getValeur)
                 .orElse(null);
+    }
+
+    /**
+     * Texte brut de la description (sans balises HTML) pour le comptage des caractères.
+     */
+    public String getEntityDescriptionPlainText(Entity entitySelected) {
+        String html = getEntityDescription(entitySelected);
+        if (html == null || html.isEmpty()) return "";
+        String withoutTags = html.replaceAll("<[^>]+>", " ");
+        return withoutTags.replaceAll("\\s+", " ").trim();
+    }
+
+    /**
+     * Indique si la description dépasse la limite de caractères.
+     */
+    public boolean isEntityDescriptionLong(Entity entitySelected, int maxChars) {
+        return getEntityDescriptionPlainText(entitySelected).length() > maxChars;
+    }
+
+    /**
+     * Description tronquée à maxChars caractères (texte brut).
+     */
+    public String getEntityDescriptionTruncated(Entity entitySelected, int maxChars) {
+        String plain = getEntityDescriptionPlainText(entitySelected);
+        if (plain.length() <= maxChars) return plain;
+        return plain.substring(0, maxChars) + "...";
     }
 
     public boolean showCommentaireBloc() {

@@ -99,7 +99,24 @@
                                 </div>
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                        <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                            <div class="concept-info-description-wrapper concept-info-description-char-based">
+                                                <div class="concept-info-description-truncated" data-description-truncated="true">
+                                                    <h:outputText value="#{applicationBean.getEntityDescriptionTruncated(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}" escape="true"/>
+                                                </div>
+                                                <div class="concept-info-description-full" data-description-full="true">
+                                                    <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                                </div>
+                                                <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
+                                                    Afficher la suite
+                                                </button>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{!applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                            <div class="concept-info-description-content concept-info-description-expanded">
+                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                            </div>
+                                        </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                         <span class="empty-field-message">Non renseigné</span>

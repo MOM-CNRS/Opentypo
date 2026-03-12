@@ -248,6 +248,102 @@
     opacity: 0.8;
 }
 
+/* ---- Description avec "afficher la suite" ---- */
+.groupe-detail-page .concept-info-description-wrapper {
+    position: relative;
+}
+
+.groupe-detail-page .concept-info-description-char-based .concept-info-description-truncated {
+    position: relative;
+}
+.groupe-detail-page .concept-info-description-char-based .concept-info-description-truncated::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2.5em;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95), transparent);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.groupe-detail-page .concept-info-description-char-based .concept-info-description-full {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.groupe-detail-page .concept-info-description-char-based.concept-info-description-expanded .concept-info-description-truncated {
+    display: none;
+}
+.groupe-detail-page .concept-info-description-char-based.concept-info-description-expanded .concept-info-description-truncated::after {
+    opacity: 0;
+}
+.groupe-detail-page .concept-info-description-char-based.concept-info-description-expanded .concept-info-description-full {
+    max-height: 2000px;
+    opacity: 1;
+}
+
+.groupe-detail-page .concept-info-description-content {
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.groupe-detail-page .concept-info-description-content.concept-info-description-truncated {
+    max-height: 10em;
+    position: relative;
+}
+
+.groupe-detail-page .concept-info-description-content.concept-info-description-truncated::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2.5em;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95), transparent);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.groupe-detail-page .concept-info-description-content.concept-info-description-expanded {
+    max-height: 2000px;
+}
+
+.groupe-detail-page .concept-info-description-content.concept-info-description-expanded::after {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.groupe-detail-page .concept-info-description-toggle {
+    display: inline;
+    margin-top: 0.35rem;
+    padding: 0.25rem 0;
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gp-main);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
+}
+
+.groupe-detail-page .concept-info-description-toggle:hover {
+    color: rgba(var(--gp-main-rgb), 0.85);
+    transform: translateX(2px);
+}
+
+.groupe-detail-page .concept-info-description-toggle:active {
+    opacity: 0.8;
+}
+
+.groupe-detail-page .concept-info-description-toggle:focus {
+    outline: 2px solid var(--gp-main);
+    outline-offset: 2px;
+}
+
 /* ---- Cartes séries (reference-card) et types (typologie-card) ---- */
 .groupe-detail-page .reference-cards-container {
     padding: 1.25rem;

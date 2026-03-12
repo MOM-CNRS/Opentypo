@@ -76,7 +76,7 @@
                                 update=":contentPanels"
                                 ajax="true"
                                 onstart="if(typeof showPanelLoading === 'function') showPanelLoading('contentPanelsWrapper', 'Chargement...', 'spinner');"
-                                oncomplete="setTimeout(function(){ if(typeof hidePanelLoading === 'function') hidePanelLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); }, 250);"
+                                oncomplete="setTimeout(function(){ if(typeof hidePanelLoading === 'function') hidePanelLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof initDescriptionExpand === 'function') { initDescriptionExpand(); setTimeout(initDescriptionExpand, 300); } }, 250);"
                                 onerror="if(typeof hidePanelLoading === 'function') hidePanelLoading();"/>
             </h:form>
             <!-- Fragment pour injection des enfants (hors form pour résolution correcte par update) -->
