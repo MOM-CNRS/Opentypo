@@ -244,29 +244,61 @@ public class OpenThesoDialogBean implements Serializable {
                 collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
     }
 
+    /**
+     * Recherche dans OpenTheso pour l'autocomplete (période, production, etc.).
+     * Utilise le paramétrage du groupe si l'entité est un groupe/série/type, sinon celui de la référence
+     * (pour référence et catégorie).
+     */
     public List<PactolsConcept> searchInOpenTheso(String query) {
-
-        Optional<Entity> groupeParent = groupService.findGroupByEntityId(applicationBean.getSelectedEntity().getId());
-        if (groupeParent.isPresent()) {
-            Optional<Parametrage> parametrage = parametrageRepository.findByEntityId(groupeParent.get().getId());
-            if (parametrage.isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
-                                "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
-                PrimeFaces.current().ajax().update(":growl");
-                return new ArrayList<>();
-            }
-
-            String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
-            if (term.isEmpty()) {
-                return new ArrayList<>();
-            }
-
-            return pactolsService.searchConcepts(parametrage.get().getIdTheso(), term, parametrage.get().getIdLangue(),
-                    parametrage.get().getIdGroupe());
+        if (applicationBean == null || applicationBean.getSelectedEntity() == null
+                || applicationBean.getSelectedEntity().getId() == null) {
+            return new ArrayList<>();
         }
 
-        return new ArrayList<>();
+        Entity selectedEntity = applicationBean.getSelectedEntity();
+        Long parametrageEntityId = null;
+
+        Optional<Entity> groupeOpt = groupService.findGroupByEntityId(selectedEntity.getId());
+        if (groupeOpt.isPresent()) {
+            parametrageEntityId = groupeOpt.get().getId();
+        } else {
+            Entity reference = applicationBean.getSelectedReference();
+            if (reference != null && reference.getId() != null) {
+                parametrageEntityId = reference.getId();
+            }
+        }
+
+        if (parametrageEntityId == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
+                            "Le gestionnaire du référentiel doit paramétrer la connexion avec OpenTheso pour permettre la recherche dans le thésaurus."));
+            PrimeFaces.current().ajax().update(":growl");
+            return new ArrayList<>();
+        }
+
+        Optional<Parametrage> parametrageOpt = parametrageRepository.findByEntityId(parametrageEntityId);
+        if (parametrageOpt.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
+                            "Le gestionnaire du référentiel doit paramétrer la connexion avec OpenTheso pour permettre la recherche dans le thésaurus."));
+            PrimeFaces.current().ajax().update(":growl");
+            return new ArrayList<>();
+        }
+
+        Parametrage parametrage = parametrageOpt.get();
+        if (parametrage.getIdTheso() == null || parametrage.getIdTheso().isBlank()
+                || parametrage.getIdLangue() == null || parametrage.getIdLangue().isBlank()
+                || parametrage.getIdGroupe() == null || parametrage.getIdGroupe().isBlank()) {
+            return new ArrayList<>();
+        }
+
+        String term = (query != null && !query.trim().isEmpty()) ? query.trim() : "";
+        if (term.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return pactolsService.searchConcepts(parametrage.getIdTheso(), term,
+                parametrage.getIdLangue(), parametrage.getIdGroupe());
     }
 
     private void ensurePeriodeThesaurusLoaded(CandidatBean cb) {

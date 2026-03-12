@@ -685,3 +685,33 @@
     border-radius: 8px !important;
     font-size: 0.9375rem !important;
 }
+
+/* ---- Période sans lien OpenTheso - design moderne ---- */
+.collection-page-wrapper .concept-info-value .concept-value-no-link.concept-value-no-link-styled {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.4rem 0.85rem !important;
+    background: linear-gradient(135deg, rgba(219, 103, 15, 0.1) 0%, rgba(219, 103, 15, 0.05) 100%) !important;
+    border: 1px solid rgba(219, 103, 15, 0.25) !important;
+    border-radius: 12px !important;
+    color: #c45a0a !important;
+    font-weight: 500 !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.collection-page-wrapper .concept-info-value .concept-value-no-link.concept-value-no-link-styled:hover {
+    background: linear-gradient(135deg, rgba(219, 103, 15, 0.14) 0%, rgba(219, 103, 15, 0.08) 100%) !important;
+    border-color: rgba(219, 103, 15, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(219, 103, 15, 0.12) !important;
+}
+
+.collection-page-wrapper .concept-info-value .concept-value-no-link.concept-value-no-link-styled .concept-value-no-link-icon {
+    font-size: 0.875rem !important;
+    opacity: 0.9 !important;
+}
+
+.collection-page-wrapper .concept-info-value .concept-value-no-link.concept-value-no-link-styled .concept-value-no-link-text {
+    font-weight: 500 !important;
+}

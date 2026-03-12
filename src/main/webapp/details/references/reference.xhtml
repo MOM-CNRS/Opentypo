@@ -158,35 +158,37 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup class="concept-info-item concept-info-item-full"
-                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periode)}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-file concept-info-icon" />
-                                    <span>Période</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
-                                            <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
-                                                          target="_blank"
-                                                          rel="noopener noreferrer"
-                                                          styleClass="concept-value-external-link">
-                                                #{applicationBean.selectedEntity.periode.valeur}
-                                                <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                            </h:outputLink>
+                            <div class="concept-info-grid">
+                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periode)}"
+                                              styleClass="concept-info-item" layout="block">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-info-circle concept-info-icon" />
+                                        <span>Période</span>
+                                    </div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode}">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periode.url}">
+                                                <h:outputLink value="#{applicationBean.selectedEntity.periode.url}"
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              styleClass="concept-value-external-link">
+                                                    #{applicationBean.selectedEntity.periode.valeur}
+                                                    <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                </h:outputLink>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
+                                                <span class="concept-value-no-link concept-value-no-link-styled" title="Aucun lien OpenTheso">
+                                                    <i class="pi pi-link-slash concept-value-no-link-icon"/>
+                                                    <span class="concept-value-no-link-text">#{applicationBean.selectedEntity.periode.valeur}</span>
+                                                </span>
+                                            </ui:fragment>
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode.url}">
-                                            <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                <i class="pi pi-link-slash"/>
-                                                #{applicationBean.selectedEntity.periode.valeur}
-                                            </span>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
+                                            <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.periode}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
 
                             <h:panelGroup class="concept-info-item concept-info-item-full"
                                           rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.getReferenceBibliographique())}"
