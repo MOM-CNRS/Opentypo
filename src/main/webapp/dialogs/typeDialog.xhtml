@@ -23,6 +23,7 @@
                            action="#{typeBean.resetTypeDialogForm}"
                            update="@form"
                            process="@this"/>
+
             <div class="reference-form-content">
                 <!-- Code uniquement -->
                 <div class="reference-form-group reference-form-section">
@@ -30,12 +31,9 @@
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code du type</span>
                     </div>
-                    <p:inputText id="typeCode"
-                               value="#{typeBean.typeDialogCode}"
-                               required="true"
-                               requiredMessage="Le code du type est requis"
-                               styleClass="reference-input"
-                               placeholder="Ex: TYP001"/>
+                    <div class="collection-select">
+                        <p:inputText value="#{typeBean.typeDialogCode}" styleClass="reference-input" placeholder="Ex: TYP001"/>
+                    </div>
                 </div>
             </div>
 
@@ -51,8 +49,7 @@
                                styleClass="reference-btn reference-btn-validate"
                                action="#{typeBean.createTypeFromDialog}"
                                process="@form" ajax="true"
-                               update="@form :growl :centerContent"
-                               oncomplete="if(!args.validationFailed) {PF('typeDialog').hide();}"/>
+                               update=":growl :typeDialogForm"/>
             </div>
         </h:form>
     </p:dialog>

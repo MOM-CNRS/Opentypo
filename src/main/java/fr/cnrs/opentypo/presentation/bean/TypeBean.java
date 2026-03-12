@@ -6,9 +6,7 @@ import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
-import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
-import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -22,10 +20,10 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import io.micrometer.common.util.StringUtils;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import lombok.Getter;
@@ -49,28 +47,28 @@ import java.util.Optional;
 @Slf4j
 public class TypeBean implements Serializable {
 
-    @Inject
+    @Autowired
     private EntityRepository entityRepository;
 
-    @Inject
+    @Autowired
     private EntityTypeRepository entityTypeRepository;
 
-    @Inject
+    @Autowired
     private LoginBean loginBean;
 
-    @Inject
+    @Autowired
     private Provider<TreeBean> treeBeanProvider;
     
-    @Inject
+    @Autowired
     private Provider<ApplicationBean> applicationBeanProvider;
 
-    @Inject
+    @Autowired
     private EntityRelationRepository entityRelationRepository;
 
-    @Inject
+    @Autowired
     private LangueRepository langueRepository;
 
-    @Inject
+    @Autowired
     private SearchBean searchBean;
 
     @Autowired
@@ -79,10 +77,10 @@ public class TypeBean implements Serializable {
     @Autowired
     private CandidatReferenceTreeService candidatReferenceTreeService;
 
-    @Inject
+    @Autowired
     private CandidatBean candidatBean;
 
-    @Inject
+    @Autowired
     private EntityEditModeBean entityEditModeBean;
 
     @Autowired
@@ -91,11 +89,7 @@ public class TypeBean implements Serializable {
     private String typeCode;
     private String typeLabel;
     private String typeDescription;
-
-    // Propriétés pour le dialog de création (code uniquement)
-    private static final String TYPE_DIALOG_FORM = ":typeDialogForm";
     private String typeDialogCode;
-
     private boolean editingType = false;
     private String editingTypeCode;
     private String editingLabelLangueCode;
@@ -127,23 +121,29 @@ public class TypeBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ApplicationBean applicationBean = applicationBeanProvider.get();
 
-        // Parent = groupe ou série sélectionné (celui dont on affiche les types)
         Entity parent = null;
-        if (applicationBean != null && applicationBean.getSelectedEntity() != null
+        if (applicationBean.getSelectedEntity() != null
                 && applicationBean.getSelectedEntity().getEntityType() != null) {
             String typeCode = applicationBean.getSelectedEntity().getEntityType().getCode();
             if (EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode) || EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)) {
                 parent = applicationBean.getSelectedEntity();
             }
         }
-        if (parent == null && applicationBean != null) {
+        if (parent == null) {
             parent = applicationBean.getSelectedGroup();
         }
 
-        if (applicationBean == null || parent == null) {
+        if (parent == null) {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Aucun groupe ou série n'est sélectionné. Veuillez sélectionner un groupe ou une série avant de créer un type."));
-            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        if (StringUtils.isEmpty(typeDialogCode)) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Le code du type ne doit pas être vide."));
+            PrimeFaces.current().ajax().update(":growl");
             return;
         }
 
@@ -193,16 +193,16 @@ public class TypeBean implements Serializable {
 
             resetTypeDialogForm();
             PrimeFaces.current().executeScript("PF('typeDialog').hide();");
-            PrimeFaces.current().ajax().update(":growl, " + TYPE_DIALOG_FORM + ", :typesContent, :centerContent");
+            PrimeFaces.current().ajax().update(":growl, :typeDialogForm, :typesContent, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du type", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
-            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":typeDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du type", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
                     "Une erreur est survenue lors de la création du type : " + e.getMessage()));
-            PrimeFaces.current().ajax().update(TYPE_DIALOG_FORM + ", :growl");
+            PrimeFaces.current().ajax().update(":typeDialogForm, :growl");
         }
     }
 
@@ -300,16 +300,6 @@ public class TypeBean implements Serializable {
                             "Une erreur est survenue lors de la création du type : " + e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
         }
-    }
-
-    /** Active le mode édition in-place pour le type sélectionné (comme GroupBean.startEditingGroupe). */
-    public void startEditingType(ApplicationBean applicationBean) {
-        if (applicationBean == null || applicationBean.getSelectedEntity() == null) return;
-        Entity entity = applicationBean.getSelectedEntity();
-        if (entity.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode())) return;
-        Candidat candidat = new CandidatConverter().convertEntityToCandidat(entity);
-        candidatBean.visualiserCandidat(candidat);
-        entityEditModeBean.startEditing();
     }
 
     /** Annule le mode édition et rafraîchit l'entité (utilisé par modifier Retour). */
@@ -453,9 +443,9 @@ public class TypeBean implements Serializable {
             applicationBean.deleteEntityRecursively(type);
 
             applicationBean.setSelectedEntity(parentSerie);
-            applicationBean.setChilds(parentSerie != null ? new ArrayList<>() : new ArrayList<>());
-            if (applicationBean.getBeadCrumbElements().size() > 0) {
-                applicationBean.getBeadCrumbElements().remove(applicationBean.getBeadCrumbElements().size() - 1);
+            applicationBean.setChilds(new ArrayList<>());
+            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
+                applicationBean.getBeadCrumbElements().removeLast();
             }
             if (parentSerie != null) {
                 applicationBean.refreshChilds();
@@ -590,11 +580,8 @@ public class TypeBean implements Serializable {
             return true;
         }
         Entity group = applicationBean.getSelectedGroup();
-        if (group != null && group.getId() != null
+        return group != null && group.getId() != null
                 && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(),
-                PermissionRoleEnum.VALIDEUR.getLabel())) {
-            return true;
-        }
-        return false;
+                PermissionRoleEnum.VALIDEUR.getLabel());
     }
 }
