@@ -601,13 +601,15 @@ function scrollElementToTop(element, duration) {
 
 // Scroll vers le haut : fenêtre + conteneurs internes avec effet dépilement (non instantané)
 function scrollToTopAll() {
-    scrollElementToTop(window, 1500);
+    scrollElementToTop(window, 300);
     document.querySelectorAll('.info-concept, [id$="contentPanels"], [id$="cardsContainer"]').forEach(function(el) {
         if (el && el.scrollTop > 0) {
-            scrollElementToTop(el, 1200);
+            scrollElementToTop(el, 550);
         }
     });
 }
+window.scrollToTopAll = scrollToTopAll;
+window.scrollToTopOfPage = scrollToTopAll;
 
 // Délégation : clic sur scrollTop -> scrollToTopAll
 document.addEventListener('DOMContentLoaded', function() {

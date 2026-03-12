@@ -1248,6 +1248,33 @@
     border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
 }
 
+/* Wrapper : réserve l'espace quand la barre est fixée (évite que le contenu soit masqué) */
+.modifier-actions-wrapper.modifier-actions-sticky {
+    min-height: 70px;
+}
+
+/* Barre d'actions fixée en bas du viewport quand le contenu dépasse l'écran */
+.collection-modifier-actions.modifier-actions-sticky {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    background: #ffffff !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12) !important;
+    padding: 1rem 1.5rem !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 1rem !important;
+    border-top: 2px solid rgba(71, 98, 77, 0.12) !important;
+}
+
+@media (min-width: 992px) {
+    .collection-modifier-actions.modifier-actions-sticky {
+        padding: 1rem 2rem !important;
+    }
+}
+
 .collection-modifier-btn-back {
     padding: 0.625rem 1.25rem !important;
     font-size: 0.9375rem !important;
