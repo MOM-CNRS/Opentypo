@@ -19,11 +19,21 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
 
     /**
      * Trouve toutes les permissions d'un utilisateur
-     * 
+     *
      * @param utilisateur L'utilisateur
      * @return Liste des permissions de l'utilisateur
      */
     List<UserPermission> findByUtilisateur(Utilisateur utilisateur);
+
+    /**
+     * Trouve toutes les permissions d'un utilisateur avec entité, type et labels chargés (pour affichage profil).
+     */
+    @Query("SELECT DISTINCT up FROM UserPermission up " +
+           "JOIN FETCH up.entity e " +
+           "LEFT JOIN FETCH e.entityType " +
+           "LEFT JOIN FETCH e.labels " +
+           "WHERE up.utilisateur = :utilisateur")
+    List<UserPermission> findByUtilisateurWithEntityAndLabels(@Param("utilisateur") Utilisateur utilisateur);
 
     /**
      * Trouve les IDs des utilisateurs ayant un rôle donné sur une entité

@@ -1,8 +1,14 @@
 package fr.cnrs.opentypo.presentation.bean.profile;
 
+import fr.cnrs.opentypo.application.dto.UserPermissionItem;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
+import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
+import fr.cnrs.opentypo.presentation.bean.ApplicationBean;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
 import jakarta.annotation.PostConstruct;
@@ -15,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,6 +47,12 @@ public class ProfileBean implements Serializable {
 
     @Inject
     private NotificationBean notificationBean;
+
+    @Inject
+    private UserPermissionRepository userPermissionRepository;
+
+    @Inject
+    private ApplicationBean applicationBean;
 
     private String prenom;
     private String nom;
@@ -153,5 +168,46 @@ public class ProfileBean implements Serializable {
 
         notificationBean.showSuccessWithUpdate("Succès", "Votre profil a été mis à jour.", ":growl, :profileForm");
         PrimeFaces.current().ajax().update(":profileForm");
+    }
+
+    /**
+     * Retourne la liste des entités auxquelles l'utilisateur est rattaché (gestionnaire, rédacteur, validateur, relecteur...).
+     */
+    public List<UserPermissionItem> getProfilePermissions() {
+        Utilisateur current = loginBean.getCurrentUser();
+        if (current == null) {
+            return List.of();
+        }
+        List<UserPermission> permissions = userPermissionRepository.findByUtilisateurWithEntityAndLabels(current);
+        if (permissions == null || permissions.isEmpty()) {
+            return List.of();
+        }
+        List<UserPermissionItem> items = new ArrayList<>();
+        for (UserPermission up : permissions) {
+            Entity entity = up.getEntity();
+            if (entity == null) continue;
+            String entityTypeLabel = getEntityTypeLabel(entity.getEntityType() != null ? entity.getEntityType().getCode() : null);
+            String entityLabel = applicationBean.getEntityLabel(entity);
+            String entityCode = entity.getCode() != null ? entity.getCode() : "";
+            String role = up.getRole() != null ? up.getRole() : "";
+            items.add(new UserPermissionItem(entityTypeLabel, entityLabel, entityCode, role, entity.getId()));
+        }
+        items.sort(Comparator
+                .comparing(UserPermissionItem::getEntityTypeLabel)
+                .thenComparing(UserPermissionItem::getEntityLabel, Comparator.nullsFirst(String::compareToIgnoreCase)));
+        return items;
+    }
+
+    private static String getEntityTypeLabel(String typeCode) {
+        if (typeCode == null) return "Entité";
+        return switch (typeCode) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
+            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
+            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
+            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
+            default -> typeCode;
+        };
     }
 }

@@ -6,19 +6,21 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
-        <div class="users-container">
-            <div class="users-header">
-                <div class="users-header-content">
-                    <div>
-                        <h1 class="users-title">
-                            <i class="pi pi-user users-title-icon"/> Mon profil
-                        </h1>
-                        <p class="users-subtitle">Modifiez vos informations personnelles</p>
-                    </div>
+        <h:outputStylesheet library="css" name="profile/myAccount.css"/>
+        <div class="profile-page">
+            <!-- En-tête -->
+            <div class="profile-header">
+                <div class="profile-title-section">
+                    <h1 class="profile-title">
+                        <i class="pi pi-user profile-title-icon"/> Mon profil
+                    </h1>
+                    <p class="profile-subtitle">Modifiez vos informations personnelles</p>
+                </div>
+                <div class="profile-actions">
                     <h:form>
                         <p:commandButton value="Retour à l'accueil"
                                        icon="pi pi-arrow-left"
-                                       styleClass="users-create-button"
+                                       styleClass="profile-btn-back"
                                        action="/index.xhtml?faces-redirect=true"
                                        process="@this"
                                        update="@none"/>
@@ -26,75 +28,103 @@
                 </div>
             </div>
 
-            <div class="users-content">
-                <h:form id="profileForm">
-                    <p:panel header="Informations personnelles" styleClass="users-form-panel">
-                        <div class="users-form-grid">
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="email" value="Email"/>
-                                <p:inputText id="email"
-                                           value="#{profileBean.email}"
-                                           required="true"
-                                           requiredMessage="L'email est obligatoire"
-                                           styleClass="users-input"
-                                           placeholder="votre@email.com"
-                                           maxlength="255"/>
-                                <p:message for="email" display="icon"/>
-                            </div>
-
-                            <div class="users-form-group">
-                                <p:outputLabel for="prenom" value="Prénom"/>
-                                <p:inputText id="prenom"
-                                           value="#{profileBean.prenom}"
-                                           required="true"
-                                           requiredMessage="Le prénom est obligatoire"
-                                           styleClass="users-input"
-                                           placeholder="Prénom"
-                                           maxlength="100"/>
-                                <p:message for="prenom" display="icon"/>
-                            </div>
-
-                            <div class="users-form-group">
-                                <p:outputLabel for="nom" value="Nom"/>
-                                <p:inputText id="nom"
-                                           value="#{profileBean.nom}"
-                                           required="true"
-                                           requiredMessage="Le nom est obligatoire"
-                                           styleClass="users-input"
-                                           placeholder="Nom"
-                                           maxlength="100"/>
-                                <p:message for="nom" display="icon"/>
-                            </div>
-
-                            <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="nouveauMotDePasse" value="Nouveau mot de passe (laisser vide pour ne pas modifier)"/>
-                                <p:password id="nouveauMotDePasse"
-                                           value="#{profileBean.nouveauMotDePasse}"
-                                           feedback="false"
-                                           styleClass="users-input"
-                                           placeholder="Nouveau mot de passe"
-                                           maxlength="255"/>
-                                <p:message for="nouveauMotDePasse" display="icon"/>
-                                <p:tooltip for="nouveauMotDePasse" value="Minimum 6 caractères" position="right"/>
-                            </div>
+            <!-- Formulaire -->
+            <h:form id="profileForm">
+                <p:panel header="Informations personnelles" styleClass="profile-form-card">
+                    <div class="profile-form-grid">
+                        <div class="profile-form-group profile-form-group-full">
+                            <p:outputLabel for="email" value="Email"/>
+                            <p:inputText id="email"
+                                       value="#{profileBean.email}"
+                                       required="true"
+                                       requiredMessage="L'email est obligatoire"
+                                       styleClass="users-input"
+                                       placeholder="votre@email.com"
+                                       maxlength="255"/>
+                            <p:message for="email" display="icon"/>
                         </div>
-                    </p:panel>
 
-                    <div class="users-form-actions">
-                        <p:commandButton value="Annuler"
-                                       icon="pi pi-times"
-                                       styleClass="users-btn users-btn-cancel"
-                                       action="/index.xhtml?faces-redirect=true"
-                                       process="@this"
-                                       update="@none"/>
-                        <p:commandButton value="Sauvegarder"
-                                       icon="pi pi-check"
-                                       styleClass="users-btn users-btn-save"
-                                       action="#{profileBean.sauvegarder}"
-                                       process="@form"
-                                       update="@form :growl"/>
+                        <div class="profile-form-group">
+                            <p:outputLabel for="prenom" value="Prénom"/>
+                            <p:inputText id="prenom"
+                                       value="#{profileBean.prenom}"
+                                       required="true"
+                                       requiredMessage="Le prénom est obligatoire"
+                                       styleClass="users-input"
+                                       placeholder="Prénom"
+                                       maxlength="100"/>
+                            <p:message for="prenom" display="icon"/>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <p:outputLabel for="nom" value="Nom"/>
+                            <p:inputText id="nom"
+                                       value="#{profileBean.nom}"
+                                       required="true"
+                                       requiredMessage="Le nom est obligatoire"
+                                       styleClass="users-input"
+                                       placeholder="Nom"
+                                       maxlength="100"/>
+                            <p:message for="nom" display="icon"/>
+                        </div>
+
+                        <div class="profile-form-group profile-form-group-full">
+                            <p:outputLabel for="nouveauMotDePasse" value="Nouveau mot de passe (laisser vide pour ne pas modifier)"/>
+                            <p:password id="nouveauMotDePasse"
+                                       value="#{profileBean.nouveauMotDePasse}"
+                                       feedback="false"
+                                       styleClass="users-input"
+                                       placeholder="Nouveau mot de passe"
+                                       maxlength="255"/>
+                            <p:message for="nouveauMotDePasse" display="icon"/>
+                            <p:tooltip for="nouveauMotDePasse" value="Minimum 6 caractères" position="right"/>
+                        </div>
                     </div>
-                </h:form>
+                </p:panel>
+
+                <div class="profile-form-actions">
+                    <p:commandButton value="Annuler"
+                                   icon="pi pi-times"
+                                   styleClass="profile-btn profile-btn-cancel"
+                                   action="/index.xhtml?faces-redirect=true"
+                                   process="@this"
+                                   update="@none"/>
+                    <p:commandButton value="Sauvegarder"
+                                   icon="pi pi-check"
+                                   styleClass="profile-btn profile-btn-save"
+                                   action="#{profileBean.sauvegarder}"
+                                   process="@form"
+                                   update="@form :growl"/>
+                </div>
+            </h:form>
+
+            <!-- Bloc : entités auxquelles l'utilisateur est rattaché -->
+            <div class="profile-associations-section">
+                <p:panel header="Mes rattachements" styleClass="profile-form-card profile-associations-card">
+                    <ui:fragment rendered="#{empty profileBean.profilePermissions}">
+                        <div class="profile-associations-empty">
+                            <i class="pi pi-info-circle profile-associations-empty-icon"/>
+                            <p>Vous n'êtes rattaché à aucune entité (collection, référentiel, groupe...).</p>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{not empty profileBean.profilePermissions}">
+                        <p:dataTable value="#{profileBean.profilePermissions}"
+                                     var="perm"
+                                     styleClass="profile-associations-table"
+                                     rowIndexVar="rowIndex">
+                            <p:column headerText="Type" styleClass="profile-assoc-col-type">
+                                <span class="profile-assoc-type-badge">#{perm.entityTypeLabel}</span>
+                            </p:column>
+                            <p:column headerText="Entité" styleClass="profile-assoc-col-entity">
+                                <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
+                                <span class="profile-assoc-entity-code" rendered="#{not empty perm.entityCode}">(#{perm.entityCode})</span>
+                            </p:column>
+                            <p:column headerText="Rôle" styleClass="profile-assoc-col-role">
+                                <span class="profile-assoc-role-badge">#{perm.role}</span>
+                            </p:column>
+                        </p:dataTable>
+                    </ui:fragment>
+                </p:panel>
             </div>
         </div>
     </ui:define>
