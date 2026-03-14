@@ -51,6 +51,13 @@ public class Entity implements Serializable {
     @Column(name = "id_ark", length = 255)
     private String idArk;
 
+    /**
+     * Ordre d'affichage personnalisé (ex. collections sur la page d'accueil).
+     * NULL = tri par défaut (alphabétique).
+     */
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     // Relation OneToOne avec EntityMetadata (mappedBy côté EntityMetadata)
     // Exclure les getters/setters automatiques car on utilise des méthodes personnalisées
     @OneToOne(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

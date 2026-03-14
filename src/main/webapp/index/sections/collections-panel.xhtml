@@ -3,22 +3,69 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <!-- Section d'action pour créer une collection (admin) -->
-    <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar"
-         rendered="#{loginBean.isAdminTechnique()}">
-        <p:commandButton value="Créer une nouvelle typologie"
-                         icon="pi pi-plus"
-                         styleClass="collection-btn collection-btn-validate"
-                         process="@this"
-                         update="collectionDialogForm"
-                         actionListener="#{collectionBean.resetCollectionForm()}"/>
+    <!-- Barre d'outils collections -->
+    <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar">
+        <div class="collections-toolbar">
+            <!-- Sélecteur de mode de tri -->
+            <h:panelGroup layout="block" styleClass="collections-sort-selector" rendered="#{applicationBean.collections.size() gt 1}">
+                <span class="collections-sort-selector-label">
+                    <i class="pi pi-sort-amount-down-alt"/>
+                    <span>Ordre d'affichage</span>
+                </span>
+                <div class="collections-sort-segmented">
+                <p:commandButton value="Personnalisé"
+                                 icon="pi pi-bars"
+                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeManual ? 'collections-sort-option-active' : ''}"
+                                 title="#{applicationBean.hasCustomCollectionsOrder() ? 'Ordre personnalisé (réorganisable)' : 'Aucun ordre personnalisé défini'}"
+                                 action="#{applicationBean.setCollectionsSortModeManual()}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":collectionsForm :create-collection-section"
+                                 disabled="#{!applicationBean.hasCustomCollectionsOrder()}"/>
+                <p:commandButton value="A → Z"
+                                 icon="pi pi-sort-alpha-down"
+                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeAlphaAsc ? 'collections-sort-option-active' : ''}"
+                                 title="Alphabétique croissant"
+                                 action="#{applicationBean.setCollectionsSortModeAlphaAsc()}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":collectionsForm :create-collection-section"/>
+                <p:commandButton value="Z → A"
+                                 icon="pi pi-sort-alpha-up"
+                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeAlphaDesc ? 'collections-sort-option-active' : ''}"
+                                 title="Alphabétique décroissant"
+                                 action="#{applicationBean.setCollectionsSortModeAlphaDesc()}"
+                                 process="@this"
+                                 ajax="true"
+                                 update=":collectionsForm :create-collection-section"/>
+            </div>
+        </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechnique()}"/>
+        <h:panelGroup rendered="#{loginBean.isAdminTechnique()}" styleClass="create-collection-section-actions">
+            <p:commandButton value="Réorganiser l'ordre"
+                             icon="pi pi-sort-alt"
+                             rendered="#{applicationBean.collections.size() gt 1}"
+                             styleClass="collection-toolbar-btn collection-toolbar-btn-secondary"
+                             action="#{applicationBean.prepareCollectionsOrderDialog()}"
+                             process="@this"
+                             update=":orderListDialog"
+                             oncomplete="PF('orderListDialog').show();"/>
+            <p:commandButton value="Créer une nouvelle typologie"
+                             icon="pi pi-plus"
+                             styleClass="collection-toolbar-btn collection-toolbar-btn-primary"
+                             process="@this"
+                             update="collectionDialogForm"
+                             actionListener="#{collectionBean.resetCollectionForm()}"/>
+        </h:panelGroup>
+        </div>
     </h:panelGroup>
 
     <!-- Grille des cartes collections -->
     <div class="modern-cards-container modern-cards-collections">
         <h:form id="collectionsForm">
+            <h:panelGroup id="collectionsFormContent">
             <div class="modern-cards-grid">
-                <ui:repeat value="#{applicationBean.collections}" var="collection">
+                <ui:repeat value="#{applicationBean.sortedCollections}" var="collection">
                     <div class="modern-card-wrapper">
                         <p:commandLink action="#{collectionBean.showCollectionDetail(applicationBean, collection)}"
                                        styleClass="modern-card"
@@ -65,6 +112,7 @@
                     </div>
                 </h:panelGroup>
             </div>
+            </h:panelGroup>
         </h:form>
     </div>
 

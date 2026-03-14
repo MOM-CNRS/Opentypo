@@ -150,7 +150,6 @@
 /* Styles pour site-presentation - garantis pour persister même si le CSS externe n'est pas chargé */
 .site-presentation-container {
     width: 100% !important;
-    padding: 0 1.5rem !important;
     box-sizing: border-box !important;
 }
 
@@ -259,10 +258,6 @@
 }
 
 @media (max-width: 768px) {
-    .site-presentation-container {
-        padding: 0 1rem !important;
-    }
-
     .site-presentation-content {
         padding: 1rem !important;
         border-left-width: 3px !important;
@@ -310,10 +305,6 @@
 }
 
 @media (max-width: 480px) {
-    .site-presentation-container {
-        padding: 0 0.75rem !important;
-    }
-
     .site-presentation-content {
         padding: 0.875rem !important;
     }

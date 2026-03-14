@@ -59,4 +59,20 @@ public class CollectionService implements Serializable {
 
         return null;
     }
+
+    /**
+     * Met à jour l'ordre d'affichage des collections (persistance en base).
+     */
+    public void updateDisplayOrderForCollections(List<Long> orderedCollectionIds) {
+        if (orderedCollectionIds == null || orderedCollectionIds.isEmpty()) return;
+        for (int i = 0; i < orderedCollectionIds.size(); i++) {
+            final int order = i;
+            Long id = orderedCollectionIds.get(i);
+            if (id == null) continue;
+            entityRepository.findById(id).ifPresent(e -> {
+                e.setDisplayOrder(order);
+                entityRepository.save(e);
+            });
+        }
+    }
 }

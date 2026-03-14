@@ -42,6 +42,7 @@
     min-height: 0 !important;
     overflow: hidden !important;
     align-items: stretch !important;
+    height: 100%;
 }
 
 /* ---- 3. Panneau arbre (gauche) - hauteur intégrale disponible ---- */

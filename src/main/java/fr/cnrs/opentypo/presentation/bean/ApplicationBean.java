@@ -231,8 +231,23 @@ public class ApplicationBean implements Serializable {
     private boolean typesViewAll = false;
     private static final int TYPES_PAGE_SIZE = 6;
 
+    /** Mode de tri des collections : manuel (display_order) ou alphabétique. */
+    public enum CollectionsSortMode {
+        MANUAL("Ordre personnalisé"),
+        ALPHA_ASC("A → Z"),
+        ALPHA_DESC("Z → A");
+
+        private final String label;
+
+        CollectionsSortMode(String label) { this.label = label; }
+        public String getLabel() { return label; }
+    }
+
+    private CollectionsSortMode collectionsSortMode = CollectionsSortMode.MANUAL;
+
     /** Type de liste en cours de réorganisation (un seul dialog générique). */
     public enum OrderingType {
+        COLLECTIONS("Réorganiser l'ordre des typologies"),
         TYPES("Réorganiser l'ordre des types"),
         SERIES("Réorganiser l'ordre des séries"),
         GROUPES("Réorganiser l'ordre des groupes"),
@@ -1145,22 +1160,73 @@ public class ApplicationBean implements Serializable {
 
     /**
      * Charge les collections depuis la base de données et les filtre
-     * selon les droits de l'utilisateur (publique / groupe / user_permission / statut REFUSED),
-     * puis les trie par ordre alphabétique décroissant.
+     * selon les droits de l'utilisateur. Le tri est appliqué par getSortedCollections() selon le mode.
      */
     public void loadAllCollections() {
-
         collections = entityRepository.findByEntityTypeCodeWithLabels(EntityConstants.ENTITY_TYPE_COLLECTION);
         if (!CollectionUtils.isEmpty(collections)) {
             collections = collections.stream()
                     .filter(this::isEntityVisibleForCurrentUser)
-                    .sorted((c1, c2) -> {
-                        String nom1 = getEntityLabel(c1);
-                        String nom2 = getEntityLabel(c2);
-                        return nom1.compareToIgnoreCase(nom2);
-                    })
                     .collect(Collectors.toList());
+            if (!hasCustomCollectionsOrder()) {
+                collectionsSortMode = CollectionsSortMode.ALPHA_ASC;
+            }
         }
+    }
+
+    /** Vrai si au moins une collection a un ordre personnalisé (display_order défini). */
+    public boolean hasCustomCollectionsOrder() {
+        if (collections == null || collections.isEmpty()) return false;
+        return collections.stream().anyMatch(c -> c.getDisplayOrder() != null);
+    }
+
+    /** Collections triées selon le mode (manuel, A-Z, Z-A). */
+    public List<Entity> getSortedCollections() {
+        if (collections == null) return new ArrayList<>();
+        return collections.stream()
+                .sorted((c1, c2) -> switch (collectionsSortMode) {
+                    case MANUAL -> {
+                        Integer o1 = c1.getDisplayOrder();
+                        Integer o2 = c2.getDisplayOrder();
+                        int cmp = Integer.compare(
+                                o1 != null ? o1 : Integer.MAX_VALUE,
+                                o2 != null ? o2 : Integer.MAX_VALUE);
+                        if (cmp != 0) yield cmp;
+                        String n1 = getEntityLabel(c1);
+                        String n2 = getEntityLabel(c2);
+                        yield n1.compareToIgnoreCase(n2);
+                    }
+                    case ALPHA_ASC -> getEntityLabel(c1).compareToIgnoreCase(getEntityLabel(c2));
+                    case ALPHA_DESC -> getEntityLabel(c2).compareToIgnoreCase(getEntityLabel(c1));
+                })
+                .collect(Collectors.toList());
+    }
+
+    public CollectionsSortMode getCollectionsSortMode() { return collectionsSortMode; }
+    public void setCollectionsSortMode(CollectionsSortMode mode) {
+        if (mode != null) this.collectionsSortMode = mode;
+    }
+    public boolean isCollectionsSortModeManual() { return collectionsSortMode == CollectionsSortMode.MANUAL; }
+    public boolean isCollectionsSortModeAlphaAsc() { return collectionsSortMode == CollectionsSortMode.ALPHA_ASC; }
+    public boolean isCollectionsSortModeAlphaDesc() { return collectionsSortMode == CollectionsSortMode.ALPHA_DESC; }
+
+    /** Change le mode de tri des collections (appelé depuis la vue). */
+    public void setCollectionsSortModeManual() { setCollectionsSortMode(CollectionsSortMode.MANUAL); }
+    public void setCollectionsSortModeAlphaAsc() { setCollectionsSortMode(CollectionsSortMode.ALPHA_ASC); }
+    public void setCollectionsSortModeAlphaDesc() { setCollectionsSortMode(CollectionsSortMode.ALPHA_DESC); }
+
+    /** Ordre manuel pour le dialog de réorganisation (toujours display_order puis alpha). */
+    private List<Entity> getCollectionsForOrdering() {
+        if (collections == null) return new ArrayList<>();
+        return collections.stream()
+                .sorted((c1, c2) -> {
+                    Integer o1 = c1.getDisplayOrder();
+                    Integer o2 = c2.getDisplayOrder();
+                    int cmp = Integer.compare(o1 != null ? o1 : Integer.MAX_VALUE, o2 != null ? o2 : Integer.MAX_VALUE);
+                    if (cmp != 0) return cmp;
+                    return getEntityLabel(c1).compareToIgnoreCase(getEntityLabel(c2));
+                })
+                .collect(Collectors.toList());
     }
     
     /**
@@ -1502,6 +1568,7 @@ public class ApplicationBean implements Serializable {
 
     private List<Entity> getChildsForOrdering(OrderingType type) {
         return switch (type) {
+            case COLLECTIONS -> getCollectionsForOrdering();
             case TYPES -> getChildsTypes();
             case SERIES -> getChildsSeries();
             case GROUPES -> getChildsGroupes();
@@ -1511,6 +1578,9 @@ public class ApplicationBean implements Serializable {
     }
 
     private String buildOrderingLabel(Entity e, OrderingType type) {
+        if (type == OrderingType.COLLECTIONS) {
+            return getEntityLabel(e);
+        }
         String code = e.getCode() != null ? e.getCode() : "";
         if (type == OrderingType.GROUPES && e.getNom() != null) {
             return code + " - " + e.getNom();
@@ -1520,8 +1590,7 @@ public class ApplicationBean implements Serializable {
 
     /** Enregistre l'ordre depuis le dialog et ferme. */
     public void saveOrderFromDialog() {
-        if (orderingIds == null || orderingIds.isEmpty() || currentOrderingType == null
-                || selectedEntity == null || selectedEntity.getId() == null) {
+        if (orderingIds == null || orderingIds.isEmpty() || currentOrderingType == null) {
             return;
         }
         List<Long> validIds = orderingIds.stream()
@@ -1530,22 +1599,39 @@ public class ApplicationBean implements Serializable {
         if (validIds.isEmpty()) return;
 
         switch (currentOrderingType) {
-            case TYPES -> saveTypesOrder(validIds);
+            case COLLECTIONS -> {
+                collectionService.updateDisplayOrderForCollections(validIds);
+                loadAllCollections();
+                collectionsSortMode = CollectionsSortMode.MANUAL;
+            }
+            case TYPES -> {
+                if (selectedEntity != null && selectedEntity.getId() != null) {
+                    saveTypesOrder(validIds);
+                }
+            }
             case SERIES -> {
-                serieService.updateDisplayOrder(selectedEntity.getId(), validIds);
-                refreshChilds();
+                if (selectedEntity != null && selectedEntity.getId() != null) {
+                    serieService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                    refreshChilds();
+                }
             }
             case GROUPES -> {
-                groupService.updateDisplayOrder(selectedEntity.getId(), validIds);
-                refreshChilds();
+                if (selectedEntity != null && selectedEntity.getId() != null) {
+                    groupService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                    refreshChilds();
+                }
             }
             case CATEGORIES -> {
-                categoryService.updateDisplayOrder(selectedEntity.getId(), validIds);
-                refreshChilds();
+                if (selectedEntity != null && selectedEntity.getId() != null) {
+                    categoryService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                    refreshChilds();
+                }
             }
             case REFERENCES -> {
-                referenceService.updateDisplayOrder(selectedEntity.getId(), validIds);
-                refreshChilds();
+                if (selectedEntity != null && selectedEntity.getId() != null) {
+                    referenceService.updateDisplayOrder(selectedEntity.getId(), validIds);
+                    refreshChilds();
+                }
             }
         }
         // Rafraîchir l'arbre pour refléter le nouvel ordre
@@ -1576,6 +1662,7 @@ public class ApplicationBean implements Serializable {
     }
 
     /* === Méthodes de convenance (conservées pour compatibilité des vues) === */
+    public void prepareCollectionsOrderDialog() { prepareOrderDialog(OrderingType.COLLECTIONS); }
     public void prepareTypesOrderDialog() { prepareOrderDialog(OrderingType.TYPES); }
     public void prepareSeriesOrderDialog() { prepareOrderDialog(OrderingType.SERIES); }
     public void prepareGroupesOrderDialog() { prepareOrderDialog(OrderingType.GROUPES); }

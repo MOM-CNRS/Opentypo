@@ -13,7 +13,7 @@
         </h:panelGroup>
 
         <!-- 2. Contenu principal (arbre + zone centrale + résultats recherche) -->
-        <h:panelGroup id="centerContent" class="app-content">
+        <h:panelGroup id="centerContent" class="app-content" style="height: 100%">
 
             <!-- 2.1 Panneau arbre (gauche) - désactivé en mode modification -->
             <h:panelGroup id="leftTreePanel" styleClass="left-tree #{entityUpdateBean.editingEntity ? 'left-tree-disabled' : ''}" rendered="#{applicationBean.showTreePanel}">
