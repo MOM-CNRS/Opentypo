@@ -89,8 +89,7 @@
                                                         <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
                                                     </div>
                                                 </div>
-                                                <h:panelGroup class="collection-visibility-toggle-wrapper"
-                                                              rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
+                                                <h:panelGroup rendered="#{categoryBean.canCreateCategory()}" styleClass="collection-visibility-toggle-wrapper">
                                                     <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                 process="@this"
                                                                 update=":confirmReferenceVisibilityChangeDialog :growl"

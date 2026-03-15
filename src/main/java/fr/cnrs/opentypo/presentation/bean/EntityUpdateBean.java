@@ -1280,8 +1280,21 @@ public class EntityUpdateBean implements Serializable {
     }
 
     public void addAireCirculationFromAutocomplete() {
+        if (aireCirculationAutocompleteSelection == null || aireCirculationAutocompleteSelection.getSelectedTerm() == null) return;
+        String valeur = aireCirculationAutocompleteSelection.getSelectedTerm().trim();
+        if (valeur.isEmpty()) return;
+        if (airesCirculation == null) airesCirculation = new ArrayList<>();
+        // Ne pas autoriser les doublons (comparaison insensible à la casse)
+        boolean dejaPresent = airesCirculation.stream()
+                .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
+        if (dejaPresent) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
+                            "« " + valeur + " » est déjà dans la liste des aires de circulation."));
+            return;
+        }
         airesCirculation.add(ReferenceOpentheso.builder()
-                .valeur(aireCirculationAutocompleteSelection.getSelectedTerm())
+                .valeur(valeur)
                 .conceptId(aireCirculationAutocompleteSelection.getIdConcept())
                 .url(aireCirculationAutocompleteSelection.getUri())
                 .build());
@@ -1289,9 +1302,15 @@ public class EntityUpdateBean implements Serializable {
     }
 
     public void deleteAireCirculation(String valeur) {
-        airesCirculation = airesCirculation.stream()
-                                .filter(element -> !element.getValeur().equalsIgnoreCase(valeur))
-                                .toList();
+        if (airesCirculation == null) return;
+        // Supprimer uniquement la première occurrence (liste mutable pour éviter UnsupportedOperationException)
+        for (int i = 0; i < airesCirculation.size(); i++) {
+            if (airesCirculation.get(i).getValeur() != null
+                    && airesCirculation.get(i).getValeur().equalsIgnoreCase(valeur)) {
+                airesCirculation.remove(i);
+                break;
+            }
+        }
         PrimeFaces.current().ajax().update(":growl, :contentPanels");
     }
 
