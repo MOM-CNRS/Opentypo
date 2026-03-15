@@ -1040,7 +1040,6 @@
             flex-direction: column !important;
             gap: 0.5rem !important;
             padding: 0.625rem 0.75rem !important;
-            overflow: hidden !important;
         }
 
         .candidat-aires-row .candidat-aires-wrapper .periode-autocomplete-input {
