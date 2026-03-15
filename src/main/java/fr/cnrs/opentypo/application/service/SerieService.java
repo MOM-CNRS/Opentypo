@@ -44,6 +44,14 @@ public class SerieService implements Serializable {
     }
 
     /**
+     * Vérifie si le groupe a des séries avec un ordre personnalisé.
+     */
+    public boolean hasCustomSeriesOrder(Entity group) {
+        if (group == null || group.getId() == null) return false;
+        return entityRelationRepository.hasCustomOrderForChildren(group.getId(), EntityConstants.ENTITY_TYPE_SERIES);
+    }
+
+    /**
      * Met à jour l'ordre d'affichage des séries pour un groupe donné.
      */
     public void updateDisplayOrder(Long parentId, List<Long> orderedChildIds) {

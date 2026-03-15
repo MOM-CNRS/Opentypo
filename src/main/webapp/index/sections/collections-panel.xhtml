@@ -7,39 +7,14 @@
     <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar">
         <div class="collections-toolbar">
             <!-- Sélecteur de mode de tri -->
-            <h:panelGroup layout="block" styleClass="collections-sort-selector" rendered="#{applicationBean.collections.size() gt 1}">
-                <span class="collections-sort-selector-label">
-                    <i class="pi pi-sort-amount-down-alt"/>
-                    <span>Ordre d'affichage</span>
-                </span>
-                <div class="collections-sort-segmented">
-                <p:commandButton value="Personnalisé"
-                                 icon="pi pi-bars"
-                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeManual ? 'collections-sort-option-active' : ''}"
-                                 title="#{applicationBean.hasCustomCollectionsOrder() ? 'Ordre personnalisé (réorganisable)' : 'Aucun ordre personnalisé défini'}"
-                                 action="#{applicationBean.setCollectionsSortModeManual()}"
-                                 process="@this"
-                                 ajax="true"
-                                 update=":collectionsForm :create-collection-section"
-                                 disabled="#{!applicationBean.hasCustomCollectionsOrder()}"/>
-                <p:commandButton value="A → Z"
-                                 icon="pi pi-sort-alpha-down"
-                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeAlphaAsc ? 'collections-sort-option-active' : ''}"
-                                 title="Alphabétique croissant"
-                                 action="#{applicationBean.setCollectionsSortModeAlphaAsc()}"
-                                 process="@this"
-                                 ajax="true"
-                                 update=":collectionsForm :create-collection-section"/>
-                <p:commandButton value="Z → A"
-                                 icon="pi pi-sort-alpha-up"
-                                 styleClass="collections-sort-option #{applicationBean.collectionsSortModeAlphaDesc ? 'collections-sort-option-active' : ''}"
-                                 title="Alphabétique décroissant"
-                                 action="#{applicationBean.setCollectionsSortModeAlphaDesc()}"
-                                 process="@this"
-                                 ajax="true"
-                                 update=":collectionsForm :create-collection-section"/>
-            </div>
-        </h:panelGroup>
+            <ui:include src="/commun/components/sort-selector.xhtml">
+                <ui:param name="listType" value="collections"/>
+                <ui:param name="updateId" value=":collectionsForm :create-collection-section"/>
+                <ui:param name="sizeGt1" value="#{applicationBean.collections.size() gt 1}"/>
+                <ui:param name="styleClass" value="collections-sort-selector"/>
+                <ui:param name="optionClassPrefix" value="collections-sort"/>
+                <ui:param name="label" value="Ordre d'affichage"/>
+            </ui:include>
             <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechnique()}"/>
         <h:panelGroup rendered="#{loginBean.isAdminTechnique()}" styleClass="create-collection-section-actions">
             <p:commandButton value="Réorganiser l'ordre"

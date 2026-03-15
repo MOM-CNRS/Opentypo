@@ -40,6 +40,14 @@ public class GroupService implements Serializable {
     }
 
     /**
+     * Vérifie si la catégorie a des groupes avec un ordre personnalisé.
+     */
+    public boolean hasCustomGroupesOrder(Entity category) {
+        if (category == null || category.getId() == null) return false;
+        return entityRelationRepository.hasCustomOrderForChildren(category.getId(), EntityConstants.ENTITY_TYPE_GROUP);
+    }
+
+    /**
      * Met à jour l'ordre d'affichage des groupes pour une catégorie donnée.
      */
     public void updateDisplayOrder(Long parentId, List<Long> orderedChildIds) {

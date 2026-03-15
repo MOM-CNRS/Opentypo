@@ -1,0 +1,52 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <!--
+        Composant réutilisable pour le sélecteur de tri (Personnalisé / A→Z / Z→A).
+        Paramètres requis :
+        - listType : collections | references | categories | groupes | series | types
+        - updateId : ID(s) à mettre à jour après changement (ex: "collectionReferencesContainer" ou ":collectionsForm :create-collection-section")
+        - sizeGt1 : condition d'affichage (ex: applicationBean.childsReferencesSize gt 1)
+        Paramètres optionnels :
+        - styleClass : classe CSS du wrapper (défaut: references-sort-selector)
+        - label : libellé affiché (défaut: Ordre)
+        - optionClassPrefix : préfixe des classes des boutons (défaut: references-sort, ou collections-sort pour la page collections)
+    -->
+    <ui:param name="styleClass" value="references-sort-selector"/>
+    <ui:param name="label" value="Ordre"/>
+    <ui:param name="optionClassPrefix" value="references-sort"/>
+    <h:panelGroup layout="block" styleClass="#{styleClass}" rendered="#{sizeGt1}">
+        <span class="#{optionClassPrefix}-selector-label">
+            <i class="pi pi-sort-amount-down-alt"/>
+            <span>#{label}</span>
+        </span>
+        <div class="#{optionClassPrefix}-segmented">
+            <p:commandButton value="Personnalisé"
+                             icon="pi pi-bars"
+                             styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'MANUAL') ? optionClassPrefix.concat('-option-active') : ''}"
+                             title="#{applicationBean.hasCustomOrder(listType) ? 'Ordre personnalisé (réorganisable)' : 'Aucun ordre personnalisé défini'}"
+                             action="#{applicationBean.setSortMode(listType, 'MANUAL')}"
+                             process="@this"
+                             ajax="true"
+                             update="#{updateId}"
+                             disabled="#{!applicationBean.hasCustomOrder(listType)}"/>
+            <p:commandButton value="A → Z"
+                             icon="pi pi-sort-alpha-down"
+                             styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'ALPHA_ASC') ? optionClassPrefix.concat('-option-active') : ''}"
+                             title="Alphabétique croissant"
+                             action="#{applicationBean.setSortMode(listType, 'ALPHA_ASC')}"
+                             process="@this"
+                             ajax="true"
+                             update="#{updateId}"/>
+            <p:commandButton value="Z → A"
+                             icon="pi pi-sort-alpha-up"
+                             styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'ALPHA_DESC') ? optionClassPrefix.concat('-option-active') : ''}"
+                             title="Alphabétique décroissant"
+                             action="#{applicationBean.setSortMode(listType, 'ALPHA_DESC')}"
+                             process="@this"
+                             ajax="true"
+                             update="#{updateId}"/>
+        </div>
+    </h:panelGroup>
+</ui:composition>

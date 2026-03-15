@@ -49,6 +49,14 @@ public class ReferenceService implements Serializable {
     }
 
     /**
+     * Vérifie si la collection a des référentiels avec un ordre personnalisé (display_order dans entity_relation).
+     */
+    public boolean hasCustomReferencesOrder(Entity collection) {
+        if (collection == null || collection.getId() == null) return false;
+        return entityRelationRepository.hasCustomOrderForChildren(collection.getId(), EntityConstants.ENTITY_TYPE_REFERENCE);
+    }
+
+    /**
      * Charge les enfants d'une entité parent, ordonnés par display_order puis par code.
      * Ordre par défaut alphabétique quand display_order est null.
      */

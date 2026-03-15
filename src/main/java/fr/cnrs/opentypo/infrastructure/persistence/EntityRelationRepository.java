@@ -79,6 +79,12 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
     boolean existsByParentAndChild(@Param("parentId") Long parentId, @Param("childId") Long childId);
 
     /**
+     * Vérifie si au moins un enfant du type donné a un ordre personnalisé (display_order défini).
+     */
+    @Query("SELECT COUNT(er) > 0 FROM EntityRelation er WHERE er.parent.id = :parentId AND er.child.entityType.code = :typeCode AND er.displayOrder IS NOT NULL")
+    boolean hasCustomOrderForChildren(@Param("parentId") Long parentId, @Param("typeCode") String typeCode);
+
+    /**
      * Retourne toutes les relations (parent_id, child_id, display_order) du sous-arbre dont la racine est l'entité donnée.
      * Utilise une CTE récursive (PostgreSQL). Chaque ligne est (parent_id, child_id, display_order).
      * display_order NULL est retourné comme 999999 pour le tri.

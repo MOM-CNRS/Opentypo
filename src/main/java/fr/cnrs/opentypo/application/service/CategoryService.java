@@ -35,6 +35,14 @@ public class CategoryService implements Serializable {
     }
 
     /**
+     * Vérifie si le référentiel a des catégories avec un ordre personnalisé.
+     */
+    public boolean hasCustomCategoriesOrder(Entity reference) {
+        if (reference == null || reference.getId() == null) return false;
+        return entityRelationRepository.hasCustomOrderForChildren(reference.getId(), EntityConstants.ENTITY_TYPE_CATEGORY);
+    }
+
+    /**
      * Met à jour l'ordre d'affichage des catégories pour un référentiel donné.
      */
     public void updateDisplayOrder(Long parentId, List<Long> orderedChildIds) {

@@ -38,8 +38,13 @@
         </div>
 
         <h:panelGroup id="collectionReferencesContainer" layout="block">
-            <!-- Barre de recherche + option tout afficher -->
+            <!-- Sélecteur de tri + barre de recherche + option tout afficher -->
             <div class="reference-categories-search-bar reference-categories-search-row">
+                <ui:include src="/commun/components/sort-selector.xhtml">
+                    <ui:param name="listType" value="references"/>
+                    <ui:param name="updateId" value="collectionReferencesContainer"/>
+                    <ui:param name="sizeGt1" value="#{applicationBean.childsReferencesSize gt 1}"/>
+                </ui:include>
                 <div class="reference-categories-search-input-wrapper collection-select">
                     <i class="pi pi-search reference-categories-search-icon"/>
                     <p:inputText id="referencesSearchInput"

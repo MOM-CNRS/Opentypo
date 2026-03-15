@@ -231,19 +231,24 @@ public class ApplicationBean implements Serializable {
     private boolean typesViewAll = false;
     private static final int TYPES_PAGE_SIZE = 6;
 
-    /** Mode de tri des collections : manuel (display_order) ou alphabétique. */
-    public enum CollectionsSortMode {
+    /** Mode de tri unifié pour collections, référentiels, catégories, groupes, séries et types. */
+    public enum ListSortMode {
         MANUAL("Ordre personnalisé"),
         ALPHA_ASC("A → Z"),
         ALPHA_DESC("Z → A");
 
         private final String label;
 
-        CollectionsSortMode(String label) { this.label = label; }
+        ListSortMode(String label) { this.label = label; }
         public String getLabel() { return label; }
     }
 
-    private CollectionsSortMode collectionsSortMode = CollectionsSortMode.MANUAL;
+    private ListSortMode collectionsSortMode = ListSortMode.MANUAL;
+    private ListSortMode referencesSortMode = ListSortMode.MANUAL;
+    private ListSortMode categoriesSortMode = ListSortMode.MANUAL;
+    private ListSortMode groupesSortMode = ListSortMode.MANUAL;
+    private ListSortMode seriesSortMode = ListSortMode.MANUAL;
+    private ListSortMode typesSortMode = ListSortMode.MANUAL;
 
     /** Type de liste en cours de réorganisation (un seul dialog générique). */
     public enum OrderingType {
@@ -559,18 +564,21 @@ public class ApplicationBean implements Serializable {
                 referencesCurrentPage = 1;
                 referencesSearchQuery = "";
                 referencesViewAll = false;
+                referencesSortMode = hasCustomReferencesOrder() ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
                 break;
             case EntityConstants.ENTITY_TYPE_REFERENCE:
                 childs = categoryService.loadCategoriesByReference(selectedEntity);
                 categoriesCurrentPage = 1;
                 categoriesSearchQuery = "";
                 categoriesViewAll = false;
+                categoriesSortMode = categoryService.hasCustomCategoriesOrder(selectedEntity) ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
                 break;
             case EntityConstants.ENTITY_TYPE_CATEGORY:
                 childs = groupService.loadCategoryGroups(selectedEntity);
                 groupesCurrentPage = 1;
                 groupesSearchQuery = "";
                 groupesViewAll = false;
+                groupesSortMode = groupService.hasCustomGroupesOrder(selectedEntity) ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
                 break;
             case EntityConstants.ENTITY_TYPE_GROUP:
                 List<Entity> series = serieService.loadGroupSeries(selectedEntity);
@@ -583,12 +591,15 @@ public class ApplicationBean implements Serializable {
                 seriesViewAll = false;
                 typesCurrentPage = 1;
                 typesSearchQuery = "";
+                seriesSortMode = serieService.hasCustomSeriesOrder(selectedEntity) ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
+                typesSortMode = typeService.hasCustomTypesOrder(selectedEntity) ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
                 break;
             case EntityConstants.ENTITY_TYPE_SERIES:
                 childs = typeService.loadSerieTypes(selectedEntity);
                 typesCurrentPage = 1;
                 typesSearchQuery = "";
                 typesViewAll = false;
+                typesSortMode = typeService.hasCustomTypesOrder(selectedEntity) ? ListSortMode.MANUAL : ListSortMode.ALPHA_ASC;
                 break;
             default:
                 childs = new ArrayList<>();
@@ -672,9 +683,42 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    /** Vrai si la collection sélectionnée a des référentiels avec un ordre personnalisé (display_order dans entity_relation). */
+    public boolean hasCustomReferencesOrder() {
+        Entity collection = getSelectedCollection();
+        return collection != null && referenceService.hasCustomReferencesOrder(collection);
+    }
+
+    /** Référentiels filtrés puis triés selon le mode (manuel, A-Z, Z-A). */
+    public List<Entity> getSortedFilteredReferences() {
+        List<Entity> filtered = getFilteredReferences();
+        if (filtered.isEmpty()) return new ArrayList<>();
+        if (referencesSortMode == ListSortMode.MANUAL) {
+            /* L'ordre manuel vient de entity_relation.display_order ; childs est déjà ordonné par loadReferencesByCollection. */
+            List<Entity> childsRefs = getChildsReferences();
+            java.util.Map<Long, Integer> orderMap = new java.util.HashMap<>();
+            for (int i = 0; i < childsRefs.size(); i++) {
+                Entity e = childsRefs.get(i);
+                if (e != null && e.getId() != null) orderMap.put(e.getId(), i);
+            }
+            return filtered.stream()
+                    .sorted(Comparator.comparingInt(r -> orderMap.getOrDefault(r.getId(), Integer.MAX_VALUE)))
+                    .collect(Collectors.toList());
+        }
+        return filtered.stream()
+                .sorted((r1, r2) -> {
+                    String n1 = getEntityLabel(r1) != null ? getEntityLabel(r1) : "";
+                    String n2 = getEntityLabel(r2) != null ? getEntityLabel(r2) : "";
+                    return referencesSortMode == ListSortMode.ALPHA_ASC
+                            ? n1.compareToIgnoreCase(n2)
+                            : n2.compareToIgnoreCase(n1);
+                })
+                .collect(Collectors.toList());
+    }
+
     /** Référentiels pour la page courante ou tous si referencesViewAll. */
     public List<Entity> getPaginatedReferences() {
-        List<Entity> filtered = getFilteredReferences();
+        List<Entity> filtered = getSortedFilteredReferences();
         if (filtered.isEmpty()) return new ArrayList<>();
         if (referencesViewAll) return new ArrayList<>(filtered);
         int from = (referencesCurrentPage - 1) * REFERENCES_PAGE_SIZE;
@@ -687,7 +731,7 @@ public class ApplicationBean implements Serializable {
     }
 
     public int getReferencesTotalPages() {
-        int size = getFilteredReferences().size();
+        int size = getSortedFilteredReferences().size();
         return size == 0 ? 0 : (int) Math.ceil((double) size / REFERENCES_PAGE_SIZE);
     }
 
@@ -717,6 +761,90 @@ public class ApplicationBean implements Serializable {
         if (!referencesViewAll) referencesCurrentPage = 1;
     }
 
+    public ListSortMode getReferencesSortMode() { return referencesSortMode; }
+    public void setReferencesSortMode(ListSortMode mode) {
+        if (mode != null) this.referencesSortMode = mode;
+    }
+    public boolean isReferencesSortModeManual() { return referencesSortMode == ListSortMode.MANUAL; }
+    public boolean isReferencesSortModeAlphaAsc() { return referencesSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isReferencesSortModeAlphaDesc() { return referencesSortMode == ListSortMode.ALPHA_DESC; }
+    public void setReferencesSortModeManual() { setReferencesSortMode(ListSortMode.MANUAL); }
+    public void setReferencesSortModeAlphaAsc() { setReferencesSortMode(ListSortMode.ALPHA_ASC); }
+    public void setReferencesSortModeAlphaDesc() { setReferencesSortMode(ListSortMode.ALPHA_DESC); }
+
+    /**
+     * API générique pour le composant sort-selector.
+     * listType: collections, references, categories, groupes, series, types
+     * mode: MANUAL, ALPHA_ASC, ALPHA_DESC
+     */
+    public void setSortMode(String listType, String mode) {
+        if (listType == null || mode == null) return;
+        try {
+            ListSortMode m = ListSortMode.valueOf(mode);
+            switch (listType) {
+                case "collections" -> setCollectionsSortMode(m);
+                case "references" -> setReferencesSortMode(m);
+                case "categories" -> categoriesSortMode = m;
+                case "groupes" -> groupesSortMode = m;
+                case "series" -> seriesSortMode = m;
+                case "types" -> typesSortMode = m;
+                default -> { }
+            }
+        } catch (IllegalArgumentException ignored) { }
+    }
+
+    public boolean hasCustomOrder(String listType) {
+        if (listType == null) return false;
+        return switch (listType) {
+            case "collections" -> hasCustomCollectionsOrder();
+            case "references" -> hasCustomReferencesOrder();
+            case "categories" -> hasCustomCategoriesOrder();
+            case "groupes" -> hasCustomGroupesOrder();
+            case "series" -> hasCustomSeriesOrder();
+            case "types" -> hasCustomTypesOrder();
+            default -> false;
+        };
+    }
+
+    public boolean isSortMode(String listType, String mode) {
+        if (listType == null || mode == null) return false;
+        try {
+            return switch (listType) {
+                case "collections" -> collectionsSortMode.name().equals(mode);
+                case "references" -> referencesSortMode.name().equals(mode);
+                case "categories" -> categoriesSortMode.name().equals(mode);
+                case "groupes" -> groupesSortMode.name().equals(mode);
+                case "series" -> seriesSortMode.name().equals(mode);
+                case "types" -> typesSortMode.name().equals(mode);
+                default -> false;
+            };
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Tri une liste filtrée selon le mode (manuel = ordre des childs, alpha asc/desc). */
+    private List<Entity> sortFilteredList(List<Entity> filtered, List<Entity> orderedChilds, ListSortMode mode) {
+        if (filtered == null || filtered.isEmpty()) return new ArrayList<>();
+        if (mode == ListSortMode.MANUAL && orderedChilds != null && !orderedChilds.isEmpty()) {
+            java.util.Map<Long, Integer> orderMap = new java.util.HashMap<>();
+            for (int i = 0; i < orderedChilds.size(); i++) {
+                Entity e = orderedChilds.get(i);
+                if (e != null && e.getId() != null) orderMap.put(e.getId(), i);
+            }
+            return filtered.stream()
+                    .sorted(Comparator.comparingInt(r -> orderMap.getOrDefault(r.getId(), Integer.MAX_VALUE)))
+                    .collect(Collectors.toList());
+        }
+        return filtered.stream()
+                .sorted((r1, r2) -> {
+                    String n1 = getEntityLabel(r1) != null ? getEntityLabel(r1) : "";
+                    String n2 = getEntityLabel(r2) != null ? getEntityLabel(r2) : "";
+                    return mode == ListSortMode.ALPHA_ASC ? n1.compareToIgnoreCase(n2) : n2.compareToIgnoreCase(n1);
+                })
+                .collect(Collectors.toList());
+    }
+
     /** Catégories filtrées par la recherche. */
     public List<Entity> getFilteredCategories() {
         List<Entity> list = getChildsCategories();
@@ -732,9 +860,18 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasCustomCategoriesOrder() {
+        Entity ref = getSelectedReference();
+        return ref != null && categoryService.hasCustomCategoriesOrder(ref);
+    }
+
+    public List<Entity> getSortedFilteredCategories() {
+        return sortFilteredList(getFilteredCategories(), getChildsCategories(), categoriesSortMode);
+    }
+
     /** Catégories pour la page courante ou toutes si categoriesViewAll. */
     public List<Entity> getPaginatedCategories() {
-        List<Entity> filtered = getFilteredCategories();
+        List<Entity> filtered = getSortedFilteredCategories();
         if (filtered.isEmpty()) return new ArrayList<>();
         if (categoriesViewAll) return new ArrayList<>(filtered);
         int from = (categoriesCurrentPage - 1) * CATEGORIES_PAGE_SIZE;
@@ -754,7 +891,7 @@ public class ApplicationBean implements Serializable {
     }
 
     public int getCategoriesTotalPages() {
-        int size = getFilteredCategories().size();
+        int size = getSortedFilteredCategories().size();
         return size == 0 ? 0 : (int) Math.ceil((double) size / CATEGORIES_PAGE_SIZE);
     }
 
@@ -774,6 +911,13 @@ public class ApplicationBean implements Serializable {
         this.categoriesCurrentPage = 1;
     }
 
+    public boolean isCategoriesSortModeManual() { return categoriesSortMode == ListSortMode.MANUAL; }
+    public boolean isCategoriesSortModeAlphaAsc() { return categoriesSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isCategoriesSortModeAlphaDesc() { return categoriesSortMode == ListSortMode.ALPHA_DESC; }
+    public void setCategoriesSortModeManual() { categoriesSortMode = ListSortMode.MANUAL; }
+    public void setCategoriesSortModeAlphaAsc() { categoriesSortMode = ListSortMode.ALPHA_ASC; }
+    public void setCategoriesSortModeAlphaDesc() { categoriesSortMode = ListSortMode.ALPHA_DESC; }
+
     /** Groupes filtrés par la recherche. */
     public List<Entity> getFilteredGroupes() {
         List<Entity> list = getChildsGroupes();
@@ -790,9 +934,18 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasCustomGroupesOrder() {
+        Entity cat = getSelectedCategory();
+        return cat != null && groupService.hasCustomGroupesOrder(cat);
+    }
+
+    public List<Entity> getSortedFilteredGroupes() {
+        return sortFilteredList(getFilteredGroupes(), getChildsGroupes(), groupesSortMode);
+    }
+
     /** Groupes pour la page courante ou tous si groupesViewAll. */
     public List<Entity> getPaginatedGroupes() {
-        List<Entity> filtered = getFilteredGroupes();
+        List<Entity> filtered = getSortedFilteredGroupes();
         if (filtered.isEmpty()) return new ArrayList<>();
         if (groupesViewAll) return new ArrayList<>(filtered);
         int from = (groupesCurrentPage - 1) * GROUPES_PAGE_SIZE;
@@ -815,7 +968,7 @@ public class ApplicationBean implements Serializable {
     }
 
     public int getGroupesTotalPages() {
-        int size = getFilteredGroupes().size();
+        int size = getSortedFilteredGroupes().size();
         return size == 0 ? 0 : (int) Math.ceil((double) size / GROUPES_PAGE_SIZE);
     }
 
@@ -835,6 +988,13 @@ public class ApplicationBean implements Serializable {
         this.groupesCurrentPage = 1;
     }
 
+    public boolean isGroupesSortModeManual() { return groupesSortMode == ListSortMode.MANUAL; }
+    public boolean isGroupesSortModeAlphaAsc() { return groupesSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isGroupesSortModeAlphaDesc() { return groupesSortMode == ListSortMode.ALPHA_DESC; }
+    public void setGroupesSortModeManual() { groupesSortMode = ListSortMode.MANUAL; }
+    public void setGroupesSortModeAlphaAsc() { groupesSortMode = ListSortMode.ALPHA_ASC; }
+    public void setGroupesSortModeAlphaDesc() { groupesSortMode = ListSortMode.ALPHA_DESC; }
+
     /** Séries filtrées par la recherche. */
     public List<Entity> getFilteredSeries() {
         List<Entity> list = getChildsSeries();
@@ -851,9 +1011,18 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public boolean hasCustomSeriesOrder() {
+        Entity group = getSelectedGroup();
+        return group != null && serieService.hasCustomSeriesOrder(group);
+    }
+
+    public List<Entity> getSortedFilteredSeries() {
+        return sortFilteredList(getFilteredSeries(), getChildsSeries(), seriesSortMode);
+    }
+
     /** Séries pour la page courante (6 par page). */
     public List<Entity> getPaginatedSeries() {
-        List<Entity> filtered = getFilteredSeries();
+        List<Entity> filtered = getSortedFilteredSeries();
         if (filtered.isEmpty()) return new ArrayList<>();
         int from = (seriesCurrentPage - 1) * SERIES_PAGE_SIZE;
         if (from >= filtered.size()) {
@@ -865,7 +1034,7 @@ public class ApplicationBean implements Serializable {
     }
 
     public int getSeriesTotalPages() {
-        int size = getFilteredSeries().size();
+        int size = getSortedFilteredSeries().size();
         return size == 0 ? 0 : (int) Math.ceil((double) size / SERIES_PAGE_SIZE);
     }
 
@@ -885,12 +1054,19 @@ public class ApplicationBean implements Serializable {
         this.seriesCurrentPage = 1;
     }
 
+    public boolean isSeriesSortModeManual() { return seriesSortMode == ListSortMode.MANUAL; }
+    public boolean isSeriesSortModeAlphaAsc() { return seriesSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isSeriesSortModeAlphaDesc() { return seriesSortMode == ListSortMode.ALPHA_DESC; }
+    public void setSeriesSortModeManual() { seriesSortMode = ListSortMode.MANUAL; }
+    public void setSeriesSortModeAlphaAsc() { seriesSortMode = ListSortMode.ALPHA_ASC; }
+    public void setSeriesSortModeAlphaDesc() { seriesSortMode = ListSortMode.ALPHA_DESC; }
+
     /**
      * Séries avec leurs types, filtrées par recherche (pour le panneau Groupe).
      * Chaque série contient la liste de ses types chargés depuis entity_relation.
      */
     public List<SerieWithTypes> getSeriesWithTypesFiltered() {
-        List<Entity> filtered = getFilteredSeries();
+        List<Entity> filtered = getSortedFilteredSeries();
         if (filtered == null || filtered.isEmpty()) return new ArrayList<>();
         List<SerieWithTypes> result = new ArrayList<>();
         for (Entity serie : filtered) {
@@ -924,6 +1100,12 @@ public class ApplicationBean implements Serializable {
     }
 
     /** Types filtrés par la recherche. */
+    public boolean hasCustomTypesOrder() {
+        Entity parent = getSelectedGroup();
+        if (parent == null) parent = getSelectedSerie();
+        return parent != null && typeService.hasCustomTypesOrder(parent);
+    }
+
     public List<Entity> getFilteredTypes() {
         List<Entity> list = getChildsTypes();
         if (list == null) return new ArrayList<>();
@@ -958,9 +1140,13 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public List<Entity> getSortedFilteredTypes() {
+        return sortFilteredList(getFilteredTypes(), getChildsTypes(), typesSortMode);
+    }
+
     /** Types pour la page courante ou tous si typesViewAll. */
     public List<Entity> getPaginatedTypes() {
-        List<Entity> filtered = getFilteredTypes();
+        List<Entity> filtered = getSortedFilteredTypes();
         if (filtered.isEmpty()) return new ArrayList<>();
         if (typesViewAll) return new ArrayList<>(filtered);
         int from = (typesCurrentPage - 1) * TYPES_PAGE_SIZE;
@@ -980,9 +1166,16 @@ public class ApplicationBean implements Serializable {
     }
 
     public int getTypesTotalPages() {
-        int size = getFilteredTypes().size();
+        int size = getSortedFilteredTypes().size();
         return size == 0 ? 0 : (int) Math.ceil((double) size / TYPES_PAGE_SIZE);
     }
+
+    public boolean isTypesSortModeManual() { return typesSortMode == ListSortMode.MANUAL; }
+    public boolean isTypesSortModeAlphaAsc() { return typesSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isTypesSortModeAlphaDesc() { return typesSortMode == ListSortMode.ALPHA_DESC; }
+    public void setTypesSortModeManual() { typesSortMode = ListSortMode.MANUAL; }
+    public void setTypesSortModeAlphaAsc() { typesSortMode = ListSortMode.ALPHA_ASC; }
+    public void setTypesSortModeAlphaDesc() { typesSortMode = ListSortMode.ALPHA_DESC; }
 
     public void typesGoToPage(int page) {
         int total = getTypesTotalPages();
@@ -1169,7 +1362,7 @@ public class ApplicationBean implements Serializable {
                     .filter(this::isEntityVisibleForCurrentUser)
                     .collect(Collectors.toList());
             if (!hasCustomCollectionsOrder()) {
-                collectionsSortMode = CollectionsSortMode.ALPHA_ASC;
+                collectionsSortMode = ListSortMode.ALPHA_ASC;
             }
         }
     }
@@ -1202,18 +1395,18 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    public CollectionsSortMode getCollectionsSortMode() { return collectionsSortMode; }
-    public void setCollectionsSortMode(CollectionsSortMode mode) {
+    public ListSortMode getCollectionsSortMode() { return collectionsSortMode; }
+    public void setCollectionsSortMode(ListSortMode mode) {
         if (mode != null) this.collectionsSortMode = mode;
     }
-    public boolean isCollectionsSortModeManual() { return collectionsSortMode == CollectionsSortMode.MANUAL; }
-    public boolean isCollectionsSortModeAlphaAsc() { return collectionsSortMode == CollectionsSortMode.ALPHA_ASC; }
-    public boolean isCollectionsSortModeAlphaDesc() { return collectionsSortMode == CollectionsSortMode.ALPHA_DESC; }
+    public boolean isCollectionsSortModeManual() { return collectionsSortMode == ListSortMode.MANUAL; }
+    public boolean isCollectionsSortModeAlphaAsc() { return collectionsSortMode == ListSortMode.ALPHA_ASC; }
+    public boolean isCollectionsSortModeAlphaDesc() { return collectionsSortMode == ListSortMode.ALPHA_DESC; }
 
     /** Change le mode de tri des collections (appelé depuis la vue). */
-    public void setCollectionsSortModeManual() { setCollectionsSortMode(CollectionsSortMode.MANUAL); }
-    public void setCollectionsSortModeAlphaAsc() { setCollectionsSortMode(CollectionsSortMode.ALPHA_ASC); }
-    public void setCollectionsSortModeAlphaDesc() { setCollectionsSortMode(CollectionsSortMode.ALPHA_DESC); }
+    public void setCollectionsSortModeManual() { setCollectionsSortMode(ListSortMode.MANUAL); }
+    public void setCollectionsSortModeAlphaAsc() { setCollectionsSortMode(ListSortMode.ALPHA_ASC); }
+    public void setCollectionsSortModeAlphaDesc() { setCollectionsSortMode(ListSortMode.ALPHA_DESC); }
 
     /** Ordre manuel pour le dialog de réorganisation (toujours display_order puis alpha). */
     private List<Entity> getCollectionsForOrdering() {
@@ -1602,35 +1795,40 @@ public class ApplicationBean implements Serializable {
             case COLLECTIONS -> {
                 collectionService.updateDisplayOrderForCollections(validIds);
                 loadAllCollections();
-                collectionsSortMode = CollectionsSortMode.MANUAL;
+                collectionsSortMode = ListSortMode.MANUAL;
             }
             case TYPES -> {
                 if (selectedEntity != null && selectedEntity.getId() != null) {
                     saveTypesOrder(validIds);
+                    typesSortMode = ListSortMode.MANUAL;
                 }
             }
             case SERIES -> {
                 if (selectedEntity != null && selectedEntity.getId() != null) {
                     serieService.updateDisplayOrder(selectedEntity.getId(), validIds);
                     refreshChilds();
+                    seriesSortMode = ListSortMode.MANUAL;
                 }
             }
             case GROUPES -> {
                 if (selectedEntity != null && selectedEntity.getId() != null) {
                     groupService.updateDisplayOrder(selectedEntity.getId(), validIds);
                     refreshChilds();
+                    groupesSortMode = ListSortMode.MANUAL;
                 }
             }
             case CATEGORIES -> {
                 if (selectedEntity != null && selectedEntity.getId() != null) {
                     categoryService.updateDisplayOrder(selectedEntity.getId(), validIds);
                     refreshChilds();
+                    categoriesSortMode = ListSortMode.MANUAL;
                 }
             }
             case REFERENCES -> {
                 if (selectedEntity != null && selectedEntity.getId() != null) {
                     referenceService.updateDisplayOrder(selectedEntity.getId(), validIds);
                     refreshChilds();
+                    referencesSortMode = ListSortMode.MANUAL;
                 }
             }
         }

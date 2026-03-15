@@ -53,8 +53,13 @@
 
             <h:form id="seriesForm">
                 <h:panelGroup id="seriesContainer" class="reference-categories-section reference-cards-container reference-categories-form">
-                    <!-- Barre de recherche -->
-                    <div class="reference-categories-search-bar">
+                    <!-- Sélecteur de tri + barre de recherche -->
+                    <div class="reference-categories-search-bar reference-categories-search-row">
+                        <ui:include src="/commun/components/sort-selector.xhtml">
+                            <ui:param name="listType" value="series"/>
+                            <ui:param name="updateId" value="seriesContainer"/>
+                            <ui:param name="sizeGt1" value="#{applicationBean.childsSeriesSize gt 1}"/>
+                        </ui:include>
                         <div class="reference-categories-search-input-wrapper">
                             <i class="pi pi-search reference-categories-search-icon"/>
                             <p:inputText id="seriesSearchInput"

@@ -57,6 +57,14 @@ public class TypeService implements Serializable {
     }
 
     /**
+     * Vérifie si le parent (groupe ou série) a des types avec un ordre personnalisé.
+     */
+    public boolean hasCustomTypesOrder(Entity parent) {
+        if (parent == null || parent.getId() == null) return false;
+        return entityRelationRepository.hasCustomOrderForChildren(parent.getId(), EntityConstants.ENTITY_TYPE_TYPE);
+    }
+
+    /**
      * Met à jour l'ordre d'affichage des types pour un parent donné.
      * @param parentId ID du parent (série ou groupe)
      * @param orderedChildIds Liste des IDs des types dans l'ordre souhaité
