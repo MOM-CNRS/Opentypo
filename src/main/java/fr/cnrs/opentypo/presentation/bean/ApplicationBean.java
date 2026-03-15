@@ -362,7 +362,7 @@ public class ApplicationBean implements Serializable {
         }
 
         // 0) Administrateur technique : voit tous les éléments (y compris REFUSED)
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
 
@@ -458,7 +458,7 @@ public class ApplicationBean implements Serializable {
         }
 
         // 0) Administrateur technique : voit tous les éléments (y compris REFUSED, PROPOSITION)
-        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechnique();
+        boolean isAdminTechnique = loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
         if (isAdminTechnique) {
             return true;
         }
@@ -1945,7 +1945,7 @@ public class ApplicationBean implements Serializable {
                 || !EntityConstants.ENTITY_TYPE_GROUP.equals(selectedEntity.getEntityType().getCode())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser().getId();
@@ -1992,7 +1992,7 @@ public class ApplicationBean implements Serializable {
                 || !EntityConstants.ENTITY_TYPE_SERIES.equals(selectedEntity.getEntityType().getCode())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser().getId();
@@ -2039,7 +2039,7 @@ public class ApplicationBean implements Serializable {
                 || !EntityConstants.ENTITY_TYPE_TYPE.equals(selectedEntity.getEntityType().getCode())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser().getId();
@@ -2365,7 +2365,7 @@ public class ApplicationBean implements Serializable {
                 || !EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;

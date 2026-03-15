@@ -888,7 +888,7 @@ public class ReferenceBean implements Serializable {
             return false;
         }
 
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
 
@@ -911,6 +911,6 @@ public class ReferenceBean implements Serializable {
     }
 
     public boolean showReferenceStatut() {
-        return !loginBean.isAuthenticated() || !loginBean.isAdminTechnique();
+        return !loginBean.isAuthenticated() || !loginBean.isAdminTechniqueOrFonctionnel();
     }
 }

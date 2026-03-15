@@ -799,7 +799,7 @@ public class CollectionBean implements Serializable {
             return false;
         }
 
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
 

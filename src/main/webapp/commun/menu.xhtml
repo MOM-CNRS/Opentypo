@@ -46,7 +46,7 @@
                         </p:commandLink>
 
                         <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
-                        <h:panelGroup rendered="#{loginBean.isAdminTechnique()}">
+                        <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}">
                             <p:commandLink action="#{applicationBean.goToUtilisateurs(entityUpdateBean)}"
                                            styleClass="sidebar-menu-item"
                                            data-menu-item="users"

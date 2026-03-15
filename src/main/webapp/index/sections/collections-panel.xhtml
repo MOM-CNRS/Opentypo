@@ -15,8 +15,8 @@
                 <ui:param name="optionClassPrefix" value="collections-sort"/>
                 <ui:param name="label" value="Ordre d'affichage"/>
             </ui:include>
-            <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechnique()}"/>
-        <h:panelGroup rendered="#{loginBean.isAdminTechnique()}" styleClass="create-collection-section-actions">
+            <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechniqueOrFonctionnel()}"/>
+        <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}" styleClass="create-collection-section-actions">
             <p:commandButton value="Réorganiser l'ordre"
                              icon="pi pi-sort-alt"
                              rendered="#{applicationBean.collections.size() gt 1}"

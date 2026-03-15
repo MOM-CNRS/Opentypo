@@ -477,6 +477,6 @@ public class CategoryBean implements Serializable {
             return true;
         }
 
-        return loginBean.isAdminTechnique();
+        return loginBean.isAdminTechniqueOrFonctionnel();
     }
 }

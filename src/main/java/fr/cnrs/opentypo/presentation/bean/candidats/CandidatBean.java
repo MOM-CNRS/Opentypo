@@ -791,22 +791,16 @@ public class CandidatBean implements Serializable {
      * Groupe autorisé : Administrateur technique uniquement.
      */
     public boolean canValidateOrRefuseBrouillon() {
-        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
-        if (user == null || user.getGroupe() == null) return false;
-        String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
+        return loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
     }
 
     /**
      * Indique si l'utilisateur connecté peut modifier un brouillon (statut PROPOSITION).
-     * Groupe autorisé : Administrateur technique uniquement.
+     * Groupe autorisé : Administrateur technique ou fonctionnel.
      */
     public boolean canEditBrouillon(Candidat candidat) {
         if (candidat == null || candidat.getStatut() != Candidat.Statut.EN_COURS) return false;
-        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
-        if (user == null || user.getGroupe() == null) return false;
-        String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
+        return loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
     }
 
     /**
@@ -817,10 +811,7 @@ public class CandidatBean implements Serializable {
         if (entityEditModeBean != null && entityEditModeBean.isEditingEntityInCatalog()) return true;
         if (currentEntity == null || currentEntity.getStatut() == null) return false;
         if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) return false;
-        Utilisateur user = loginBean != null ? loginBean.getCurrentUser() : null;
-        if (user == null || user.getGroupe() == null) return false;
-        String groupeNom = user.getGroupe().getNom();
-        return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom);
+        return loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
     }
 
     /**

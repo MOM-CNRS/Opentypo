@@ -734,7 +734,7 @@ public class TypeBean implements Serializable {
         if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
@@ -767,7 +767,7 @@ public class TypeBean implements Serializable {
             return false;
         }
         if (!loginBean.isAuthenticated()) return false;
-        if (loginBean.isAdminTechnique()) return true;
+        if (loginBean.isAdminTechniqueOrFonctionnel()) return true;
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
         if (userId == null) return false;
 
@@ -795,7 +795,7 @@ public class TypeBean implements Serializable {
         if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
@@ -838,7 +838,7 @@ public class TypeBean implements Serializable {
                 || !EntityConstants.ENTITY_TYPE_TYPE.equals(applicationBean.getSelectedEntity().getEntityType().getCode())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;

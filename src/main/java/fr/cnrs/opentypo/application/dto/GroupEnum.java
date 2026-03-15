@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum GroupEnum {
 
     ADMINISTRATEUR_TECHNIQUE("Administrateur technique"),
+    ADMINISTRATEUR_FONCTIONNEL("Administrateur fonctionnel"),
     UTILISATEUR("Utilisateur");
 
     private final String label;

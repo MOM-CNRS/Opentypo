@@ -712,7 +712,7 @@ public class GroupBean implements Serializable {
             return true;
         }
 
-        return loginBean.isAdminTechnique();
+        return loginBean.isAdminTechniqueOrFonctionnel();
     }
 
     /**
@@ -725,7 +725,7 @@ public class GroupBean implements Serializable {
         if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
@@ -755,7 +755,7 @@ public class GroupBean implements Serializable {
         if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
@@ -792,7 +792,7 @@ public class GroupBean implements Serializable {
                 || !EntityStatusEnum.PROPOSITION.name().equals(applicationBean.getSelectedEntity().getStatut())) {
             return false;
         }
-        if (loginBean.isAdminTechnique()) {
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
             return true;
         }
         Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;

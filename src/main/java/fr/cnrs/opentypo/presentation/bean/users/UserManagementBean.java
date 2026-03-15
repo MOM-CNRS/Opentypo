@@ -318,12 +318,13 @@ public class UserManagementBean implements Serializable {
     }
 
     public String getGroupeEtiquette(Groupe groupe) {
-        if ( groupe == null || groupe.getNom() == null ) {
+        if (groupe == null || groupe.getNom() == null) {
             return "role-badge-viewer";
         }
         if (GroupEnum.UTILISATEUR.getLabel().equalsIgnoreCase(groupe.getNom())) {
             return "role-badge-viewer";
         }
+        // Administrateur technique et Administrateur fonctionnel : badge admin
         return "role-badge-admin";
     }
 }

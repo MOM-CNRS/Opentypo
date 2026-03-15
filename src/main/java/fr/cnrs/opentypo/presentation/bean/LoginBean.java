@@ -110,7 +110,8 @@ public class LoginBean implements Serializable {
             // Ajouter un rôle spécifique basé sur le groupe
             if (utilisateur.getGroupe() != null) {
                 String groupeNom = utilisateur.getGroupe().getNom();
-                if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)) {
+                if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
+                        || GroupEnum.ADMINISTRATEUR_FONCTIONNEL.getLabel().equalsIgnoreCase(groupeNom)) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 }
                 // Utilisateur : ROLE_USER uniquement (déjà ajouté plus haut)
@@ -207,14 +208,29 @@ public class LoginBean implements Serializable {
     }
 
     /**
-     * Vérifie si l'utilisateur actuel est un administrateur
-     * 
-     * @return true si l'utilisateur est administrateur, false sinon
+     * Vérifie si l'utilisateur actuel est un administrateur technique.
      */
     public boolean isAdminTechnique() {
-        return currentUser != null 
-            && currentUser.getGroupe() != null 
+        return currentUser != null
+            && currentUser.getGroupe() != null
             && GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    /**
+     * Vérifie si l'utilisateur actuel est un administrateur fonctionnel.
+     */
+    public boolean isAdminFonctionnel() {
+        return currentUser != null
+            && currentUser.getGroupe() != null
+            && GroupEnum.ADMINISTRATEUR_FONCTIONNEL.getLabel().equalsIgnoreCase(currentUser.getGroupe().getNom());
+    }
+
+    /**
+     * Vérifie si l'utilisateur a les droits d'administration (technique ou fonctionnel).
+     * Les deux rôles ont le même comportement pour le moment.
+     */
+    public boolean isAdminTechniqueOrFonctionnel() {
+        return isAdminTechnique() || isAdminFonctionnel();
     }
 
     /**
@@ -223,7 +239,7 @@ public class LoginBean implements Serializable {
      * @return true si l'utilisateur est connecté et est admin ou éditeur, false sinon
      */
     public boolean canCreateOrEdit() {
-        return authenticated && (isAdminTechnique());
+        return authenticated && isAdminTechniqueOrFonctionnel();
     }
 }
 
