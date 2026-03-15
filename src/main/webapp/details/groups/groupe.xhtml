@@ -220,7 +220,7 @@
                                     </div>
                                 </h:panelGroup>
 
-                                <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo()}">
+                                <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata.corpusExterne)}">
                                     <div class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
                                             <i class="pi pi-link concept-info-icon" />

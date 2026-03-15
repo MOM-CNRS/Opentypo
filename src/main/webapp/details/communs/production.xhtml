@@ -77,9 +77,21 @@
                                 <ui:fragment rendered="#{not empty applicationBean.selectedEntity.airesCirculation}">
                                     <ui:repeat value="#{applicationBean.selectedEntity.airesCirculation}" var="ref">
                                         <ui:fragment rendered="#{ref != null and not empty ref.valeur}">
-                                            <span class="bibliographie-badge">
-                                                <span class="bibliographie-badge-text">#{ref.valeur}</span>
-                                            </span>
+                                            <ui:fragment rendered="#{not empty ref.url}">
+                                                <h:outputLink value="#{ref.url}"
+                                                              target="_blank"
+                                                              rel="noopener noreferrer"
+                                                              styleClass="concept-value-external-link">
+                                                    #{ref.valeur}
+                                                    <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                </h:outputLink>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty ref.url}">
+                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                        <i class="pi pi-link-slash"/>
+                                                        #{ref.valeur}
+                                                    </span>
+                                            </ui:fragment>
                                         </ui:fragment>
                                     </ui:repeat>
                                 </ui:fragment>
