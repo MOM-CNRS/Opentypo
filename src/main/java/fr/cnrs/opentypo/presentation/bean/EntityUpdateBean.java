@@ -998,7 +998,7 @@ public class EntityUpdateBean implements Serializable {
         treeBean.updateEntityInTree(entitySaved);
         treeBean.expandPathAndSelectEntity(entitySaved);
 
-        applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, entitySaved);
+        applicationBean.getBreadCrumbElements().set(applicationBean.getBreadCrumbElements().size() - 1, entitySaved);
 
         editingEntity = false;
         resetCategoryDialogForm();

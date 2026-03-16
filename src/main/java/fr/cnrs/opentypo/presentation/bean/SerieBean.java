@@ -459,8 +459,8 @@ public class SerieBean implements Serializable {
 
             applicationBean.setSelectedEntity(parentGroup);
             applicationBean.setChilds(parentGroup != null ? new ArrayList<>() : new ArrayList<>());
-            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
-                applicationBean.getBeadCrumbElements().remove(applicationBean.getBeadCrumbElements().size() - 1);
+            if (!applicationBean.getBreadCrumbElements().isEmpty()) {
+                applicationBean.getBreadCrumbElements().remove(applicationBean.getBreadCrumbElements().size() - 1);
             }
             if (parentGroup != null) {
                 applicationBean.refreshChilds();

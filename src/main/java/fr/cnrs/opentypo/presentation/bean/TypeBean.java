@@ -371,7 +371,7 @@ public class TypeBean implements Serializable {
 
         ApplicationBean appBean = applicationBeanProvider.get();
         appBean.refreshChilds();
-        appBean.setBeadCrumbElements(appBean.buildBreadcrumbFromSelectedEntity());
+        appBean.setBreadCrumbElements(appBean.buildBreadcrumbFromSelectedEntity());
 
         TreeBean treeBean = treeBeanProvider.get();
         Entity newParentCollection = collectionService.findCollectionIdByEntityId(newParent.getId());
@@ -658,9 +658,9 @@ public class TypeBean implements Serializable {
 
         Entity saved = entityRepository.save(typeToUpdate);
         applicationBean.setSelectedEntity(saved);
-        int idx = applicationBean.getBeadCrumbElements().size() - 1;
+        int idx = applicationBean.getBreadCrumbElements().size() - 1;
         if (idx >= 0) {
-            applicationBean.getBeadCrumbElements().set(idx, saved);
+            applicationBean.getBreadCrumbElements().set(idx, saved);
         }
         TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
         if (tb != null) {
@@ -692,8 +692,8 @@ public class TypeBean implements Serializable {
 
             applicationBean.setSelectedEntity(parentSerie);
             applicationBean.setChilds(new ArrayList<>());
-            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
-                applicationBean.getBeadCrumbElements().removeLast();
+            if (!applicationBean.getBreadCrumbElements().isEmpty()) {
+                applicationBean.getBreadCrumbElements().removeLast();
             }
             if (parentSerie != null) {
                 applicationBean.refreshChilds();

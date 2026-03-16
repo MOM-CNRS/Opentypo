@@ -338,8 +338,8 @@ public class CategoryBean implements Serializable {
             // Réinitialiser la sélection
             applicationBean.setSelectedEntity(null);
             applicationBean.setChilds(new ArrayList<>());
-            int index = applicationBean.getBeadCrumbElements().size() - 1;
-            applicationBean.getBeadCrumbElements().remove(index);
+            int index = applicationBean.getBreadCrumbElements().size() - 1;
+            applicationBean.getBreadCrumbElements().remove(index);
 
             // Mettre à jour l'arbre
             treeBean.initializeTreeWithCollection();
@@ -449,7 +449,7 @@ public class CategoryBean implements Serializable {
         treeBean.updateEntityInTree(categorySaved);
         treeBean.expandPathAndSelectEntity(categorySaved);
 
-        applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, categorySaved);
+        applicationBean.getBreadCrumbElements().set(applicationBean.getBreadCrumbElements().size() - 1, categorySaved);
 
         resetCategoryDialogForm();
 

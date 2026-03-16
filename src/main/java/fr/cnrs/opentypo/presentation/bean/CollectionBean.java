@@ -236,7 +236,7 @@ public class CollectionBean implements Serializable {
         }
 
         // Mettre à jour le breadcrumb à partir de selectedEntity
-        applicationBean.setBeadCrumbElements(applicationBean.buildBreadcrumbFromSelectedEntity());
+        applicationBean.setBreadCrumbElements(applicationBean.buildBreadcrumbFromSelectedEntity());
 
         // Initialiser l'arbre avec les référentiels de la collection
         treeBean.initializeTreeWithCollection();

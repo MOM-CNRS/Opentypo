@@ -40,9 +40,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
-import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
-import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
 import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
@@ -62,7 +60,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -183,7 +180,7 @@ public class ApplicationBean implements Serializable {
 
     private final PanelStateManager panelState = new PanelStateManager();
     private List<Language> languages;
-    private List<Entity> beadCrumbElements, references, collections;
+    private List<Entity> breadCrumbElements, references, collections;
     
     /** Entité actuellement sélectionnée (collection, référentiel, catégorie, groupe, série ou type). */
     private Entity selectedEntity;
@@ -1494,7 +1491,7 @@ public class ApplicationBean implements Serializable {
 
         this.selectedEntityLabel = "";
         this.selectedEntity = null;
-        this.beadCrumbElements = new ArrayList<>();
+        this.breadCrumbElements = new ArrayList<>();
         this.childs = new ArrayList<>();
         searchBean.setCollectionSelected(null);
         panelState.showCollections();
@@ -1562,7 +1559,7 @@ public class ApplicationBean implements Serializable {
         }
         panelState.showGroupe();
         refreshChilds();
-        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        breadCrumbElements = buildBreadcrumbFromSelectedEntity();
         getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
@@ -1572,7 +1569,7 @@ public class ApplicationBean implements Serializable {
     public void showReferenceDetail(Entity reference) {
         this.selectedEntity = reference;
         panelState.showReference();
-        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        breadCrumbElements = buildBreadcrumbFromSelectedEntity();
         refreshChilds();
         getTreeBean().selectReferenceNode(reference);
         getTreeBean().loadChildForEntity(reference);
@@ -1601,7 +1598,7 @@ public class ApplicationBean implements Serializable {
         this.selectedEntity = entityRepository.findById(serie.getId()).orElse(serie);
         panelState.showSerie();
         refreshChilds();
-        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        breadCrumbElements = buildBreadcrumbFromSelectedEntity();
         getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
@@ -1616,7 +1613,7 @@ public class ApplicationBean implements Serializable {
         this.selectedEntity = entityRepository.findByIdWithImages(type.getId()).orElse(type);
         panelState.showType();
         refreshChilds();
-        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        breadCrumbElements = buildBreadcrumbFromSelectedEntity();
         getTreeBean().expandPathAndSelectEntity(selectedEntity);
     }
 
@@ -1627,7 +1624,7 @@ public class ApplicationBean implements Serializable {
         this.selectedEntity = category;
         panelState.showCategory();
         refreshChilds();
-        beadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        breadCrumbElements = buildBreadcrumbFromSelectedEntity();
         getTreeBean().expandPathAndSelectEntity(category);
     }
 

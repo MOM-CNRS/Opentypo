@@ -220,19 +220,105 @@
     }
 }
 
-/* ---- 11. Mobile : layout adapté ---- */
+/* ---- 11. Mobile : layout adapté (768px) ---- */
 @media (max-width: 768px) {
     .app-content {
+        flex-wrap: wrap !important;
         padding: 0.5rem !important;
         gap: 0.5rem !important;
     }
 
+    .left-tree {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        min-height: 200px !important;
+    }
+
     .center-content {
-        flex: 1 1 auto !important;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
         min-height: 150px !important;
     }
 
     .info-concept {
         padding: 0.75rem !important;
+    }
+}
+
+/* ---- 12. Mobile étroit (480px) ---- */
+@media (max-width: 480px) {
+    .app-search {
+        padding: 0.375rem 0.5rem !important;
+    }
+
+    .app-content {
+        padding: 0.375rem !important;
+        gap: 0.375rem !important;
+    }
+
+    .left-tree {
+        min-height: 180px !important;
+    }
+
+    .info-concept {
+        padding: 0.5rem !important;
+    }
+
+    .modern-cards-grid {
+        gap: 0.75rem !important;
+    }
+
+    .search-bar-compact .search-input-group {
+        flex: 1 1 100% !important;
+    }
+}
+
+/* ---- 13. Très petit écran (360px) ---- */
+@media (max-width: 360px) {
+    :root {
+        --index-gap: 0.5rem;
+        --index-padding: 0.5rem;
+    }
+
+    .app-search {
+        padding: 0.25rem 0.375rem !important;
+    }
+
+    .app-content {
+        padding: 0.25rem !important;
+        gap: 0.25rem !important;
+    }
+
+    .left-tree {
+        min-height: 160px !important;
+    }
+
+    .info-concept {
+        padding: 0.375rem !important;
+    }
+
+    .breadcrumb-nav {
+        padding: 0.25rem 0 !important;
+    }
+}
+
+/* ---- 14. DataTables PrimeFaces - scroll horizontal sur mobile ---- */
+@media (max-width: 768px) {
+    .ui-datatable .ui-datatable-tablewrapper,
+    .ui-datatable-tablewrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .ui-dialog {
+        max-width: calc(100vw - 2rem) !important;
+        margin: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ui-dialog {
+        max-width: calc(100vw - 1rem) !important;
+        margin: 0.5rem !important;
     }
 }

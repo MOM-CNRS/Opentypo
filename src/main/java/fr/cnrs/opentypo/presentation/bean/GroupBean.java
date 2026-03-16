@@ -670,8 +670,8 @@ public class GroupBean implements Serializable {
 
             applicationBean.setSelectedEntity(parentCategory);
             applicationBean.setChilds(new ArrayList<>());
-            if (!applicationBean.getBeadCrumbElements().isEmpty()) {
-                applicationBean.getBeadCrumbElements().removeLast();
+            if (!applicationBean.getBreadCrumbElements().isEmpty()) {
+                applicationBean.getBreadCrumbElements().removeLast();
             }
             if (parentCategory != null) {
                 applicationBean.refreshChilds();

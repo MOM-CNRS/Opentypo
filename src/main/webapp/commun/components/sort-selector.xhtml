@@ -25,12 +25,12 @@
             <p:commandButton value="Personnalisé"
                              icon="pi pi-bars"
                              styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'MANUAL') ? optionClassPrefix.concat('-option-active') : ''}"
-                             title="#{applicationBean.hasCustomOrder(listType) ? 'Ordre personnalisé (réorganisable)' : 'Aucun ordre personnalisé défini'}"
+                             title="Ordre personnalisé (réorganisable)"
                              action="#{applicationBean.setSortMode(listType, 'MANUAL')}"
                              process="@this"
                              ajax="true"
                              update="#{updateId}"
-                             disabled="#{!applicationBean.hasCustomOrder(listType)}"/>
+                             rendered="#{applicationBean.hasCustomOrder(listType)}"/>
             <p:commandButton value="A → Z"
                              icon="pi pi-sort-alpha-down"
                              styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'ALPHA_ASC') ? optionClassPrefix.concat('-option-active') : ''}"

@@ -696,7 +696,7 @@ public class ReferenceBean implements Serializable {
                 treeBean.updateEntityInTree(savedEntity);
             }
 
-            applicationBean.getBeadCrumbElements().set(applicationBean.getBeadCrumbElements().size() - 1, applicationBean.getSelectedReference());
+            applicationBean.getBreadCrumbElements().set(applicationBean.getBreadCrumbElements().size() - 1, applicationBean.getSelectedReference());
 
             entityEditModeBean.cancelEditing();
 
