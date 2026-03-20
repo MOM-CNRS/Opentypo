@@ -66,14 +66,19 @@
                                      styleClass="site-presentation-edit-input"
                                      maxlength="255"/>
                     </div>
-                    <div class="site-presentation-edit-field">
-                        <p:outputLabel for="editDescription" value="Description" styleClass="site-presentation-edit-label"/>
-                        <p:textEditor id="editDescription"
-                                      value="#{sitePresentationBean.editDescription}"
-                                      height="140"
-                                      secure="false"
-                                      styleClass="site-presentation-texteditor"
-                                      placeholder="Saisissez la description (texte riche)…"/>
+                    <div class="site-presentation-editor-row">
+                        <div class="site-presentation-editor-inner">
+                            <div class="site-presentation-editor-header">
+                                <i class="pi pi-align-left site-presentation-editor-icon" />
+                                <span class="site-presentation-editor-label">Saisissez la description</span>
+                            </div>
+                            <p:textEditor id="editDescription"
+                                          value="#{sitePresentationBean.editDescription}"
+                                          height="160"
+                                          secure="false"
+                                          styleClass="site-presentation-texteditor"
+                                          placeholder="Saisissez la description…"/>
+                        </div>
                     </div>
                     <div class="site-presentation-edit-actions">
                         <p:commandButton value="Annuler"

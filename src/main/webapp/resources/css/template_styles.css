@@ -311,58 +311,93 @@
     margin-bottom: 0 !important;
 }
 
-/* TextEditor - présentation modification */
-.site-presentation-edit-mode .site-presentation-texteditor {
-    width: 100% !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    background: #ffffff !important;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+/* Bloc éditeur description - structure harmonisée avec definition-modification */
+.site-presentation-editor-row {
+    width: 100%;
+    margin-bottom: 0;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor:focus-within {
-    border-color: var(--color-action-main, #47624D) !important;
-    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+.site-presentation-editor-inner {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar {
-    background: rgba(71, 98, 77, 0.04) !important;
+.site-presentation-editor-inner:focus-within {
+    border-color: var(--color-action-main, #47624D);
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.12);
+}
+
+.site-presentation-editor-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #819A91);
+    border-bottom: 1px solid rgba(71, 98, 77, 0.08);
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, transparent 100%);
+}
+
+.site-presentation-editor-icon {
+    color: var(--color-action-main, #47624D);
+    font-size: 0.9375rem;
+}
+
+.site-presentation-editor-inner .site-presentation-texteditor {
     border: none !important;
-    border-bottom: 1px solid #e5e7eb !important;
-    padding: 0.4rem 0.6rem !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-stroke {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+    padding: 0.4rem 0.75rem !important;
+}
+
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar .ql-stroke {
     stroke: rgba(71, 98, 77, 0.3) !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-fill {
-    fill: rgba(71, 98, 77, 0.5) !important;
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar .ql-fill {
+    fill: rgba(71, 98, 77, 0.45) !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar button:hover .ql-stroke,
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-stroke {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar button:hover .ql-stroke,
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-stroke {
     stroke: var(--color-action-main, #47624D) !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar button:hover .ql-fill,
-.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-fill {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar button:hover .ql-fill,
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-fill {
     fill: var(--color-action-main, #47624D) !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-container {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar button.ql-active .ql-stroke,
+.site-presentation-editor-inner .site-presentation-texteditor .ql-toolbar button.ql-active .ql-fill {
+    stroke: var(--color-action-main, #47624D) !important;
+    fill: var(--color-action-main, #47624D) !important;
+}
+
+.site-presentation-editor-inner .site-presentation-texteditor .ql-container {
     border: none !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-editor {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-editor {
     min-height: 120px !important;
-    padding: 0.65rem 0.875rem !important;
+    padding: 0.75rem 1rem !important;
     font-size: 0.9375rem !important;
     line-height: 1.6 !important;
+    color: var(--color-text-primary, #333) !important;
 }
 
-.site-presentation-edit-mode .site-presentation-texteditor .ql-editor.ql-blank::before {
+.site-presentation-editor-inner .site-presentation-texteditor .ql-editor.ql-blank::before {
     color: #9ca3af !important;
     font-style: normal !important;
 }

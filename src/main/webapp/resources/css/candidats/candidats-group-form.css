@@ -317,14 +317,95 @@
             margin-bottom: 0.75rem;
         }
 
-        /* Ligne 1 : textarea pleine largeur */
-        .candidat-definition-textarea-row {
+        /* Ligne 1 : éditeur de définition (texte riche) */
+        .candidat-definition-editor-row {
             width: 100%;
             margin-bottom: 0.75rem;
         }
 
-        .candidat-definition-textarea-row .input-wrapper {
+        .candidat-definition-editor-inner {
             width: 100%;
+            background: #ffffff;
+            border: 1px solid rgba(71, 98, 77, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .candidat-definition-editor-inner:focus-within {
+            border-color: var(--color-action-main, #47624D);
+            box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.12);
+        }
+
+        .candidat-definition-editor-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            color: var(--color-text-secondary, #819A91);
+            border-bottom: 1px solid rgba(71, 98, 77, 0.08);
+            background: linear-gradient(135deg, rgba(71, 98, 77, 0.03) 0%, transparent 100%);
+        }
+
+        .candidat-definition-editor-icon {
+            color: var(--color-action-main, #47624D);
+            font-size: 0.9375rem;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            width: 100% !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: none !important;
+            border-bottom: 1px solid rgba(71, 98, 77, 0.1) !important;
+            padding: 0.4rem 0.75rem !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar .ql-stroke {
+            stroke: rgba(71, 98, 77, 0.3) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar .ql-fill {
+            fill: rgba(71, 98, 77, 0.45) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar button:hover .ql-stroke,
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar .ql-picker-label:hover .ql-stroke {
+            stroke: var(--color-action-main, #47624D) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar button:hover .ql-fill,
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar .ql-picker-label:hover .ql-fill {
+            fill: var(--color-action-main, #47624D) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar button.ql-active .ql-stroke,
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-toolbar button.ql-active .ql-fill {
+            stroke: var(--color-action-main, #47624D) !important;
+            fill: var(--color-action-main, #47624D) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-container {
+            border: none !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-editor {
+            min-height: 120px !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.9375rem !important;
+            line-height: 1.6 !important;
+            color: var(--color-text-primary, #333) !important;
+        }
+
+        .candidat-definition-editor-inner .candidat-definition-texteditor .ql-editor.ql-blank::before {
+            color: rgba(129, 154, 145, 0.6) !important;
+            font-style: normal !important;
         }
 
         /* Ligne 2 : select + bouton */
@@ -333,10 +414,6 @@
             flex-wrap: wrap;
             gap: 0.75rem;
             align-items: center;
-        }
-
-        .candidat-definition-textarea-inner {
-            width: 100%;
         }
 
         .candidat-definition-textarea,
@@ -370,6 +447,14 @@
         }
 
         @media (max-width: 768px) {
+            .candidat-definition-editor-header {
+                padding: 0.5rem 0.875rem;
+                font-size: 0.8125rem;
+            }
+            .candidat-definition-editor-inner .candidat-definition-texteditor .ql-editor {
+                min-height: 100px !important;
+                padding: 0.65rem 0.875rem !important;
+            }
             .candidat-definition-actions-row {
                 flex-direction: column;
                 align-items: stretch;

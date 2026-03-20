@@ -8,14 +8,17 @@
         <div class="periode-header-row">
             <p:outputLabel value="Traductions de la définition" />
         </div>
-        <div class="candidat-definition-textarea-row">
-            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidat-definition-textarea-inner">
-                <i class="pi pi-align-left input-icon input-icon-textarea" />
-                <p:inputTextarea value="#{entityUpdateBean.newDescriptionValue}"
-                                 placeholder="Saisissez la traduction de la définition..."
-                                 styleClass="users-input candidat-definition-textarea"
-                                 rows="3"
-                                 maxlength="1000"/>
+        <div class="candidat-definition-editor-row">
+            <div class="candidat-definition-editor-inner">
+                <div class="candidat-definition-editor-header">
+                    <i class="pi pi-align-left candidat-definition-editor-icon" />
+                    <span class="candidat-definition-editor-label">Saisissez la traduction de la définition</span>
+                </div>
+                <p:textEditor value="#{entityUpdateBean.newDescriptionValue}"
+                              placeholder="Saisissez la traduction de la définition..."
+                              secure="false"
+                              height="160"
+                              styleClass="candidat-definition-texteditor"/>
             </div>
         </div>
         <div class="candidat-definition-actions-row">
