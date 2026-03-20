@@ -122,6 +122,10 @@ public class TypeBean implements Serializable {
     private String confirmMoveMessage;
     private boolean confirmMoveFromDialog;
 
+    /** Duplication de type : nouveau code et parent sélectionné. */
+    private String duplicateTypeCode;
+    private Long duplicateTypeSelectedParentId;
+
 
     public void resetTypeForm() {
         typeCode = null;
@@ -230,6 +234,137 @@ public class TypeBean implements Serializable {
     /** Prépare le dialog de déplacement du type : charge les parents possibles et réinitialise la sélection. */
     public void prepareMoveTypeDialog() {
         moveTypeSelectedParentId = null;
+    }
+
+    /** Prépare le dialog de duplication du type : initialise le code suggéré et le parent par défaut. */
+    public void prepareDuplicateTypeDialog() {
+        ApplicationBean appBean = applicationBeanProvider.get();
+        Entity type = appBean != null ? appBean.getSelectedEntity() : null;
+        duplicateTypeCode = (type != null && type.getCode() != null) ? type.getCode() + "_copie" : "";
+        Entity currentParent = getMoveTypeCurrentParent();
+        duplicateTypeSelectedParentId = currentParent != null ? currentParent.getId() : null;
+    }
+
+    /**
+     * Liste des groupes et séries pouvant être parents pour la duplication.
+     * Inclut le parent actuel (contrairement à getMoveTypeParentOptions).
+     */
+    public List<SelectItem> getDuplicateTypeParentOptions() {
+        List<SelectItem> result = new ArrayList<>();
+        ApplicationBean appBean = applicationBeanProvider.get();
+        Entity type = appBean != null ? appBean.getSelectedEntity() : null;
+        if (type == null || appBean == null) return result;
+
+        if (appBean.getCollections() == null || appBean.getCollections().isEmpty()) {
+            appBean.loadAllCollections();
+        }
+        List<Entity> collections = appBean.getCollections();
+        if (collections == null) return result;
+
+        for (Entity collection : collections) {
+            if (collection == null || !appBean.isEntityVisibleForCurrentUser(collection)) continue;
+            List<Entity> references = referenceService.loadReferencesByCollection(collection);
+            if (references == null || references.isEmpty()) continue;
+
+            List<SelectItem> groupItems = new ArrayList<>();
+            for (Entity reference : references) {
+                if (reference == null || !appBean.isEntityVisibleForCurrentUser(reference)) continue;
+                List<Entity> parents = typeService.getPossibleParentsForReference(reference);
+                for (Entity parent : parents) {
+                    if (parent == null || parent.getId() == null) continue;
+                    groupItems.add(new SelectItem(parent.getId(), getParentOptionLabel(parent)));
+                }
+            }
+            if (!groupItems.isEmpty()) {
+                String collectionLabel = appBean.getEntityLabel(collection);
+                if (collectionLabel == null) collectionLabel = collection.getCode();
+                SelectItemGroup group = new SelectItemGroup("📁 " + collectionLabel);
+                group.setSelectItems(groupItems.toArray(new SelectItem[0]));
+                result.add(group);
+            }
+        }
+        return result;
+    }
+
+    /** Exécute la duplication du type après validation du formulaire. */
+    @Transactional
+    public void performDuplicateType() {
+        FacesContext fc = FacesContext.getCurrentInstance();
+        ApplicationBean appBean = applicationBeanProvider.get();
+        if (appBean == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Contexte invalide."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+        Entity type = appBean.getSelectedEntity();
+
+        if (type == null || type.getId() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun type sélectionné."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        String newCode = duplicateTypeCode != null ? duplicateTypeCode.trim() : "";
+        if (newCode.isEmpty()) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le code du nouveau type est obligatoire."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        if (!EntityValidator.validateCode(newCode, entityRepository)) {
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        Entity parent = duplicateTypeSelectedParentId != null
+                ? entityRepository.findById(duplicateTypeSelectedParentId).orElse(null)
+                : null;
+        if (parent == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Veuillez sélectionner un parent."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Seuls les types peuvent être dupliqués."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        if (!canEditType(appBean)) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Vous n'avez pas les droits pour dupliquer ce type."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        try {
+            Entity sourceLoaded = entityRepository.findById(type.getId()).orElse(null);
+            if (sourceLoaded == null) {
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Type introuvable."));
+                PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+                return;
+            }
+
+            Entity duplicated = typeService.duplicateType(sourceLoaded, newCode, parent);
+
+            appBean.refreshGroupTypesList();
+            TreeBean treeBean = treeBeanProvider.get();
+            if (treeBean != null) {
+                treeBean.addEntityToTree(duplicated, parent);
+            }
+
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
+                    "Le type a été dupliqué avec succès. Le nouveau type \"" + newCode + "\" a été créé sans images."));
+            duplicateTypeCode = null;
+            duplicateTypeSelectedParentId = null;
+            appBean.setSelectedEntity(duplicated);
+            PrimeFaces.current().ajax().update(":growl :contentPanels :centerContent :leftTreePanel");
+        } catch (Exception e) {
+            log.error("Erreur lors de la duplication du type", e);
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Une erreur est survenue : " + (e.getMessage() != null ? e.getMessage() : e.toString())));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+        }
     }
 
     /**

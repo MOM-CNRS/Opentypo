@@ -198,6 +198,24 @@
     box-shadow: 0 2px 8px rgba(var(--mt-main-rgb), 0.25);
 }
 
+/* Indication duplication (images non copiées) */
+.duplicate-type-dialog .duplicate-type-hint {
+    font-size: 0.8125rem;
+    color: var(--mt-text-muted);
+    margin: 0.5rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(var(--mt-main-rgb), 0.04);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.duplicate-type-dialog .duplicate-type-hint i {
+    color: var(--mt-main);
+    flex-shrink: 0;
+}
+
 /* Message erreur */
 .move-type-dialog .ui-message {
     font-size: 0.8125rem !important;

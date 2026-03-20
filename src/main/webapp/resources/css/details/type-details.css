@@ -604,6 +604,91 @@
     border-color: var(--type-main);
 }
 
+/* ---- Menu contextuel d'actions (type) ---- */
+.type-detail-page .concept-action-menu-trigger {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: 1px solid var(--type-border) !important;
+    border-radius: 8px !important;
+    color: var(--type-main) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.type-detail-page .concept-action-menu-trigger:hover {
+    background: var(--type-main) !important;
+    color: #ffffff !important;
+    border-color: var(--type-main) !important;
+    transform: scale(1.05);
+}
+
+.type-detail-page .concept-action-menu-trigger:focus,
+.type-detail-page .concept-action-menu-trigger.ui-state-focus {
+    box-shadow: 0 0 0 2px rgba(var(--type-main-rgb), 0.25) !important;
+}
+
+/* Masquer le caret du MenuButton pour un rendu icon-only */
+.type-detail-page .concept-action-menu-trigger .ui-menu-button-dropdown {
+    display: none !important;
+}
+
+/* Overlay du menu - animation fluide (appendTo body, variables explicites car hors .type-detail-page) */
+.type-actions-menu-overlay {
+    --type-overlay-border: rgba(71, 98, 77, 0.15);
+    --type-overlay-main: #47624D;
+    border-radius: 10px !important;
+    border: 1px solid var(--type-overlay-border) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(71, 98, 77, 0.08) !important;
+    padding: 0.35rem 0 !important;
+    animation: type-menu-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+}
+
+@keyframes type-menu-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Items du menu */
+.type-actions-menu-overlay .ui-menuitem-link {
+    padding: 0.6rem 1rem !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+.type-actions-menu-overlay .ui-menuitem-link:hover {
+    background: rgba(71, 98, 77, 0.08) !important;
+}
+
+.type-actions-menu-overlay .ui-menuitem-icon {
+    color: var(--type-overlay-main) !important;
+}
+
+/* Item Supprimer - style d'avertissement */
+.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link,
+.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-icon {
+    color: #c53030 !important;
+}
+
+.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link:hover {
+    background: rgba(197, 48, 48, 0.1) !important;
+}
+
+/* Séparateur */
+.type-actions-menu-overlay .ui-menu-separator {
+    border-color: var(--type-overlay-border) !important;
+    margin: 0.25rem 0 !important;
+}
+
 /* ---- Titre / lien série ---- */
 .type-detail-page .collection-panel-title {
     font-weight: 600;

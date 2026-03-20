@@ -1,0 +1,87 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputStylesheet library="css" name="dialogs/move-type-dialog.css"/>
+    <p:dialog id="duplicateTypeDialog"
+              widgetVar="duplicateTypeDialog"
+              header=""
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="420"
+              height="auto"
+              appendTo="@(body)"
+              styleClass="move-type-dialog duplicate-type-dialog"
+              responsive="true">
+
+        <f:facet name="header">
+            <div class="move-type-dialog-header">
+                <div class="move-type-dialog-header-icon-wrapper">
+                    <i class="pi pi-copy move-type-dialog-header-icon"/>
+                </div>
+                <h3 class="move-type-dialog-header-title">Dupliquer le type</h3>
+            </div>
+        </f:facet>
+
+        <h:form id="duplicateTypeDialogForm">
+            <div class="move-type-dialog-body">
+                <div class="move-type-new-section">
+                    <div class="move-type-section-label">
+                        <i class="pi pi-key move-type-section-icon"/>
+                        <span>Nouveau code</span>
+                    </div>
+                    <p:inputText id="duplicateTypeCodeInput"
+                                value="#{typeBean.duplicateTypeCode}"
+                                styleClass="move-type-select"
+                                placeholder="Ex: TYP001_copie"
+                                required="true"
+                                requiredMessage="Le code est obligatoire."/>
+                    <p:message for="duplicateTypeCodeInput"/>
+                </div>
+
+                <div class="move-type-new-section">
+                    <div class="move-type-section-label">
+                        <i class="pi pi-folder move-type-section-icon"/>
+                        <span>Parent</span>
+                    </div>
+                    <p:selectOneMenu id="duplicateParentSelect"
+                                    value="#{typeBean.duplicateTypeSelectedParentId}"
+                                    styleClass="move-type-select"
+                                    filter="true"
+                                    filterMatchMode="contains"
+                                    placeholder="Rechercher un groupe ou une série..."
+                                    required="true"
+                                    requiredMessage="Veuillez sélectionner un parent.">
+                        <f:selectItem itemValue="#{null}" itemLabel="— Choisir —" noSelectionOption="true"/>
+                        <f:selectItems value="#{typeBean.duplicateTypeParentOptions}"/>
+                    </p:selectOneMenu>
+                    <p:message for="duplicateParentSelect"/>
+                </div>
+
+                <p class="duplicate-type-hint">
+                    <i class="pi pi-info-circle"/> Les images ne seront pas copiées. Tous les autres champs seront conservés.
+                </p>
+            </div>
+
+            <div class="move-type-dialog-actions">
+                <p:commandButton value="Annuler"
+                               icon="pi pi-times"
+                               styleClass="move-type-dialog-btn move-type-dialog-btn-cancel"
+                               onclick="PF('duplicateTypeDialog').hide(); return false;"
+                               process="@this"
+                               update="@none"/>
+                <p:commandButton value="Dupliquer"
+                               icon="pi pi-copy"
+                               styleClass="move-type-dialog-btn move-type-dialog-btn-validate"
+                               action="#{typeBean.performDuplicateType}"
+                               process="@form"
+                               update=":growl :duplicateTypeDialogForm :contentPanels :centerContent :leftTreePanel"
+                               oncomplete="if(!args.validationFailed) PF('duplicateTypeDialog').hide();"/>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

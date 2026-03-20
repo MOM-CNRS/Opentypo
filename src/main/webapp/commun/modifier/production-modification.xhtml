@@ -81,7 +81,7 @@
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
-                                listener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
+                                listener="#{entityUpdateBean.revers}"
                                 process="@form"
                                 update="@form :growl"/>
                     </p:autoComplete>
