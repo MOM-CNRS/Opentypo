@@ -147,28 +147,57 @@
     }
 }
 
-/* Styles pour site-presentation - garantis pour persister même si le CSS externe n'est pas chargé */
+/* Styles site-presentation - compact, fluide */
 .site-presentation-container {
     width: 100% !important;
     box-sizing: border-box !important;
+    margin-bottom: 0.875rem !important;
 }
 
 .site-presentation-content {
+    display: block !important;
     background: #ffffff !important;
-    border: 1px solid rgba(71, 98, 77, 0.2) !important;
-    border-left: 4px solid var(--color-action-main, #47624D) !important;
-    border-radius: 8px !important;
-    padding: 1.25rem 1.5rem !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 0 !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.site-presentation-content::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    background: linear-gradient(90deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.6) 100%) !important;
+    transform: scaleX(1) !important;
+}
+
+/* Animation plus fluide - courbe douce, transition naturelle */
+.site-presentation-content.site-presentation-animate {
+    animation: sitePresentationPanelIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+@keyframes sitePresentationPanelIn {
+    0% {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .site-presentation-header {
     display: flex !important;
     align-items: center !important;
-    gap: 0.875rem !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 0.875rem !important;
-    border-bottom: 1px solid rgba(71, 98, 77, 0.15) !important;
+    gap: 0.65rem !important;
+    padding: 0.875rem 1rem 0.75rem 1rem !important;
+    flex-shrink: 0 !important;
 }
 
 .site-presentation-icon {
@@ -177,32 +206,165 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background: var(--color-action-main, #47624D) !important;
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.1) 0%, rgba(71, 98, 77, 0.05) 100%) !important;
     border-radius: 8px !important;
-    color: #ffffff !important;
+    color: var(--color-action-main, #47624D) !important;
     font-size: 1.25rem !important;
     flex-shrink: 0 !important;
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+}
+
+.site-presentation-content:not(.site-presentation-edit-mode):hover .site-presentation-icon {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, rgba(71, 98, 77, 0.8) 100%) !important;
+    color: #ffffff !important;
+}
+
+.site-presentation-edit-mode .site-presentation-icon {
+    background: linear-gradient(135deg, rgba(71, 98, 77, 0.15) 0%, rgba(71, 98, 77, 0.08) 100%) !important;
+    color: var(--color-action-main, #47624D) !important;
 }
 
 .site-presentation-title {
-    font-size: 1.375rem !important;
-    font-weight: 700 !important;
-    color: var(--color-action-main, #47624D) !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    color: var(--color-text-primary, #333) !important;
     margin: 0 !important;
+    line-height: 1.4 !important;
+    transition: color 0.3s ease !important;
+}
+
+.site-presentation-content:not(.site-presentation-edit-mode):hover .site-presentation-title {
+    color: var(--color-action-main, #47624D) !important;
+}
+
+.site-presentation-title-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.site-presentation-title-row .site-presentation-title {
+    flex: 1 !important;
+}
+
+/* Bouton Modifier - compact */
+.site-presentation-edit-btn {
+    flex-shrink: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(71, 98, 77, 0.08) !important;
+    color: var(--color-action-main, #47624D) !important;
+    border: 1px solid rgba(71, 98, 77, 0.2) !important;
+    border-radius: 10px !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.site-presentation-edit-btn:hover {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%) !important;
+    color: #ffffff !important;
+    border-color: var(--color-action-main, #47624D) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(71, 98, 77, 0.35) !important;
+}
+
+.site-presentation-edit-btn:active {
+    transform: scale(1.02) !important;
 }
 
 .site-presentation-body {
     display: flex !important;
     flex-direction: column !important;
-    gap: 1rem !important;
+    gap: 0.75rem !important;
+    padding: 0 1rem 1rem 1rem !important;
 }
 
 .site-presentation-text {
-    font-size: 0.9375rem !important;
-    line-height: 1.6 !important;
-    color: var(--color-text-primary, #333) !important;
+    font-size: 0.875rem !important;
+    line-height: 1.65 !important;
+    color: var(--color-text-secondary, #819A91) !important;
     margin: 0 !important;
     text-align: justify !important;
+}
+
+/* Description HTML riche (issue du TextEditor) */
+.site-presentation-description-display {
+    font-size: 0.9375rem !important;
+    line-height: 1.65 !important;
+    color: var(--color-text-secondary, #819A91) !important;
+}
+
+.site-presentation-description-display p,
+.site-presentation-description-display ul,
+.site-presentation-description-display ol {
+    margin: 0 0 0.5em 0 !important;
+}
+
+.site-presentation-description-display p:last-child,
+.site-presentation-description-display ul:last-child,
+.site-presentation-description-display ol:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* TextEditor - présentation modification */
+.site-presentation-edit-mode .site-presentation-texteditor {
+    width: 100% !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor:focus-within {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar {
+    background: rgba(71, 98, 77, 0.04) !important;
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 0.4rem 0.6rem !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-stroke {
+    stroke: rgba(71, 98, 77, 0.3) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-fill {
+    fill: rgba(71, 98, 77, 0.5) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar button:hover .ql-stroke,
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-stroke {
+    stroke: var(--color-action-main, #47624D) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar button:hover .ql-fill,
+.site-presentation-edit-mode .site-presentation-texteditor .ql-toolbar .ql-picker-label:hover .ql-fill {
+    fill: var(--color-action-main, #47624D) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-container {
+    border: none !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-editor {
+    min-height: 120px !important;
+    padding: 0.65rem 0.875rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.6 !important;
+}
+
+.site-presentation-edit-mode .site-presentation-texteditor .ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+    font-style: normal !important;
 }
 
 .site-presentation-features {
@@ -257,16 +419,199 @@
     margin: 0 !important;
 }
 
-@media (max-width: 768px) {
-    .site-presentation-content {
-        padding: 1rem !important;
-        border-left-width: 3px !important;
-    }
+.site-presentation-edit-form .site-presentation-edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
 
+.site-presentation-edit-form .site-presentation-edit-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.site-presentation-edit-form .site-presentation-edit-input,
+.site-presentation-edit-form .site-presentation-edit-select,
+.site-presentation-edit-form .site-presentation-edit-textarea {
+    width: 100%;
+}
+
+.site-presentation-edit-form .site-presentation-edit-textarea {
+    min-height: 60px;
+}
+
+.site-presentation-edit-form .site-presentation-edit-actions,
+.site-presentation-edit-fields .site-presentation-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Mode édition - compact */
+.site-presentation-edit-mode .site-presentation-header {
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.site-presentation-edit-mode .site-presentation-edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem 1rem 1rem !important;
+}
+
+.site-presentation-edit-mode .site-presentation-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.site-presentation-edit-mode .site-presentation-edit-label {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--color-text-primary, #333);
+}
+
+.site-presentation-edit-mode .site-presentation-edit-input,
+.site-presentation-edit-mode .site-presentation-edit-select,
+.site-presentation-edit-mode .site-presentation-edit-textarea,
+.site-presentation-edit-mode .ui-inputfield {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.5rem 0.75rem !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.site-presentation-edit-mode .site-presentation-edit-input:focus,
+.site-presentation-edit-mode .site-presentation-edit-select:focus,
+.site-presentation-edit-mode .site-presentation-edit-textarea:focus,
+.site-presentation-edit-mode .ui-inputfield:focus {
+    border-color: var(--color-action-main, #47624D) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+}
+
+/* Sélecteur de langue - design soigné avec icône */
+.site-presentation-langue-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.site-presentation-langue-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(71, 98, 77, 0.5);
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 1;
+    transition: color 0.25s ease;
+}
+
+.site-presentation-langue-wrapper .site-presentation-langue-select,
+.site-presentation-langue-wrapper .ui-selectonemenu {
+    width: 100% !important;
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    font-size: 0.9375rem !important;
+    background: #ffffff !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.site-presentation-langue-wrapper .ui-selectonemenu-label {
+    padding-left: 0 !important;
+}
+
+.site-presentation-langue-wrapper:hover .site-presentation-langue-icon {
+    color: var(--color-action-main, #47624D);
+}
+
+.site-presentation-langue-wrapper .ui-selectonemenu:hover {
+    border-color: rgba(71, 98, 77, 0.35) !important;
+}
+
+.site-presentation-langue-wrapper .ui-selectonemenu.ui-state-focus,
+.site-presentation-langue-wrapper:focus-within .ui-selectonemenu {
+    border-color: var(--color-action-main, #47624D) !important;
+    box-shadow: 0 0 0 3px rgba(71, 98, 77, 0.15) !important;
+    outline: none !important;
+}
+
+.site-presentation-langue-wrapper:focus-within .site-presentation-langue-icon {
+    color: var(--color-action-main, #47624D);
+}
+
+
+.site-presentation-edit-mode .site-presentation-edit-actions {
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+}
+
+/* Boutons Enregistrer et Annuler - style soigné aligné sur l'app */
+.site-presentation-edit-mode .site-presentation-action-btn {
+    min-width: 110px !important;
+    padding: 0.45rem 1rem !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    border: none !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-primary {
+    background: linear-gradient(135deg, var(--color-action-main, #47624D) 0%, #3a4f3f 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(71, 98, 77, 0.25) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-primary:hover {
+    background: linear-gradient(135deg, #3a4f3f 0%, var(--color-action-main, #47624D) 100%) !important;
+    box-shadow: 0 4px 14px rgba(71, 98, 77, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-primary:active {
+    transform: translateY(0) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-secondary {
+    background: #f3f4f6 !important;
+    color: #4b5563 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-secondary:hover {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+    border-color: #d1d5db !important;
+    transform: translateY(-1px) !important;
+}
+
+.site-presentation-edit-mode .site-presentation-action-btn.p-button-secondary:active {
+    transform: translateY(0) !important;
+}
+
+/* Alignement icône + texte dans les boutons */
+.site-presentation-edit-mode .site-presentation-action-btn .ui-button-icon-left,
+.site-presentation-edit-mode .site-presentation-action-btn .ui-button-icon {
+    margin-right: 0.4rem !important;
+}
+
+@media (max-width: 768px) {
     .site-presentation-header {
-        gap: 0.75rem !important;
-        margin-bottom: 0.875rem !important;
-        padding-bottom: 0.75rem !important;
+        padding: 0.75rem 0.875rem !important;
+        gap: 0.5rem !important;
     }
 
     .site-presentation-icon {
@@ -276,37 +621,44 @@
     }
 
     .site-presentation-title {
-        font-size: 1.25rem !important;
+        font-size: 1rem !important;
     }
 
     .site-presentation-body {
-        gap: 0.875rem !important;
+        padding: 0 0.875rem 0.875rem 0.875rem !important;
+        gap: 0.6rem !important;
     }
 
     .site-presentation-text {
-        font-size: 0.875rem !important;
+        font-size: 0.8125rem !important;
         text-align: left !important;
     }
 
-    .site-presentation-features {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
+    .site-presentation-edit-mode .site-presentation-edit-fields {
+        padding: 0.6rem 0.875rem !important;
+        gap: 0.6rem !important;
     }
 
-    .site-presentation-feature {
-        padding: 0.75rem !important;
+    .site-presentation-edit-mode .site-presentation-edit-actions {
+        flex-direction: column !important;
     }
 
-    .site-presentation-feature-icon {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 0.9375rem !important;
+    .site-presentation-edit-mode .site-presentation-action-btn {
+        width: 100% !important;
+    }
+
+    .site-presentation-langue-wrapper .ui-selectonemenu {
+        padding: 0.45rem 0.65rem 0.45rem 2.25rem !important;
+    }
+
+    .site-presentation-edit-mode .site-presentation-texteditor .ql-editor {
+        min-height: 100px !important;
     }
 }
 
 @media (max-width: 480px) {
-    .site-presentation-content {
-        padding: 0.875rem !important;
+    .site-presentation-header {
+        padding: 0.65rem 0.75rem !important;
     }
 
     .site-presentation-icon {
@@ -316,29 +668,19 @@
     }
 
     .site-presentation-title {
-        font-size: 1.125rem !important;
+        font-size: 0.9375rem !important;
+    }
+
+    .site-presentation-body {
+        padding: 0 0.75rem 0.75rem 0.75rem !important;
     }
 
     .site-presentation-text {
         font-size: 0.8125rem !important;
     }
 
-    .site-presentation-feature {
-        padding: 0.625rem !important;
-    }
-
-    .site-presentation-feature-icon {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 0.875rem !important;
-    }
-
-    .site-presentation-feature-title {
-        font-size: 0.875rem !important;
-    }
-
-    .site-presentation-feature-text {
-        font-size: 0.75rem !important;
+    .site-presentation-edit-mode .site-presentation-edit-fields {
+        padding: 0.5rem 0.75rem !important;
     }
 }
 
