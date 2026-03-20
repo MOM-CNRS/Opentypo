@@ -6,7 +6,7 @@
     <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputScript library="js" name="seriesTypesCarousel.js"/>
 
-    <div id="seriesTypesForm" class="series-types-unified" style="margin-top: 20px">
+    <h:panelGroup id="seriesTypesUnifiedContent" layout="block" style="margin-top: 20px" styleClass="series-types-unified">
         <section class="series-types-section series-types-section-merged">
             <!-- Bloc Séries -->
             <div class="series-types-subsection series-types-subsection-series">
@@ -249,7 +249,7 @@
                          style="margin-left: 20px; margin-right: 20px;">
                         <ui:include src="/commun/components/sort-selector.xhtml">
                             <ui:param name="listType" value="types"/>
-                            <ui:param name="updateId" value="categoriesContainer2"/>
+                            <ui:param name="updateId" value="seriesTypesUnifiedContent"/>
                             <ui:param name="sizeGt1" value="#{applicationBean.childsTypesSize gt 1}"/>
                         </ui:include>
                         <div class="reference-categories-search-input-wrapper collection-select">
@@ -352,5 +352,5 @@
                 </h:panelGroup>
             </div>
         </section>
-    </div>
+    </h:panelGroup>
 </ui:composition>

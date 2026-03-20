@@ -1060,7 +1060,7 @@ public class ApplicationBean implements Serializable {
 
     /**
      * Séries avec leurs types, filtrées par recherche (pour le panneau Groupe).
-     * Chaque série contient la liste de ses types chargés depuis entity_relation.
+     * Chaque série contient la liste de ses types, triés selon typesSortMode (personnalisé, A→Z, Z→A).
      */
     public List<SerieWithTypes> getSeriesWithTypesFiltered() {
         List<Entity> filtered = getSortedFilteredSeries();
@@ -1069,9 +1069,27 @@ public class ApplicationBean implements Serializable {
         for (Entity serie : filtered) {
             List<Entity> types = typeService.loadSerieTypes(serie);
             if (types == null) types = new ArrayList<>();
+            types = sortTypesByMode(types, serie);
             result.add(new SerieWithTypes(serie, types));
         }
         return result;
+    }
+
+    /** Tri des types selon typesSortMode (pour séries et liste directe). */
+    private List<Entity> sortTypesByMode(List<Entity> types, Entity parent) {
+        if (types == null || types.isEmpty()) return new ArrayList<>(types);
+        if (typesSortMode == ListSortMode.MANUAL && parent != null && typeService.hasCustomTypesOrder(parent)) {
+            return new ArrayList<>(types); // loadSerieTypes/loadGroupTypes déjà ordonné par display_order
+        }
+        return types.stream()
+                .sorted((t1, t2) -> {
+                    String n1 = getEntityLabel(t1) != null ? getEntityLabel(t1) : (t1.getCode() != null ? t1.getCode() : "");
+                    String n2 = getEntityLabel(t2) != null ? getEntityLabel(t2) : (t2.getCode() != null ? t2.getCode() : "");
+                    return typesSortMode == ListSortMode.ALPHA_ASC
+                            ? n1.compareToIgnoreCase(n2)
+                            : n2.compareToIgnoreCase(n1);
+                })
+                .collect(Collectors.toList());
     }
 
     /** Séries avec types pour la page courante (pagination) ou toutes si seriesViewAll. */
