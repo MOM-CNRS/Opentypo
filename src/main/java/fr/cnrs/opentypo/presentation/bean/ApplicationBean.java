@@ -299,6 +299,48 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Appelé en preRenderView en premier. Si l'URL contient un code d'entité (/DECOCER),
+     * charge la collection, initialise l'arbre et affiche l'élément correspondant.
+     */
+    public void handleEntityCodeFromUrlIfPresent() {
+        jakarta.faces.context.FacesContext fc = jakarta.faces.context.FacesContext.getCurrentInstance();
+        if (fc == null || fc.isPostback()) return;
+        Object codeAttr = fc.getExternalContext().getRequestMap().get("entityCodeFromUrl");
+        String code = codeAttr instanceof String s ? s : null;
+        if (code == null || code.isBlank()) return;
+
+        Entity entity = entityRepository.findByCode(code).orElse(null);
+        if (entity == null) return;
+        if (!isEntityVisibleForCurrentUser(entity)) {
+            log.debug("Entité {} non visible pour l'utilisateur actuel, navigation ignorée", code);
+            return;
+        }
+
+        Entity collection = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_COLLECTION);
+        if (collection == null) {
+            log.warn("Aucune collection trouvée pour l'entité {}", code);
+            return;
+        }
+
+        collectionBean.showCollectionDetail(this, collection);
+        String typeCode = entity.getEntityType() != null ? entity.getEntityType().getCode() : null;
+        if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(typeCode)) {
+            // already done by showCollectionDetail
+        } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(typeCode)) {
+            showReferenceDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(typeCode)) {
+            showCategoryDetail(entity);
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode)) {
+            showGroupe(entity);
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)) {
+            showSerie(entity);
+        } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)) {
+            showType(entity);
+        }
+        fc.getExternalContext().getRequestMap().remove("entityCodeFromUrl");
+    }
+
+    /**
      * Appelé en preRenderView (requête GET / rafraîchissement). Resynchronise l'arbre avec selectedEntity
      * pour préserver le mode édition et la sélection après un rafraîchissement manuel.
      */

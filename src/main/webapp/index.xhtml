@@ -6,6 +6,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{applicationBean.handleEntityCodeFromUrlIfPresent}"/>
         <f:event type="preRenderView" listener="#{applicationBean.ensureStateConsistencyOnRefresh}"/>
         <!-- 1. Barre de recherche - désactivée en mode modification -->
         <h:panelGroup id="searchSectionWrapper" layout="block" styleClass="app-search #{entityUpdateBean.editingEntity ? 'app-search-disabled' : ''}">

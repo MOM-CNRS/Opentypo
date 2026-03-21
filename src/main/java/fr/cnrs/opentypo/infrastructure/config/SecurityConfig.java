@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Configuration de sécurité Spring Security
@@ -85,6 +86,21 @@ public class SecurityConfig {
 
                 // Permettre l'accès à la racine et index.xhtml pour tous
                 .requestMatchers("/", "/index.xhtml").permitAll()
+
+                // Permettre les URLs /{code} pour afficher un élément par son code (ex: /DECOCER)
+                .requestMatchers(request -> {
+                    String path = request.getRequestURI();
+                    if (path == null) return false;
+                    String normalized = path.startsWith("/") ? path.substring(1) : path;
+                    if (normalized.contains("/") || normalized.isBlank()) return false;
+                    String lower = normalized.toLowerCase();
+                    if (lower.endsWith(".xhtml") || lower.endsWith(".js") || lower.endsWith(".css") ||
+                        lower.endsWith(".ico") || lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".gif")) {
+                        return false;
+                    }
+                    return !Set.of("error", "candidats", "profile", "search", "login", "users",
+                            "details", "dialogs", "tree", "commun", "session-check").contains(lower);
+                }).permitAll()
 
                 // Permettre l'accès à la page d'erreur pour tous
                 .requestMatchers("/error.xhtml").permitAll()
