@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <!-- Barre d'outils collections -->
     <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar">
@@ -46,8 +47,10 @@
                                        styleClass="modern-card"
                                        process="@this" ajax="true"
                                        update=":centerContent :selectedEntityLabel :searchForm :collectionSelect"
+                                       pt:data-entity-code="#{collection.code}"
+                                       onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        onstart="showLoading('Chargement de la typologie...', 'spinner');"
-                                       oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
+                                       oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <div class="modern-card-content">
                                 <div class="modern-card-header">

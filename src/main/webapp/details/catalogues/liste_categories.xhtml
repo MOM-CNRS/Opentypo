@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <h:form class="references-list-view references-list-frame">
         <div class="collection-references-header">
@@ -76,8 +77,10 @@
                                        styleClass="reference-category-card"
                                        process="@this"
                                        update=":centerContent"
+                                       pt:data-entity-code="#{category.code}"
+                                       onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        onstart="showLoading('Chargement de la catégorie...', 'spinner');"
-                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight();}, 500);"
+                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
                                 <header class="reference-category-card-header">

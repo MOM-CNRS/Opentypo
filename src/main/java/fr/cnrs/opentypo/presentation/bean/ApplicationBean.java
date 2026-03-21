@@ -312,17 +312,34 @@ public class ApplicationBean implements Serializable {
         Entity entity = entityRepository.findByCode(code).orElse(null);
         if (entity == null) return;
         if (!isEntityVisibleForCurrentUser(entity)) {
-            log.debug("Entité {} non visible pour l'utilisateur actuel, navigation ignorée", code);
+            log.debug("Entité {} non visible pour l'utilisateur actuel, redirection vers la racine", code);
+            try {
+                String ctx = fc.getExternalContext().getRequestContextPath();
+                fc.getExternalContext().redirect(ctx + "/");
+                fc.responseComplete();
+            } catch (java.io.IOException e) {
+                log.warn("Redirection impossible vers / : {}", e.getMessage());
+            }
             return;
         }
 
         Entity collection = findAncestorOfType(entity, EntityConstants.ENTITY_TYPE_COLLECTION);
-        if (collection == null) {
-            log.warn("Aucune collection trouvée pour l'entité {}", code);
+        if (collection == null || collection.getId() == null) {
+            log.warn("Aucune collection trouvée pour l'entité {}, redirection vers la racine", code);
+            try {
+                String ctx = fc.getExternalContext().getRequestContextPath();
+                fc.getExternalContext().redirect(ctx + "/");
+                fc.responseComplete();
+            } catch (java.io.IOException e) {
+                log.warn("Redirection impossible vers / : {}", e.getMessage());
+            }
             return;
         }
 
-        collectionBean.showCollectionDetail(this, collection);
+        Entity refreshedCollection = entityRepository.findById(collection.getId()).orElse(collection);
+        setSelectedEntity(refreshedCollection);
+        getTreeBean().initializeTreeWithCollection();
+        collectionBean.showCollectionDetail(this, refreshedCollection);
         String typeCode = entity.getEntityType() != null ? entity.getEntityType().getCode() : null;
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(typeCode)) {
             // already done by showCollectionDetail
@@ -337,6 +354,7 @@ public class ApplicationBean implements Serializable {
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)) {
             showType(entity);
         }
+        fc.getExternalContext().getRequestMap().put("showTreeOnUrlLoad", Boolean.TRUE);
         fc.getExternalContext().getRequestMap().remove("entityCodeFromUrl");
     }
 

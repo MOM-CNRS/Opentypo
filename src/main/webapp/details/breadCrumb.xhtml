@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <nav class="breadcrumb-nav" id="breadcrumbContent" aria-label="Fil d'Ariane">
         <ol class="breadcrumb-list">
@@ -12,7 +13,7 @@
                                    process="@this"
                                    update=":centerContent :selectedEntityLabel :searchForm :growl"
                                    onstart="showLoading('Chargement...', 'spinner');"
-                                   oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll();"
+                                   oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation('');"
                                    onerror="forceHideLoading();">
                         <i class="pi pi-home" aria-hidden="true" />
                         <span class="breadcrumb-link-text">Accueil</span>
@@ -30,8 +31,10 @@
                                        action="#{applicationBean.navigateToBreadcrumbElement(element, entityUpdateBean)}"
                                        process="@this"
                                        update=":centerContent :growl"
+                                       pt:data-entity-code="#{element.code}"
+                                       onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        onstart="showLoading('Chargement...', 'spinner');"
-                                       oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll();"
+                                       oncomplete="hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;"
                                        onerror="forceHideLoading();">
                             <i class="#{treeBean.getEntityIcon(element)} breadcrumb-item-icon" aria-hidden="true" />
                             <span class="breadcrumb-link-text">#{element.entityType != null and element.entityType.code == 'COLLECTION' ? applicationBean.getEntityLabel(element) : element.code}</span>

@@ -201,6 +201,10 @@
         clearSelectionHighlight();
         setSelectionHighlight(entityId);
 
+        /* Stocker le code pour mise à jour de l'URL après la réponse AJAX */
+        var entityCode = content.getAttribute('data-code') || '';
+        window.__pendingUrlCode = entityCode;
+
         /* Déclencher la soumission : formulaire + champ caché + bouton (fiable même sans widget PrimeFaces) */
         var form = document.getElementById('treeSelectForm') || document.querySelector('[id$="treeSelectForm"]');
         if (form) {

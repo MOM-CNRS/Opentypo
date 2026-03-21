@@ -3,7 +3,8 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <!-- Panneau résultats : en-tête + liste ou message vide ou placeholder -->
     <h:panelGroup id="searchResultsPanel" styleClass="search-results-panel">
@@ -37,9 +38,11 @@
                                 <p:commandLink action="#{searchBean.showEntityDetail(result)}"
                                              process="@this"
                                              update="@all"
+                                             pt:data-entity-code="#{result.code}"
+                                             onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                              styleClass="search-result-item-title-link"
                                              onstart="showLoading('Chargement...', 'spinner');"
-                                             oncomplete="setTimeout(function(){hideLoading();}, 500);"
+                                             oncomplete="setTimeout(function(){hideLoading(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                              onerror="forceHideLoading();">
                                     <h:outputText value="#{result.nom}" />
                                 </p:commandLink>
