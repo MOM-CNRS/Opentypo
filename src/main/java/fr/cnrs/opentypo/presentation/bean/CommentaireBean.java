@@ -119,7 +119,7 @@ public class CommentaireBean implements Serializable {
         entityRepository.save(managedEntity);
         newCommentContenu = "";
         addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire publié.");
-        PrimeFaces.current().ajax().update(":commentairesForm, :growl");
+        PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
     /**
@@ -139,7 +139,7 @@ public class CommentaireBean implements Serializable {
     public void cancelEditComment() {
         editingCommentId = null;
         editingCommentContenu = "";
-        PrimeFaces.current().ajax().update(":commentairesForm, :growl");
+        PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
     /**
@@ -168,7 +168,7 @@ public class CommentaireBean implements Serializable {
         commentaireRepository.save(c);
         cancelEditComment();
         addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire modifié.");
-        PrimeFaces.current().ajax().update(":commentairesForm, :growl");
+        PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
     /**
@@ -182,7 +182,7 @@ public class CommentaireBean implements Serializable {
         }
         commentaireRepository.delete(commentaire);
         addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire supprimé.");
-        PrimeFaces.current().ajax().update(":commentairesForm, :growl");
+        PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {

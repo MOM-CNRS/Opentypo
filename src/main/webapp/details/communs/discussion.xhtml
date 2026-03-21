@@ -25,7 +25,7 @@
                                              icon="pi pi-send"
                                              action="#{commentaireBean.addCommentaire()}"
                                              process="@form"
-                                             update=":commentairesForm :growl"
+                                             update="@form :growl"
                                              styleClass="commentaires-add-btn"/>
                         </div>
                     </ui:fragment>
@@ -54,13 +54,13 @@
                                                              title="Modifier"
                                                              action="#{commentaireBean.startEditComment(comment)}"
                                                              process="@this"
-                                                             update=":commentairesForm :growl"/>
+                                                             update="@form :growl"/>
                                             <p:commandButton icon="pi pi-trash"
                                                              styleClass="commentaires-action-btn commentaires-action-btn-delete"
                                                              title="Supprimer"
                                                              action="#{commentaireBean.deleteCommentaire(comment)}"
                                                              process="@this"
-                                                             update=":commentairesForm :growl"
+                                                             update="@form :growl"
                                                              onclick="return confirm('Supprimer ce commentaire ?');"/>
                                         </ui:fragment>
                                     </div>
@@ -75,13 +75,13 @@
                                                          styleClass="commentaires-action-btn"
                                                          action="#{commentaireBean.cancelEditComment()}"
                                                          process="@this"
-                                                         update=":commentairesForm :growl"/>
+                                                         update="@form :growl"/>
                                         <p:commandButton value="Enregistrer"
                                                          icon="pi pi-check"
                                                          styleClass="commentaires-action-btn commentaires-action-btn-save"
                                                          action="#{commentaireBean.saveCommentaire()}"
                                                          process="@this"
-                                                         update=":commentairesForm :growl"/>
+                                                         update="@form :growl"/>
                                     </div>
                                 </ui:fragment>
                             </div>
