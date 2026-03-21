@@ -354,6 +354,8 @@ public class ApplicationBean implements Serializable {
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)) {
             showType(entity);
         }
+        /* Garantir que l'arbre est visible lorsqu'on accède via URL (nouveau navigateur, etc.) */
+        panelState.setShowTreePanel(true);
         fc.getExternalContext().getRequestMap().put("showTreeOnUrlLoad", Boolean.TRUE);
         fc.getExternalContext().getRequestMap().remove("entityCodeFromUrl");
     }

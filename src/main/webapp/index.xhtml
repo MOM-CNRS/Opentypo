@@ -131,7 +131,7 @@
             </h:panelGroup>
         </h:panelGroup>
 
-        <!-- Afficher l'arbre automatiquement sur mobile lorsqu'on accède via URL (ex: /DECOCER) -->
-        <h:outputScript rendered="#{requestScope.showTreeOnUrlLoad == true}">window.showTreeOnUrlLoad=true;</h:outputScript>
+        <!-- Afficher l'arbre automatiquement lorsqu'on accède via URL (mobile + scroll vers sélection) -->
+        <h:outputScript rendered="#{requestScope.showTreeOnUrlLoad == true}" target="head">window.showTreeOnUrlLoad=true;</h:outputScript>
     </ui:define>
 </ui:composition>

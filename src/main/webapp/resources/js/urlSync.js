@@ -53,13 +53,17 @@
 
     /**
      * Affiche l'arbre sur mobile lorsqu'on accède via URL (ex: /DECOCER).
+     * Sur desktop, l'arbre a display:none uniquement en mobile ; on vérifie quand même.
      */
     function showTreeOnUrlLoadIfNeeded() {
-        if (!window.showTreeOnUrlLoad || window.innerWidth > 768 || typeof toggleTreePanel !== 'function') return;
+        if (!window.showTreeOnUrlLoad) return;
         var tree = document.getElementById('leftTreePanel');
         if (!tree) return;
-        var display = tree.style.display || (window.getComputedStyle && window.getComputedStyle(tree).display);
-        if (display === 'none') toggleTreePanel();
+        var cs = window.getComputedStyle ? window.getComputedStyle(tree) : null;
+        var display = tree.style.display || (cs ? cs.display : '');
+        if (display === 'none' && typeof toggleTreePanel === 'function') {
+            toggleTreePanel();
+        }
     }
 
     /**
