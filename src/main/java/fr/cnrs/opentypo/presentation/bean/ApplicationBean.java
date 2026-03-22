@@ -1598,7 +1598,7 @@ public class ApplicationBean implements Serializable {
                             "Vous devez quitter la page de modification avant de changer de page"));
             return "";
         }
-        return "/candidats/candidats.xhtml";
+        return "/candidats/candidats.xhtml?faces-redirect=true";
     }
 
     public String goToUtilisateurs(EntityUpdateBean entityUpdateBean) {
@@ -1608,7 +1608,7 @@ public class ApplicationBean implements Serializable {
                             "Vous devez quitter la page de modification avant de changer de page"));
             return "";
         }
-        return "/users/users.xhtml";
+        return "/users/users.xhtml?faces-redirect=true";
     }
     
     public void showCollectionDetail() {

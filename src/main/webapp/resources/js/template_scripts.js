@@ -33,9 +33,12 @@
 
 // Fonction pour mettre à jour l'item actif du menu
 function updateActiveMenuItem() {
-    const currentPath = window.location.pathname;
+    const currentPath = (window.location.pathname || '').toLowerCase();
     const menuItems = document.querySelectorAll('.sidebar-menu-item');
     let hasActiveItem = false;
+    const isAccueilPath = currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml') || currentPath === '';
+    const isCandidatsPath = currentPath.indexOf('/candidats') !== -1;
+    const isUsersPath = currentPath.indexOf('/users') !== -1;
 
     // Retirer la classe active de tous les items
     menuItems.forEach(function(menuItem) {
@@ -43,55 +46,31 @@ function updateActiveMenuItem() {
     });
 
     menuItems.forEach(function(item) {
-        const link = item.querySelector('a') || item;
-        const href = link.getAttribute('href') || link.getAttribute('action') || '';
-        const menuItemType = item.getAttribute('data-menu-item') || '';
-        const itemText = item.querySelector('.sidebar-menu-item-text')?.textContent?.trim() || '';
+        const menuItemType = (item.getAttribute('data-menu-item') || '').toLowerCase();
+        const itemText = (item.querySelector('.sidebar-menu-item-text')?.textContent?.trim() || '').toLowerCase();
 
         let shouldBeActive = false;
 
-        // Utiliser l'attribut data-menu-item pour une détection plus précise
+        // Utiliser l'attribut data-menu-item pour une détection précise
         if (menuItemType === 'accueil') {
-            if (currentPath === '/' ||
-                currentPath === '/index.xhtml' ||
-                currentPath.endsWith('/index.xhtml') ||
-                currentPath === '' ||
-                (currentPath === '/index.xhtml' && !currentPath.includes('/users/') && !currentPath.includes('/candidats/'))) {
-                shouldBeActive = true;
-            }
+            shouldBeActive = isAccueilPath && !isCandidatsPath && !isUsersPath;
         }
         else if (menuItemType === 'candidats') {
-            // Actif pour toutes les pages sous /candidats/
-            if (currentPath.includes('/candidats/') ||
-                currentPath.includes('/candidats') ||
-                href.includes('/candidats/')) {
-                shouldBeActive = true;
-            }
+            shouldBeActive = isCandidatsPath;
         }
         else if (menuItemType === 'users') {
-            // Actif pour toutes les pages sous /users/
-            if (currentPath.includes('/users/') ||
-                currentPath.includes('/users') ||
-                href.includes('/users/')) {
-                shouldBeActive = true;
-            }
+            shouldBeActive = isUsersPath;
         }
         // Fallback : détection basée sur le texte si data-menu-item n'est pas disponible
         else {
-            if (itemText === 'Accueil' || itemText.includes('Accueil')) {
-                if (currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml')) {
-                    shouldBeActive = true;
-                }
+            if (itemText.indexOf('accueil') !== -1) {
+                shouldBeActive = isAccueilPath && !isCandidatsPath && !isUsersPath;
             }
-            else if (itemText === 'Candidats' || itemText.includes('Candidats')) {
-                if (currentPath.includes('/candidats/') || currentPath.includes('/candidats')) {
-                    shouldBeActive = true;
-                }
+            else if (itemText.indexOf('brouillons') !== -1 || itemText.indexOf('candidats') !== -1) {
+                shouldBeActive = isCandidatsPath;
             }
-            else if (itemText.includes('utilisateurs') || itemText.includes('utilisateur')) {
-                if (currentPath.includes('/users/') || currentPath.includes('/users')) {
-                    shouldBeActive = true;
-                }
+            else if (itemText.indexOf('utilisateur') !== -1) {
+                shouldBeActive = isUsersPath;
             }
         }
 
@@ -102,7 +81,7 @@ function updateActiveMenuItem() {
     });
 
     // Si aucun item n'est actif et qu'on est sur la page d'accueil, sélectionner Accueil
-    if (!hasActiveItem && (currentPath === '/' || currentPath === '/index.xhtml' || currentPath.endsWith('/index.xhtml'))) {
+    if (!hasActiveItem && isAccueilPath) {
         const accueilItem = document.querySelector('[data-menu-item="accueil"]');
         if (accueilItem) {
             accueilItem.classList.add('active');

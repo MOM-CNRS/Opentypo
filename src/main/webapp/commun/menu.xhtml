@@ -1,7 +1,8 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
              xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:p="http://primefaces.org/ui"
-             xmlns:ui="http://java.sun.com/jsf/facelets">
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
     <!-- Menu latéral : accueil, candidats, utilisateurs (admin), déconnexion -->
 
     <aside id="sidebar" class="app-sidebar sidebar-collapsed sidebar-always-collapsed">
@@ -19,7 +20,7 @@
                     <!-- Accueil item -->
                     <p:commandLink action="#{applicationBean.goToAccueil(entityUpdateBean)}"
                                    styleClass="sidebar-menu-item"
-                                   data-menu-item="accueil"
+                                   pt:data-menu-item="accueil"
                                    ajax="false">
                         <div class="sidebar-menu-item-content">
                             <div class="sidebar-menu-item-icon">
@@ -34,7 +35,7 @@
                         <!-- Candidats item - Visible uniquement si connecté -->
                         <p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
                                        styleClass="sidebar-menu-item"
-                                       data-menu-item="candidats"
+                                       pt:data-menu-item="candidats"
                                        ajax="false">
                             <div class="sidebar-menu-item-content">
                                 <div class="sidebar-menu-item-icon">
@@ -49,7 +50,7 @@
                         <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}">
                             <p:commandLink action="#{applicationBean.goToUtilisateurs(entityUpdateBean)}"
                                            styleClass="sidebar-menu-item"
-                                           data-menu-item="users"
+                                           pt:data-menu-item="users"
                                            ajax="false">
                                 <div class="sidebar-menu-item-content">
                                     <div class="sidebar-menu-item-icon">
