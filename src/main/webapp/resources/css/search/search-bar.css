@@ -31,56 +31,95 @@ body .ui-button.search-advanced-compact {
     .search-bar-compact .search-advanced-compact,
     .search-bar-compact .ui-button.search-advanced-compact,
     body .ui-button.search-advanced-compact {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
         padding: 0.5rem !important;
     }
 
     /* Bouton burger options - zone tactile suffisante */
     .search-bar-compact .burger-search-control .search-burger-button,
     .search-bar-compact .burger-search-control .ui-button {
-        min-width: 40px !important;
-        min-height: 40px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
     }
 
     .search-bar-compact {
         flex-wrap: wrap !important;
         padding: 0.5rem 0.75rem !important;
         gap: 0.5rem !important;
+        overflow-x: visible !important;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* Champ recherche en 2e ligne (pleine largeur) */
+    /* Ordre mobile : ligne 1 = burger + selects + boutons, ligne 2 = champ recherche pleine largeur */
     .search-bar-compact .search-input-group {
         flex: 1 1 100% !important;
-        min-width: 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
         order: 10 !important;
     }
 
     .search-bar-compact .search-compact-select {
-        min-width: 90px !important;
-        max-width: 160px !important;
+        min-width: 0 !important;
+        flex: 1 1 120px !important;
+        max-width: 180px !important;
+    }
+
+    .search-bar-compact .search-compact-select .ui-selectonemenu {
+        min-width: 0 !important;
+        width: 100% !important;
     }
 
     .search-bar-compact .search-input-group .search-input-compact {
         font-size: 0.9375rem !important;
-        padding: 0.5rem 0.75rem !important;
+        padding: 0.625rem 0.75rem !important;
+        min-height: 42px !important;
     }
 
     .search-bar-compact .search-input-group .search-input-compact::placeholder {
         font-size: 0.875rem !important;
+    }
+
+    /* Options avancées : grille 2x2 sur tablette */
+    .advanced-search-section-compact.advanced-search-visible {
+        max-height: 320px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .advanced-filters-compact {
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
+    }
+
+    .filter-group-compact {
+        flex: 1 1 calc(50% - 0.375rem) !important;
+        min-width: 140px !important;
+        max-width: none !important;
+    }
+
+    /* Masquer le bouton avancé en doublon (le burger le remplace) */
+    .search-bar-compact .search-advanced-toggle {
+        display: none !important;
+    }
+
+    /* Afficher Collection ET Langue (override openTypo_style qui masque le 2e) */
+    .search-bar-compact .search-compact-select {
+        display: block !important;
     }
 }
 
 /* ===== Mobile (≤480px) ===== */
 @media (max-width: 480px) {
     .app-search .search-bar-compact {
-        padding: 0.375rem 0.5rem !important;
-        gap: 0.375rem !important;
+        padding: 0.5rem 0.5rem !important;
+        gap: 0.5rem !important;
     }
 
-    /* Boutons tactiles 44px minimum (recommandation accessibilité) */
+    /* Boutons tactiles 44px minimum (recommandation accessibilité WCAG) */
     .search-bar-compact .search-advanced-compact,
+    .search-bar-compact .search-toggle-results,
     .search-bar-compact .ui-button.search-advanced-compact,
     body .ui-button.search-advanced-compact {
         width: 44px !important;
@@ -89,92 +128,290 @@ body .ui-button.search-advanced-compact {
         padding: 0.5rem !important;
     }
 
-    /* Champ recherche en pleine largeur (2e ligne via flex-wrap) */
-    .search-bar-compact .search-input-group {
-        flex: 1 1 100% !important;
-        min-width: 100% !important;
-        order: 10 !important;
+    .search-bar-compact .burger-search-control .search-burger-button,
+    .search-bar-compact .burger-search-control .ui-button {
+        min-width: 44px !important;
+        min-height: 44px !important;
     }
 
-    .search-bar-compact .search-compact-select:first-of-type {
-        flex: 1 1 auto !important;
-        min-width: 70px !important;
+    /* Champ recherche pleine largeur, ligne dédiée - optimisé tactile */
+    .search-bar-compact .search-input-group,
+    .search-bar-compact .search-input-group-mobile {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        order: 10 !important;
+        min-height: 48px !important;
+        border-radius: 8px !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Input : 16px min pour éviter le zoom auto iOS au focus */
+    .search-bar-compact .search-input-group .search-input-compact,
+    .search-bar-compact .search-input-group-mobile .search-input-compact,
+    .search-bar-compact .search-input-group .ui-inputfield,
+    .search-bar-compact .search-input-group .ui-inputtext,
+    .search-bar-compact .search-input-group-mobile .ui-inputfield,
+    .search-bar-compact .search-input-group-mobile .ui-inputtext {
+        font-size: 16px !important;
+        min-height: 48px !important;
+        padding: 0.75rem 0.875rem !important;
+    }
+
+    .search-bar-compact .search-input-group .search-button-compact,
+    .search-bar-compact .search-input-group-mobile .search-button-compact {
+        min-width: 52px !important;
+    }
+
+    /* Selects Collection et Langue : partagent la ligne, taille adaptée */
+    .search-bar-compact .search-compact-select {
+        flex: 1 1 45% !important;
+        min-width: 0 !important;
         max-width: 50% !important;
     }
 
     .search-bar-compact .search-compact-select .ui-selectonemenu {
-        min-width: 70px !important;
-        max-width: 100% !important;
-        font-size: 0.8125rem !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        font-size: 0.875rem !important;
     }
 
     .search-bar-compact .search-input-group .search-input-compact,
-    .search-bar-compact .search-input-group .search-button-compact {
-        height: 42px !important;
+    .search-bar-compact .search-input-group .search-button-compact,
+    .search-bar-compact .search-input-group-mobile .search-input-compact,
+    .search-bar-compact .search-input-group-mobile .search-button-compact {
+        height: 48px !important;
+        min-height: 48px !important;
     }
 
     .search-bar-compact .search-input-group-icon {
         padding: 0 0.5rem 0 0.75rem !important;
-        font-size: 0.9375rem !important;
+        font-size: 1.125rem !important;
+    }
+
+    /* Options avancées : une colonne sur mobile */
+    .advanced-search-section-compact.advanced-search-visible {
+        max-height: 380px !important;
+        padding: 0.75rem 1rem !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .advanced-filters-compact {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .filter-group-compact {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .filter-group-compact .filter-label-compact {
+        margin-bottom: 0.25rem;
+    }
+
+    .filter-select-compact,
+    .filter-select-compact .ui-selectonemenu {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .filter-select-compact .ui-selectonemenu {
+        height: 42px !important;
     }
 }
 
 /* ===== Très petit écran (≤360px) ===== */
 @media (max-width: 360px) {
     .app-search .search-bar-compact {
-        padding: 0.25rem 0.375rem !important;
-        gap: 0.25rem !important;
+        padding: 0.375rem 0.5rem !important;
+        gap: 0.375rem !important;
     }
 
     .search-bar-compact .search-advanced-compact,
-    .search-bar-compact .ui-button.search-advanced-compact,
-    body .ui-button.search-advanced-compact {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
+    .search-bar-compact .search-toggle-results,
+    .search-bar-compact .ui-button.search-advanced-compact {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
     }
 
-    .search-bar-compact .search-compact-select:first-of-type {
-        min-width: 60px !important;
-        max-width: 45% !important;
+    .search-bar-compact .burger-search-control .search-burger-button,
+    .search-bar-compact .burger-search-control .ui-button {
+        min-width: 42px !important;
+        min-height: 42px !important;
+    }
+
+    .search-bar-compact .search-compact-select {
+        flex: 1 1 45% !important;
+        min-width: 0 !important;
     }
 
     .search-bar-compact .search-compact-select .ui-selectonemenu {
-        min-width: 60px !important;
-        font-size: 0.75rem !important;
-    }
-
-    .search-bar-compact .search-input-group .search-input-compact {
-        font-size: 0.875rem !important;
-        padding: 0.375rem 0.5rem !important;
-    }
-
-    .search-bar-compact .search-input-group .search-input-compact::placeholder {
         font-size: 0.8125rem !important;
     }
 
+    /* Garder font-size 16px pour éviter le zoom iOS au focus */
     .search-bar-compact .search-input-group .search-input-compact,
-    .search-bar-compact .search-input-group .search-button-compact {
-        height: 38px !important;
+    .search-bar-compact .search-input-group-mobile .search-input-compact {
+        font-size: 16px !important;
+        padding: 0.625rem 0.75rem !important;
+        height: 46px !important;
+        min-height: 46px !important;
     }
 
-    /* Options avancées en colonne sur très petit écran */
+    .search-bar-compact .search-input-group .search-input-compact::placeholder {
+        font-size: 0.875rem !important;
+    }
+
+    .search-bar-compact .search-input-group .search-button-compact,
+    .search-bar-compact .search-input-group-mobile .search-button-compact {
+        height: 46px !important;
+        min-height: 46px !important;
+    }
+
+    /* Options avancées : scroll si nécessaire */
     #advanced-search-options.advanced-search-section-compact.advanced-search-visible {
-        max-height: 400px !important;
-        padding: 0.375rem 0.5rem !important;
+        max-height: 340px !important;
+        padding: 0.5rem 0.75rem !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     #advanced-search-options .advanced-filters-compact {
-        flex-direction: column !important;
         gap: 0.5rem !important;
     }
 
-    #advanced-search-options .filter-group-compact {
-        width: 100% !important;
-        min-width: 100% !important;
+    #advanced-search-options .filter-select-compact .ui-selectonemenu {
+        height: 40px !important;
+    }
+}
+
+/* Panneaux déroulants PrimeFaces (selects) : adaptés au mobile */
+@media (max-width: 768px) {
+    .search-compact-select .ui-selectonemenu-panel {
+        max-width: calc(100vw - 2rem) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-compact-select .ui-selectonemenu-panel,
+    .filter-select-compact .ui-selectonemenu-panel {
+        max-width: calc(100vw - 1.5rem) !important;
+    }
+}
+
+/* ===== Bouton arbre / navigation - design intégré et harmonieux (mobile) ===== */
+.tree-toggle-wrapper {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .tree-toggle-wrapper {
+        display: flex !important;
+        flex-shrink: 0;
+        align-items: stretch;
     }
 
-    #advanced-search-options .filter-select-compact {
-        min-width: 0 !important;
+    .tree-toggle-wrapper .search-tree-toggle-btn,
+    .tree-toggle-wrapper .ui-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        padding: 0 1rem !important;
+        min-height: 42px !important;
+        border-radius: 8px !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        background: rgba(71, 98, 77, 0.08) !important;
+        border: 2px solid rgba(71, 98, 77, 0.35) !important;
+        color: var(--color-action-main, #47624D) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .tree-toggle-wrapper .search-tree-toggle-btn .ui-button-icon-left,
+    .tree-toggle-wrapper .search-tree-toggle-btn .ui-button-icon,
+    .tree-toggle-wrapper .ui-button .ui-button-icon-left,
+    .tree-toggle-wrapper .ui-button .ui-button-icon {
+        color: var(--color-action-main, #47624D) !important;
+        font-size: 1.1em !important;
+    }
+
+    .tree-toggle-wrapper .search-tree-toggle-btn:hover,
+    .tree-toggle-wrapper .ui-button:hover {
+        background: rgba(71, 98, 77, 0.15) !important;
+        border-color: var(--color-action-main, #47624D) !important;
+        box-shadow: 0 2px 8px rgba(71, 98, 77, 0.2) !important;
+    }
+
+    .tree-toggle-wrapper .search-tree-toggle-btn:active,
+    .tree-toggle-wrapper .ui-button:active {
+        background: rgba(71, 98, 77, 0.2) !important;
+    }
+
+    /* État actif : arbre visible (icône pi-times) */
+    .tree-toggle-wrapper .ui-button:has(.pi-times) {
+        background: rgba(71, 98, 77, 0.2) !important;
+        border-color: var(--color-action-main, #47624D) !important;
+    }
+
+    .search-tree-toggle-label {
+        white-space: nowrap;
+    }
+}
+
+/* Très petit écran : icône seule pour gagner de place */
+@media (max-width: 480px) {
+    .tree-toggle-wrapper .search-tree-toggle-btn,
+    .tree-toggle-wrapper .ui-button {
+        min-width: 44px !important;
+        width: 44px !important;
+        min-height: 44px !important;
+        padding: 0 !important;
+        border-radius: 8px !important;
+    }
+
+    .search-tree-toggle-label {
+        display: none !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .tree-toggle-wrapper .search-tree-toggle-btn,
+    .tree-toggle-wrapper .ui-button {
+        min-width: 42px !important;
+        width: 42px !important;
+        min-height: 42px !important;
+    }
+}
+
+/* ===== #leftTreePanel sur mobile : hauteur maximale, aucune perte d'espace ===== */
+@media (max-width: 768px) {
+    #leftTreePanel.left-tree[style*="display: block"],
+    #leftTreePanel.left-tree.left-tree-mobile-visible,
+    .left-tree[style*="display: block"],
+    .left-tree.left-tree-mobile-visible {
+        top: 50px !important;
+        height: calc(100vh - 50px) !important;
+        min-height: calc(100vh - 50px) !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Téléphone : 100dvh pour profiter du viewport dynamique (maximise l'espace) */
+@supports (height: 100dvh) {
+    @media (max-width: 768px) {
+        #leftTreePanel.left-tree[style*="display: block"],
+        #leftTreePanel.left-tree.left-tree-mobile-visible,
+        .left-tree[style*="display: block"],
+        .left-tree.left-tree-mobile-visible {
+            height: calc(100dvh - 50px) !important;
+            min-height: calc(100dvh - 50px) !important;
+        }
     }
 }

@@ -8,13 +8,25 @@
     <h:form id="searchForm">
         <!-- 1. Barre de recherche compacte (collection, langue, champ recherche, boutons) -->
         <div class="search-bar-compact">
+            <!-- Bouton arbre / navigation (mobile) - design intégré et lisible -->
+            <div class="tree-toggle-wrapper" id="treeToggleButton">
+                <p:commandButton icon="pi pi-sitemap"
+                                 styleClass="search-tree-toggle-btn"
+                                 aria-label="Afficher ou masquer l'arbre de navigation"
+                                 title="Parcourir la typologie (Collection → Référentiel → Catégorie →…)"
+                                 process="@this" update="@none"
+                                 onclick="toggleTreePanel(); return false;">
+                    <span class="search-tree-toggle-label">Parcourir</span>
+                </p:commandButton>
+            </div>
+
             <!-- Burger pour options (mobile) -->
             <div class="burger-search-control">
                 <p:commandButton icon="pi pi-sliders-h"
                                  styleClass="search-burger-button p-button-rounded p-button-text"
                                  title="Options de recherche"
                                  process="@this" update="@none"
-                                 onclick="PF('searchOptionsPanel').show();"/>
+                                 onclick="SearchPage.toggleAdvancedSearch(); return false;"/>
             </div>
 
             <!-- Collection - Compact sans label -->
@@ -45,8 +57,8 @@
                         process="@this"/>
             </p:selectOneMenu>
 
-            <!-- Zone de recherche principale - Design unifié type "search box" -->
-            <div class="search-input-group">
+            <!-- Zone de recherche principale - Optimisée mobile (inputmode, zone tactile) -->
+            <div class="search-input-group search-input-group-mobile">
                 <i class="pi pi-search search-input-group-icon" aria-hidden="true"/>
                 <p:inputText id="searchInput" 
                              value="#{searchBean.searchTerm}"
@@ -54,11 +66,14 @@
                              styleClass="search-input-compact"
                              autocomplete="off"
                              maxlength="255">
+                    <f:passThroughAttribute name="inputmode" value="search"/>
+                    <f:passThroughAttribute name="enterkeyhint" value="search"/>
                 </p:inputText>
                 <p:message for="searchInput" display="icon" styleClass="search-input-msg"/>
                 <p:commandButton id="searchButton"
                                  icon="pi pi-search"
                                  styleClass="search-button-compact"
+                                 aria-label="Lancer la recherche"
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
                                  update=":centerContent, :searchForm"
@@ -66,9 +81,9 @@
                                  title="Rechercher (minimum 2 caractères requis)"/>
             </div>
 
-            <!-- Bouton recherche avancée - Compact -->
+            <!-- Bouton recherche avancée - Compact (masqué sur mobile, remplacé par burger) -->
             <p:commandButton icon="pi pi-sliders-h"
-                             styleClass="search-advanced-compact"
+                             styleClass="search-advanced-compact search-advanced-toggle"
                              process="@this" 
                              update="@none"
                              onclick="SearchPage.toggleAdvancedSearch(); return false;"/>
@@ -76,7 +91,7 @@
             <!-- Bouton afficher/cacher les résultats - Compact -->
             <p:commandButton id="toggleResultsPanelBtn"
                              icon="pi pi-chevron-right"
-                             styleClass="search-advanced-compact"
+                             styleClass="search-advanced-compact search-toggle-results"
                              process="@this" 
                              update="@none"
                              title="Afficher / Cacher les résultats"
@@ -131,13 +146,6 @@
 
     <h:outputScript library="js" name="search.js"/>
 
-    <!-- 3. Bouton toggle arbre (mobile) -->
-    <div class="tree-toggle-button" id="treeToggleButton">
-        <p:commandButton icon="pi pi-sitemap"
-                         styleClass="rounded-button ui-button-success"
-                         title="Afficher / Cacher l'arbre"
-                         onclick="toggleTreePanel(); return false;" />
-    </div>
 
     <style>
         .search-input-group {

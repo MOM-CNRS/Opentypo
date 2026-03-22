@@ -186,16 +186,22 @@
             existingHeader.remove();
         }
 
+        /* Hauteur maximale : 100dvh si supporté (viewport dynamique), sinon 100vh */
+        var heightExpr = (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('height', '100dvh'))
+            ? 'calc(100dvh - 50px)'
+            : 'calc(100vh - 50px)';
         Object.assign(tree.style, {
             display: 'block',
             position: 'fixed',
             top: '50px',
             left: '0',
             width: '100vw',
-            height: 'calc(100vh - 50px)',
+            height: heightExpr,
+            minHeight: heightExpr,
             backgroundColor: '#e8f5e9',
             zIndex: '9999',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch'
         });
 
         createTreeMobileHeader();

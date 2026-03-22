@@ -146,7 +146,7 @@
 
     function resetTreeOnResize() {
         var tree = document.getElementById('leftTreePanel');
-        var iconSpan = document.querySelector('#treeToggleButton .ui-button-icon-left');
+        var iconSpan = document.querySelector('#treeToggleButton .ui-button-icon-left, #treeToggleButton .ui-button-icon');
 
         if (!tree || !iconSpan) return;
 
