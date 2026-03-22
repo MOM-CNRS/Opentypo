@@ -1976,6 +1976,11 @@
 }
 
 @media (max-width: 480px) {
+    .collection-edit-lang-select {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
     .collection-edit-badge {
         font-size: 0.75rem;
         padding: 0.4375rem 0.875rem;

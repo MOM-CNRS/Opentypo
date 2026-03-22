@@ -674,4 +674,21 @@
     .series-types-types-content .reference-categories-grid {
         grid-template-columns: 1fr !important;
     }
+
+    .series-types-search-row .reference-categories-search-input-wrapper,
+    .series-types-types-content .reference-categories-search-row .reference-categories-search-input-wrapper {
+        min-width: 0 !important;
+        flex: 1 1 100% !important;
+    }
+}
+
+/* Mobile : empêcher le débordement horizontal */
+@media (max-width: 480px) {
+    .series-types-section-merged {
+        overflow-x: hidden !important;
+    }
+
+    .series-types-carousel-scroll {
+        -webkit-overflow-scrolling: touch !important;
+    }
 }

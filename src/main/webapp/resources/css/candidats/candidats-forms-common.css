@@ -85,3 +85,20 @@
     gap: 1rem;
     flex-wrap: wrap;
 }
+
+/* Responsive - formulaires candidats */
+@media (max-width: 768px) {
+    .candidats-mt-20 { margin-top: 1rem !important; }
+    .candidats-mt-15 { margin-top: 0.875rem !important; }
+    .candidats-mt-10 { margin-top: 0.5rem !important; }
+    .candidats-p-20 { padding: 1rem !important; }
+    .candidats-p-10 { padding: 0.5rem !important; }
+    .candidats-gap-30 { gap: 1rem !important; }
+    .candidats-label-pl { padding-left: 0.75rem !important; }
+}
+
+@media (max-width: 480px) {
+    .candidats-mt-20 { margin-top: 0.75rem !important; }
+    .candidats-mt-15 { margin-top: 0.5rem !important; }
+    .candidats-p-20 { padding: 0.75rem !important; }
+}

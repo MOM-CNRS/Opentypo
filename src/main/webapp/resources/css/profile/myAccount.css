@@ -326,6 +326,38 @@
     font-weight: 600;
 }
 
+.profile-assoc-entity-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.profile-assoc-entity-link-icon {
+    font-size: 0.75rem;
+    color: var(--profile-text-muted);
+    opacity: 0.7;
+    transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.profile-assoc-entity-link:hover {
+    color: var(--profile-main);
+}
+
+.profile-assoc-entity-link:hover .profile-assoc-entity-link-icon {
+    color: var(--profile-main);
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+.profile-assoc-entity-link:hover .profile-assoc-entity-code {
+    color: var(--profile-main);
+    opacity: 0.9;
+}
+
 .profile-assoc-entity-label {
     font-weight: 500;
 }

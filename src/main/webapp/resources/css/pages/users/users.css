@@ -1,0 +1,79 @@
+/* ============================================
+   GESTION UTILISATEURS - Responsive
+   Adapté à tous les écrans (mobile, tablette, desktop)
+   ============================================ */
+
+/* Mobile & tablette */
+@media (max-width: 768px) {
+    .users-container {
+        padding: 1rem !important;
+    }
+
+    .users-header-content {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+    }
+
+    .users-header-content .users-create-button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .users-title {
+        font-size: 1.25rem !important;
+    }
+
+    .users-table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin: 0 -1rem !important;
+        padding: 0 1rem !important;
+    }
+
+    .users-table-wrapper .ui-datatable-tablewrapper {
+        min-width: 100% !important;
+    }
+
+    .user-info-cell {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.25rem !important;
+    }
+
+    .users-actions-modern {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    .users-actions-modern .action-btn {
+        min-width: 36px !important;
+        min-height: 36px !important;
+    }
+}
+
+/* Petits écrans */
+@media (max-width: 480px) {
+    .users-container {
+        padding: 0.75rem !important;
+    }
+
+    .users-title {
+        font-size: 1.1rem !important;
+    }
+
+    .users-subtitle {
+        font-size: 0.875rem !important;
+    }
+
+    .user-name,
+    .user-email {
+        font-size: 0.875rem !important;
+    }
+
+    .role-badge,
+    .status-badge {
+        font-size: 0.75rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+}

@@ -112,14 +112,22 @@
                                      var="perm"
                                      styleClass="profile-associations-table"
                                      rowIndexVar="rowIndex">
-                            <p:column headerText="Type" styleClass="profile-assoc-col-type">
-                                <span class="profile-assoc-type-badge">#{perm.entityTypeLabel}</span>
-                            </p:column>
                             <p:column headerText="Entité" styleClass="profile-assoc-col-entity">
-                                <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
-                                <span class="profile-assoc-entity-code" rendered="#{not empty perm.entityCode}">(#{perm.entityCode})</span>
+                                <ui:fragment rendered="#{not empty perm.entityCode}">
+                                    <h:outputLink value="#{request.contextPath}/#{perm.entityCode}"
+                                                 styleClass="profile-assoc-entity-link"
+                                                 title="Voir la fiche de #{perm.entityLabel}">
+                                        #{perm.entityTypeLabel} : 
+                                        <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
+                                        <span class="profile-assoc-entity-code">(#{perm.entityCode})</span>
+                                        <i class="pi pi-arrow-right profile-assoc-entity-link-icon" aria-hidden="true"/>
+                                    </h:outputLink>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty perm.entityCode}">
+                                    <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
+                                </ui:fragment>
                             </p:column>
-                            <p:column headerText="Rôle" styleClass="profile-assoc-col-role">
+                            <p:column headerText="Rôle" styleClass="profile-assoc-col-role" width="10%" headerStyleClass="profile-assoc-col-role">
                                 <span class="profile-assoc-role-badge">#{perm.role}</span>
                             </p:column>
                         </p:dataTable>
