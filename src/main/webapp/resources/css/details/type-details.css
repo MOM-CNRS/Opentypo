@@ -292,6 +292,49 @@
     }
 }
 
+/* Indicateurs "Précédent" / "Suivant" sur les cartes latérales */
+.type-detail-page .typologie-card-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 4px;
+    z-index: 2;
+    pointer-events: none;
+    transition: background 0.2s ease;
+}
+
+.type-detail-page .typologie-card-indicator .pi {
+    font-size: 0.625rem;
+}
+
+.type-detail-page .typologie-card-indicator-prev .pi {
+    margin-right: 0.15rem;
+}
+
+.type-detail-page .typologie-card-indicator-next .pi {
+    margin-left: 0.15rem;
+}
+
+.type-detail-page .typologie-card:hover .typologie-card-indicator {
+    background: rgba(var(--type-main-rgb), 0.85);
+}
+
+.type-detail-page .galleria-side-card .typologie-card {
+    position: relative;
+}
+
 /* Indicateur (carré gris) quand aucun type précédent/suivant */
 .type-detail-page .galleria-side-placeholder {
     display: block;
