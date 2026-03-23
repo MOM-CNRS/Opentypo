@@ -26,6 +26,12 @@ public class EntityRevisionDTO implements Serializable {
     private LocalDateTime revisionDate;
     private String modifiedBy;
     
+    /** Indique si le statut de l'entité a changé dans cette révision */
+    private Boolean statutChanged;
+    
+    /** Valeur du statut à cette révision (pour affichage) */
+    private String statutValue;
+    
     // Données de l'entité à cette révision
     private Map<String, Object> entityData;
     

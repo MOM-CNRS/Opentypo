@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.EntityRevisionDTO;
 import fr.cnrs.opentypo.application.service.AuditService;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
@@ -118,6 +119,100 @@ public class HistoryBean implements Serializable {
         return "/history/history-list.xhtml?faces-redirect=true";
     }
 
+    /**
+     * Retourne le libellé du type d'entité pour l'affichage.
+     */
+    public String getEntityTypeLabel() {
+        if (selectedEntity == null || selectedEntity.getEntityType() == null) return "Entité";
+        String code = selectedEntity.getEntityType().getCode();
+        return switch (code) {
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
+            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
+            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
+            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
+            default -> "Entité";
+        };
+    }
+
+    /**
+     * Retourne le libellé du statut de l'entité pour l'affichage.
+     */
+    public String getEntityStatusLabel() {
+        if (selectedEntity == null || selectedEntity.getStatut() == null) return "—";
+        return switch (selectedEntity.getStatut()) {
+            case "PUBLIQUE" -> "Public";
+            case "PRIVEE" -> "Privé";
+            case "PROPOSITION" -> "Proposition";
+            case "REFUSE" -> "Refusé";
+            default -> selectedEntity.getStatut();
+        };
+    }
+
+    /**
+     * Retourne l'icône PrimeIcons du statut de l'entité.
+     */
+    public String getEntityStatusIcon() {
+        if (selectedEntity == null || selectedEntity.getStatut() == null) return "pi pi-circle";
+        return switch (selectedEntity.getStatut()) {
+            case "PUBLIQUE" -> "pi pi-globe";
+            case "PROPOSITION" -> "pi pi-clock";
+            case "REFUSE" -> "pi pi-times-circle";
+            default -> "pi pi-lock";
+        };
+    }
+
+    /**
+     * Retourne les noms des champs modifiés pour l'affichage (ex: "Code, TPQ, Statut").
+     */
+    public String getChangedFieldsDisplay(EntityRevisionDTO revision) {
+        if (revision == null) return "—";
+        Map<String, Map<String, Object>> changes = calculateChangedFields(revision);
+        if (changes.isEmpty()) return "—";
+        return changes.keySet().stream()
+                .sorted()
+                .map(this::getFieldLabel)
+                .collect(java.util.stream.Collectors.joining(", "));
+    }
+
+    /**
+     * Indique si cette révision est la création (chronologiquement la première).
+     */
+    public boolean isCreationRevision(EntityRevisionDTO revision) {
+        if (revision == null || revisions == null || revisions.isEmpty()) return false;
+        Long minRev = revisions.stream()
+                .map(EntityRevisionDTO::getRevisionNumber)
+                .filter(java.util.Objects::nonNull)
+                .min(Long::compareTo)
+                .orElse(null);
+        return minRev != null && minRev.equals(revision.getRevisionNumber());
+    }
+
+    /**
+     * Retourne le libellé du type de révision pour l'affichage (Création pour la 1re révision).
+     */
+    public String getDisplayRevisionTypeLabel(EntityRevisionDTO revision) {
+        if (revision == null) return "Inconnu";
+        return isCreationRevision(revision) ? "Création" : revision.getRevisionTypeLabel();
+    }
+
+    /**
+     * Retourne l'icône du type de révision pour l'affichage.
+     */
+    public String getDisplayRevisionTypeIcon(EntityRevisionDTO revision) {
+        if (revision == null) return "pi pi-circle";
+        return isCreationRevision(revision) ? "pi pi-plus-circle" : revision.getRevisionTypeIcon();
+    }
+
+    /**
+     * Retourne la classe CSS du type de révision pour l'affichage.
+     */
+    public String getDisplayRevisionTypeClass(EntityRevisionDTO revision) {
+        if (revision == null) return "";
+        return isCreationRevision(revision) ? "revision-add" : revision.getRevisionTypeClass();
+    }
+
     private static final DateTimeFormatter REVISION_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm");
 
     /**
@@ -125,6 +220,240 @@ public class HistoryBean implements Serializable {
      */
     public String formatRevisionDate(LocalDateTime date) {
         return date != null ? date.format(REVISION_DATE_FORMAT) : "N/A";
+    }
+
+    /** Ordre d'affichage des champs (type.xhtml et tous ses includes), sans ID */
+    private static final String[] ORDERED_DISPLAY_KEYS = {
+        // type.xhtml : en-tête
+        "code", "labels", "descriptions", "statut", "appellation",
+        // dotation.xhtml
+        "periode", "tpq", "taq", "commentaireDatation",
+        // alignements.xhtml
+        "appartient", "associe", "alignementExterne",
+        // production.xhtml
+        "production", "ateliers", "airesCirculation", "categorieFonctionnelle",
+        // description_monnaie.xhtml
+        "droit", "legendeDroit", "coinsMonetairesDroit", "revers", "legendeRevers", "coinsMonetairesRevers",
+        // caracteristiques_physique_monnaie.xhtml
+        "materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie", "fabricationMonnaie",
+        // description.xhtml
+        "decors", "marques", "fonctionUsage",
+        // caracteristiques_physique.xhtml (céramique)
+        "metrologiePhysique", "fabricationPhysique", "descriptionPate", "couleurPate", "naturePate", "inclusionPate", "cuissonPate",
+        // caracteristiques_physique_instrumentum.xhtml
+        "materiaux", "forme", "dimensions", "technique",
+        // metrologie détail (description_detail)
+        "metrologieDetail",
+        // attestations, sites, gestion, commentaire, bibliographie
+        "attestations", "sitesArcheologiques", "reference", "typologieScientifique",
+        "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie",
+        // images, entity
+        "images", "idArk", "displayOrder"
+    };
+
+    /**
+     * Section d'affichage groupée (comme type.xhtml).
+     */
+    public record DisplaySection(String id, String title, String icon, List<String> keys, String visibilityType) {}
+
+    /** Sections groupées pour l'affichage (structure type.xhtml). */
+    private static final List<DisplaySection> DISPLAY_SECTIONS = List.of(
+        new DisplaySection("general", "Informations générales", "pi pi-info-circle",
+            List.of("code", "labels", "descriptions", "statut", "appellation"), "ALWAYS"),
+        new DisplaySection("dotation", "Dotation", "pi pi-calendar",
+            List.of("periode", "tpq", "taq", "commentaireDatation"), "DOTATION"),
+        new DisplaySection("alignements", "Relations", "pi pi-sitemap",
+            List.of("appartient", "associe", "alignementExterne"), "ALIGNEMENTS"),
+        new DisplaySection("production", "Production", "pi pi-inbox",
+            List.of("production", "ateliers", "airesCirculation", "categorieFonctionnelle"), "PRODUCTION"),
+        new DisplaySection("descriptionMonnaie", "Description", "pi pi-book",
+            List.of("droit", "legendeDroit", "coinsMonetairesDroit", "revers", "legendeRevers", "coinsMonetairesRevers"), "MONNAIE"),
+        new DisplaySection("caracMonnaie", "Caractéristiques physiques", "pi pi-th-large",
+            List.of("materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie", "fabricationMonnaie"), "MONNAIE"),
+        new DisplaySection("description", "Description", "pi pi-book",
+            List.of("decors", "marques", "fonctionUsage", "metrologieDetail"), "CERAMIQUE_OR_INSTRUMENTUM"),
+        new DisplaySection("caracCeramique", "Caractéristiques physiques", "pi pi-sliders-h",
+            List.of("metrologiePhysique", "fabricationPhysique", "descriptionPate", "couleurPate", "naturePate", "inclusionPate", "cuissonPate"), "CERAMIQUE"),
+        new DisplaySection("caracInstrumentum", "Caractéristiques physiques", "pi pi-th-large",
+            List.of("materiaux", "forme", "dimensions", "technique", "fabricationPhysique"), "INSTRUMENTUM"),
+        new DisplaySection("attestations", "Attestations", "pi pi-check-circle",
+            List.of("attestations"), "ALWAYS"),
+        new DisplaySection("sites", "Sites archéologiques", "pi pi-map-marker",
+            List.of("sitesArcheologiques"), "ALWAYS"),
+        new DisplaySection("gestion", "Gestion", "pi pi-cog",
+            List.of("reference", "typologieScientifique", "identifiantPerenne", "ancienneVersion"), "GESTION"),
+        new DisplaySection("commentaire", "Commentaire", "pi pi-comment",
+            List.of("commentaireMetadata"), "ALWAYS"),
+        new DisplaySection("bibliographie", "Bibliographie", "pi pi-book",
+            List.of("bibliographie"), "ALWAYS"),
+        new DisplaySection("autres", "Autres", "pi pi-list",
+            List.of("images", "idArk", "displayOrder"), "ALWAYS")
+    );
+
+    /**
+     * Retourne les sections groupées pour l'affichage.
+     */
+    public List<DisplaySection> getDisplaySections() {
+        return DISPLAY_SECTIONS;
+    }
+
+    /**
+     * Retourne le code du type d'entité (REFERENTIEL, CATEGORIE, GROUPE, SERIE, TYPE).
+     */
+    private String getEntityTypeCode() {
+        if (selectedEntity == null || selectedEntity.getEntityType() == null) return null;
+        return selectedEntity.getEntityType().getCode();
+    }
+
+    /**
+     * Indique si une section doit être affichée, selon le type d'entité et la collection (comme les pages de détail).
+     */
+    public boolean isSectionVisible(DisplaySection section) {
+        if (section == null || selectedEntity == null) return true;
+        String entityType = getEntityTypeCode();
+        boolean collectionCondition = switch (section.visibilityType()) {
+            case "ALWAYS" -> true;
+            case "DOTATION" -> applicationBean.showDotationBlock();
+            case "ALIGNEMENTS" -> applicationBean.showAlignementsBlock();
+            case "PRODUCTION" -> applicationBean.showProductionBlock();
+            case "MONNAIE" -> applicationBean.isCashTypo();
+            case "CERAMIQUE_OR_INSTRUMENTUM" -> applicationBean.isCeramiqueTypo() || applicationBean.isInstrumentumTypo();
+            case "CERAMIQUE" -> applicationBean.isCeramiqueTypo();
+            case "INSTRUMENTUM" -> applicationBean.isInstrumentumTypo();
+            case "GESTION" -> applicationBean.showGestionBlock();
+            default -> true;
+        };
+        if (!collectionCondition) return false;
+        // Filtrage par type d'entité (reference.xhtml, category.xhtml, groupe.xhtml, serie.xhtml, type.xhtml)
+        return isSectionVisibleForEntityType(section, entityType);
+    }
+
+    /**
+     * Filtre les sections selon le type d'entité, aligné sur les pages de détail.
+     */
+    private boolean isSectionVisibleForEntityType(DisplaySection section, String entityType) {
+        if (entityType == null) return true;
+        return switch (entityType) {
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> isSectionVisibleForReference(section);
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> isSectionVisibleForCategory(section);
+            case EntityConstants.ENTITY_TYPE_GROUP -> isSectionVisibleForGroup(section);
+            case EntityConstants.ENTITY_TYPE_SERIES -> isSectionVisibleForSerie(section);
+            case EntityConstants.ENTITY_TYPE_TYPE -> true; // type.xhtml : toutes les sections
+            default -> true;
+        };
+    }
+
+    private boolean isSectionVisibleForReference(DisplaySection section) {
+        return switch (section.id()) {
+            case "general" -> true;
+            case "autres" -> true;
+            default -> false; // reference.xhtml : uniquement description, periode, reference biblio, gestionnaires, auteurs
+        };
+    }
+
+    private boolean isSectionVisibleForCategory(DisplaySection section) {
+        return switch (section.id()) {
+            case "general", "commentaire", "bibliographie", "autres" -> true;
+            default -> false; // category.xhtml : description, commentaire, bibliographie, auteurs
+        };
+    }
+
+    private boolean isSectionVisibleForGroup(DisplaySection section) {
+        return switch (section.id()) {
+            case "attestations", "sites", "gestion" -> false;
+            default -> true; // groupe.xhtml : tout sauf attestations, sites, gestion
+        };
+    }
+
+    private boolean isSectionVisibleForSerie(DisplaySection section) {
+        return switch (section.id()) {
+            case "alignements", "attestations", "sites", "gestion" -> false;
+            default -> true; // serie.xhtml : tout sauf alignements, attestations, sites, gestion
+        };
+    }
+
+    /**
+     * Retourne les clés à afficher pour une section, selon le type d'entité.
+     */
+    public List<String> getKeysForSection(DisplaySection section) {
+        if (section == null) return List.of();
+        String entityType = getEntityTypeCode();
+        if (entityType == null) return section.keys();
+        if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityType) && "general".equals(section.id())) {
+            return List.of("code", "labels", "descriptions", "statut", "periode", "rereferenceBibliographique");
+        }
+        if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType) && "general".equals(section.id())) {
+            return List.of("code", "labels", "descriptions", "statut");
+        }
+        if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType) && "alignements".equals(section.id())) {
+            if (applicationBean.isInstrumentumTypo()) {
+                return List.of("alignementExterne");
+            }
+            return List.of("corpusExterne");
+        }
+        return section.keys();
+    }
+
+    /**
+     * Retourne la liste des clés à afficher (ordre type.xhtml, sans ID).
+     */
+    public List<String> getOrderedDisplayKeys() {
+        return List.of(ORDERED_DISPLAY_KEYS);
+    }
+
+    /**
+     * Retourne l'icône PrimeIcons pour un champ (comme type.xhtml).
+     */
+    public String getFieldIcon(String fieldName) {
+        if (fieldName == null) return "pi pi-circle";
+        return switch (fieldName) {
+            case "code" -> "pi pi-hashtag";
+            case "labels", "descriptions" -> "pi pi-file";
+            case "statut" -> "pi pi-info-circle";
+            case "appellation" -> "pi pi-tag";
+            case "periode" -> "pi pi-calendar";
+            case "tpq" -> "pi pi-calendar-minus";
+            case "taq" -> "pi pi-calendar-plus";
+            case "commentaireDatation" -> "pi pi-comment";
+            case "appartient" -> "pi pi-users";
+            case "associe" -> "pi pi-link";
+            case "alignementExterne" -> "pi pi-globe";
+            case "production" -> "pi pi-truck";
+            case "ateliers" -> "pi pi-building";
+            case "airesCirculation" -> "pi pi-map";
+            case "categorieFonctionnelle" -> "pi pi-sitemap";
+            case "droit" -> "pi pi-arrow-circle-right";
+            case "legendeDroit", "legendeRevers" -> "pi pi-align-left";
+            case "coinsMonetairesDroit", "coinsMonetairesRevers" -> "pi pi-arrows-alt";
+            case "revers" -> "pi pi-arrow-circle-left";
+            case "materiauxMonnaie", "materiaux" -> "pi pi-box";
+            case "denomination" -> "pi pi-id-card";
+            case "metrologieMonnaie", "metrologieDetail", "metrologiePhysique" -> "pi pi-sliders-h";
+            case "valeurMonnaie" -> "pi pi-wallet";
+            case "techniqueMonnaie", "technique" -> "pi pi-wrench";
+            case "fabricationMonnaie", "fabricationPhysique" -> "pi pi-cog";
+            case "decors" -> "pi pi-palette";
+            case "marques" -> "pi pi-tag";
+            case "fonctionUsage" -> "pi pi-sitemap";
+            case "descriptionPate" -> "pi pi-arrows-h";
+            case "couleurPate", "naturePate", "inclusionPate", "cuissonPate" -> "pi pi-wrench";
+            case "forme" -> "pi pi-sliders-h";
+            case "dimensions" -> "pi pi-id-card";
+            case "attestations" -> "pi pi-check-circle";
+            case "sitesArcheologiques" -> "pi pi-map-marker";
+            case "commentaireMetadata" -> "pi pi-comment";
+            case "bibliographie" -> "pi pi-book";
+            case "reference" -> "pi pi-database";
+            case "rereferenceBibliographique" -> "pi pi-book";
+            case "corpusExterne" -> "pi pi-globe";
+            case "typologieScientifique" -> "pi pi-book";
+            case "identifiantPerenne" -> "pi pi-id-card";
+            case "ancienneVersion" -> "pi pi-history";
+            case "images" -> "pi pi-image";
+            case "idArk" -> "pi pi-id-card";
+            case "displayOrder" -> "pi pi-sort-numeric-down";
+            default -> "pi pi-circle";
+        };
     }
 
     /**
@@ -162,16 +491,20 @@ public class HistoryBean implements Serializable {
                 return "Code";
             case "nom":
             case "labels":
-                return "Nom/Label";
+                return "Label";
             case "commentaire":
             case "descriptions":
                 return "Description";
             case "bibliographie":
                 return "Bibliographie";
             case "appellation":
-                return "Appellation";
+                return "Appellation usuelle";
             case "reference":
-                return "Référence";
+                return "Référentiel";
+            case "rereferenceBibliographique":
+                return "Référence bibliographique";
+            case "corpusExterne":
+                return "Corpus externe";
             case "typologieScientifique":
                 return "Typologie scientifique";
             case "identifiantPerenne":
@@ -180,14 +513,54 @@ public class HistoryBean implements Serializable {
                 return "Ancienne version";
             case "statut":
                 return "Statut";
+            case "periode":
+                return "Période";
             case "tpq":
                 return "TPQ";
             case "taq":
                 return "TAQ";
+            case "commentaireDatation":
+                return "Commentaire datation";
             case "publique":
                 return "Public";
+            case "appartient":
+                return "Alignement opentypo, appartient à";
+            case "associe":
+                return "Alignement opentypo, associé à";
+            case "alignementExterne":
+                return "Alignement externe";
+            case "production":
+                return "Production";
             case "ateliers":
-                return "Ateliers";
+                return "Atelier(s)";
+            case "airesCirculation":
+                return "Aire de circulation";
+            case "categorieFonctionnelle":
+                return "Catégorie fonctionnelle";
+            case "droit":
+                return "Droit";
+            case "legendeDroit":
+                return "Légende du droit";
+            case "coinsMonetairesDroit":
+                return "Coins monétaires droit";
+            case "revers":
+                return "Revers";
+            case "legendeRevers":
+                return "Légende du revers";
+            case "coinsMonetairesRevers":
+                return "Coins monétaires revers";
+            case "materiauxMonnaie":
+                return "Matériau (monnaie)";
+            case "denomination":
+                return "Dénomination";
+            case "metrologieMonnaie":
+                return "Métrologie (monnaie)";
+            case "valeurMonnaie":
+                return "Valeur";
+            case "techniqueMonnaie":
+                return "Technique (monnaie)";
+            case "fabricationMonnaie":
+                return "Fabrication (monnaie)";
             case "attestations":
                 return "Attestations";
             case "sitesArcheologiques":
@@ -200,10 +573,34 @@ public class HistoryBean implements Serializable {
                 return "Identifiant ARK";
             case "displayOrder":
                 return "Ordre d'affichage";
-            case "appartient":
-                return "Appartient";
-            case "associe":
-                return "Associé";
+            case "decors":
+                return "Décors";
+            case "marques":
+                return "Marques/estampilles";
+            case "fonctionUsage":
+                return "Fonction/usage";
+            case "materiaux":
+                return "Matériaux";
+            case "forme":
+                return "Forme";
+            case "dimensions":
+                return "Dimensions";
+            case "technique":
+                return "Technique";
+            case "metrologiePhysique":
+                return "Métrologie";
+            case "fabricationPhysique":
+                return "Fabrication/façonnage";
+            case "descriptionPate":
+                return "Description pâte";
+            case "couleurPate":
+                return "Couleur de pâte";
+            case "naturePate":
+                return "Nature de pâte";
+            case "inclusionPate":
+                return "Inclusions";
+            case "cuissonPate":
+                return "Cuisson/post-cuisson";
             case "images":
                 return "Images";
             case "createDate":
@@ -212,32 +609,11 @@ public class HistoryBean implements Serializable {
                 return "Créé par";
             case "entityTypeCode":
                 return "Type d'entité";
-            case "decors":
-                return "Décors";
-            case "marques":
-                return "Marques/Estampilles";
-            case "fonctionUsage":
-                return "Fonction/Usage";
-            case "materiaux":
-                return "Matériaux";
-            case "metrologieRef":
-                return "Métrologie";
-            case "fabricationFaconnage":
-                return "Fabrication/Façonnage";
-            case "descriptionPate":
-                return "Description pâte";
-            case "couleurPate":
-                return "Couleur de pâte";
-            case "naturePate":
-                return "Nature de pâte";
-            case "inclusions":
-                return "Inclusions";
-            case "cuissonPostCuisson":
-                return "Cuisson/Post-cuisson";
             case "referencesOpentheso":
                 return "Références OpenTheso";
             default:
                 // Capitaliser la première lettre et remplacer les majuscules par des espaces
+                if (fieldName == null || fieldName.isEmpty()) return "Champ inconnu";
                 return fieldName.substring(0, 1).toUpperCase() + 
                        fieldName.substring(1).replaceAll("([A-Z])", " $1").trim();
         }

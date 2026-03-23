@@ -3,7 +3,8 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <ui:define name="mainContent">
         <h:outputStylesheet library="css" name="history.css"/>
@@ -42,28 +43,46 @@
                 </ui:fragment>
 
                 <ui:fragment rendered="#{not empty historyBean.revisions}">
-                    <p:dataTable value="#{historyBean.revisions}" 
-                                 var="revision"
-                                 styleClass="history-table"
-                                 paginator="true"
-                                 rows="10"
-                                 sortBy="#{revision.revisionDate}"
-                                 sortOrder="descending"
-                                 paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="5,10,20,50"
-                                 emptyMessage="Aucune révision trouvée">
+                    <h:form id="historyListForm">
+                        <div class="history-table-wrapper">
+                            <p:dataTable id="historyTable"
+                                        value="#{historyBean.revisions}" 
+                                        var="revision"
+                                        styleClass="modern-users-table history-revisions-table"
+                                        paginator="true"
+                                        rows="10"
+                                        rowsPerPageTemplate="5,10,20,50"
+                                        paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                        paginatorPosition="bottom"
+                                        sortBy="#{revision.revisionDate}"
+                                        sortOrder="descending"
+                                        emptyMessage="Aucune révision trouvée"
+                                        rowStyleClass="modern-users-row">
                         
-                        <!-- Colonne Type -->
-                        <p:column headerText="Type" styleClass="history-col-type">
-                            <div class="revision-type-badge #{revision.revisionTypeClass}">
-                                <i class="#{revision.revisionTypeIcon}"/>
-                                <span>#{revision.revisionTypeLabel}</span>
-                            </div>
-                        </p:column>
-
                         <!-- Colonne Date (triable : clic sur l'en-tête pour croissant/décroissant) -->
                         <p:column headerText="Date" styleClass="history-col-date" sortBy="#{revision.revisionDate}">
                             <span>#{historyBean.formatRevisionDate(revision.revisionDate)}</span>
+                        </p:column>
+
+                        <!-- Colonne Statut -->
+                        <p:column headerText="Statut" styleClass="history-col-statut">
+                            <ui:fragment rendered="#{revision.statutChanged == true and revision.statutValue != null}">
+                                <span class="revision-statut-badge revision-statut-#{fn:toLowerCase(revision.statutValue)}" 
+                                      title="Changement de statut vers #{revision.statutValue}">
+                                    <i class="pi pi-sync"/>
+                                    #{revision.statutValue}
+                                </span>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{revision.statutChanged != true}">
+                                <span class="revision-statut-value">
+                                    #{revision.statutValue != null ? revision.statutValue : '—'}
+                                </span>
+                            </ui:fragment>
+                        </p:column>
+
+                        <!-- Colonne Champs modifiés -->
+                        <p:column headerText="Champs modifiés" styleClass="history-col-changed">
+                            <span class="history-changed-fields">#{historyBean.getChangedFieldsDisplay(revision)}</span>
                         </p:column>
 
                         <!-- Colonne Modifié par -->
@@ -73,14 +92,18 @@
 
                         <!-- Colonne Actions -->
                         <p:column headerText="Actions" styleClass="history-col-actions">
-                            <p:commandButton icon="pi pi-eye"
-                                           styleClass="history-btn-view"
-                                           title="Voir les détails"
-                                           action="#{historyBean.viewRevision(revision.revisionNumber)}"
-                                           process="@this"
-                                           update="@none"/>
+                            <div class="history-actions-cell">
+                                <p:commandButton icon="pi pi-eye"
+                                               styleClass="history-btn-view"
+                                               title="Voir les détails"
+                                               action="#{historyBean.viewRevision(revision.revisionNumber)}"
+                                               process="@this"
+                                               update="@none"/>
+                            </div>
                         </p:column>
-                    </p:dataTable>
+                            </p:dataTable>
+                        </div>
+                    </h:form>
                 </ui:fragment>
             </div>
         </div>

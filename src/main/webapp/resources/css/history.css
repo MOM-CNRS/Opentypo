@@ -153,192 +153,185 @@
 /* Contenu principal */
 .history-detail-content {
     margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Sections */
+.history-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid rgba(var(--history-main-rgb), 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* Titres de sections */
 .history-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: var(--history-text);
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     font-weight: 700;
     margin: 0 0 1.25rem 0;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid rgba(var(--history-main-rgb), 0.15);
+    border-bottom: 1px solid rgba(var(--history-main-rgb), 0.12);
 }
 
-.history-section-title-mt {
-    margin-top: 2.5rem !important;
+.history-section-title i {
+    color: var(--history-main);
+    font-size: 1rem;
+}
+
+/* État vide */
+.history-empty-state {
+    text-align: center;
+    padding: 2rem 1.5rem;
+}
+
+.history-empty-state i {
+    display: block;
+    font-size: 2rem;
+    color: #66bb6a;
+    margin-bottom: 0.75rem;
+}
+
+.history-empty-state p {
+    margin: 0;
+    color: var(--history-text);
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+.history-empty-hint {
+    display: block;
+    margin-top: 0.375rem;
+    color: var(--history-text-muted);
+    font-size: 0.8125rem;
 }
 
 /* Liste des changements */
 .history-changes-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.875rem;
 }
 
-.history-change-item {
-    background: #fff;
-    border: 1px solid rgba(var(--history-main-rgb), 0.12);
+.history-change-card {
+    padding: 1rem 1.25rem;
+    background: rgba(var(--history-main-rgb), 0.03);
     border-radius: 10px;
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    border-left: 3px solid var(--history-main);
 }
 
-.history-change-item:hover {
-    box-shadow: 0 4px 16px rgba(var(--history-main-rgb), 0.08);
-    border-color: rgba(var(--history-main-rgb), 0.2);
-}
-
-.change-field-name {
-    margin-bottom: 1rem;
-    color: var(--history-main);
-    font-size: 1rem;
-    font-weight: 700;
-}
-
-.change-field-name strong {
-    color: var(--history-text);
+.change-field {
+    font-size: 0.8125rem;
     font-weight: 600;
+    color: var(--history-main);
+    margin-bottom: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-.change-values {
+.change-diff {
     display: flex;
     flex-wrap: wrap;
-    align-items: stretch;
-    gap: 1rem;
-}
-
-.change-value {
-    flex: 1 1 200px;
-    min-width: 0;
-    padding: 1rem 1.25rem;
-    border-radius: 8px;
-}
-
-.change-old {
-    background: var(--history-old-bg);
-    border: 1px solid var(--history-old-border);
-}
-
-.change-new {
-    background: var(--history-new-bg);
-    border: 1px solid var(--history-new-border);
-}
-
-.change-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-    color: var(--history-text-muted);
-}
-
-.change-old .change-label { color: #8d6e00; }
-.change-new .change-label { color: #2e7d32; }
-
-.change-content {
-    display: block;
-    color: var(--history-text);
-    font-size: 0.9375rem;
-    word-break: break-word;
-    line-height: 1.5;
-}
-
-.change-arrow {
-    display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+}
+
+.diff-old {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--history-old-bg);
+    border-radius: 6px;
+    color: #7d6000;
+    border: 1px solid rgba(230, 195, 92, 0.5);
+    word-break: break-word;
+}
+
+.diff-arrow {
     flex-shrink: 0;
     color: var(--history-main);
-    font-size: 1.25rem;
+    font-size: 0.875rem;
+}
+
+.diff-new {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--history-new-bg);
+    border-radius: 6px;
+    color: #2e7d32;
+    border: 1px solid rgba(102, 187, 106, 0.5);
+    word-break: break-word;
 }
 
 @media (max-width: 576px) {
-    .change-values {
+    .change-diff {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .change-arrow {
+    .diff-arrow {
+        align-self: center;
         transform: rotate(90deg);
     }
 }
 
-/* Données complètes - tableau */
-.history-full-data {
-    margin-top: 0;
+/* Données complètes - grille de cartes */
+.history-data-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
 }
 
-.history-detail-content .history-data-table,
-.history-detail-content .history-data-table.ui-datatable {
-    width: 100% !important;
-    border: 1px solid rgba(var(--history-main-rgb), 0.12) !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+.history-data-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem;
+    background: rgba(var(--history-main-rgb), 0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--history-main-rgb), 0.08);
 }
 
-.history-detail-content .history-data-table .ui-datatable-header {
-    background: linear-gradient(135deg, rgba(var(--history-main-rgb), 0.08) 0%, rgba(var(--history-main-rgb), 0.04) 100%) !important;
-    border-bottom: 2px solid rgba(var(--history-main-rgb), 0.12) !important;
-    padding: 0.875rem 1.25rem !important;
-    font-weight: 700 !important;
-    color: var(--history-text) !important;
+.history-data-item:hover {
+    background: rgba(var(--history-main-rgb), 0.04);
 }
 
-.history-detail-content .history-data-table .ui-datatable-thead > tr > th {
-    border: none !important;
-    font-weight: 600 !important;
-    font-size: 0.875rem !important;
-}
-
-.history-detail-content .history-data-table .ui-datatable-data > tr {
-    border-bottom: 1px solid rgba(var(--history-main-rgb), 0.06) !important;
-    transition: background 0.15s ease !important;
-}
-
-.history-detail-content .history-data-table .ui-datatable-data > tr:last-child {
-    border-bottom: none !important;
-}
-
-.history-detail-content .history-data-table .ui-datatable-data > tr:hover {
-    background: rgba(var(--history-main-rgb), 0.03) !important;
-}
-
-.history-detail-content .history-data-table .ui-datatable-data > tr > td {
-    padding: 0.875rem 1.25rem !important;
-    border: none !important;
-    font-size: 0.9375rem !important;
-    color: var(--history-text) !important;
-}
-
-.history-col-field {
-    font-weight: 600 !important;
-    color: var(--history-text) !important;
-}
-
-/* État vide */
-.history-detail-empty {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: linear-gradient(135deg, rgba(var(--history-main-rgb), 0.03) 0%, rgba(var(--history-main-rgb), 0.01) 100%);
-    border: 1px dashed rgba(var(--history-main-rgb), 0.2);
-    border-radius: 12px;
-}
-
-.history-detail-empty-icon {
-    display: block;
-    font-size: 2.5rem;
-    color: rgba(var(--history-main-rgb), 0.4);
-    margin-bottom: 1rem;
-}
-
-.history-detail-empty p {
-    margin: 0;
+.data-label {
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--history-text-muted);
-    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.data-value {
+    font-size: 0.9375rem;
+    color: var(--history-text);
+    word-break: break-word;
+    line-height: 1.45;
+}
+
+.history-no-data {
+    margin: 0;
+    padding: 1rem 0;
+    color: var(--history-text-muted);
+    font-size: 0.9375rem;
+}
+
+/* Panel concept-info dans history (réutilise styles type.xhtml) */
+.history-concept-panel {
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
 }
 
 /* ============================================
@@ -387,34 +380,49 @@
     margin-top: 0;
 }
 
-/* Tableau liste */
-.history-table {
+/* Tableau liste - style homogène avec users et autres pages */
+.history-table-wrapper {
     width: 100%;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(var(--history-main-rgb), 0.04);
+    border: 1px solid rgba(var(--history-main-rgb), 0.1);
+    overflow: hidden;
 }
 
-.history-table .ui-datatable {
-    border: 1px solid rgba(var(--history-main-rgb), 0.12) !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
+.history-table-wrapper .modern-users-table .ui-datatable-thead > tr > th {
+    padding: 1.25rem 1.5rem !important;
 }
 
-.history-table .ui-datatable-header {
-    background: linear-gradient(135deg, rgba(var(--history-main-rgb), 0.08) 0%, rgba(var(--history-main-rgb), 0.04) 100%) !important;
-    border-bottom: 2px solid rgba(var(--history-main-rgb), 0.12) !important;
-    padding: 1rem 1.25rem !important;
+.history-table-wrapper .modern-users-table .ui-datatable-thead > tr > th:first-child {
+    padding-left: 2rem !important;
 }
 
-.history-table .ui-datatable-thead > tr > th {
-    font-weight: 600 !important;
-    color: var(--history-text) !important;
+.history-table-wrapper .modern-users-table .ui-datatable-data > tr > td {
+    padding: 1rem 1.5rem !important;
 }
 
-.history-table .ui-datatable-data > tr {
-    border-bottom: 1px solid rgba(var(--history-main-rgb), 0.06) !important;
+.history-table-wrapper .modern-users-table .ui-datatable-data > tr > td:first-child {
+    padding-left: 2rem !important;
 }
 
-.history-table .ui-datatable-data > tr:hover {
-    background: rgba(var(--history-main-rgb), 0.03) !important;
+.history-table-wrapper .modern-users-table .ui-datatable-data > tr > td:last-child {
+    padding-right: 2rem !important;
+    text-align: center !important;
+}
+
+@media (max-width: 768px) {
+    .history-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+        border-radius: 12px;
+    }
+
+    .history-table-wrapper .ui-datatable-tablewrapper {
+        min-width: 100%;
+    }
 }
 
 .history-empty {
@@ -433,6 +441,13 @@
     margin-bottom: 1rem;
 }
 
+/* Actions cellule */
+.history-actions-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Bouton Voir détails */
 .history-btn-view {
     background: var(--history-main) !important;
@@ -448,12 +463,65 @@
     transform: translateY(-1px) !important;
 }
 
-/* Colonnes */
-.history-col-type { width: 130px; }
-.history-col-date { width: 180px; }
-.history-col-modified { width: 160px; }
-.history-col-actions { width: 100px; text-align: center; }
-.history-col-field { width: 220px; }
+/* Colonnes - largeurs minimales pour lisibilité */
+.history-table-wrapper .history-col-date { min-width: 160px; }
+.history-table-wrapper .history-col-statut { min-width: 110px; }
+.history-table-wrapper .history-col-changed { min-width: 180px; }
+.history-table-wrapper .history-col-modified { min-width: 140px; }
+.history-table-wrapper .history-col-actions { min-width: 90px; text-align: center; }
+
+/* Champs modifiés - liste des colonnes */
+.history-changed-fields {
+    font-size: 0.875rem;
+    color: var(--history-text-muted);
+    line-height: 1.4;
+}
+
+/* Badge statut (quand le statut a changé) */
+.revision-statut-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.revision-statut-badge.publique {
+    background: rgba(102, 187, 106, 0.15);
+    color: #2e7d32;
+    border: 1px solid rgba(102, 187, 106, 0.3);
+}
+
+.revision-statut-badge.privee,
+.revision-statut-badge.prive,
+.revision-statut-badge.privé {
+    background: rgba(158, 158, 158, 0.15);
+    color: #5d5d5d;
+    border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+.revision-statut-badge.refuse {
+    background: rgba(220, 53, 69, 0.12);
+    color: #c82333;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+}
+
+.revision-statut-badge.proposition {
+    background: rgba(255, 193, 7, 0.2);
+    color: #b38600;
+    border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+.revision-statut-badge i {
+    font-size: 0.7rem;
+}
+
+.revision-statut-value {
+    font-size: 0.875rem;
+    color: var(--history-text-muted);
+}
 
 /* Responsive */
 @media (max-width: 768px) {

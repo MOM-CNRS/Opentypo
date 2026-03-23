@@ -181,14 +181,22 @@ public class AuditService {
                         // Garder la map vide
                     }
                     
+                    Map<String, Object> currentData = entityData != null ? entityData : new HashMap<>();
+                    Map<String, Object> prevData = previousRevision != null ? previousRevision.getEntityData() : null;
+                    Object currentStatut = currentData.get("statut");
+                    Object prevStatut = prevData != null ? prevData.get("statut") : null;
+                    boolean statutChanged = prevData != null && !java.util.Objects.equals(currentStatut, prevStatut);
+
                     EntityRevisionDTO revisionDTO = EntityRevisionDTO.builder()
                         .entityId(entityId)
                         .revisionNumber(revisionNumber)
                         .revisionType(revisionType)
                         .revisionDate(revDate)
                         .modifiedBy(modifiedBy)
-                        .entityData(entityData != null ? entityData : new HashMap<>())
-                        .previousEntityData(previousRevision != null ? previousRevision.getEntityData() : null)
+                        .statutChanged(statutChanged)
+                        .statutValue(currentStatut != null ? currentStatut.toString() : null)
+                        .entityData(currentData)
+                        .previousEntityData(prevData)
                         .build();
                     
                     revisions.add(revisionDTO);
@@ -501,11 +509,11 @@ public class AuditService {
             return;
         }
         try {
-            // entity_aud : statut, id_ark, display_order
+            // entity_aud : statut, id_ark, display_order, periode_id, production_id, categorie_fonctionnelle
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> entityRows = entityManager.createNativeQuery(
-                    "SELECT statut, id_ark, display_order FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
+                    "SELECT statut, id_ark, display_order, periode_id, production_id, categorie_fonctionnelle FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -515,17 +523,21 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("statut", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("idArk", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("displayOrder", row[2]);
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "periode", (Number) row[3], revisionNumber);
+                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "production", (Number) row[4], revisionNumber);
+                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "categorieFonctionnelle", (Number) row[5], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_aud: {}", e.getMessage());
             }
             
-            // entity_metadata_aud : code, commentaire, bibliographie, appellation, tpq, taq, etc.
+            // entity_metadata_aud : code, commentaire, bibliographie, appellation, tpq, taq, commentaire_datation, alignement_externe, etc.
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> metaRows = entityManager.createNativeQuery(
                     "SELECT code, commentaire, bibliographie, appellation, typologie_scientifique, identifiant_perenne, " +
-                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, appartient, associe " +
+                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, appartient, associe, " +
+                    "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe " +
                     "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
@@ -548,16 +560,20 @@ public class AuditService {
                     if (row.length > 12 && row[12] != null) data.put("reference", row[12].toString());
                     if (row.length > 13 && row[13] != null) data.put("appartient", row[13].toString());
                     if (row.length > 14 && row[14] != null) data.put("associe", row[14].toString());
+                    if (row.length > 15 && row[15] != null) data.put("commentaireDatation", row[15].toString());
+                    if (row.length > 16 && row[16] != null) data.put("alignementExterne", row[16].toString());
+                    if (row.length > 17 && row[17] != null) data.put("rereferenceBibliographique", row[17].toString());
+                    if (row.length > 18 && row[18] != null) data.put("corpusExterne", row[18].toString());
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_metadata_aud: {}", e.getMessage());
             }
             
-            // description_detail_aud : decors, marques, metrologie
+            // description_detail_aud : decors, marques, metrologie, fonction_id
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> ddRows = entityManager.createNativeQuery(
-                    "SELECT decors, marques, metrologie FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                    "SELECT decors, marques, metrologie, fonction_id FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -567,22 +583,28 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("decors", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("marques", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("metrologieDetail", row[2].toString());
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "fonctionUsage", (Number) row[3], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur description_detail_aud: {}", e.getMessage());
             }
             
-            // description_pate_aud : description
+            // description_pate_aud : description, couleur_id, nature_id, inclusion_id, cuisson_id
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> dpRows = entityManager.createNativeQuery(
-                    "SELECT description FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                    "SELECT description, couleur_id, nature_id, inclusion_id, cuisson_id FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
                 .getResultList();
-                if (!dpRows.isEmpty() && dpRows.get(0) != null && dpRows.get(0).length > 0 && dpRows.get(0)[0] != null) {
-                    data.put("descriptionPate", dpRows.get(0)[0].toString());
+                if (!dpRows.isEmpty() && dpRows.get(0) != null) {
+                    Object[] row = dpRows.get(0);
+                    if (row.length > 0 && row[0] != null) data.put("descriptionPate", row[0].toString());
+                    if (row.length > 1 && row[1] != null) resolveAndPutRefValeur(data, "couleurPate", (Number) row[1], revisionNumber);
+                    if (row.length > 2 && row[2] != null) resolveAndPutRefValeur(data, "naturePate", (Number) row[2], revisionNumber);
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "inclusionPate", (Number) row[3], revisionNumber);
+                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "cuissonPate", (Number) row[4], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur description_pate_aud: {}", e.getMessage());
@@ -610,8 +632,122 @@ public class AuditService {
             } catch (Exception e) {
                 log.debug("Erreur image_aud: {}", e.getMessage());
             }
+
+            // description_monnaie_aud : droit, legende_droit, coins_monetaires_droit, revers, legende_revers, coins_monetaires_revers
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> dmRows = entityManager.createNativeQuery(
+                    "SELECT droit, legende_droit, coins_monetaires_droit, revers, legende_revers, coins_monetaires_revers " +
+                    "FROM description_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!dmRows.isEmpty() && dmRows.get(0) != null) {
+                    Object[] row = dmRows.get(0);
+                    if (row.length > 0 && row[0] != null) data.put("droit", row[0].toString());
+                    if (row.length > 1 && row[1] != null) data.put("legendeDroit", row[1].toString());
+                    if (row.length > 2 && row[2] != null) data.put("coinsMonetairesDroit", row[2].toString());
+                    if (row.length > 3 && row[3] != null) data.put("revers", row[3].toString());
+                    if (row.length > 4 && row[4] != null) data.put("legendeRevers", row[4].toString());
+                    if (row.length > 5 && row[5] != null) data.put("coinsMonetairesRevers", row[5].toString());
+                }
+            } catch (Exception e) {
+                log.debug("Erreur description_monnaie_aud: {}", e.getMessage());
+            }
+
+            // caracteristique_physique_aud : metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id, fabrication_id
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> cpRows = entityManager.createNativeQuery(
+                    "SELECT metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id, fabrication_id " +
+                    "FROM caracteristique_physique_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!cpRows.isEmpty() && cpRows.get(0) != null) {
+                    Object[] row = cpRows.get(0);
+                    if (row.length > 0 && row[0] != null) resolveAndPutRefValeur(data, "metrologiePhysique", (Number) row[0], revisionNumber);
+                    if (row.length > 1 && row[1] != null) resolveAndPutRefValeur(data, "materiaux", (Number) row[1], revisionNumber);
+                    if (row.length > 2 && row[2] != null) resolveAndPutRefValeur(data, "forme", (Number) row[2], revisionNumber);
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "dimensions", (Number) row[3], revisionNumber);
+                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "technique", (Number) row[4], revisionNumber);
+                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "fabricationPhysique", (Number) row[5], revisionNumber);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur caracteristique_physique_aud: {}", e.getMessage());
+            }
+
+            // caracteristique_physique_monnaie_aud : materiau_id, denomination_id, metrologie, valeur_id, technique_id, fabrication_id
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> cpmRows = entityManager.createNativeQuery(
+                    "SELECT materiau_id, denomination_id, metrologie, valeur_id, technique_id, fabrication_id " +
+                    "FROM caracteristique_physique_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!cpmRows.isEmpty() && cpmRows.get(0) != null) {
+                    Object[] row = cpmRows.get(0);
+                    if (row.length > 0 && row[0] != null) resolveAndPutRefValeur(data, "materiauxMonnaie", (Number) row[0], revisionNumber);
+                    if (row.length > 1 && row[1] != null) resolveAndPutRefValeur(data, "denomination", (Number) row[1], revisionNumber);
+                    if (row.length > 2 && row[2] != null) data.put("metrologieMonnaie", row[2].toString());
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "valeurMonnaie", (Number) row[3], revisionNumber);
+                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "techniqueMonnaie", (Number) row[4], revisionNumber);
+                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "fabricationMonnaie", (Number) row[5], revisionNumber);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur caracteristique_physique_monnaie_aud: {}", e.getMessage());
+            }
+
+            // reference_opentheso_aud : aires de circulation (entity_id + code = 'AIRE_CIRCULATION')
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> roRows = entityManager.createNativeQuery(
+                    "SELECT r.valeur FROM reference_opentheso_aud r " +
+                    "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'AIRE_CIRCULATION'"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!roRows.isEmpty()) {
+                    List<String> aires = new ArrayList<>();
+                    for (Object[] row : roRows) {
+                        if (row != null && row.length > 0 && row[0] != null && !row[0].toString().trim().isEmpty()) {
+                            aires.add(row[0].toString().trim());
+                        }
+                    }
+                    if (!aires.isEmpty()) data.put("airesCirculation", aires);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur reference_opentheso_aud airesCirculation: {}", e.getMessage());
+            }
         } catch (Exception e) {
             log.debug("Erreur extractEnrichedData: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Résout un ID de ReferenceOpentheso vers sa valeur à la révision donnée et l'ajoute à la map.
+     */
+    private void resolveAndPutRefValeur(Map<String, Object> data, String key, Number refId, Long revisionNumber) {
+        if (refId == null || revisionNumber == null) return;
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> results = entityManager.createNativeQuery(
+                "SELECT valeur FROM reference_opentheso_aud WHERE id = :refId " +
+                "AND rev = (SELECT MAX(rev) FROM reference_opentheso_aud WHERE id = :refId AND rev <= :revisionNumber)"
+            )
+            .setParameter("refId", refId.longValue())
+            .setParameter("revisionNumber", revisionNumber)
+            .getResultList();
+            if (!results.isEmpty() && results.get(0) != null && !results.get(0).toString().trim().isEmpty()) {
+                data.put(key, results.get(0).toString().trim());
+            }
+        } catch (Exception e) {
+            log.debug("Erreur resolve ref {} pour {}: {}", refId, key, e.getMessage());
         }
     }
 
