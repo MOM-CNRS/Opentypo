@@ -69,140 +69,146 @@
             </div>
 
             <h:panelGroup id="referencesContent" class="collections-grid collections-grid-cadre">
-            <ui:repeat value="#{applicationBean.paginatedReferences}" var="reference">
-                <div class="collection-panel">
-                    <div class="collection-panel-header">
-                        <div class="collection-panel-title-section">
-                            <div class="collection-panel-icon">
-                                <i class="pi pi-database" />
-                            </div>
-                            <div class="collection-panel-title-wrapper">
-                                <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                               process="@this"
-                                               update=":centerContent"
-                                               pt:data-entity-code="#{reference.code}"
-                                               onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                               onstart="showLoading('Chargement du référentiel...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                               onerror="forceHideLoading();"
-                                               styleClass="collection-panel-title-link">
-                                    <h3 class="collection-panel-title">#{reference.code}</h3>
-                                </p:commandLink>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
+                <ui:repeat value="#{applicationBean.paginatedReferences}" var="reference">
+                    <div class="collection-panel">
+                        <div class="collection-panel-header">
+                            <div class="collection-panel-title-section">
+                                <div class="collection-panel-icon">
+                                    <i class="pi pi-database" />
+                                </div>
+                                <div class="collection-panel-title-wrapper">
+                                    <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                                process="@this"
+                                                update=":centerContent"
+                                                pt:data-entity-code="#{reference.code}"
+                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                                onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                                oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                                onerror="forceHideLoading();"
+                                                styleClass="collection-panel-title-link">
+                                        <h3 class="collection-panel-title">#{reference.code}</h3>
+                                    </p:commandLink>
+                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
+                                </div>
+                                <h:panelGroup rendered="#{loginBean.currentUser != null}" styleClass="collection-panel-status-badge">
+                                    <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(reference)}"
+                                          title="#{treeBean.getUnifiedIndicatorTitle(reference)}">
+                                        <i class="pi #{treeBean.getUnifiedIndicatorIcon(reference)}" aria-hidden="true"/>
+                                    </span>
+                                </h:panelGroup>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="collection-panel-content">
-                        <div class="collection-panel-image">
-                            <p:graphicImage value="#{reference.imagePrincipaleUrl}"
-                                            styleClass="collection-image"
-                                            alt="Image du référentiel"
-                                            rendered="#{not empty reference.imagePrincipaleUrl}"/>
-                            <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
-                                <div class="collection-image-placeholder">
-                                    <span class="collection-placeholder-text">OpenTypo</span>
-                                </div>
-                            </h:panelGroup>
-                        </div>
-
-                        <div class="collection-info-grid">
-                            <div class="collection-info-item collection-info-item-full">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-file collection-info-icon" />
-                                    <span>Description</span>
-                                </div>
-                                <div class="collection-info-value collection-info-description">
-                                    <h:outputText value="#{applicationBean.getEntityDescription(reference)}" escape="false"/>
-                                </div>
+                        <div class="collection-panel-content">
+                            <div class="collection-panel-image">
+                                <p:graphicImage value="#{reference.imagePrincipaleUrl}"
+                                                styleClass="collection-image"
+                                                alt="Image du référentiel"
+                                                rendered="#{not empty reference.imagePrincipaleUrl}"/>
+                                <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
+                                    <div class="collection-image-placeholder">
+                                        <span class="collection-placeholder-text">OpenTypo</span>
+                                    </div>
+                                </h:panelGroup>
                             </div>
 
-                            <div class="collection-info-item">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-user collection-info-icon" />
-                                    <span>Auteur(s)</span>
+                            <div class="collection-info-grid">
+                                <div class="collection-info-item collection-info-item-full">
+                                    <div class="collection-info-label">
+                                        <i class="pi pi-file collection-info-icon" />
+                                        <span>Description</span>
+                                    </div>
+                                    <div class="collection-info-value collection-info-description">
+                                        <h:outputText value="#{applicationBean.getEntityDescription(reference)}" escape="false"/>
+                                    </div>
                                 </div>
-                                <div class="collection-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty reference.auteurs}">
-                                        <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
-                                                    <span class="bibliographie-badge">
-                                                        <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                                    </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty reference.auteurs}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
-                            </div>
 
-                            <div class="collection-info-item">
-                                <div class="collection-info-label">
-                                    <i class="pi pi-book collection-info-icon" />
-                                    <span>Référence bibliographique</span>
-                                </div>
-                                <div class="collection-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty reference.referenceBibliographique}">
-                                        <ui:repeat value="#{fn:split(reference.referenceBibliographique, ';')}" var="ref" varStatus="status">
-                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                <div class="collection-info-item">
+                                    <div class="collection-info-label">
+                                        <i class="pi pi-user collection-info-icon" />
+                                        <span>Auteur(s)</span>
+                                    </div>
+                                    <div class="collection-info-value bibliographie-container">
+                                        <ui:fragment rendered="#{not empty reference.auteurs}">
+                                            <ui:repeat value="#{reference.auteurs}" var="auteur" varStatus="status">
                                                         <span class="bibliographie-badge">
-                                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                            <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
                                                         </span>
-                                            </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucune référence bibliographique disponible"
-                                                  rendered="#{empty reference.referenceBibliographique}"
-                                                  styleClass="bibliographie-empty" />
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <h:outputText value="Aucun auteur disponible"
+                                                    rendered="#{empty reference.auteurs}"
+                                                    styleClass="bibliographie-empty" />
+                                    </div>
+                                </div>
+
+                                <div class="collection-info-item">
+                                    <div class="collection-info-label">
+                                        <i class="pi pi-book collection-info-icon" />
+                                        <span>Référence bibliographique</span>
+                                    </div>
+                                    <div class="collection-info-value bibliographie-container">
+                                        <ui:fragment rendered="#{not empty reference.referenceBibliographique}">
+                                            <ui:repeat value="#{fn:split(reference.referenceBibliographique, ';')}" var="ref" varStatus="status">
+                                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                            <span class="bibliographie-badge">
+                                                                <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                            </span>
+                                                </ui:fragment>
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <h:outputText value="Aucune référence bibliographique disponible"
+                                                    rendered="#{empty reference.referenceBibliographique}"
+                                                    styleClass="bibliographie-empty" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </ui:repeat>
+                </ui:repeat>
 
-            <!-- Message si aucune référence -->
-            <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsReferences}">
-                <div class="reference-categories-empty-icon">
-                    <i class="pi pi-inbox" aria-hidden="true"/>
-                </div>
-                <div class="reference-categories-empty-content">
-                    <h4 class="reference-categories-empty-title">Aucun référentiel disponible</h4>
-                    <p class="reference-categories-empty-text">Cette collection ne contient actuellement aucun référentiel.</p>
-                </div>
-            </h:panelGroup>
-            <!-- Message si recherche sans résultat -->
-            <h:panelGroup class="reference-categories-empty reference-categories-no-results"
-                          rendered="#{not empty applicationBean.childsReferences and empty applicationBean.filteredReferences}">
-                <div class="reference-categories-empty-icon">
-                    <i class="pi pi-search" aria-hidden="true"/>
-                </div>
-                <div class="reference-categories-empty-content">
-                    <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                    <p class="reference-categories-empty-text">Aucun référentiel ne correspond à votre recherche.</p>
-                </div>
-            </h:panelGroup>
+                <!-- Message si aucune référence -->
+                <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsReferences}">
+                    <div class="reference-categories-empty-icon">
+                        <i class="pi pi-inbox" aria-hidden="true"/>
+                    </div>
+                    <div class="reference-categories-empty-content">
+                        <h4 class="reference-categories-empty-title">Aucun référentiel disponible</h4>
+                        <p class="reference-categories-empty-text">Cette collection ne contient actuellement aucun référentiel.</p>
+                    </div>
+                </h:panelGroup>
+                <!-- Message si recherche sans résultat -->
+                <h:panelGroup class="reference-categories-empty reference-categories-no-results"
+                            rendered="#{not empty applicationBean.childsReferences and empty applicationBean.filteredReferences}">
+                    <div class="reference-categories-empty-icon">
+                        <i class="pi pi-search" aria-hidden="true"/>
+                    </div>
+                    <div class="reference-categories-empty-content">
+                        <h4 class="reference-categories-empty-title">Aucun résultat</h4>
+                        <p class="reference-categories-empty-text">Aucun référentiel ne correspond à votre recherche.</p>
+                    </div>
+                </h:panelGroup>
 
-            <!-- Pagination (masquée si tout afficher) -->
-            <h:panelGroup rendered="#{not applicationBean.referencesViewAll and applicationBean.referencesTotalPages gt 1}" class="reference-categories-pagination">
-                <p:commandButton icon="pi pi-chevron-left"
-                                 styleClass="reference-categories-page-btn"
-                                 process="@this"
-                                 update="referencesContent"
-                                 action="#{applicationBean.referencesPreviousPage()}"
-                                 disabled="#{applicationBean.referencesFirstPage}"
-                                 title="Page précédente"/>
-                <span class="reference-categories-page-info">
-                    Page #{applicationBean.referencesCurrentPage} / #{applicationBean.referencesTotalPages}
-                </span>
-                <p:commandButton icon="pi pi-chevron-right"
-                                 styleClass="reference-categories-page-btn"
-                                 process="@this"
-                                 update="referencesContent"
-                                 action="#{applicationBean.referencesNextPage()}"
-                                 disabled="#{applicationBean.referencesLastPage}"
-                                 title="Page suivante"/>
-            </h:panelGroup>
+                <!-- Pagination (masquée si tout afficher) -->
+                <h:panelGroup rendered="#{not applicationBean.referencesViewAll and applicationBean.referencesTotalPages gt 1}" class="reference-categories-pagination">
+                    <p:commandButton icon="pi pi-chevron-left"
+                                    styleClass="reference-categories-page-btn"
+                                    process="@this"
+                                    update="referencesContent"
+                                    action="#{applicationBean.referencesPreviousPage()}"
+                                    disabled="#{applicationBean.referencesFirstPage}"
+                                    title="Page précédente"/>
+                    <span class="reference-categories-page-info">
+                        Page #{applicationBean.referencesCurrentPage} / #{applicationBean.referencesTotalPages}
+                    </span>
+                    <p:commandButton icon="pi pi-chevron-right"
+                                    styleClass="reference-categories-page-btn"
+                                    process="@this"
+                                    update="referencesContent"
+                                    action="#{applicationBean.referencesNextPage()}"
+                                    disabled="#{applicationBean.referencesLastPage}"
+                                    title="Page suivante"/>
+                </h:panelGroup>
             </h:panelGroup>
         </h:panelGroup>
     </h:form>
