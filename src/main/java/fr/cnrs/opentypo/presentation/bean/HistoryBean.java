@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +118,15 @@ public class HistoryBean implements Serializable {
         return "/history/history-list.xhtml?faces-redirect=true";
     }
 
+    private static final DateTimeFormatter REVISION_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm");
+
+    /**
+     * Formate la date de révision pour l'affichage (ex : 23/03/2026 à 09:18).
+     */
+    public String formatRevisionDate(LocalDateTime date) {
+        return date != null ? date.format(REVISION_DATE_FORMAT) : "N/A";
+    }
+
     /**
      * Retourne le libellé d'un champ pour l'affichage
      */
@@ -181,6 +192,20 @@ public class HistoryBean implements Serializable {
                 return "Attestations";
             case "sitesArcheologiques":
                 return "Sites archéologiques";
+            case "commentaireMetadata":
+                return "Commentaire";
+            case "metrologieDetail":
+                return "Métrologie (détail)";
+            case "idArk":
+                return "Identifiant ARK";
+            case "displayOrder":
+                return "Ordre d'affichage";
+            case "appartient":
+                return "Appartient";
+            case "associe":
+                return "Associé";
+            case "images":
+                return "Images";
             case "createDate":
                 return "Date de création";
             case "createBy":
@@ -219,6 +244,24 @@ public class HistoryBean implements Serializable {
     }
 
     /**
+     * Formate une valeur pour l'affichage dans le contexte des changements (ancienne/nouvelle valeur).
+     * Pour null ou chaîne vide, affiche "Vide" au lieu de "Aucune valeur"
+     * pour indiquer clairement que le champ était vide.
+     */
+    public String formatChangeValue(Object value, boolean isOldValue) {
+        if (isNullOrEmpty(value)) {
+            return "";
+        }
+        if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+            return "";
+        }
+        if (value instanceof List && ((List<?>) value).isEmpty()) {
+            return "";
+        }
+        return formatValue(value);
+    }
+
+    /**
      * Formate une valeur pour l'affichage (texte brut, sans balises HTML)
      */
     public String formatValue(Object value) {
@@ -251,6 +294,20 @@ public class HistoryBean implements Serializable {
             List<?> list = (List<?>) value;
             if (list.isEmpty()) {
                 return "Aucune valeur";
+            }
+            // Liste d'images (List<Map<String,String>>)
+            if (!list.isEmpty() && list.get(0) instanceof Map) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < list.size(); i++) {
+                    if (i > 0) sb.append(" | ");
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> imgMap = (Map<String, String>) list.get(i);
+                    String url = imgMap != null && imgMap.containsKey("url") ? stripHtml(String.valueOf(imgMap.get("url"))) : "";
+                    String legende = imgMap != null && imgMap.containsKey("legende") ? stripHtml(String.valueOf(imgMap.get("legende"))) : "";
+                    sb.append(url);
+                    if (legende != null && !legende.isEmpty()) sb.append(" (").append(legende).append(")");
+                }
+                return sb.toString();
             }
             return String.join(", ", list.stream()
                     .map(item -> item != null ? stripHtml(item.toString()) : "N/A")
@@ -290,13 +347,18 @@ public class HistoryBean implements Serializable {
         Map<String, Object> currentData = revision.getEntityData();
         Map<String, Object> previousData = revision.getPreviousEntityData();
 
-        // Si pas de données précédentes, tous les champs sont nouveaux
+        // Si pas de données précédentes, tous les champs sont nouveaux (création)
         if (previousData == null || previousData.isEmpty()) {
             for (Map.Entry<String, Object> entry : currentData.entrySet()) {
-                Map<String, Object> change = new HashMap<>();
-                change.put("old", null);
-                change.put("new", entry.getValue());
-                changes.put(entry.getKey(), change);
+                if ("id".equals(entry.getKey())) continue;  // Ne pas afficher l'ID
+                Object newVal = entry.getValue();
+                // Ne pas afficher null → "" ou null → null (pas de changement réel)
+                if (!isConsideredNoChange(null, newVal)) {
+                    Map<String, Object> change = new HashMap<>();
+                    change.put("old", null);
+                    change.put("new", newVal);
+                    changes.put(entry.getKey(), change);
+                }
             }
             return changes;
         }
@@ -304,11 +366,12 @@ public class HistoryBean implements Serializable {
         // Comparer tous les champs de currentData
         for (Map.Entry<String, Object> entry : currentData.entrySet()) {
             String fieldName = entry.getKey();
+            if ("id".equals(fieldName)) continue;  // Ne pas afficher l'ID
             Object currentValue = entry.getValue();
             Object previousValue = previousData.get(fieldName);
 
-            // Vérifier si la valeur a changé
-            if (!areEqual(currentValue, previousValue)) {
+            // Vérifier si la valeur a changé (exclure null ↔ "" considéré comme sans changement)
+            if (!areEqual(currentValue, previousValue) && !isConsideredNoChange(previousValue, currentValue)) {
                 Map<String, Object> change = new HashMap<>();
                 change.put("old", previousValue);
                 change.put("new", currentValue);
@@ -319,11 +382,16 @@ public class HistoryBean implements Serializable {
         // Vérifier les champs qui existent seulement dans previousData (supprimés)
         for (Map.Entry<String, Object> entry : previousData.entrySet()) {
             String fieldName = entry.getKey();
+            if ("id".equals(fieldName)) continue;  // Ne pas afficher l'ID
             if (!currentData.containsKey(fieldName)) {
-                Map<String, Object> change = new HashMap<>();
-                change.put("old", entry.getValue());
-                change.put("new", null);
-                changes.put(fieldName, change);
+                Object oldVal = entry.getValue();
+                // Ne pas afficher "" → null ou null → null (pas de changement réel)
+                if (!isConsideredNoChange(oldVal, null)) {
+                    Map<String, Object> change = new HashMap<>();
+                    change.put("old", oldVal);
+                    change.put("new", null);
+                    changes.put(fieldName, change);
+                }
             }
         }
 
@@ -346,7 +414,7 @@ public class HistoryBean implements Serializable {
                     String previousLangValue = (previousMap != null && previousMap.containsKey(languageKey)) ? 
                         previousMap.get(languageKey) : null;
 
-                    if (!areEqual(currentLangValue, previousLangValue)) {
+                    if (!areEqual(currentLangValue, previousLangValue) && !isConsideredNoChange(previousLangValue, currentLangValue)) {
                         String granularFieldName = fieldName + "." + languageKey;
                         Map<String, Object> change = new HashMap<>();
                         change.put("old", previousLangValue);
@@ -363,14 +431,17 @@ public class HistoryBean implements Serializable {
                     for (Map.Entry<String, String> mapEntry : previousMap.entrySet()) {
                         String languageKey = mapEntry.getKey();
                         if (!currentMap.containsKey(languageKey)) {
-                            String granularFieldName = fieldName + "." + languageKey;
-                            Map<String, Object> change = new HashMap<>();
-                            change.put("old", mapEntry.getValue());
-                            change.put("new", null);
-                            changes.put(granularFieldName, change);
-                            
-                            // Retirer l'entrée globale si elle existe
-                            changes.remove(fieldName);
+                            Object oldVal = mapEntry.getValue();
+                            if (!isConsideredNoChange(oldVal, null)) {
+                                String granularFieldName = fieldName + "." + languageKey;
+                                Map<String, Object> change = new HashMap<>();
+                                change.put("old", oldVal);
+                                change.put("new", null);
+                                changes.put(granularFieldName, change);
+                                
+                                // Retirer l'entrée globale si elle existe
+                                changes.remove(fieldName);
+                            }
                         }
                     }
                 }
@@ -378,6 +449,19 @@ public class HistoryBean implements Serializable {
         }
 
         return changes;
+    }
+
+    /**
+     * Indique si null et chaîne vide ("") sont considérés comme équivalents (aucun changement réel).
+     */
+    private boolean isConsideredNoChange(Object oldVal, Object newVal) {
+        return isNullOrEmpty(oldVal) && isNullOrEmpty(newVal);
+    }
+
+    private boolean isNullOrEmpty(Object o) {
+        if (o == null) return true;
+        if (o instanceof String) return ((String) o).trim().isEmpty();
+        return false;
     }
 
     /**

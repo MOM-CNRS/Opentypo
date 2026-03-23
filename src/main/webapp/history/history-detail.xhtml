@@ -23,7 +23,7 @@
                         </span>
                         <span class="history-meta-item">
                             <i class="pi pi-calendar"></i>
-                            #{historyBean.selectedRevision.revisionDate != null ? historyBean.selectedRevision.revisionDate : 'N/A'}
+                            #{historyBean.formatRevisionDate(historyBean.selectedRevision.revisionDate)}
                         </span>
                         <span class="history-meta-item">
                             <i class="pi pi-user"></i>
@@ -62,14 +62,14 @@
                                 <div class="change-values">
                                     <div class="change-value change-old">
                                         <span class="change-label">Ancienne valeur :</span>
-                                        <span class="change-content">#{historyBean.formatValue(change.value['old'])}</span>
+                                        <span class="change-content">#{historyBean.formatChangeValue(change.value['old'], true)}</span>
                                     </div>
                                     <div class="change-arrow">
                                         <i class="pi pi-arrow-right"></i>
                                     </div>
                                     <div class="change-value change-new">
                                         <span class="change-label">Nouvelle valeur :</span>
-                                        <span class="change-content">#{historyBean.formatValue(change.value['new'])}</span>
+                                        <span class="change-content">#{historyBean.formatChangeValue(change.value['new'], false)}</span>
                                     </div>
                                 </div>
                             </div>

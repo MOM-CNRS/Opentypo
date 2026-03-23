@@ -62,7 +62,8 @@ public class AuditService {
             }
             
             // Récupérer toutes les révisions depuis toutes les tables d'audit liées
-            Set<Long> allRevisionNumbers = new TreeSet<>(Collections.reverseOrder());
+            // Ordre ASCENDANT (plus ancienne d'abord) pour que previousEntityData = révision chronologiquement avant
+            Set<Long> allRevisionNumbers = new TreeSet<>();
             
             // 1. Révisions depuis entity_aud
             collectRevisionsFromTable("entity_aud", "id", entityId, allRevisionNumbers);
@@ -87,6 +88,18 @@ public class AuditService {
             
             // 8. Révisions depuis entity_metadata_aud
             collectRevisionsFromTable("entity_metadata_aud", "entity_id", entityId, allRevisionNumbers);
+            
+            // 9. Révisions depuis image_aud
+            collectRevisionsFromTable("image_aud", "entity_id", entityId, allRevisionNumbers);
+            
+            // 10. Révisions depuis entity_relation_aud (parent OU child)
+            collectRevisionsFromEntityRelation(entityId, allRevisionNumbers);
+            
+            // 11. Révisions depuis description_monnaie_aud
+            collectRevisionsFromTable("description_monnaie_aud", "entity_id", entityId, allRevisionNumbers);
+            
+            // 12. Révisions depuis caracteristique_physique_monnaie_aud
+            collectRevisionsFromTable("caracteristique_physique_monnaie_aud", "entity_id", entityId, allRevisionNumbers);
             
             log.info("Total de révisions uniques trouvées pour l'entité {}: {}", entityId, allRevisionNumbers.size());
             
@@ -117,14 +130,16 @@ public class AuditService {
                         }
                     }
                     
-                    // Récupérer la date de révision depuis la table REVINFO via le repository
+                    // Récupérer la date et l'utilisateur depuis la table REVINFO via le repository
                     LocalDateTime revDate = null;
+                    String modifiedBy = null;
                     Optional<RevisionInfo> revisionInfo = revisionInfoRepository.findById(revisionNumber);
                     if (revisionInfo.isPresent()) {
                         revDate = revisionInfo.get().getRevisionDate();
+                        modifiedBy = revisionInfo.get().getModifiedBy();
                     }
                     
-                    // Déterminer le type de révision depuis entity_aud si disponible
+                    // Déterminer le type de révision : ADD(0)=Création, MOD(1)=Modification, DEL(2)=Suppression
                     String revisionType = "1"; // MOD par défaut
                     try {
                         @SuppressWarnings("unchecked")
@@ -136,21 +151,19 @@ public class AuditService {
                         .getResultList();
                         
                         if (!revTypeData.isEmpty() && revTypeData.get(0)[0] != null) {
-                            revisionType = String.valueOf(revTypeData.get(0)[0]);
+                            revisionType = normalizeRevisionType(revTypeData.get(0)[0]);
                         } else {
-                            // Si pas de type dans entity_aud, déterminer selon le contexte
-                            Long maxRevision = allRevisionNumbers.stream().max(Long::compareTo).orElse(null);
-                            if (entity != null && revisionNumber.equals(maxRevision)) {
-                                // Si c'est la première révision et que l'entité existe, c'est une création
-                                revisionType = "0"; // ADD
-                            } else if (entity == null) {
-                                // Si l'entité n'existe pas à cette révision, c'est probablement une modification dans une table liée
-                                revisionType = "1"; // MOD
+                            // Pas de ligne dans entity_aud : la révision vient d'une table liée uniquement
+                            // Si c'est la révision la plus ancienne (min) et que l'entité existe, c'était la création
+                            Long minRevision = allRevisionNumbers.stream().min(Long::compareTo).orElse(null);
+                            if (entity != null && minRevision != null && revisionNumber.equals(minRevision)) {
+                                revisionType = "0"; // ADD - première apparition de l'entité
+                            } else {
+                                revisionType = "1"; // MOD - modification dans une table liée
                             }
                         }
                     } catch (Exception e) {
                         log.debug("Erreur lors de la récupération du type de révision: {}", e.getMessage());
-                        // Utiliser le type par défaut
                     }
                     
                     // Extraire les données de l'entité ET de ses relations auditées à cette révision
@@ -173,13 +186,13 @@ public class AuditService {
                         .revisionNumber(revisionNumber)
                         .revisionType(revisionType)
                         .revisionDate(revDate)
+                        .modifiedBy(modifiedBy)
                         .entityData(entityData != null ? entityData : new HashMap<>())
                         .previousEntityData(previousRevision != null ? previousRevision.getEntityData() : null)
                         .build();
                     
                     revisions.add(revisionDTO);
                     previousRevision = revisionDTO;
-                    
                 } catch (Throwable t) {
                     // Catch toutes les exceptions y compris les Error
                     log.warn("Erreur lors de la récupération de l'entité {} à la révision {}: {}", 
@@ -189,6 +202,8 @@ public class AuditService {
             }
             
             log.info("Fin de la récupération des révisions pour l'entité {}: {} révisions retournées", entityId, revisions.size());
+            // Inverser pour afficher les plus récentes en premier (previousEntityData est maintenant correct)
+            Collections.reverse(revisions);
             return revisions;
         } catch (org.hibernate.envers.exception.AuditException e) {
             log.warn("Erreur AuditException lors de la récupération des révisions pour l'entité {}: {}", entityId, e.getMessage());
@@ -211,6 +226,61 @@ public class AuditService {
         } catch (Throwable t) {
             log.error("Erreur Throwable lors de la récupération des révisions pour l'entité {}: {}", entityId, t.getMessage(), t);
             return revisions;
+        }
+    }
+
+    /**
+     * Normalise la valeur revtype (ADD=0, MOD=1, DEL=2) depuis un résultat SQL.
+     * Gère Short, Integer, Long, BigDecimal, etc.
+     */
+    private String normalizeRevisionType(Object value) {
+        if (value == null) {
+            return "1";
+        }
+        if (value instanceof Number) {
+            int n = ((Number) value).intValue();
+            return n == 0 ? "0" : (n == 2 ? "2" : "1");
+        }
+        String s = value.toString().trim();
+        if ("0".equals(s) || "ADD".equalsIgnoreCase(s)) return "0";
+        if ("2".equals(s) || "DEL".equalsIgnoreCase(s)) return "2";
+        return "1";
+    }
+
+    /**
+     * Collecte les numéros de révision depuis entity_relation_aud (parent_id ou child_id = entityId)
+     */
+    private void collectRevisionsFromEntityRelation(Long entityId, Set<Long> allRevisionNumbers) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> results = entityManager.createNativeQuery(
+                "SELECT DISTINCT rev FROM entity_relation_aud WHERE parent_id = :entityId OR child_id = :entityId"
+            )
+            .setParameter("entityId", entityId)
+            .getResultList();
+            
+            int addedCount = 0;
+            for (Object result : results) {
+                try {
+                    if (result instanceof Number) {
+                        allRevisionNumbers.add(((Number) result).longValue());
+                        addedCount++;
+                    } else if (result instanceof Object[]) {
+                        Object[] row = (Object[]) result;
+                        if (row.length > 0 && row[0] instanceof Number) {
+                            allRevisionNumbers.add(((Number) row[0]).longValue());
+                            addedCount++;
+                        }
+                    }
+                } catch (Exception e) {
+                    log.debug("Erreur lors du traitement d'un résultat de entity_relation_aud: {}", e.getMessage());
+                }
+            }
+            if (addedCount > 0) {
+                log.debug("Révisions trouvées dans entity_relation_aud pour l'entité {}: {} ({} ajoutées)", entityId, results.size(), addedCount);
+            }
+        } catch (Exception e) {
+            log.debug("Aucune révision ou erreur dans entity_relation_aud pour l'entité {}: {}", entityId, e.getMessage());
         }
     }
 
@@ -339,6 +409,9 @@ public class AuditService {
                 log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
             }
             
+            // Données complémentaires : entity_aud, entity_metadata_aud, entités liées, images
+            extractEnrichedData(data, actualEntityId, revisionNumber);
+            
         } catch (Exception e) {
             log.warn("Erreur générale lors de l'extraction des données pour l'entité {} à la révision {}: {}", 
                     entityId, revisionNumber, e.getMessage(), e);
@@ -413,8 +486,132 @@ public class AuditService {
             } catch (Exception e) {
                 log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
             }
+            
+            extractEnrichedData(data, entityId, revisionNumber);
         } catch (Exception e) {
             log.warn("Erreur lors de l'extraction des données liées: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Extrait les données enrichies (entity_aud, entity_metadata_aud, entités liées, images)
+     */
+    private void extractEnrichedData(Map<String, Object> data, Long entityId, Long revisionNumber) {
+        if (entityId == null || revisionNumber == null) {
+            return;
+        }
+        try {
+            // entity_aud : statut, id_ark, display_order
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> entityRows = entityManager.createNativeQuery(
+                    "SELECT statut, id_ark, display_order FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!entityRows.isEmpty() && entityRows.get(0) != null) {
+                    Object[] row = entityRows.get(0);
+                    if (row.length > 0 && row[0] != null) data.put("statut", row[0].toString());
+                    if (row.length > 1 && row[1] != null) data.put("idArk", row[1].toString());
+                    if (row.length > 2 && row[2] != null) data.put("displayOrder", row[2]);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur entity_aud: {}", e.getMessage());
+            }
+            
+            // entity_metadata_aud : code, commentaire, bibliographie, appellation, tpq, taq, etc.
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> metaRows = entityManager.createNativeQuery(
+                    "SELECT code, commentaire, bibliographie, appellation, typologie_scientifique, identifiant_perenne, " +
+                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, appartient, associe " +
+                    "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!metaRows.isEmpty() && metaRows.get(0) != null) {
+                    Object[] row = metaRows.get(0);
+                    if (row.length > 0 && row[0] != null) data.put("code", row[0].toString());
+                    if (row.length > 1 && row[1] != null) data.put("commentaireMetadata", row[1].toString());
+                    if (row.length > 2 && row[2] != null) data.put("bibliographie", row[2].toString());
+                    if (row.length > 3 && row[3] != null) data.put("appellation", row[3].toString());
+                    if (row.length > 4 && row[4] != null) data.put("typologieScientifique", row[4].toString());
+                    if (row.length > 5 && row[5] != null) data.put("identifiantPerenne", row[5].toString());
+                    if (row.length > 6 && row[6] != null) data.put("ancienneVersion", row[6].toString());
+                    if (row.length > 7 && row[7] != null) data.put("tpq", row[7]);
+                    if (row.length > 8 && row[8] != null) data.put("taq", row[8]);
+                    if (row.length > 9 && row[9] != null) data.put("ateliers", row[9].toString());
+                    if (row.length > 10 && row[10] != null) data.put("attestations", row[10].toString());
+                    if (row.length > 11 && row[11] != null) data.put("sitesArcheologiques", row[11].toString());
+                    if (row.length > 12 && row[12] != null) data.put("reference", row[12].toString());
+                    if (row.length > 13 && row[13] != null) data.put("appartient", row[13].toString());
+                    if (row.length > 14 && row[14] != null) data.put("associe", row[14].toString());
+                }
+            } catch (Exception e) {
+                log.debug("Erreur entity_metadata_aud: {}", e.getMessage());
+            }
+            
+            // description_detail_aud : decors, marques, metrologie
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> ddRows = entityManager.createNativeQuery(
+                    "SELECT decors, marques, metrologie FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!ddRows.isEmpty() && ddRows.get(0) != null) {
+                    Object[] row = ddRows.get(0);
+                    if (row.length > 0 && row[0] != null) data.put("decors", row[0].toString());
+                    if (row.length > 1 && row[1] != null) data.put("marques", row[1].toString());
+                    if (row.length > 2 && row[2] != null) data.put("metrologieDetail", row[2].toString());
+                }
+            } catch (Exception e) {
+                log.debug("Erreur description_detail_aud: {}", e.getMessage());
+            }
+            
+            // description_pate_aud : description
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> dpRows = entityManager.createNativeQuery(
+                    "SELECT description FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!dpRows.isEmpty() && dpRows.get(0) != null && dpRows.get(0).length > 0 && dpRows.get(0)[0] != null) {
+                    data.put("descriptionPate", dpRows.get(0)[0].toString());
+                }
+            } catch (Exception e) {
+                log.debug("Erreur description_pate_aud: {}", e.getMessage());
+            }
+            
+            // image_aud : url, legende (liste d'images)
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> imgRows = entityManager.createNativeQuery(
+                    "SELECT url, legende FROM image_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!imgRows.isEmpty()) {
+                    List<Map<String, String>> imagesList = new ArrayList<>();
+                    for (Object[] row : imgRows) {
+                        Map<String, String> imgMap = new HashMap<>();
+                        if (row != null && row.length > 0 && row[0] != null) imgMap.put("url", row[0].toString());
+                        if (row != null && row.length > 1 && row[1] != null) imgMap.put("legende", row[1].toString());
+                        if (!imgMap.isEmpty()) imagesList.add(imgMap);
+                    }
+                    if (!imagesList.isEmpty()) data.put("images", imagesList);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur image_aud: {}", e.getMessage());
+            }
+        } catch (Exception e) {
+            log.debug("Erreur extractEnrichedData: {}", e.getMessage());
         }
     }
 
@@ -425,11 +622,14 @@ public class AuditService {
         Map<String, Object> data = new HashMap<>();
         
         try {
-            if (entity != null && entity.getMetadata() != null) {
-                try {
-                    data.put("code", entity.getMetadata().getCode());
-                } catch (Exception e) {
-                    log.debug("Erreur lors de la récupération du code: {}", e.getMessage());
+            if (entity != null) {
+                data.put("id", entity.getId());
+                if (entity.getMetadata() != null) {
+                    try {
+                        data.put("code", entity.getMetadata().getCode());
+                    } catch (Exception e) {
+                        log.debug("Erreur lors de la récupération du code: {}", e.getMessage());
+                    }
                 }
             }
             
@@ -491,6 +691,7 @@ public class AuditService {
                 log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
             }
             
+            extractEnrichedData(data, entityId, revisionNumber);
         } catch (Exception e) {
             log.warn("Erreur générale lors de l'extraction native des données pour l'entité {} à la révision {}: {}", 
                     entityId, revisionNumber, e.getMessage(), e);

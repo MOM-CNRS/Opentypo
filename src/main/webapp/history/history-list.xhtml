@@ -47,6 +47,8 @@
                                  styleClass="history-table"
                                  paginator="true"
                                  rows="10"
+                                 sortBy="#{revision.revisionDate}"
+                                 sortOrder="descending"
                                  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                  rowsPerPageTemplate="5,10,20,50"
                                  emptyMessage="Aucune révision trouvée">
@@ -59,9 +61,9 @@
                             </div>
                         </p:column>
 
-                        <!-- Colonne Date -->
-                        <p:column headerText="Date" styleClass="history-col-date">
-                            <span>#{revision.revisionDate != null ? revision.revisionDate : 'N/A'}</span>
+                        <!-- Colonne Date (triable : clic sur l'en-tête pour croissant/décroissant) -->
+                        <p:column headerText="Date" styleClass="history-col-date" sortBy="#{revision.revisionDate}">
+                            <span>#{historyBean.formatRevisionDate(revision.revisionDate)}</span>
                         </p:column>
 
                         <!-- Colonne Modifié par -->
