@@ -50,9 +50,7 @@ import java.net.URI;
  */
 @Tag(
         name = "Entités typologiques",
-        description = "Recherche, liste, création, mise à jour partielle et suppression (cascade) des entités "
-                + "de la typologie CNRS OpenTypo. Authentification par session HTTP (cookie `JSESSIONID`), "
-                + "alignée sur l'interface JSF.")
+        description = "Recherche, liste, création, mise à jour partielle et suppression (cascade) des entités")
 @SecurityRequirement(name = "sessionCookie")
 @RestController
 @RequestMapping(path = "/api/v1/entities", produces = MediaType.APPLICATION_JSON_VALUE)
