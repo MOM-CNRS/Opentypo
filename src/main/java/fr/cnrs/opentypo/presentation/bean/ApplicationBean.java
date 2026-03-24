@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.CollectionService;
+import fr.cnrs.opentypo.application.service.EntityDeletionService;
 import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
@@ -15,7 +16,6 @@ import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
@@ -177,6 +177,9 @@ public class ApplicationBean implements Serializable {
 
     @Autowired
     private CaracteristiquePhysiqueMonnaieRepository caracteristiquePhysiqueMonnaieRepository;
+
+    @Autowired
+    private EntityDeletionService entityDeletionService;
 
     private final PanelStateManager panelState = new PanelStateManager();
     private List<Language> languages;
@@ -1714,80 +1717,12 @@ public class ApplicationBean implements Serializable {
 
     /**
      * Supprime récursivement une entité et toutes ses entités enfants.
-     * Respecte l'ordre des contraintes de clés étrangères.
+     * Délègue à {@link fr.cnrs.opentypo.application.service.EntityDeletionService}.
      *
      * @param entity L'entité à supprimer
      */
-    @Transactional
     public void deleteEntityRecursively(Entity entity) {
-        if (entity == null || entity.getId() == null) {
-            return;
-        }
-
-        Long entityId = entity.getId();
-        String entityCode = entity.getCode();
-
-        // 1. Supprimer récursivement tous les enfants
-        List<Entity> children = entityRelationRepository.findChildrenByParent(entity);
-        for (Entity child : children) {
-            deleteEntityRecursively(child);
-        }
-
-        // 2. Supprimer les EntityRelation (parent et enfant)
-        List<EntityRelation> parentRelations = entityRelationRepository.findByParent(entity);
-        if (parentRelations != null && !parentRelations.isEmpty()) {
-            entityRelationRepository.deleteAll(parentRelations);
-        }
-        List<EntityRelation> childRelations = entityRelationRepository.findByChild(entity);
-        if (childRelations != null && !childRelations.isEmpty()) {
-            entityRelationRepository.deleteAll(childRelations);
-        }
-
-        // 3. Supprimer la table de jointure Auteur (entity <-> utilisateur)
-        auteurRepository.deleteByEntityId(entityId);
-
-        // 4. Supprimer les permissions utilisateur
-        userPermissionRepository.deleteByEntityId(entityId);
-
-        // 5. Supprimer les commentaires
-        commentaireRepository.deleteByEntityId(entityId);
-
-        // 6. Supprimer les labels
-        labelRepository.deleteByEntityId(entityId);
-
-        // 7. Supprimer les descriptions
-        descriptionRepository.deleteByEntityId(entityId);
-
-        // 8. Supprimer les fichiers physiques des images puis les enregistrements en base
-        entityImageService.deletePhysicalFilesForEntity(entityId);
-        imageRepository.deleteByEntityId(entityId);
-
-        // 9. Supprimer le paramétrage
-        parametrageRepository.deleteByEntityId(entityId);
-
-        // 10. Supprimer les entités détaillées AVANT ReferenceOpentheso
-        // (caracteristique_physique, description_detail, etc. ont des FK vers reference_opentheso)
-        descriptionDetailRepository.deleteByEntityId(entityId);
-        caracteristiquePhysiqueRepository.deleteByEntityId(entityId);
-        descriptionPateRepository.deleteByEntityId(entityId);
-        descriptionMonnaieRepository.deleteByEntityId(entityId);
-        caracteristiquePhysiqueMonnaieRepository.deleteByEntityId(entityId);
-
-        // 11. Libérer les références entity -> reference_opentheso (periode, production, categorieFonctionnelle)
-        referenceOpenthesoRepository.clearEntityPeriodeRefsToAires(entityId);
-        referenceOpenthesoRepository.clearEntityProductionRefsToAires(entityId);
-        referenceOpenthesoRepository.clearEntityCategorieFonctionnelleRefsToAires(entityId);
-
-        // 12. Supprimer les références Opentheso (aires de circulation)
-        referenceOpenthesoRepository.deleteByEntityId(entityId);
-
-        // 13. Supprimer les métadonnées (avant l'entité car FK entity_id dans entity_metadata)
-        entityMetadataRepository.deleteByEntityId(entityId);
-
-        // 14. Supprimer l'entité via requête bulk (évite le chargement et la cascade qui provoquerait une double suppression des métadonnées)
-        entityRepository.deleteByIdDirect(entityId);
-
-        log.info("Entité supprimée avec succès: {} (ID: {})", entityCode, entityId);
+        entityDeletionService.deleteEntityRecursively(entity);
     }
 
 

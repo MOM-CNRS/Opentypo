@@ -2,6 +2,8 @@ package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,71 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
      */
     @Query("SELECT e FROM Entity e JOIN e.metadata m WHERE m.code = :code")
     Optional<Entity> findByCode(@Param("code") String code);
+
+    /**
+     * Loads an entity with type, metadata and labels (REST API / detail views).
+     */
+    @Query("SELECT DISTINCT e FROM Entity e "
+            + "LEFT JOIN FETCH e.entityType "
+            + "LEFT JOIN FETCH e.metadata "
+            + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
+            + "WHERE e.id = :id")
+    Optional<Entity> findByIdForApi(@Param("id") Long id);
+
+    /**
+     * Same as {@link #findByIdForApi(Long)} but keyed by metadata code.
+     */
+    @Query("SELECT DISTINCT e FROM Entity e "
+            + "LEFT JOIN FETCH e.entityType "
+            + "LEFT JOIN FETCH e.metadata m "
+            + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
+            + "WHERE m.code = :code")
+    Optional<Entity> findByCodeForApi(@Param("code") String code);
+
+    /**
+     * Paginated list filtered by entity type code.
+     */
+    Page<Entity> findByEntityType_Code(String typeCode, Pageable pageable);
+
+    /**
+     * Paginated search: all parameters optional; combined with AND.
+     * When {@code q} is set, matches metadata code or label name (optional {@code labelLang} filter on labels).
+     */
+    @Query(
+            value = "SELECT DISTINCT e FROM Entity e "
+                    + "LEFT JOIN e.metadata m "
+                    + "LEFT JOIN e.entityType et "
+                    + "WHERE (:typeCode IS NULL OR et.code = :typeCode) "
+                    + "AND (:statut IS NULL OR e.statut = :statut) "
+                    + "AND (:code IS NULL OR m.code = :code) "
+                    + "AND (:codeContains IS NULL OR LOWER(m.code) LIKE LOWER(CONCAT('%', :codeContains, '%'))) "
+                    + "AND (:idArk IS NULL OR e.idArk = :idArk) "
+                    + "AND (:q IS NULL OR LOWER(m.code) LIKE LOWER(CONCAT('%', :q, '%')) OR EXISTS ("
+                    + "  SELECT 1 FROM Label lbl WHERE lbl.entity = e "
+                    + "  AND LOWER(lbl.nom) LIKE LOWER(CONCAT('%', :q, '%')) "
+                    + "  AND (:labelLang IS NULL OR lbl.langue.code = :labelLang)))",
+            countQuery = "SELECT COUNT(DISTINCT e.id) FROM Entity e "
+                    + "LEFT JOIN e.metadata m "
+                    + "LEFT JOIN e.entityType et "
+                    + "WHERE (:typeCode IS NULL OR et.code = :typeCode) "
+                    + "AND (:statut IS NULL OR e.statut = :statut) "
+                    + "AND (:code IS NULL OR m.code = :code) "
+                    + "AND (:codeContains IS NULL OR LOWER(m.code) LIKE LOWER(CONCAT('%', :codeContains, '%'))) "
+                    + "AND (:idArk IS NULL OR e.idArk = :idArk) "
+                    + "AND (:q IS NULL OR LOWER(m.code) LIKE LOWER(CONCAT('%', :q, '%')) OR EXISTS ("
+                    + "  SELECT 1 FROM Label lbl WHERE lbl.entity = e "
+                    + "  AND LOWER(lbl.nom) LIKE LOWER(CONCAT('%', :q, '%')) "
+                    + "  AND (:labelLang IS NULL OR lbl.langue.code = :labelLang)))"
+    )
+    Page<Entity> searchEntities(
+            @Param("typeCode") String typeCode,
+            @Param("statut") String statut,
+            @Param("code") String code,
+            @Param("codeContains") String codeContains,
+            @Param("idArk") String idArk,
+            @Param("q") String q,
+            @Param("labelLang") String labelLang,
+            Pageable pageable);
 
     /**
      * Vérifie si une entité existe avec le code donné (via metadata)

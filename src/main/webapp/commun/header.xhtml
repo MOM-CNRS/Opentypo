@@ -43,6 +43,13 @@
                                  title="Alertes"
                                  action="#{notificationBean.showAlerts}" />
 
+                <p:button icon="pi pi-code text-white"
+                          href="#{request.contextPath}/swagger-ui/index.html"
+                          target="_blank"
+                          styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
+                          style="color: white"
+                          title="Documentation API (Swagger)" />
+
                 <!-- Bouton de connexion/déconnexion -->
                 <h:panelGroup rendered="#{!loginBean.authenticated}">
                     <p:commandButton icon="pi pi-user text-white"

@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.web.cors.CorsConfiguration;
+
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -105,6 +107,9 @@ public class SecurityConfig {
                 // Permettre l'accès à la page d'erreur pour tous
                 .requestMatchers("/error.xhtml").permitAll()
 
+                // OpenAPI / Swagger UI (springdoc)
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
                 // Permettre l'accès à l'endpoint de vérification de session
                 .requestMatchers("/session-check").permitAll()
 
@@ -123,6 +128,12 @@ public class SecurityConfig {
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
                     String requestPath = request.getRequestURI();
+                    if (requestPath != null && requestPath.contains("/api/")) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        return;
+                    }
                     // Ne PAS rediriger les ressources JSF/statiques - laisser JSF les servir
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
@@ -149,6 +160,12 @@ public class SecurityConfig {
                 })
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     String requestPath = request.getRequestURI();
+                    if (requestPath != null && requestPath.contains("/api/")) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"error\":\"Forbidden\"}");
+                        return;
+                    }
                     // Ne PAS rediriger les ressources JSF/statiques
                     if (requestPath != null && (
                         requestPath.startsWith("/javax.faces.resource/") ||
