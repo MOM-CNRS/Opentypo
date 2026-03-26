@@ -2,7 +2,6 @@ package fr.cnrs.opentypo.presentation.rest;
 
 import fr.cnrs.opentypo.application.dto.api.EntityCreateRequest;
 import fr.cnrs.opentypo.application.dto.api.EntityResponseDto;
-import fr.cnrs.opentypo.application.dto.api.EntitySearchCriteria;
 import fr.cnrs.opentypo.application.dto.api.EntityUpdateRequest;
 import fr.cnrs.opentypo.application.service.EntityApiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,11 +16,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * REST API for typology {@link fr.cnrs.opentypo.domain.entity.Entity} resources.
@@ -60,64 +55,54 @@ public class EntityRestController {
     private final EntityApiService entityApiService;
 
     @Operation(
-            operationId = "searchEntities",
-            summary = "Rechercher ou lister des entités",
-            description = "Filtres combinés avec une conjonction **ET**. Tous les critères sont optionnels. "
-                    + "Pagination et tri via les paramètres Spring Data (`page`, `size`, `sort`). "
-                    + "Tri par défaut : `createDate` décroissant (20 éléments par page).")
+            operationId = "lookupEntities",
+            summary = "Rechercher par code ou par libellé (langue)",
+            description = "Recherche dédiée : soit sur le **code métier** (metadata), soit sur le **libellé** dans une langue. "
+                    + "Paramètre `match` : `EXACT` (égalité, insensible à la casse) ou `CONTAINS` (sous-chaîne). "
+                    + "Pour `field=LABEL`, fournir `lang` (ex. fr, en) ; défaut `fr`.")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Page Spring Data (`content`, `totalElements`, `number`, `size`, etc.) contenant des `EntityResponseDto`."),
-            @ApiResponse(responseCode = "401", description = "Non authentifié (pas de session valide).", content = @Content),
+                    description = "Liste d'entités correspondantes (vide si aucun résultat).",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = EntityResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Paramètres invalides (field, match, value, langue).", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
             @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content)
     })
     @GetMapping
-    public Page<EntityResponseDto> getEntities(
+    public List<EntityResponseDto> lookupEntities(
             @Parameter(
-                    name = "typeCode",
+                    name = "field",
                     in = ParameterIn.QUERY,
-                    description = "Code du type d'entité (ex. TYPE, SERIE, REFERENCE).",
-                    example = "TYPE")
-            @RequestParam(required = false) String typeCode,
+                    description = "`CODE` = code métier (metadata) ; `LABEL` = libellé dans la langue `lang`.",
+                    required = true,
+                    example = "CODE",
+                    schema = @Schema(allowableValues = {"CODE", "LABEL"}))
+            @RequestParam String field,
             @Parameter(
-                    name = "statut",
+                    name = "match",
                     in = ParameterIn.QUERY,
-                    description = "Statut métier : PROPOSITION, PUBLIQUE, PRIVEE, REFUSE.",
-                    example = "PUBLIQUE")
-            @RequestParam(required = false) String statut,
+                    description = "`EXACT` ou `CONTAINS`.",
+                    required = true,
+                    example = "EXACT",
+                    schema = @Schema(allowableValues = {"EXACT", "CONTAINS"}))
+            @RequestParam String match,
             @Parameter(
-                    name = "code",
+                    name = "value",
                     in = ParameterIn.QUERY,
-                    description = "Code métier exact (égalité).",
-                    example = "DECOCER")
-            @RequestParam(required = false) String code,
+                    description = "Texte recherché.",
+                    required = true,
+                    example = "CER")
+            @RequestParam String value,
             @Parameter(
-                    name = "codeContains",
+                    name = "lang",
                     in = ParameterIn.QUERY,
-                    description = "Sous-chaîne dans le code (recherche « contient »).")
-            @RequestParam(required = false) String codeContains,
-            @Parameter(
-                    name = "idArk",
-                    in = ParameterIn.QUERY,
-                    description = "Identifiant ARK (égalité).")
-            @RequestParam(required = false) String idArk,
-            @Parameter(
-                    name = "q",
-                    in = ParameterIn.QUERY,
-                    description = "Texte libre : recherche dans le code ou les libellés (selon `labelLang` si fourni).")
-            @RequestParam(required = false) String q,
-            @Parameter(
-                    name = "labelLang",
-                    in = ParameterIn.QUERY,
-                    description = "Code langue ISO (ex. fr, en) : restreint la partie « libellés » de la recherche `q`.",
+                    description = "Code langue ISO (obligatoire pour field=LABEL ; défaut fr).",
                     example = "fr")
-            @RequestParam(required = false) String labelLang,
-            @ParameterObject
-            @PageableDefault(size = 20, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        EntitySearchCriteria criteria = EntitySearchCriteria.normalize(
-                typeCode, statut, code, codeContains, idArk, q, labelLang);
-        return entityApiService.search(criteria, pageable);
+            @RequestParam(required = false) String lang) {
+        return entityApiService.lookupByField(field, match, value, lang);
     }
 
     @Operation(

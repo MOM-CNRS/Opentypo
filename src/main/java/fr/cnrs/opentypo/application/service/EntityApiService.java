@@ -3,7 +3,6 @@ package fr.cnrs.opentypo.application.service;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.api.EntityCreateRequest;
 import fr.cnrs.opentypo.application.dto.api.EntityResponseDto;
-import fr.cnrs.opentypo.application.dto.api.EntitySearchCriteria;
 import fr.cnrs.opentypo.application.dto.api.EntityUpdateRequest;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
@@ -15,8 +14,6 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Application service backing the REST API for {@link Entity} CRUD.
@@ -49,20 +49,58 @@ public class EntityApiService {
     }
 
     /**
-     * Collection GET: optional filters (AND). See {@link EntitySearchCriteria}.
+     * Recherche par code métier uniquement ou par libellé dans une langue, en mode exact ou « contient ».
+     *
+     * @param field   {@code CODE} ou {@code LABEL}
+     * @param match   {@code EXACT} ou {@code CONTAINS}
+     * @param value   texte recherché
+     * @param labelLang code langue (obligatoire si field=LABEL, défaut {@code fr})
      */
     @Transactional(readOnly = true)
-    public Page<EntityResponseDto> search(EntitySearchCriteria criteria, Pageable pageable) {
-        Page<Entity> page = entityRepository.searchEntities(
-                criteria.typeCode(),
-                criteria.statut(),
-                criteria.code(),
-                criteria.codeContains(),
-                criteria.idArk(),
-                criteria.q(),
-                criteria.labelLang(),
-                pageable);
-        return page.map(this::toDto);
+    public List<EntityResponseDto> lookupByField(String field, String match, String value, String labelLang) {
+        if (value == null || value.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "value is required");
+        }
+        String trimmed = value.trim();
+        String f = field != null ? field.trim().toUpperCase(Locale.ROOT) : "";
+        String m = match != null ? match.trim().toUpperCase(Locale.ROOT) : "";
+        if (!"CODE".equals(f) && !"LABEL".equals(f)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "field must be CODE or LABEL");
+        }
+        if (!"EXACT".equals(m) && !"CONTAINS".equals(m)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "match must be EXACT or CONTAINS");
+        }
+
+        List<Long> ids;
+        if ("CODE".equals(f)) {
+            if ("EXACT".equals(m)) {
+                ids = entityRepository.findIdByMetadataCodeExactIgnoreCase(trimmed)
+                        .map(id -> List.of(id))
+                        .orElse(List.of());
+            } else {
+                ids = entityRepository.findIdsByMetadataCodeContaining(trimmed);
+            }
+        } else {
+            String lang = labelLang != null && !labelLang.isBlank() ? labelLang.trim() : "fr";
+            if (langueRepository.findByCode(lang) == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown language code: " + lang);
+            }
+            if ("EXACT".equals(m)) {
+                ids = entityRepository.findIdsByLabelExactInLang(trimmed, lang);
+            } else {
+                ids = entityRepository.findIdsByLabelContainingInLang(trimmed, lang);
+            }
+        }
+
+        Set<Long> seen = new LinkedHashSet<>();
+        List<EntityResponseDto> out = new ArrayList<>();
+        for (Long id : ids) {
+            if (id == null || !seen.add(id)) {
+                continue;
+            }
+            entityRepository.findByIdForApi(id).ifPresent(e -> out.add(toDto(e)));
+        }
+        return out;
     }
 
     @Transactional
