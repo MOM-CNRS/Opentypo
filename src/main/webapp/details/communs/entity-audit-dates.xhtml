@@ -1,0 +1,30 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGroup layout="block" styleClass="entity-audit-dates"
+                  rendered="#{applicationBean.selectedEntity ne null}">
+        <div class="entity-audit-dates__inner" role="region" aria-label="Dates de l'entité">
+            <div class="entity-audit-dates__card">
+                <span class="entity-audit-dates__icon" aria-hidden="true">
+                    <i class="pi pi-calendar"></i>
+                </span>
+                <div class="entity-audit-dates__meta">
+                    <span class="entity-audit-dates__label">Création</span>
+                    <h:outputText styleClass="entity-audit-dates__value"
+                                  value="#{applicationBean.formattedSelectedEntityCreateDate}"/>
+                </div>
+            </div>
+            <div class="entity-audit-dates__card">
+                <span class="entity-audit-dates__icon" aria-hidden="true">
+                    <i class="pi pi-history"></i>
+                </span>
+                <div class="entity-audit-dates__meta">
+                    <span class="entity-audit-dates__label">Dernière modification</span>
+                    <h:outputText styleClass="entity-audit-dates__value"
+                                  value="#{applicationBean.formattedSelectedEntityLastModificationDate}"/>
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+</ui:fragment>

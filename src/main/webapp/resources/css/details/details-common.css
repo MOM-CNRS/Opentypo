@@ -303,3 +303,92 @@
     transform: scale(3) !important;
     transition: transform 0.25s ease-out !important;
 }
+
+/* Dates création / dernière modification (sous panneaux détail) — charte Opentypo */
+.entity-audit-dates {
+    --ea-main: var(--color-action-main, #47624D);
+    --ea-main-rgb: 71, 98, 77;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(var(--ea-main-rgb), 0.12);
+}
+
+.entity-audit-dates__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.entity-audit-dates__card {
+    flex: 1 1 220px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.65rem 1rem 0.7rem;
+    background: linear-gradient(
+        135deg,
+        rgba(var(--ea-main-rgb), 0.06) 0%,
+        rgba(255, 255, 255, 0.95) 48%,
+        rgba(var(--ea-main-rgb), 0.04) 100%
+    );
+    border: 1px solid rgba(var(--ea-main-rgb), 0.14);
+    border-radius: 10px;
+    border-left: 3px solid var(--ea-main);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.entity-audit-dates__card:hover {
+    box-shadow: 0 4px 14px rgba(var(--ea-main-rgb), 0.12);
+    border-color: rgba(var(--ea-main-rgb), 0.22);
+}
+
+.entity-audit-dates__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 8px;
+    background: rgba(var(--ea-main-rgb), 0.1);
+    color: var(--ea-main);
+    font-size: 1.05rem;
+}
+
+.entity-audit-dates__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.entity-audit-dates__label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.45);
+    line-height: 1.2;
+}
+
+.entity-audit-dates__value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.78);
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+@media (max-width: 575.98px) {
+    .entity-audit-dates__card {
+        flex: 1 1 100%;
+    }
+
+    .entity-audit-dates {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+    }
+}

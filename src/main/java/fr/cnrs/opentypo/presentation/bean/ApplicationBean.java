@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
+import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.EntityDeletionService;
@@ -61,7 +62,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -180,6 +183,12 @@ public class ApplicationBean implements Serializable {
 
     @Autowired
     private EntityDeletionService entityDeletionService;
+
+    @Autowired
+    private AuditService auditService;
+
+    private static final DateTimeFormatter ENTITY_AUDIT_DATETIME_FORMAT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PanelStateManager panelState = new PanelStateManager();
     private List<Language> languages;
@@ -674,6 +683,50 @@ public class ApplicationBean implements Serializable {
     public Entity getSelectedGroup() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_GROUP); }
     public Entity getSelectedSerie() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_SERIES); }
     public Entity getSelectedType() { return findAncestorOfType(selectedEntity, EntityConstants.ENTITY_TYPE_TYPE); }
+
+    /** Affichage date de création (entité courante), mis en cache par requête. */
+    public String getFormattedSelectedEntityCreateDate() {
+        if (selectedEntity == null || selectedEntity.getCreateDate() == null) {
+            return "";
+        }
+        Long id = selectedEntity.getId();
+        String cacheKey = "opentypo_fmtCreate_" + id;
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc != null) {
+            Map<String, Object> rm = fc.getExternalContext().getRequestMap();
+            if (rm.containsKey(cacheKey)) {
+                return (String) rm.get(cacheKey);
+            }
+        }
+        String v = selectedEntity.getCreateDate().format(ENTITY_AUDIT_DATETIME_FORMAT);
+        if (fc != null) {
+            fc.getExternalContext().getRequestMap().put(cacheKey, v);
+        }
+        return v;
+    }
+
+    /** Dernière modification (Envers / revinfo), mis en cache par requête. */
+    public String getFormattedSelectedEntityLastModificationDate() {
+        if (selectedEntity == null || selectedEntity.getId() == null) {
+            return "";
+        }
+        Long id = selectedEntity.getId();
+        String cacheKey = "opentypo_fmtLastMod_" + id;
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc != null) {
+            Map<String, Object> rm = fc.getExternalContext().getRequestMap();
+            if (rm.containsKey(cacheKey)) {
+                return (String) rm.get(cacheKey);
+            }
+        }
+        String v = auditService.findLastModificationDate(id)
+                .map(dt -> dt.format(ENTITY_AUDIT_DATETIME_FORMAT))
+                .orElse("—");
+        if (fc != null) {
+            fc.getExternalContext().getRequestMap().put(cacheKey, v);
+        }
+        return v;
+    }
 
     /** Enfants de type Référentiel (filtre sur childs + visibilité catalogue). */
     public List<Entity> getChildsReferences() {

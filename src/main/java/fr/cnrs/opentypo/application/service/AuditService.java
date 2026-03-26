@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -26,6 +28,12 @@ import java.util.*;
 @Service
 @Transactional(readOnly = true)
 public class AuditService {
+
+    /**
+     * Table Envers pour {@code reference-opentheso} : le tiret impose des guillemets en SQL PostgreSQL
+     * ({@code reference_opentheso_aud} n'existe pas).
+     */
+    private static final String REFERENCE_OPENTHESO_AUD_TABLE = "\"reference-opentheso_aud\"";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -83,8 +91,8 @@ public class AuditService {
             // 6. Révisions depuis description_pate_aud
             collectRevisionsFromTable("description_pate_aud", "entity_id", entityId, allRevisionNumbers);
             
-            // 7. Révisions depuis reference_opentheso_aud
-            collectRevisionsFromTable("reference_opentheso_aud", "entity_id", entityId, allRevisionNumbers);
+            // 7. Révisions depuis reference-opentheso_aud (nom avec tiret)
+            collectRevisionsFromTable(REFERENCE_OPENTHESO_AUD_TABLE, "entity_id", entityId, allRevisionNumbers);
             
             // 8. Révisions depuis entity_metadata_aud
             collectRevisionsFromTable("entity_metadata_aud", "entity_id", entityId, allRevisionNumbers);
@@ -702,12 +710,12 @@ public class AuditService {
                 log.debug("Erreur caracteristique_physique_monnaie_aud: {}", e.getMessage());
             }
 
-            // reference_opentheso_aud : aires de circulation (entity_id + code = 'AIRE_CIRCULATION')
+            // reference-opentheso_aud : aires de circulation (entity_id + code = 'AIRE_CIRCULATION')
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> roRows = entityManager.createNativeQuery(
-                    "SELECT r.valeur FROM reference_opentheso_aud r " +
-                    "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'AIRE_CIRCULATION'"
+                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
+                    + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'AIRE_CIRCULATION'"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -737,8 +745,9 @@ public class AuditService {
         try {
             @SuppressWarnings("unchecked")
             List<Object> results = entityManager.createNativeQuery(
-                "SELECT valeur FROM reference_opentheso_aud WHERE id = :refId " +
-                "AND rev = (SELECT MAX(rev) FROM reference_opentheso_aud WHERE id = :refId AND rev <= :revisionNumber)"
+                "SELECT valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " WHERE id = :refId "
+                + "AND rev = (SELECT MAX(rev) FROM " + REFERENCE_OPENTHESO_AUD_TABLE
+                + " WHERE id = :refId AND rev <= :revisionNumber)"
             )
             .setParameter("refId", refId.longValue())
             .setParameter("revisionNumber", revisionNumber)
@@ -834,5 +843,59 @@ public class AuditService {
         }
         
         return data;
+    }
+
+    /**
+     * Dernière date/heure de modification connue via Envers (toutes les tables d'audit liées à l'entité).
+     * Hors transaction courante pour ne pas marquer le rollback JSF en cas d'erreur SQL.
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
+    public Optional<LocalDateTime> findLastModificationDate(Long entityId) {
+        if (entityId == null) {
+            return Optional.empty();
+        }
+        String sql = """
+                SELECT MAX(r.revtstmp) FROM revinfo r
+                WHERE r.rev IN (
+                  SELECT rev FROM entity_aud WHERE id = :entityId
+                  UNION
+                  SELECT rev FROM entity_metadata_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM label_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM description_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM description_detail_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM caracteristique_physique_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM description_pate_aud WHERE entity_id = :entityId
+                  UNION
+                  """
+                + "SELECT rev FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " WHERE entity_id = :entityId "
+                + """
+                  UNION
+                  SELECT rev FROM image_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM entity_relation_aud WHERE parent_id = :entityId OR child_id = :entityId
+                  UNION
+                  SELECT rev FROM description_monnaie_aud WHERE entity_id = :entityId
+                  UNION
+                  SELECT rev FROM caracteristique_physique_monnaie_aud WHERE entity_id = :entityId
+                )
+                """;
+        try {
+            Object result = entityManager.createNativeQuery(sql)
+                    .setParameter("entityId", entityId)
+                    .getSingleResult();
+            if (result == null) {
+                return Optional.empty();
+            }
+            long ts = ((Number) result).longValue();
+            return Optional.of(LocalDateTime.ofInstant(Instant.ofEpochMilli(ts), ZoneId.systemDefault()));
+        } catch (Exception e) {
+            log.debug("findLastModificationDate pour entityId={}: {}", entityId, e.getMessage());
+            return Optional.empty();
+        }
     }
 }

@@ -36,26 +36,32 @@
 
                         <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
                             <ui:include src="details/collections/collection.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
                             <ui:include src="details/references/reference.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
                             <ui:include src="details/categories/category.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.isShowGroupePanel()}">
                             <ui:include src="details/groups/groupe.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showSeriePanel}">
                             <ui:include src="details/series/serie.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showTypePanel}">
                             <ui:include src="details/type/type.xhtml"/>
+                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <!-- Dialog paramétrage OpenTheso (utilisé par collection et groupe) -->
