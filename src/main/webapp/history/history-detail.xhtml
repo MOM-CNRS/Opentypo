@@ -70,9 +70,17 @@
                                 <div class="history-change-card">
                                     <div class="change-field">#{historyBean.getFieldLabel(change.key)}</div>
                                     <div class="change-diff">
-                                        <span class="diff-old">#{historyBean.formatChangeValue(change.value['old'], true)}</span>
-                                        <i class="pi pi-arrow-right diff-arrow"></i>
-                                        <span class="diff-new">#{historyBean.formatChangeValue(change.value['new'], false)}</span>
+                                        <div class="diff-side diff-side-old">
+                                            <span class="diff-side-label">Avant</span>
+                                            <h:outputText styleClass="diff-old diff-value-text"
+                                                          value="#{historyBean.formatChangeValue(change.value['old'], true)}"/>
+                                        </div>
+                                        <i class="pi pi-arrow-right diff-arrow" aria-hidden="true"></i>
+                                        <div class="diff-side diff-side-new">
+                                            <span class="diff-side-label">Après</span>
+                                            <h:outputText styleClass="diff-new diff-value-text"
+                                                          value="#{historyBean.formatChangeValue(change.value['new'], false)}"/>
+                                        </div>
                                     </div>
                                 </div>
                             </ui:repeat>
@@ -104,7 +112,7 @@
                                                 </div>
                                                 <div class="concept-info-grid">
                                                     <ui:repeat value="#{historyBean.getKeysForSection(section)}" var="key">
-                                                        <div class="concept-info-item #{key == 'descriptions' or key == 'bibliographie' or key == 'commentaireMetadata' or key == 'attestations' or key == 'sitesArcheologiques' or key == 'alignementExterne' or key == 'commentaireDatation' or key == 'rereferenceBibliographique' or key == 'corpusExterne' ? 'concept-info-item-full' : ''}">
+                                                        <div class="concept-info-item #{key == 'images' or key == 'descriptions' or key == 'bibliographie' or key == 'commentaireMetadata' or key == 'attestations' or key == 'sitesArcheologiques' or key == 'alignementExterne' or key == 'commentaireDatation' or key == 'rereferenceBibliographique' or key == 'corpusExterne' ? 'concept-info-item-full' : ''}">
                                                             <div class="concept-info-label">
                                                                 <i class="pi #{historyBean.getFieldIcon(key)} monnaie-communs-icon"/>
                                                                 <span>#{historyBean.getFieldLabel(key)}</span>

@@ -224,8 +224,8 @@ public class HistoryBean implements Serializable {
 
     /** Ordre d'affichage des champs (type.xhtml et tous ses includes), sans ID */
     private static final String[] ORDERED_DISPLAY_KEYS = {
-        // type.xhtml : en-tête
-        "code", "labels", "descriptions", "statut", "appellation",
+        // type.xhtml : en-tête (images avant descriptions, comme la fiche type)
+        "code", "labels", "images", "descriptions", "statut", "appellation",
         // dotation.xhtml
         "periode", "tpq", "taq", "commentaireDatation",
         // alignements.xhtml
@@ -246,9 +246,7 @@ public class HistoryBean implements Serializable {
         "metrologieDetail",
         // attestations, sites, gestion, commentaire, bibliographie
         "attestations", "sitesArcheologiques", "reference", "typologieScientifique",
-        "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie",
-        // images, entity
-        "images", "idArk", "displayOrder"
+        "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie"
     };
 
     /**
@@ -259,7 +257,7 @@ public class HistoryBean implements Serializable {
     /** Sections groupées pour l'affichage (structure type.xhtml). */
     private static final List<DisplaySection> DISPLAY_SECTIONS = List.of(
         new DisplaySection("general", "Informations générales", "pi pi-info-circle",
-            List.of("code", "labels", "descriptions", "statut", "appellation"), "ALWAYS"),
+            List.of("code", "labels", "images", "descriptions", "statut", "appellation"), "ALWAYS"),
         new DisplaySection("dotation", "Dotation", "pi pi-calendar",
             List.of("periode", "tpq", "taq", "commentaireDatation"), "DOTATION"),
         new DisplaySection("alignements", "Relations", "pi pi-sitemap",
@@ -285,9 +283,7 @@ public class HistoryBean implements Serializable {
         new DisplaySection("commentaire", "Commentaire", "pi pi-comment",
             List.of("commentaireMetadata"), "ALWAYS"),
         new DisplaySection("bibliographie", "Bibliographie", "pi pi-book",
-            List.of("bibliographie"), "ALWAYS"),
-        new DisplaySection("autres", "Autres", "pi pi-list",
-            List.of("images", "idArk", "displayOrder"), "ALWAYS")
+            List.of("bibliographie"), "ALWAYS")
     );
 
     /**
@@ -346,14 +342,13 @@ public class HistoryBean implements Serializable {
     private boolean isSectionVisibleForReference(DisplaySection section) {
         return switch (section.id()) {
             case "general" -> true;
-            case "autres" -> true;
             default -> false; // reference.xhtml : uniquement description, periode, reference biblio, gestionnaires, auteurs
         };
     }
 
     private boolean isSectionVisibleForCategory(DisplaySection section) {
         return switch (section.id()) {
-            case "general", "commentaire", "bibliographie", "autres" -> true;
+            case "general", "commentaire", "bibliographie" -> true;
             default -> false; // category.xhtml : description, commentaire, bibliographie, auteurs
         };
     }
@@ -380,10 +375,10 @@ public class HistoryBean implements Serializable {
         String entityType = getEntityTypeCode();
         if (entityType == null) return section.keys();
         if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityType) && "general".equals(section.id())) {
-            return List.of("code", "labels", "descriptions", "statut", "periode", "rereferenceBibliographique");
+            return List.of("code", "labels", "images", "descriptions", "statut", "periode", "rereferenceBibliographique");
         }
         if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityType) && "general".equals(section.id())) {
-            return List.of("code", "labels", "descriptions", "statut");
+            return List.of("code", "labels", "images", "descriptions", "statut");
         }
         if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityType) && "alignements".equals(section.id())) {
             if (applicationBean.isInstrumentumTypo()) {
@@ -619,20 +614,22 @@ public class HistoryBean implements Serializable {
         }
     }
 
+    /** Texte affiché lorsqu'une valeur (avant / après) est vide ou absente dans le diff. */
+    private static final String DIFF_EMPTY_PLACEHOLDER = "(vide)";
+
     /**
      * Formate une valeur pour l'affichage dans le contexte des changements (ancienne/nouvelle valeur).
-     * Pour null ou chaîne vide, affiche "Vide" au lieu de "Aucune valeur"
-     * pour indiquer clairement que le champ était vide.
+     * Les valeurs nulles ou vides sont toujours rendues visibles (placeholder) pour que l’ancienne valeur soit lisible.
      */
     public String formatChangeValue(Object value, boolean isOldValue) {
         if (isNullOrEmpty(value)) {
-            return "";
+            return DIFF_EMPTY_PLACEHOLDER;
         }
         if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
-            return "";
+            return DIFF_EMPTY_PLACEHOLDER;
         }
         if (value instanceof List && ((List<?>) value).isEmpty()) {
-            return "";
+            return DIFF_EMPTY_PLACEHOLDER;
         }
         return formatValue(value);
     }

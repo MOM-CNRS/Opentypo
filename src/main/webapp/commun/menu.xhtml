@@ -33,7 +33,7 @@
 
                     <h:panelGroup rendered="#{loginBean.authenticated}">
                         <!-- Candidats item - Visible uniquement si connecté -->
-                        <p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
+                        <!--<p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
                                        styleClass="sidebar-menu-item"
                                        pt:data-menu-item="candidats"
                                        ajax="false">
@@ -44,7 +44,7 @@
                                 <span class="sidebar-menu-item-text">Brouillons</span>
                                 <span class="sidebar-menu-item-tooltip">Brouillons</span>
                             </div>
-                        </p:commandLink>
+                        </p:commandLink>-->
 
                         <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
                         <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}">
