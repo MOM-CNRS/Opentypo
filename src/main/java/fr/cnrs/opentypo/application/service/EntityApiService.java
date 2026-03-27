@@ -23,9 +23,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -92,13 +94,29 @@ public class EntityApiService {
             }
         }
 
+        List<Long> orderedUniqueIds = new ArrayList<>();
         Set<Long> seen = new LinkedHashSet<>();
-        List<EntityResponseDto> out = new ArrayList<>();
         for (Long id : ids) {
-            if (id == null || !seen.add(id)) {
-                continue;
+            if (id != null && seen.add(id)) {
+                orderedUniqueIds.add(id);
             }
-            entityRepository.findByIdForApi(id).ifPresent(e -> out.add(toDto(e)));
+        }
+        if (orderedUniqueIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Entity> loaded = entityRepository.findByIdsForApi(orderedUniqueIds);
+        Map<Long, Entity> byId = new HashMap<>(loaded.size() * 2);
+        for (Entity e : loaded) {
+            byId.put(e.getId(), e);
+        }
+
+        List<EntityResponseDto> out = new ArrayList<>(orderedUniqueIds.size());
+        for (Long id : orderedUniqueIds) {
+            Entity e = byId.get(id);
+            if (e != null) {
+                out.add(toDto(e));
+            }
         }
         return out;
     }

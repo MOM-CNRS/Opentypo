@@ -71,6 +71,17 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     Optional<Entity> findByIdForApi(@Param("id") Long id);
 
     /**
+     * Même graphe que {@link #findByIdForApi(Long)} pour plusieurs identifiants (une requête, évite le N+1).
+     * Ne pas appeler avec une collection vide.
+     */
+    @Query("SELECT DISTINCT e FROM Entity e "
+            + "LEFT JOIN FETCH e.entityType "
+            + "LEFT JOIN FETCH e.metadata "
+            + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
+            + "WHERE e.id IN :ids")
+    List<Entity> findByIdsForApi(@Param("ids") Collection<Long> ids);
+
+    /**
      * Vérifie si une entité existe avec le code donné (via metadata)
      */
     @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.metadata m WHERE m.code = :code")
