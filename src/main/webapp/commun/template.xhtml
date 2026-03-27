@@ -105,8 +105,18 @@
     <ui:include src="../dialogs/confirmSaveDialog.xhtml" />
     <ui:include src="../dialogs/orderListDialog.xhtml" />
 
-    <!-- Overlay image plein écran (galerie, référence, etc.) -->
+    <!-- Overlay image plein écran (galerie, référence, etc.) — navigation clavier + flèches latérales + compteur -->
     <div id="fullscreenImageOverlay" class="fullscreen-image-overlay" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();">
+        <button type="button" id="fullscreenImagePrev" class="fullscreen-image-nav fullscreen-image-nav-prev"
+                aria-label="Image précédente" title="Précédent (←)"
+                onclick="event.stopPropagation(); if(typeof fullscreenImageGoPrev==='function')fullscreenImageGoPrev();">
+            <i class="pi pi-chevron-left" aria-hidden="true"/>
+        </button>
+        <button type="button" id="fullscreenImageNext" class="fullscreen-image-nav fullscreen-image-nav-next"
+                aria-label="Image suivante" title="Suivant (→)"
+                onclick="event.stopPropagation(); if(typeof fullscreenImageGoNext==='function')fullscreenImageGoNext();">
+            <i class="pi pi-chevron-right" aria-hidden="true"/>
+        </button>
         <div class="fullscreen-image-wrapper" onclick="event.stopPropagation();">
             <button type="button" class="fullscreen-image-close" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();" title="Fermer (Échap)">
                 <i class="pi pi-times"/>
@@ -114,6 +124,8 @@
             <img id="fullscreenImageElement" class="fullscreen-image-content" alt="Image en plein écran" />
             <div id="fullscreenImageLegend" class="fullscreen-image-legend" style="display:none;"></div>
         </div>
+        <div id="fullscreenImageCounter" class="fullscreen-image-counter" style="display:none;" role="navigation"
+             aria-live="polite" onclick="event.stopPropagation();"></div>
     </div>
     <h:outputScript library="js" name="fullscreen-image.js"/>
     <h:outputScript library="js" name="gallery.js"/>

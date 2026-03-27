@@ -63,7 +63,7 @@
                                             <img src="#{photo.itemImageSrc}" alt="#{photo.alt}"
                                                  data-image-legende="#{photo.title}"
                                                  title="Cliquez pour afficher en plein écran"
-                                                 onclick="var u=this.src;var l=this.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;"/>
+                                                 onclick="if(typeof openFullscreenFromGallery==='function'){openFullscreenFromGallery(this);}return false;"/>
                                             <h:outputText value="#{photo.title}" styleClass="opentypo-gallery-slide-legend" rendered="#{not empty photo.title}"/>
                                         </div>
                                     </div>
