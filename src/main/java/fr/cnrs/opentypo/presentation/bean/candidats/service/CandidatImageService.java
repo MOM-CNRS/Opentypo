@@ -1,6 +1,6 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
-import fr.cnrs.opentypo.application.service.IiifImageService;
+import fr.cnrs.opentypo.application.service.RemoteImageUploadService;
 import fr.cnrs.opentypo.presentation.bean.candidats.UploadedFileToMultipartFileAdapter;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class CandidatImageService {
 
-    @Inject private IiifImageService iiifImageService;
+    @Inject private RemoteImageUploadService remoteImageUploadService;
 
     public record UploadResult(boolean success, String imageUrl, String errorMessage) {}
 
@@ -25,11 +25,11 @@ public class CandidatImageService {
         }
         try {
             MultipartFile multipartFile = new UploadedFileToMultipartFileAdapter(uploadedFile);
-            String url = iiifImageService.uploadImage(multipartFile);
-            log.info("Image uploadée avec succès. URL IIIF: {}", url);
+            String url = remoteImageUploadService.uploadImage(multipartFile);
+            log.info("Image uploadée avec succès. URL: {}", url);
             return new UploadResult(true, url, null);
         } catch (Exception e) {
-            log.error("Erreur lors de l'upload de l'image vers IIIF", e);
+            log.error("Erreur lors de l'upload de l'image vers le serveur distant", e);
             return new UploadResult(false, null, e.getMessage() != null ? e.getMessage() : "Erreur d'upload");
         }
     }

@@ -14,7 +14,6 @@ import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
-import fr.cnrs.opentypo.application.service.IiifImageService;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
@@ -108,9 +107,6 @@ public class CandidatBean implements Serializable {
 
     @Inject
     private SearchBean searchBean;
-
-    @Inject
-    private IiifImageService iiifImageService;
 
     @Inject
     private OpenThesoDialogBean openThesoDialogBean;

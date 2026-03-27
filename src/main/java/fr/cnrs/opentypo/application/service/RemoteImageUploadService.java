@@ -3,7 +3,11 @@ package fr.cnrs.opentypo.application.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,82 +17,71 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * Service pour gérer l'upload d'images vers un serveur IIIF
+ * Upload d’images vers un serveur distant (HTTP) configurable.
  */
 @Service
 @Slf4j
-public class IiifImageService {
+public class RemoteImageUploadService {
 
-    @Value("${iiif.server.url:http://localhost:8182}")
-    private String iiifServerUrl;
+    @Value("${opentypo.remote-image-upload.base-url:http://localhost:8182}")
+    private String serverBaseUrl;
 
-    @Value("${iiif.server.api-key:}")
-    private String iiifApiKey;
+    @Value("${opentypo.remote-image-upload.api-key:}")
+    private String apiKey;
+
+    @Value("${opentypo.remote-image-upload.path:/api/upload}")
+    private String uploadPath;
 
     private final RestTemplate restTemplate;
 
-    public IiifImageService() {
+    public RemoteImageUploadService() {
         this.restTemplate = new RestTemplate();
     }
 
     /**
-     * Upload une image vers le serveur IIIF et retourne l'URL de l'image
-     * 
-     * @param file Le fichier image à uploader
-     * @return L'URL de l'image sur le serveur IIIF
-     * @throws IOException Si une erreur survient lors de la lecture du fichier
-     * @throws RuntimeException Si l'upload échoue
+     * Envoie une image au serveur configuré et retourne l’URL publique renvoyée (ou dérivée).
      */
     public String uploadImage(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Le fichier est vide ou null");
         }
 
-        log.info("Upload de l'image {} vers le serveur IIIF: {}", file.getOriginalFilename(), iiifServerUrl);
+        String base = serverBaseUrl.endsWith("/") ? serverBaseUrl.substring(0, serverBaseUrl.length() - 1) : serverBaseUrl;
+        log.info("Upload de l'image {} vers le serveur distant: {}", file.getOriginalFilename(), base);
 
         try {
-            // Préparer les headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            
-            // Ajouter la clé API si configurée
-            if (iiifApiKey != null && !iiifApiKey.isEmpty()) {
-                headers.set("Authorization", "Bearer " + iiifApiKey);
+
+            if (apiKey != null && !apiKey.isEmpty()) {
+                headers.set("Authorization", "Bearer " + apiKey);
             }
 
-            // Préparer le body avec le fichier
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            
-            // Convertir le fichier en ByteArrayResource pour l'upload
+
             ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
                 @Override
                 public String getFilename() {
                     return file.getOriginalFilename();
                 }
             };
-            
+
             body.add("file", resource);
             body.add("filename", file.getOriginalFilename());
             body.add("contentType", file.getContentType());
 
-            // Créer la requête
             HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-            // Endpoint IIIF typique pour l'upload (peut varier selon votre serveur IIIF)
-            // Exemples d'endpoints courants:
-            // - /iiif/v3/upload (Cantaloupe)
-            // - /api/v1/images (Cantaloupe alternative)
-            // - /images (Cantaloupe simple)
-            String uploadEndpoint = iiifServerUrl + "/iiif/v3/upload";
-            
+            String path = uploadPath.startsWith("/") ? uploadPath : "/" + uploadPath;
+            String uploadEndpoint = base + path;
+
             log.debug("Envoi de la requête POST vers: {}", uploadEndpoint);
 
-            // Envoyer la requête
             ResponseEntity<String> response = restTemplate.exchange(
-                uploadEndpoint,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
+                    uploadEndpoint,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
             );
 
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -97,38 +90,25 @@ public class IiifImageService {
                 return imageUrl;
             } else {
                 log.error("Échec de l'upload. Status: {}, Body: {}", response.getStatusCode(), response.getBody());
-                throw new RuntimeException("Échec de l'upload vers IIIF. Status: " + response.getStatusCode());
+                throw new RuntimeException("Échec de l'upload vers le serveur distant. Status: " + response.getStatusCode());
             }
 
         } catch (Exception e) {
-            log.error("Erreur lors de l'upload de l'image vers IIIF", e);
-            throw new RuntimeException("Erreur lors de l'upload vers IIIF: " + e.getMessage(), e);
+            log.error("Erreur lors de l'upload de l'image vers le serveur distant", e);
+            throw new RuntimeException("Erreur lors de l'upload: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Extrait l'URL de l'image depuis la réponse du serveur IIIF
-     * La réponse peut être au format JSON avec un champ "id" ou directement l'URL
-     * 
-     * @param responseBody Le corps de la réponse du serveur IIIF
-     * @return L'URL de l'image
-     */
     private String extractImageUrlFromResponse(String responseBody) {
         if (responseBody == null || responseBody.trim().isEmpty()) {
-            throw new RuntimeException("Réponse vide du serveur IIIF");
+            throw new RuntimeException("Réponse vide du serveur distant");
         }
 
-        // Si la réponse est directement une URL
         if (responseBody.startsWith("http://") || responseBody.startsWith("https://")) {
             return responseBody.trim();
         }
 
-        // Si la réponse est au format JSON, essayer d'extraire l'URL
-        // Format typique: {"id": "https://iiif.example.com/iiif/3/image.jpg"}
-        // ou {"@id": "https://iiif.example.com/iiif/3/image.jpg"}
         try {
-            // Extraction simple basée sur des patterns JSON courants
-            // Pour une extraction plus robuste, utiliser une bibliothèque JSON comme Jackson
             if (responseBody.contains("\"id\"")) {
                 int idIndex = responseBody.indexOf("\"id\"");
                 int startIndex = responseBody.indexOf("\"", idIndex + 4) + 1;
@@ -149,9 +129,8 @@ public class IiifImageService {
             log.warn("Impossible d'extraire l'URL depuis la réponse JSON: {}", responseBody, e);
         }
 
-        // Si on ne peut pas extraire l'URL, générer une URL basée sur le serveur IIIF
-        // et un identifiant unique (fallback)
+        String base = serverBaseUrl.endsWith("/") ? serverBaseUrl.substring(0, serverBaseUrl.length() - 1) : serverBaseUrl;
         log.warn("Impossible d'extraire l'URL depuis la réponse. Utilisation d'une URL par défaut.");
-        return iiifServerUrl + "/iiif/3/" + System.currentTimeMillis() + ".jpg";
+        return base + "/media/" + System.currentTimeMillis() + ".jpg";
     }
 }

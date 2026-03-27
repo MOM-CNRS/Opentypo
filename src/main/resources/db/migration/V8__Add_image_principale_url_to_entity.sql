@@ -1,6 +1,6 @@
 -- Migration Flyway: Ajout de la colonne image_principale_url à la table entity
 -- Version: 8
--- Description: Ajoute la colonne image_principale_url pour stocker l'URL de l'image principale chargée dans IIIF
+-- Description: Ajoute la colonne image_principale_url pour stocker l'URL de l'image principale
 
 -- Ajouter la colonne image_principale_url si elle n'existe pas déjà
 DO $$

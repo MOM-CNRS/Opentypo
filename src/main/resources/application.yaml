@@ -5,6 +5,11 @@
 opentypo:
   images:
     path: ${OPENTYPO_IMAGES_PATH:${user.dir}/images}
+  # Upload HTTP optionnel (ex. candidats) : URL de base, chemin POST, clé Bearer optionnelle
+  remote-image-upload:
+    base-url: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_BASE_URL:http://localhost:8182}
+    api-key: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_API_KEY:}
+    path: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_PATH:/api/upload}
 
 spring:
   autoconfigure:

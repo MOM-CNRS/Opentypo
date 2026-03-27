@@ -60,8 +60,3 @@ logging:
     jakarta.faces: INFO
     org.joinfaces: INFO
     org.primefaces: WARN
-
-iiif:
-  server:
-    url: ${IIIF_SERVER_URL:http://localhost:8182}  # URL de base du serveur IIIF
-    api-key: ${IIIF_API_KEY:}  # Clé API optionnelle pour l'authentification
