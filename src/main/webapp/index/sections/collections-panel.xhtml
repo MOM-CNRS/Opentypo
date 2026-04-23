@@ -5,7 +5,8 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <!-- Barre d'outils collections -->
-    <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar">
+    <h:panelGroup id="create-collection-section" class="create-collection-section index-create-section-bar"
+                  rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}" >
         <div class="collections-toolbar">
             <!-- Sélecteur de mode de tri -->
             <ui:include src="/commun/components/sort-selector.xhtml">
@@ -16,23 +17,25 @@
                 <ui:param name="optionClassPrefix" value="collections-sort"/>
                 <ui:param name="label" value="Ordre d'affichage"/>
             </ui:include>
+
             <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechniqueOrFonctionnel()}"/>
-        <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}" styleClass="create-collection-section-actions">
-            <p:commandButton value="Réorganiser l'ordre"
-                             icon="pi pi-sort-alt"
-                             rendered="#{applicationBean.collections.size() gt 1}"
-                             styleClass="collection-toolbar-btn collection-toolbar-btn-secondary"
-                             action="#{applicationBean.prepareCollectionsOrderDialog()}"
-                             process="@this"
-                             update=":orderListDialog"
-                             oncomplete="PF('orderListDialog').show();"/>
-            <p:commandButton value="Créer une nouvelle typologie"
-                             icon="pi pi-plus"
-                             styleClass="collection-toolbar-btn collection-toolbar-btn-primary"
-                             process="@this"
-                             update="collectionDialogForm"
-                             actionListener="#{collectionBean.resetCollectionForm()}"/>
-        </h:panelGroup>
+
+            <h:panelGroup styleClass="create-collection-section-actions">
+                <p:commandButton value="Réorganiser l'ordre"
+                                 icon="pi pi-sort-alt"
+                                 rendered="#{applicationBean.collections.size() gt 1}"
+                                 styleClass="collection-toolbar-btn collection-toolbar-btn-secondary"
+                                 action="#{applicationBean.prepareCollectionsOrderDialog()}"
+                                 process="@this"
+                                 update=":orderListDialog"
+                                 oncomplete="PF('orderListDialog').show();"/>
+                <p:commandButton value="Créer une nouvelle typologie"
+                                 icon="pi pi-plus"
+                                 styleClass="collection-toolbar-btn collection-toolbar-btn-primary"
+                                 process="@this"
+                                 update="collectionDialogForm"
+                                 actionListener="#{collectionBean.resetCollectionForm()}"/>
+            </h:panelGroup>
         </div>
     </h:panelGroup>
 

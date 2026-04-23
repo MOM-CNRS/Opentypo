@@ -226,7 +226,7 @@ public class HistoryBean implements Serializable {
     private static final String[] ORDERED_DISPLAY_KEYS = {
         // type.xhtml : en-tête (images avant descriptions, comme la fiche type)
         "code", "labels", "images", "descriptions", "statut", "appellation",
-        // dotation.xhtml
+        // datation.xhtml
         "periode", "tpq", "taq", "commentaireDatation",
         // alignements.xhtml
         "appartient", "associe", "alignementExterne",
@@ -258,8 +258,8 @@ public class HistoryBean implements Serializable {
     private static final List<DisplaySection> DISPLAY_SECTIONS = List.of(
         new DisplaySection("general", "Informations générales", "pi pi-info-circle",
             List.of("code", "labels", "images", "descriptions", "statut", "appellation"), "ALWAYS"),
-        new DisplaySection("dotation", "Dotation", "pi pi-calendar",
-            List.of("periode", "tpq", "taq", "commentaireDatation"), "DOTATION"),
+        new DisplaySection("datation", "Datation", "pi pi-calendar",
+            List.of("periode", "tpq", "taq", "commentaireDatation"), "DATATION"),
         new DisplaySection("alignements", "Relations", "pi pi-sitemap",
             List.of("appartient", "associe", "alignementExterne"), "ALIGNEMENTS"),
         new DisplaySection("production", "Production", "pi pi-inbox",
@@ -309,7 +309,7 @@ public class HistoryBean implements Serializable {
         String entityType = getEntityTypeCode();
         boolean collectionCondition = switch (section.visibilityType()) {
             case "ALWAYS" -> true;
-            case "DOTATION" -> applicationBean.showDotationBlock();
+            case "DATATION" -> applicationBean.showDatationBlock();
             case "ALIGNEMENTS" -> applicationBean.showAlignementsBlock();
             case "PRODUCTION" -> applicationBean.showProductionBlock();
             case "MONNAIE" -> applicationBean.isCashTypo();

@@ -6,18 +6,35 @@
 
     <div class="#{applicationBean.selectedEntity.entityType.id != 6 ? 'users-form-group users-form-group-full periode-group candidats-mt-20' : 'users-form-group users-form-group-full periode-group'}">
         <div class="periode-header-row">
-            <p:outputLabel value="Traductions des labels" />
+            <p:outputLabel value="Nom complet/entier [et ses traductions]" />
+        </div>
+        <div class="candidat-definition-editor-row">
+            <div class="candidat-definition-editor-inner">
+                <div class="candidat-definition-editor-header">
+                    <i class="pi pi-tag candidat-definition-editor-icon" />
+                    <span class="candidat-definition-editor-label">Saisissez la traduction du nom</span>
+                </div>
+                <p:textEditor value="#{entityUpdateBean.newLabelValue}"
+                              placeholder="Saisissez la traduction du nom..."
+                              secure="false"
+                              height="30"
+                              styleClass="candidat-definition-texteditor">
+                    <f:facet name="toolbar">
+                         <span class="ql-formats">
+                            <button class="ql-bold"/>
+                            <button class="ql-italic"/>
+                            <button class="ql-underline"/>
+                            <button class="ql-strike"/>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-font"/>
+                            <select class="ql-size"/>
+                        </span>
+                    </f:facet>
+                </p:textEditor>
+            </div>
         </div>
         <h:panelGroup layout="block" styleClass="candidat-label-input-row">
-            <div class="candidat-label-input-wrapper">
-                <div class="input-wrapper periode-input-wrapper collection-select">
-                    <i class="pi pi-tag input-icon" />
-                    <p:inputText value="#{entityUpdateBean.newLabelValue}"
-                                 placeholder="Saisissez la traduction du label..."
-                                 styleClass="users-input"
-                                 maxlength="255"/>
-                </div>
-            </div>
             <div class="candidat-label-select-wrapper">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-globe input-icon" />

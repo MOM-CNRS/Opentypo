@@ -2403,8 +2403,8 @@ public class ApplicationBean implements Serializable {
                 || hasAnyValue(dm.getRevers()) || hasAnyValue(dm.getLegendeRevers()) || hasAnyValue(dm.getCoinsMonetairesRevers());
     }
 
-    /** Bloc Dotation (période, TPQ, TAQ, commentaire datation) */
-    public boolean showDotationBlock() {
+    /** Bloc Datation (période, TPQ, TAQ, commentaire datation) */
+    public boolean showDatationBlock() {
         if (selectedEntity == null) return false;
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         return hasAnyValue(selectedEntity.getPeriode()) || hasAnyValue(selectedEntity.getTpq())
