@@ -1,0 +1,161 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{scientificAuthorBean.onPageEnter}"/>
+
+        <h:outputStylesheet library="css" name="pages/authors/scientific-authors.css"/>
+
+        <div class="authors-page">
+            <div class="authors-hero">
+                <div class="authors-header">
+                    <div>
+                        <h1 class="authors-title">
+                            <i class="pi pi-users authors-title-icon"/>
+                            Gestion des auteurs scientifiques
+                        </h1>
+                        <p class="authors-subtitle">Consultez, filtrez et maintenez votre référentiel d'auteurs avec une vue claire et rapide.</p>
+                    </div>
+                    <h:panelGroup rendered="#{scientificAuthorBean.canManageScientificAuthors()}">
+                        <p:commandButton value="Nouvel auteur"
+                                         icon="pi pi-plus"
+                                         styleClass="authors-primary-btn"
+                                         actionListener="#{scientificAuthorBean.startCreate()}"
+                                         process="@this"
+                                         update=":authorsForm:authorEditor"/>
+                    </h:panelGroup>
+                </div>
+                <div class="authors-kpis">
+                    <div class="authors-kpi-card">
+                        <span class="authors-kpi-label">Total</span>
+                        <strong class="authors-kpi-value">#{scientificAuthorBean.allAuthors.size()}</strong>
+                    </div>
+                    <div class="authors-kpi-card authors-kpi-card-active">
+                        <span class="authors-kpi-label">Visibles</span>
+                        <strong class="authors-kpi-value">#{scientificAuthorBean.activeAuthorsCount}</strong>
+                    </div>
+                    <div class="authors-kpi-card authors-kpi-card-inactive">
+                        <span class="authors-kpi-label">Masqués</span>
+                        <strong class="authors-kpi-value">#{scientificAuthorBean.inactiveAuthorsCount}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <h:form id="authorsForm">
+                <div class="authors-toolbar">
+                    <span class="ui-input-icon-left authors-search-wrap">
+                        <i class="pi pi-search"/>
+                        <p:inputText value="#{scientificAuthorBean.searchText}"
+                                     placeholder="Rechercher par nom ou prénom"
+                                     styleClass="authors-search-input">
+                            <p:ajax event="keyup" listener="#{scientificAuthorBean.applyFilter}" update="authorsTable"/>
+                        </p:inputText>
+                    </span>
+                </div>
+
+                <h:panelGroup id="authorEditor" rendered="#{scientificAuthorBean.canManageScientificAuthors()}">
+                    <div class="authors-editor-animated-shell #{scientificAuthorBean.editorVisible ? 'is-visible' : 'is-hidden'}">
+                        <div class="authors-editor-card">
+                            <div class="authors-editor-header">
+                                <h3>#{scientificAuthorBean.editMode ? 'Modifier un auteur scientifique' : 'Ajouter un auteur scientifique'}</h3>
+                                <p:commandButton icon="pi pi-times"
+                                                 styleClass="authors-editor-close"
+                                                 title="Fermer"
+                                                 actionListener="#{scientificAuthorBean.resetForm()}"
+                                                 process="@this"
+                                                 update=":authorsForm:authorEditor"/>
+                            </div>
+                            <div class="authors-editor-grid">
+                                <div class="authors-field">
+                                    <p:outputLabel value="Nom" for="nomInput"/>
+                                    <p:inputText id="nomInput" value="#{scientificAuthorBean.editingAuthor.nom}" maxlength="120" required="true"/>
+                                </div>
+                                <div class="authors-field">
+                                    <p:outputLabel value="Prénom" for="prenomInput"/>
+                                    <p:inputText id="prenomInput" value="#{scientificAuthorBean.editingAuthor.prenom}" maxlength="120" required="true"/>
+                                </div>
+                                <div class="authors-field authors-field-switch">
+                                    <p:outputLabel value="Visible (actif)" for="activeInput"/>
+                                    <p:selectBooleanCheckbox id="activeInput" value="#{scientificAuthorBean.editingAuthor.active}"/>
+                                </div>
+                            </div>
+                            <div class="authors-editor-actions">
+                                <p:commandButton value="#{scientificAuthorBean.editMode ? 'Enregistrer les modifications' : 'Ajouter un auteur'}"
+                                                 icon="pi pi-check"
+                                                 styleClass="authors-primary-btn"
+                                                 actionListener="#{scientificAuthorBean.saveAuthor()}"
+                                                 process="@this nomInput prenomInput activeInput"
+                                                 update="@form"/>
+                            </div>
+                        </div>
+                    </div>
+                </h:panelGroup>
+
+                <div class="authors-table-wrapper">
+                    <div class="authors-table-header">
+                        <h3>Liste des auteurs</h3>
+                        <span class="authors-table-count">#{scientificAuthorBean.filteredAuthors.size()} résultat(s)</span>
+                    </div>
+                    <p:dataTable id="authorsTable"
+                                 value="#{scientificAuthorBean.filteredAuthors}"
+                                 var="author"
+                                 styleClass="authors-table"
+                                 emptyMessage="Aucun auteur scientifique trouvé."
+                                 paginator="true"
+                                 rows="12"
+                                 rowsPerPageTemplate="12,24,50"
+                                 paginatorPosition="bottom"
+                                 sortMode="multiple">
+
+                        <p:column headerText="Auteur" sortBy="#{author.nom}">
+                            <div class="authors-name-cell">
+                                <div class="authors-avatar">
+                                    <i class="pi pi-user"/>
+                                </div>
+                                <div>
+                                    <div class="authors-full-name">#{author.prenom} #{author.nom}</div>
+                                    <div class="authors-id">ID #{author.id}</div>
+                                </div>
+                            </div>
+                        </p:column>
+
+                        <p:column headerText="Visibilité" sortBy="#{author.active}" styleClass="authors-col-status">
+                            <span class="authors-status-badge #{author.active ? 'authors-status-active' : 'authors-status-hidden'}">
+                                <i class="pi #{author.active ? 'pi-eye' : 'pi-eye-slash'}"/>
+                                #{author.active ? 'Visible' : 'Masqué'}
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Actions" rendered="#{scientificAuthorBean.canManageScientificAuthors()}" styleClass="authors-col-actions">
+                            <div class="authors-actions">
+                                <p:commandButton icon="pi pi-pencil"
+                                                 title="Modifier"
+                                                 styleClass="authors-action-btn authors-action-edit"
+                                                 actionListener="#{scientificAuthorBean.startEdit(author)}"
+                                                 process="@this"
+                                                 update=":authorsForm:authorEditor"/>
+                                <p:commandButton icon="#{author.active ? 'pi pi-eye-slash' : 'pi pi-eye'}"
+                                                 title="#{author.active ? 'Masquer' : 'Rendre visible'}"
+                                                 styleClass="authors-action-btn authors-action-visibility"
+                                                 actionListener="#{scientificAuthorBean.toggleVisibility(author)}"
+                                                 process="@this"
+                                                 update="@form"/>
+                                <p:commandButton icon="pi pi-trash"
+                                                 title="Supprimer"
+                                                 styleClass="authors-action-btn authors-action-delete"
+                                                 actionListener="#{scientificAuthorBean.deleteAuthor(author)}"
+                                                 process="@this"
+                                                 update="@form"
+                                                 onclick="return confirm('Supprimer cet auteur scientifique ?');"/>
+                            </div>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1666,6 +1666,16 @@ public class ApplicationBean implements Serializable {
         }
         return "/users/users.xhtml?faces-redirect=true";
     }
+
+    public String goToScientificAuthors(EntityUpdateBean entityUpdateBean) {
+        if (entityUpdateBean.isEditingEntity()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
+                            "Vous devez quitter la page de modification avant de changer de page"));
+            return "";
+        }
+        return "/authors/scientific-authors.xhtml?faces-redirect=true";
+    }
     
     public void showCollectionDetail() {
         panelState.showCollectionDetail();

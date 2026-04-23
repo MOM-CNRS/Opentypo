@@ -32,6 +32,19 @@
                     </p:commandLink>
 
                     <h:panelGroup rendered="#{loginBean.authenticated}">
+                        <p:commandLink action="#{applicationBean.goToScientificAuthors(entityUpdateBean)}"
+                                       styleClass="sidebar-menu-item"
+                                       pt:data-menu-item="scientific-authors"
+                                       ajax="false">
+                            <div class="sidebar-menu-item-content">
+                                <div class="sidebar-menu-item-icon">
+                                    <i class="pi pi-users" />
+                                </div>
+                                <span class="sidebar-menu-item-text">Auteurs scientifiques</span>
+                                <span class="sidebar-menu-item-tooltip">Gestion des auteurs scientifiques</span>
+                            </div>
+                        </p:commandLink>
+
                         <!-- Candidats item - Visible uniquement si connecté -->
                         <!--<p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
                                        styleClass="sidebar-menu-item"
