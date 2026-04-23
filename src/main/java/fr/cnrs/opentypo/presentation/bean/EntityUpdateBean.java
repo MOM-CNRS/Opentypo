@@ -52,6 +52,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -669,6 +671,11 @@ public class EntityUpdateBean implements Serializable {
             return;
         }
         String url = newImageUrlInput.trim();
+        if (!isValidRemoteImageUrl(url)) {
+            addErrorMessage("L'URL n'est pas valide ou l'image n'est pas accessible.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
         if (editingImages == null) {
             editingImages = new ArrayList<>();
         }
@@ -681,6 +688,102 @@ public class EntityUpdateBean implements Serializable {
         newImageUrlInput = null;
         addInfoMessage("Image ajoutée.");
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+    }
+
+    private boolean isValidRemoteImageUrl(String rawUrl) {
+        URI uri;
+        try {
+            uri = URI.create(rawUrl);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        String scheme = uri.getScheme();
+        if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+            return false;
+        }
+        String host = uri.getHost();
+        if (!StringUtils.hasText(host)) {
+            return false;
+        }
+
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setInstanceFollowRedirects(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("HEAD");
+
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 400) {
+                if (status == HttpURLConnection.HTTP_BAD_METHOD) {
+                    return isValidRemoteImageUrlWithGet(uri);
+                }
+                return false;
+            }
+            String contentType = connection.getContentType();
+            if (isImageContentType(contentType)) {
+                return true;
+            }
+            return isLikelyImagePath(uri.getPath());
+        } catch (IOException e) {
+            log.warn("Impossible de vérifier l'URL image {}", rawUrl, e);
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private boolean isValidRemoteImageUrlWithGet(URI uri) {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) uri.toURL().openConnection();
+            connection.setInstanceFollowRedirects(true);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Range", "bytes=0-1024");
+
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 400) {
+                return false;
+            }
+
+            String contentType = connection.getContentType();
+            if (isImageContentType(contentType)) {
+                return true;
+            }
+            return isLikelyImagePath(uri.getPath());
+        } catch (IOException e) {
+            log.warn("Impossible de vérifier l'URL image (GET) {}", uri, e);
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private boolean isImageContentType(String contentType) {
+        if (!StringUtils.hasText(contentType)) {
+            return false;
+        }
+        String normalized = contentType.toLowerCase().split(";")[0].trim();
+        return normalized.startsWith("image/");
+    }
+
+    private boolean isLikelyImagePath(String path) {
+        if (!StringUtils.hasText(path)) {
+            return false;
+        }
+        String lowerPath = path.toLowerCase();
+        return lowerPath.endsWith(".jpg")
+                || lowerPath.endsWith(".jpeg")
+                || lowerPath.endsWith(".png")
+                || lowerPath.endsWith(".gif")
+                || lowerPath.endsWith(".webp");
     }
 
     /**
