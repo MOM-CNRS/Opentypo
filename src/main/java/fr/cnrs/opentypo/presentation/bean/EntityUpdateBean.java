@@ -172,6 +172,8 @@ public class EntityUpdateBean implements Serializable {
     }
     /** URLs ajoutées depuis pendingFileSlots lors de prepareSave (à annuler si l'utilisateur annule) */
     private List<String> uploadedUrlsToRevertOnCancel = new ArrayList<>();
+    /** URLs des images déjà présentes à l'ouverture de l'édition. */
+    private Set<String> initialEditingImageUrlKeys = new HashSet<>();
     /** URLs d'images supprimées par l'utilisateur ; les fichiers physiques seront effacés à l'enregistrement */
     private List<String> removedImageUrlsToDeleteOnSave = new ArrayList<>();
     /** Hash SHA-256 des fichiers uploadés (pour détecter les doublons) */
@@ -380,6 +382,12 @@ public class EntityUpdateBean implements Serializable {
         } else {
             editingImages = new ArrayList<>();
         }
+        initialEditingImageUrlKeys = editingImages.stream()
+                .filter(Objects::nonNull)
+                .map(EditingImageItem::getUrl)
+                .map(this::normalizeUrlKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
         for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
@@ -472,6 +480,7 @@ public class EntityUpdateBean implements Serializable {
         relecteursPickList = null;
         referenceBibliographiqueList = new ArrayList<>();
         editingImages = new ArrayList<>();
+        initialEditingImageUrlKeys = new HashSet<>();
         newImageUrlInput = null;
         pendingFileSlots = new ArrayList<>();
         for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
@@ -927,6 +936,18 @@ public class EntityUpdateBean implements Serializable {
             addInfoMessage("Image retirée (suppression effective à l'enregistrement).");
         }
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+    }
+
+    public boolean isRecentlyAddedImage(String url) {
+        String key = normalizeUrlKey(url);
+        return key != null && !initialEditingImageUrlKeys.contains(key);
+    }
+
+    private String normalizeUrlKey(String url) {
+        if (!StringUtils.hasText(url)) {
+            return null;
+        }
+        return url.trim().toLowerCase();
     }
 
     /**

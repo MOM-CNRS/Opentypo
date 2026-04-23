@@ -31,6 +31,34 @@
                 </div>
             </div>
 
+            <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isCeramiqueTypo()}">
+                <div class="periode-header-row">
+                    <p:outputLabel value="Forme" />
+                </div>
+                <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                    <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                        <i class="pi pi-briefcase input-icon periode-autocomplete-icon" aria-hidden="true"/>
+                        <p:autoComplete value="#{entityUpdateBean.formeAutocompleteSelection}"
+                                        completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                        converter="pactolsConceptConverter"
+                                        var="concept"
+                                        itemLabel="#{concept.selectedTerm}"
+                                        itemValue="#{concept}"
+                                        dropdown="false"
+                                        minQueryLength="2"
+                                        appendTo="#fonctionUsageAutocompleteWrapper"
+                                        my="left top"
+                                        at="left bottom"
+                                        panelStyleClass="periode-autocomplete-panel"
+                                        scrollHeight="280"
+                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                        placeholder="Ex. Contenant, Luminaire..."
+                                        styleClass="users-input periode-autocomplete-input"
+                                        forceSelection="false"/>
+                    </div>
+                </div>
+            </h:panelGroup>
+
             <!-- Marques/estampilles -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">

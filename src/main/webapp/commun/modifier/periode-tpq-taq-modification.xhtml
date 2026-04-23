@@ -7,6 +7,8 @@
     <!-- Période, TPQ et TAQ -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
+        <b><p:outputLabel value="Datation" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
         <h:panelGroup class="users-form-group users-form-group-full" id="periode"
                       rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
             <div class="periode-header-row">
@@ -76,6 +78,19 @@
                                            decimalPlaces="0"/>
                         </div>
                     </div>
+                </div>
+            </div>
+        </h:panelGroup>
+
+        <!-- Appellation usuelle -->
+        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}" class="candidats-mt-15">
+            <p:outputLabel value="Commentaire datation" style="margin-bottom: 13px !important" />
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-cog input-icon" />
+                    <p:inputText value="#{entityUpdateBean.commentaireDatation}"
+                                 styleClass="users-input"
+                                 placeholder="Aucun valeur pour l'appellation usuelle"/>
                 </div>
             </div>
         </h:panelGroup>

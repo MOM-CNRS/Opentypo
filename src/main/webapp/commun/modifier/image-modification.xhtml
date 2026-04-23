@@ -93,6 +93,11 @@
             </p:column>
             <p:column headerText="Légende" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
+                    <ui:fragment rendered="#{entityUpdateBean.isRecentlyAddedImage(imgItem.url)}">
+                        <span class="modifier-image-new-badge" title="Image ajoutée dans cette session">
+                            <i class="pi pi-star-fill"/> Nouvelle
+                        </span>
+                    </ui:fragment>
                     <p:inputText value="#{imgItem.legende}"
                                  styleClass="users-input modifier-image-legende-input"
                                  placeholder="Légende de l'image"
@@ -343,6 +348,21 @@
         }
         .modifier-image-preview-cell:hover {
             opacity: 0.85;
+        }
+        .modifier-image-new-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.4rem;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #2f5133;
+            background: rgba(71, 98, 77, 0.14);
+        }
+        .modifier-image-new-badge .pi {
+            font-size: 0.72rem;
         }
         /* Overlay de chargement pendant l'upload */
         .modifier-image-container {
