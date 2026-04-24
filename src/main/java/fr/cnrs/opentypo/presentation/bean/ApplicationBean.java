@@ -2334,7 +2334,7 @@ public class ApplicationBean implements Serializable {
         return true;
     }
 
-    public List<Utilisateur> getUniqueAuteurs(List<Utilisateur> auteurs) {
+    public List<Utilisateur> uniqueAuteurs(java.util.Collection<Utilisateur> auteurs) {
         if (auteurs == null || auteurs.isEmpty()) {
             return List.of();
         }

@@ -147,48 +147,6 @@
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
-
-                            <h:panelGroup class="concept-info-item concept-info-item-full"
-                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-users concept-info-icon" />
-                                    <span>Auteur(s) scientifique(s)</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
-                                                <span class="bibliographie-badge">
-                                                    <i class="pi pi-star bibliographie-badge-icon" />
-                                                    <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
-                                                </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur scientifique disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup class="concept-info-item concept-info-item-full"
-                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs))}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-user concept-info-icon" />
-                                    <span>Auteur saisie</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}">
-                                        <ui:repeat value="#{applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}" var="auteur" varStatus="status">
-                                                <span class="bibliographie-badge">
-                                                    <i class="pi pi-user bibliographie-badge-icon" />
-                                                    <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
-                                                </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}"
-                                                  styleClass="bibliographie-empty" />
-                                </div>
-                            </h:panelGroup>
                         </div>
                     </ui:fragment>
 
@@ -230,31 +188,7 @@
                     <ui:include src="../communs/commentaire.xhtml"/>
 
                     <ui:include src="../communs/bibliographie.xhtml"/>
-
-                    <h:panelGroup rendered="#{applicationBean.showCommentaireBlocType()}">
-                        <ui:include src="../communs/discussion.xhtml"/>
-                    </h:panelGroup>
                 </ui:fragment>
-            </h:form>
-
-            <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
-            <h:form rendered="#{typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
-                    styleClass="groupe-proposition-actions candidats-mt-20">
-                <div class="groupe-proposition-actions-wrapper">
-                    <p:commandButton value="Publier"
-                                     icon="pi pi-check-circle"
-                                     styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
-                                     process="@this"
-                                     update=":confirmPropositionActionDialog"
-                                     action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
-
-                    <p:commandButton value="Refuser"
-                                     icon="pi pi-times-circle"
-                                     styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
-                                     process="@this"
-                                     update=":confirmPropositionActionDialog"
-                                     action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
-                </div>
             </h:form>
         </div>
     </h:panelGroup>

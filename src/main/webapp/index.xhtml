@@ -36,33 +36,49 @@
 
                         <h:panelGroup rendered="#{applicationBean.showReferencesPanel}">
                             <ui:include src="details/collections/collection.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showReferencePanel}">
                             <ui:include src="details/references/reference.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showCategoryPanel}">
                             <ui:include src="details/categories/category.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.isShowGroupePanel()}">
                             <ui:include src="details/groups/groupe.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showSeriePanel}">
                             <ui:include src="details/series/serie.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{applicationBean.showTypePanel}">
                             <ui:include src="details/type/type.xhtml"/>
-                            <ui:include src="details/communs/entity-audit-dates.xhtml"/>
                         </h:panelGroup>
+
+                        <ui:include src="details/communs/entity-audit-dates.xhtml"/>
+
+                        <!-- Boutons Publier / Refuser pour entité en statut PROPOSITION -->
+                        <h:form rendered="#{applicationBean.showTypePanel and typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
+                                styleClass="groupe-proposition-actions candidats-mt-20">
+                            <div class="groupe-proposition-actions-wrapper">
+                                <p:commandButton value="Publier"
+                                                 icon="pi pi-check-circle"
+                                                 styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
+                                                 process="@this"
+                                                 update=":confirmPropositionActionDialog"
+                                                 action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
+
+                                <p:commandButton value="Refuser"
+                                                 icon="pi pi-times-circle"
+                                                 styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
+                                                 process="@this"
+                                                 update=":confirmPropositionActionDialog"
+                                                 action="#{applicationBean.prepareConfirmPropositionAction(false)}"/>
+                            </div>
+                        </h:form>
 
                         <!-- Dialog paramétrage OpenTheso (utilisé par collection et groupe) -->
                         <ui:include src="details/communs/collectionParametrageDialog.xhtml"/>

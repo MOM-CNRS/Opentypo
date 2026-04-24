@@ -85,23 +85,23 @@
                     <ui:include src="relations-modification.xhtml"/>
 
                     <ui:include src="details_type-modification.xhtml"/>
-
-                    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-                        <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
-                        <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
-                                              label="Sélectionner un ou plusieurs auteurs"
-                                              styleClass="users-input modifier-scientific-authors-select"
-                                              filter="true"
-                                              filterMatchMode="contains"
-                                              panelStyle="width: min(520px, 90vw);"
-                                              updateLabel="true">
-                            <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
-                                           var="scientificAuthor"
-                                           itemValue="#{scientificAuthor.id}"
-                                           itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
-                        </p:selectCheckboxMenu>
-                    </div>
                 </h:panelGroup>
+
+                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+                    <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
+                    <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
+                                          label="Sélectionner un ou plusieurs auteurs"
+                                          styleClass="users-input modifier-scientific-authors-select"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          panelStyle="width: min(520px, 90vw);"
+                                          updateLabel="true">
+                        <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
+                                       var="scientificAuthor"
+                                       itemValue="#{scientificAuthor.id}"
+                                       itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
+                    </p:selectCheckboxMenu>
+                </div>
 
                 <!-- Section Permissions -->
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
