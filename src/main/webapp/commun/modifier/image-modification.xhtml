@@ -49,10 +49,7 @@
                     <p:inputText id="newImageUrlInput"
                                  value="#{entityUpdateBean.newImageUrlInput}"
                                  placeholder="Collez l'adresse d'une image sur internet"
-                                 validatorMessage="Saisissez une URL complète commençant par http:// ou https://"
-                                 styleClass="users-input">
-                        <f:validateRegex pattern="^https?://.+$"/>
-                    </p:inputText>
+                                 styleClass="users-input"/>
                 </div>
                 <p:commandButton value="Ajouter cette image"
                                  icon="pi pi-plus"

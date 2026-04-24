@@ -149,14 +149,35 @@
                             </h:panelGroup>
 
                             <h:panelGroup class="concept-info-item concept-info-item-full"
-                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteurs)}">
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-user concept-info-icon" />
-                                    <span>Auteur(s)</span>
+                                    <i class="pi pi-users concept-info-icon" />
+                                    <span>Auteur(s) scientifique(s)</span>
                                 </div>
                                 <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteurs}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteurs}" var="auteur" varStatus="status">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
+                                                <span class="bibliographie-badge">
+                                                    <i class="pi pi-star bibliographie-badge-icon" />
+                                                    <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
+                                                </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun auteur scientifique disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}"
+                                                  styleClass="bibliographie-empty" />
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup class="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs))}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-user concept-info-icon" />
+                                    <span>Auteur saisie</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}">
+                                        <ui:repeat value="#{applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}" var="auteur" varStatus="status">
                                                 <span class="bibliographie-badge">
                                                     <i class="pi pi-user bibliographie-badge-icon" />
                                                     <span class="bibliographie-badge-text">#{auteur.prenom} #{auteur.nom}</span>
@@ -164,7 +185,7 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Aucun auteur disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteurs}"
+                                                  rendered="#{empty applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}"
                                                   styleClass="bibliographie-empty" />
                                 </div>
                             </h:panelGroup>

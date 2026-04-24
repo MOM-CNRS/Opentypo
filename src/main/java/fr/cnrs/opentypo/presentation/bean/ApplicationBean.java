@@ -2334,6 +2334,32 @@ public class ApplicationBean implements Serializable {
         return true;
     }
 
+    public List<Utilisateur> getUniqueAuteurs(List<Utilisateur> auteurs) {
+        if (auteurs == null || auteurs.isEmpty()) {
+            return List.of();
+        }
+        List<Utilisateur> unique = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (Utilisateur auteur : auteurs) {
+            if (auteur == null) {
+                continue;
+            }
+            String key;
+            if (auteur.getId() != null) {
+                key = "id:" + auteur.getId();
+            } else {
+                String prenom = auteur.getPrenom() != null ? auteur.getPrenom().trim().toLowerCase() : "";
+                String nom = auteur.getNom() != null ? auteur.getNom().trim().toLowerCase() : "";
+                key = "name:" + prenom + "|" + nom;
+            }
+            if (!seen.contains(key)) {
+                seen.add(key);
+                unique.add(auteur);
+            }
+        }
+        return unique;
+    }
+
     /**
      * Indique si un bloc doit être affiché (au moins un champ avec valeur, ou statut PROPOSITION).
      */

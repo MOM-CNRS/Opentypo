@@ -42,7 +42,7 @@ function modifierActionsSlideOut(action) {
                     modifierPrepareSaveCommand();
                 }
             }
-        }, 600);
+        }, 80);
     } else {
         // Fallback direct si structure non trouvée
         if (action === 'retour' && typeof modifierCancelCommand === 'function') {

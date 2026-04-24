@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsConcept;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
+import fr.cnrs.opentypo.domain.entity.AuteurScientifique;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
@@ -22,6 +23,7 @@ import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueMonnaieRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.AuteurScientifiqueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionDetailRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionMonnaieRepository;
 import fr.cnrs.opentypo.application.service.EntityImageService;
@@ -130,6 +132,9 @@ public class EntityUpdateBean implements Serializable {
     @Autowired
     private ImageRepository imageRepository;
 
+    @Autowired
+    private AuteurScientifiqueRepository auteurScientifiqueRepository;
+
     /** Images en cours d'édition (URL + légende) */
     private List<EditingImageItem> editingImages = new ArrayList<>();
 
@@ -154,6 +159,10 @@ public class EntityUpdateBean implements Serializable {
     }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
+    /** Auteurs scientifiques disponibles (pour TYPE uniquement). */
+    private List<AuteurScientifique> availableScientificAuthors = new ArrayList<>();
+    /** Auteurs scientifiques sélectionnés (IDs, pour TYPE uniquement). */
+    private List<Long> selectedScientificAuthorIds = new ArrayList<>();
     /** Emplacements pour fichiers en attente (stockage serveur à la validation uniquement) */
     private List<PendingFileSlot> pendingFileSlots = new ArrayList<>();
     /** Holder pour fichiers multiples (classe simple non proxied, évite PropertyNotWritableException). */
@@ -419,6 +428,22 @@ public class EntityUpdateBean implements Serializable {
         } else if (entity.getEntityType().getId() == 1) {
             referenceBean.initEditingGestionnairesPickListForEdit(entity.getId());
         }
+
+        if (auteurScientifiqueRepository != null) {
+            availableScientificAuthors = auteurScientifiqueRepository.findAllByOrderByNomAscPrenomAsc();
+        } else {
+            availableScientificAuthors = new ArrayList<>();
+        }
+        if (entity.getEntityType() != null && "TYPE".equals(entity.getEntityType().getCode())
+                && entity.getAuteursScientifiques() != null) {
+            selectedScientificAuthorIds = entity.getAuteursScientifiques().stream()
+                    .filter(Objects::nonNull)
+                    .map(AuteurScientifique::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            selectedScientificAuthorIds = new ArrayList<>();
+        }
     }
 
     public void resetCategoryDialogForm() {
@@ -482,6 +507,8 @@ public class EntityUpdateBean implements Serializable {
         editingImages = new ArrayList<>();
         initialEditingImageUrlKeys = new HashSet<>();
         newImageUrlInput = null;
+        availableScientificAuthors = new ArrayList<>();
+        selectedScientificAuthorIds = new ArrayList<>();
         pendingFileSlots = new ArrayList<>();
         for (int i = 0; i < 10; i++) pendingFileSlots.add(new PendingFileSlot());
         if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(new ArrayList<>());
@@ -1091,6 +1118,25 @@ public class EntityUpdateBean implements Serializable {
                     image.setLegende(StringUtils.hasText(item.getLegende()) ? item.getLegende().trim() : null);
                     entityToUpdate.getImages().add(image);
                 }
+            }
+        }
+
+        // Mise à jour des auteurs scientifiques (rattachement uniquement pour TYPE)
+        if (entityToUpdate.getAuteursScientifiques() == null) {
+            entityToUpdate.setAuteursScientifiques(new ArrayList<>());
+        } else {
+            entityToUpdate.getAuteursScientifiques().clear();
+        }
+        if (entityToUpdate.getEntityType() != null
+                && "TYPE".equals(entityToUpdate.getEntityType().getCode())
+                && auteurScientifiqueRepository != null
+                && selectedScientificAuthorIds != null) {
+            for (Long authorId : selectedScientificAuthorIds) {
+                if (authorId == null) {
+                    continue;
+                }
+                auteurScientifiqueRepository.findById(authorId)
+                        .ifPresent(author -> entityToUpdate.getAuteursScientifiques().add(author));
             }
         }
 

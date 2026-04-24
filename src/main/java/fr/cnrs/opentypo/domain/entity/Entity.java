@@ -162,6 +162,16 @@ public class Entity implements Serializable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private List<Utilisateur> auteurs = new ArrayList<>();
 
+    // Relations avec AuteurScientifique (rattachement de un ou plusieurs auteurs scientifiques)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "entity_auteur_scientifique",
+            joinColumns = @JoinColumn(name = "entity_id"),
+            inverseJoinColumns = @JoinColumn(name = "auteur_scientifique_id")
+    )
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    private List<AuteurScientifique> auteursScientifiques = new ArrayList<>();
+
     // Audit fields
     @CreatedDate
     @Column(name = "create_date", nullable = false, updatable = false)
