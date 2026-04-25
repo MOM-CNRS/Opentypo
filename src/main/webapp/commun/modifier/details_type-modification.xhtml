@@ -4,23 +4,6 @@
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
-        <!-- Attestations -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Attestations" />
-            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-check-circle input-icon" title="Attestations"/>
-                <p:chips value="#{entityUpdateBean.attestations}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                </p:chips>
-            </div>
-        </div>
-
         <!-- Sites archéologiques -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Sites archéologiques" />

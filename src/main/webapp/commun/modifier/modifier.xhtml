@@ -15,6 +15,9 @@
             </h:panelGroup>
 
             <div class="users-form-group users-form-group-full periode-group">
+
+                <b><p:outputLabel value="Codification/Identification" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
                 <!-- Code -->
                 <h:panelGroup class="users-form-group users-form-group-full"
                               rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
@@ -76,6 +79,27 @@
                                             and applicationBean.selectedEntity.entityType.id != 2}">
 
                 <ui:include src="production-modification.xhtml"/>
+
+                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+                    <b><p:outputLabel value="Attestations et contextes" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
+                    <!-- Attestations -->
+                    <div class="users-form-group users-form-group-full candidats-mt-10">
+                        <p:outputLabel value="Attestation(s)/Contexte(s)" />
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-check-circle input-icon" title="Attestations"/>
+                            <p:chips value="#{entityUpdateBean.attestations}"
+                                     styleClass="users-chips"
+                                     placeholder="Saisissez une attestation et appuyez sur Entrée..."
+                                     maxlength="500"
+                                     addOnBlur="true">
+                                <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                                <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                                <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                            </p:chips>
+                        </div>
+                    </div>
+                </div>
 
                 <ui:include src="description-modification.xhtml"/>
 
