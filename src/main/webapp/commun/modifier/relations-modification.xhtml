@@ -106,14 +106,66 @@
 
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Alignement externe" />
+            <p class="internal-alignment-helper-text">Ajoutez un libellé, une URL publique et le niveau de correspondance.</p>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-link input-icon" />
-                    <p:inputText value="#{entityUpdateBean.alignementExterne}"
+                    <i class="pi pi-tag input-icon" />
+                    <p:inputText id="externalAlignmentLabel"
+                                 value="#{entityUpdateBean.selectedExternalAlignmentLabel}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'identifiant perenne"/>
+                                 maxlength="255"
+                                 placeholder="Ex: Wikidata"/>
                 </div>
             </div>
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt-10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-link input-icon" />
+                    <p:inputText id="externalAlignmentUrl"
+                                 value="#{entityUpdateBean.selectedExternalAlignmentUrl}"
+                                 styleClass="users-input"
+                                 placeholder="Ex: https://www.wikidata.org/wiki/Q12345"/>
+                </div>
+            </div>
+            <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt-10">
+                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                    <i class="pi pi-tags input-icon" />
+                    <p:selectOneMenu id="externalAlignmentMatchType"
+                                     value="#{entityUpdateBean.selectedExternalAlignmentMatchType}"
+                                     styleClass="users-input">
+                        <f:selectItem itemLabel="ExactMatch" itemValue="ExactMatch"/>
+                        <f:selectItem itemLabel="CloseMatch" itemValue="CloseMatch"/>
+                    </p:selectOneMenu>
+                </div>
+                <p:commandButton value="Ajouter"
+                                 icon="pi pi-plus"
+                                 styleClass="reference-btn-add internal-alignment-add-btn"
+                                 actionListener="#{entityUpdateBean.addExternalAlignment}"
+                                 process="@this externalAlignmentLabel externalAlignmentUrl externalAlignmentMatchType"
+                                 update=":contentPanels :growl"/>
+            </div>
+            <h:panelGroup layout="block" rendered="#{not empty entityUpdateBean.externalAlignments}" styleClass="candidats-mt-10">
+                <div class="internal-alignment-list">
+                <ui:repeat value="#{entityUpdateBean.externalAlignments}" var="alignment" varStatus="status">
+                    <div class="internal-alignment-item">
+                        <div class="internal-alignment-item-main">
+                            <i class="pi pi-globe input-icon" style="position:static;margin-right:8px;"/>
+                            <h:outputLink value="#{alignment.url}" styleClass="internal-alignment-target-link"
+                                          target="_blank" title="Ouvrir le lien externe">
+                                #{alignment.label}
+                            </h:outputLink>
+                            <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">
+                                #{entityUpdateBean.matchTypeLabel(alignment.matchType)}
+                            </span>
+                        </div>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-btn-remove internal-alignment-remove-btn"
+                                         actionListener="#{entityUpdateBean.removeExternalAlignment(status.index)}"
+                                         process="@this"
+                                         update=":contentPanels"/>
+                    </div>
+                </ui:repeat>
+                </div>
+            </h:panelGroup>
         </div>
     </div>
 </ui:composition>

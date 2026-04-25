@@ -34,6 +34,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ExternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.InternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LabelRepository;
@@ -124,6 +125,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private InternalAlignmentRepository internalAlignmentRepository;
+
+    @Inject
+    private ExternalAlignmentRepository externalAlignmentRepository;
 
     @Inject
     @Lazy
@@ -2461,6 +2465,14 @@ public class ApplicationBean implements Serializable {
         private String matchType;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class ExternalAlignmentViewItem implements Serializable {
+        private String label;
+        private String url;
+        private String matchType;
+    }
+
     public List<InternalAlignmentViewItem> getSelectedTypeInternalAlignments() {
         if (selectedEntity == null || selectedEntity.getId() == null || selectedEntity.getEntityType() == null
                 || !"TYPE".equals(selectedEntity.getEntityType().getCode()) || internalAlignmentRepository == null) {
@@ -2476,13 +2488,25 @@ public class ApplicationBean implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /** Bloc Alignements (internes + alignement externe) */
+    public List<ExternalAlignmentViewItem> getSelectedTypeExternalAlignments() {
+        if (selectedEntity == null || selectedEntity.getId() == null || selectedEntity.getEntityType() == null
+                || !"TYPE".equals(selectedEntity.getEntityType().getCode()) || externalAlignmentRepository == null) {
+            return List.of();
+        }
+        return externalAlignmentRepository.findBySourceType_IdOrderByIdAsc(selectedEntity.getId()).stream()
+                .map(alignment -> new ExternalAlignmentViewItem(
+                        alignment.getLabel(),
+                        alignment.getUrl(),
+                        alignment.getMatchType()))
+                .collect(Collectors.toList());
+    }
+
+    /** Bloc Alignements (internes + externes) */
     public boolean showAlignementsBlock() {
         if (selectedEntity == null) return false;
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
-        var m = selectedEntity.getMetadata();
         return hasAnyValue(getSelectedTypeInternalAlignments())
-                || hasAnyValue(m != null ? m.getAlignementExterne() : null);
+                || hasAnyValue(getSelectedTypeExternalAlignments());
     }
 
     /**

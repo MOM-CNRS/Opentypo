@@ -53,10 +53,27 @@
                             <span>Alignement externe</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.alignementExterne}">
-                                #{applicationBean.selectedEntity.metadata.alignementExterne}
+                            <ui:fragment rendered="#{not empty applicationBean.selectedTypeExternalAlignments}">
+                                <ui:repeat value="#{applicationBean.selectedTypeExternalAlignments}" var="alignment">
+                                    <span class="bibliographie-badge" style="margin-right:6px;margin-bottom:6px;">
+                                        <i class="pi pi-globe bibliographie-badge-icon"/>
+                                        <span class="bibliographie-badge-text">
+                                            <h:outputLink value="#{alignment.url}"
+                                                          styleClass="internal-alignment-target-link"
+                                                          target="_blank"
+                                                          title="Ouvrir le lien externe">
+                                                #{alignment.label}
+                                                <i class="pi pi-external-link" style="margin-left:6px;font-size:0.85rem;"
+                                                   title="Ouvre ce lien dans un nouvel onglet"/>
+                                            </h:outputLink>
+                                            <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">
+                                                #{alignment.matchType}
+                                            </span>
+                                        </span>
+                                    </span>
+                                </ui:repeat>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.alignementExterne}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedTypeExternalAlignments}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>

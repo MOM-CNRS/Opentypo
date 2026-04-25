@@ -15,6 +15,7 @@ import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityMetadata;
+import fr.cnrs.opentypo.domain.entity.ExternalAlignment;
 import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.InternalAlignment;
 import fr.cnrs.opentypo.domain.entity.Label;
@@ -32,6 +33,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ExternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.InternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
@@ -140,6 +142,9 @@ public class EntityUpdateBean implements Serializable {
     private InternalAlignmentRepository internalAlignmentRepository;
 
     @Autowired
+    private ExternalAlignmentRepository externalAlignmentRepository;
+
+    @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
 
     /** Images en cours d'édition (URL + légende) */
@@ -221,6 +226,10 @@ public class EntityUpdateBean implements Serializable {
     private Long selectedInternalAlignmentTypeId;
     private String selectedInternalAlignmentMatchType = "ExactMatch";
     private List<InternalAlignmentItem> internalAlignments = new ArrayList<>();
+    private String selectedExternalAlignmentLabel;
+    private String selectedExternalAlignmentUrl;
+    private String selectedExternalAlignmentMatchType = "ExactMatch";
+    private List<ExternalAlignmentItem> externalAlignments = new ArrayList<>();
     private String ateliersValue;
     private List<String> ateliers;
     private String referentielValue;
@@ -257,6 +266,17 @@ public class EntityUpdateBean implements Serializable {
         private Long targetTypeId;
         private String targetTypeCode;
         private String targetTypeLabel;
+        private String matchType;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ExternalAlignmentItem implements Serializable {
+        private Long id;
+        private String label;
+        private String url;
         private String matchType;
     }
 
@@ -339,6 +359,10 @@ public class EntityUpdateBean implements Serializable {
         selectedInternalAlignmentTypeId = null;
         selectedInternalAlignmentMatchType = "ExactMatch";
         internalAlignments = new ArrayList<>();
+        selectedExternalAlignmentLabel = null;
+        selectedExternalAlignmentUrl = null;
+        selectedExternalAlignmentMatchType = "ExactMatch";
+        externalAlignments = new ArrayList<>();
         if (entity.getEntityType() != null && "TYPE".equals(entity.getEntityType().getCode())
                 && internalAlignmentRepository != null && entity.getId() != null) {
             internalAlignments = internalAlignmentRepository.findBySourceTypeIdWithTarget(entity.getId()).stream()
@@ -347,6 +371,16 @@ public class EntityUpdateBean implements Serializable {
                             alignment.getTargetType().getId(),
                             alignment.getTargetType().getCode(),
                             applicationBean.getEntityLabel(alignment.getTargetType()),
+                            StringUtils.hasText(alignment.getMatchType()) ? alignment.getMatchType() : "ExactMatch"))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        if (entity.getEntityType() != null && "TYPE".equals(entity.getEntityType().getCode())
+                && externalAlignmentRepository != null && entity.getId() != null) {
+            externalAlignments = externalAlignmentRepository.findBySourceType_IdOrderByIdAsc(entity.getId()).stream()
+                    .map(alignment -> new ExternalAlignmentItem(
+                            alignment.getId(),
+                            alignment.getLabel(),
+                            alignment.getUrl(),
                             StringUtils.hasText(alignment.getMatchType()) ? alignment.getMatchType() : "ExactMatch"))
                     .collect(Collectors.toCollection(ArrayList::new));
         }
@@ -496,6 +530,10 @@ public class EntityUpdateBean implements Serializable {
         selectedInternalAlignmentTypeId = null;
         selectedInternalAlignmentMatchType = "ExactMatch";
         internalAlignments = new ArrayList<>();
+        selectedExternalAlignmentLabel = null;
+        selectedExternalAlignmentUrl = null;
+        selectedExternalAlignmentMatchType = "ExactMatch";
+        externalAlignments = new ArrayList<>();
         descriptionPate = null;
         ateliers = new ArrayList<>();
         ateliersValue = null;
@@ -1089,6 +1127,49 @@ public class EntityUpdateBean implements Serializable {
         PrimeFaces.current().ajax().update(":contentPanels");
     }
 
+    public void addExternalAlignment() {
+        String label = normalizeExternalAlignmentLabel(selectedExternalAlignmentLabel);
+        String url = normalizeExternalAlignmentUrl(selectedExternalAlignmentUrl);
+        if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) {
+            addWarnMessage("Veuillez renseigner le libellé et l'URL pour l'alignement externe.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        if (!isValidHttpUrl(url)) {
+            addWarnMessage("Veuillez saisir une URL valide (http/https) pour l'alignement externe.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        if (externalAlignments == null) {
+            externalAlignments = new ArrayList<>();
+        }
+        final String normalizedUrlKey = normalizeExternalAlignmentUrlForComparison(url);
+        boolean exists = externalAlignments.stream().anyMatch(item -> item != null
+                && normalizedUrlKey.equals(normalizeExternalAlignmentUrlForComparison(item.getUrl())));
+        if (exists) {
+            addWarnMessage("Un alignement externe avec cette URL existe déjà.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        externalAlignments.add(new ExternalAlignmentItem(
+                null,
+                label,
+                url,
+                "CloseMatch".equals(selectedExternalAlignmentMatchType) ? "CloseMatch" : "ExactMatch"));
+        selectedExternalAlignmentLabel = null;
+        selectedExternalAlignmentUrl = null;
+        selectedExternalAlignmentMatchType = "ExactMatch";
+        PrimeFaces.current().ajax().update(":contentPanels");
+    }
+
+    public void removeExternalAlignment(Integer index) {
+        if (externalAlignments == null || index == null || index < 0 || index >= externalAlignments.size()) {
+            return;
+        }
+        externalAlignments.remove(index.intValue());
+        PrimeFaces.current().ajax().update(":contentPanels");
+    }
+
     private void saveInternalAlignments(Entity sourceType) {
         Long sourceTypeId = sourceType.getId();
         if (sourceTypeId == null) {
@@ -1130,6 +1211,68 @@ public class EntityUpdateBean implements Serializable {
             reverse.setMatchType(matchType);
             internalAlignmentRepository.save(reverse);
         }
+    }
+
+    private void saveExternalAlignments(Entity sourceType) {
+        if (sourceType == null || sourceType.getId() == null || externalAlignmentRepository == null) {
+            return;
+        }
+        externalAlignmentRepository.deleteBySourceTypeId(sourceType.getId());
+        if (externalAlignments == null || externalAlignments.isEmpty()) {
+            return;
+        }
+        for (ExternalAlignmentItem item : externalAlignments) {
+            if (item == null) {
+                continue;
+            }
+            String label = normalizeExternalAlignmentLabel(item.getLabel());
+            String url = normalizeExternalAlignmentUrl(item.getUrl());
+            if (!StringUtils.hasText(label) || !StringUtils.hasText(url) || !isValidHttpUrl(url)) {
+                continue;
+            }
+            ExternalAlignment alignment = new ExternalAlignment();
+            alignment.setSourceType(sourceType);
+            alignment.setLabel(label);
+            alignment.setUrl(url);
+            alignment.setMatchType("CloseMatch".equals(item.getMatchType()) ? "CloseMatch" : "ExactMatch");
+            externalAlignmentRepository.save(alignment);
+        }
+    }
+
+    private boolean isValidHttpUrl(String rawUrl) {
+        if (!StringUtils.hasText(rawUrl)) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(rawUrl.trim());
+            String scheme = uri.getScheme();
+            return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
+                    && StringUtils.hasText(uri.getHost());
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private String normalizeExternalAlignmentLabel(String rawLabel) {
+        if (!StringUtils.hasText(rawLabel)) {
+            return "";
+        }
+        return rawLabel.trim().replaceAll("\\s+", " ");
+    }
+
+    private String normalizeExternalAlignmentUrl(String rawUrl) {
+        if (!StringUtils.hasText(rawUrl)) {
+            return "";
+        }
+        return rawUrl.trim();
+    }
+
+    private String normalizeExternalAlignmentUrlForComparison(String rawUrl) {
+        String normalized = normalizeExternalAlignmentUrl(rawUrl).toLowerCase();
+        if (normalized.endsWith("/")) {
+            return normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
     }
 
     private String normalizeUrlKey(String url) {
@@ -1309,6 +1452,7 @@ public class EntityUpdateBean implements Serializable {
                 && internalAlignmentRepository != null
                 && entityRepository != null) {
             saveInternalAlignments(entitySaved);
+            saveExternalAlignments(entitySaved);
         }
 
         // Supprimer les fichiers physiques des images retirées par l'utilisateur
