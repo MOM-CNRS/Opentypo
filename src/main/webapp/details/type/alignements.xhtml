@@ -17,28 +17,31 @@
                     <div class="concept-info-item">
                         <div class="concept-info-label">
                             <i class="pi pi-users monnaie-communs-icon" />
-                            <span>Alignement opentypo, appartient à</span>
+                            <span>Alignement interne</span>
                         </div>
                         <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appartient}">
-                                #{applicationBean.selectedEntity.metadata.appartient}
+                            <ui:fragment rendered="#{not empty applicationBean.selectedTypeInternalAlignments}">
+                                <ui:repeat value="#{applicationBean.selectedTypeInternalAlignments}" var="alignment">
+                                    <span class="bibliographie-badge" style="margin-right:6px;margin-bottom:6px;">
+                                        <i class="pi pi-sitemap bibliographie-badge-icon"/>
+                                        <span class="bibliographie-badge-text">
+                                            <h:outputLink value="#{request.contextPath}/#{alignment.targetTypeCode}"
+                                                          styleClass="internal-alignment-target-link"
+                                                          title="Ouvrir la fiche #{alignment.targetTypeCode}"
+                                                          rendered="#{not empty alignment.targetTypeCode}">
+                                                #{alignment.targetTypeLabel} (#{alignment.targetTypeCode})
+                                            </h:outputLink>
+                                            <ui:fragment rendered="#{empty alignment.targetTypeCode}">
+                                                #{alignment.targetTypeLabel}
+                                            </ui:fragment>
+                                            <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">
+                                                #{alignment.matchType}
+                                            </span>
+                                        </span>
+                                    </span>
+                                </ui:repeat>
                             </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appartient}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
-                        </div>
-                    </div>
-
-                    <div class="concept-info-item">
-                        <div class="concept-info-label">
-                            <i class="pi pi-link monnaie-communs-icon" />
-                            <span>Alignement opentypo, associé à</span>
-                        </div>
-                        <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.associe}">
-                                #{applicationBean.selectedEntity.metadata.associe}
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.associe}">
+                            <ui:fragment rendered="#{empty applicationBean.selectedTypeInternalAlignments}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>

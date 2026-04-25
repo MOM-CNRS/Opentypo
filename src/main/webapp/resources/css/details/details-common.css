@@ -362,6 +362,77 @@
     background: rgba(255, 255, 255, 0.92);
 }
 
+.internal-alignment-match-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.45rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.internal-alignment-match-exact {
+    background: rgba(46, 125, 50, 0.16);
+    color: #1e6b35;
+    border: 1px solid rgba(46, 125, 50, 0.28);
+}
+
+.internal-alignment-match-close {
+    background: rgba(251, 140, 0, 0.16);
+    color: #b26a00;
+    border: 1px solid rgba(251, 140, 0, 0.28);
+}
+
+.internal-alignment-helper-text {
+    margin: 0.3rem 0 0.55rem;
+    font-size: 0.82rem;
+    color: #6d7b71;
+}
+
+.internal-alignment-add-btn.ui-button {
+    min-height: 40px;
+}
+
+.internal-alignment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.internal-alignment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid rgba(71, 98, 77, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.internal-alignment-item-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.internal-alignment-target-link {
+    color: var(--color-action-main, #47624D);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(71, 98, 77, 0.4);
+}
+
+.internal-alignment-target-link:hover {
+    text-decoration: none;
+    color: #2f5133;
+    border-bottom-color: #2f5133;
+}
+
 .entity-audit-dates__inner {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

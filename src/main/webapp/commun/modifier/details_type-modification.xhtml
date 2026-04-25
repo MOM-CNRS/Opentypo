@@ -38,36 +38,6 @@
             </div>
         </div>
 
-        <!-- Référentiel -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Référentiel" />
-            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-book input-icon" title="Référentiel"/>
-                <p:chips value="#{entityUpdateBean.referentiels}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez un référentiel et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                </p:chips>
-            </div>
-        </div>
-
-        <!-- Typologie scientifique -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Typologie scientifique" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-sitemap input-icon" title="Typologie scientifique"/>
-                    <p:inputText value="#{entityUpdateBean.typologieScientifique}"
-                                 styleClass="users-input"
-                                 placeholder="Aucun valeur pour typologie scientifique"/>
-                </div>
-            </div>
-        </div>
-
         <!-- Identifiant pérenne -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <p:outputLabel value="Identifiant pérenne" />
@@ -94,30 +64,5 @@
             </div>
         </div>
 
-        <!-- Appartient -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Appartient" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-folder input-icon" title="Appartient"/>
-                    <p:inputText value="#{entityUpdateBean.appartient}"
-                                 styleClass="users-input"
-                                 placeholder="Aucun valeur pour appartient"/>
-                </div>
-            </div>
-        </div>
-
-        <!-- Associé -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Associé" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-users input-icon" title="Associé"/>
-                    <p:inputText value="#{entityUpdateBean.associe}"
-                                 styleClass="users-input"
-                                 placeholder="Aucun valeur pour associé"/>
-                </div>
-            </div>
-        </div>
     </div>
 </ui:composition>

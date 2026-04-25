@@ -544,7 +544,7 @@ public class AuditService {
                 @SuppressWarnings("unchecked")
                 List<Object[]> metaRows = entityManager.createNativeQuery(
                     "SELECT code, commentaire, bibliographie, appellation, typologie_scientifique, identifiant_perenne, " +
-                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, appartient, associe, " +
+                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, " +
                     "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe " +
                     "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
@@ -566,12 +566,11 @@ public class AuditService {
                     if (row.length > 10 && row[10] != null) data.put("attestations", row[10].toString());
                     if (row.length > 11 && row[11] != null) data.put("sitesArcheologiques", row[11].toString());
                     if (row.length > 12 && row[12] != null) data.put("reference", row[12].toString());
-                    if (row.length > 13 && row[13] != null) data.put("appartient", row[13].toString());
-                    if (row.length > 14 && row[14] != null) data.put("associe", row[14].toString());
-                    if (row.length > 15 && row[15] != null) data.put("commentaireDatation", row[15].toString());
-                    if (row.length > 16 && row[16] != null) data.put("alignementExterne", row[16].toString());
-                    if (row.length > 17 && row[17] != null) data.put("rereferenceBibliographique", row[17].toString());
-                    if (row.length > 18 && row[18] != null) data.put("corpusExterne", row[18].toString());
+                    if (row.length > 13 && row[13] != null) data.put("interne", row[13].toString());
+                    if (row.length > 14 && row[14] != null) data.put("commentaireDatation", row[14].toString());
+                    if (row.length > 15 && row[15] != null) data.put("alignementExterne", row[15].toString());
+                    if (row.length > 16 && row[16] != null) data.put("rereferenceBibliographique", row[16].toString());
+                    if (row.length > 17 && row[17] != null) data.put("corpusExterne", row[17].toString());
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_metadata_aud: {}", e.getMessage());

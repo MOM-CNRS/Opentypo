@@ -112,11 +112,7 @@ public class EntityMetadata implements Serializable {
     @Column(name = "commentaire", columnDefinition = "TEXT")
     private String commentaire;
 
-    // Appartient
-    @Column(name = "appartient", length = 255)
-    private String appartient;
-
-    // Associé
-    @Column(name = "associe", length = 255)
-    private String associe;
+    // Alignement interne
+    @Column(name = "interne", length = 255)
+    private String interne;
 }

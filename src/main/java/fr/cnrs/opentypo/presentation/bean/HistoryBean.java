@@ -229,7 +229,7 @@ public class HistoryBean implements Serializable {
         // datation.xhtml
         "periode", "tpq", "taq", "commentaireDatation",
         // alignements.xhtml
-        "appartient", "associe", "alignementExterne",
+        "interne", "alignementExterne",
         // production.xhtml
         "production", "ateliers", "airesCirculation", "categorieFonctionnelle",
         // description_monnaie.xhtml
@@ -261,7 +261,7 @@ public class HistoryBean implements Serializable {
         new DisplaySection("datation", "Datation", "pi pi-calendar",
             List.of("periode", "tpq", "taq", "commentaireDatation"), "DATATION"),
         new DisplaySection("alignements", "Relations", "pi pi-sitemap",
-            List.of("appartient", "associe", "alignementExterne"), "ALIGNEMENTS"),
+            List.of("interne", "alignementExterne"), "ALIGNEMENTS"),
         new DisplaySection("production", "Production", "pi pi-inbox",
             List.of("production", "ateliers", "airesCirculation", "categorieFonctionnelle"), "PRODUCTION"),
         new DisplaySection("descriptionMonnaie", "Description", "pi pi-book",
@@ -410,8 +410,7 @@ public class HistoryBean implements Serializable {
             case "tpq" -> "pi pi-calendar-minus";
             case "taq" -> "pi pi-calendar-plus";
             case "commentaireDatation" -> "pi pi-comment";
-            case "appartient" -> "pi pi-users";
-            case "associe" -> "pi pi-link";
+            case "interne" -> "pi pi-users";
             case "alignementExterne" -> "pi pi-globe";
             case "production" -> "pi pi-truck";
             case "ateliers" -> "pi pi-building";
@@ -518,10 +517,8 @@ public class HistoryBean implements Serializable {
                 return "Commentaire datation";
             case "publique":
                 return "Public";
-            case "appartient":
-                return "Alignement opentypo, appartient à";
-            case "associe":
-                return "Alignement opentypo, associé à";
+            case "interne":
+                return "Alignement interne";
             case "alignementExterne":
                 return "Alignement externe";
             case "production":

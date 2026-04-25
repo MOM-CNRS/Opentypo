@@ -452,33 +452,18 @@ public class Entity implements Serializable {
     }
 
     /**
-     * Obtient appartient depuis les métadonnées
+     * Obtient l'alignement interne depuis les métadonnées
      */
-    public String getAppartient() {
-        return metadata != null ? metadata.getAppartient() : null;
+    public String getInterne() {
+        return metadata != null ? metadata.getInterne() : null;
     }
 
     /**
-     * Définit appartient dans les métadonnées
+     * Définit l'alignement interne dans les métadonnées
      */
-    public void setAppartient(String appartient) {
+    public void setInterne(String interne) {
         ensureMetadata();
-        metadata.setAppartient(appartient);
-    }
-
-    /**
-     * Obtient associe depuis les métadonnées
-     */
-    public String getAssocie() {
-        return metadata != null ? metadata.getAssocie() : null;
-    }
-
-    /**
-     * Définit associe dans les métadonnées
-     */
-    public void setAssocie(String associe) {
-        ensureMetadata();
-        metadata.setAssocie(associe);
+        metadata.setInterne(interne);
     }
 
     /**

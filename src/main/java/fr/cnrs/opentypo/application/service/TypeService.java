@@ -196,8 +196,7 @@ public class TypeService implements Serializable {
             newMeta.setSitesArcheologiques(srcMeta.getSitesArcheologiques());
             newMeta.setCorpusExterne(srcMeta.getCorpusExterne());
             newMeta.setCommentaire(srcMeta.getCommentaire());
-            newMeta.setAppartient(srcMeta.getAppartient());
-            newMeta.setAssocie(srcMeta.getAssocie());
+            newMeta.setInterne(srcMeta.getInterne());
             duplicate.setMetadata(newMeta);
         }
 

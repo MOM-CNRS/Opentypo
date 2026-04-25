@@ -16,6 +16,7 @@ import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.Image;
+import fr.cnrs.opentypo.domain.entity.InternalAlignment;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
@@ -31,6 +32,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.InternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
@@ -42,7 +44,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DualListModel;
@@ -133,6 +137,9 @@ public class EntityUpdateBean implements Serializable {
     private ImageRepository imageRepository;
 
     @Autowired
+    private InternalAlignmentRepository internalAlignmentRepository;
+
+    @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
 
     /** Images en cours d'édition (URL + légende) */
@@ -211,8 +218,9 @@ public class EntityUpdateBean implements Serializable {
     private String identifiantPerenne;
     private String typologieScientifique;
     private String ancienneVersion;
-    private String appartient;
-    private String associe;
+    private Long selectedInternalAlignmentTypeId;
+    private String selectedInternalAlignmentMatchType = "ExactMatch";
+    private List<InternalAlignmentItem> internalAlignments = new ArrayList<>();
     private String ateliersValue;
     private List<String> ateliers;
     private String referentielValue;
@@ -240,6 +248,17 @@ public class EntityUpdateBean implements Serializable {
     private String legendeRevers;
     private String coinsMonetairesRevers;
     private List<String> referenceBibliographiqueList;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InternalAlignmentItem implements Serializable {
+        private Long targetTypeId;
+        private String targetTypeCode;
+        private String targetTypeLabel;
+        private String matchType;
+    }
 
     private PactolsConcept periodeAutocompleteSelection;
     private PactolsConcept productionAutocompleteSelection = new PactolsConcept();
@@ -317,8 +336,20 @@ public class EntityUpdateBean implements Serializable {
         typologieScientifique = entity.getTypologieScientifique() == null ? "" : entity.getTypologieScientifique();
 
         ancienneVersion = entity.getAncienneVersion() == null ? "" : entity.getAncienneVersion();
-        appartient = entity.getAppartient() == null ? "" : entity.getAppartient();
-        associe = entity.getAssocie() == null ? "" : entity.getAssocie();
+        selectedInternalAlignmentTypeId = null;
+        selectedInternalAlignmentMatchType = "ExactMatch";
+        internalAlignments = new ArrayList<>();
+        if (entity.getEntityType() != null && "TYPE".equals(entity.getEntityType().getCode())
+                && internalAlignmentRepository != null && entity.getId() != null) {
+            internalAlignments = internalAlignmentRepository.findBySourceTypeIdWithTarget(entity.getId()).stream()
+                    .filter(alignment -> alignment.getTargetType() != null && alignment.getTargetType().getId() != null)
+                    .map(alignment -> new InternalAlignmentItem(
+                            alignment.getTargetType().getId(),
+                            alignment.getTargetType().getCode(),
+                            applicationBean.getEntityLabel(alignment.getTargetType()),
+                            StringUtils.hasText(alignment.getMatchType()) ? alignment.getMatchType() : "ExactMatch"))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
         commentaireDatation = entity.getCommentaireDatation() == null ? "" : entity.getCommentaireDatation();
 
         marquesEstampilles = new ArrayList<>();
@@ -462,8 +493,9 @@ public class EntityUpdateBean implements Serializable {
         typologieScientifique = null;
         identifiantPerenne = null;
         ancienneVersion = null;
-        appartient = null;
-        associe = null;
+        selectedInternalAlignmentTypeId = null;
+        selectedInternalAlignmentMatchType = "ExactMatch";
+        internalAlignments = new ArrayList<>();
         descriptionPate = null;
         ateliers = new ArrayList<>();
         ateliersValue = null;
@@ -970,6 +1002,136 @@ public class EntityUpdateBean implements Serializable {
         return key != null && !initialEditingImageUrlKeys.contains(key);
     }
 
+    public List<Entity> completeInternalAlignmentTypes(String query) {
+        if (entityRepository == null) {
+            return new ArrayList<>();
+        }
+        String q = query != null ? query.trim() : "";
+        if (q.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String langCode = (searchBean != null && StringUtils.hasText(searchBean.getLangSelected()))
+                ? searchBean.getLangSelected() : "fr";
+        List<Entity> candidates = entityRepository.searchByCodeOrLabelContains(q, langCode);
+        Long currentId = applicationBean != null && applicationBean.getSelectedEntity() != null
+                ? applicationBean.getSelectedEntity().getId() : null;
+        return candidates.stream()
+                .filter(Objects::nonNull)
+                .filter(e -> e.getEntityType() != null && "TYPE".equals(e.getEntityType().getCode()))
+                .filter(e -> currentId == null || !currentId.equals(e.getId()))
+                .limit(20)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public String internalAlignmentTypeToLabel(Entity entity) {
+        if (entity == null) {
+            return "";
+        }
+        String label = applicationBean != null ? applicationBean.getEntityLabel(entity) : null;
+        String code = entity.getCode() != null ? entity.getCode() : "";
+        if (StringUtils.hasText(code) && StringUtils.hasText(label)) {
+            return code + " (" + label + ")";
+        }
+        return StringUtils.hasText(code) ? code : label;
+    }
+
+    public String getMatchTypeLabel(String matchType) {
+        if ("CloseMatch".equals(matchType)) {
+            return "CloseMatch";
+        }
+        return "ExactMatch";
+    }
+
+    public String matchTypeLabel(String matchType) {
+        return getMatchTypeLabel(matchType);
+    }
+
+    public void addInternalAlignment() {
+        if (selectedInternalAlignmentTypeId == null) {
+            addWarnMessage("Veuillez sélectionner un type à aligner.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        Long targetId = selectedInternalAlignmentTypeId;
+        Long currentId = applicationBean != null && applicationBean.getSelectedEntity() != null
+                ? applicationBean.getSelectedEntity().getId() : null;
+        if (currentId != null && currentId.equals(targetId)) {
+            addWarnMessage("Vous ne pouvez pas aligner un type avec lui-même.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        if (internalAlignments == null) {
+            internalAlignments = new ArrayList<>();
+        }
+        boolean exists = internalAlignments.stream().anyMatch(item -> item != null && targetId.equals(item.getTargetTypeId()));
+        if (exists) {
+            addWarnMessage("Ce type est déjà dans la liste des alignements internes.");
+            PrimeFaces.current().ajax().update(":contentPanels", ":growl");
+            return;
+        }
+        Entity targetEntity = entityRepository != null ? entityRepository.findById(targetId).orElse(null) : null;
+        internalAlignments.add(new InternalAlignmentItem(
+                targetId,
+                targetEntity != null ? targetEntity.getCode() : null,
+                targetEntity != null && applicationBean != null ? applicationBean.getEntityLabel(targetEntity) : null,
+                StringUtils.hasText(selectedInternalAlignmentMatchType) ? selectedInternalAlignmentMatchType : "ExactMatch"
+        ));
+        selectedInternalAlignmentTypeId = null;
+        selectedInternalAlignmentMatchType = "ExactMatch";
+        PrimeFaces.current().ajax().update(":contentPanels");
+    }
+
+    public void removeInternalAlignment(Long targetTypeId) {
+        if (internalAlignments == null || targetTypeId == null) {
+            return;
+        }
+        internalAlignments.removeIf(item -> item != null && targetTypeId.equals(item.getTargetTypeId()));
+        PrimeFaces.current().ajax().update(":contentPanels");
+    }
+
+    private void saveInternalAlignments(Entity sourceType) {
+        Long sourceTypeId = sourceType.getId();
+        if (sourceTypeId == null) {
+            return;
+        }
+        List<Long> oldTargets = internalAlignmentRepository.findTargetIdsBySourceTypeId(sourceTypeId);
+        internalAlignmentRepository.deleteBySourceTypeId(sourceTypeId);
+        for (Long oldTargetId : oldTargets) {
+            if (oldTargetId != null) {
+                internalAlignmentRepository.deleteBySourceTypeIdAndTargetTypeId(oldTargetId, sourceTypeId);
+            }
+        }
+
+        if (internalAlignments == null || internalAlignments.isEmpty()) {
+            return;
+        }
+
+        for (InternalAlignmentItem item : internalAlignments) {
+            if (item == null || item.getTargetTypeId() == null || item.getTargetTypeId().equals(sourceTypeId)) {
+                continue;
+            }
+            Entity targetType = entityRepository.findById(item.getTargetTypeId()).orElse(null);
+            if (targetType == null || targetType.getEntityType() == null || !"TYPE".equals(targetType.getEntityType().getCode())) {
+                continue;
+            }
+            String matchType = "CloseMatch".equals(item.getMatchType()) ? "CloseMatch" : "ExactMatch";
+
+            InternalAlignment direct = new InternalAlignment();
+            direct.setId(new InternalAlignment.InternalAlignmentId(sourceTypeId, targetType.getId()));
+            direct.setSourceType(sourceType);
+            direct.setTargetType(targetType);
+            direct.setMatchType(matchType);
+            internalAlignmentRepository.save(direct);
+
+            InternalAlignment reverse = new InternalAlignment();
+            reverse.setId(new InternalAlignment.InternalAlignmentId(targetType.getId(), sourceTypeId));
+            reverse.setSourceType(targetType);
+            reverse.setTargetType(sourceType);
+            reverse.setMatchType(matchType);
+            internalAlignmentRepository.save(reverse);
+        }
+    }
+
     private String normalizeUrlKey(String url) {
         if (!StringUtils.hasText(url)) {
             return null;
@@ -1142,6 +1304,13 @@ public class EntityUpdateBean implements Serializable {
 
         Entity entitySaved = entityRepository.save(entityToUpdate);
 
+        if (entitySaved.getEntityType() != null
+                && "TYPE".equals(entitySaved.getEntityType().getCode())
+                && internalAlignmentRepository != null
+                && entityRepository != null) {
+            saveInternalAlignments(entitySaved);
+        }
+
         // Supprimer les fichiers physiques des images retirées par l'utilisateur
         if (entityImageService != null && removedImageUrlsToDeleteOnSave != null && !removedImageUrlsToDeleteOnSave.isEmpty()) {
             for (String url : removedImageUrlsToDeleteOnSave) {
@@ -1250,18 +1419,11 @@ public class EntityUpdateBean implements Serializable {
 
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
 
-        entityMetadata.setAppartient(appartient != null && !appartient.isBlank() ? appartient.trim() : null);
-
-        entityMetadata.setAssocie(associe != null && !associe.isBlank() ? associe.trim() : null);
-
         entityMetadata.setTypologieScientifique(typologieScientifique);
 
         entityMetadata.setIdentifiantPerenne(identifiantPerenne);
 
         entityMetadata.setAncienneVersion(ancienneVersion);
-
-        entityMetadata.setAppartient(appartient != null && !appartient.isBlank() ? appartient.trim() : null);
-        entityMetadata.setAssocie(associe != null && !associe.isBlank() ? associe.trim() : null);
 
         entityMetadata.setTpq(tpq);
 
