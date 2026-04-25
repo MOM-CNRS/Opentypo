@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="users-form-group users-form-group-full candidats-mt-10">
+        <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
             <p:outputLabel value="Alignement interne" />
             <p class="internal-alignment-helper-text">Ajoutez un type cible puis choisissez le niveau de correspondance.</p>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
@@ -51,12 +51,12 @@
                                     var="typeItem"
                                     itemLabel="#{entityUpdateBean.internalAlignmentTypeToLabel(typeItem)}"
                                     itemValue="#{typeItem.id}"
-                                    dropdown="true"
                                     forceSelection="true"
                                     placeholder="Rechercher un type à aligner..."
                                     styleClass="users-input"/>
                 </div>
             </div>
+
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt-10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-tags input-icon" />
@@ -74,37 +74,40 @@
                                  process="@this internalAlignmentTypeId internalAlignmentMatchType"
                                  update=":contentPanels :growl"/>
             </div>
+
             <h:panelGroup layout="block" rendered="#{not empty entityUpdateBean.internalAlignments}" styleClass="candidats-mt-10">
                 <div class="internal-alignment-list">
-                <ui:repeat value="#{entityUpdateBean.internalAlignments}" var="alignment">
-                    <div class="internal-alignment-item">
-                        <div class="internal-alignment-item-main">
-                            <i class="pi pi-sitemap input-icon" style="position:static;margin-right:8px;"/>
-                            <ui:fragment rendered="#{not empty alignment.targetTypeCode}">
-                                <h:outputLink value="#{request.contextPath}/#{alignment.targetTypeCode}" styleClass="internal-alignment-target-link"
-                                              title="Ouvrir la fiche #{alignment.targetTypeCode}">
-                                    #{alignment.targetTypeLabel} (#{alignment.targetTypeCode})
-                                </h:outputLink>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty alignment.targetTypeCode}">
-                                <span>#{alignment.targetTypeLabel}</span>
-                            </ui:fragment>
-                            <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">
-                                #{entityUpdateBean.matchTypeLabel(alignment.matchType)}
-                            </span>
+                    <ui:repeat value="#{entityUpdateBean.internalAlignments}" var="alignment">
+                        <div class="internal-alignment-item">
+                            <div class="internal-alignment-item-main">
+                                <ui:fragment rendered="#{not empty alignment.targetTypeCode}">
+                                    <h:outputLink value="#{request.contextPath}/#{alignment.targetTypeCode}" styleClass="internal-alignment-target-link"
+                                                title="Ouvrir la fiche #{alignment.targetTypeCode}">
+                                        #{alignment.targetTypeCode}
+                                        <ui:fragment rendered="#{not empty alignment.targetTypeLabel and alignment.targetTypeLabel ne 'Non renseigné'}">
+                                            (#{alignment.targetTypeLabel})
+                                        </ui:fragment>
+                                    </h:outputLink>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty alignment.targetTypeCode}">
+                                    <span>#{alignment.targetTypeLabel}</span>
+                                </ui:fragment>
+                                <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">
+                                    #{entityUpdateBean.matchTypeLabel(alignment.matchType)}
+                                </span>
+                            </div>
+                            <p:commandButton icon="pi pi-times"
+                                            styleClass="candidat-btn-remove internal-alignment-remove-btn"
+                                            actionListener="#{entityUpdateBean.removeInternalAlignment(alignment.targetTypeId)}"
+                                            process="@this"
+                                            update=":contentPanels"/>
                         </div>
-                        <p:commandButton icon="pi pi-times"
-                                         styleClass="candidat-btn-remove internal-alignment-remove-btn"
-                                         actionListener="#{entityUpdateBean.removeInternalAlignment(alignment.targetTypeId)}"
-                                         process="@this"
-                                         update=":contentPanels"/>
-                    </div>
-                </ui:repeat>
+                    </ui:repeat>
                 </div>
             </h:panelGroup>
         </div>
 
-        <div class="users-form-group users-form-group-full candidats-mt-10">
+        <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
             <p:outputLabel value="Alignement externe" />
             <p class="internal-alignment-helper-text">Ajoutez un libellé, une URL publique et le niveau de correspondance.</p>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
@@ -148,7 +151,6 @@
                 <ui:repeat value="#{entityUpdateBean.externalAlignments}" var="alignment" varStatus="status">
                     <div class="internal-alignment-item">
                         <div class="internal-alignment-item-main">
-                            <i class="pi pi-globe input-icon" style="position:static;margin-right:8px;"/>
                             <h:outputLink value="#{alignment.url}" styleClass="internal-alignment-target-link"
                                           target="_blank" title="Ouvrir le lien externe">
                                 #{alignment.label}

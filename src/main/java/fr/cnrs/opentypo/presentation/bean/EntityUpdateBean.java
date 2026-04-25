@@ -1053,10 +1053,17 @@ public class EntityUpdateBean implements Serializable {
         List<Entity> candidates = entityRepository.searchByCodeOrLabelContains(q, langCode);
         Long currentId = applicationBean != null && applicationBean.getSelectedEntity() != null
                 ? applicationBean.getSelectedEntity().getId() : null;
+        Set<Long> alreadySelectedIds = internalAlignments == null ? new HashSet<>()
+                : internalAlignments.stream()
+                .filter(Objects::nonNull)
+                .map(InternalAlignmentItem::getTargetTypeId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         return candidates.stream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.getEntityType() != null && "TYPE".equals(e.getEntityType().getCode()))
                 .filter(e -> currentId == null || !currentId.equals(e.getId()))
+                .filter(e -> e.getId() == null || !alreadySelectedIds.contains(e.getId()))
                 .limit(20)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -1065,9 +1072,10 @@ public class EntityUpdateBean implements Serializable {
         if (entity == null) {
             return "";
         }
-        String label = applicationBean != null ? applicationBean.getEntityLabel(entity) : null;
+
+        String label = applicationBean.getEntityLabel(entity);
         String code = entity.getCode() != null ? entity.getCode() : "";
-        if (StringUtils.hasText(code) && StringUtils.hasText(label)) {
+        if (StringUtils.hasText(code) && StringUtils.hasText(label) && !label.equalsIgnoreCase("Non renseigné")) {
             return code + " (" + label + ")";
         }
         return StringUtils.hasText(code) ? code : label;
