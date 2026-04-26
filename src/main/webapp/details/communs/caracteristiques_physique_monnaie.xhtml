@@ -159,37 +159,6 @@
                         </div>
                     </h:panelGroup>
 
-                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie != null ? applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication : null)}"
-                                  styleClass="concept-info-item" layout="block">
-                        <div class="concept-info-label">
-                            <i class="pi pi-cog monnaie-communs-icon" />
-                            <span>Fabrication</span>
-                        </div>
-                        <div class="concept-info-value concept-info-description">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
-                                    and not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication}">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.url}">
-                                    <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.url}"
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  styleClass="concept-value-external-link">
-                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.valeur}
-                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                    </h:outputLink>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.url}">
-                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                        <i class="pi pi-link-slash"/>
-                                        #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication.valeur}
-                                    </span>
-                                </ui:fragment>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
-                                        or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.fabrication}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
-                        </div>
-                    </h:panelGroup>
                 </div>
             </div>
         </div>

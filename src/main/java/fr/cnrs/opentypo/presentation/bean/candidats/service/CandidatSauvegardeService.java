@@ -201,7 +201,7 @@ public class CandidatSauvegardeService {
     private void applyCaracteristiquePhysiqueMonnaie(Entity entity, CandidatSauvegardeRequest req) {
         boolean hasAny = (req.getMateriaux() != null) || (req.getDenomination() != null)
                 || (req.getMetrologieMonnaie() != null && !req.getMetrologieMonnaie().trim().isEmpty())
-                || (req.getValeur() != null) || (req.getTechnique() != null) || (req.getFabrication() != null);
+                || (req.getValeur() != null) || (req.getTechnique() != null);
         if (!hasAny) return;
         CaracteristiquePhysiqueMonnaie cpm = entity.getCaracteristiquePhysiqueMonnaie();
         if (cpm == null) {
@@ -214,16 +214,13 @@ public class CandidatSauvegardeService {
         if (req.getMetrologieMonnaie() != null) cpm.setMetrologie(req.getMetrologieMonnaie().trim().isEmpty() ? null : req.getMetrologieMonnaie().trim());
         if (req.getValeur() != null) cpm.setValeur(req.getValeur());
         if (req.getTechnique() != null) cpm.setTechnique(req.getTechnique());
-        if (req.getFabrication() != null) cpm.setFabrication(req.getFabrication());
     }
 
     private void applyDescriptionMonnaie(Entity entity, CandidatSauvegardeRequest req) {
         boolean hasAny = (req.getDroit() != null && !req.getDroit().trim().isEmpty())
                 || (req.getLegendeDroit() != null && !req.getLegendeDroit().trim().isEmpty())
-                || (req.getCoinsMonetairesDroit() != null && !req.getCoinsMonetairesDroit().trim().isEmpty())
                 || (req.getRevers() != null && !req.getRevers().trim().isEmpty())
-                || (req.getLegendeRevers() != null && !req.getLegendeRevers().trim().isEmpty())
-                || (req.getCoinsMonetairesRevers() != null && !req.getCoinsMonetairesRevers().trim().isEmpty());
+                || (req.getLegendeRevers() != null && !req.getLegendeRevers().trim().isEmpty());
         if (!hasAny) return;
         DescriptionMonnaie dm = entity.getDescriptionMonnaie();
         if (dm == null) {
@@ -233,10 +230,8 @@ public class CandidatSauvegardeService {
         }
         if (req.getDroit() != null) dm.setDroit(req.getDroit().trim().isEmpty() ? null : req.getDroit().trim());
         if (req.getLegendeDroit() != null) dm.setLegendeDroit(req.getLegendeDroit().trim().isEmpty() ? null : req.getLegendeDroit().trim());
-        if (req.getCoinsMonetairesDroit() != null) dm.setCoinsMonetairesDroit(req.getCoinsMonetairesDroit().trim().isEmpty() ? null : req.getCoinsMonetairesDroit().trim());
         if (req.getRevers() != null) dm.setRevers(req.getRevers().trim().isEmpty() ? null : req.getRevers().trim());
         if (req.getLegendeRevers() != null) dm.setLegendeRevers(req.getLegendeRevers().trim().isEmpty() ? null : req.getLegendeRevers().trim());
-        if (req.getCoinsMonetairesRevers() != null) dm.setCoinsMonetairesRevers(req.getCoinsMonetairesRevers().trim().isEmpty() ? null : req.getCoinsMonetairesRevers().trim());
     }
 
     private void applyOpenThesoReference(Entity entity, CandidatSauvegardeRequest req) {

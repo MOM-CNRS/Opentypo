@@ -253,60 +253,6 @@
             <p:message for="techniqueAutocomplete" display="icon"/>
         </h:panelGroup>
 
-        <!-- Fabrication -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <div class="periode-header-row">
-                <p:outputLabel for="fabricationAutocomplete" value="Fabrication" />
-            </div>
-            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-                <div id="fabricationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                    <i class="pi pi-circle input-icon periode-autocomplete-icon" />
-                    <p:autoComplete id="fabricationAutocomplete"
-                                   value="#{candidatBean.fabricationAutocompleteSelection}"
-                                   completeMethod="#{openThesoDialogBean.completeFabrication}"
-                                   converter="pactolsConceptConverter"
-                                   var="concept"
-                                   itemLabel="#{concept.selectedTerm}"
-                                   itemValue="#{concept}"
-                                   dropdown="false"
-                                   minQueryLength="2"
-                                   appendTo="#fabricationAutocompleteWrapper"
-                                   my="left top"
-                                   at="left bottom"
-                                   panelStyleClass="periode-autocomplete-panel"
-                                   scrollHeight="280"
-                                   emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION')}"
-                                   placeholder="Ex. Frappé, Coulé..."
-                                   styleClass="users-input periode-autocomplete-input"
-                                   forceSelection="false"
-                                   rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
-                    <p:inputText value="#{candidatBean.fabrication != null ? candidatBean.fabrication.valeur : ''}"
-                                 styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Aucune fabrication sélectionnée"
-                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
-                </div>
-                <div class="periode-action-buttons">
-                    <p:commandButton icon="pi pi-check"
-                                     styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la fabrication"
-                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.saveFabricationFromAutocomplete}"
-                                     process="@form"
-                                     ajax="true"
-                                     update="@form :growl"/>
-                    <p:commandButton icon="pi pi-trash"
-                                     styleClass="candidat-btn-remove"
-                                     title="Supprimer la fabrication"
-                                     rendered="#{candidatBean.hasFabrication() and candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.prepareConfirmDeleteFabricationMonnaie()}"
-                                     process="@this"
-                                     update="@none"
-                                     oncomplete="PF('confirmDeleteReferenceDialog').show();"/>
-                </div>
-            </div>
-            <p:message for="fabricationAutocomplete" display="icon"/>
-        </h:panelGroup>
     </div>
 </ui:composition>
 

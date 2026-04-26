@@ -10,28 +10,7 @@
         <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <h:panelGroup rendered="#{!applicationBean.isCashTypo()}">
-            <!-- Décors -->
-            <div class="users-form-group users-form-group-full">
-                <div class="periode-header-row">
-                    <p:outputLabel value="Décors" />
-                </div>
-                <div class="periode-field-row">
-                    <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
-                        <div class="candidat-description-textarea-wrapper">
-                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                                <i class="pi pi-palette input-icon" aria-hidden="true"/>
-                                <p:inputTextarea value="#{entityUpdateBean.decors}"
-                                                 placeholder="Saisissez le décor du groupe..."
-                                                 rows="4"
-                                                 styleClass="users-textarea"
-                                                 maxlength="2000"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isCeramiqueTypo()}">
+            <h:panelGroup styleClass="users-form-group users-form-group-full" rendered="#{applicationBean.isCeramiqueTypo()}">
                 <div class="periode-header-row">
                     <p:outputLabel value="Forme" />
                 </div>
@@ -58,6 +37,27 @@
                     </div>
                 </div>
             </h:panelGroup>
+
+            <!-- Décors -->
+            <div class="users-form-group users-form-group-full  candidats-mt-10">
+                <div class="periode-header-row">
+                    <p:outputLabel value="Décors" />
+                </div>
+                <div class="periode-field-row">
+                    <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
+                        <div class="candidat-description-textarea-wrapper">
+                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                                <i class="pi pi-palette input-icon" aria-hidden="true"/>
+                                <p:inputTextarea value="#{entityUpdateBean.decors}"
+                                                 placeholder="Saisissez le décor du groupe..."
+                                                 rows="4"
+                                                 styleClass="users-textarea"
+                                                 maxlength="2000"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Marques/estampilles -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
@@ -136,6 +136,34 @@
                     </div>
                 </div>
             </h:panelGroup>
+
+            <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isInstrumentumTypo()}">
+                <div class="periode-header-row">
+                    <p:outputLabel value="Relation(s) d'imitation" />
+                </div>
+                <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                    <div id="relationImitationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                        <i class="pi pi-share-alt input-icon periode-autocomplete-icon" />
+                        <p:autoComplete value="#{entityUpdateBean.relationImitationAutocompleteSelection}"
+                                        completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                        converter="pactolsConceptConverter"
+                                        var="concept"
+                                        itemLabel="#{concept.selectedTerm}"
+                                        itemValue="#{concept}"
+                                        dropdown="false"
+                                        minQueryLength="2"
+                                        appendTo="#relationImitationAutocompleteWrapper"
+                                        my="left top"
+                                        at="left bottom"
+                                        panelStyleClass="periode-autocomplete-panel"
+                                        scrollHeight="280"
+                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                        placeholder="Ex. Imitation locale, variante régionale..."
+                                        styleClass="users-input periode-autocomplete-input"
+                                        forceSelection="false"/>
+                    </div>
+                </div>
+            </h:panelGroup>
         </h:panelGroup>
 
         <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
@@ -177,26 +205,6 @@
                 </div>
             </div>
 
-            <!-- Coins monétaires droit -->
-            <div class="users-form-group users-form-group-full candidats-mt-10">
-                <div class="periode-header-row">
-                    <p:outputLabel value="Coins monétaires droit" />
-                </div>
-                <div class="periode-field-row">
-                    <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
-                        <div class="candidat-description-textarea-wrapper">
-                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                                <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                                <p:inputText value="#{entityUpdateBean.coinsMonetairesDroit}"
-                                             placeholder="Saisissez la description des bords de la face droite..."
-                                             styleClass="users-input"
-                                             maxlength="500"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Revers -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
@@ -206,8 +214,8 @@
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                            <p:inputText value="#{entityUpdateBean.coinsMonetairesDroit}"
-                                         placeholder="Saisissez la description des bords de la face droite..."
+                            <p:inputText value="#{entityUpdateBean.revers}"
+                                         placeholder="Saisissez la description de la face gauche (revers)..."
                                          styleClass="users-input"
                                          maxlength="500"/>
                         </div>
@@ -233,23 +241,32 @@
                 </div>
             </div>
 
-            <!-- Coins monétaires revers -->
-            <div class="users-form-group users-form-group-full candidats-mt-10">
-                <div class="periode-header-row">
-                    <p:outputLabel value="Coins monétaires revers" />
-                </div>
-                <div class="periode-field-row">
-                    <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
-                        <div class="candidat-description-textarea-wrapper">
-                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                                <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
-                                <p:inputText value="#{entityUpdateBean.coinsMonetairesRevers}"
-                                             placeholder="Saisissez la description des bords de la face revers..."
-                                             styleClass="users-input"
-                                             maxlength="500"/>
-                            </div>
-                        </div>
-                    </div>
+        </h:panelGroup>
+
+        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isInstrumentumTypo()}">
+            <div class="periode-header-row">
+                <p:outputLabel value="Dénomination" />
+            </div>
+            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                <div id="denominationInstrumentumAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-tag input-icon periode-autocomplete-icon" />
+                    <p:autoComplete value="#{entityUpdateBean.denominationInstrumentumAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="2"
+                                    appendTo="#denominationInstrumentumAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
+                                    placeholder="Ex. Agrafe, Boucle..."
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false"/>
                 </div>
             </div>
         </h:panelGroup>

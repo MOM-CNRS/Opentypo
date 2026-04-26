@@ -252,10 +252,8 @@ public class EntityUpdateBean implements Serializable {
     private String metrologie;
     private String droit;
     private String legendeDroit;
-    private String coinsMonetairesDroit;
     private String revers;
     private String legendeRevers;
-    private String coinsMonetairesRevers;
     private List<String> referenceBibliographiqueList;
 
     @Getter
@@ -285,6 +283,8 @@ public class EntityUpdateBean implements Serializable {
     private PactolsConcept aireCirculationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fonctionUsageAutocompleteSelection = new PactolsConcept();
     private PactolsConcept categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
+    private PactolsConcept relationImitationAutocompleteSelection = new PactolsConcept();
+    private PactolsConcept denominationInstrumentumAutocompleteSelection = new PactolsConcept();
     private PactolsConcept metrologieAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fabricationFaconnageAutocompleteSelection = new PactolsConcept();
     private PactolsConcept couleurPateAutocompleteSelection = new PactolsConcept();
@@ -394,6 +394,14 @@ public class EntityUpdateBean implements Serializable {
         productionAutocompleteSelection = refToConcept(entity.getProduction());
         fonctionUsageAutocompleteSelection = refToConcept(entity.getDescriptionDetail() != null ? entity.getDescriptionDetail().getFonction() : null);
         categorieFonctionnelleAutocompleteSelection = refToConcept(entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
+        relationImitationAutocompleteSelection = new PactolsConcept();
+        if (entity.getMetadata() != null && StringUtils.hasText(entity.getMetadata().getRelationImitation())) {
+            relationImitationAutocompleteSelection.setSelectedTerm(entity.getMetadata().getRelationImitation());
+        }
+        denominationInstrumentumAutocompleteSelection = new PactolsConcept();
+        if (entity.getMetadata() != null && StringUtils.hasText(entity.getMetadata().getDenominationInstrumentum())) {
+            denominationInstrumentumAutocompleteSelection.setSelectedTerm(entity.getMetadata().getDenominationInstrumentum());
+        }
         metrologie = entity.getCaracteristiquePhysiqueMonnaie() == null ? "" : entity.getCaracteristiquePhysiqueMonnaie().getMetrologie();
         descriptionPate = entity.getDescriptionPate() == null ? "" : (entity.getDescriptionPate().getDescription() != null ? entity.getDescriptionPate().getDescription() : "");
 
@@ -431,10 +439,8 @@ public class EntityUpdateBean implements Serializable {
 
         droit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getDroit() : null;
         legendeDroit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getLegendeDroit() : null;
-        coinsMonetairesDroit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getCoinsMonetairesDroit() : null;
         revers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getRevers() : null;
         legendeRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getLegendeRevers() : null;
-        coinsMonetairesRevers = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getCoinsMonetairesRevers() : null;
 
         referenceBibliographiqueList = new ArrayList<>();
         if ( entity.getReferenceBibliographique() != null && ! entity.getReferenceBibliographique().isEmpty()) {
@@ -550,6 +556,8 @@ public class EntityUpdateBean implements Serializable {
         productionAutocompleteSelection = new PactolsConcept();
         fonctionUsageAutocompleteSelection = new PactolsConcept();
         categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
+        relationImitationAutocompleteSelection = new PactolsConcept();
+        denominationInstrumentumAutocompleteSelection = new PactolsConcept();
         aireCirculationAutocompleteSelection = new PactolsConcept();
         metrologieAutocompleteSelection = new PactolsConcept();
         fabricationFaconnageAutocompleteSelection = new PactolsConcept();
@@ -566,10 +574,8 @@ public class EntityUpdateBean implements Serializable {
         alignementExterne = null;
         droit = null;
         legendeDroit = null;
-        coinsMonetairesDroit = null;
         revers = null;
         legendeRevers = null;
-        coinsMonetairesRevers = null;
         redacteursPickList = null;
         validateursPickList = null;
         relecteursPickList = null;
@@ -1537,13 +1543,6 @@ public class EntityUpdateBean implements Serializable {
             caracteristiquePhysiqueMonnaie.setTechnique(null);
         }
 
-        if (fabricationAutocompleteSelection != null && StringUtils.hasText(fabricationAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso m = conceptToReferenceOpentheso(fabricationAutocompleteSelection, ReferenceOpenthesoEnum.FABRICATION.name(), entityToUpdate);
-            caracteristiquePhysiqueMonnaie.setFabrication(referenceOpenthesoRepository.save(m));
-        } else {
-            caracteristiquePhysiqueMonnaie.setFabrication(null);
-        }
-
         return caracteristiquePhysiqueMonnaieRepository.save(caracteristiquePhysiqueMonnaie);
     }
 
@@ -1581,7 +1580,18 @@ public class EntityUpdateBean implements Serializable {
 
         entityMetadata.setTaq(taq);
 
-        //relationExterne
+        entityMetadata.setRelationImitation(
+                relationImitationAutocompleteSelection != null
+                        && StringUtils.hasText(relationImitationAutocompleteSelection.getSelectedTerm())
+                        ? relationImitationAutocompleteSelection.getSelectedTerm().trim()
+                        : null
+        );
+        entityMetadata.setDenominationInstrumentum(
+                denominationInstrumentumAutocompleteSelection != null
+                        && StringUtils.hasText(denominationInstrumentumAutocompleteSelection.getSelectedTerm())
+                        ? denominationInstrumentumAutocompleteSelection.getSelectedTerm().trim()
+                        : null
+        );
 
         entityMetadata.setAteliers((ateliers != null && !ateliers.isEmpty())
                 ? String.join("; ", ateliers.stream().filter(s -> s != null && !s.isBlank()).toList())
@@ -1727,10 +1737,8 @@ public class EntityUpdateBean implements Serializable {
         dmToUpdate.setEntity(entityToUpdate);
         dmToUpdate.setDroit(droit);
         dmToUpdate.setLegendeDroit(legendeDroit);
-        dmToUpdate.setCoinsMonetairesDroit(coinsMonetairesDroit);
         dmToUpdate.setRevers(revers);
         dmToUpdate.setLegendeRevers(legendeRevers);
-        dmToUpdate.setCoinsMonetairesRevers(coinsMonetairesRevers);
         return descriptionMonnaieRepository.save(dmToUpdate);
     }
 

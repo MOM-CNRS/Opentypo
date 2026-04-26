@@ -640,11 +640,11 @@ public class AuditService {
                 log.debug("Erreur image_aud: {}", e.getMessage());
             }
 
-            // description_monnaie_aud : droit, legende_droit, coins_monetaires_droit, revers, legende_revers, coins_monetaires_revers
+            // description_monnaie_aud : droit, legende_droit, revers, legende_revers
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> dmRows = entityManager.createNativeQuery(
-                    "SELECT droit, legende_droit, coins_monetaires_droit, revers, legende_revers, coins_monetaires_revers " +
+                    "SELECT droit, legende_droit, revers, legende_revers " +
                     "FROM description_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
@@ -654,10 +654,8 @@ public class AuditService {
                     Object[] row = dmRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("droit", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("legendeDroit", row[1].toString());
-                    if (row.length > 2 && row[2] != null) data.put("coinsMonetairesDroit", row[2].toString());
-                    if (row.length > 3 && row[3] != null) data.put("revers", row[3].toString());
-                    if (row.length > 4 && row[4] != null) data.put("legendeRevers", row[4].toString());
-                    if (row.length > 5 && row[5] != null) data.put("coinsMonetairesRevers", row[5].toString());
+                    if (row.length > 2 && row[2] != null) data.put("revers", row[2].toString());
+                    if (row.length > 3 && row[3] != null) data.put("legendeRevers", row[3].toString());
                 }
             } catch (Exception e) {
                 log.debug("Erreur description_monnaie_aud: {}", e.getMessage());
@@ -686,11 +684,11 @@ public class AuditService {
                 log.debug("Erreur caracteristique_physique_aud: {}", e.getMessage());
             }
 
-            // caracteristique_physique_monnaie_aud : materiau_id, denomination_id, metrologie, valeur_id, technique_id, fabrication_id
+            // caracteristique_physique_monnaie_aud : materiau_id, denomination_id, metrologie, valeur_id, technique_id
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> cpmRows = entityManager.createNativeQuery(
-                    "SELECT materiau_id, denomination_id, metrologie, valeur_id, technique_id, fabrication_id " +
+                    "SELECT materiau_id, denomination_id, metrologie, valeur_id, technique_id " +
                     "FROM caracteristique_physique_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
@@ -703,7 +701,6 @@ public class AuditService {
                     if (row.length > 2 && row[2] != null) data.put("metrologieMonnaie", row[2].toString());
                     if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "valeurMonnaie", (Number) row[3], revisionNumber);
                     if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "techniqueMonnaie", (Number) row[4], revisionNumber);
-                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "fabricationMonnaie", (Number) row[5], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur caracteristique_physique_monnaie_aud: {}", e.getMessage());

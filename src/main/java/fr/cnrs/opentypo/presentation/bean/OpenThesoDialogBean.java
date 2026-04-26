@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -716,7 +715,6 @@ public class OpenThesoDialogBean implements Serializable {
             case DENOMINATION -> { cpm.setDenomination(ref); candidatBean.updateDenominationFromOpenTheso(); }
             case VALEUR -> { cpm.setValeur(ref); candidatBean.updateValeurFromOpenTheso(); }
             case TECHNIQUE -> { cpm.setTechnique(ref); candidatBean.updateTechniqueFromOpenTheso(); }
-            case FABRICATION -> { cpm.setFabrication(ref); candidatBean.updateFabricationMonnaieFromOpenTheso(); }
             default -> { }
         }
         entityRepository.save(entity);

@@ -33,16 +33,13 @@ public class CandidatSauvegardeRequest {
     private Integer taq;
     private String droit;
     private String legendeDroit;
-    private String coinsMonetairesDroit;
     private String revers;
     private String legendeRevers;
-    private String coinsMonetairesRevers;
     private ReferenceOpentheso materiaux;
     private ReferenceOpentheso denomination;
     private String metrologieMonnaie;
     private ReferenceOpentheso valeur;
     private ReferenceOpentheso technique;
-    private ReferenceOpentheso fabrication;
     private ReferenceOpentheso openThesoCreatedReference;
     private Utilisateur currentUser;
 }

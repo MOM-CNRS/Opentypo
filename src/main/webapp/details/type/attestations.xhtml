@@ -4,41 +4,42 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}" layout="block">
-    <div class="mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
-        <div class="col-md-12">
-            <div class="concept-info-panel">
-                <div class="concept-info-header monnaie-communs-header">
-                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
-                        <i class="pi pi-check-circle monnaie-communs-title-icon" />
-                        <h2 class="concept-info-title monnaie-communs-title">Attestations</h2>
-                    </div>
-                </div>
 
-                <div class="concept-info-grid">
-                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
-                                  styleClass="concept-info-item concept-info-item-full" layout="block">
-                        <div class="concept-info-label">
-                            <i class="pi pi-check-circle monnaie-communs-icon" />
-                            <span>Attestation(s)/Contexte(s)</span>
+        <div class="mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
+            <div class="col-md-12">
+                <div class="concept-info-panel">
+                    <div class="concept-info-header monnaie-communs-header">
+                        <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                            <i class="pi pi-check-circle monnaie-communs-title-icon" />
+                            <h2 class="concept-info-title monnaie-communs-title">Attestations et contextes</h2>
                         </div>
-                        <div class="concept-info-value bibliographie-container">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.attestations}">
-                                <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.attestations, ';')}" var="ref" varStatus="status">
-                                    <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                        <span class="bibliographie-badge">
-                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                        </span>
-                                    </ui:fragment>
-                                </ui:repeat>
-                            </ui:fragment>
-                            <h:outputText value="Aucune attestation disponible"
-                                          rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
-                                          styleClass="bibliographie-empty"/>
-                        </div>
-                    </h:panelGroup>
+                    </div>
+
+                    <div class="concept-info-grid">
+                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
+                                      styleClass="concept-info-item concept-info-item-full" layout="block">
+                            <div class="concept-info-label">
+                                <i class="pi pi-check-circle monnaie-communs-icon" />
+                                <span>Attestation(s)/Contexte(s)</span>
+                            </div>
+                            <div class="concept-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.attestations}">
+                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.attestations, ';')}" var="ref" varStatus="status">
+                                        <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                            <span class="bibliographie-badge">
+                                                <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                            </span>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucune attestation disponible"
+                                              rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
+                                              styleClass="bibliographie-empty"/>
+                            </div>
+                        </h:panelGroup>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </h:panelGroup>
 </ui:composition>

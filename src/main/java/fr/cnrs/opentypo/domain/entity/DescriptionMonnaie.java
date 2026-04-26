@@ -38,17 +38,11 @@ public class DescriptionMonnaie implements Serializable {
     @Column(name = "legende_droit", columnDefinition = "TEXT")
     private String legendeDroit;
 
-    @Column(name = "coins_monetaires_droit", columnDefinition = "TEXT")
-    private String coinsMonetairesDroit;
-
     @Column(name = "revers", columnDefinition = "TEXT")
     private String revers;
 
     @Column(name = "legende_revers", columnDefinition = "TEXT")
     private String legendeRevers;
-
-    @Column(name = "coins_monetaires_revers", columnDefinition = "TEXT")
-    private String coinsMonetairesRevers;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id", nullable = false, unique = true)

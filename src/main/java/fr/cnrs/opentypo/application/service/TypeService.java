@@ -191,6 +191,8 @@ public class TypeService implements Serializable {
             newMeta.setTpq(srcMeta.getTpq());
             newMeta.setTaq(srcMeta.getTaq());
             newMeta.setRelationExterne(srcMeta.getRelationExterne());
+            newMeta.setRelationImitation(srcMeta.getRelationImitation());
+            newMeta.setDenominationInstrumentum(srcMeta.getDenominationInstrumentum());
             newMeta.setAteliers(srcMeta.getAteliers());
             newMeta.setAttestations(srcMeta.getAttestations());
             newMeta.setSitesArcheologiques(srcMeta.getSitesArcheologiques());
@@ -286,10 +288,8 @@ public class TypeService implements Serializable {
             newDM.setEntity(duplicate);
             newDM.setDroit(srcDM.getDroit());
             newDM.setLegendeDroit(srcDM.getLegendeDroit());
-            newDM.setCoinsMonetairesDroit(srcDM.getCoinsMonetairesDroit());
             newDM.setRevers(srcDM.getRevers());
             newDM.setLegendeRevers(srcDM.getLegendeRevers());
-            newDM.setCoinsMonetairesRevers(srcDM.getCoinsMonetairesRevers());
             duplicate.setDescriptionMonnaie(newDM);
         }
 

@@ -2407,7 +2407,7 @@ public class ApplicationBean implements Serializable {
         var cpm = selectedEntity.getCaracteristiquePhysiqueMonnaie();
         if (cpm == null) return false;
         return hasAnyValue(cpm.getMateriaux()) || hasAnyValue(cpm.getDenomination()) || hasAnyValue(cpm.getMetrologie())
-                || hasAnyValue(cpm.getValeur()) || hasAnyValue(cpm.getTechnique()) || hasAnyValue(cpm.getFabrication());
+                || hasAnyValue(cpm.getValeur()) || hasAnyValue(cpm.getTechnique());
     }
 
     /** Bloc Caractéristiques physiques instrumentum */
@@ -2444,8 +2444,8 @@ public class ApplicationBean implements Serializable {
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         var dm = selectedEntity.getDescriptionMonnaie();
         if (dm == null) return false;
-        return hasAnyValue(dm.getDroit()) || hasAnyValue(dm.getLegendeDroit()) || hasAnyValue(dm.getCoinsMonetairesDroit())
-                || hasAnyValue(dm.getRevers()) || hasAnyValue(dm.getLegendeRevers()) || hasAnyValue(dm.getCoinsMonetairesRevers());
+        return hasAnyValue(dm.getDroit()) || hasAnyValue(dm.getLegendeDroit())
+                || hasAnyValue(dm.getRevers()) || hasAnyValue(dm.getLegendeRevers());
     }
 
     /** Bloc Datation (période, TPQ, TAQ, commentaire datation) */

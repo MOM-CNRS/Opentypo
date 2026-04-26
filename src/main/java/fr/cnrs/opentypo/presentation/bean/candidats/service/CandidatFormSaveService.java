@@ -183,11 +183,6 @@ public class CandidatFormSaveService {
     }
 
     @Transactional
-    public void saveCoinsMonetairesDroit(Long entityId, String value) {
-        saveDescriptionMonnaieField(entityId, dm -> dm.setCoinsMonetairesDroit(trimOrNull(value)));
-    }
-
-    @Transactional
     public void saveRevers(Long entityId, String revers) {
         saveDescriptionMonnaieField(entityId, dm -> dm.setRevers(trimOrNull(revers)));
     }
@@ -195,11 +190,6 @@ public class CandidatFormSaveService {
     @Transactional
     public void saveLegendeRevers(Long entityId, String legendeRevers) {
         saveDescriptionMonnaieField(entityId, dm -> dm.setLegendeRevers(trimOrNull(legendeRevers)));
-    }
-
-    @Transactional
-    public void saveCoinsMonetairesRevers(Long entityId, String value) {
-        saveDescriptionMonnaieField(entityId, dm -> dm.setCoinsMonetairesRevers(trimOrNull(value)));
     }
 
     @Transactional

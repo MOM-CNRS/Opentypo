@@ -233,9 +233,9 @@ public class HistoryBean implements Serializable {
         // production.xhtml
         "production", "ateliers", "airesCirculation", "categorieFonctionnelle",
         // description_monnaie.xhtml
-        "droit", "legendeDroit", "coinsMonetairesDroit", "revers", "legendeRevers", "coinsMonetairesRevers",
+        "droit", "legendeDroit", "revers", "legendeRevers",
         // caracteristiques_physique_monnaie.xhtml
-        "materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie", "fabricationMonnaie",
+        "materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie",
         // description.xhtml
         "decors", "marques", "fonctionUsage",
         // caracteristiques_physique.xhtml (céramique)
@@ -265,9 +265,9 @@ public class HistoryBean implements Serializable {
         new DisplaySection("production", "Production", "pi pi-inbox",
             List.of("production", "ateliers", "airesCirculation", "categorieFonctionnelle"), "PRODUCTION"),
         new DisplaySection("descriptionMonnaie", "Description", "pi pi-book",
-            List.of("droit", "legendeDroit", "coinsMonetairesDroit", "revers", "legendeRevers", "coinsMonetairesRevers"), "MONNAIE"),
+            List.of("droit", "legendeDroit", "revers", "legendeRevers"), "MONNAIE"),
         new DisplaySection("caracMonnaie", "Caractéristiques physiques", "pi pi-th-large",
-            List.of("materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie", "fabricationMonnaie"), "MONNAIE"),
+            List.of("materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie"), "MONNAIE"),
         new DisplaySection("description", "Description", "pi pi-book",
             List.of("decors", "marques", "fonctionUsage", "metrologieDetail"), "CERAMIQUE_OR_INSTRUMENTUM"),
         new DisplaySection("caracCeramique", "Caractéristiques physiques", "pi pi-sliders-h",
@@ -418,14 +418,13 @@ public class HistoryBean implements Serializable {
             case "categorieFonctionnelle" -> "pi pi-sitemap";
             case "droit" -> "pi pi-arrow-circle-right";
             case "legendeDroit", "legendeRevers" -> "pi pi-align-left";
-            case "coinsMonetairesDroit", "coinsMonetairesRevers" -> "pi pi-arrows-alt";
             case "revers" -> "pi pi-arrow-circle-left";
             case "materiauxMonnaie", "materiaux" -> "pi pi-box";
             case "denomination" -> "pi pi-id-card";
             case "metrologieMonnaie", "metrologieDetail", "metrologiePhysique" -> "pi pi-sliders-h";
             case "valeurMonnaie" -> "pi pi-wallet";
             case "techniqueMonnaie", "technique" -> "pi pi-wrench";
-            case "fabricationMonnaie", "fabricationPhysique" -> "pi pi-cog";
+            case "fabricationPhysique" -> "pi pi-cog";
             case "decors" -> "pi pi-palette";
             case "marques" -> "pi pi-tag";
             case "fonctionUsage" -> "pi pi-sitemap";
@@ -533,14 +532,10 @@ public class HistoryBean implements Serializable {
                 return "Droit";
             case "legendeDroit":
                 return "Légende du droit";
-            case "coinsMonetairesDroit":
-                return "Coins monétaires droit";
             case "revers":
                 return "Revers";
             case "legendeRevers":
                 return "Légende du revers";
-            case "coinsMonetairesRevers":
-                return "Coins monétaires revers";
             case "materiauxMonnaie":
                 return "Matériau (monnaie)";
             case "denomination":
@@ -551,8 +546,6 @@ public class HistoryBean implements Serializable {
                 return "Valeur";
             case "techniqueMonnaie":
                 return "Technique (monnaie)";
-            case "fabricationMonnaie":
-                return "Fabrication (monnaie)";
             case "attestations":
                 return "Attestations";
             case "sitesArcheologiques":

@@ -190,15 +190,13 @@ public class CandidatFormDataLoader {
 
         // DescriptionMonnaie (collection MONNAIE)
         DescriptionMonnaie descMonnaie = refreshedEntity.getDescriptionMonnaie();
-        String droit = null, legendeDroit = null, coinsMonetairesDroit = null;
-        String revers = null, legendeRevers = null, coinsMonetairesRevers = null;
+        String droit = null, legendeDroit = null;
+        String revers = null, legendeRevers = null;
         if (descMonnaie != null) {
             droit = descMonnaie.getDroit();
             legendeDroit = descMonnaie.getLegendeDroit();
-            coinsMonetairesDroit = descMonnaie.getCoinsMonetairesDroit();
             revers = descMonnaie.getRevers();
             legendeRevers = descMonnaie.getLegendeRevers();
-            coinsMonetairesRevers = descMonnaie.getCoinsMonetairesRevers();
         }
 
         // CaracteristiquePhysiqueMonnaie (collection MONNAIE)
@@ -215,8 +213,6 @@ public class CandidatFormDataLoader {
             if (valeur != null) valeur.getValeur();
             technique = cpm.getTechnique();
             if (technique != null) technique.getValeur();
-            fabrication = cpm.getFabrication();
-            if (fabrication != null) fabrication.getValeur();
         }
 
         return Step3FormData.builder()
@@ -252,16 +248,13 @@ public class CandidatFormDataLoader {
                 .corpusExterne(refreshedEntity.getMetadata() != null ? refreshedEntity.getMetadata().getCorpusExterne() : "")
                 .droit(droit)
                 .legendeDroit(legendeDroit)
-                .coinsMonetairesDroit(coinsMonetairesDroit)
                 .revers(revers)
                 .legendeRevers(legendeRevers)
-                .coinsMonetairesRevers(coinsMonetairesRevers)
                 .materiaux(materiaux)
                 .denomination(denomination)
                 .metrologieMonnaie(metrologieMonnaie)
                 .valeur(valeur)
                 .technique(technique)
-                .fabrication(fabrication)
                 .selectedAuteurs(auteurs)
                 .droit(droit)
                 .references(referentiels)

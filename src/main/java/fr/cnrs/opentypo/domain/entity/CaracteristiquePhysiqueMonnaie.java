@@ -52,10 +52,6 @@ public class CaracteristiquePhysiqueMonnaie implements Serializable {
     @JoinColumn(name = "technique_id")
     private ReferenceOpentheso technique;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fabrication_id")
-    private ReferenceOpentheso fabrication;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id", nullable = false, unique = true)
     private Entity entity;

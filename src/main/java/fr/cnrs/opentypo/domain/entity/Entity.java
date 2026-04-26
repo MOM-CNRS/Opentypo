@@ -512,6 +512,36 @@ public class Entity implements Serializable {
     }
 
     /**
+     * Obtient la relation d'imitation depuis les métadonnées
+     */
+    public String getRelationImitation() {
+        return metadata != null ? metadata.getRelationImitation() : null;
+    }
+
+    /**
+     * Définit la relation d'imitation dans les métadonnées
+     */
+    public void setRelationImitation(String relationImitation) {
+        ensureMetadata();
+        metadata.setRelationImitation(relationImitation);
+    }
+
+    /**
+     * Obtient la dénomination (Instrumentum) depuis les métadonnées
+     */
+    public String getDenominationInstrumentum() {
+        return metadata != null ? metadata.getDenominationInstrumentum() : null;
+    }
+
+    /**
+     * Définit la dénomination (Instrumentum) dans les métadonnées
+     */
+    public void setDenominationInstrumentum(String denominationInstrumentum) {
+        ensureMetadata();
+        metadata.setDenominationInstrumentum(denominationInstrumentum);
+    }
+
+    /**
      * Obtient les ateliers depuis les métadonnées
      */
     public String getAteliers() {

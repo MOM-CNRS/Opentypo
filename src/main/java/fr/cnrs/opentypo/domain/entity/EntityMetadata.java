@@ -92,6 +92,14 @@ public class EntityMetadata implements Serializable {
     @Column(name = "relation_externe", columnDefinition = "TEXT")
     private String relationExterne;
 
+    // Relation(s) d'imitation
+    @Column(name = "relation_imitation", columnDefinition = "TEXT")
+    private String relationImitation;
+
+    // Dénomination (Instrumentum)
+    @Column(name = "denomination_instrumentum", columnDefinition = "TEXT")
+    private String denominationInstrumentum;
+
     // Ateliers (liste séparée par ';')
     @Column(name = "ateliers", columnDefinition = "TEXT")
     private String ateliers;

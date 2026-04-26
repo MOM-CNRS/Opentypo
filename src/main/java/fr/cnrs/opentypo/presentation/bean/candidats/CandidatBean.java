@@ -208,17 +208,14 @@ public class CandidatBean implements Serializable {
     // Description monnaie (collection MONNAIE)
     private String droit;
     private String legendeDroit;
-    private String coinsMonetairesDroit;
     private String revers;
     private String legendeRevers;
-    private String coinsMonetairesRevers;
     // Caractéristiques physiques monnaie (collection MONNAIE)
     private ReferenceOpentheso materiaux;
     private ReferenceOpentheso denomination;
     private String metrologieMonnaie;
     private ReferenceOpentheso valeur;
     private ReferenceOpentheso technique;
-    private ReferenceOpentheso fabrication;
     
     private String selectedLangueCode;
     private Long selectedCollectionId;
@@ -289,7 +286,6 @@ public class CandidatBean implements Serializable {
     private PactolsConcept denominationAutocompleteSelection;
     private PactolsConcept valeurAutocompleteSelection;
     private PactolsConcept techniqueAutocompleteSelection;
-    private PactolsConcept fabricationAutocompleteSelection;
 
     // Propriétés pour les auteurs
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();
@@ -912,16 +908,13 @@ public class CandidatBean implements Serializable {
         cuissonPostCuisson = null;
         droit = null;
         legendeDroit = null;
-        coinsMonetairesDroit = null;
         revers = null;
         legendeRevers = null;
-        coinsMonetairesRevers = null;
         materiaux = null;
         denomination = null;
         metrologieMonnaie = null;
         valeur = null;
         technique = null;
-        fabrication = null;
         collectionDescription = null;
         collectionPublique = true;
         tpq = null;
@@ -941,7 +934,6 @@ public class CandidatBean implements Serializable {
         denominationAutocompleteSelection = null;
         valeurAutocompleteSelection = null;
         techniqueAutocompleteSelection = null;
-        fabricationAutocompleteSelection = null;
     }
     
     /**
@@ -978,16 +970,13 @@ public class CandidatBean implements Serializable {
         cuissonPostCuisson = data.getCuissonPostCuisson();
         droit = data.getDroit();
         legendeDroit = data.getLegendeDroit();
-        coinsMonetairesDroit = data.getCoinsMonetairesDroit();
         revers = data.getRevers();
         legendeRevers = data.getLegendeRevers();
-        coinsMonetairesRevers = data.getCoinsMonetairesRevers();
         materiaux = data.getMateriaux();
         denomination = data.getDenomination();
         metrologieMonnaie = data.getMetrologieMonnaie();
         valeur = data.getValeur();
         technique = data.getTechnique();
-        fabrication = data.getFabrication();
         typologieScientifique = data.getTypologieScientifique();
         identifiantPerenne = data.getIdentifiantPerenne();
         ancienneVersion = data.getAncienneVersion();
@@ -1129,16 +1118,13 @@ public class CandidatBean implements Serializable {
                 .taq(taq)
                 .droit(droit)
                 .legendeDroit(legendeDroit)
-                .coinsMonetairesDroit(coinsMonetairesDroit)
                 .revers(revers)
                 .legendeRevers(legendeRevers)
-                .coinsMonetairesRevers(coinsMonetairesRevers)
                 .materiaux(materiaux)
                 .denomination(denomination)
                 .metrologieMonnaie(metrologieMonnaie)
                 .valeur(valeur)
                 .technique(technique)
-                .fabrication(fabrication)
                 .openThesoCreatedReference(openThesoDialogBean != null ? openThesoDialogBean.getCreatedReference() : null)
                 .currentUser(loginBean != null ? loginBean.getCurrentUser() : null)
                 .build();
@@ -1388,7 +1374,6 @@ public class CandidatBean implements Serializable {
 
         droit = res.getStep3Data().getDroit();
         legendeDroit = res.getStep3Data().getLegendeDroit();
-        coinsMonetairesDroit = res.getStep3Data().getCoinsMonetairesDroit();
         ancienneVersion = res.getStep3Data().getAncienneVersion();
         identifiantPerenne = res.getStep3Data().getIdentifiantPerenne();
         typologieScientifique = res.getStep3Data().getTypologieScientifique();
@@ -1727,13 +1712,6 @@ public class CandidatBean implements Serializable {
         }
     }
 
-    public void saveCoinsMonetairesDroit() {
-        if (currentEntity != null && currentEntity.getId() != null) {
-            candidatFormSaveService.saveCoinsMonetairesDroit(currentEntity.getId(), coinsMonetairesDroit);
-            addInfoMessage("Les coins monétaires droit ont été enregistrés.");
-        }
-    }
-
     public void saveRevers() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveRevers(currentEntity.getId(), revers);
@@ -1745,13 +1723,6 @@ public class CandidatBean implements Serializable {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveLegendeRevers(currentEntity.getId(), legendeRevers);
             addInfoMessage("La légende du revers a été enregistrée.");
-        }
-    }
-
-    public void saveCoinsMonetairesRevers() {
-        if (currentEntity != null && currentEntity.getId() != null) {
-            candidatFormSaveService.saveCoinsMonetairesRevers(currentEntity.getId(), coinsMonetairesRevers);
-            addInfoMessage("Les coins monétaires revers ont été enregistrés.");
         }
     }
 
@@ -1811,8 +1782,6 @@ public class CandidatBean implements Serializable {
     public void deleteDenomination() { deleteRefAndRefresh(candidatOpenThesoService::deleteDenomination, r -> denomination = null); }
     public void deleteValeur() { deleteRefAndRefresh(candidatOpenThesoService::deleteValeur, r -> valeur = null); }
     public void deleteTechnique() { deleteRefAndRefresh(candidatOpenThesoService::deleteTechnique, r -> technique = null); }
-    public void deleteFabricationMonnaie() { deleteRefAndRefresh(candidatOpenThesoService::deleteFabricationMonnaie, r -> fabrication = null); }
-
     private boolean hasRefMonnaie(java.util.function.Supplier<ReferenceOpentheso> getter, java.util.function.Function<Long, ReferenceOpentheso> loader, java.util.function.Consumer<ReferenceOpentheso> setter) {
         if (currentEntity == null || currentEntity.getId() == null) return false;
         if (getter.get() != null) return true;
@@ -1823,14 +1792,10 @@ public class CandidatBean implements Serializable {
     public boolean hasDenomination() { return hasRefMonnaie(() -> denomination, candidatOpenThesoService::loadDenomination, r -> denomination = r); }
     public boolean hasValeur() { return hasRefMonnaie(() -> valeur, candidatOpenThesoService::loadValeur, r -> valeur = r); }
     public boolean hasTechnique() { return hasRefMonnaie(() -> technique, candidatOpenThesoService::loadTechnique, r -> technique = r); }
-    public boolean hasFabrication() { return hasRefMonnaie(() -> fabrication, candidatOpenThesoService::loadFabricationMonnaie, r -> fabrication = r); }
-
     public void updateMateriauFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadMateriaux, r -> { materiaux = r; materiauxAutocompleteSelection = refToConcept(r); }); }
     public void updateDenominationFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadDenomination, r -> { denomination = r; denominationAutocompleteSelection = refToConcept(r); }); }
     public void updateValeurFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadValeur, r -> { valeur = r; valeurAutocompleteSelection = refToConcept(r); }); }
     public void updateTechniqueFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadTechnique, r -> { technique = r; techniqueAutocompleteSelection = refToConcept(r); }); }
-    public void updateFabricationMonnaieFromOpenTheso() { refreshAndLoadRef(candidatOpenThesoService::loadFabricationMonnaie, r -> { fabrication = r; fabricationAutocompleteSelection = refToConcept(r); }); }
-
     public void saveMetrologieMonnaie() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveMetrologieMonnaie(currentEntity.getId(), metrologieMonnaie);
@@ -2036,8 +2001,6 @@ public class CandidatBean implements Serializable {
     public void prepareConfirmDeleteDenomination() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("DENOMINATION")); }
     public void prepareConfirmDeleteValeur() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("VALEUR")); }
     public void prepareConfirmDeleteTechnique() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("TECHNIQUE")); }
-    public void prepareConfirmDeleteFabricationMonnaie() { applyConfirmConfig(candidatConfirmDeleteService.getConfig("FABRICATION_MONNAIE")); }
-
     /** Exécute la suppression selon le type préparé (appelé depuis la boîte de confirmation unique) */
     public void executeConfirmDelete() {
         if (confirmDeleteType == null) return;
@@ -2051,7 +2014,6 @@ public class CandidatBean implements Serializable {
             case "DENOMINATION" -> deleteDenomination();
             case "VALEUR" -> deleteValeur();
             case "TECHNIQUE" -> deleteTechnique();
-            case "FABRICATION_MONNAIE" -> deleteFabricationMonnaie();
             case "FABRICATION_FACONNAGE" -> deleteFabricationFaconnage();
             case "COULEUR_PATE" -> deleteCouleurPate();
             case "NATURE_PATE" -> deleteNaturePate();
@@ -2128,7 +2090,6 @@ public class CandidatBean implements Serializable {
         denominationAutocompleteSelection = refToConcept(denomination);
         valeurAutocompleteSelection = refToConcept(valeur);
         techniqueAutocompleteSelection = refToConcept(technique);
-        fabricationAutocompleteSelection = refToConcept(fabrication);
     }
 
     /** Enregistre la période sélectionnée ou saisie dans l'autocomplete. */
@@ -2212,12 +2173,6 @@ public class CandidatBean implements Serializable {
         updateTechniqueFromOpenTheso();
         techniqueAutocompleteSelection = null;
     }
-    public void saveFabricationFromAutocomplete() {
-        openThesoDialogBean.saveThesaurusFromConcept(ReferenceOpenthesoEnum.FABRICATION, fabricationAutocompleteSelection, "fabrication");
-        updateFabricationMonnaieFromOpenTheso();
-        fabricationAutocompleteSelection = null;
-    }
-
     /**
      * Sauvegarde automatiquement les champs du groupe (période, TPQ, TAQ) dans la base de données
      */

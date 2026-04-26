@@ -8,6 +8,10 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE table_name = 'entity_metadata' AND column_name = 'appartient'
+    ) AND NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'entity_metadata' AND column_name = 'interne'
     ) THEN
         ALTER TABLE entity_metadata RENAME COLUMN appartient TO interne;
     END IF;
@@ -19,13 +23,17 @@ ALTER TABLE entity_metadata
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'entity_metadata_aud') THEN
-        BEGIN
+        IF EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name = 'entity_metadata_aud' AND column_name = 'appartient'
+        ) AND NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name = 'entity_metadata_aud' AND column_name = 'interne'
+        ) THEN
             ALTER TABLE entity_metadata_aud RENAME COLUMN appartient TO interne;
-        EXCEPTION
-            WHEN undefined_column THEN
-                -- Colonne absente, ignorer
-                NULL;
-        END;
+        END IF;
         ALTER TABLE entity_metadata_aud DROP COLUMN IF EXISTS associe;
     END IF;
 END $$;

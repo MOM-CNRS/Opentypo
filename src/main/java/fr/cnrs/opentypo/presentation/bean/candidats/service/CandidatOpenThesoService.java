@@ -98,10 +98,6 @@ public class CandidatOpenThesoService {
         return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getTechnique);
     }
 
-    public ReferenceOpentheso loadFabricationMonnaie(Long entityId) {
-        return loadRefFromCpm(entityId, CaracteristiquePhysiqueMonnaie::getFabrication);
-    }
-
     public String loadMetrologieMonnaie(Long entityId) {
         Entity e = entityRepository.findById(entityId).orElse(null);
         if (e == null || e.getCaracteristiquePhysiqueMonnaie() == null) return null;
@@ -270,8 +266,5 @@ public class CandidatOpenThesoService {
     public DeleteResult deleteValeur(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setValeur(null)); }
     @Transactional
     public DeleteResult deleteTechnique(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setTechnique(null)); }
-    @Transactional
-    public DeleteResult deleteFabricationMonnaie(Long entityId) { return deleteFromCpm(entityId, cpm -> cpm.setFabrication(null)); }
-
     public enum DeleteResult { SUCCESS, NOTHING_TO_DELETE }
 }

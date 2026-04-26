@@ -16,6 +16,36 @@
 
                 <!-- Grille d'informations -->
                 <div class="concept-info-grid">
+                    <h:panelGroup class="concept-info-item"
+                                  rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.forme : null)}">
+                        <div class="concept-info-label">
+                            <i class="pi pi-circle monnaie-communs-icon" />
+                            <span>Forme</span>
+                        </div>
+                        <div class="concept-info-value">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.forme.url}">
+                                    <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.forme.url}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  styleClass="concept-value-external-link">
+                                        #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
+                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                    </h:outputLink>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme.url}">
+                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                        <i class="pi pi-link-slash"/>
+                                        #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
+                                    </span>
+                                </ui:fragment>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </h:panelGroup>
+
                     <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.decors : null)}"
                                   styleClass="concept-info-item" layout="block">
                         <div class="concept-info-label">
@@ -101,6 +131,37 @@
                                 </ui:fragment>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup styleClass="concept-info-item concept-info-item-full" layout="block">
+                        <div class="concept-info-label">
+                            <i class="pi pi-share-alt concept-info-icon" />
+                            <span>Relation(s) d'imitation</span>
+                        </div>
+                        <div class="concept-info-value concept-info-description">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.relationImitation}">
+                                <h:outputText value="#{applicationBean.selectedEntity.metadata.relationImitation}" escape="false"/>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.relationImitation}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup styleClass="concept-info-item concept-info-item-full" layout="block"
+                                  rendered="#{applicationBean.isInstrumentumTypo()}">
+                        <div class="concept-info-label">
+                            <i class="pi pi-tag concept-info-icon" />
+                            <span>Dénomination</span>
+                        </div>
+                        <div class="concept-info-value concept-info-description">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.denominationInstrumentum}">
+                                <h:outputText value="#{applicationBean.selectedEntity.metadata.denominationInstrumentum}" escape="false"/>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.denominationInstrumentum}">
                                 <span class="empty-field-message">Non renseigné</span>
                             </ui:fragment>
                         </div>

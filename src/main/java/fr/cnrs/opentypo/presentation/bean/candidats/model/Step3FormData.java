@@ -58,16 +58,13 @@ public class Step3FormData {
     private String corpusExterne;
     private String droit;
     private String legendeDroit;
-    private String coinsMonetairesDroit;
     private String revers;
     private String legendeRevers;
-    private String coinsMonetairesRevers;
     private ReferenceOpentheso materiaux;
     private ReferenceOpentheso denomination;
     private String metrologieMonnaie;
     private ReferenceOpentheso valeur;
     private ReferenceOpentheso technique;
-    private ReferenceOpentheso fabrication;
     private String reference;
     @Builder.Default
     private List<Utilisateur> selectedAuteurs = new ArrayList<>();

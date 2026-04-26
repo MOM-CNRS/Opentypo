@@ -72,39 +72,6 @@
             <p:message for="legendeDroitInput" display="icon"/>
         </h:panelGroup>
 
-        <!-- Coins monétaires droit -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <div class="periode-header-row">
-                <p:outputLabel for="coinsMonetairesDroitInput" value="Coins monétaires droit" />
-            </div>
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-circle input-icon" />
-                    <p:inputText id="coinsMonetairesDroitInput"
-                                 value="#{candidatBean.coinsMonetairesDroit}"
-                                 styleClass="users-input"
-                                 placeholder="Ex. Position des coins de l'avers..."
-                                 rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
-                    <p:inputText value="#{candidatBean.coinsMonetairesDroit}"
-                                 styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Non renseigné"
-                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
-                </div>
-                <div class="periode-action-buttons">
-                    <p:commandButton icon="pi pi-check"
-                                     styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer les coins monétaires droit"
-                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.saveCoinsMonetairesDroit}"
-                                     process="@form"
-                                     ajax="true"
-                                     update="@form :growl"/>
-                </div>
-            </div>
-            <p:message for="coinsMonetairesDroitInput" display="icon"/>
-        </h:panelGroup>
-
         <!-- Revers -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
@@ -171,37 +138,5 @@
             <p:message for="legendeReversInput" display="icon"/>
         </h:panelGroup>
 
-        <!-- Coins monétaires revers -->
-        <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
-            <div class="periode-header-row">
-                <p:outputLabel for="coinsMonetairesReversInput" value="Coins monétaires revers" />
-            </div>
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-circle input-icon" />
-                    <p:inputText id="coinsMonetairesReversInput"
-                                 value="#{candidatBean.coinsMonetairesRevers}"
-                                 styleClass="users-input"
-                                 placeholder="Ex. Position des coins du revers..."
-                                 rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
-                    <p:inputText value="#{candidatBean.coinsMonetairesRevers}"
-                                 styleClass="users-input"
-                                 readonly="true"
-                                 placeholder="Non renseigné"
-                                 rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
-                </div>
-                <div class="periode-action-buttons">
-                    <p:commandButton icon="pi pi-check"
-                                     styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer les coins monétaires revers"
-                                     rendered="#{candidatBean.canEditCurrentBrouillon()}"
-                                     actionListener="#{candidatBean.saveCoinsMonetairesRevers}"
-                                     process="@form"
-                                     ajax="true"
-                                     update="@form :growl"/>
-                </div>
-            </div>
-            <p:message for="coinsMonetairesReversInput" display="icon"/>
-        </h:panelGroup>
     </div>
 </ui:composition>
