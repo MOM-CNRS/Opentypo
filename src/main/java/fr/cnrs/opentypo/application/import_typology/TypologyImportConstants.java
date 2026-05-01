@@ -65,18 +65,32 @@ public final class TypologyImportConstants {
     }
 
     /**
-     * Fichier modèle téléchargeable : en-tête + une ligne d'exemple complète (ressource {@code import/typology-import-template.csv}).
-     * Retombe sur {@link #csvTemplateHeaderOnly()} si la ressource est absente.
+     * Fichier modèle téléchargeable : en-tête + une ligne d'exemple complète.
+     * {@link TypologyImportCollectionProfile#CERAMIQUE} → {@code import/typology-import-template-ceramique.csv} ;
+     * {@link TypologyImportCollectionProfile#MONNAIE} → {@code import/typology-import-template-monnaie.csv} ;
+     * {@link TypologyImportCollectionProfile#INSTRUMENTUM} → {@code import/typology-import-template-instrumentum.csv}.
      */
-    public static String csvTemplateHeaderAndExample() {
-        try (InputStream in = TypologyImportConstants.class.getClassLoader()
-                .getResourceAsStream("import/typology-import-template.csv")) {
+    public static String csvTemplateHeaderAndExample(TypologyImportCollectionProfile profile) {
+        String resource = switch (profile) {
+            case MONNAIE -> "import/typology-import-template-monnaie.csv";
+            case INSTRUMENTUM -> "import/typology-import-template-instrumentum.csv";
+            case CERAMIQUE, UNSUPPORTED -> "import/typology-import-template-ceramique.csv";
+        };
+        try (InputStream in = TypologyImportConstants.class.getClassLoader().getResourceAsStream(resource)) {
             if (in == null) {
-                return csvTemplateHeaderOnly();
+                return switch (profile) {
+                    case MONNAIE -> String.join(";", TypologyImportMonnaieConstants.KNOWN_COLUMNS_MONNAIE) + "\n";
+                    case INSTRUMENTUM -> String.join(";", TypologyImportInstrumentumConstants.KNOWN_COLUMNS_INSTRUMENTUM) + "\n";
+                    case CERAMIQUE, UNSUPPORTED -> csvTemplateHeaderOnly();
+                };
             }
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            return csvTemplateHeaderOnly();
+            return switch (profile) {
+                case MONNAIE -> String.join(";", TypologyImportMonnaieConstants.KNOWN_COLUMNS_MONNAIE) + "\n";
+                case INSTRUMENTUM -> String.join(";", TypologyImportInstrumentumConstants.KNOWN_COLUMNS_INSTRUMENTUM) + "\n";
+                case CERAMIQUE, UNSUPPORTED -> csvTemplateHeaderOnly();
+            };
         }
     }
 

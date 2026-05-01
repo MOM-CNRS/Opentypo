@@ -18,6 +18,8 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
+import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
+import fr.cnrs.opentypo.domain.entity.DescriptionMonnaie;
 import fr.cnrs.opentypo.domain.entity.AuteurScientifique;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.AuteurScientifiqueRepository;
@@ -101,7 +103,8 @@ public class TypologyImportService {
     /**
      * Analyse le fichier : classification, détection d'erreurs, aperçu création/mise à jour.
      */
-    public TypologyImportAnalyzeResult analyze(Entity reference, TypologyCsvParser.ParsedCsv parsed) {
+    public TypologyImportAnalyzeResult analyze(Entity reference, TypologyCsvParser.ParsedCsv parsed,
+                                               TypologyImportCollectionProfile collectionProfile) {
         List<String> blocking = new ArrayList<>();
         if (reference == null || reference.getId() == null) {
             blocking.add("Aucun référentiel sélectionné.");
@@ -110,6 +113,10 @@ public class TypologyImportService {
         if (reference.getEntityType() == null
                 || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(reference.getEntityType().getCode())) {
             blocking.add("L'entité sélectionnée n'est pas un référentiel.");
+            return new TypologyImportAnalyzeResult(false, blocking, List.of(), parsed);
+        }
+        if (collectionProfile == TypologyImportCollectionProfile.UNSUPPORTED) {
+            blocking.add("Typologie de collection non prise en charge pour l'import CSV (référentiels Céramique, Monnaie ou Instrumentum uniquement).");
             return new TypologyImportAnalyzeResult(false, blocking, List.of(), parsed);
         }
 
@@ -167,7 +174,13 @@ public class TypologyImportService {
             });
 
             previewImages(row, warn.get(rowIndex));
-            previewOpenTheso(row, err.get(rowIndex));
+            if (collectionProfile == TypologyImportCollectionProfile.MONNAIE) {
+                previewOpenThesoMonnaie(row, err.get(rowIndex));
+            } else if (collectionProfile == TypologyImportCollectionProfile.INSTRUMENTUM) {
+                previewOpenThesoInstrumentum(row, err.get(rowIndex));
+            } else {
+                previewOpenThesoCeramique(row, err.get(rowIndex));
+            }
             previewDatation(row, err.get(rowIndex));
         }
 
@@ -254,15 +267,19 @@ public class TypologyImportService {
      * Applique l'import dans une transaction unique (tout ou rien).
      */
     @Transactional
-    public void execute(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user) {
+    public void execute(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user,
+                        TypologyImportCollectionProfile collectionProfile) {
         Entity ref = entityRepository.findById(Objects.requireNonNull(reference.getId()))
                 .orElseThrow(() -> new IllegalArgumentException("Référentiel introuvable."));
         if (ref.getEntityType() == null
                 || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(ref.getEntityType().getCode())) {
             throw new IllegalArgumentException("L'entité n'est pas un référentiel.");
         }
+        if (collectionProfile == TypologyImportCollectionProfile.UNSUPPORTED) {
+            throw new IllegalArgumentException("Typologie de collection non prise en charge pour l'import CSV.");
+        }
 
-        TypologyImportAnalyzeResult analysis = analyze(ref, parsed);
+        TypologyImportAnalyzeResult analysis = analyze(ref, parsed, collectionProfile);
         if (!analysis.successful()) {
             throw new IllegalStateException("L'analyse signale des erreurs bloquantes ; import annulé.");
         }
@@ -307,14 +324,15 @@ public class TypologyImportService {
             String cg = get(row, TypologyImportConstants.COL_CODE_GROUPE);
             String cs = get(row, TypologyImportConstants.COL_CODE_SERIE);
             applyRow(ref, row, kinds[idx], targets[idx], cc, cg, cs,
-                    catType, grpType, serType, typType, user, csvHeaders);
+                    catType, grpType, serType, typType, user, csvHeaders, collectionProfile);
         }
     }
 
     private void applyRow(Entity reference, Map<String, String> row, TypologyImportKind kind, String targetCode,
                           String cc, String cg, String cs,
                           EntityType catType, EntityType grpType, EntityType serType, EntityType typType,
-                          Utilisateur user, Set<String> csvHeaders) {
+                          Utilisateur user, Set<String> csvHeaders,
+                          TypologyImportCollectionProfile collectionProfile) {
 
         Langue langLabel = resolveLangCode("fr", "fr");
         Langue langDesc = resolveLangCode("fr", "fr");
@@ -323,26 +341,26 @@ public class TypologyImportService {
 
         switch (kind) {
             case CATEGORIE -> upsertCategory(reference, targetCode, langLabel, langDesc,
-                    statutStr, row, catType, user, csvHeaders);
+                    statutStr, row, catType, user, csvHeaders, collectionProfile);
             case GROUPE -> {
                 Entity cat = findCategory(reference, cc).orElseThrow();
                 upsertChild(cat, targetCode, EntityConstants.ENTITY_TYPE_GROUP, grpType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
             case SERIE -> {
                 Entity grp = findGroup(reference, cc, cg).orElseThrow();
                 upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_SERIES, serType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
             case TYPE_SOUS_SERIE -> {
                 Entity serie = findSerie(reference, cc, cg, cs).orElseThrow();
                 upsertChild(serie, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
             case TYPE_SOUS_GROUPE -> {
                 Entity grp = findGroup(reference, cc, cg).orElseThrow();
                 upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
             case NON_CLASSIFIE ->
                     throw new IllegalStateException("Ligne non classifiable : ne doit pas être importée.");
@@ -352,7 +370,7 @@ public class TypologyImportService {
     private void upsertCategory(Entity reference, String code,
                                 Langue langLabel, Langue langDesc, String statutStr,
                                 Map<String, String> row, EntityType catType, Utilisateur user,
-                                Set<String> csvHeaders) {
+                                Set<String> csvHeaders, TypologyImportCollectionProfile collectionProfile) {
         Optional<Entity> existingOpt = entityRepository.findByCode(code);
         boolean isCreate = existingOpt.isEmpty();
         Entity entity;
@@ -377,14 +395,15 @@ public class TypologyImportService {
         replaceMetadata(entity, row, csvHeaders, isCreate);
         replaceImages(entity, row, csvHeaders, isCreate);
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
-        replaceCeramiqueDetails(entity, row, csvHeaders, isCreate);
+        applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
         replaceAuteursScientifiques(entity, row, csvHeaders);
         entityRepository.save(entity);
     }
 
     private void upsertChild(Entity parent, String code, String expectedTypeCode, EntityType concreteType,
                              Langue langLabel, Langue langDesc, String statutStr,
-                             Map<String, String> row, Utilisateur user, Set<String> csvHeaders) {
+                             Map<String, String> row, Utilisateur user, Set<String> csvHeaders,
+                             TypologyImportCollectionProfile collectionProfile) {
         Optional<Entity> existingOpt = entityRepository.findByCode(code);
         boolean isCreate = existingOpt.isEmpty();
         Entity entity;
@@ -415,9 +434,194 @@ public class TypologyImportService {
         replaceMetadata(entity, row, csvHeaders, isCreate);
         replaceImages(entity, row, csvHeaders, isCreate);
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
-        replaceCeramiqueDetails(entity, row, csvHeaders, isCreate);
+        applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
         replaceAuteursScientifiques(entity, row, csvHeaders);
         entityRepository.save(entity);
+    }
+
+    private void applyTypologySpecificDetails(Entity entity, Map<String, String> row, Set<String> csvHeaders,
+                                              boolean isCreate, TypologyImportCollectionProfile collectionProfile) {
+        if (collectionProfile == TypologyImportCollectionProfile.MONNAIE) {
+            replaceMonnaieDetails(entity, row, csvHeaders, isCreate);
+        } else if (collectionProfile == TypologyImportCollectionProfile.INSTRUMENTUM) {
+            replaceInstrumentumDetails(entity, row, csvHeaders, isCreate);
+        } else {
+            replaceCeramiqueDetails(entity, row, csvHeaders, isCreate);
+        }
+    }
+
+    private void replaceInstrumentumDetails(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        applyDescriptionDetailInstrumentum(entity, row, csvHeaders, isCreate);
+        applyInstrumentumOpenthesoReferenceFields(entity, row, csvHeaders, isCreate);
+        applyCaracteristiquePhysiqueInstrumentum(entity, row, csvHeaders, isCreate);
+        replaceAiresCirculation(entity, row, csvHeaders, isCreate);
+    }
+
+    private void applyDescriptionDetailInstrumentum(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_DECORS, row, isCreate);
+        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
+        if (!touchDecors && !touchMarques) {
+            return;
+        }
+        DescriptionDetail dd = entity.getDescriptionDetail();
+        if (dd == null) {
+            dd = new DescriptionDetail();
+            dd.setEntity(entity);
+            entity.setDescriptionDetail(dd);
+        }
+        if (touchDecors) {
+            dd.setDecors(trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_DECORS)));
+        }
+        if (touchMarques) {
+            dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
+        }
+    }
+
+    /**
+     * Catégorie fonctionnelle (lien entité) ; relation d'imitation et dénomination (métadonnées texte alimentées depuis OpenTheso).
+     */
+    private void applyInstrumentumOpenthesoReferenceFields(Entity entity, Map<String, String> row, Set<String> csvHeaders,
+                                                            boolean isCreate) {
+        boolean touchCat = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_DESCRIPTION_CATEGORIE_FONCTIONNELLE, row, isCreate);
+        boolean touchRel = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_DESCRIPTION_RELATION_IMITATION, row, isCreate);
+        boolean touchDen = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_DESCRIPTION_DENOMINATION, row, isCreate);
+        if (!touchCat && !touchRel && !touchDen) {
+            return;
+        }
+        if (touchCat) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_CATEGORIE_FONCTIONNELLE),
+                    ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE.name());
+            entity.setCategorieFonctionnelle(r);
+        }
+        if (touchRel) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_RELATION_IMITATION),
+                    TypologyImportInstrumentumConstants.OPENTHESO_CODE_RELATION_IMITATION);
+            entity.setRelationImitation(r != null ? r.getValeur() : null);
+        }
+        if (touchDen) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_DENOMINATION),
+                    ReferenceOpenthesoEnum.DENOMINATION.name());
+            entity.setDenominationInstrumentum(r != null ? r.getValeur() : null);
+        }
+    }
+
+    private void applyCaracteristiquePhysiqueInstrumentum(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean m = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_MATERIAUX, row, isCreate);
+        boolean f = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_FORME, row, isCreate);
+        boolean d = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_DIMENSIONS, row, isCreate);
+        boolean t = shouldWriteField(csvHeaders, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_TECHNIQUE, row, isCreate);
+        boolean fab = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION, row, isCreate);
+        if (!m && !f && !d && !t && !fab) {
+            return;
+        }
+        CaracteristiquePhysique cp = entity.getCaracteristiquePhysique();
+        if (cp == null) {
+            cp = new CaracteristiquePhysique();
+            cp.setEntity(entity);
+            entity.setCaracteristiquePhysique(cp);
+        }
+        if (m) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_MATERIAUX),
+                    ReferenceOpenthesoEnum.MATERIAUX.name());
+            cp.setMateriaux(r);
+        }
+        if (f) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_FORME),
+                    ReferenceOpenthesoEnum.FORME.name());
+            cp.setForme(r);
+        }
+        if (d) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_DIMENSIONS),
+                    ReferenceOpenthesoEnum.DIMENSIONS.name());
+            cp.setDimensions(r);
+        }
+        if (t) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_TECHNIQUE),
+                    ReferenceOpenthesoEnum.TECHNIQUE.name());
+            cp.setTechnique(r);
+        }
+        if (fab) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION),
+                    ReferenceOpenthesoEnum.FABRICATION_FACONNAGE.name());
+            cp.setFabrication(r);
+        }
+    }
+
+    private void replaceMonnaieDetails(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        applyDescriptionMonnaie(entity, row, csvHeaders, isCreate);
+        applyCaracteristiquePhysiqueMonnaie(entity, row, csvHeaders, isCreate);
+        replaceAiresCirculation(entity, row, csvHeaders, isCreate);
+    }
+
+    private void applyDescriptionMonnaie(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean tDroit = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_DESCRIPTION_DROIT, row, isCreate);
+        boolean tLegD = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_DESCRIPTION_LEGENDE_DROIT, row, isCreate);
+        boolean tRev = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_DESCRIPTION_REVERS, row, isCreate);
+        boolean tLegR = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_DESCRIPTION_LEGENDE_REVERS, row, isCreate);
+        if (!tDroit && !tLegD && !tRev && !tLegR) {
+            return;
+        }
+        DescriptionMonnaie dm = entity.getDescriptionMonnaie();
+        if (dm == null) {
+            dm = new DescriptionMonnaie();
+            dm.setEntity(entity);
+            entity.setDescriptionMonnaie(dm);
+        }
+        if (tDroit) {
+            dm.setDroit(trimToNull(getCell(row, TypologyImportMonnaieConstants.COL_DESCRIPTION_DROIT)));
+        }
+        if (tLegD) {
+            dm.setLegendeDroit(trimToNull(getCell(row, TypologyImportMonnaieConstants.COL_DESCRIPTION_LEGENDE_DROIT)));
+        }
+        if (tRev) {
+            dm.setRevers(trimToNull(getCell(row, TypologyImportMonnaieConstants.COL_DESCRIPTION_REVERS)));
+        }
+        if (tLegR) {
+            dm.setLegendeRevers(trimToNull(getCell(row, TypologyImportMonnaieConstants.COL_DESCRIPTION_LEGENDE_REVERS)));
+        }
+    }
+
+    private void applyCaracteristiquePhysiqueMonnaie(Entity entity, Map<String, String> row, Set<String> csvHeaders,
+                                                     boolean isCreate) {
+        boolean touchMat = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_CARACT_PHYS_MATERIAU, row, isCreate);
+        boolean touchDen = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_CARACT_PHYS_DENOMINATION, row, isCreate);
+        boolean touchMet = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE, row, isCreate);
+        boolean touchVal = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_CARACT_PHYS_VALEUR, row, isCreate);
+        boolean touchTec = shouldWriteField(csvHeaders, TypologyImportMonnaieConstants.COL_CARACT_PHYS_TECHNIQUE, row, isCreate);
+        if (!touchMat && !touchDen && !touchMet && !touchVal && !touchTec) {
+            return;
+        }
+        CaracteristiquePhysiqueMonnaie cpm = entity.getCaracteristiquePhysiqueMonnaie();
+        if (cpm == null) {
+            cpm = new CaracteristiquePhysiqueMonnaie();
+            cpm.setEntity(entity);
+            entity.setCaracteristiquePhysiqueMonnaie(cpm);
+        }
+        if (touchMat) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_MATERIAU),
+                    ReferenceOpenthesoEnum.MATERIAUX.name());
+            cpm.setMateriaux(r);
+        }
+        if (touchDen) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_DENOMINATION),
+                    ReferenceOpenthesoEnum.DENOMINATION.name());
+            cpm.setDenomination(r);
+        }
+        if (touchMet) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE),
+                    ReferenceOpenthesoEnum.METROLOGIE.name());
+            cpm.setMetrologie(r != null ? r.getValeur() : null);
+        }
+        if (touchVal) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_VALEUR),
+                    ReferenceOpenthesoEnum.VALEUR.name());
+            cpm.setValeur(r);
+        }
+        if (touchTec) {
+            ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_TECHNIQUE),
+                    ReferenceOpenthesoEnum.TECHNIQUE.name());
+            cpm.setTechnique(r);
+        }
     }
 
     private void applyFrenchPrimaryLabelsDescriptions(Entity entity, String code, Langue langLabel, Langue langDesc,
@@ -897,6 +1101,18 @@ public class TypologyImportService {
         if (e.getImages() != null) {
             e.getImages().size();
         }
+        if (e.getDescriptionDetail() != null) {
+            e.getDescriptionDetail().getId();
+        }
+        if (e.getCaracteristiquePhysique() != null) {
+            e.getCaracteristiquePhysique().getId();
+        }
+        if (e.getDescriptionMonnaie() != null) {
+            e.getDescriptionMonnaie().getId();
+        }
+        if (e.getCaracteristiquePhysiqueMonnaie() != null) {
+            e.getCaracteristiquePhysiqueMonnaie().getId();
+        }
         return e;
     }
 
@@ -929,7 +1145,7 @@ public class TypologyImportService {
         }
     }
 
-    private static void previewOpenTheso(Map<String, String> row, List<String> errors) {
+    private static void previewOpenThesoCeramique(Map<String, String> row, List<String> errors) {
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE), TypologyImportConstants.COL_DATATION_PERIODE, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE), TypologyImportConstants.COL_PRODUCTION_VALUE, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FORM), TypologyImportConstants.COL_DESCRIPTION_FORM, errors);
@@ -940,6 +1156,36 @@ public class TypologyImportService {
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE), TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION), TypologyImportConstants.COL_CARACT_PHYS_INCLUSION, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON), TypologyImportConstants.COL_CARACT_PHYS_CUISSON, errors);
+    }
+
+    private static void previewOpenThesoMonnaie(Map<String, String> row, List<String> errors) {
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE), TypologyImportConstants.COL_DATATION_PERIODE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE), TypologyImportConstants.COL_PRODUCTION_VALUE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_MATERIAU), TypologyImportMonnaieConstants.COL_CARACT_PHYS_MATERIAU, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_DENOMINATION), TypologyImportMonnaieConstants.COL_CARACT_PHYS_DENOMINATION, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_VALEUR), TypologyImportMonnaieConstants.COL_CARACT_PHYS_VALEUR, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportMonnaieConstants.COL_CARACT_PHYS_TECHNIQUE), TypologyImportMonnaieConstants.COL_CARACT_PHYS_TECHNIQUE, errors);
+    }
+
+    private static void previewOpenThesoInstrumentum(Map<String, String> row, List<String> errors) {
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE), TypologyImportConstants.COL_DATATION_PERIODE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE), TypologyImportConstants.COL_PRODUCTION_VALUE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_CATEGORIE_FONCTIONNELLE),
+                TypologyImportInstrumentumConstants.COL_DESCRIPTION_CATEGORIE_FONCTIONNELLE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_RELATION_IMITATION),
+                TypologyImportInstrumentumConstants.COL_DESCRIPTION_RELATION_IMITATION, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_DESCRIPTION_DENOMINATION),
+                TypologyImportInstrumentumConstants.COL_DESCRIPTION_DENOMINATION, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_MATERIAUX),
+                TypologyImportInstrumentumConstants.COL_CARACT_PHYS_MATERIAUX, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_FORME),
+                TypologyImportInstrumentumConstants.COL_CARACT_PHYS_FORME, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_DIMENSIONS),
+                TypologyImportInstrumentumConstants.COL_CARACT_PHYS_DIMENSIONS, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportInstrumentumConstants.COL_CARACT_PHYS_TECHNIQUE),
+                TypologyImportInstrumentumConstants.COL_CARACT_PHYS_TECHNIQUE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION), TypologyImportConstants.COL_CARACT_PHYS_FABRICATION, errors);
     }
 
     private static void previewDatation(Map<String, String> row, List<String> errors) {

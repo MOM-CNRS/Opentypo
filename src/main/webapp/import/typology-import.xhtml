@@ -21,6 +21,8 @@
                     <span class="typology-import-ref-code">#{applicationBean.selectedEntity != null ? applicationBean.selectedEntity.code : '—'}</span>
                     — import de catégories, groupes, séries et types via fichier CSV.
                     Séparateur de colonnes : virgule ou point-virgule (détection automatique).
+                    Typologie du référentiel détectée pour le modèle et l’import :
+                    <strong class="typology-import-typo-label">#{typologyImportBean.importCollectionTypologyLabel}</strong>.
                     Listes multi-valeurs dans une cellule : <code>||</code>.
                 </p>
             </div>
@@ -39,19 +41,25 @@
 
                 <!-- Étape 1 -->
                 <h:panelGroup rendered="#{typologyImportBean.step == 1}" layout="block" styleClass="typology-import-panel">
+                    <h:panelGroup layout="block" styleClass="typology-import-hint typology-import-hint-muted"
+                                  rendered="#{not typologyImportBean.importCollectionTypologyRecognized}">
+                        <i class="pi pi-info-circle" aria-hidden="true"/>
+                        <span>La collection de ce référentiel n’est pas identifiée comme Céramique, Monnaie ou Instrumentum : le modèle téléchargeable reprend le format Céramique par défaut (<code>#{typologyImportBean.templateDownloadFilename}</code>).</span>
+                    </h:panelGroup>
                     <div class="typology-import-download-card">
                         <div class="typology-import-download-card__visual" aria-hidden="true">
                             <i class="pi pi-file-export"/>
                         </div>
                         <div class="typology-import-download-card__body">
-                            <span class="typology-import-download-card__title">Modèle CSV</span>
+                            <span class="typology-import-download-card__title">Modèle CSV — #{typologyImportBean.importCollectionTypologyLabel}</span>
                             <span class="typology-import-download-card__desc">
-                                Une ligne d'en-tête et une ligne d'exemple complète (UTF-8), à dupliquer ou à effacer pour vos données.
+                                #{typologyImportBean.importCollectionModelDescription}
                             </span>
                         </div>
                         <div class="typology-import-download-card__action">
-                            <p:commandButton value="Télécharger le modèle"
+                            <p:commandButton value="Télécharger le modèle (#{typologyImportBean.importCollectionTypologyLabel})"
                                              icon="pi pi-download"
+                                             title="Fichier suggéré : #{typologyImportBean.templateDownloadFilename}"
                                              ajax="false"
                                              styleClass="typology-import-btn-download">
                                 <p:fileDownload value="#{typologyImportBean.templateDownload}"/>

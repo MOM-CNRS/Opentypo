@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean.import_typology;
 
 import fr.cnrs.opentypo.application.import_typology.TypologyCsvParser;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportAnalyzeResult;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportCollectionProfile;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportConstants;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportCsvExport;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportPreviewLine;
@@ -98,6 +99,50 @@ public class TypologyImportBean implements Serializable {
                 && referenceBean.canImportTypology(applicationBean);
     }
 
+    /**
+     * Profil d’import selon la collection du référentiel (Céramique, Monnaie ou Instrumentum).
+     */
+    public TypologyImportCollectionProfile resolveImportCollectionProfile() {
+        if (applicationBean.isCashTypo()) {
+            return TypologyImportCollectionProfile.MONNAIE;
+        }
+        if (applicationBean.isCeramiqueTypo()) {
+            return TypologyImportCollectionProfile.CERAMIQUE;
+        }
+        if (applicationBean.isInstrumentumTypo()) {
+            return TypologyImportCollectionProfile.INSTRUMENTUM;
+        }
+        return TypologyImportCollectionProfile.UNSUPPORTED;
+    }
+
+    /**
+     * Libellé court de la typologie d’import (collection du référentiel), pour l’UI du modèle CSV.
+     */
+    public String getImportCollectionTypologyLabel() {
+        return switch (resolveImportCollectionProfile()) {
+            case CERAMIQUE -> "Céramique";
+            case MONNAIE -> "Monnaie";
+            case INSTRUMENTUM -> "Instrumentum";
+            case UNSUPPORTED -> "Céramique (générique)";
+        };
+    }
+
+    public boolean isImportCollectionTypologyRecognized() {
+        return resolveImportCollectionProfile() != TypologyImportCollectionProfile.UNSUPPORTED;
+    }
+
+    /**
+     * Texte d’aide sous la carte « modèle » : rappelle le format attendu pour la typologie courante.
+     */
+    public String getImportCollectionModelDescription() {
+        return switch (resolveImportCollectionProfile()) {
+            case CERAMIQUE -> "En-tête + une ligne d’exemple complets, colonnes céramique (UTF-8).";
+            case MONNAIE -> "En-tête + ligne d’exemple au format Monnaie (droit, revers, caractéristiques, etc.).";
+            case INSTRUMENTUM -> "En-tête + ligne d’exemple au format Instrumentum (décors, marques, caract. physiques dédiées).";
+            case UNSUPPORTED -> "Collection non reconnue : le fichier proposé reprend le modèle Céramique. Idéalement, rattachez le référentiel à une collection Céramique, Monnaie ou Instrumentum.";
+        };
+    }
+
     public void handleFileUpload(FileUploadEvent event) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (!canUseImport()) {
@@ -132,7 +177,8 @@ public class TypologyImportBean implements Serializable {
             return;
         }
         try {
-            analysis = typologyImportService.analyze(applicationBean.getSelectedEntity(), parsedCsv);
+            analysis = typologyImportService.analyze(applicationBean.getSelectedEntity(), parsedCsv,
+                    resolveImportCollectionProfile());
             step = 2;
             if (analysis.successful()) {
                 fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Analyse terminée",
@@ -167,7 +213,7 @@ public class TypologyImportBean implements Serializable {
             String referenceCode = referenceEntity != null ? referenceEntity.getCode() : null;
 
             typologyImportService.execute(referenceEntity, parsedCsv,
-                    loginBean.getCurrentUser());
+                    loginBean.getCurrentUser(), resolveImportCollectionProfile());
 
             Flash flash = fc.getExternalContext().getFlash();
             flash.setKeepMessages(true);
@@ -283,12 +329,26 @@ public class TypologyImportBean implements Serializable {
     }
 
     /**
+     * Nom du fichier CSV modèle (identique à celui envoyé au navigateur).
+     */
+    public String getTemplateDownloadFilename() {
+        TypologyImportCollectionProfile profile = resolveImportCollectionProfile();
+        String suffix = switch (profile) {
+            case MONNAIE -> "-monnaie";
+            case INSTRUMENTUM -> "-instrumentum";
+            case CERAMIQUE, UNSUPPORTED -> "-ceramique";
+        };
+        return "import-typologique-modele" + suffix + ".csv";
+    }
+
+    /**
      * Fichier CSV modèle : en-tête + une ligne d'exemple complète (UTF-8).
      */
     public StreamedContent getTemplateDownload() {
-        byte[] bytes = TypologyImportConstants.csvTemplateHeaderAndExample().getBytes(StandardCharsets.UTF_8);
+        TypologyImportCollectionProfile profile = resolveImportCollectionProfile();
+        byte[] bytes = TypologyImportConstants.csvTemplateHeaderAndExample(profile).getBytes(StandardCharsets.UTF_8);
         return DefaultStreamedContent.builder()
-                .name("import-typologique-modele.csv")
+                .name(getTemplateDownloadFilename())
                 .contentType("text/csv; charset=UTF-8")
                 .stream(() -> new ByteArrayInputStream(bytes))
                 .build();
