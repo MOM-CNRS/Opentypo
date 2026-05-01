@@ -1,0 +1,181 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                template="../commun/template.xhtml">
+
+    <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{typologyImportBean.onPageEnter}"/>
+
+        <h:outputStylesheet library="css" name="pages/import/typology-import.css"/>
+
+        <h:panelGroup layout="block" id="typologyImportScope" styleClass="typology-import-page">
+            <div class="typology-import-hero">
+                <p class="typology-import-eyebrow">Référentiel</p>
+                <h1 class="typology-import-title">
+                    <i class="pi pi-upload typology-import-title-icon" aria-hidden="true"/>
+                    Import typologique
+                </h1>
+                <p class="typology-import-subtitle">
+                    <span class="typology-import-ref-code">#{applicationBean.selectedEntity != null ? applicationBean.selectedEntity.code : '—'}</span>
+                    — import de catégories, groupes, séries et types via fichier CSV.
+                    Séparateur de colonnes : virgule ou point-virgule (détection automatique).
+                    Listes multi-valeurs dans une cellule : <code>||</code>.
+                </p>
+            </div>
+
+            <h:panelGroup rendered="#{!typologyImportBean.canUseImport()}"
+                          layout="block" styleClass="typology-import-alert typology-import-alert-warn">
+                <i class="pi pi-lock"/>
+                <span>Vous ne pouvez pas importer pour ce référentiel (droits ou sélection).</span>
+            </h:panelGroup>
+
+            <h:form id="importForm" rendered="#{typologyImportBean.canUseImport()}">
+                <p:steps activeIndex="#{typologyImportBean.step - 1}" readonly="true" styleClass="typology-import-steps">
+                    <p:menuitem value="Fichier"/>
+                    <p:menuitem value="Analyse et validation"/>
+                </p:steps>
+
+                <!-- Étape 1 -->
+                <h:panelGroup rendered="#{typologyImportBean.step == 1}" layout="block" styleClass="typology-import-panel">
+                    <div class="typology-import-download-card">
+                        <div class="typology-import-download-card__visual" aria-hidden="true">
+                            <i class="pi pi-file-export"/>
+                        </div>
+                        <div class="typology-import-download-card__body">
+                            <span class="typology-import-download-card__title">Modèle CSV vide</span>
+                            <span class="typology-import-download-card__desc">
+                                Une seule ligne : les titres des colonnes attendues (UTF-8). Complétez ensuite les lignes de données.
+                            </span>
+                        </div>
+                        <div class="typology-import-download-card__action">
+                            <p:commandButton value="Télécharger le modèle"
+                                             icon="pi pi-download"
+                                             ajax="false"
+                                             styleClass="typology-import-btn-download">
+                                <p:fileDownload value="#{typologyImportBean.templateDownload}"/>
+                            </p:commandButton>
+                        </div>
+                    </div>
+
+                    <p:fileUpload id="typologyCsvUpload"
+                                  widgetVar="typologyCsvUpload"
+                                  listener="#{typologyImportBean.handleFileUpload}"
+                                  mode="advanced"
+                                  dragDropSupport="true"
+                                  label="Choisir un fichier CSV"
+                                  uploadLabel="Charger"
+                                  cancelLabel="Annuler"
+                                  update=":importForm :growl"
+                                  sizeLimit="10485760"
+                                  fileLimit="1"
+                                  auto="false"
+                                  styleClass="typology-import-upload"/>
+
+                    <h:panelGroup rendered="#{not empty typologyImportBean.uploadedFileName}"
+                                  layout="block" styleClass="typology-import-file-hint">
+                        <i class="pi pi-check-circle"/>
+                        Fichier : #{typologyImportBean.uploadedFileName}
+                        — #{typologyImportBean.parsedCsv.rows().size()} ligne(s) de données.
+                    </h:panelGroup>
+
+                    <div class="typology-import-actions">
+                        <p:commandButton value="Analyser le fichier"
+                                         icon="pi pi-search"
+                                         actionListener="#{typologyImportBean.runAnalyze}"
+                                         process="@form"
+                                         update=":importForm :growl"
+                                         disabled="#{typologyImportBean.parsedCsv == null}"
+                                         onclick="PF('typologyImportBlock').show()"
+                                         oncomplete="PF('typologyImportBlock').hide()"
+                                         styleClass="typology-import-btn-primary"/>
+                    </div>
+                </h:panelGroup>
+
+                <!-- Étape 2 -->
+                <h:panelGroup rendered="#{typologyImportBean.step == 2}" layout="block" styleClass="typology-import-panel">
+                    <h:panelGroup rendered="#{typologyImportBean.analysis != null and typologyImportBean.analysis.successful()}"
+                                  layout="block" styleClass="typology-import-alert typology-import-alert-ok">
+                        <i class="pi pi-check-circle"/>
+                        Analyse sans erreur bloquante. Passez à la confirmation pour enregistrer en base (transaction globale).
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{typologyImportBean.analysis != null and !typologyImportBean.analysis.successful()}"
+                                  layout="block" styleClass="typology-import-alert typology-import-alert-warn">
+                        <i class="pi pi-exclamation-triangle"/>
+                        Des erreurs subsistent : corrigez le fichier puis rechargez-le (étape 1).
+                    </h:panelGroup>
+
+                    <p:dataTable value="#{typologyImportBean.analysis.previewLines}"
+                                 var="line"
+                                 rendered="#{typologyImportBean.analysis != null}"
+                                 styleClass="typology-import-table"
+                                 paginator="true"
+                                 rows="15">
+                        <p:column headerText="Ligne">
+                            <h:outputText value="#{line.csvRowNumber}"/>
+                        </p:column>
+                        <p:column headerText="Nature">
+                            <h:outputText value="#{typologyImportBean.kindLabel(line)}"/>
+                        </p:column>
+                        <p:column headerText="Code">
+                            <h:outputText value="#{line.targetCode}"/>
+                        </p:column>
+                        <p:column headerText="Action">
+                            <h:outputText value="#{line.createOrUpdateCreate ? 'Création' : 'Mise à jour'}"/>
+                        </p:column>
+                        <p:column headerText="Statut ligne">
+                            <i class="pi #{line.lineOk ? 'pi-check typology-icon-ok' : 'pi-times typology-icon-ko'}"/>
+                        </p:column>
+                        <p:column headerText="Messages">
+                            <ui:repeat value="#{line.errors}" var="err">
+                                <div class="typology-msg typology-msg-err">#{err}</div>
+                            </ui:repeat>
+                            <ui:repeat value="#{line.warnings}" var="w">
+                                <div class="typology-msg typology-msg-warn">#{w}</div>
+                            </ui:repeat>
+                            <h:outputText value="—" rendered="#{empty line.errors and empty line.warnings and line.lineOk}"/>
+                        </p:column>
+                    </p:dataTable>
+
+                    <div class="typology-import-actions">
+                        <p:commandButton value="Retour à l’étape fichier"
+                                         icon="pi pi-arrow-left"
+                                         actionListener="#{typologyImportBean.goToStep1}"
+                                         update=":importForm"
+                                         process="@this"
+                                         immediate="true"
+                                         styleClass="typology-import-btn-outline"/>
+                        <p:commandButton value="Confirmer l’import"
+                                         icon="pi pi-check"
+                                         actionListener="#{typologyImportBean.runConfirmImport}"
+                                         process="@form"
+                                         update=":importForm :growl :centerContent"
+                                         onclick="PF('typologyImportBlock').show()"
+                                         oncomplete="PF('typologyImportBlock').hide()"
+                                         rendered="#{typologyImportBean.analysis != null and typologyImportBean.analysis.successful()}"
+                                         styleClass="typology-import-btn-primary"/>
+                    </div>
+                </h:panelGroup>
+
+            </h:form>
+
+            <div class="typology-import-back">
+                <h:outputLink value="#{request.contextPath}/index.xhtml"
+                              styleClass="typology-import-back-link">
+                    <i class="pi pi-arrow-left" aria-hidden="true"/> Retour à l’application
+                </h:outputLink>
+            </div>
+        </h:panelGroup>
+
+        <p:blockUI block="typologyImportScope" widgetVar="typologyImportBlock"
+                   styleClass="typology-import-blockui">
+            <div class="typology-import-blocking" role="status" aria-live="polite">
+                <i class="pi pi-spin pi-spinner typology-import-blocking__icon" aria-hidden="true"/>
+                <p class="typology-import-blocking__title">Traitement en cours…</p>
+                <p class="typology-import-blocking__hint">Merci de patienter, ne fermez pas cette page.</p>
+                <p:progressBar mode="indeterminate" styleClass="typology-import-blocking__bar"/>
+            </div>
+        </p:blockUI>
+    </ui:define>
+</ui:composition>

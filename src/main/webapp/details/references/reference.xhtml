@@ -65,6 +65,19 @@
                                 <p:tooltip value="Paramétrage" position="top"/>
                             </p:commandLink>
 
+                            <h:outputLink value="#{request.contextPath}/import/typology-import.xhtml"
+                                          styleClass="typology-import-entry"
+                                          title="Ouvrir l’assistant d’import CSV (catégories, groupes, séries, types)"
+                                          rendered="#{referenceBean.canImportTypology(applicationBean)}">
+                                <span class="typology-import-entry__lead" aria-hidden="true">
+                                    <i class="pi pi-upload"/>
+                                </span>
+                                <span class="typology-import-entry__body">
+                                    <span class="typology-import-entry__title">Import typologique</span>
+                                    <span class="typology-import-entry__sub">Assistant · fichier CSV</span>
+                                </span>
+                            </h:outputLink>
+
                             <!-- Bouton Historique -->
                             <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                            rendered="#{loginBean.currentUser != null}"

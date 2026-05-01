@@ -112,7 +112,7 @@
                                                 </div>
                                                 <div class="concept-info-grid">
                                                     <ui:repeat value="#{historyBean.getKeysForSection(section)}" var="key">
-                                                        <div class="concept-info-item #{key == 'images' or key == 'descriptions' or key == 'bibliographie' or key == 'commentaireMetadata' or key == 'attestations' or key == 'sitesArcheologiques' or key == 'alignementExterne' or key == 'commentaireDatation' or key == 'rereferenceBibliographique' or key == 'corpusExterne' ? 'concept-info-item-full' : ''}">
+                                                        <div class="concept-info-item #{key == 'images' or key == 'descriptions' or key == 'bibliographie' or key == 'commentaireMetadata' or key == 'attestations' or key == 'corpusLies' or key == 'sitesArcheologiques' or key == 'alignementExterne' or key == 'commentaireDatation' or key == 'rereferenceBibliographique' or key == 'corpusExterne' ? 'concept-info-item-full' : ''}">
                                                             <div class="concept-info-label">
                                                                 <i class="pi #{historyBean.getFieldIcon(key)} monnaie-communs-icon"/>
                                                                 <span>#{historyBean.getFieldLabel(key)}</span>

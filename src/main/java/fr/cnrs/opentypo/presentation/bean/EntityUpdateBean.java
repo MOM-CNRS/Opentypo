@@ -245,6 +245,7 @@ public class EntityUpdateBean implements Serializable {
     private String marqueEstampilleValue;
     private String descriptionPate;
     private String corpusExterne;
+    private String corpusLies;
     private String alignementExterne;
     private String periode;
     private Integer tpq;
@@ -435,6 +436,7 @@ public class EntityUpdateBean implements Serializable {
         tpq = entity.getTpq();
         taq = entity.getTaq();
         corpusExterne = entity.getMetadata() != null ? entity.getMetadata().getCorpusExterne() : null;
+        corpusLies = entity.getMetadata() != null ? entity.getMetadata().getCorpusLies() : null;
         alignementExterne = entity.getMetadata() != null ? entity.getMetadata().getAlignementExterne() : null;
 
         droit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getDroit() : null;
@@ -571,6 +573,7 @@ public class EntityUpdateBean implements Serializable {
         tpq = null;
         taq = null;
         corpusExterne = null;
+        corpusLies = null;
         alignementExterne = null;
         droit = null;
         legendeDroit = null;
@@ -1610,6 +1613,7 @@ public class EntityUpdateBean implements Serializable {
                 : null);
 
         entityMetadata.setCorpusExterne(corpusExterne != null && !corpusExterne.isBlank() ? corpusExterne.trim() : null);
+        entityMetadata.setCorpusLies(corpusLies != null && !corpusLies.isBlank() ? corpusLies.trim() : null);
 
         String newCommentaire = commentaire != null ? commentaire.trim() : null;
         entityMetadata.setCommentaire(newCommentaire);

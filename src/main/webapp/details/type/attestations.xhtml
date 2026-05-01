@@ -37,6 +37,51 @@
                                               styleClass="bibliographie-empty"/>
                             </div>
                         </h:panelGroup>
+
+                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.corpusLies : null)}"
+                                      styleClass="concept-info-item concept-info-item-full" layout="block">
+                            <div class="concept-info-label">
+                                <i class="pi pi-book monnaie-communs-icon" />
+                                <span>Corpus lié(s)</span>
+                            </div>
+                            <div class="concept-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.corpusLies}">
+                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.corpusLies, ';')}" var="corpus">
+                                        <ui:fragment rendered="#{not empty corpus and fn:trim(corpus) != ''}">
+                                            <span class="bibliographie-badge">
+                                                <i class="pi pi-book bibliographie-badge-icon"/>
+                                                <span class="bibliographie-badge-text">#{fn:trim(corpus)}</span>
+                                            </span>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.corpusLies}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.sitesArcheologiques : null)}"
+                                      styleClass="concept-info-item concept-info-item-full" layout="block">
+                            <div class="concept-info-label">
+                                <i class="pi pi-map-marker monnaie-communs-icon" />
+                                <span>Sites archéologiques</span>
+                            </div>
+                            <div class="concept-info-value bibliographie-container">
+                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.sitesArcheologiques}">
+                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.sitesArcheologiques, ';')}" var="ref" varStatus="status">
+                                        <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                        <span class="bibliographie-badge">
+                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                        </span>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </ui:fragment>
+                                <h:outputText value="Aucun site archéologique disponible"
+                                              rendered="#{empty applicationBean.selectedEntity.metadata.sitesArcheologiques}"
+                                              styleClass="bibliographie-empty"/>
+                            </div>
+                        </h:panelGroup>
                     </div>
                 </div>
             </div>

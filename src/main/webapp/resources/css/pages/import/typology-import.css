@@ -1,0 +1,455 @@
+/**
+ * Import typologique — alignement sur la charte OpenTypo (:root dans openTypo_style.css).
+ */
+
+.typology-import-page {
+    --ti-accent: var(--color-action-main, #47624D);
+    --ti-accent-soft: rgba(71, 98, 77, 0.12);
+    --ti-accent-border: rgba(71, 98, 77, 0.22);
+    --ti-text-muted: var(--color-text-secondary, #819a91);
+    --ti-card-shadow: 0 8px 26px rgba(36, 49, 38, 0.09);
+
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 2.75rem;
+    color: var(--color-text-primary, #333);
+}
+
+/* ========== Hero ========== */
+.typology-import-hero {
+    margin-bottom: 1.35rem;
+    padding: 1.2rem 1.35rem;
+    border-radius: 16px;
+    border: 1px solid var(--ti-accent-border);
+    background: linear-gradient(
+        145deg,
+        rgba(71, 98, 77, 0.11) 0%,
+        rgba(255, 255, 255, 0.97) 48%,
+        rgba(209, 216, 190, 0.35) 100%
+    );
+    box-shadow: var(--ti-card-shadow);
+}
+
+.typology-import-eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ti-accent);
+}
+
+.typology-import-title {
+    margin: 0 0 0.45rem;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #2f3f31;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.typology-import-title-icon {
+    color: var(--ti-accent);
+    font-size: 1.35rem;
+}
+
+.typology-import-subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--ti-text-muted);
+}
+
+.typology-import-ref-code {
+    display: inline-block;
+    padding: 0.12rem 0.45rem;
+    border-radius: 6px;
+    font-weight: 700;
+    color: var(--ti-accent);
+    background: rgba(71, 98, 77, 0.1);
+    border: 1px solid var(--ti-accent-border);
+}
+
+.typology-import-subtitle code {
+    padding: 0.12rem 0.4rem;
+    border-radius: 5px;
+    font-size: 0.88em;
+    color: var(--ti-accent);
+    background: var(--ti-accent-soft);
+    border: 1px solid var(--ti-accent-border);
+}
+
+/* ========== Carte téléchargement modèle (uniquement sur cette page) ========== */
+.typology-import-download-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.35rem;
+    border-radius: 12px;
+    border: 1px solid var(--ti-accent-border);
+    background: linear-gradient(90deg, rgba(238, 239, 224, 0.65) 0%, #fff 55%);
+    box-shadow: 0 2px 12px rgba(36, 49, 38, 0.06);
+}
+
+.typology-import-download-card__visual {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--ti-accent);
+    color: #fff;
+    font-size: 1.25rem;
+}
+
+.typology-import-download-card__body {
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.typology-import-download-card__title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: #2f3f31;
+}
+
+.typology-import-download-card__desc {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--ti-text-muted);
+}
+
+.typology-import-download-card__action {
+    flex-shrink: 0;
+}
+
+/* Bouton téléchargement modèle */
+.typology-import-page .typology-import-btn-download.ui-button {
+    background: #fff !important;
+    color: var(--ti-accent) !important;
+    border: 1px solid var(--ti-accent) !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    padding: 0.55rem 1rem !important;
+}
+
+.typology-import-page .typology-import-btn-download.ui-button:hover {
+    background: rgba(71, 98, 77, 0.08) !important;
+    border-color: #3d5240 !important;
+    color: #3d5240 !important;
+}
+
+/* ========== Étapes PrimeFaces ========== */
+.typology-import-steps.ui-steps,
+.typology-import-page .ui-steps {
+    margin-bottom: 1.35rem;
+}
+
+.typology-import-page .ui-steps .ui-steps-item .ui-menuitem-link {
+    color: var(--ti-text-muted) !important;
+}
+
+.typology-import-page .ui-steps .ui-steps-item.ui-state-highlight .ui-menuitem-link,
+.typology-import-page .ui-steps .ui-steps-item.ui-state-active .ui-menuitem-link {
+    color: var(--ti-accent) !important;
+    font-weight: 600 !important;
+}
+
+.typology-import-page .ui-steps .ui-steps-number {
+    background: var(--color-bg-secondary, #d1d8be) !important;
+    color: var(--color-text-primary, #333) !important;
+    border: 1px solid var(--ti-accent-border) !important;
+}
+
+.typology-import-page .ui-steps .ui-state-highlight .ui-steps-number,
+.typology-import-page .ui-steps .ui-state-active .ui-steps-number {
+    background: var(--ti-accent) !important;
+    color: #fff !important;
+    border-color: var(--ti-accent) !important;
+}
+
+/* ========== Panneaux ========== */
+.typology-import-panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.35rem 1.25rem;
+    border: 1px solid var(--ti-accent-border);
+    box-shadow: var(--ti-card-shadow);
+}
+
+/* ========== Upload fichier ========== */
+.typology-import-upload .ui-fileupload-buttonbar {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem !important;
+    border-radius: 12px !important;
+    background: var(--color-surface-secondary, #f0f2f5) !important;
+    border: 1px solid var(--ti-accent-border) !important;
+}
+
+.typology-import-page .typology-import-upload .ui-button {
+    border-radius: 10px !important;
+}
+
+.typology-import-page .typology-import-upload .ui-fileupload-choose {
+    background: var(--ti-accent) !important;
+    border-color: var(--ti-accent) !important;
+    color: #fff !important;
+}
+
+.typology-import-page .typology-import-upload .ui-fileupload-choose:hover {
+    background: #3d5240 !important;
+    border-color: #3d5240 !important;
+}
+
+.typology-import-file-hint {
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    border: 1px solid rgba(71, 98, 77, 0.28);
+    background: rgba(167, 193, 168, 0.22);
+    color: #2f4a32;
+}
+
+.typology-import-file-hint .pi {
+    margin-right: 0.4rem;
+    color: var(--ti-accent);
+}
+
+/* ========== Boutons d’action ========== */
+.typology-import-actions {
+    margin-top: 1.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.typology-import-page .typology-import-btn-primary.ui-button {
+    background: var(--ti-accent) !important;
+    border-color: var(--ti-accent) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    padding: 0.55rem 1.15rem !important;
+}
+
+.typology-import-page .typology-import-btn-primary.ui-button:hover:not(:disabled) {
+    background: #3d5240 !important;
+    border-color: #3d5240 !important;
+}
+
+.typology-import-page .typology-import-btn-primary.ui-button:disabled {
+    opacity: 0.45 !important;
+}
+
+.typology-import-page .typology-import-btn-outline.ui-button {
+    background: transparent !important;
+    color: var(--ti-accent) !important;
+    border: 1px solid var(--ti-accent-border) !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.typology-import-page .typology-import-btn-outline.ui-button:hover {
+    background: rgba(71, 98, 77, 0.07) !important;
+    border-color: var(--ti-accent) !important;
+}
+
+/* ========== Alertes ========== */
+.typology-import-alert {
+    margin-bottom: 1rem;
+    padding: 0.85rem 1.05rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    line-height: 1.45;
+}
+
+.typology-import-alert .pi {
+    margin-top: 0.12rem;
+    flex-shrink: 0;
+}
+
+.typology-import-alert-warn {
+    background: rgba(184, 74, 60, 0.08);
+    border: 1px solid rgba(184, 74, 60, 0.35);
+    color: #5c2e28;
+}
+
+.typology-import-alert-warn .pi {
+    color: var(--color-danger, #b84a3c);
+}
+
+.typology-import-alert-ok {
+    background: rgba(71, 98, 77, 0.1);
+    border: 1px solid rgba(71, 98, 77, 0.35);
+    color: #2a3d2d;
+}
+
+.typology-import-alert-ok .pi {
+    color: var(--ti-accent);
+}
+
+.typology-import-page > .typology-import-alert.typology-import-alert-warn:first-of-type {
+    border-radius: 12px;
+}
+
+/* ========== Tableau prévisualisation ========== */
+.typology-import-table.ui-datatable .ui-datatable-thead > tr > th {
+    background: linear-gradient(180deg, var(--ti-accent-soft) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+    color: #2f3f31 !important;
+    font-weight: 600 !important;
+    border-color: var(--ti-accent-border) !important;
+    padding: 0.65rem 0.75rem !important;
+}
+
+.typology-import-table.ui-datatable .ui-datatable-data > tr > td {
+    border-color: rgba(71, 98, 77, 0.12) !important;
+    padding: 0.55rem 0.75rem !important;
+}
+
+.typology-import-table.ui-datatable .ui-datatable-data > tr:nth-child(even) {
+    background: rgba(238, 239, 224, 0.35);
+}
+
+.typology-import-table .typology-msg {
+    font-size: 0.84rem;
+    margin: 0.15rem 0;
+}
+
+.typology-msg-err {
+    color: var(--color-danger, #b84a3c);
+}
+
+.typology-msg-warn {
+    color: #8a5a2b;
+}
+
+.typology-icon-ok {
+    color: var(--ti-accent);
+}
+
+.typology-icon-ko {
+    color: var(--color-danger, #b84a3c);
+}
+
+/* ========== Retour ========== */
+.typology-import-back {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ti-accent-border);
+}
+
+.typology-import-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none !important;
+    font-weight: 600;
+    color: var(--color-link-discreet, #516d75) !important;
+}
+
+.typology-import-back-link:hover {
+    color: var(--ti-accent) !important;
+    text-decoration: none !important;
+}
+
+.typology-import-back-link .pi {
+    font-size: 0.9rem;
+}
+
+/* Overlay progression : voile lisible + carte opaque pour le message */
+.typology-import-blockui.ui-blockui.ui-widget {
+    background: rgba(36, 49, 38, 0.58) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 0 !important;
+}
+
+.typology-import-blocking {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.35rem 1.6rem 1.45rem;
+    max-width: 380px;
+    margin: 0 auto;
+    background: #fafbf8;
+    border: 1px solid rgba(71, 98, 77, 0.35);
+    border-radius: 16px;
+    box-shadow:
+        0 4px 6px rgba(36, 49, 38, 0.06),
+        0 18px 42px rgba(36, 49, 38, 0.15);
+}
+
+.typology-import-blocking__icon {
+    font-size: 2.25rem;
+    color: var(--ti-accent, #47624d);
+    filter: drop-shadow(0 1px 2px rgba(36, 49, 38, 0.12));
+}
+
+.typology-import-blocking__title {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #1e2a20;
+    text-shadow: none;
+}
+
+.typology-import-blocking__hint {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #4a5c52;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.typology-import-blocking__bar.ui-progressbar {
+    width: 100%;
+    height: 8px !important;
+    border-radius: 999px !important;
+    overflow: hidden;
+    margin-top: 0.35rem;
+    background: rgba(71, 98, 77, 0.18) !important;
+    border: 1px solid rgba(71, 98, 77, 0.12);
+}
+
+.typology-import-blocking__bar.ui-progressbar .ui-progressbar-value {
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, #3d5240 0%, #47624d 55%, #5a7a62 100%) !important;
+}
+
+@media (max-width: 576px) {
+    .typology-import-download-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .typology-import-download-card__visual {
+        align-self: flex-start;
+    }
+
+    .typology-import-download-card__action {
+        width: 100%;
+    }
+
+    .typology-import-page .typology-import-btn-download.ui-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .typology-import-title {
+        font-size: 1.25rem;
+    }
+}

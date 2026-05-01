@@ -17,10 +17,8 @@
                                 <p:tooltip value="Catégorie non publiée" position="top"/>
                             </h:panelGroup>
                             <div class="collection-panel-title-wrapper">
-                                <div class="collection-panel-title-wrapper">
-                                    <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
-                                </div>
+                                <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
+                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
                             </div>
                         </div>
 
@@ -156,18 +154,20 @@
                 </div>
 
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                    <ui:include src="datation.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="datation.xhtml"/>
+                    </div>
 
-                    <ui:include src="alignements.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="../communs/production.xhtml"/>
+                    </div>
 
-                    <ui:include src="../communs/production.xhtml"/>
-
-                    <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
+                    <h:panelGroup rendered="#{applicationBean.isCashTypo()}" styleClass="type-section-shell" layout="block">
                         <ui:include src="../communs/description_monnaie.xhtml"/>
                         <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                     </h:panelGroup>
 
-                    <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                    <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}" styleClass="type-section-shell" layout="block">
                         <ui:include src="../communs/description.xhtml"/>
 
                         <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
@@ -179,15 +179,23 @@
                         </h:panelGroup>
                     </h:panelGroup>
 
-                    <ui:include src="attestations.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="attestations.xhtml"/>
+                    </div>
 
-                    <ui:include src="sites_archeologiques.xhtml"/>
+                    <!--<ui:include src="gestion.xhtml"/>-->
 
-                    <ui:include src="gestion.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="references.xhtml"/>
+                    </div>
 
-                    <ui:include src="../communs/commentaire.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="../communs/commentaire.xhtml"/>
+                    </div>
 
-                    <ui:include src="../communs/bibliographie.xhtml"/>
+                    <div class="type-section-shell">
+                        <ui:include src="../communs/bibliographie.xhtml"/>
+                    </div>
                 </ui:fragment>
             </h:form>
         </div>

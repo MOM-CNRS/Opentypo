@@ -545,7 +545,7 @@ public class AuditService {
                 List<Object[]> metaRows = entityManager.createNativeQuery(
                     "SELECT code, commentaire, bibliographie, appellation, typologie_scientifique, identifiant_perenne, " +
                     "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, " +
-                    "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe " +
+                    "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe, denomination_instrumentum, corpus_lies " +
                     "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
@@ -571,6 +571,8 @@ public class AuditService {
                     if (row.length > 15 && row[15] != null) data.put("alignementExterne", row[15].toString());
                     if (row.length > 16 && row[16] != null) data.put("rereferenceBibliographique", row[16].toString());
                     if (row.length > 17 && row[17] != null) data.put("corpusExterne", row[17].toString());
+                    if (row.length > 18 && row[18] != null) data.put("denominationInstrumentum", row[18].toString());
+                    if (row.length > 19 && row[19] != null) data.put("corpusLies", row[19].toString());
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_metadata_aud: {}", e.getMessage());

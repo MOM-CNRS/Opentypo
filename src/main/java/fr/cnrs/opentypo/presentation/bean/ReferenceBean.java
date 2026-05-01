@@ -910,6 +910,33 @@ public class ReferenceBean implements Serializable {
         return false;
     }
 
+    /**
+     * Import CSV typologique : administrateurs ou gestionnaire du référentiel sélectionné uniquement.
+     */
+    public boolean canImportTypology(ApplicationBean applicationBean) {
+
+        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+
+        if (applicationBean.getSelectedEntity().getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(applicationBean.getSelectedEntity().getEntityType().getCode())) {
+            return false;
+        }
+
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+
+        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
+        if (userId == null) {
+            return false;
+        }
+
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+    }
+
     public boolean showReferenceStatut() {
         return !loginBean.isAuthenticated() || !loginBean.isAdminTechniqueOrFonctionnel();
     }

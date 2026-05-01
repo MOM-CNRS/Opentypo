@@ -526,6 +526,24 @@ public class Entity implements Serializable {
         metadata.setRelationImitation(relationImitation);
     }
 
+    public String getCorpusLies() {
+        return metadata != null ? metadata.getCorpusLies() : null;
+    }
+
+    public void setCorpusLies(String corpusLies) {
+        ensureMetadata();
+        metadata.setCorpusLies(corpusLies);
+    }
+
+    public String getCorpusExterne() {
+        return metadata != null ? metadata.getCorpusExterne() : null;
+    }
+
+    public void setCorpusExterne(String corpusExterne) {
+        ensureMetadata();
+        metadata.setCorpusExterne(corpusExterne);
+    }
+
     /**
      * Obtient la dénomination (Instrumentum) depuis les métadonnées
      */

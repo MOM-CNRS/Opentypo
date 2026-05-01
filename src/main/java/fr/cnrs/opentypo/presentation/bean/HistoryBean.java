@@ -237,7 +237,7 @@ public class HistoryBean implements Serializable {
         // caracteristiques_physique_monnaie.xhtml
         "materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie",
         // description.xhtml
-        "decors", "marques", "fonctionUsage",
+        "decors", "marques", "fonctionUsage", "denominationInstrumentum",
         // caracteristiques_physique.xhtml (céramique)
         "metrologiePhysique", "fabricationPhysique", "descriptionPate", "couleurPate", "naturePate", "inclusionPate", "cuissonPate",
         // caracteristiques_physique_instrumentum.xhtml
@@ -245,7 +245,7 @@ public class HistoryBean implements Serializable {
         // metrologie détail (description_detail)
         "metrologieDetail",
         // attestations, sites, gestion, commentaire, bibliographie
-        "attestations", "sitesArcheologiques", "reference", "typologieScientifique",
+        "attestations", "corpusLies", "sitesArcheologiques", "reference", "typologieScientifique",
         "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie"
     };
 
@@ -269,13 +269,13 @@ public class HistoryBean implements Serializable {
         new DisplaySection("caracMonnaie", "Caractéristiques physiques", "pi pi-th-large",
             List.of("materiauxMonnaie", "denomination", "metrologieMonnaie", "valeurMonnaie", "techniqueMonnaie"), "MONNAIE"),
         new DisplaySection("description", "Description", "pi pi-book",
-            List.of("decors", "marques", "fonctionUsage", "metrologieDetail"), "CERAMIQUE_OR_INSTRUMENTUM"),
+            List.of("decors", "marques", "fonctionUsage", "denominationInstrumentum", "metrologieDetail"), "CERAMIQUE_OR_INSTRUMENTUM"),
         new DisplaySection("caracCeramique", "Caractéristiques physiques", "pi pi-sliders-h",
             List.of("metrologiePhysique", "fabricationPhysique", "descriptionPate", "couleurPate", "naturePate", "inclusionPate", "cuissonPate"), "CERAMIQUE"),
         new DisplaySection("caracInstrumentum", "Caractéristiques physiques", "pi pi-th-large",
             List.of("materiaux", "forme", "dimensions", "technique", "fabricationPhysique"), "INSTRUMENTUM"),
         new DisplaySection("attestations", "Attestations", "pi pi-check-circle",
-            List.of("attestations"), "ALWAYS"),
+            List.of("attestations", "corpusLies"), "ALWAYS"),
         new DisplaySection("sites", "Sites archéologiques", "pi pi-map-marker",
             List.of("sitesArcheologiques"), "ALWAYS"),
         new DisplaySection("gestion", "Gestion", "pi pi-cog",
@@ -428,11 +428,13 @@ public class HistoryBean implements Serializable {
             case "decors" -> "pi pi-palette";
             case "marques" -> "pi pi-tag";
             case "fonctionUsage" -> "pi pi-sitemap";
+            case "denominationInstrumentum" -> "pi pi-tag";
             case "descriptionPate" -> "pi pi-arrows-h";
             case "couleurPate", "naturePate", "inclusionPate", "cuissonPate" -> "pi pi-wrench";
             case "forme" -> "pi pi-sliders-h";
             case "dimensions" -> "pi pi-id-card";
             case "attestations" -> "pi pi-check-circle";
+            case "corpusLies" -> "pi pi-book";
             case "sitesArcheologiques" -> "pi pi-map-marker";
             case "commentaireMetadata" -> "pi pi-comment";
             case "bibliographie" -> "pi pi-book";
@@ -528,6 +530,8 @@ public class HistoryBean implements Serializable {
                 return "Aire de circulation";
             case "categorieFonctionnelle":
                 return "Catégorie fonctionnelle";
+            case "denominationInstrumentum":
+                return "Dénomination";
             case "droit":
                 return "Droit";
             case "legendeDroit":
@@ -548,6 +552,8 @@ public class HistoryBean implements Serializable {
                 return "Technique (monnaie)";
             case "attestations":
                 return "Attestations";
+            case "corpusLies":
+                return "Corpus lié(s)";
             case "sitesArcheologiques":
                 return "Sites archéologiques";
             case "commentaireMetadata":

@@ -99,6 +99,17 @@
                             </p:chips>
                         </div>
                     </div>
+
+                    <div class="users-form-group users-form-group-full candidats-mt-10">
+                        <p:outputLabel value="Corpus lié(s)" />
+                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                            <i class="pi pi-book input-icon" title="Corpus lié(s)"/>
+                            <p:inputText value="#{entityUpdateBean.corpusLies}"
+                                         styleClass="users-input"
+                                         placeholder="Ex. Corpus A, Corpus B..."
+                                         maxlength="500"/>
+                        </div>
+                    </div>
                 </div>
 
                 <ui:include src="description-modification.xhtml"/>

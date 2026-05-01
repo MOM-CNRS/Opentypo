@@ -116,6 +116,10 @@ public class EntityMetadata implements Serializable {
     @Column(name = "corpus_externe", columnDefinition = "TEXT")
     private String corpusExterne;
 
+    // Corpus lié(s)
+    @Column(name = "corpus_lies", columnDefinition = "TEXT")
+    private String corpusLies;
+
     // Commentaire (visible dans formulaires groupe, catégorie, série, type)
     @Column(name = "commentaire", columnDefinition = "TEXT")
     private String commentaire;

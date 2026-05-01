@@ -15,44 +15,6 @@
                 </div>
 
                 <div class="concept-info-grid">
-                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.reference : null)}"
-                                  styleClass="concept-info-item concept-info-item-full" layout="block">
-                        <div class="concept-info-label">
-                            <i class="pi pi-database monnaie-communs-icon" />
-                            <span>Référentiel</span>
-                        </div>
-                        <div class="concept-info-value bibliographie-container">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.reference}">
-                                <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.reference, ';')}" var="ref" varStatus="status">
-                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                    <span class="bibliographie-badge">
-                                        <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                    </span>
-                                </ui:fragment>
-                                </ui:repeat>
-                            </ui:fragment>
-                            <h:outputText value="Aucun référentiel disponible"
-                                      rendered="#{empty applicationBean.selectedEntity.metadata.reference}"
-                                      styleClass="bibliographie-empty"/>
-                        </div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.typologieScientifique)}"
-                                  styleClass="concept-info-item" layout="block">
-                        <div class="concept-info-label">
-                            <i class="pi pi-book monnaie-communs-icon" />
-                            <span>Typologique scientifique</span>
-                        </div>
-                        <div class="concept-info-value">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.typologieScientifique}">
-                                #{applicationBean.selectedEntity.typologieScientifique}
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.typologieScientifique}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
-                        </div>
-                    </h:panelGroup>
-
                     <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.identifiantPerenne)}"
                                   styleClass="concept-info-item" layout="block">
                         <div class="concept-info-label">
