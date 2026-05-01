@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Parseur CSV minimal (RFC 4180 simplifié : guillemets ; séparateur {@code ,} ou {@code ;} détecté sur la ligne d'en-tête).
@@ -118,5 +119,12 @@ public final class TypologyCsvParser {
     }
 
     public record ParsedCsv(List<String> headers, List<Map<String, String>> rows) {
+        /**
+         * Noms d'en-tête normalisés (tels qu'utilisés en clé dans chaque ligne) : sert à l'import partiel
+         * (seules les colonnes listées ici sont prises en compte à la mise à jour).
+         */
+        public Set<String> headerKeySet() {
+            return Set.copyOf(headers);
+        }
     }
 }

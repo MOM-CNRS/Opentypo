@@ -58,6 +58,25 @@ public class TypologyImportService {
     private static final String KEY_SEP = "\u001F";
     private static final Pattern LIST_SPLIT = Pattern.compile(TypologyImportConstants.LIST_SEPARATOR);
 
+    private static boolean columnInCsv(Set<String> csvHeaders, String columnConstant) {
+        return csvHeaders.contains(columnConstant.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * En mise à jour : une colonne du fichier n'est écrite que si elle est présente dans l'en-tête CSV
+     * et que la cellule est non vide (évite d'effacer une valeur existante avec une cellule vide).
+     * En création : toute colonne présente dans le fichier est prise en compte ; les colonnes absentes ne sont pas initialisées.
+     */
+    private boolean shouldWriteField(Set<String> csvHeaders, String columnConstant, Map<String, String> row, boolean isCreate) {
+        if (!columnInCsv(csvHeaders, columnConstant)) {
+            return false;
+        }
+        if (isCreate) {
+            return true;
+        }
+        return StringUtils.hasText(getCell(row, columnConstant));
+    }
+
     @Autowired
     private EntityRepository entityRepository;
     @Autowired
@@ -277,6 +296,8 @@ public class TypologyImportService {
         EntityType typType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_TYPE)
                 .orElseThrow(() -> new IllegalStateException("Type TYPE manquant."));
 
+        Set<String> csvHeaders = parsed.headerKeySet();
+
         for (int idx : order) {
             if (kinds[idx] == null) {
                 continue;
@@ -286,57 +307,54 @@ public class TypologyImportService {
             String cg = get(row, TypologyImportConstants.COL_CODE_GROUPE);
             String cs = get(row, TypologyImportConstants.COL_CODE_SERIE);
             applyRow(ref, row, kinds[idx], targets[idx], cc, cg, cs,
-                    catType, grpType, serType, typType, user);
+                    catType, grpType, serType, typType, user, csvHeaders);
         }
     }
 
     private void applyRow(Entity reference, Map<String, String> row, TypologyImportKind kind, String targetCode,
                           String cc, String cg, String cs,
                           EntityType catType, EntityType grpType, EntityType serType, EntityType typType,
-                          Utilisateur user) {
+                          Utilisateur user, Set<String> csvHeaders) {
 
         Langue langLabel = resolveLangCode("fr", "fr");
         Langue langDesc = resolveLangCode("fr", "fr");
 
-        String label = trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_FR));
-        if (!StringUtils.hasText(label)) {
-            label = targetCode;
-        }
-        String description = trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FR));
         String statutStr = null;
 
         switch (kind) {
-            case CATEGORIE -> upsertCategory(reference, targetCode, label, description, langLabel, langDesc,
-                    statutStr, row, catType, user);
+            case CATEGORIE -> upsertCategory(reference, targetCode, langLabel, langDesc,
+                    statutStr, row, catType, user, csvHeaders);
             case GROUPE -> {
                 Entity cat = findCategory(reference, cc).orElseThrow();
                 upsertChild(cat, targetCode, EntityConstants.ENTITY_TYPE_GROUP, grpType,
-                        label, description, langLabel, langDesc, statutStr, row, user);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders);
             }
             case SERIE -> {
                 Entity grp = findGroup(reference, cc, cg).orElseThrow();
                 upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_SERIES, serType,
-                        label, description, langLabel, langDesc, statutStr, row, user);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders);
             }
             case TYPE_SOUS_SERIE -> {
                 Entity serie = findSerie(reference, cc, cg, cs).orElseThrow();
                 upsertChild(serie, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        label, description, langLabel, langDesc, statutStr, row, user);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders);
             }
             case TYPE_SOUS_GROUPE -> {
                 Entity grp = findGroup(reference, cc, cg).orElseThrow();
                 upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        label, description, langLabel, langDesc, statutStr, row, user);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders);
             }
             case NON_CLASSIFIE ->
                     throw new IllegalStateException("Ligne non classifiable : ne doit pas être importée.");
         }
     }
 
-    private void upsertCategory(Entity reference, String code, String label, String description,
+    private void upsertCategory(Entity reference, String code,
                                 Langue langLabel, Langue langDesc, String statutStr,
-                                Map<String, String> row, EntityType catType, Utilisateur user) {
+                                Map<String, String> row, EntityType catType, Utilisateur user,
+                                Set<String> csvHeaders) {
         Optional<Entity> existingOpt = entityRepository.findByCode(code);
+        boolean isCreate = existingOpt.isEmpty();
         Entity entity;
         if (existingOpt.isEmpty()) {
             entity = new Entity();
@@ -354,22 +372,21 @@ public class TypologyImportService {
                 linkParentChild(reference, entity);
             }
         }
-        replaceLabels(entity, langLabel, label);
-        replaceDescriptions(entity, langDesc, description);
-        replaceLocalizedTexts(entity, row);
-        replaceMetadata(entity, row);
-        replaceImages(entity, row);
-        replaceOpenTheso(entity, row);
-        replaceCeramiqueDetails(entity, row);
-        replaceAuteursScientifiques(entity, row);
+        applyFrenchPrimaryLabelsDescriptions(entity, code, langLabel, langDesc, row, csvHeaders, isCreate);
+        replaceLocalizedTexts(entity, row, csvHeaders, isCreate);
+        replaceMetadata(entity, row, csvHeaders, isCreate);
+        replaceImages(entity, row, csvHeaders, isCreate);
+        replaceOpenTheso(entity, row, csvHeaders, isCreate);
+        replaceCeramiqueDetails(entity, row, csvHeaders, isCreate);
+        replaceAuteursScientifiques(entity, row, csvHeaders);
         entityRepository.save(entity);
     }
 
     private void upsertChild(Entity parent, String code, String expectedTypeCode, EntityType concreteType,
-                             String label, String description,
                              Langue langLabel, Langue langDesc, String statutStr,
-                             Map<String, String> row, Utilisateur user) {
+                             Map<String, String> row, Utilisateur user, Set<String> csvHeaders) {
         Optional<Entity> existingOpt = entityRepository.findByCode(code);
+        boolean isCreate = existingOpt.isEmpty();
         Entity entity;
         if (existingOpt.isEmpty()) {
             entity = new Entity();
@@ -393,33 +410,54 @@ public class TypologyImportService {
             }
             entity.setStatut(statutStr != null ? statutStr : entity.getStatut());
         }
-        replaceLabels(entity, langLabel, label);
-        replaceDescriptions(entity, langDesc, description);
-        replaceLocalizedTexts(entity, row);
-        replaceMetadata(entity, row);
-        replaceImages(entity, row);
-        replaceOpenTheso(entity, row);
-        replaceCeramiqueDetails(entity, row);
-        replaceAuteursScientifiques(entity, row);
+        applyFrenchPrimaryLabelsDescriptions(entity, code, langLabel, langDesc, row, csvHeaders, isCreate);
+        replaceLocalizedTexts(entity, row, csvHeaders, isCreate);
+        replaceMetadata(entity, row, csvHeaders, isCreate);
+        replaceImages(entity, row, csvHeaders, isCreate);
+        replaceOpenTheso(entity, row, csvHeaders, isCreate);
+        replaceCeramiqueDetails(entity, row, csvHeaders, isCreate);
+        replaceAuteursScientifiques(entity, row, csvHeaders);
         entityRepository.save(entity);
     }
 
-    private void replaceLocalizedTexts(Entity entity, Map<String, String> row) {
-        String labelEn = trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_EN));
-        if (labelEn != null) {
-            replaceLabels(entity, resolveLangCode("en", "fr"), labelEn);
+    private void applyFrenchPrimaryLabelsDescriptions(Entity entity, String code, Langue langLabel, Langue langDesc,
+                                                      Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (isCreate) {
+            String labelFr = trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_FR));
+            if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_NOM_COMPLET_FR) || !StringUtils.hasText(labelFr)) {
+                labelFr = code;
+            }
+            replaceLabels(entity, langLabel, labelFr);
+            if (columnInCsv(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FR)) {
+                replaceDescriptions(entity, langDesc, trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FR)));
+            }
+        } else {
+            if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_NOM_COMPLET_FR, row, false)) {
+                replaceLabels(entity, langLabel, trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_FR)));
+            }
+            if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FR, row, false)) {
+                replaceDescriptions(entity, langDesc, trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FR)));
+            }
         }
-        String descEn = trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_EN));
-        if (descEn != null) {
-            replaceDescriptions(entity, resolveLangCode("en", "fr"), descEn);
+    }
+
+    private void replaceLocalizedTexts(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        Langue langEn = resolveLangCode("en", "fr");
+        if (isCreate || columnInCsv(csvHeaders, TypologyImportConstants.COL_NOM_COMPLET_EN)) {
+            String labelEn = trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_EN));
+            if (isCreate || StringUtils.hasText(labelEn)) {
+                if (StringUtils.hasText(labelEn)) {
+                    replaceLabels(entity, langEn, labelEn);
+                }
+            }
         }
-        String labelFr = trimToNull(getCell(row, TypologyImportConstants.COL_NOM_COMPLET_FR));
-        if (labelFr != null) {
-            replaceLabels(entity, resolveLangCode("fr", "fr"), labelFr);
-        }
-        String descFr = trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FR));
-        if (descFr != null) {
-            replaceDescriptions(entity, resolveLangCode("fr", "fr"), descFr);
+        if (isCreate || columnInCsv(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_EN)) {
+            String descEn = trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_EN));
+            if (isCreate || StringUtils.hasText(descEn)) {
+                if (StringUtils.hasText(descEn)) {
+                    replaceDescriptions(entity, langEn, descEn);
+                }
+            }
         }
     }
 
@@ -469,30 +507,43 @@ public class TypologyImportService {
         }
     }
 
-    private void replaceMetadata(Entity entity, Map<String, String> row) {
-        entity.setBibliographie(null);
-        entity.setReferenceBibliographique(null);
-        entity.setMetadataCommentaire(trimToNull(getCell(row, TypologyImportConstants.COL_COMMENTAIRE)));
-
-        entity.setCommentaireDatation(trimToNull(getCell(row, TypologyImportConstants.COL_DATATION_COMMENTAIRE)));
-        entity.setTpq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TPQ)));
-        entity.setTaq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TAQ)));
-
-        entity.setAppellation(trimToNull(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE)));
-        entity.setTypologieScientifique(trimToNull(getCell(row, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE)));
-        entity.setIdentifiantPerenne(null);
-        entity.setAncienneVersion(null);
-        entity.setReference(listToSemicolon(getCell(row, TypologyImportConstants.COL_REFERENCES_REFERENTIEL), true));
-
-        entity.setRelationExterne(null);
-        entity.setAlignementExterne(trimToNull(getCell(row, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_EXTERNE)));
-        entity.setInterne(trimToNull(getCell(row, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_INTERNE)));
-
-        entity.setAttestations(listToSemicolon(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_VALEUR), false));
-        entity.setAteliers(listToSemicolon(getCell(row, TypologyImportConstants.COL_PRODUCTION_ATELIERS), false));
-        entity.setSitesArcheologiques(null);
-        entity.setCorpusLies(trimToNull(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE)));
-        entity.setCorpusExterne(null);
+    private void replaceMetadata(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_COMMENTAIRE, row, isCreate)) {
+            entity.setMetadataCommentaire(trimToNull(getCell(row, TypologyImportConstants.COL_COMMENTAIRE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_DATATION_COMMENTAIRE, row, isCreate)) {
+            entity.setCommentaireDatation(trimToNull(getCell(row, TypologyImportConstants.COL_DATATION_COMMENTAIRE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_DATATION_TPQ, row, isCreate)) {
+            entity.setTpq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TPQ)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_DATATION_TAQ, row, isCreate)) {
+            entity.setTaq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TAQ)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_APPELLATION_USUELLE, row, isCreate)) {
+            entity.setAppellation(trimToNull(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE, row, isCreate)) {
+            entity.setTypologieScientifique(trimToNull(getCell(row, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_REFERENCES_REFERENTIEL, row, isCreate)) {
+            entity.setReference(listToSemicolon(getCell(row, TypologyImportConstants.COL_REFERENCES_REFERENTIEL), true));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_EXTERNE, row, isCreate)) {
+            entity.setAlignementExterne(trimToNull(getCell(row, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_EXTERNE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_INTERNE, row, isCreate)) {
+            entity.setInterne(trimToNull(getCell(row, TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_INTERNE)));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_ATTESTATIONS_VALEUR, row, isCreate)) {
+            entity.setAttestations(listToSemicolon(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_VALEUR), false));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_PRODUCTION_ATELIERS, row, isCreate)) {
+            entity.setAteliers(listToSemicolon(getCell(row, TypologyImportConstants.COL_PRODUCTION_ATELIERS), false));
+        }
+        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE, row, isCreate)) {
+            entity.setCorpusLies(trimToNull(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE)));
+        }
     }
 
     /**
@@ -535,8 +586,14 @@ public class TypologyImportService {
         return Integer.parseInt(t.trim());
     }
 
-    private void replaceImages(Entity entity, Map<String, String> row) {
+    private void replaceImages(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_ILLUSTRATIONS)) {
+            return;
+        }
         String raw = getCell(row, TypologyImportConstants.COL_ILLUSTRATIONS);
+        if (!isCreate && !StringUtils.hasText(raw)) {
+            return;
+        }
         if (entity.getImages() == null) {
             entity.setImages(new ArrayList<>());
         }
@@ -568,73 +625,147 @@ public class TypologyImportService {
         }
     }
 
-    private void replaceOpenTheso(Entity entity, Map<String, String> row) {
-        String[] periode = parseLabelUrl(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE));
-        applySlot(entity,
-                periode[1],
-                periode[0],
-                ReferenceOpenthesoEnum.PERIODE,
-                entity::getPeriode,
-                entity::setPeriode);
+    private void replaceOpenTheso(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (columnInCsv(csvHeaders, TypologyImportConstants.COL_DATATION_PERIODE)) {
+            if (isCreate || StringUtils.hasText(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE))) {
+                String[] periode = parseLabelUrl(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE));
+                applySlot(entity,
+                        periode[1],
+                        periode[0],
+                        ReferenceOpenthesoEnum.PERIODE,
+                        entity::getPeriode,
+                        entity::setPeriode);
+            }
+        } else if (isCreate) {
+            String[] periode = parseLabelUrl(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE));
+            applySlot(entity,
+                    periode[1],
+                    periode[0],
+                    ReferenceOpenthesoEnum.PERIODE,
+                    entity::getPeriode,
+                    entity::setPeriode);
+        }
 
-        String[] production = parseLabelUrl(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE));
-        applySlot(entity,
-                production[1],
-                production[0],
-                ReferenceOpenthesoEnum.PRODUCTION,
-                entity::getProduction,
-                entity::setProduction);
+        if (columnInCsv(csvHeaders, TypologyImportConstants.COL_PRODUCTION_VALUE)) {
+            if (isCreate || StringUtils.hasText(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE))) {
+                String[] production = parseLabelUrl(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE));
+                applySlot(entity,
+                        production[1],
+                        production[0],
+                        ReferenceOpenthesoEnum.PRODUCTION,
+                        entity::getProduction,
+                        entity::setProduction);
+            }
+        } else if (isCreate) {
+            String[] production = parseLabelUrl(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE));
+            applySlot(entity,
+                    production[1],
+                    production[0],
+                    ReferenceOpenthesoEnum.PRODUCTION,
+                    entity::getProduction,
+                    entity::setProduction);
+        }
 
-        applySlot(entity, null, null, ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE, entity::getCategorieFonctionnelle, entity::setCategorieFonctionnelle);
+        if (isCreate) {
+            applySlot(entity, null, null, ReferenceOpenthesoEnum.CATEGORIE_FONCTIONNELLE, entity::getCategorieFonctionnelle, entity::setCategorieFonctionnelle);
+        }
     }
 
-    private void replaceCeramiqueDetails(Entity entity, Map<String, String> row) {
-        applyDescriptionDetail(entity, row);
-        applyCaracteristiquePhysique(entity, row);
-        applyDescriptionPate(entity, row);
-        replaceAiresCirculation(entity, row);
+    private void replaceCeramiqueDetails(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        applyDescriptionDetail(entity, row, csvHeaders, isCreate);
+        applyCaracteristiquePhysique(entity, row, csvHeaders, isCreate);
+        applyDescriptionPate(entity, row, csvHeaders, isCreate);
+        replaceAiresCirculation(entity, row, csvHeaders, isCreate);
     }
 
-    private void applyDescriptionDetail(Entity entity, Map<String, String> row) {
+    private void applyDescriptionDetail(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_DECORS, row, isCreate);
+        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
+        boolean touchFonction = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FONCTION, row, isCreate);
+        if (!touchDecors && !touchMarques && !touchFonction) {
+            return;
+        }
         DescriptionDetail dd = entity.getDescriptionDetail();
         if (dd == null) {
             dd = new DescriptionDetail();
             dd.setEntity(entity);
             entity.setDescriptionDetail(dd);
         }
-        dd.setDecors(trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_DECORS)));
-        dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
-        dd.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
+        if (touchDecors) {
+            dd.setDecors(trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_DECORS)));
+        }
+        if (touchMarques) {
+            dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
+        }
+        if (touchFonction) {
+            dd.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
+        }
     }
 
-    private void applyCaracteristiquePhysique(Entity entity, Map<String, String> row) {
+    private void applyCaracteristiquePhysique(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean touchForme = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FORM, row, isCreate);
+        boolean touchMetro = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE, row, isCreate);
+        boolean touchFab = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION, row, isCreate);
+        if (!touchForme && !touchMetro && !touchFab) {
+            return;
+        }
         CaracteristiquePhysique cp = entity.getCaracteristiquePhysique();
         if (cp == null) {
             cp = new CaracteristiquePhysique();
             cp.setEntity(entity);
             entity.setCaracteristiquePhysique(cp);
         }
-        cp.setForme(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FORM), "FORME"));
-        cp.setMetrologie(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), "METROLOGIE"));
-        cp.setFabrication(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION), "FABRICATION"));
+        if (touchForme) {
+            cp.setForme(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FORM), "FORME"));
+        }
+        if (touchMetro) {
+            cp.setMetrologie(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), "METROLOGIE"));
+        }
+        if (touchFab) {
+            cp.setFabrication(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION), "FABRICATION"));
+        }
     }
 
-    private void applyDescriptionPate(Entity entity, Map<String, String> row) {
+    private void applyDescriptionPate(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        boolean touchDesc = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE, row, isCreate);
+        boolean touchCouleur = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE, row, isCreate);
+        boolean touchNature = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE, row, isCreate);
+        boolean touchIncl = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION, row, isCreate);
+        boolean touchCuisson = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_CUISSON, row, isCreate);
+        if (!touchDesc && !touchCouleur && !touchNature && !touchIncl && !touchCuisson) {
+            return;
+        }
         DescriptionPate dp = entity.getDescriptionPate();
         if (dp == null) {
             dp = new DescriptionPate();
             dp.setEntity(entity);
             entity.setDescriptionPate(dp);
         }
-        dp.setDescription(trimToNull(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE)));
-        dp.setCouleur(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE), "COULEUR_PATE"));
-        dp.setNature(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE), "NATURE_PATE"));
-        dp.setInclusion(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION), "INCLUSION"));
-        dp.setCuisson(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON), "CUISSON"));
+        if (touchDesc) {
+            dp.setDescription(trimToNull(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE)));
+        }
+        if (touchCouleur) {
+            dp.setCouleur(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE), "COULEUR_PATE"));
+        }
+        if (touchNature) {
+            dp.setNature(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE), "NATURE_PATE"));
+        }
+        if (touchIncl) {
+            dp.setInclusion(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION), "INCLUSION"));
+        }
+        if (touchCuisson) {
+            dp.setCuisson(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON), "CUISSON"));
+        }
     }
 
-    private void replaceAiresCirculation(Entity entity, Map<String, String> row) {
+    private void replaceAiresCirculation(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION)) {
+            return;
+        }
         String raw = trimToNull(getCell(row, TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION));
+        if (!isCreate && raw == null) {
+            return;
+        }
         if (entity.getAiresCirculation() == null) {
             entity.setAiresCirculation(new ArrayList<>());
         }
@@ -662,7 +793,10 @@ public class TypologyImportService {
         }
     }
 
-    private void replaceAuteursScientifiques(Entity entity, Map<String, String> row) {
+    private void replaceAuteursScientifiques(Entity entity, Map<String, String> row, Set<String> csvHeaders) {
+        if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES)) {
+            return;
+        }
         String raw = trimToNull(getCell(row, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES));
         if (raw == null) {
             return;
