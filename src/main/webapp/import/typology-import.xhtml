@@ -44,9 +44,9 @@
                             <i class="pi pi-file-export"/>
                         </div>
                         <div class="typology-import-download-card__body">
-                            <span class="typology-import-download-card__title">Modèle CSV vide</span>
+                            <span class="typology-import-download-card__title">Modèle CSV</span>
                             <span class="typology-import-download-card__desc">
-                                Une seule ligne : les titres des colonnes attendues (UTF-8). Complétez ensuite les lignes de données.
+                                Une ligne d'en-tête et une ligne d'exemple complète (UTF-8), à dupliquer ou à effacer pour vos données.
                             </span>
                         </div>
                         <div class="typology-import-download-card__action">
@@ -95,6 +95,15 @@
 
                 <!-- Étape 2 -->
                 <h:panelGroup rendered="#{typologyImportBean.step == 2}" layout="block" styleClass="typology-import-panel">
+                    <h:panelGroup rendered="#{not empty typologyImportBean.blockingMessages}"
+                                  layout="block" styleClass="typology-import-alert typology-import-alert-warn typology-import-alert--blocking">
+                        <i class="pi pi-exclamation-triangle"/>
+                        <h:panelGroup layout="block" styleClass="typology-import-alert-stack">
+                            <ui:repeat value="#{typologyImportBean.blockingMessages}" var="msg">
+                                <div>#{msg}</div>
+                            </ui:repeat>
+                        </h:panelGroup>
+                    </h:panelGroup>
                     <h:panelGroup rendered="#{typologyImportBean.analysis != null and typologyImportBean.analysis.successful()}"
                                   layout="block" styleClass="typology-import-alert typology-import-alert-ok">
                         <i class="pi pi-check-circle"/>
@@ -106,9 +115,15 @@
                         Des erreurs subsistent : corrigez le fichier puis rechargez-le (étape 1).
                     </h:panelGroup>
 
-                    <p:dataTable value="#{typologyImportBean.analysis.previewLines}"
+                    <h:panelGroup rendered="#{typologyImportBean.showNoErrorRowsHint}"
+                                  layout="block" styleClass="typology-import-hint typology-import-hint-muted">
+                        <i class="pi pi-info-circle"/>
+                        <span>Aucune ligne en erreur à afficher (les lignes avec seuls des avertissements ne sont pas listées ici).</span>
+                    </h:panelGroup>
+
+                    <p:dataTable value="#{typologyImportBean.previewLinesErrorsOnly}"
                                  var="line"
-                                 rendered="#{typologyImportBean.analysis != null}"
+                                 rendered="#{typologyImportBean.analysis != null and not empty typologyImportBean.previewLinesErrorsOnly}"
                                  styleClass="typology-import-table"
                                  paginator="true"
                                  rows="15">
@@ -146,6 +161,13 @@
                                          process="@this"
                                          immediate="true"
                                          styleClass="typology-import-btn-outline"/>
+                        <p:commandButton value="Exporter les lignes en erreur (CSV)"
+                                         icon="pi pi-file-export"
+                                         ajax="false"
+                                         disabled="#{!typologyImportBean.hasErrorLinesForExport}"
+                                         styleClass="typology-import-btn-outline">
+                            <p:fileDownload value="#{typologyImportBean.errorLinesExportDownload}"/>
+                        </p:commandButton>
                         <p:commandButton value="Confirmer l’import"
                                          icon="pi pi-check"
                                          actionListener="#{typologyImportBean.runConfirmImport}"

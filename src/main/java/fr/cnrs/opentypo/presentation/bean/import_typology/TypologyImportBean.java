@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean.import_typology;
 import fr.cnrs.opentypo.application.import_typology.TypologyCsvParser;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportAnalyzeResult;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportConstants;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportCsvExport;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportPreviewLine;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -230,12 +232,63 @@ public class TypologyImportBean implements Serializable {
     }
 
     /**
-     * Fichier CSV avec uniquement la ligne d'en-tête (colonnes attendues), pour démarrer un import vierge.
+     * Lignes bloquantes ou invalides : statut « non OK » ou au moins un message d'erreur (avertissements seuls exclus).
+     */
+    public List<TypologyImportPreviewLine> getPreviewLinesErrorsOnly() {
+        if (analysis == null || analysis.previewLines() == null) {
+            return List.of();
+        }
+        return analysis.previewLines().stream()
+                .filter(line -> !line.lineOk() || !line.errors().isEmpty())
+                .toList();
+    }
+
+    public boolean isHasErrorLinesForExport() {
+        return !getPreviewLinesErrorsOnly().isEmpty();
+    }
+
+    /** Erreurs globales (référentiel absent, etc.), sans lien forcé avec une ligne du CSV. */
+    public List<String> getBlockingMessages() {
+        if (analysis == null || analysis.blockingErrors() == null) {
+            return List.of();
+        }
+        return analysis.blockingErrors();
+    }
+
+    /**
+     * Indique s'il faut afficher l'encart « aucune ligne en erreur » (lignes de données présentes mais filtre vide).
+     */
+    public boolean isShowNoErrorRowsHint() {
+        if (analysis == null || analysis.previewLines() == null) {
+            return false;
+        }
+        return !analysis.previewLines().isEmpty() && getPreviewLinesErrorsOnly().isEmpty();
+    }
+
+    /**
+     * Export CSV des lignes en erreur (données d'origine + colonnes {@code erreurs_detectees} et {@code avertissements_detectes}).
+     */
+    public StreamedContent getErrorLinesExportDownload() {
+        byte[] bytes;
+        if (parsedCsv == null || analysis == null) {
+            bytes = new byte[0];
+        } else {
+            bytes = TypologyImportCsvExport.buildUtf8(parsedCsv, getPreviewLinesErrorsOnly());
+        }
+        return DefaultStreamedContent.builder()
+                .name("import-typologique-lignes-en-erreur.csv")
+                .contentType("text/csv; charset=UTF-8")
+                .stream(() -> new ByteArrayInputStream(bytes))
+                .build();
+    }
+
+    /**
+     * Fichier CSV modèle : en-tête + une ligne d'exemple complète (UTF-8).
      */
     public StreamedContent getTemplateDownload() {
-        byte[] bytes = TypologyImportConstants.csvTemplateHeaderOnly().getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = TypologyImportConstants.csvTemplateHeaderAndExample().getBytes(StandardCharsets.UTF_8);
         return DefaultStreamedContent.builder()
-                .name("import-typologique-modele-vide.csv")
+                .name("import-typologique-modele.csv")
                 .contentType("text/csv; charset=UTF-8")
                 .stream(() -> new ByteArrayInputStream(bytes))
                 .build();

@@ -1,5 +1,9 @@
 package fr.cnrs.opentypo.application.import_typology;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Colonnes du fichier CSV d'import typologique (v1 : jeu aligné sur les métadonnées utilisées pour la collection Céramique).
  * Les autres typologies (Monnaie, Instrumentum, etc.) pourront étendre ou compléter ces colonnes ultérieurement.
@@ -54,10 +58,26 @@ public final class TypologyImportConstants {
     public static final String COL_COMMENTAIRE = "commentaire";
 
     /**
-     * Contenu du fichier modèle vide : une seule ligne d'en-tête (titres de colonnes), encodage UTF-8 recommandé.
+     * Contenu minimal : uniquement la ligne d'en-tête (titres de colonnes), UTF-8.
      */
     public static String csvTemplateHeaderOnly() {
         return String.join(",", KNOWN_COLUMNS) + "\n";
+    }
+
+    /**
+     * Fichier modèle téléchargeable : en-tête + une ligne d'exemple complète (ressource {@code import/typology-import-template.csv}).
+     * Retombe sur {@link #csvTemplateHeaderOnly()} si la ressource est absente.
+     */
+    public static String csvTemplateHeaderAndExample() {
+        try (InputStream in = TypologyImportConstants.class.getClassLoader()
+                .getResourceAsStream("import/typology-import-template.csv")) {
+            if (in == null) {
+                return csvTemplateHeaderOnly();
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return csvTemplateHeaderOnly();
+        }
     }
 
     /** Noms d'en-tête normalisés (minuscules) pour le parseur. */
