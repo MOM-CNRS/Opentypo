@@ -67,6 +67,8 @@
                         </div>
                     </div>
 
+                    <ui:include src="typology-import-doc-panel.xhtml"/>
+
                     <p:fileUpload id="typologyCsvUpload"
                                   widgetVar="typologyCsvUpload"
                                   listener="#{typologyImportBean.handleFileUpload}"
@@ -127,6 +129,10 @@
                                   layout="block" styleClass="typology-import-hint typology-import-hint-muted">
                         <i class="pi pi-info-circle"/>
                         <span>Aucune ligne en erreur à afficher (les lignes avec seuls des avertissements ne sont pas listées ici).</span>
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="typology-import-doc-panel--step2">
+                        <ui:include src="typology-import-doc-panel.xhtml"/>
                     </h:panelGroup>
 
                     <p:dataTable value="#{typologyImportBean.previewLinesErrorsOnly}"
@@ -191,10 +197,14 @@
             </h:form>
 
             <div class="typology-import-back">
-                <h:outputLink value="#{request.contextPath}/index.xhtml"
-                              styleClass="typology-import-back-link">
-                    <i class="pi pi-arrow-left" aria-hidden="true"/> Retour à l’application
-                </h:outputLink>
+                <h:form id="typologyImportLeaveForm" styleClass="typology-import-back-form">
+                    <p:commandLink action="#{typologyImportBean.leaveImportModule}"
+                                   ajax="false"
+                                   styleClass="typology-import-back-link">
+                        <i class="pi pi-arrow-left" aria-hidden="true"/>
+                        <span>Retour à l’application</span>
+                    </p:commandLink>
+                </h:form>
             </div>
         </h:panelGroup>
 

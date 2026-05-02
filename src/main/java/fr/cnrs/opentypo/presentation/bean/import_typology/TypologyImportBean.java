@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.import_typology.TypologyImportAnalyzeResult;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportCollectionProfile;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportConstants;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportCsvExport;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportFieldDocumentation;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportPreviewLine;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
@@ -72,6 +73,14 @@ public class TypologyImportBean implements Serializable {
         FacesContext ctx = FacesContext.getCurrentInstance();
         if (ctx == null) {
             return;
+        }
+        /*
+         * À chaque ouverture « fraîche » de la vue (navigation GET), réinitialiser l’assistant :
+         * ainsi, en quittant puis en revenant sur le module, l’écran repart à zéro (pas de fichier,
+         * étape 1). Les requêtes AJAX sur cette page restent des postbacks : on ne réinitialise pas.
+         */
+        if (!ctx.isPostback()) {
+            resetWizard();
         }
         if (!loginBean.isAuthenticated()) {
             ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Accès refusé",
@@ -141,6 +150,13 @@ public class TypologyImportBean implements Serializable {
             case INSTRUMENTUM -> "En-tête + ligne d’exemple au format Instrumentum (décors, marques, caract. physiques dédiées).";
             case UNSUPPORTED -> "Collection non reconnue : le fichier proposé reprend le modèle Céramique. Idéalement, rattachez le référentiel à une collection Céramique, Monnaie ou Instrumentum.";
         };
+    }
+
+    /**
+     * Documentation des colonnes du CSV pour la typologie du référentiel (ordre du modèle téléchargé).
+     */
+    public List<TypologyImportFieldDocumentation.FieldDocRow> getImportFieldDocumentationRows() {
+        return TypologyImportFieldDocumentation.rowsForProfile(resolveImportCollectionProfile());
     }
 
     public void handleFileUpload(FileUploadEvent event) {
@@ -224,7 +240,8 @@ public class TypologyImportBean implements Serializable {
             if (applicationBean.getTreeBean() != null && referenceEntity != null && referenceEntity.getId() != null) {
                 applicationBean.getTreeBean().loadChildForEntity(referenceEntity);
             }
-            resetWizard();
+            clearWizardState();
+            clearTypologyFileUploadWidget();
 
             if (referenceCode != null && !referenceCode.isBlank()) {
                 try {
@@ -249,13 +266,39 @@ public class TypologyImportBean implements Serializable {
         }
     }
 
+    /** Réinitialise fichier chargé, analyse et étape ; vide aussi le widget PrimeFaces de sélection de fichier. */
     public void resetWizard() {
+        clearWizardState();
+        clearTypologyFileUploadWidget();
+    }
+
+    private void clearWizardState() {
         parsedCsv = null;
         analysis = null;
         uploadedFileName = null;
         step = 1;
+    }
+
+    private void clearTypologyFileUploadWidget() {
         PrimeFaces.current().executeScript(
                 "try{if(typeof PF==='function'&&PF('typologyCsvUpload')){PF('typologyCsvUpload').clear();}}catch(e){}");
+    }
+
+    /**
+     * Sortie du module (lien retour) : état réinitialisé pour la prochaine visite.
+     */
+    public void leaveImportModule() {
+        clearWizardState();
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc == null) {
+            return;
+        }
+        try {
+            fc.getExternalContext().redirect(fc.getExternalContext().getRequestContextPath() + "/index.xhtml");
+            fc.responseComplete();
+        } catch (IOException e) {
+            log.warn("Redirection impossible après sortie du module import", e);
+        }
     }
 
     /** Retour à l’étape fichier sans perdre le CSV chargé. */
