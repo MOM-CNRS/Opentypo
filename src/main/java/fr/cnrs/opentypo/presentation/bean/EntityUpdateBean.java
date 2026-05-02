@@ -1797,11 +1797,12 @@ public class EntityUpdateBean implements Serializable {
             return;
         }
         airesCirculation.add(ReferenceOpentheso.builder()
+                .code(ReferenceOpenthesoEnum.AIRE_CIRCULATION.name())
                 .valeur(valeur)
                 .conceptId(aireCirculationAutocompleteSelection.getIdConcept())
                 .url(aireCirculationAutocompleteSelection.getUri())
                 .build());
-        aireCirculationAutocompleteSelection = null;
+        aireCirculationAutocompleteSelection = new PactolsConcept();
     }
 
     public void deleteAireCirculation(String valeur) {
@@ -1814,7 +1815,6 @@ public class EntityUpdateBean implements Serializable {
                 break;
             }
         }
-        PrimeFaces.current().ajax().update(":growl, :contentPanels");
     }
 
     /** Appelé quand l'utilisateur ajoute un atelier (compatibilité avec ancien flux). Les chips mettent à jour ateliers directement. */

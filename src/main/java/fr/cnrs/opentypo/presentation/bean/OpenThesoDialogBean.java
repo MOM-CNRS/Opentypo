@@ -296,8 +296,17 @@ public class OpenThesoDialogBean implements Serializable {
             return new ArrayList<>();
         }
 
-        return pactolsService.searchConcepts(parametrage.getIdTheso(), term,
-                parametrage.getIdLangue(), parametrage.getIdGroupe());
+        try {
+            return pactolsService.searchConcepts(parametrage.getIdTheso(), term,
+                    parametrage.getIdLangue(), parametrage.getIdGroupe());
+        } catch (Exception e) {
+            log.warn("searchInOpenTheso failed for query [{}]: {}", term, e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Recherche OpenTheso",
+                            "La recherche n’a pas pu aboutir. Vous pouvez saisir une aire librement et valider avec Entrée ou le bouton +."));
+            PrimeFaces.current().ajax().update(":growl");
+            return new ArrayList<>();
+        }
     }
 
     private void ensurePeriodeThesaurusLoaded(CandidatBean cb) {
@@ -341,8 +350,17 @@ public class OpenThesoDialogBean implements Serializable {
             return new ArrayList<>();
         }
         lastQueryByType.put(type.name(), term);
-        return pactolsService.searchConcepts(collectionParametrage.getIdTheso(), term,
-                collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
+        try {
+            return pactolsService.searchConcepts(collectionParametrage.getIdTheso(), term,
+                    collectionParametrage.getIdLangue(), collectionParametrage.getIdGroupe());
+        } catch (Exception e) {
+            log.warn("completeThesaurus {} failed for [{}]: {}", type, term, e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Recherche OpenTheso",
+                            "La recherche n’a pas pu aboutir. Vous pouvez saisir une valeur libre et la valider."));
+            PrimeFaces.current().ajax().update(":growl");
+            return new ArrayList<>();
+        }
     }
 
     public List<PactolsConcept> completeProduction(String query) { return completeThesaurus(ReferenceOpenthesoEnum.PRODUCTION, query); }

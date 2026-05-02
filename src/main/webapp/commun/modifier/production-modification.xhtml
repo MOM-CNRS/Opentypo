@@ -56,51 +56,110 @@
             </div>
         </div>
 
-        <!-- Aire de circulation -->
+        <!-- Aire de circulation : OpenTheso ou texte libre ; Entrée ou bouton + pour ajouter -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel value="Aire de circulation" />
+                <p:outputLabel value="Aire de circulation" for="aireCirculationInput"/>
             </div>
-            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group candidat-aires-row">
-                <div id="aireAutocompleteWrapper" class="candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper candidats-production-flex">
-                    <i class="pi pi-map-marker input-icon periode-autocomplete-icon candidat-aires-icon" />
-                    <p:autoComplete value="#{entityUpdateBean.aireCirculationAutocompleteSelection}"
-                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                    converter="pactolsConceptConverter"
-                                    var="concept"
-                                    itemLabel="#{concept.selectedTerm}"
-                                    itemValue="#{concept}"
-                                    dropdown="false"
-                                    minQueryLength="2"
-                                    appendTo="#aireAutocompleteWrapper"
-                                    my="left top"
-                                    at="left bottom"
-                                    panelStyleClass="periode-autocomplete-panel"
-                                    scrollHeight="280"
-                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                    placeholder="Ex. Gaule, Italie..."
-                                    styleClass="users-input periode-autocomplete-input"
-                                    forceSelection="false">
-                        <p:ajax event="itemSelect"
-                                listener="#{entityUpdateBean.revers}"
-                                process="@form"
-                                update="@form :growl"/>
-                    </p:autoComplete>
-                    <div class="candidat-aires-circulation-chips">
-                        <ui:repeat value="#{entityUpdateBean.airesCirculation}" var="aire" id="airesRepeat">
-                                    <span class="candidat-aire-chip">
-                                        <span class="candidat-aire-chip-label">#{aire.valeur}</span>
-                                        <p:commandButton icon="pi pi-times"
-                                                         styleClass="candidat-aire-chip-delete"
-                                                         action="#{entityUpdateBean.deleteAireCirculation(aire.valeur)}"
-                                                         process="@form"
-                                                         ajax="true"
-                                                         update="@form :growl" />
-                                    </span>
-                        </ui:repeat>
+            <p:outputPanel id="modifierAiresCirculationPanel" layout="block" styleClass="modifier-aires-circulation-editor">
+                <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                    <div id="aireAutocompleteWrapper"
+                         class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                        <i class="pi pi-map-marker input-icon periode-autocomplete-icon candidat-aires-icon" />
+                        <p:autoComplete id="aireCirculationInput"
+                                        widgetVar="modifierAireCirculationAC"
+                                        value="#{entityUpdateBean.aireCirculationAutocompleteSelection}"
+                                        completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                        converter="pactolsConceptConverter"
+                                        var="concept"
+                                        itemLabel="#{concept.selectedTerm}"
+                                        itemValue="#{concept}"
+                                        dropdown="false"
+                                        minQueryLength="0"
+                                        queryDelay="350"
+                                        appendTo="#aireAutocompleteWrapper"
+                                        my="left top"
+                                        at="left bottom"
+                                        panelStyleClass="periode-autocomplete-panel"
+                                        scrollHeight="280"
+                                        emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée ou + pour ajouter votre texte tel quel."
+                                        placeholder="Ex. Gaule, Italie… puis Entrée ou +"
+                                        styleClass="users-input periode-autocomplete-input"
+                                        forceSelection="false">
+                            <p:ajax event="itemSelect"
+                                    listener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
+                                    process="modifierAiresCirculationPanel"
+                                    update="modifierAiresCirculationPanel :growl"/>
+                        </p:autoComplete>
                     </div>
+                    <p:commandButton id="modifierAireCirculationAddBtn"
+                                     icon="pi pi-plus"
+                                     title="Ajouter la valeur saisie (y compris sans lien OpenTheso)"
+                                     aria-label="Ajouter l’aire de circulation"
+                                     styleClass="modifier-aire-add-btn ui-button-flat"
+                                     ajax="true"
+                                     onclick="modifierSyncAireCirculationHiddenBeforeAjax();"
+                                     actionListener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
+                                     process="modifierAiresCirculationPanel"
+                                     update="modifierAiresCirculationPanel :growl"/>
                 </div>
-            </div>
+                <p:remoteCommand name="modifierAddAireCirculationCmd"
+                                 actionListener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
+                                 process="modifierAiresCirculationPanel"
+                                 update="modifierAiresCirculationPanel :growl"/>
+                <div class="candidat-aires-circulation-chips mt-2">
+                    <ui:repeat value="#{entityUpdateBean.airesCirculation}" var="aire" id="airesRepeat">
+                        <span class="candidat-aire-chip">
+                            <span class="candidat-aire-chip-label">#{aire.valeur}</span>
+                            <p:commandButton icon="pi pi-times"
+                                             styleClass="candidat-aire-chip-delete"
+                                             action="#{entityUpdateBean.deleteAireCirculation(aire.valeur)}"
+                                             process="@this"
+                                             ajax="true"
+                                             update="modifierAiresCirculationPanel :growl"/>
+                        </span>
+                    </ui:repeat>
+                </div>
+            </p:outputPanel>
         </div>
     </div>
+    <style type="text/css">
+        .modifier-aires-circulation-editor .modifier-aire-add-btn { min-width: 2.75rem; flex-shrink: 0; }
+        .modifier-aires-toolbar .min-w-0 { min-width: 0; }
+    </style>
+    <script type="text/javascript">
+        //<![CDATA[
+        window.modifierSyncAireCirculationHiddenBeforeAjax = function () {
+            var w = PF('modifierAireCirculationAC');
+            if (!w || !w.input || !w.input.length || !w.hinput) return;
+            var vis = (w.input.val() || '').trim();
+            if (!vis) return;
+            var $h = $(w.hinput);
+            var h = ($h.val() || '').trim();
+            /* Saisie libre : le champ caché n’est mis à jour qu’au blur ; sans ceci le POST part vide. */
+            if (h.indexOf('|||') === -1) {
+                $h.val(vis);
+            }
+        };
+        (function () {
+            if (window.__modifierAireCirculationEnterBound) return;
+            window.__modifierAireCirculationEnterBound = true;
+            $(document).on('keydown.modifierAireCirc', '.modifier-aires-circulation-editor input.ui-autocomplete-input', function (e) {
+                if (e.key !== 'Enter' && e.which !== 13) return;
+                var $wrap = $(this).closest('.modifier-aires-circulation-editor');
+                var $panel = $wrap.find('.ui-autocomplete-panel:visible');
+                if ($panel.length && $panel.find('.ui-autocomplete-item').length > 0) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                modifierSyncAireCirculationHiddenBeforeAjax();
+                if (typeof modifierAddAireCirculationCmd === 'function') {
+                    modifierAddAireCirculationCmd();
+                }
+                return false;
+            });
+        })();
+        //]]>
+    </script>
 </ui:composition>
