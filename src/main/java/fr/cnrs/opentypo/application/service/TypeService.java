@@ -13,6 +13,7 @@ import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
@@ -181,7 +182,20 @@ public class TypeService implements Serializable {
             newMeta.setCode(newCode.trim());
             newMeta.setCommentaireDatation(srcMeta.getCommentaireDatation());
             newMeta.setBibliographie(srcMeta.getBibliographie());
-            newMeta.setAppellation(srcMeta.getAppellation());
+            if (srcMeta.getAppellationOpentheso() != null) {
+                ReferenceOpentheso srcApp = srcMeta.getAppellationOpentheso();
+                newMeta.setAppellationOpentheso(ReferenceOpentheso.builder()
+                        .code(srcApp.getCode())
+                        .valeur(srcApp.getValeur())
+                        .url(srcApp.getUrl())
+                        .conceptId(srcApp.getConceptId())
+                        .thesaurusId(srcApp.getThesaurusId())
+                        .collectionId(srcApp.getCollectionId())
+                        .entity(duplicate)
+                        .build());
+            } else {
+                newMeta.setAppellationOpentheso(null);
+            }
             newMeta.setRereferenceBibliographique(srcMeta.getRereferenceBibliographique());
             newMeta.setAlignementExterne(srcMeta.getAlignementExterne());
             newMeta.setReference(srcMeta.getReference());

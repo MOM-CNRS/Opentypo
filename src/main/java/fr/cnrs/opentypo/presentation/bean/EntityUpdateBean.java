@@ -219,7 +219,6 @@ public class EntityUpdateBean implements Serializable {
     private String commentaire;
     private String commentaireDatation;
     private String decors;
-    private String appellationUsuelle;
     private String identifiantPerenne;
     private String typologieScientifique;
     private String ancienneVersion;
@@ -281,6 +280,7 @@ public class EntityUpdateBean implements Serializable {
 
     private PactolsConcept periodeAutocompleteSelection;
     private PactolsConcept productionAutocompleteSelection = new PactolsConcept();
+    private PactolsConcept appellationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept aireCirculationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fonctionUsageAutocompleteSelection = new PactolsConcept();
     private PactolsConcept categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
@@ -352,7 +352,8 @@ public class EntityUpdateBean implements Serializable {
         }
 
         decors = entity.getDescriptionDetail() == null ? "" : (entity.getDescriptionDetail().getDecors() != null ? entity.getDescriptionDetail().getDecors() : "");
-        appellationUsuelle = entity.getAppellation() == null ? "" : entity.getAppellation();
+        appellationAutocompleteSelection = refToConcept(
+                entity.getMetadata() != null ? entity.getMetadata().getAppellationOpentheso() : null);
         identifiantPerenne = entity.getIdentifiantPerenne() == null ? "" : entity.getIdentifiantPerenne();
         typologieScientifique = entity.getTypologieScientifique() == null ? "" : entity.getTypologieScientifique();
 
@@ -531,7 +532,6 @@ public class EntityUpdateBean implements Serializable {
         commentaire = null;
         decors = null;
         commentaireDatation = null;
-        appellationUsuelle = null;
         typologieScientifique = null;
         identifiantPerenne = null;
         ancienneVersion = null;
@@ -556,6 +556,7 @@ public class EntityUpdateBean implements Serializable {
         marquesEstampilles = new ArrayList<>();
         periodeAutocompleteSelection = new PactolsConcept();
         productionAutocompleteSelection = new PactolsConcept();
+        appellationAutocompleteSelection = new PactolsConcept();
         fonctionUsageAutocompleteSelection = new PactolsConcept();
         categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
         relationImitationAutocompleteSelection = new PactolsConcept();
@@ -1569,7 +1570,13 @@ public class EntityUpdateBean implements Serializable {
             entityMetadata.setBibliographie(newBibliographie);
         }
 
-        entityMetadata.setAppellation(appellationUsuelle);
+        if (appellationAutocompleteSelection != null && StringUtils.hasText(appellationAutocompleteSelection.getSelectedTerm())) {
+            ReferenceOpentheso appRef = conceptToReferenceOpentheso(
+                    appellationAutocompleteSelection, ReferenceOpenthesoEnum.APPELLATION_USUELLE.name(), entityToUpdate);
+            entityMetadata.setAppellationOpentheso(referenceOpenthesoRepository.save(appRef));
+        } else {
+            entityMetadata.setAppellationOpentheso(null);
+        }
 
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
 

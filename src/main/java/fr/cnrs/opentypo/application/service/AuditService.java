@@ -539,11 +539,11 @@ public class AuditService {
                 log.debug("Erreur entity_aud: {}", e.getMessage());
             }
             
-            // entity_metadata_aud : code, commentaire, bibliographie, appellation, tpq, taq, commentaire_datation, alignement_externe, etc.
+            // entity_metadata_aud : code, commentaire, bibliographie, appellation_opentheso_id, tpq, taq, commentaire_datation, alignement_externe, etc.
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> metaRows = entityManager.createNativeQuery(
-                    "SELECT code, commentaire, bibliographie, appellation, typologie_scientifique, identifiant_perenne, " +
+                    "SELECT code, commentaire, bibliographie, appellation_opentheso_id, typologie_scientifique, identifiant_perenne, " +
                     "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, " +
                     "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe, denomination_instrumentum, corpus_lies " +
                     "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
@@ -556,7 +556,9 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("code", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("commentaireMetadata", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("bibliographie", row[2].toString());
-                    if (row.length > 3 && row[3] != null) data.put("appellation", row[3].toString());
+                    if (row.length > 3 && row[3] != null) {
+                        resolveAndPutRefValeur(data, "appellation", (Number) row[3], revisionNumber);
+                    }
                     if (row.length > 4 && row[4] != null) data.put("typologieScientifique", row[4].toString());
                     if (row.length > 5 && row[5] != null) data.put("identifiantPerenne", row[5].toString());
                     if (row.length > 6 && row[6] != null) data.put("ancienneVersion", row[6].toString());

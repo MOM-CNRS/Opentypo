@@ -11,6 +11,7 @@ import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Image;
@@ -726,7 +727,11 @@ public class TypologyImportService {
             entity.setTaq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TAQ)));
         }
         if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_APPELLATION_USUELLE, row, isCreate)) {
-            entity.setAppellation(trimToNull(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE)));
+            ensureMetadataForTypologyImport(entity);
+            String[] pair = parseLabelUrl(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE));
+            applySlot(entity, pair[1], pair[0], ReferenceOpenthesoEnum.APPELLATION_USUELLE,
+                    () -> entity.getMetadata().getAppellationOpentheso(),
+                    ref -> entity.getMetadata().setAppellationOpentheso(ref));
         }
         if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE, row, isCreate)) {
             entity.setTypologieScientifique(trimToNull(getCell(row, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE)));
@@ -1144,6 +1149,15 @@ public class TypologyImportService {
                 .build();
         ReferenceOpentheso saved = referenceOpenthesoRepository.save(ref);
         setter.accept(saved);
+    }
+
+    private void ensureMetadataForTypologyImport(Entity entity) {
+        if (entity.getMetadata() == null) {
+            EntityMetadata em = new EntityMetadata();
+            em.setEntity(entity);
+            em.setCode(entity.getCode() != null ? entity.getCode() : "");
+            entity.setMetadata(em);
+        }
     }
 
     /**

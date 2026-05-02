@@ -347,18 +347,41 @@ public class Entity implements Serializable {
     }
 
     /**
-     * Obtient l'appellation depuis les métadonnées
+     * Libellé affiché de l'appellation usuelle (référence OpenTheso ou texte migré).
      */
     public String getAppellation() {
-        return metadata != null ? metadata.getAppellation() : null;
+        if (metadata == null || metadata.getAppellationOpentheso() == null) {
+            return null;
+        }
+        return metadata.getAppellationOpentheso().getValeur();
     }
 
     /**
-     * Définit l'appellation dans les métadonnées
+     * Définit l'appellation comme texte libre (API / import) ; préférer la référence OpenTheso via métadonnées en UI.
      */
     public void setAppellation(String appellation) {
         ensureMetadata();
-        metadata.setAppellation(appellation);
+        if (appellation == null || appellation.isBlank()) {
+            metadata.setAppellationOpentheso(null);
+            return;
+        }
+        ReferenceOpentheso ro = metadata.getAppellationOpentheso();
+        String v = appellation.trim();
+        if (ro != null) {
+            ro.setValeur(v);
+            ro.setUrl(null);
+            ro.setConceptId(null);
+            ro.setThesaurusId(null);
+            ro.setCollectionId(null);
+            ro.setCode("APPELLATION_USUELLE");
+            ro.setEntity(this);
+        } else {
+            metadata.setAppellationOpentheso(ReferenceOpentheso.builder()
+                    .code("APPELLATION_USUELLE")
+                    .valeur(v)
+                    .entity(this)
+                    .build());
+        }
     }
 
     /**

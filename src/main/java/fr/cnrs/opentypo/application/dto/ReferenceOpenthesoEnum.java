@@ -23,7 +23,9 @@ public enum ReferenceOpenthesoEnum {
     TECHNIQUE,
     DIMENSIONS,
     FORME,
-    FABRICATION;
+    FABRICATION,
+    /** Appellation usuelle (métadonnées entity : série, type) */
+    APPELLATION_USUELLE;
 
 
     public static ReferenceOpenthesoEnum fromString(String value) {
