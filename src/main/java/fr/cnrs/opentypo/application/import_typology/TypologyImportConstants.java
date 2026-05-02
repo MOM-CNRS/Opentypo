@@ -29,6 +29,8 @@ public final class TypologyImportConstants {
     public static final String COL_APPELLATION_USUELLE = "appellation_usuelle";
     public static final String COL_DESCRIPTION_FR = "description_fr";
     public static final String COL_DESCRIPTION_EN = "description_en";
+    /** Liste d'auteurs : {@code {Prénom, Nom}||{Prénom, Nom}} ; ancien nom de colonne : {@code auteurs_scientifiques}. */
+    public static final String COL_AUTEUR_SCIENTIFIQUE = "auteur_scientifique";
     public static final String COL_ILLUSTRATIONS = "illustrations";
     public static final String COL_DATATION_PERIODE = "datation_periode";
     public static final String COL_DATATION_TPQ = "datation_tpq";
@@ -54,6 +56,7 @@ public final class TypologyImportConstants {
     public static final String COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE = "references_typologie_scientifique";
     public static final String COL_RELATIONS_ALIGNEMENTS_INTERNE = "relations_alignements_interne";
     public static final String COL_RELATIONS_ALIGNEMENTS_EXTERNE = "relations_alignements_externe";
+    /** Ancien nom d'en-tête ; conservé pour la compatibilité des CSV déjà produits. */
     public static final String COL_AUTEURS_SCIENTIFIQUES = "auteurs_scientifiques";
     public static final String COL_COMMENTAIRE = "commentaire";
 
@@ -105,6 +108,7 @@ public final class TypologyImportConstants {
             COL_APPELLATION_USUELLE,
             COL_DESCRIPTION_FR,
             COL_DESCRIPTION_EN,
+            COL_AUTEUR_SCIENTIFIQUE,
             COL_ILLUSTRATIONS,
             COL_DATATION_PERIODE,
             COL_DATATION_TPQ,
@@ -130,7 +134,6 @@ public final class TypologyImportConstants {
             COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE,
             COL_RELATIONS_ALIGNEMENTS_INTERNE,
             COL_RELATIONS_ALIGNEMENTS_EXTERNE,
-            COL_AUTEURS_SCIENTIFIQUES,
             COL_COMMENTAIRE
     };
 }

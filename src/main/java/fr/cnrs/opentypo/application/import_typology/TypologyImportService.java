@@ -182,6 +182,7 @@ public class TypologyImportService {
                 previewOpenThesoCeramique(row, err.get(rowIndex));
             }
             previewDatation(row, err.get(rowIndex));
+            previewScientificAuthors(row, warn.get(rowIndex));
         }
 
         List<Integer> order = sortedRowIndices(n, kinds);
@@ -998,10 +999,10 @@ public class TypologyImportService {
     }
 
     private void replaceAuteursScientifiques(Entity entity, Map<String, String> row, Set<String> csvHeaders) {
-        if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES)) {
+        if (!columnInCsvScientificAuthors(csvHeaders)) {
             return;
         }
-        String raw = trimToNull(getCell(row, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES));
+        String raw = trimToNull(getAuthorImportRaw(row));
         if (raw == null) {
             return;
         }
@@ -1011,26 +1012,84 @@ public class TypologyImportService {
         entity.getAuteursScientifiques().clear();
         String normalized = raw.replace("##", "||");
         for (String token : LIST_SPLIT.split(normalized)) {
-            String[] pair = splitPair(token.trim());
-            String nom = trimToNull(pair[0]);
-            String prenom = trimToNull(pair[1]);
-            if (!StringUtils.hasText(nom) || !StringUtils.hasText(prenom)) {
+            Optional<ParsedScientificAuthor> parsed = parseScientificAuthorToken(token);
+            if (parsed.isEmpty()) {
                 continue;
             }
-            AuteurScientifique author = auteurScientifiqueRepository.findAll().stream()
-                    .filter(a -> a.getNom() != null && a.getPrenom() != null
-                            && a.getNom().equalsIgnoreCase(nom)
-                            && a.getPrenom().equalsIgnoreCase(prenom))
-                    .findFirst()
+            ParsedScientificAuthor pn = parsed.get();
+            AuteurScientifique author = auteurScientifiqueRepository
+                    .findFirstByNomIgnoreCaseAndPrenomIgnoreCaseOrderByIdAsc(pn.nom(), pn.prenom())
                     .orElseGet(() -> {
                         AuteurScientifique created = new AuteurScientifique();
-                        created.setNom(nom);
-                        created.setPrenom(prenom);
+                        created.setNom(pn.nom());
+                        created.setPrenom(pn.prenom());
                         created.setActive(true);
                         return auteurScientifiqueRepository.save(created);
                     });
             entity.getAuteursScientifiques().add(author);
         }
+    }
+
+    private boolean columnInCsvScientificAuthors(Set<String> csvHeaders) {
+        return columnInCsv(csvHeaders, TypologyImportConstants.COL_AUTEUR_SCIENTIFIQUE)
+                || columnInCsv(csvHeaders, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES);
+    }
+
+    private static String getAuthorImportRaw(Map<String, String> row) {
+        return getCell(row, TypologyImportConstants.COL_AUTEUR_SCIENTIFIQUE, TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES);
+    }
+
+    /**
+     * Formats acceptés par segment : {@code {Prénom, Nom}} (recommandé), {@code Prénom, Nom},
+     * ou ancien {@code Nom:Prénom}.
+     */
+    private static Optional<ParsedScientificAuthor> parseScientificAuthorToken(String token) {
+        String t = token.trim();
+        if (!StringUtils.hasText(t)) {
+            return Optional.empty();
+        }
+        if (t.startsWith("{") && t.endsWith("}")) {
+            t = t.substring(1, t.length() - 1).trim();
+        }
+        int comma = t.indexOf(',');
+        if (comma > 0 && comma < t.length() - 1) {
+            String prenom = t.substring(0, comma).trim();
+            String nom = t.substring(comma + 1).trim();
+            if (StringUtils.hasText(prenom) && StringUtils.hasText(nom)) {
+                return Optional.of(new ParsedScientificAuthor(prenom, nom));
+            }
+        }
+        if (!t.contains(",") && t.contains(":")) {
+            String[] pair = splitPair(t);
+            String left = trimToNull(pair[0]);
+            String right = trimToNull(pair[1]);
+            if (left != null && right != null) {
+                return Optional.of(new ParsedScientificAuthor(right, left));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static void previewScientificAuthors(Map<String, String> row, List<String> warnings) {
+        String raw = trimToNull(getAuthorImportRaw(row));
+        if (!StringUtils.hasText(raw)) {
+            return;
+        }
+        String normalized = raw.replace("##", "||");
+        for (String part : LIST_SPLIT.split(normalized)) {
+            String token = part.trim();
+            if (!StringUtils.hasText(token)) {
+                continue;
+            }
+            if (parseScientificAuthorToken(token).isEmpty()) {
+                String shortTok = token.length() > 100 ? token.substring(0, 100) + "…" : token;
+                warnings.add("auteur_scientifique : segment non reconnu (attendu {Prénom, Nom}, Prénom, Nom ou ancien Nom:Prénom) : "
+                        + shortTok);
+            }
+        }
+    }
+
+    private record ParsedScientificAuthor(String prenom, String nom) {
     }
 
     private ReferenceOpentheso saveReferenceForEntity(Entity entity, String labelUrlValue, String code) {
@@ -1112,6 +1171,9 @@ public class TypologyImportService {
         }
         if (e.getCaracteristiquePhysiqueMonnaie() != null) {
             e.getCaracteristiquePhysiqueMonnaie().getId();
+        }
+        if (e.getAuteursScientifiques() != null) {
+            e.getAuteursScientifiques().size();
         }
         return e;
     }

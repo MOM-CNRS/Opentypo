@@ -30,6 +30,7 @@ public final class TypologyImportMonnaieConstants {
             TypologyImportConstants.COL_APPELLATION_USUELLE,
             TypologyImportConstants.COL_DESCRIPTION_FR,
             TypologyImportConstants.COL_DESCRIPTION_EN,
+            TypologyImportConstants.COL_AUTEUR_SCIENTIFIQUE,
             TypologyImportConstants.COL_ILLUSTRATIONS,
             TypologyImportConstants.COL_DATATION_PERIODE,
             TypologyImportConstants.COL_DATATION_TPQ,
@@ -53,7 +54,6 @@ public final class TypologyImportMonnaieConstants {
             TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE,
             TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_INTERNE,
             TypologyImportConstants.COL_RELATIONS_ALIGNEMENTS_EXTERNE,
-            TypologyImportConstants.COL_AUTEURS_SCIENTIFIQUES,
             TypologyImportConstants.COL_COMMENTAIRE
     };
 }
