@@ -4,13 +4,14 @@
 
     <h:panelGroup rendered="#{applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()}" layout="block">
     <div class="mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
+        <div class="row">
         <div class="col-md-12">
-            <div class="concept-info-panel">
+            <div class="concept-info-panel" role="region" aria-labelledby="entity-caracteristiques-monnaie-heading">
                 <!-- En-tête avec titre -->
                 <div class="concept-info-header monnaie-communs-header">
                     <div class="concept-info-title-section monnaie-communs-title-wrapper">
-                        <i class="pi pi-th-large monnaie-communs-title-icon" />
-                        <h2 class="concept-info-title monnaie-communs-title">Caractéristiques physiques</h2>
+                        <i class="pi pi-th-large monnaie-communs-title-icon" aria-hidden="true"/>
+                        <h2 id="entity-caracteristiques-monnaie-heading" class="concept-info-title monnaie-communs-title">Caractéristiques physiques</h2>
                     </div>
                 </div>
 
@@ -161,6 +162,7 @@
 
                 </div>
             </div>
+        </div>
         </div>
     </div>
     </h:panelGroup>

@@ -5,19 +5,23 @@
     <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}" layout="block">
     <div class="row mt-20 details-row-mt-15">
         <div class="col-md-12">
-            <div class="concept-info-panel">
-                <div class="concept-info-item concept-info-item-full">
-                    <div class="concept-info-label">
-                        <i class="pi pi-comment concept-info-icon" />
-                        <span>Commentaire</span>
+            <div class="concept-info-panel" role="region" aria-labelledby="entity-commentaire-heading">
+                <div class="concept-info-header monnaie-communs-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-comment monnaie-communs-title-icon" aria-hidden="true"/>
+                        <h2 id="entity-commentaire-heading" class="concept-info-title monnaie-communs-title">Commentaire</h2>
                     </div>
-                    <div class="concept-info-value concept-info-description">
-                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
-                            #{applicationBean.selectedEntity.metadataCommentaire}
-                        </ui:fragment>
-                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
-                            <span class="empty-field-message">Non renseigné</span>
-                        </ui:fragment>
+                </div>
+                <div class="concept-info-grid">
+                    <div class="concept-info-item concept-info-item-full type-detail-prose-block">
+                        <div class="concept-info-value concept-info-description">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                #{applicationBean.selectedEntity.metadataCommentaire}
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
                     </div>
                 </div>
             </div>

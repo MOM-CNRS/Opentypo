@@ -4,128 +4,125 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <h:panelGroup id="imageModificationSection" layout="block" class="users-form-group users-form-group-full periode-group modifier-image-section">
+    <b><p:outputLabel value="Illustrations" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
-        <b><p:outputLabel value="Illustrations" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
-
-        <div class="modifier-image-container">
-            <div class="reference-image-sources modifier-image-sources candidats-mt-10">
-                <div class="modifier-image-unitaire">
-                    <div class="modifier-slot-wrapper modifier-slot-add-visible">
-                        <div class="modifier-slot-add-zone modifier-file-upload-zone">
-                            <div class="modifier-slot-add-content">
-                                <i class="pi pi-plus-circle modifier-add-icon"/>
-                                <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
-                                <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
-                            </div>
-                            <p:fileUpload listener="#{entityUpdateBean.handleFileUpload}"
-                                         mode="advanced"
-                                         auto="true"
-                                         multiple="true"
-                                         accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                                         update=":contentPanels :growl"
-                                         allowTypes="/(\.|\/)(jpe?g|png|gif|webp)$/"
-                                         label=""
-                                         invalidFileMessage="Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WebP."
-                                         fileLimitMessage="Fichiers en trop."
-                                         styleClass="modifier-file-upload"
-                                         onstart="ModifierImage.showUploading();"
-                                         oncomplete="ModifierImage.hideUploading();"
-                                         onerror="ModifierImage.hideUploading();"/>
+    <div class="modifier-image-container">
+        <div class="reference-image-sources modifier-image-sources candidats-mt-10">
+            <div class="modifier-image-unitaire">
+                <div class="modifier-slot-wrapper modifier-slot-add-visible">
+                    <div class="modifier-slot-add-zone modifier-file-upload-zone">
+                        <div class="modifier-slot-add-content">
+                            <i class="pi pi-plus-circle modifier-add-icon"/>
+                            <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
+                            <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
                         </div>
+                        <p:fileUpload listener="#{entityUpdateBean.handleFileUpload}"
+                                      mode="advanced"
+                                      auto="true"
+                                      multiple="true"
+                                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                      update=":contentPanels :growl"
+                                      allowTypes="/(\.|\/)(jpe?g|png|gif|webp)$/"
+                                      label=""
+                                      invalidFileMessage="Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WebP."
+                                      fileLimitMessage="Fichiers en trop."
+                                      styleClass="modifier-file-upload"
+                                      onstart="ModifierImage.showUploading();"
+                                      oncomplete="ModifierImage.hideUploading();"
+                                      onerror="ModifierImage.hideUploading();"/>
                     </div>
-                </div>
-
-                <div class="reference-image-divider">
-                    <span class="reference-image-divider-line"/>
-                    <span class="reference-image-divider-text">ou</span>
-                    <span class="reference-image-divider-line"/>
-                </div>
-
-                <div class="reference-image-url-group">
-                    <div class="input-wrapper periode-input-wrapper collection-select">
-                        <i class="pi pi-tag input-icon" />
-                        <p:inputText id="newImageUrlInput"
-                                     value="#{entityUpdateBean.newImageUrlInput}"
-                                     placeholder="Collez l'adresse d'une image sur internet"
-                                     styleClass="users-input"/>
-                    </div>
-                    <p:commandButton value="Ajouter cette image"
-                                     icon="pi pi-plus"
-                                     styleClass="reference-btn-add reference-image-url-btn"
-                                     actionListener="#{entityUpdateBean.addImageFromUrl()}"
-                                     process="@form"
-                                     ajax="true"
-                                     update=":contentPanels :growl"/>
                 </div>
             </div>
 
-            <!-- Overlay de chargement pendant l'upload -->
-            <div id="modifierImageUploadOverlay" class="modifier-upload-overlay" style="display:none;" aria-hidden="true">
-                <div class="modifier-upload-overlay-content">
-                    <i class="pi pi-spin pi-spinner modifier-upload-spinner"/>
-                    <span class="modifier-upload-text">Chargement de l'image...</span>
-                </div>
+            <div class="reference-image-divider">
+                <span class="reference-image-divider-line"/>
+                <span class="reference-image-divider-text">ou</span>
+                <span class="reference-image-divider-line"/>
             </div>
 
-            <!-- Liste des images -->
-            <p:dataTable value="#{entityUpdateBean.editingImages}"
-                         var="imgItem"
-                         rowIndexVar="idx"
-                         styleClass="candidat-labels-table candidats-mt-10 modifier-images-table"
-                         emptyMessage="Aucune image"
-                         rendered="#{not empty entityUpdateBean.editingImages}">
-                <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
-                    <div class="candidat-table-label-cell modifier-image-preview-cell"
-                         data-image-url="#{imgItem.url}"
-                         data-image-legende="#{imgItem.legende}"
-                         onclick="var u=this.getAttribute('data-image-url');var l=this.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;"
-                         role="button"
-                         title="Cliquer pour afficher en plein écran">
-                        <p:graphicImage value="#{imgItem.url}"
-                                       alt="Aperçu"
-                                       style="max-width: 48px; max-height: 36px; object-fit: contain;"/>
-                    </div>
-                </p:column>
-                <p:column headerText="Légende" styleClass="candidat-table-label-column candidats-table-label-padding">
-                    <div class="candidat-table-label-cell">
-                        <ui:fragment rendered="#{entityUpdateBean.isRecentlyAddedImage(imgItem.url)}">
+            <div class="reference-image-url-group">
+                <div class="input-wrapper periode-input-wrapper collection-select">
+                    <i class="pi pi-tag input-icon" />
+                    <p:inputText id="newImageUrlInput"
+                                 value="#{entityUpdateBean.newImageUrlInput}"
+                                 placeholder="Collez l'adresse d'une image sur internet"
+                                 styleClass="users-input"/>
+                </div>
+                <p:commandButton value="Ajouter cette image"
+                                 icon="pi pi-plus"
+                                 styleClass="reference-btn-add reference-image-url-btn"
+                                 actionListener="#{entityUpdateBean.addImageFromUrl()}"
+                                 process="@form"
+                                 ajax="true"
+                                 update=":contentPanels :growl"/>
+            </div>
+        </div>
+
+        <!-- Overlay de chargement pendant l'upload -->
+        <div id="modifierImageUploadOverlay" class="modifier-upload-overlay" style="display:none;" aria-hidden="true">
+            <div class="modifier-upload-overlay-content">
+                <i class="pi pi-spin pi-spinner modifier-upload-spinner"/>
+                <span class="modifier-upload-text">Chargement de l'image...</span>
+            </div>
+        </div>
+
+        <!-- Liste des images -->
+        <p:dataTable value="#{entityUpdateBean.editingImages}"
+                     var="imgItem"
+                     rowIndexVar="idx"
+                     styleClass="candidat-labels-table candidats-mt-10 modifier-images-table"
+                     emptyMessage="Aucune image"
+                     rendered="#{not empty entityUpdateBean.editingImages}">
+            <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
+                <div class="candidat-table-label-cell modifier-image-preview-cell"
+                     data-image-url="#{imgItem.url}"
+                     data-image-legende="#{imgItem.legende}"
+                     onclick="var u=this.getAttribute('data-image-url');var l=this.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;"
+                     role="button"
+                     title="Cliquer pour afficher en plein écran">
+                    <p:graphicImage value="#{imgItem.url}"
+                                    alt="Aperçu"
+                                    style="max-width: 48px; max-height: 36px; object-fit: contain;"/>
+                </div>
+            </p:column>
+            <p:column headerText="Légende" styleClass="candidat-table-label-column candidats-table-label-padding">
+                <div class="candidat-table-label-cell">
+                    <ui:fragment rendered="#{entityUpdateBean.isRecentlyAddedImage(imgItem.url)}">
                             <span class="modifier-image-new-badge" title="Image ajoutée dans cette session">
                                 <i class="pi pi-star-fill"/> Nouvelle
                             </span>
-                        </ui:fragment>
-                        <p:inputText value="#{imgItem.legende}"
-                                     styleClass="users-input modifier-image-legende-input"
-                                     placeholder="Légende de l'image"
-                                     maxlength="500"/>
-                    </div>
-                </p:column>
-                <p:column styleClass="candidat-table-action-column">
-                    <div class="candidat-table-action-cell">
-                        <p:commandButton icon="pi pi-trash"
-                                         styleClass="candidat-btn-remove"
-                                         action="#{entityUpdateBean.removeImageByUrl(imgItem.url)}"
-                                         process="@this"
-                                         ajax="true"
-                                         update=":contentPanels :growl"
-                                         title="Supprimer cette image"/>
-                    </div>
-                </p:column>
-            </p:dataTable>
+                    </ui:fragment>
+                    <p:inputText value="#{imgItem.legende}"
+                                 styleClass="users-input modifier-image-legende-input"
+                                 placeholder="Légende de l'image"
+                                 maxlength="500"/>
+                </div>
+            </p:column>
+            <p:column styleClass="candidat-table-action-column">
+                <div class="candidat-table-action-cell">
+                    <p:commandButton icon="pi pi-trash"
+                                     styleClass="candidat-btn-remove"
+                                     action="#{entityUpdateBean.removeImageByUrl(imgItem.url)}"
+                                     process="@this"
+                                     ajax="true"
+                                     update=":contentPanels :growl"
+                                     title="Supprimer cette image"/>
+                </div>
+            </p:column>
+        </p:dataTable>
 
-            <ui:fragment rendered="#{empty entityUpdateBean.editingImages}">
-                <div class="candidat-no-labels candidats-mt-10">
-                    <div class="candidat-no-labels-content">
-                        <div class="candidat-no-labels-icon"><i class="pi pi-images" /></div>
-                        <div class="candidat-no-labels-text">
-                            <h4 class="candidat-no-labels-title">Aucune image</h4>
-                            <p class="candidat-no-labels-message">Ajoutez des images depuis votre ordinateur ou collez une adresse web ci-dessus.</p>
-                        </div>
+        <ui:fragment rendered="#{empty entityUpdateBean.editingImages}">
+            <div class="candidat-no-labels candidats-mt-10">
+                <div class="candidat-no-labels-content">
+                    <div class="candidat-no-labels-icon"><i class="pi pi-images" /></div>
+                    <div class="candidat-no-labels-text">
+                        <h4 class="candidat-no-labels-title">Aucune image</h4>
+                        <p class="candidat-no-labels-message">Ajoutez des images depuis votre ordinateur ou collez une adresse web ci-dessus.</p>
                     </div>
                 </div>
-            </ui:fragment>
-        </div>
-    </h:panelGroup>
+            </div>
+        </ui:fragment>
+    </div>
 
     <style>
         .modifier-image-sources {

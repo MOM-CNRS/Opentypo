@@ -78,6 +78,127 @@
     }
 }
 
+/* ---- Fiche type v2 : ancres, navigation, identité ---- */
+@media (prefers-reduced-motion: no-preference) {
+    html:has(.type-detail-page--v2) {
+        scroll-behavior: smooth;
+    }
+}
+
+.type-detail-page--v2 {
+    --type-nav-height: 3.25rem;
+}
+
+.type-detail-page--v2 .type-section-anchor {
+    scroll-margin-top: calc(var(--type-nav-height, 3.25rem) + 0.75rem);
+}
+
+.type-detail-page--v2 #type-identity {
+    scroll-margin-top: var(--type-nav-height, 3.25rem);
+}
+
+.type-detail-page--v2 .type-identity-panel {
+    border-radius: var(--type-radius-lg);
+    box-shadow: var(--type-shadow), 0 0 0 1px rgba(var(--type-main-rgb), 0.04);
+}
+
+.type-detail-page--v2 .type-identity-header .collection-panel-title-wrapper {
+    gap: 0.2rem;
+}
+
+.type-detail-page--v2 .type-identity-header .collection-panel-title {
+    font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.type-detail-page--v2 .type-identity-header .collection-panel-subtitle {
+    font-size: 0.95rem;
+    color: var(--type-text-muted);
+    font-weight: 500;
+}
+
+.type-page-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 0.5rem 0.65rem;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.type-page-nav__scroller {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.45rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 0.1rem;
+}
+
+.type-page-nav__label {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--type-text-muted);
+    margin-right: 0.25rem;
+}
+
+.type-page-nav__pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--type-main);
+    text-decoration: none;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--type-main-rgb), 0.22);
+    background: rgba(var(--type-main-rgb), 0.06);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.type-page-nav__pill:hover {
+    background: rgba(var(--type-main-rgb), 0.12);
+    border-color: rgba(var(--type-main-rgb), 0.35);
+    color: var(--type-main);
+    box-shadow: 0 2px 8px rgba(var(--type-main-rgb), 0.12);
+}
+
+.type-page-nav__pill:focus-visible {
+    outline: 2px solid var(--type-main);
+    outline-offset: 2px;
+}
+
+/* Galerie (navigation préco/suivant) sous le bandeau identité */
+.type-detail-page--v2 .type-identity-panel .type-detail-gallery-wrap {
+    margin-top: 0.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--type-border);
+}
+
+.type-detail-page--v2 .type-detail-gallery {
+    border-radius: var(--type-radius-md);
+}
+
+/* Textes longs (commentaire, bibliographie) : lisibilité */
+.type-detail-page--v2 .type-detail-prose-block .concept-info-description {
+    line-height: 1.6;
+    font-size: 0.9375rem;
+}
+
+.type-detail-page--v2 .type-section-shell .concept-info-panel[role="region"] .monnaie-communs-title {
+    font-size: 1.05rem;
+}
+
 .type-detail-page .concept-info-panel + .row,
 .type-detail-page .concept-info-panel + .details-row-mt-15,
 .type-detail-page .details-row-mt-15 + .details-row-mt-15 {
@@ -978,5 +1099,20 @@
 
     .type-detail-page .bibliographie-badge-text {
         overflow-wrap: anywhere;
+    }
+
+    .type-page-nav {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+        padding: 0.45rem 0.5rem;
+    }
+
+    .type-page-nav__label {
+        display: none;
+    }
+
+    .type-page-nav__pill {
+        font-size: 0.78rem;
+        padding: 0.32rem 0.65rem;
     }
 }

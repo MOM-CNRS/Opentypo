@@ -1,24 +1,25 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+                xmlns:p="http://primefaces.org/ui">
 
     <h:panelGroup id="contentTypePanels" layout="block">
-        <div class="type-detail-page col-md-12">
+        <div class="type-detail-page type-detail-page--v2 col-md-12">
             <h:form id="typeEditForm" styleClass="groupe-header-form-inline" enctype="multipart/form-data">
-                <div class="concept-info-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
-                    <div class="concept-info-header">
+                <div id="type-identity" class="concept-info-panel type-identity-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
+                    <div class="concept-info-header type-identity-header">
                         <div class="concept-info-title-section">
                             <span class="reference-entity-type-badge">Type</span>
                             <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                           styleClass="collection-not-published-icon">
                                 <i class="pi pi-clock"/>
-                                <p:tooltip value="Catégorie non publiée" position="top"/>
+                                <p:tooltip value="Type non publiée" position="top"/>
                             </h:panelGroup>
                             <div class="collection-panel-title-wrapper">
                                 <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</span>
+                                <span class="collection-panel-subtitle">
+                                    <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
+                                </span>
                             </div>
                         </div>
 
@@ -93,6 +94,36 @@
                         </h:panelGroup>
                     </div>
 
+                    <h:panelGroup rendered="#{!entityUpdateBean.editingEntity}">
+                        <nav class="type-page-nav" aria-label="Accès rapide aux sections de la fiche">
+                            <div class="type-page-nav__scroller">
+                                <span class="type-page-nav__label">Accès rapide</span>
+                                <a href="#type-identity" class="type-page-nav__pill">Identité</a>
+                                <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
+                                    <a href="#type-section-datation" class="type-page-nav__pill">Datation</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
+                                    <a href="#type-section-production" class="type-page-nav__pill">Production</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.isCashTypo() or applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                                    <a href="#type-section-details" class="type-page-nav__pill">Détails</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
+                                    <a href="#type-section-attestations" class="type-page-nav__pill">Attestations</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
+                                    <a href="#type-section-references" class="type-page-nav__pill">Références</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
+                                    <a href="#type-section-commentaire" class="type-page-nav__pill">Commentaire</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                    <a href="#type-section-bibliographie" class="type-page-nav__pill">Bibliographie</a>
+                                </ui:fragment>
+                            </div>
+                        </nav>
+                    </h:panelGroup>
+
                     <ui:include src="galerie_images.xhtml"/>
 
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
@@ -145,6 +176,28 @@
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
+
+                            <h:panelGroup layout="block" styleClass="concept-info-item concept-info-item-full"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-users concept-info-icon" />
+                                    <span>Auteur(s) scientifique(s)</span>
+                                </div>
+
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
+                                            <span class="bibliographie-badge">
+                                                <i class="pi pi-star bibliographie-badge-icon" />
+                                                <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
+                                            </span>
+                                        </ui:repeat>
+                                    </ui:fragment>
+
+                                    <h:outputText value="Aucun auteur scientifique disponible" styleClass="bibliographie-empty"
+                                                  rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}" />
+                                </div>
+                            </h:panelGroup>
                         </div>
                     </ui:fragment>
 
@@ -154,48 +207,65 @@
                 </div>
 
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                    <div class="type-section-shell">
-                        <ui:include src="datation.xhtml"/>
-                    </div>
 
-                    <div class="type-section-shell">
-                        <ui:include src="../communs/production.xhtml"/>
-                    </div>
+                    <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
+                        <div id="type-section-datation" class="type-section-shell type-section-anchor">
+                            <ui:include src="datation.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
-                    <h:panelGroup rendered="#{applicationBean.isCashTypo()}" styleClass="type-section-shell" layout="block">
-                        <ui:include src="../communs/description_monnaie.xhtml"/>
-                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                    </h:panelGroup>
+                    <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
+                        <div id="type-section-production" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/production.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
-                    <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}" styleClass="type-section-shell" layout="block">
-                        <ui:include src="../communs/description.xhtml"/>
+                    <ui:fragment rendered="#{applicationBean.isCashTypo() or applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
+                        <div id="type-section-details" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}" layout="block">
+                                <ui:include src="../communs/description_monnaie.xhtml"/>
+                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                            </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
-                            <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                        </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}" layout="block">
+                                <ui:include src="../communs/description.xhtml"/>
 
-                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
-                            <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
-                        </h:panelGroup>
-                    </h:panelGroup>
+                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                                </h:panelGroup>
 
-                    <div class="type-section-shell">
-                        <ui:include src="attestations.xhtml"/>
-                    </div>
+                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </div>
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
+                        <div id="type-section-attestations" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="attestations.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
                     <!--<ui:include src="gestion.xhtml"/>-->
 
-                    <div class="type-section-shell">
-                        <ui:include src="references.xhtml"/>
-                    </div>
+                    <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
+                        <div id="type-section-references" class="type-section-shell type-section-anchor">
+                            <ui:include src="references.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
-                    <div class="type-section-shell">
-                        <ui:include src="../communs/commentaire.xhtml"/>
-                    </div>
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
+                        <div id="type-section-commentaire" class="type-section-shell type-section-anchor">
+                            <ui:include src="../communs/commentaire.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
-                    <div class="type-section-shell">
-                        <ui:include src="../communs/bibliographie.xhtml"/>
-                    </div>
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                        <div id="type-section-bibliographie" class="type-section-shell type-section-anchor">
+                            <ui:include src="../communs/bibliographie.xhtml"/>
+                        </div>
+                    </ui:fragment>
                 </ui:fragment>
             </h:form>
         </div>

@@ -51,6 +51,23 @@
                 </h:panelGroup>
 
                 <ui:include src="definition-modification.xhtml"/>
+
+                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
+                              class="users-form-group users-form-group-full periode-group candidats-mt-20">
+                    <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
+                    <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
+                                          label="Sélectionner un ou plusieurs auteurs"
+                                          styleClass="users-input modifier-scientific-authors-select"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          panelStyle="width: min(520px, 90vw);"
+                                          updateLabel="true">
+                        <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
+                                       var="scientificAuthor"
+                                       itemValue="#{scientificAuthor.id}"
+                                       itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
+                    </p:selectCheckboxMenu>
+                </h:panelGroup>
             </div>
 
             <!-- Images : ajouter, modifier, supprimer -->
@@ -80,37 +97,7 @@
 
                 <ui:include src="production-modification.xhtml"/>
 
-                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-                    <b><p:outputLabel value="Attestations et contextes" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
-
-                    <!-- Attestations -->
-                    <div class="users-form-group users-form-group-full candidats-mt-10">
-                        <p:outputLabel value="Attestation(s)/Contexte(s)" />
-                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                            <i class="pi pi-check-circle input-icon" title="Attestations"/>
-                            <p:chips value="#{entityUpdateBean.attestations}"
-                                     styleClass="users-chips"
-                                     placeholder="Saisissez une attestation et appuyez sur Entrée..."
-                                     maxlength="500"
-                                     addOnBlur="true">
-                                <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                                <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                                <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
-                            </p:chips>
-                        </div>
-                    </div>
-
-                    <div class="users-form-group users-form-group-full candidats-mt-10">
-                        <p:outputLabel value="Corpus lié(s)" />
-                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                            <i class="pi pi-book input-icon" title="Corpus lié(s)"/>
-                            <p:inputText value="#{entityUpdateBean.corpusLies}"
-                                         styleClass="users-input"
-                                         placeholder="Ex. Corpus A, Corpus B..."
-                                         maxlength="500"/>
-                        </div>
-                    </div>
-                </div>
+                <ui:include src="attestations-modification.xhtml"/>
 
                 <ui:include src="description-modification.xhtml"/>
 
@@ -118,25 +105,8 @@
 
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
                     <ui:include src="relations-modification.xhtml"/>
-
-                    <ui:include src="details_type-modification.xhtml"/>
+                    <!--<ui:include src="details_type-modification.xhtml"/>-->
                 </h:panelGroup>
-
-                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-                    <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
-                    <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
-                                          label="Sélectionner un ou plusieurs auteurs"
-                                          styleClass="users-input modifier-scientific-authors-select"
-                                          filter="true"
-                                          filterMatchMode="contains"
-                                          panelStyle="width: min(520px, 90vw);"
-                                          updateLabel="true">
-                        <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
-                                       var="scientificAuthor"
-                                       itemValue="#{scientificAuthor.id}"
-                                       itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
-                    </p:selectCheckboxMenu>
-                </div>
 
                 <!-- Section Permissions -->
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">

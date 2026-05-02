@@ -2438,6 +2438,20 @@ public class ApplicationBean implements Serializable {
                 || hasAnyValue(selectedEntity.getAiresCirculation());
     }
 
+    /** Bloc Attestations et contextes (attestations, corpus liés, sites archéologiques) */
+    public boolean showAttestationsSectionBlock() {
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            return true;
+        }
+        var m = selectedEntity.getMetadata();
+        return hasAnyValue(m != null ? m.getAttestations() : null)
+                || hasAnyValue(m != null ? m.getCorpusLies() : null)
+                || hasAnyValue(m != null ? m.getSitesArcheologiques() : null);
+    }
+
     /** Bloc Description monnaie */
     public boolean showDescriptionMonnaieBlock() {
         if (selectedEntity == null) return false;

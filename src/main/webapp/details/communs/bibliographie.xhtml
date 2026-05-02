@@ -5,19 +5,23 @@
     <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}" layout="block">
     <div class="row mt-20 details-row-mt-15">
         <div class="col-md-12">
-            <div class="concept-info-panel">
-                <div class="concept-info-item concept-info-item-full">
-                    <div class="concept-info-label">
-                        <i class="pi pi-book concept-info-icon" />
-                        <span>Bibliographie</span>
+            <div class="concept-info-panel" role="region" aria-labelledby="entity-bibliographie-heading">
+                <div class="concept-info-header monnaie-communs-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-book monnaie-communs-title-icon" aria-hidden="true"/>
+                        <h2 id="entity-bibliographie-heading" class="concept-info-title monnaie-communs-title">Bibliographie</h2>
                     </div>
-                    <div class="concept-info-value concept-info-description">
-                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                            #{applicationBean.selectedEntity.bibliographie}
-                        </ui:fragment>
-                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                            <span class="empty-field-message">Non renseigné</span>
-                        </ui:fragment>
+                </div>
+                <div class="concept-info-grid">
+                    <div class="concept-info-item concept-info-item-full type-detail-prose-block">
+                        <div class="concept-info-value concept-info-description">
+                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
+                                #{applicationBean.selectedEntity.bibliographie}
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
+                                <span class="empty-field-message">Non renseigné</span>
+                            </ui:fragment>
+                        </div>
                     </div>
                 </div>
             </div>

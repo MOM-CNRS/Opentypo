@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
+        <b><p:outputLabel value="Attestations et contextes" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+
+        <!-- Attestations -->
+        <div class="users-form-group users-form-group-full">
+            <p:outputLabel value="Attestation(s)/Contexte(s)" />
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                <i class="pi pi-check-circle input-icon" title="Attestations"/>
+                <p:chips value="#{entityUpdateBean.attestations}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+        </div>
+
+        <!-- Sites archéologiques -->
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Sites archéologiques" />
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                <i class="pi pi-map-marker input-icon" title="Sites archéologiques"/>
+                <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
+                         styleClass="users-chips"
+                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
+                         maxlength="500"
+                         addOnBlur="true">
+                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                    <p:ajax event="change" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
+                </p:chips>
+            </div>
+        </div>
+
+        <div class="users-form-group users-form-group-full candidats-mt-10">
+            <p:outputLabel value="Corpus lié(s)" />
+            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                <i class="pi pi-book input-icon" title="Corpus lié(s)"/>
+                <p:inputText value="#{entityUpdateBean.corpusLies}"
+                             styleClass="users-input"
+                             placeholder="Ex. Corpus A, Corpus B..."
+                             maxlength="500"/>
+            </div>
+        </div>
+    </div>
+</ui:composition>
