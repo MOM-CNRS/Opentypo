@@ -1266,6 +1266,16 @@
     min-height: 76px;
 }
 
+/*
+ * Un ancêtre avec transform (ex. .type-detail-page .concept-info-panel:hover { translateY(-1px) })
+ * devient le bloc de conteneur des descendants position:fixed. Avec overflow:hidden sur le panel,
+ * la barre est alors repositionnée au bas du panel et rognée — elle « disparaît » au survol du formulaire.
+ */
+.concept-info-panel:has(.modifier-actions-wrapper.modifier-actions-sticky),
+.concept-info-panel:has(#modifierActionsWrapper) {
+    transform: none !important;
+}
+
 /* Animation : glissement vers le haut à l'apparition - courbe fluide */
 @keyframes modifierBarSlideUp {
     from {
@@ -1276,39 +1286,6 @@
         transform: translate3d(0, 0, 0);
         opacity: 1;
     }
-}
-
-/* Animation : glissement vers le bas à la fermeture - courbe fluide */
-@keyframes modifierBarSlideDown {
-    0% {
-        transform: translate3d(0, 0, 0);
-        opacity: 1;
-    }
-    70% {
-        opacity: 1;
-    }
-    100% {
-        transform: translate3d(0, 100%, 0);
-        opacity: 0;
-    }
-}
-
-.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down {
-    pointer-events: none !important;
-}
-
-.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-actions {
-    animation: modifierBarSlideDown 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
-    will-change: transform !important;
-    backface-visibility: hidden !important;
-}
-
-/* Feedback visuel fluide des boutons pendant la fermeture */
-.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-btn-back,
-.modifier-actions-wrapper.modifier-actions-sticky.modifier-actions-sliding-down .collection-modifier-btn-save {
-    opacity: 0.7 !important;
-    transform: scale(0.97) !important;
-    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Barre d'actions fixée : design glassmorphism moderne + slide-up à l'apparition */
