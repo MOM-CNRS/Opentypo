@@ -16,6 +16,7 @@ public class Candidat implements Serializable {
     
     public enum Statut {
         EN_COURS,
+        EN_VALIDATION,
         VALIDE,
         REFUSE
     }

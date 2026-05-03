@@ -8,6 +8,9 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.service.CandidatListService;
 import fr.cnrs.opentypo.application.service.CandidatValidationService;
 import fr.cnrs.opentypo.application.service.CollectionService;
+import fr.cnrs.opentypo.application.service.DemandeValidationRequirementsService;
+import fr.cnrs.opentypo.application.service.GroupService;
+import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityType;
@@ -177,6 +180,15 @@ public class CandidatBean implements Serializable {
     @Autowired
     private LabelRepository labelRepository;
 
+    @Autowired
+    private GroupService groupService;
+
+    @Inject
+    private DemandeValidationRequirementsService demandeValidationRequirementsService;
+
+    @Autowired
+    private TypeValidationAuthorityService typeValidationAuthorityService;
+
     private List<Candidat> candidats = new ArrayList<>();
     private Candidat candidatSelectionne;
     private Candidat nouveauCandidat;
@@ -184,7 +196,9 @@ public class CandidatBean implements Serializable {
     private Candidat candidatARefuser; // Candidat sélectionné pour refus
     private Candidat candidatARemettreEnBrouillon; // Candidat sélectionné pour remise en brouillon
     private Candidat candidatASupprimer; // Candidat sélectionné pour suppression
-    private int activeTabIndex = 0; // 0 = en cours, 1 = validés, 2 = refusés
+    /** Brouillon sélectionné pour le dialogue « Demande de validation » (liste candidats). */
+    private Candidat candidatPourDemandeValidation;
+    private int activeTabIndex = 0; // 0 = brouillons, 1 = en validation, 2 = validés, 3 = refusés
     private boolean candidatsLoaded = false; // Flag pour savoir si les candidats ont été chargés
     
     // Champs pour l'étape 1 du formulaire
@@ -718,26 +732,28 @@ public class CandidatBean implements Serializable {
      */
     public void chargerCandidats() {
         try {
-            // Charger les entités avec statut PROPOSITION, PUBLIQUE, REFUSED
             List<Entity> entitiesProposition = entityRepository.findByStatut(EntityStatusEnum.PROPOSITION.name());
+            List<Entity> entitiesInValidation = entityRepository.findByStatut(EntityStatusEnum.IN_VALIDATION.name());
             List<Entity> entitiesAccepted = entityRepository.findByStatut(EntityStatusEnum.PUBLIQUE.name());
             List<Entity> entitiesRefused = entityRepository.findByStatut(EntityStatusEnum.REFUSE.name());
             
-            // Convertir en Candidat et stocker dans la liste
             candidats.clear();
             candidats.addAll(entitiesProposition.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .toList());
+                .collect(Collectors.toList()));
+            candidats.addAll(entitiesInValidation.stream()
+                .map(candidatConverter::convertEntityToCandidat)
+                .collect(Collectors.toList()));
             candidats.addAll(entitiesAccepted.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .toList());
+                .collect(Collectors.toList()));
             candidats.addAll(entitiesRefused.stream()
                 .map(candidatConverter::convertEntityToCandidat)
-                .toList());
+                .collect(Collectors.toList()));
             
             candidatsLoaded = true;
-            log.info("Chargement des candidats terminé: {} PROPOSITION, {} PUBLIQUE, {} REFUSED", 
-                entitiesProposition.size(), entitiesAccepted.size(), entitiesRefused.size());
+            log.info("Chargement des candidats terminé: {} PROPOSITION, {} IN_VALIDATION, {} PUBLIQUE, {} REFUSE",
+                entitiesProposition.size(), entitiesInValidation.size(), entitiesAccepted.size(), entitiesRefused.size());
         } catch (Exception e) {
             log.error("Erreur lors du chargement des candidats depuis la base de données", e);
             candidats.clear();
@@ -779,11 +795,102 @@ public class CandidatBean implements Serializable {
     }
 
     /**
+     * Fiches en attente de décision du valideur (statut {@link EntityStatusEnum#IN_VALIDATION}).
+     */
+    public List<Candidat> getCandidatsEnValidation() {
+        chargerCandidatsIfNeeded();
+        return candidats.stream()
+                .filter(c -> c.getStatut() == Candidat.Statut.EN_VALIDATION)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Indique si l'utilisateur connecté peut valider ou refuser un brouillon.
      * Groupe autorisé : Administrateur technique uniquement.
      */
     public boolean canValidateOrRefuseBrouillon() {
         return loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
+    }
+
+    public boolean currentUserHasRoleOnEntityGroup(Long entityId, String roleLabel) {
+        if (loginBean == null || loginBean.getCurrentUser() == null || entityId == null) {
+            return false;
+        }
+        Optional<Entity> g = groupService.findGroupByEntityId(entityId);
+        if (g.isEmpty()) {
+            return false;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(), g.get().getId(), roleLabel);
+    }
+
+    /** Rédacteur, relecteur ou administrateur : envoi en validation depuis un brouillon « Type ». */
+    public boolean canRequestValidationForCandidat(Candidat candidat) {
+        if (candidat == null || candidat.getId() == null) {
+            return false;
+        }
+        if (candidat.getStatut() != Candidat.Statut.EN_COURS) {
+            return false;
+        }
+        if (!EntityConstants.ENTITY_TYPE_TYPE.equals(candidat.getTypeCode())) {
+            return false;
+        }
+        if (loginBean != null && loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        return currentUserHasRoleOnEntityGroup(candidat.getId(), PermissionRoleEnum.REDACTEUR.getLabel())
+                || currentUserHasRoleOnEntityGroup(candidat.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
+    }
+
+    /**
+     * Valideur du type ou du groupe, gestionnaire du référentiel parent, ou administrateur :
+     * décision sur une fiche « en validation ».
+     */
+    public boolean canValidateOrRefuseAsValidatorForCandidat(Candidat candidat) {
+        if (candidat == null || candidat.getId() == null) {
+            return false;
+        }
+        if (candidat.getStatut() != Candidat.Statut.EN_VALIDATION) {
+            return false;
+        }
+        if (loginBean == null || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        return typeValidationAuthorityService.canUserValidateOrRefuseType(
+                candidat.getId(), loginBean.getCurrentUser());
+    }
+
+    public boolean canRequestValidationOnCurrentView() {
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return false;
+        }
+        if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) {
+            return false;
+        }
+        if (currentEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_TYPE.equals(currentEntity.getEntityType().getCode())) {
+            return false;
+        }
+        if (loginBean != null && loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        return currentUserHasRoleOnEntityGroup(currentEntity.getId(), PermissionRoleEnum.REDACTEUR.getLabel())
+                || currentUserHasRoleOnEntityGroup(currentEntity.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
+    }
+
+    public boolean canShowValidatorActionsOnCurrentView() {
+        if (currentEntity == null || currentEntity.getId() == null
+                || currentEntity.getStatut() == null) {
+            return false;
+        }
+        if (!EntityStatusEnum.IN_VALIDATION.name().equals(currentEntity.getStatut())) {
+            return false;
+        }
+        if (loginBean == null || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        return typeValidationAuthorityService.canUserValidateOrRefuseType(
+                currentEntity.getId(), loginBean.getCurrentUser());
     }
 
     /**
@@ -800,19 +907,40 @@ public class CandidatBean implements Serializable {
      * En mode édition catalogue (groupe), l'édition est autorisée.
      */
     public boolean canEditCurrentBrouillon() {
-        if (entityEditModeBean != null && entityEditModeBean.isEditingEntityInCatalog()) return true;
-        if (currentEntity == null || currentEntity.getStatut() == null) return false;
-        if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) return false;
-        return loginBean != null && loginBean.isAdminTechniqueOrFonctionnel();
+        if (entityEditModeBean != null && entityEditModeBean.isEditingEntityInCatalog()) {
+            return true;
+        }
+        if (currentEntity == null || currentEntity.getStatut() == null) {
+            return false;
+        }
+        if (!EntityStatusEnum.PROPOSITION.name().equals(currentEntity.getStatut())) {
+            return false;
+        }
+        if (loginBean == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        Long id = currentEntity.getId();
+        if (id == null) {
+            return false;
+        }
+        return currentUserHasRoleOnEntityGroup(id, PermissionRoleEnum.REDACTEUR.getLabel())
+                || currentUserHasRoleOnEntityGroup(id, PermissionRoleEnum.RELECTEUR.getLabel());
     }
 
     /**
-     * Indique si le brouillon courant est en lecture seule (déjà validé ou refusé).
-     * Dans ce cas, tous les utilisateurs ne peuvent que visualiser.
+     * Indique si le brouillon courant est en lecture seule (validé, refusé ou en attente du valideur).
      */
     public boolean isCurrentBrouillonReadOnly() {
-        if (currentEntity == null || currentEntity.getStatut() == null) return true;
+        if (currentEntity == null || currentEntity.getStatut() == null) {
+            return true;
+        }
         String s = currentEntity.getStatut();
+        if (EntityStatusEnum.IN_VALIDATION.name().equals(s)) {
+            return true;
+        }
         return EntityStatusEnum.PUBLIQUE.name().equals(s) || EntityStatusEnum.REFUSE.name().equals(s);
     }
 
@@ -1159,6 +1287,82 @@ public class CandidatBean implements Serializable {
      */
     public void prepareRefuseCandidat(Candidat candidat) {
         this.candidatARefuser = candidat;
+    }
+
+    /**
+     * Contrôle les champs obligatoires puis ouvre le dialogue de confirmation « Demande de validation » (liste).
+     */
+    public void prepareDemandeValidation(Candidat candidat) {
+        candidatPourDemandeValidation = null;
+        if (candidat == null || candidat.getId() == null) {
+            return;
+        }
+        List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(candidat.getId());
+        if (!missing.isEmpty()) {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            for (String m : missing) {
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Champs obligatoires", m));
+            }
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        candidatPourDemandeValidation = candidat;
+        PrimeFaces.current().ajax().update(":candidatsForm:confirmDemandeValidationDialog");
+        PrimeFaces.current().executeScript("PF('confirmDemandeValidationDialog').show();");
+    }
+
+    /**
+     * Même contrôle depuis la page détail d’un brouillon.
+     */
+    public void prepareDemandeValidationFromView() {
+        candidatPourDemandeValidation = null;
+        if (currentEntity == null || currentEntity.getId() == null) {
+            return;
+        }
+        List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(currentEntity.getId());
+        if (!missing.isEmpty()) {
+            FacesContext fc = FacesContext.getCurrentInstance();
+            for (String m : missing) {
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Champs obligatoires", m));
+            }
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        PrimeFaces.current().ajax().update(":createCandidatForm:confirmDemandeValidationDialogView");
+        PrimeFaces.current().executeScript("PF('confirmDemandeValidationDialogView').show();");
+    }
+
+    /**
+     * Envoie la fiche en statut {@link EntityStatusEnum#IN_VALIDATION} après confirmation utilisateur.
+     */
+    public void confirmDemandeValidation() {
+        Long id = candidatPourDemandeValidation != null ? candidatPourDemandeValidation.getId()
+                : (currentEntity != null ? currentEntity.getId() : null);
+        candidatPourDemandeValidation = null;
+        if (id == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Aucune fiche sélectionnée."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        ActionResult r = candidatValidationActionService.demanderValidation(id,
+                loginBean != null ? loginBean.getCurrentUser() : null);
+        candidatsLoaded = false;
+        chargerCandidats();
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (r.success()) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", r.message()));
+            entityRepository.findById(id).ifPresent(e -> currentEntity = e);
+        } else {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    r.errorMessage() != null ? r.errorMessage() : "Action impossible."));
+        }
+        String viewId = fc.getViewRoot().getViewId();
+        if (viewId != null && viewId.contains("/candidats/view.xhtml")) {
+            PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
+        } else {
+            PrimeFaces.current().ajax().update(":growl", ":candidatsForm");
+        }
     }
 
     /**

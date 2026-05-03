@@ -4,22 +4,23 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <h:panelGroup rendered="#{applicationBean.showProductionBlock()}" layout="block">
-        <div class="mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="concept-info-panel" role="region" aria-labelledby="entity-production-heading">
-                        <div class="concept-info-header monnaie-communs-header">
-                            <div class="concept-info-title-section monnaie-communs-title-wrapper">
-                                <i class="pi pi-inbox monnaie-communs-title-icon" aria-hidden="true"/>
-                                <h2 id="entity-production-heading" class="concept-info-title monnaie-communs-title">Production et circulation</h2>
-                            </div>
-                        </div>
+        <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
+                 aria-label="Production et circulation du type">
+            <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="entity-production-heading">
+                <header class="concept-info-header monnaie-communs-header description-typo-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-inbox monnaie-communs-title-icon" aria-hidden="true"/>
+                        <h2 id="entity-production-heading" class="concept-info-title monnaie-communs-title">Production et circulation</h2>
+                    </div>
+                </header>
 
-                        <div class="concept-info-grid">
+                <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                    <div class="concept-info-grid-band description-typo-band">
+                        <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.production)}"
-                                          styleClass="concept-info-item" layout="block">
+                                          styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-truck monnaie-communs-icon" />
+                                    <i class="pi pi-truck monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Aire de production</span>
                                 </div>
                                 <div class="concept-info-value">
@@ -30,12 +31,12 @@
                                                           rel="noopener noreferrer"
                                                           styleClass="concept-value-external-link">
                                                 #{applicationBean.selectedEntity.production.valeur}
-                                                <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.production.url}">
                                             <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                <i class="pi pi-link-slash"/>
+                                                <i class="pi pi-link-slash" aria-hidden="true"/>
                                                 #{applicationBean.selectedEntity.production.valeur}
                                             </span>
                                         </ui:fragment>
@@ -47,9 +48,9 @@
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.ateliers : null)}"
-                                          styleClass="concept-info-item" layout="block">
+                                          styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-building monnaie-communs-icon" />
+                                    <i class="pi pi-building monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Atelier(s)</span>
                                 </div>
                                 <div class="concept-info-value">
@@ -64,14 +65,14 @@
                                     </ui:fragment>
                                     <h:outputText value="Non renseigné"
                                                   rendered="#{empty applicationBean.selectedEntity.metadata or empty applicationBean.selectedEntity.metadata.ateliers}"
-                                                  styleClass="empty-field-message" />
+                                                  styleClass="empty-field-message"/>
                                 </div>
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.airesCirculation)}"
-                                          styleClass="concept-info-item" layout="block">
+                                          styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-map monnaie-communs-icon" />
+                                    <i class="pi pi-map monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Aire de circulation</span>
                                 </div>
                                 <div class="concept-info-value">
@@ -84,27 +85,27 @@
                                                                   rel="noopener noreferrer"
                                                                   styleClass="concept-value-external-link">
                                                         #{ref.valeur}
-                                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty ref.url}">
-                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                            <i class="pi pi-link-slash"/>
-                                                            #{ref.valeur}
-                                                        </span>
+                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                        <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                        #{ref.valeur}
+                                                    </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
                                     <h:outputText value="Non renseigné"
                                                   rendered="#{empty applicationBean.selectedEntity.airesCirculation}"
-                                                  styleClass="empty-field-message" />
+                                                  styleClass="empty-field-message"/>
                                 </div>
                             </h:panelGroup>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </h:panelGroup>
 </ui:composition>

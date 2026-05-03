@@ -1,7 +1,6 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <h:panelGroup id="groupeModifierForm" layout="block">
@@ -14,77 +13,7 @@
                 </div>
             </h:panelGroup>
 
-            <div class="users-form-group users-form-group-full periode-group">
-
-                <b><p:outputLabel value="Codification / Identification" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
-
-                <!-- Code -->
-                <h:panelGroup class="users-form-group users-form-group-full"
-                              rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
-                    <p:outputLabel value="Code" />
-                    <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                        <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                            <i class="pi pi-align-left input-icon" />
-                            <p:inputText value="#{entityUpdateBean.code}"
-                                         styleClass="users-input"
-                                         placeholder="Saisissez le code ..."
-                                         maxlength="255"/>
-                        </div>
-                    </div>
-                </h:panelGroup>
-
-                <ui:include src="label-modification.xhtml"/>
-
-                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4 or applicationBean.selectedEntity.entityType.id == 5}">
-                    <div class="users-form-group users-form-group-full candidats-mt-15" id="appellationUsuelleGroup">
-                        <p:outputLabel value="Appellation usuelle" />
-                        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-                            <div id="appellationAutocompleteWrapper"
-                                 class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                                <i class="pi pi-tag input-icon periode-autocomplete-icon" />
-                                <p:autoComplete id="appellationAutocomplete"
-                                                value="#{entityUpdateBean.appellationAutocompleteSelection}"
-                                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                                converter="pactolsConceptConverter"
-                                                var="concept"
-                                                itemLabel="#{concept.selectedTerm}"
-                                                itemValue="#{concept}"
-                                                dropdown="false"
-                                                minQueryLength="2"
-                                                appendTo="#appellationAutocompleteWrapper"
-                                                my="left top"
-                                                at="left bottom"
-                                                panelStyleClass="periode-autocomplete-panel"
-                                                scrollHeight="280"
-                                                emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                                placeholder="Rechercher dans OpenTheso ou saisir une appellation…"
-                                                styleClass="users-input periode-autocomplete-input"
-                                                forceSelection="false"
-                                                rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
-                            </div>
-                        </div>
-                    </div>
-                </h:panelGroup>
-
-                <ui:include src="definition-modification.xhtml"/>
-
-                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
-                              class="users-form-group users-form-group-full periode-group candidats-mt-20">
-                    <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
-                    <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
-                                          label="Sélectionner un ou plusieurs auteurs"
-                                          styleClass="users-input modifier-scientific-authors-select"
-                                          filter="true"
-                                          filterMatchMode="contains"
-                                          panelStyle="width: min(520px, 90vw);"
-                                          updateLabel="true">
-                        <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
-                                       var="scientificAuthor"
-                                       itemValue="#{scientificAuthor.id}"
-                                       itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
-                    </p:selectCheckboxMenu>
-                </h:panelGroup>
-            </div>
+            <ui:include src="identification-modification.xhtml"/>
 
             <!-- Images : ajouter, modifier, supprimer -->
             <h:panelGroup layout="block" class="periode-group candidats-mt-20"

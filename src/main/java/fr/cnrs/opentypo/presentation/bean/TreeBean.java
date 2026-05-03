@@ -668,6 +668,10 @@ public class TreeBean implements Serializable {
      * Titre (tooltip) pour l'indicateur de statut.
      */
     public String getEntityStatusTitle(Object node) {
+        Entity e = getEntityFromNode(node);
+        if (e != null && EntityStatusEnum.IN_VALIDATION.name().equals(e.getStatut())) {
+            return "Demande de validation en cours";
+        }
         if (isEntityStatusProposition(node)) return "Brouillon en cours de validation";
         if (isEntityStatusValidated(node)) return "Validée";
         return "";
@@ -682,9 +686,10 @@ public class TreeBean implements Serializable {
         if (e == null || e.getStatut() == null) return "reference-indicator-private";
         return switch (e.getStatut()) {
             case "PROPOSITION" -> "reference-indicator-brouillon";
+            case "IN_VALIDATION" -> "reference-indicator-brouillon";
             case "PUBLIQUE" -> "reference-indicator-public";
             case "PRIVEE" -> "reference-indicator-private";
-            case "REFUSED" -> "reference-indicator-refused";
+            case "REFUSED", "REFUSE" -> "reference-indicator-refused";
             default -> "reference-indicator-private";
         };
     }
@@ -694,9 +699,10 @@ public class TreeBean implements Serializable {
         if (e == null || e.getStatut() == null) return "Privé";
         return switch (e.getStatut()) {
             case "PROPOSITION" -> "Brouillon";
+            case "IN_VALIDATION" -> "En validation";
             case "PUBLIQUE" -> "Public";
             case "PRIVEE" -> "Privé";
-            case "REFUSED" -> "Refusé";
+            case "REFUSED", "REFUSE" -> "Refusé";
             default -> "Privé";
         };
     }
@@ -706,9 +712,10 @@ public class TreeBean implements Serializable {
         if (e == null || e.getStatut() == null) return "pi-lock";
         return switch (e.getStatut()) {
             case "PROPOSITION" -> "pi-clock";
+            case "IN_VALIDATION" -> "pi-send";
             case "PUBLIQUE" -> "pi-globe";
             case "PRIVEE" -> "pi-lock";
-            case "REFUSED" -> "pi-ban";
+            case "REFUSED", "REFUSE" -> "pi-ban";
             default -> "pi-lock";
         };
     }

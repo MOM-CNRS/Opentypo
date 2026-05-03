@@ -7,6 +7,7 @@ import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.EntityDeletionService;
+import fr.cnrs.opentypo.application.service.EntityStatusCascadeService;
 import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
@@ -98,6 +99,9 @@ public class ApplicationBean implements Serializable {
 
     @Inject
     private transient EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private transient EntityStatusCascadeService entityStatusCascadeService;
 
     @Inject
     private transient ReferenceService referenceService;
@@ -2266,7 +2270,7 @@ public class ApplicationBean implements Serializable {
             return;
         }
         String newStatut = requestedPropositionAction ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.REFUSE.name();
-        Set<Long> entityIdsToUpdate = collectEntityAndDescendantIds(selectedEntity.getId());
+        Set<Long> entityIdsToUpdate = entityStatusCascadeService.collectSelfAndDescendantIds(selectedEntity.getId());
         for (Long entityId : entityIdsToUpdate) {
             entityRepository.findById(entityId).ifPresent(entity -> {
                 entity.setStatut(newStatut);
@@ -2288,26 +2292,6 @@ public class ApplicationBean implements Serializable {
         log.info("Statut modifié ({} éléments): {} -> {}", count, selectedEntity.getCode(),
                 requestedPropositionAction ? "PUBLIQUE" : "REFUSE");
         requestedPropositionAction = null;
-    }
-
-    /** Collecte l'ID de l'entité et de tous ses descendants (directs et indirects). */
-    private Set<Long> collectEntityAndDescendantIds(Long rootId) {
-        Set<Long> ids = new HashSet<>();
-        if (rootId == null) return ids;
-        ids.add(rootId);
-        try {
-            List<Object[]> relations = entityRelationRepository.findAllDescendantRelations(rootId);
-            if (relations != null) {
-                for (Object[] row : relations) {
-                    if (row != null && row.length >= 2 && row[1] != null) {
-                        ids.add(((Number) row[1]).longValue());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Erreur lors de la collecte des descendants pour entity {}: {}", rootId, e.getMessage());
-        }
-        return ids;
     }
 
     /** Message pour le dialog de confirmation Publier/Refuser */

@@ -1,7 +1,8 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
-import fr.cnrs.opentypo.application.service.CandidatValidationService;
+import fr.cnrs.opentypo.application.service.DemandeValidationRequirementsService;
+import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
@@ -21,7 +22,8 @@ import java.util.List;
 public class CandidatValidationActionService {
 
     @Inject private EntityRepository entityRepository;
-    @Inject private CandidatValidationService candidatValidationService;
+    @Inject private DemandeValidationRequirementsService demandeValidationRequirementsService;
+    @Inject private TypeValidationAuthorityService typeValidationAuthorityService;
     @Inject private CandidatEntityService candidatEntityService;
 
     public record ActionResult(boolean success, String message, String errorMessage, String redirectUrl) {
@@ -37,8 +39,20 @@ public class CandidatValidationActionService {
         Entity entity = entityRepository.findById(candidatId).orElse(null);
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
 
-        if (!candidatValidationService.validateRequiredFieldsForEntity(entity)) {
-            return new ActionResult(false, null, "Validation des champs obligatoires échouée.");
+        if (!typeValidationAuthorityService.canUserValidateOrRefuseType(candidatId, currentUser)) {
+            return new ActionResult(false, null,
+                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+        }
+
+        if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
+            return new ActionResult(false, null,
+                    "Seuls les éléments en attente de validation peuvent être publiés.");
+        }
+
+        List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(candidatId);
+        if (!missing.isEmpty()) {
+            return new ActionResult(false, null,
+                    "Champs obligatoires incomplets : " + String.join("; ", missing));
         }
 
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
@@ -58,6 +72,16 @@ public class CandidatValidationActionService {
         Entity entity = entityRepository.findById(candidatId).orElse(null);
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
 
+        if (!typeValidationAuthorityService.canUserValidateOrRefuseType(candidatId, currentUser)) {
+            return new ActionResult(false, null,
+                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+        }
+
+        if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
+            return new ActionResult(false, null,
+                    "Seuls les éléments en attente de validation peuvent être refusés.");
+        }
+
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
         entity.setStatut(EntityStatusEnum.REFUSE.name());
         addUserAsAuthor(entity, currentUser);
@@ -65,6 +89,30 @@ public class CandidatValidationActionService {
 
         String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
         return new ActionResult(true, "Le candidat a été refusé par " + userName + ".", null);
+    }
+
+    /** Transition PROPOSITION vers IN_VALIDATION si les champs obligatoires sont complets. */
+    @Transactional
+    public ActionResult demanderValidation(Long entityId, Utilisateur currentUser) {
+        if (entityId == null) {
+            return new ActionResult(false, null, "Entité invalide.");
+        }
+        Entity entity = entityRepository.findById(entityId).orElse(null);
+        if (entity == null) {
+            return new ActionResult(false, null, "Entité introuvable.");
+        }
+        if (!EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
+            return new ActionResult(false, null, "Seul un brouillon peut être envoyé en validation.");
+        }
+        List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(entityId);
+        if (!missing.isEmpty()) {
+            return new ActionResult(false, null,
+                    "Champs obligatoires incomplets : " + String.join("; ", missing));
+        }
+        entity.setStatut(EntityStatusEnum.IN_VALIDATION.name());
+        addUserAsAuthor(entity, currentUser);
+        entityRepository.save(entity);
+        return new ActionResult(true, "La demande de validation a été enregistrée.", null);
     }
 
     /**
@@ -110,9 +158,19 @@ public class CandidatValidationActionService {
         if (entityId == null) return new ActionResult(false, null, "Aucune entité à valider.");
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (!typeValidationAuthorityService.canUserValidateOrRefuseType(entityId, currentUser)) {
+            return new ActionResult(false, null,
+                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+        }
         applyModifications(entity, selectedAuteurs, attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
-        if (!candidatValidationService.validateRequiredFieldsForEntity(entity)) {
-            return new ActionResult(false, null, "Validation des champs obligatoires échouée.");
+        if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
+            return new ActionResult(false, null,
+                    "Seuls les éléments en attente de validation peuvent être publiés.");
+        }
+        List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(entityId);
+        if (!missing.isEmpty()) {
+            return new ActionResult(false, null,
+                    "Champs obligatoires incomplets : " + String.join("; ", missing));
         }
         entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
         addUserAsAuthor(entity, currentUser);
@@ -130,7 +188,15 @@ public class CandidatValidationActionService {
         if (entityId == null) return new ActionResult(false, null, "Aucune entité à refuser.");
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (!typeValidationAuthorityService.canUserValidateOrRefuseType(entityId, currentUser)) {
+            return new ActionResult(false, null,
+                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+        }
         applyModifications(entity, selectedAuteurs, attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
+        if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
+            return new ActionResult(false, null,
+                    "Seuls les éléments en attente de validation peuvent être refusés.");
+        }
         entity.setStatut(EntityStatusEnum.REFUSE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);

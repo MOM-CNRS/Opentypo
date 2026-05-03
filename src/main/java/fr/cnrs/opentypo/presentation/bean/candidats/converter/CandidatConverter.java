@@ -113,6 +113,8 @@ public class CandidatConverter {
         // Statut
         if (EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.EN_COURS);
+        } else if (EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
+            candidat.setStatut(Candidat.Statut.EN_VALIDATION);
         } else if (EntityStatusEnum.PUBLIQUE.name().equals(entity.getStatut())) {
             candidat.setStatut(Candidat.Statut.VALIDE);
         } else if (EntityStatusEnum.REFUSE.name().equals(entity.getStatut())) {

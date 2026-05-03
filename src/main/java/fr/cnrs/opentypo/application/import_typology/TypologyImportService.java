@@ -11,7 +11,6 @@ import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.DescriptionPate;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Image;
@@ -726,13 +725,7 @@ public class TypologyImportService {
         if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_DATATION_TAQ, row, isCreate)) {
             entity.setTaq(parseIntegerCell(getCell(row, TypologyImportConstants.COL_DATATION_TAQ)));
         }
-        if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_APPELLATION_USUELLE, row, isCreate)) {
-            ensureMetadataForTypologyImport(entity);
-            String[] pair = parseLabelUrl(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE));
-            applySlot(entity, pair[1], pair[0], ReferenceOpenthesoEnum.APPELLATION_USUELLE,
-                    () -> entity.getMetadata().getAppellationOpentheso(),
-                    ref -> entity.getMetadata().setAppellationOpentheso(ref));
-        }
+        replaceAppellationsUsuelles(entity, row, csvHeaders, isCreate);
         if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE, row, isCreate)) {
             entity.setTypologieScientifique(trimToNull(getCell(row, TypologyImportConstants.COL_REFERENCES_TYPOLOGIE_SCIENTIFIQUE)));
         }
@@ -968,6 +961,48 @@ public class TypologyImportService {
         }
     }
 
+    private void replaceAppellationsUsuelles(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+        if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_APPELLATION_USUELLE)) {
+            return;
+        }
+        String raw = trimToNull(getCell(row, TypologyImportConstants.COL_APPELLATION_USUELLE));
+        if (!isCreate && raw == null) {
+            return;
+        }
+        if (entity.getAppellationsUsuelles() == null) {
+            entity.setAppellationsUsuelles(new ArrayList<>());
+        }
+        entity.getAppellationsUsuelles().clear();
+        if (raw == null) {
+            return;
+        }
+        String normalized = raw.replace("##", "||");
+        for (String token : LIST_SPLIT.split(normalized)) {
+            String t = token.trim();
+            if (!StringUtils.hasText(t)) {
+                continue;
+            }
+            String[] pair = splitPair(t);
+            String valeur;
+            String urlToken = StringUtils.hasText(pair[1]) ? pair[1].trim() : null;
+            if (StringUtils.hasText(urlToken)) {
+                valeur = limit500(firstNonBlank(pair[0], pair[1]));
+            } else if (StringUtils.hasText(pair[0])) {
+                valeur = limit500(pair[0].trim());
+                urlToken = null;
+            } else {
+                continue;
+            }
+            ReferenceOpentheso ref = ReferenceOpentheso.builder()
+                    .code(ReferenceOpenthesoEnum.APPELLATION_USUELLE.name())
+                    .valeur(valeur)
+                    .url(urlToken != null ? limit500(urlToken) : null)
+                    .entity(entity)
+                    .build();
+            entity.getAppellationsUsuelles().add(referenceOpenthesoRepository.save(ref));
+        }
+    }
+
     private void replaceAiresCirculation(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
         if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION)) {
             return;
@@ -1151,15 +1186,6 @@ public class TypologyImportService {
         setter.accept(saved);
     }
 
-    private void ensureMetadataForTypologyImport(Entity entity) {
-        if (entity.getMetadata() == null) {
-            EntityMetadata em = new EntityMetadata();
-            em.setEntity(entity);
-            em.setCode(entity.getCode() != null ? entity.getCode() : "");
-            entity.setMetadata(em);
-        }
-    }
-
     /**
      * Charge l'entité et initialise les collections modifiables (évite fetch multi-bags).
      */
@@ -1188,6 +1214,9 @@ public class TypologyImportService {
         }
         if (e.getAuteursScientifiques() != null) {
             e.getAuteursScientifiques().size();
+        }
+        if (e.getAppellationsUsuelles() != null) {
+            e.getAppellationsUsuelles().size();
         }
         return e;
     }

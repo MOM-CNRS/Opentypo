@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.application.service;
 
+import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
@@ -182,20 +183,6 @@ public class TypeService implements Serializable {
             newMeta.setCode(newCode.trim());
             newMeta.setCommentaireDatation(srcMeta.getCommentaireDatation());
             newMeta.setBibliographie(srcMeta.getBibliographie());
-            if (srcMeta.getAppellationOpentheso() != null) {
-                ReferenceOpentheso srcApp = srcMeta.getAppellationOpentheso();
-                newMeta.setAppellationOpentheso(ReferenceOpentheso.builder()
-                        .code(srcApp.getCode())
-                        .valeur(srcApp.getValeur())
-                        .url(srcApp.getUrl())
-                        .conceptId(srcApp.getConceptId())
-                        .thesaurusId(srcApp.getThesaurusId())
-                        .collectionId(srcApp.getCollectionId())
-                        .entity(duplicate)
-                        .build());
-            } else {
-                newMeta.setAppellationOpentheso(null);
-            }
             newMeta.setRereferenceBibliographique(srcMeta.getRereferenceBibliographique());
             newMeta.setAlignementExterne(srcMeta.getAlignementExterne());
             newMeta.setReference(srcMeta.getReference());
@@ -215,6 +202,20 @@ public class TypeService implements Serializable {
             newMeta.setCommentaire(srcMeta.getCommentaire());
             newMeta.setInterne(srcMeta.getInterne());
             duplicate.setMetadata(newMeta);
+        }
+
+        if (source.getAppellationsUsuelles() != null) {
+            for (ReferenceOpentheso srcApp : source.getAppellationsUsuelles()) {
+                duplicate.getAppellationsUsuelles().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.APPELLATION_USUELLE.name())
+                        .valeur(srcApp.getValeur())
+                        .url(srcApp.getUrl())
+                        .conceptId(srcApp.getConceptId())
+                        .thesaurusId(srcApp.getThesaurusId())
+                        .collectionId(srcApp.getCollectionId())
+                        .entity(duplicate)
+                        .build());
+            }
         }
 
         // Labels

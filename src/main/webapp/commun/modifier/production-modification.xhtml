@@ -92,16 +92,6 @@
                                     update="modifierAiresCirculationPanel :growl"/>
                         </p:autoComplete>
                     </div>
-                    <p:commandButton id="modifierAireCirculationAddBtn"
-                                     icon="pi pi-plus"
-                                     title="Ajouter la valeur saisie (y compris sans lien OpenTheso)"
-                                     aria-label="Ajouter l’aire de circulation"
-                                     styleClass="modifier-aire-add-btn ui-button-flat"
-                                     ajax="true"
-                                     onclick="modifierSyncAireCirculationHiddenBeforeAjax();"
-                                     actionListener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"
-                                     process="modifierAiresCirculationPanel"
-                                     update="modifierAiresCirculationPanel :growl"/>
                 </div>
                 <p:remoteCommand name="modifierAddAireCirculationCmd"
                                  actionListener="#{entityUpdateBean.addAireCirculationFromAutocomplete}"

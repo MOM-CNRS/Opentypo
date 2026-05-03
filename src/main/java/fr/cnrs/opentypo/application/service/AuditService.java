@@ -539,11 +539,11 @@ public class AuditService {
                 log.debug("Erreur entity_aud: {}", e.getMessage());
             }
             
-            // entity_metadata_aud : code, commentaire, bibliographie, appellation_opentheso_id, tpq, taq, commentaire_datation, alignement_externe, etc.
+            // entity_metadata_aud : code, commentaire, bibliographie, tpq, taq, commentaire_datation, alignement_externe, etc.
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> metaRows = entityManager.createNativeQuery(
-                    "SELECT code, commentaire, bibliographie, appellation_opentheso_id, typologie_scientifique, identifiant_perenne, " +
+                    "SELECT code, commentaire, bibliographie, typologie_scientifique, identifiant_perenne, " +
                     "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, " +
                     "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe, denomination_instrumentum, corpus_lies " +
                     "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
@@ -556,25 +556,22 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("code", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("commentaireMetadata", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("bibliographie", row[2].toString());
-                    if (row.length > 3 && row[3] != null) {
-                        resolveAndPutRefValeur(data, "appellation", (Number) row[3], revisionNumber);
-                    }
-                    if (row.length > 4 && row[4] != null) data.put("typologieScientifique", row[4].toString());
-                    if (row.length > 5 && row[5] != null) data.put("identifiantPerenne", row[5].toString());
-                    if (row.length > 6 && row[6] != null) data.put("ancienneVersion", row[6].toString());
-                    if (row.length > 7 && row[7] != null) data.put("tpq", row[7]);
-                    if (row.length > 8 && row[8] != null) data.put("taq", row[8]);
-                    if (row.length > 9 && row[9] != null) data.put("ateliers", row[9].toString());
-                    if (row.length > 10 && row[10] != null) data.put("attestations", row[10].toString());
-                    if (row.length > 11 && row[11] != null) data.put("sitesArcheologiques", row[11].toString());
-                    if (row.length > 12 && row[12] != null) data.put("reference", row[12].toString());
-                    if (row.length > 13 && row[13] != null) data.put("interne", row[13].toString());
-                    if (row.length > 14 && row[14] != null) data.put("commentaireDatation", row[14].toString());
-                    if (row.length > 15 && row[15] != null) data.put("alignementExterne", row[15].toString());
-                    if (row.length > 16 && row[16] != null) data.put("rereferenceBibliographique", row[16].toString());
-                    if (row.length > 17 && row[17] != null) data.put("corpusExterne", row[17].toString());
-                    if (row.length > 18 && row[18] != null) data.put("denominationInstrumentum", row[18].toString());
-                    if (row.length > 19 && row[19] != null) data.put("corpusLies", row[19].toString());
+                    if (row.length > 3 && row[3] != null) data.put("typologieScientifique", row[3].toString());
+                    if (row.length > 4 && row[4] != null) data.put("identifiantPerenne", row[4].toString());
+                    if (row.length > 5 && row[5] != null) data.put("ancienneVersion", row[5].toString());
+                    if (row.length > 6 && row[6] != null) data.put("tpq", row[6]);
+                    if (row.length > 7 && row[7] != null) data.put("taq", row[7]);
+                    if (row.length > 8 && row[8] != null) data.put("ateliers", row[8].toString());
+                    if (row.length > 9 && row[9] != null) data.put("attestations", row[9].toString());
+                    if (row.length > 10 && row[10] != null) data.put("sitesArcheologiques", row[10].toString());
+                    if (row.length > 11 && row[11] != null) data.put("reference", row[11].toString());
+                    if (row.length > 12 && row[12] != null) data.put("interne", row[12].toString());
+                    if (row.length > 13 && row[13] != null) data.put("commentaireDatation", row[13].toString());
+                    if (row.length > 14 && row[14] != null) data.put("alignementExterne", row[14].toString());
+                    if (row.length > 15 && row[15] != null) data.put("rereferenceBibliographique", row[15].toString());
+                    if (row.length > 16 && row[16] != null) data.put("corpusExterne", row[16].toString());
+                    if (row.length > 17 && row[17] != null) data.put("denominationInstrumentum", row[17].toString());
+                    if (row.length > 18 && row[18] != null) data.put("corpusLies", row[18].toString());
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_metadata_aud: {}", e.getMessage());
@@ -731,6 +728,28 @@ public class AuditService {
                 }
             } catch (Exception e) {
                 log.debug("Erreur reference_opentheso_aud airesCirculation: {}", e.getMessage());
+            }
+
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object[]> appRows = entityManager.createNativeQuery(
+                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
+                    + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'APPELLATION_USUELLE'"
+                )
+                .setParameter("entityId", entityId)
+                .setParameter("revisionNumber", revisionNumber)
+                .getResultList();
+                if (!appRows.isEmpty()) {
+                    List<String> apps = new ArrayList<>();
+                    for (Object[] row : appRows) {
+                        if (row != null && row.length > 0 && row[0] != null && !row[0].toString().trim().isEmpty()) {
+                            apps.add(row[0].toString().trim());
+                        }
+                    }
+                    if (!apps.isEmpty()) data.put("appellation", apps);
+                }
+            } catch (Exception e) {
+                log.debug("Erreur reference_opentheso_aud appellations: {}", e.getMessage());
             }
         } catch (Exception e) {
             log.debug("Erreur extractEnrichedData: {}", e.getMessage());

@@ -73,7 +73,7 @@ public final class TypologyImportFieldDocumentation {
         m.put(TypologyImportConstants.COL_NOM_COMPLET_EN,
                 "Libellé en anglais (langue secondaire), si renseigné.");
         m.put(TypologyImportConstants.COL_APPELLATION_USUELLE,
-                "Appellation ou désignation usuelle (texte libre).");
+                "Appellation(s) usuelle(s) : plusieurs entrées séparées par || ; même format que l’aire de circulation — libellé:url OpenTheso (url obligatoire pour un lien), ou texte seul.");
 
         // Descriptions & auteurs
         m.put(TypologyImportConstants.COL_DESCRIPTION_FR,

@@ -239,6 +239,7 @@ public class EntityUpdateBean implements Serializable {
     private List<String> attestations;
     private List<Langue> availableLanguages;
     private List<ReferenceOpentheso> airesCirculation;
+    private List<ReferenceOpentheso> appellationsUsuelles;
     private ReferenceOpentheso fonctionUsage;
     private List<String> marquesEstampilles = new ArrayList<>();
     private String marqueEstampilleValue;
@@ -352,8 +353,9 @@ public class EntityUpdateBean implements Serializable {
         }
 
         decors = entity.getDescriptionDetail() == null ? "" : (entity.getDescriptionDetail().getDecors() != null ? entity.getDescriptionDetail().getDecors() : "");
-        appellationAutocompleteSelection = refToConcept(
-                entity.getMetadata() != null ? entity.getMetadata().getAppellationOpentheso() : null);
+        List<ReferenceOpentheso> appSrc = entity.getAppellationsUsuelles();
+        appellationsUsuelles = appSrc != null ? new ArrayList<>(appSrc) : new ArrayList<>();
+        appellationAutocompleteSelection = new PactolsConcept();
         identifiantPerenne = entity.getIdentifiantPerenne() == null ? "" : entity.getIdentifiantPerenne();
         typologieScientifique = entity.getTypologieScientifique() == null ? "" : entity.getTypologieScientifique();
 
@@ -553,6 +555,7 @@ public class EntityUpdateBean implements Serializable {
         sitesArcheologiques = new ArrayList<>();
         metrologie = null;
         airesCirculation = new ArrayList<>();
+        appellationsUsuelles = new ArrayList<>();
         marquesEstampilles = new ArrayList<>();
         periodeAutocompleteSelection = new PactolsConcept();
         productionAutocompleteSelection = new PactolsConcept();
@@ -1344,6 +1347,20 @@ public class EntityUpdateBean implements Serializable {
             }
         }
 
+        entityToUpdate.getAppellationsUsuelles().clear();
+        if (appellationsUsuelles != null) {
+            for (ReferenceOpentheso ref : appellationsUsuelles) {
+                ReferenceOpentheso r = ReferenceOpentheso.builder()
+                        .valeur(ref.getValeur())
+                        .conceptId(ref.getConceptId())
+                        .url(ref.getUrl())
+                        .code(ReferenceOpenthesoEnum.APPELLATION_USUELLE.name())
+                        .entity(entityToUpdate)
+                        .build();
+                entityToUpdate.getAppellationsUsuelles().add(referenceOpenthesoRepository.save(r));
+            }
+        }
+
         String newBib = (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty())
                 ? referenceBibliographiqueList.stream()
                 .filter(s -> s != null && !s.trim().isEmpty())
@@ -1568,14 +1585,6 @@ public class EntityUpdateBean implements Serializable {
         String newBibliographie = bibliographie != null ? bibliographie.trim() : null;
         if (!Objects.equals(newBibliographie, entityToUpdate.getBibliographie())) {
             entityMetadata.setBibliographie(newBibliographie);
-        }
-
-        if (appellationAutocompleteSelection != null && StringUtils.hasText(appellationAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso appRef = conceptToReferenceOpentheso(
-                    appellationAutocompleteSelection, ReferenceOpenthesoEnum.APPELLATION_USUELLE.name(), entityToUpdate);
-            entityMetadata.setAppellationOpentheso(referenceOpenthesoRepository.save(appRef));
-        } else {
-            entityMetadata.setAppellationOpentheso(null);
         }
 
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
@@ -1812,6 +1821,39 @@ public class EntityUpdateBean implements Serializable {
             if (airesCirculation.get(i).getValeur() != null
                     && airesCirculation.get(i).getValeur().equalsIgnoreCase(valeur)) {
                 airesCirculation.remove(i);
+                break;
+            }
+        }
+    }
+
+    public void addAppellationUsuelleFromAutocomplete() {
+        if (appellationAutocompleteSelection == null || appellationAutocompleteSelection.getSelectedTerm() == null) return;
+        String valeur = appellationAutocompleteSelection.getSelectedTerm().trim();
+        if (valeur.isEmpty()) return;
+        if (appellationsUsuelles == null) appellationsUsuelles = new ArrayList<>();
+        boolean dejaPresent = appellationsUsuelles.stream()
+                .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
+        if (dejaPresent) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
+                            "« " + valeur + " » est déjà dans la liste des appellations usuelles."));
+            return;
+        }
+        appellationsUsuelles.add(ReferenceOpentheso.builder()
+                .code(ReferenceOpenthesoEnum.APPELLATION_USUELLE.name())
+                .valeur(valeur)
+                .conceptId(appellationAutocompleteSelection.getIdConcept())
+                .url(appellationAutocompleteSelection.getUri())
+                .build());
+        appellationAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteAppellationUsuelle(String valeur) {
+        if (appellationsUsuelles == null) return;
+        for (int i = 0; i < appellationsUsuelles.size(); i++) {
+            if (appellationsUsuelles.get(i).getValeur() != null
+                    && appellationsUsuelles.get(i).getValeur().equalsIgnoreCase(valeur)) {
+                appellationsUsuelles.remove(i);
                 break;
             }
         }

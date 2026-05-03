@@ -180,7 +180,6 @@
 
 /* Galerie (navigation préco/suivant) sous le bandeau identité */
 .type-detail-page--v2 .type-identity-panel .type-detail-gallery-wrap {
-    margin-top: 0.35rem;
     padding-top: 1rem;
     border-top: 1px solid var(--type-border);
 }
@@ -335,6 +334,304 @@
     }
     .type-detail-page .concept-info-item:nth-child(3n) {
         border-right: none;
+    }
+}
+
+/*
+ * Grille description : 1 colonne sous 576px ; sinon exactement 2 colonnes (toutes largeurs, jamais 3).
+ * Déclaré après les règles générales pour gagner en cascade.
+ */
+.type-detail-page .concept-info-grid.concept-info-grid--two-columns-max {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 576px) {
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max .concept-info-item {
+        border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max .concept-info-item:nth-child(2n) {
+        border-right: none;
+    }
+}
+
+@media (min-width: 992px) {
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max .concept-info-item:nth-child(3n) {
+        border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--two-columns-max .concept-info-item:nth-child(2n) {
+        border-right: none;
+    }
+}
+
+/*
+ * Grille responsive : 3 champs par ligne dès tablette (Production, Datation, Caractéristiques physiques…).
+ * < 576px : 1 colonne ; >= 576px : 3 colonnes par ligne.
+ */
+.type-detail-page .concept-info-grid.concept-info-grid--three-columns-max {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 576px) {
+    .type-detail-page .concept-info-grid.concept-info-grid--three-columns-max {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--three-columns-max .concept-info-item {
+        border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+    }
+    .type-detail-page .concept-info-grid.concept-info-grid--three-columns-max .concept-info-item:nth-child(3n) {
+        border-right: none;
+    }
+}
+
+/* Une seule colonne : un champ par ligne (ex. « Texte de la fiche » sur la page type) */
+.type-detail-page .concept-info-grid.concept-info-grid--one-column {
+    grid-template-columns: 1fr;
+}
+
+/* 3 colonnes côte à côte : cellules plus étroites — libellé au-dessus (plus lisible que label|valeur) */
+@media (min-width: 576px) {
+    .type-detail-page .description-typo-band .description-typo-band-grid.concept-info-grid--three-columns-max .description-typo-field.concept-info-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        padding: 0.4rem 0.5rem 0.45rem;
+    }
+
+    .type-detail-page .description-typo-band .description-typo-band-grid.concept-info-grid--three-columns-max .description-typo-field .concept-info-label {
+        margin-bottom: 0;
+    }
+
+    .type-detail-page .description-typo-band .description-typo-band-grid.concept-info-grid--three-columns-max .description-typo-field .concept-info-value {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+/* Bandes pleine largeur dans la grille Description */
+.type-detail-page .concept-info-grid.concept-info-grid--two-columns-max > .concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.type-detail-page .concept-info-grid-band > .concept-info-grid.concept-info-grid--nested {
+    width: 100%;
+}
+
+/* ========== Bloc Description — recherche scientifique, lisibilité & sobriété ========== */
+.type-detail-page .description-typo-root {
+    margin-top: 0;
+}
+
+.type-detail-page .description-typo-panel.concept-info-panel {
+    border-left-width: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 20px rgba(var(--type-main-rgb), 0.06);
+    background: #fff;
+    overflow: hidden;
+}
+
+/* En-tête : même gabarit que Production / autres blocs monnaie-communs (titres + icône) */
+.type-detail-page .description-typo-panel > .description-typo-header.concept-info-header {
+    margin: 0;
+}
+
+.type-detail-page .description-typo-grid > .description-typo-band.concept-info-grid-band {
+    margin-bottom: 0.45rem;
+}
+
+.type-detail-page .description-typo-grid > .description-typo-band.concept-info-grid-band:last-of-type {
+    margin-bottom: 0.25rem;
+}
+
+.type-detail-page .description-typo-panel .description-typo-grid {
+    padding: 0.4rem 0.55rem 0.5rem;
+    box-sizing: border-box;
+}
+
+/* Paires de champs : tableau dense, bords légers */
+.type-detail-page .description-typo-band .description-typo-band-grid {
+    display: grid;
+    gap: 1px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(var(--type-main-rgb), 0.12);
+    box-shadow: none;
+}
+
+.type-detail-page .description-typo-band .description-typo-field.concept-info-item {
+    background: #fff;
+    border: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+    padding: 0.5rem 0.65rem;
+}
+
+/* Mobile : libellé au-dessus de la valeur */
+.type-detail-page .description-typo-band .description-typo-field.concept-info-item .concept-info-label {
+    margin-bottom: 0.2rem;
+}
+
+/* Tablette+ : ligne dense libellé | valeur */
+@media (min-width: 576px) {
+    .type-detail-page .description-typo-band .description-typo-field.concept-info-item {
+        display: grid;
+        grid-template-columns: minmax(6.25rem, 9.25rem) minmax(0, 1fr);
+        column-gap: 0.65rem;
+        row-gap: 0.15rem;
+        align-items: start;
+        padding: 0.42rem 0.6rem 0.45rem;
+    }
+
+    .type-detail-page .description-typo-band .description-typo-field.concept-info-item .concept-info-label {
+        margin-bottom: 0;
+    }
+
+    .type-detail-page .description-typo-band .description-typo-field.concept-info-item .concept-info-value {
+        min-width: 0;
+    }
+}
+
+.type-detail-page .description-typo-band .description-typo-field.concept-info-item:hover {
+    background: #f9fbf9;
+    box-shadow: none;
+}
+
+/* Labels / valeurs : hiérarchie calme (pas d’effet « shout ») */
+.type-detail-page .description-typo-panel .concept-info-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5a6f68;
+}
+
+.type-detail-page .description-typo-panel .concept-info-label .monnaie-communs-icon {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
+.type-detail-page .description-typo-panel .concept-info-value {
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+.type-detail-page .description-typo-field--solo.concept-info-item {
+    margin-top: 0.15rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid rgba(var(--type-main-rgb), 0.12) !important;
+    background: #fff;
+    box-shadow: none;
+}
+
+@media (min-width: 576px) {
+    .type-detail-page .description-typo-field--solo.concept-info-item {
+        display: grid;
+        grid-template-columns: minmax(6.25rem, 9.25rem) minmax(0, 1fr);
+        column-gap: 0.65rem;
+        align-items: start;
+        padding: 0.42rem 0.6rem 0.45rem;
+    }
+
+    .type-detail-page .description-typo-field--solo.concept-info-item .concept-info-label {
+        margin-bottom: 0;
+    }
+
+    .type-detail-page .description-typo-field--solo.concept-info-item .concept-info-value {
+        min-width: 0;
+    }
+}
+
+.type-detail-page .description-typo-field--solo.concept-info-item:hover {
+    background: #fafcfb;
+    box-shadow: none;
+}
+
+/* Champ solo avec HTML riche (ex. relations d’imitation) : même largeur de lecture que l’ancien bloc prose */
+.type-detail-page .description-typo-field--solo.description-typo-field--rich .concept-info-value {
+    max-width: 72ch;
+}
+
+/* Textes longs : un peu moins d’air, même confort de lecture */
+.type-detail-page .description-typo-prose.concept-info-item-full {
+    margin-top: 0.45rem;
+    padding: 0.65rem 0.75rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgba(var(--type-main-rgb), 0.12);
+    border-left: 3px solid var(--type-main);
+    background: #fafcfb;
+    box-shadow: none;
+}
+
+.type-detail-page .description-typo-prose--denom {
+    margin-top: 0.35rem;
+}
+
+.type-detail-page .description-typo-prose .concept-info-label {
+    margin-bottom: 0.35rem;
+    font-size: 0.6875rem;
+}
+
+.type-detail-page .description-typo-prose-body.concept-info-description {
+    font-size: 0.875rem;
+    line-height: 1.58;
+    max-width: 72ch;
+    color: var(--type-text);
+}
+
+.type-detail-page .description-typo-prose.concept-info-item-full:hover {
+    box-shadow: none;
+    background: #f4f7f5;
+}
+
+/*
+ * Page type — « Texte de la fiche » : la Description utilise description-typo-prose (fond #fafcfb + barre).
+ * On aligne sur les lignes voisines (bandeau tableau blanc), sans paraitre « zone grisée ».
+ */
+.type-detail-page #type-identity .description-typo-band .description-typo-prose.concept-info-item {
+    background: #fff !important;
+    border: none !important;
+    margin-top: 0;
+    padding: 0.42rem 0.6rem 0.45rem;
+    box-shadow: none !important;
+}
+
+.type-detail-page #type-identity .description-typo-band .description-typo-prose.concept-info-item:hover {
+    background: #f9fbf9 !important;
+    box-shadow: none !important;
+}
+
+.type-detail-page .description-typo-panel .concept-value-external-link:focus-visible {
+    outline: 2px solid var(--type-main);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+@media (max-width: 575px) {
+    .type-detail-page .description-typo-panel .description-typo-grid {
+        padding: 0.35rem 0.45rem 0.45rem;
+    }
+
+    .type-detail-page .description-typo-field--solo.concept-info-item .concept-info-label {
+        margin-bottom: 0.25rem;
+    }
+
+    .type-detail-page .description-typo-field--solo.description-typo-field--rich .concept-info-value {
+        max-width: none;
+    }
+
+    .type-detail-page .description-typo-prose-body.concept-info-description {
+        max-width: none;
+    }
+
+    .type-detail-page .description-typo-prose.concept-info-item-full {
+        padding: 0.55rem 0.6rem 0.65rem;
     }
 }
 

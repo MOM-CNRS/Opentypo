@@ -4,89 +4,89 @@
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <h:panelGroup rendered="#{applicationBean.showAttestationsSectionBlock()}" layout="block">
-
-        <div class="mt-20 details-row-mt-15 monnaie-communs-section monnaie-communs-new-line">
-            <div class="row">
-            <div class="col-md-12">
-                <div class="concept-info-panel" role="region" aria-labelledby="type-attestations-heading">
-                    <div class="concept-info-header monnaie-communs-header">
-                        <div class="concept-info-title-section monnaie-communs-title-wrapper">
-                            <i class="pi pi-check-circle monnaie-communs-title-icon" aria-hidden="true"/>
-                            <h2 id="type-attestations-heading" class="concept-info-title monnaie-communs-title">Attestations et contextes</h2>
-                        </div>
+        <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
+                 aria-label="Attestations et contextes du type">
+            <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="type-attestations-heading">
+                <header class="concept-info-header monnaie-communs-header description-typo-header">
+                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                        <i class="pi pi-check-circle monnaie-communs-title-icon" aria-hidden="true"/>
+                        <h2 id="type-attestations-heading" class="concept-info-title monnaie-communs-title">Attestations et contextes</h2>
                     </div>
+                </header>
 
-                    <div class="concept-info-grid">
-                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
-                                      styleClass="concept-info-item concept-info-item-full" layout="block">
-                            <div class="concept-info-label">
-                                <i class="pi pi-check-circle monnaie-communs-icon" />
-                                <span>Attestation(s)/Contexte(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.attestations}">
-                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.attestations, ';')}" var="ref" varStatus="status">
-                                        <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                            <span class="bibliographie-badge">
-                                                <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                            </span>
-                                        </ui:fragment>
-                                    </ui:repeat>
-                                </ui:fragment>
-                                <h:outputText value="Aucune attestation disponible"
-                                              rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
-                                              styleClass="bibliographie-empty"/>
-                            </div>
-                        </h:panelGroup>
+                <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                    <div class="concept-info-grid-band description-typo-band">
+                        <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
+                                          styleClass="concept-info-item description-typo-field" layout="block">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-check-circle monnaie-communs-icon" aria-hidden="true"/>
+                                    <span>Attestation(s)/Contexte(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.attestations}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.attestations, ';')}" var="ref" varStatus="status">
+                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                </span>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucune attestation disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
+                                                  styleClass="bibliographie-empty"/>
+                                </div>
+                            </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.sitesArcheologiques : null)}"
-                                      styleClass="concept-info-item concept-info-item-full" layout="block">
-                            <div class="concept-info-label">
-                                <i class="pi pi-map-marker monnaie-communs-icon" />
-                                <span>Sites archéologiques</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.sitesArcheologiques}">
-                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.sitesArcheologiques, ';')}" var="ref" varStatus="status">
-                                        <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                        <span class="bibliographie-badge">
-                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                        </span>
-                                        </ui:fragment>
-                                    </ui:repeat>
-                                </ui:fragment>
-                                <h:outputText value="Aucun site archéologique disponible"
-                                              rendered="#{empty applicationBean.selectedEntity.metadata.sitesArcheologiques}"
-                                              styleClass="bibliographie-empty"/>
-                            </div>
-                        </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.sitesArcheologiques : null)}"
+                                          styleClass="concept-info-item description-typo-field" layout="block">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-map-marker monnaie-communs-icon" aria-hidden="true"/>
+                                    <span>Sites archéologiques</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.sitesArcheologiques}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.sitesArcheologiques, ';')}" var="ref" varStatus="status">
+                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                </span>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <h:outputText value="Aucun site archéologique disponible"
+                                                  rendered="#{empty applicationBean.selectedEntity.metadata.sitesArcheologiques}"
+                                                  styleClass="bibliographie-empty"/>
+                                </div>
+                            </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.corpusLies : null)}"
-                                      styleClass="concept-info-item concept-info-item-full" layout="block">
-                            <div class="concept-info-label">
-                                <i class="pi pi-book monnaie-communs-icon" />
-                                <span>Corpus lié(s)</span>
-                            </div>
-                            <div class="concept-info-value bibliographie-container">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.corpusLies}">
-                                    <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.corpusLies, ';')}" var="corpus">
-                                        <ui:fragment rendered="#{not empty corpus and fn:trim(corpus) != ''}">
-                                            <span class="bibliographie-badge">
-                                                <i class="pi pi-book bibliographie-badge-icon"/>
-                                                <span class="bibliographie-badge-text">#{fn:trim(corpus)}</span>
-                                            </span>
-                                        </ui:fragment>
-                                    </ui:repeat>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.corpusLies}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
-                        </h:panelGroup>
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.corpusLies : null)}"
+                                          styleClass="concept-info-item description-typo-field" layout="block">
+                                <div class="concept-info-label">
+                                    <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
+                                    <span>Corpus lié(s)</span>
+                                </div>
+                                <div class="concept-info-value bibliographie-container">
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.corpusLies}">
+                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.corpusLies, ';')}" var="corpus">
+                                            <ui:fragment rendered="#{not empty corpus and fn:trim(corpus) != ''}">
+                                                <span class="bibliographie-badge">
+                                                    <i class="pi pi-book bibliographie-badge-icon" aria-hidden="true"/>
+                                                    <span class="bibliographie-badge-text">#{fn:trim(corpus)}</span>
+                                                </span>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.corpusLies}">
+                                        <span class="empty-field-message">Non renseigné</span>
+                                    </ui:fragment>
+                                </div>
+                            </h:panelGroup>
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
-        </div>
+        </section>
     </h:panelGroup>
 </ui:composition>

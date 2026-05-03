@@ -98,15 +98,18 @@
                         <nav class="type-page-nav" aria-label="Accès rapide aux sections de la fiche">
                             <div class="type-page-nav__scroller">
                                 <span class="type-page-nav__label">Accès rapide</span>
-                                <a href="#type-identity" class="type-page-nav__pill">Identité</a>
+                                <a href="#type-identity" class="type-page-nav__pill">Présentation</a>
                                 <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
                                     <a href="#type-section-datation" class="type-page-nav__pill">Datation</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
                                     <a href="#type-section-production" class="type-page-nav__pill">Production</a>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{applicationBean.isCashTypo() or applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
-                                    <a href="#type-section-details" class="type-page-nav__pill">Détails</a>
+                                <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()) or ((applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()) and applicationBean.showDescriptionBlock())}">
+                                    <a href="#type-section-description" class="type-page-nav__pill">Description</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()) or (applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()) or (applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock())}">
+                                    <a href="#type-section-caracteristiques-physiques" class="type-page-nav__pill">Caractéristiques physiques</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
                                     <a href="#type-section-attestations" class="type-page-nav__pill">Attestations</a>
@@ -124,101 +127,135 @@
                         </nav>
                     </h:panelGroup>
 
-                    <ui:include src="galerie_images.xhtml"/>
-
-                    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-                        <div class="concept-info-grid">
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}"
-                                          styleClass="concept-info-item concept-info-item-full" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-file concept-info-icon" />
-                                    <span>Description</span>
-                                </div>
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
-                                            <div class="concept-info-description-wrapper concept-info-description-char-based">
-                                                <div class="concept-info-description-truncated" data-description-truncated="true">
-                                                    <h:outputText value="#{applicationBean.getEntityDescriptionTruncated(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}" escape="true"/>
-                                                </div>
-                                                <div class="concept-info-description-full" data-description-full="true">
-                                                    <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                                </div>
-                                                <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
-                                                    afficher la suite
-                                                </button>
-                                            </div>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{!applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
-                                            <div class="concept-info-description-content concept-info-description-expanded">
-                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
-                                            </div>
-                                        </ui:fragment>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5 and applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.appellationOpentheso : null)}"
-                                          class="concept-info-item concept-info-item-full">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-tag concept-info-icon" />
-                                    <span>Appellation usuelle</span>
-                                </div>
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{applicationBean.selectedEntity.metadata.appellationOpentheso != null}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appellationOpentheso.url}">
-                                            <h:outputLink value="#{applicationBean.selectedEntity.metadata.appellationOpentheso.url}"
-                                                          target="_blank"
-                                                          rel="noopener noreferrer"
-                                                          styleClass="concept-value-external-link">
-                                                #{applicationBean.selectedEntity.metadata.appellationOpentheso.valeur}
-                                                <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                            </h:outputLink>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appellationOpentheso.url}">
-                                            <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                <i class="pi pi-link-slash"/>
-                                                #{applicationBean.selectedEntity.metadata.appellationOpentheso.valeur}
-                                            </span>
-                                        </ui:fragment>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{applicationBean.selectedEntity.metadata.appellationOpentheso == null}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup layout="block" styleClass="concept-info-item concept-info-item-full"
-                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-users concept-info-icon" />
-                                    <span>Auteur(s) scientifique(s)</span>
-                                </div>
-
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
-                                            <span class="bibliographie-badge">
-                                                <i class="pi pi-star bibliographie-badge-icon" />
-                                                <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
-                                            </span>
-                                        </ui:repeat>
-                                    </ui:fragment>
-
-                                    <h:outputText value="Aucun auteur scientifique disponible" styleClass="bibliographie-empty"
-                                                  rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}" />
-                                </div>
-                            </h:panelGroup>
-                        </div>
-                    </ui:fragment>
-
                     <ui:fragment rendered="#{entityUpdateBean.editingEntity}">
                         <ui:include src="../../commun/modifier/modifier.xhtml"/>
                     </ui:fragment>
                 </div>
+
+                <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+
+                    <div class="concept-info-panel type-identity-panel collection-edit-mode" style="margin-top: 10px;">
+                        <ui:include src="galerie_images.xhtml"/>
+                    </div>
+
+                    <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
+                             aria-label="Texte de la fiche type">
+                        <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="type-identity-texte-heading">
+                            <header class="concept-info-header monnaie-communs-header description-typo-header">
+                                <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                                    <i class="pi pi-file-edit monnaie-communs-title-icon" aria-hidden="true"/>
+                                    <h2 id="type-identity-texte-heading" class="concept-info-title monnaie-communs-title">Présentation</h2>
+                                </div>
+                            </header>
+
+                            <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
+                                    <div class="concept-info-grid-band description-typo-band">
+                                        <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                            <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
+                                                <div class="concept-info-label">
+                                                    <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
+                                                    <span>Description</span>
+                                                </div>
+                                                <div class="concept-info-value concept-info-description description-typo-prose-body">
+                                                    <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                        <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                                            <div class="concept-info-description-wrapper concept-info-description-char-based">
+                                                                <div class="concept-info-description-truncated" data-description-truncated="true">
+                                                                    <h:outputText value="#{applicationBean.getEntityDescriptionTruncated(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}" escape="true"/>
+                                                                </div>
+                                                                <div class="concept-info-description-full" data-description-full="true">
+                                                                    <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                                                </div>
+                                                                <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
+                                                                    afficher la suite
+                                                                </button>
+                                                            </div>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{!applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
+                                                            <div class="concept-info-description-content concept-info-description-expanded">
+                                                                <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
+                                                            </div>
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                        <span class="empty-field-message">Non renseigné</span>
+                                                    </ui:fragment>
+                                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </div>
+                                </ui:fragment>
+
+                                <ui:fragment rendered="#{applicationBean.selectedEntity.entityType.id == 5 and applicationBean.showFieldWithValue(applicationBean.selectedEntity.appellationsUsuelles)}">
+                                    <div class="concept-info-grid-band description-typo-band">
+                                        <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                            <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
+                                                <div class="concept-info-label">
+                                                    <i class="pi pi-tag monnaie-communs-icon" aria-hidden="true"/>
+                                                    <span>Appellation(s) usuelle(s)</span>
+                                                </div>
+                                                <div class="concept-info-value concept-info-description">
+                                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.appellationsUsuelles}">
+                                                        <ui:repeat value="#{applicationBean.selectedEntity.appellationsUsuelles}" var="ref">
+                                                            <ui:fragment rendered="#{ref != null and not empty ref.valeur}">
+                                                                <ui:fragment rendered="#{not empty ref.url}">
+                                                                    <h:outputLink value="#{ref.url}"
+                                                                                  target="_blank"
+                                                                                  rel="noopener noreferrer"
+                                                                                  styleClass="concept-value-external-link">
+                                                                        #{ref.valeur}
+                                                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                                    </h:outputLink>
+                                                                </ui:fragment>
+                                                                <ui:fragment rendered="#{empty ref.url}">
+                                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                                            <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                                            #{ref.valeur}
+                                                                        </span>
+                                                                </ui:fragment>
+                                                            </ui:fragment>
+                                                        </ui:repeat>
+                                                    </ui:fragment>
+                                                    <h:outputText value="Non renseigné"
+                                                                  rendered="#{empty applicationBean.selectedEntity.appellationsUsuelles}"
+                                                                  styleClass="empty-field-message"/>
+                                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </div>
+                                </ui:fragment>
+
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
+                                    <div class="concept-info-grid-band description-typo-band">
+                                        <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                                                <div class="concept-info-label">
+                                                    <i class="pi pi-users monnaie-communs-icon" aria-hidden="true"/>
+                                                    <span>Auteur(s) scientifique(s)</span>
+                                                </div>
+
+                                                <div class="concept-info-value bibliographie-container">
+                                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
+                                                        <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
+                                                                <span class="bibliographie-badge">
+                                                                    <i class="pi pi-star bibliographie-badge-icon" aria-hidden="true"/>
+                                                                    <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
+                                                                </span>
+                                                        </ui:repeat>
+                                                    </ui:fragment>
+
+                                                    <h:outputText value="Aucun auteur scientifique disponible" styleClass="bibliographie-empty"
+                                                                  rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}" />
+                                                </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </div>
+                                </ui:fragment>
+                            </div>
+                        </div>
+                    </section>
+                </ui:fragment>
 
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
@@ -234,24 +271,30 @@
                         </div>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{applicationBean.isCashTypo() or applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
-                        <div id="type-section-details" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}" layout="block">
-                                <ui:include src="../communs/description_monnaie.xhtml"/>
-                                <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                            </h:panelGroup>
+                    <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()}">
+                        <div id="type-section-description" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/description_monnaie.xhtml"/>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()}">
+                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
+                        </div>
+                    </ui:fragment>
 
-                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}" layout="block">
-                                <ui:include src="../communs/description.xhtml"/>
-
-                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
-                                    <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
-                                </h:panelGroup>
-                            </h:panelGroup>
+                    <ui:fragment rendered="#{(applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()) and applicationBean.showDescriptionBlock()}">
+                        <div id="type-section-description" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/description.xhtml"/>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()}">
+                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/caracteristiques_physique.xhtml"/>
+                        </div>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock()}">
+                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
+                            <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                         </div>
                     </ui:fragment>
 
@@ -264,7 +307,7 @@
                     <!--<ui:include src="gestion.xhtml"/>-->
 
                     <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
-                        <div id="type-section-references" class="type-section-shell type-section-anchor">
+                        <div id="type-section-references" class="type-section-shell type-section-anchor candidats-mt-20">
                             <ui:include src="references.xhtml"/>
                         </div>
                     </ui:fragment>

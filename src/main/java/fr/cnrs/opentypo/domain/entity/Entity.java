@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Entité centrale représentant tous les types d'entités (Référentiel, Catégorie, Groupe, Série, Type)
@@ -101,6 +102,10 @@ public class Entity implements Serializable {
     @SQLRestriction("code = 'AIRE_CIRCULATION'")
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReferenceOpentheso> airesCirculation = new ArrayList<>();
+
+    @SQLRestriction("code = 'APPELLATION_USUELLE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> appellationsUsuelles = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_fonctionnelle")
@@ -347,41 +352,34 @@ public class Entity implements Serializable {
     }
 
     /**
-     * Libellé affiché de l'appellation usuelle (référence OpenTheso ou texte migré).
+     * Libellés d'appellation usuelle (références OpenTheso ou texte libre), concaténés pour API / export.
      */
     public String getAppellation() {
-        if (metadata == null || metadata.getAppellationOpentheso() == null) {
+        if (appellationsUsuelles == null || appellationsUsuelles.isEmpty()) {
             return null;
         }
-        return metadata.getAppellationOpentheso().getValeur();
+        return appellationsUsuelles.stream()
+                .map(ReferenceOpentheso::getValeur)
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining("; "));
     }
 
     /**
-     * Définit l'appellation comme texte libre (API / import) ; préférer la référence OpenTheso via métadonnées en UI.
+     * Définit une appellation unique (API / import simple) ; remplace toute la liste en mémoire.
      */
     public void setAppellation(String appellation) {
-        ensureMetadata();
+        if (appellationsUsuelles == null) {
+            appellationsUsuelles = new ArrayList<>();
+        }
+        appellationsUsuelles.clear();
         if (appellation == null || appellation.isBlank()) {
-            metadata.setAppellationOpentheso(null);
             return;
         }
-        ReferenceOpentheso ro = metadata.getAppellationOpentheso();
-        String v = appellation.trim();
-        if (ro != null) {
-            ro.setValeur(v);
-            ro.setUrl(null);
-            ro.setConceptId(null);
-            ro.setThesaurusId(null);
-            ro.setCollectionId(null);
-            ro.setCode("APPELLATION_USUELLE");
-            ro.setEntity(this);
-        } else {
-            metadata.setAppellationOpentheso(ReferenceOpentheso.builder()
-                    .code("APPELLATION_USUELLE")
-                    .valeur(v)
-                    .entity(this)
-                    .build());
-        }
+        appellationsUsuelles.add(ReferenceOpentheso.builder()
+                .code("APPELLATION_USUELLE")
+                .valeur(appellation.trim())
+                .entity(this)
+                .build());
     }
 
     /**

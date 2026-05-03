@@ -183,33 +183,37 @@
                                         </div>
                                     </h:panelGroup>
 
-                                    <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.appellationOpentheso : null)}"
+                                    <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.appellationsUsuelles)}"
                                                   class="concept-info-item concept-info-item-full">
                                         <div class="concept-info-label">
                                             <i class="pi pi-tag concept-info-icon" />
-                                            <span>Appellation usuelle</span>
+                                            <span>Appellation(s) usuelle(s)</span>
                                         </div>
                                         <div class="concept-info-value">
-                                            <ui:fragment rendered="#{applicationBean.selectedEntity.metadata.appellationOpentheso != null}">
-                                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.appellationOpentheso.url}">
-                                                    <h:outputLink value="#{applicationBean.selectedEntity.metadata.appellationOpentheso.url}"
-                                                                  target="_blank"
-                                                                  rel="noopener noreferrer"
-                                                                  styleClass="concept-value-external-link">
-                                                        #{applicationBean.selectedEntity.metadata.appellationOpentheso.valeur}
-                                                        <i class="pi pi-external-link concept-value-external-link-icon"/>
-                                                    </h:outputLink>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.appellationOpentheso.url}">
-                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                        <i class="pi pi-link-slash"/>
-                                                        #{applicationBean.selectedEntity.metadata.appellationOpentheso.valeur}
-                                                    </span>
-                                                </ui:fragment>
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.appellationsUsuelles}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.appellationsUsuelles}" var="ref">
+                                                    <ui:fragment rendered="#{ref != null and not empty ref.valeur}">
+                                                        <ui:fragment rendered="#{not empty ref.url}">
+                                                            <h:outputLink value="#{ref.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{ref.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty ref.url}">
+                                                            <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                                <i class="pi pi-link-slash"/>
+                                                                #{ref.valeur}
+                                                            </span>
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
                                             </ui:fragment>
-                                            <ui:fragment rendered="#{applicationBean.selectedEntity.metadata.appellationOpentheso == null}">
-                                                <span class="empty-field-message">Non renseigné</span>
-                                            </ui:fragment>
+                                            <h:outputText value="Non renseigné"
+                                                          rendered="#{empty applicationBean.selectedEntity.appellationsUsuelles}"
+                                                          styleClass="empty-field-message"/>
                                         </div>
                                     </h:panelGroup>
                                 </div>

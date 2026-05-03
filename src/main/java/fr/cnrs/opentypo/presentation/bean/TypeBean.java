@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.TypeService;
+import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
@@ -95,6 +96,9 @@ public class TypeBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private TypeValidationAuthorityService typeValidationAuthorityService;
 
     private String typeCode;
     private String typeLabel;
@@ -961,8 +965,8 @@ public class TypeBean implements Serializable {
 
     /**
      * Indique si l'utilisateur connecté peut publier ou refuser une proposition (type).
-     * Visible si : type en statut PROPOSITION, et l'un des rôles : administrateur technique,
-     * gestionnaire de la collection, gestionnaire du référentiel, ou valideur du groupe contenant le type.
+     * Même périmètre que la validation catalogue : administrateurs fonctionnel/technique,
+     * valideur sur le type ou le groupe, gestionnaire du référentiel d’ancrage.
      */
     public boolean canPublishOrRefusePropositionType(ApplicationBean applicationBean) {
         if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null
@@ -973,27 +977,10 @@ public class TypeBean implements Serializable {
                 || !EntityConstants.ENTITY_TYPE_TYPE.equals(applicationBean.getSelectedEntity().getEntityType().getCode())) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
+        if (loginBean.getCurrentUser() == null) {
+            return false;
         }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        Entity group = applicationBean.getSelectedGroup();
-        return group != null && group.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(),
-                PermissionRoleEnum.VALIDEUR.getLabel());
+        return typeValidationAuthorityService.canUserValidateOrRefuseType(
+                applicationBean.getSelectedEntity().getId(), loginBean.getCurrentUser());
     }
 }

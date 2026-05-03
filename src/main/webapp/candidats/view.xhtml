@@ -34,9 +34,13 @@
                                 <i class="pi pi-check-circle candidats-icon-success"/>
                                 Ce brouillon a été validé. Vous ne pouvez que le visualiser.
                             </h:panelGroup>
-                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'REFUSED'}">
+                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'REFUSE'}">
                                 <i class="pi pi-times-circle candidats-icon-danger"/>
                                 Ce brouillon a été refusé. Vous ne pouvez que le visualiser.
+                            </h:panelGroup>
+                            <h:panelGroup class="brouillon-status-info" rendered="#{candidatBean.currentEntity.statut == 'IN_VALIDATION'}">
+                                <i class="pi pi-clock candidats-icon-success"/>
+                                Ce brouillon est en attente de validation par un valideur.
                             </h:panelGroup>
                         </div>
                     </div>
@@ -179,7 +183,7 @@
                             </div>
                         </div>
 
-                        <!-- Boutons d'action (uniquement en mode édition) -->
+                        <!-- Rédacteur / relecteur : enregistrement et demande de validation -->
                         <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canEditCurrentBrouillon()}">
                             <div class="wizard-navigation candidats-gap-30">
                                 <p:commandButton value="Enregistrer"
@@ -189,10 +193,22 @@
                                                  process="@form"
                                                  update="@none"/>
 
+                                <p:commandButton value="Demande de validation"
+                                                 icon="pi pi-send"
+                                                 styleClass="candidat-btn-add candidats-btn-validate"
+                                                 rendered="#{candidatBean.canRequestValidationOnCurrentView()}"
+                                                 action="#{candidatBean.prepareDemandeValidationFromView}"
+                                                 process="@this"
+                                                 update=":growl :createCandidatForm:confirmDemandeValidationDialogView"/>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- Valideur : décision sur une fiche « en validation » -->
+                        <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canShowValidatorActionsOnCurrentView()}">
+                            <div class="wizard-navigation candidats-gap-30">
                                 <p:commandButton value="Refuser"
                                                  icon="pi pi-times"
                                                  styleClass="candidat-btn-add candidats-btn-refuse"
-                                                 rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                                  action="#{candidatBean.refuserCandidatFromView}"
                                                  process="@form"
                                                  update="@none"/>
@@ -200,7 +216,6 @@
                                 <p:commandButton value="Valider"
                                                  icon="pi pi-check"
                                                  styleClass="candidat-btn-add candidats-btn-validate"
-                                                 rendered="#{candidatBean.canValidateOrRefuseBrouillon()}"
                                                  action="#{candidatBean.validerCandidatFromView}"
                                                  process="@form"
                                                  update="@none"/>
@@ -216,6 +231,7 @@
                         <ui:include src="dialogs/confirmDeleteReferenceDialog.xhtml"/>
                         <!-- Dialogue de confirmation d'envoi d'invitation aux validateurs -->
                         <ui:include src="dialogs/confirmValidateurInvitationDialog.xhtml"/>
+                        <ui:include src="dialogs/confirmDemandeValidationDialogView.xhtml"/>
                     </h:form>
                 </div>
             </div>

@@ -4,13 +4,13 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <p:tab title="Brouillons en cours" titleStyleClass="users-tab-title">
+    <p:tab title="En attente de validation" titleStyleClass="users-tab-title">
         <div class="users-table-wrapper">
-            <p:dataTable id="tableEnCours"
-                       value="#{candidatBean.candidatsEnCours}"
+            <p:dataTable id="tableEnValidation"
+                       value="#{candidatBean.candidatsEnValidation}"
                        var="candidat"
                        styleClass="modern-users-table"
-                       emptyMessage="Aucun brouillon en cours"
+                       emptyMessage="Aucune fiche en attente de validation"
                        paginator="true"
                        rows="10"
                        rowsPerPageTemplate="10,20,50"
@@ -56,13 +56,22 @@
                                        action="#{candidatBean.visualiserCandidat(candidat)}"
                                        process="@this"
                                        update="@none"/>
-                        <p:commandButton icon="pi pi-send"
+                        <p:commandButton icon="pi pi-check"
                                        styleClass="action-btn action-validate"
-                                       title="Demande de validation"
-                                       rendered="#{candidatBean.canRequestValidationForCandidat(candidat)}"
-                                       action="#{candidatBean.prepareDemandeValidation(candidat)}"
+                                       title="Valider"
+                                       rendered="#{candidatBean.canValidateOrRefuseAsValidatorForCandidat(candidat)}"
+                                       action="#{candidatBean.prepareValidateCandidat(candidat)}"
                                        process="@this"
-                                       update=":growl :candidatsForm:confirmDemandeValidationDialog"/>
+                                       update=":candidatsForm"
+                                       oncomplete="PF('confirmValidateDialog').show();"/>
+                        <p:commandButton icon="pi pi-times"
+                                       styleClass="action-btn action-refuse"
+                                       title="Refuser"
+                                       rendered="#{candidatBean.canValidateOrRefuseAsValidatorForCandidat(candidat)}"
+                                       action="#{candidatBean.prepareRefuseCandidat(candidat)}"
+                                       process="@this"
+                                       update=":candidatsForm"
+                                       oncomplete="PF('confirmRefuseDialog').show();"/>
                     </div>
                 </p:column>
             </p:dataTable>
