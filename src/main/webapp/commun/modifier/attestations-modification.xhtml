@@ -5,16 +5,18 @@
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <b><p:outputLabel value="Attestations et contextes" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
-        <!-- Attestations -->
+        <!-- Attestation(s)/Contexte(s) -->
         <div class="users-form-group users-form-group-full">
             <p:outputLabel value="Attestation(s)/Contexte(s)" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-check-circle input-icon" title="Attestations"/>
                 <p:chips value="#{entityUpdateBean.attestations}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
+                         placeholder="Saisissez une attestation, Entrée ou séparez par point-virgule (;)..."
                          maxlength="500"
-                         addOnBlur="true">
+                         addOnBlur="true"
+                         addOnPaste="true"
+                         separator=";">
                     <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{entityUpdateBean.saveAttestations}" process="@this" update="@none"/>
@@ -29,9 +31,11 @@
                 <i class="pi pi-map-marker input-icon" title="Sites archéologiques"/>
                 <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
+                         placeholder="Saisissez un site, Entrée ou séparez par point-virgule (;)..."
                          maxlength="500"
-                         addOnBlur="true">
+                         addOnBlur="true"
+                         addOnPaste="true"
+                         separator=";">
                     <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                     <p:ajax event="change" listener="#{entityUpdateBean.saveSitesArcheologiques}" process="@this" update="@none"/>

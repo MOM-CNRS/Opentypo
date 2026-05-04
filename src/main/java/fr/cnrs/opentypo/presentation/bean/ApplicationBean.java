@@ -2378,10 +2378,10 @@ public class ApplicationBean implements Serializable {
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         var cp = selectedEntity.getCaracteristiquePhysique();
         var dp = selectedEntity.getDescriptionPate();
-        return hasAnyValue(cp != null ? cp.getMetrologie() : null) || hasAnyValue(cp != null ? cp.getFabrication() : null)
-                || hasAnyValue(dp != null ? dp.getDescription() : null) || hasAnyValue(dp != null ? dp.getCouleur() : null)
-                || hasAnyValue(dp != null ? dp.getNature() : null) || hasAnyValue(dp != null ? dp.getInclusion() : null)
-                || hasAnyValue(dp != null ? dp.getCuisson() : null);
+        return hasAnyValue(cp != null ? cp.getMetrologie() : null) || hasAnyValue(selectedEntity.getFabricationsFaconnage())
+                || hasAnyValue(dp != null ? dp.getDescription() : null) || hasAnyValue(selectedEntity.getCouleursPate())
+                || hasAnyValue(selectedEntity.getNaturesPate()) || hasAnyValue(selectedEntity.getInclusionsPate())
+                || hasAnyValue(selectedEntity.getCuissonsPostCuisson());
     }
 
     /** Bloc Caractéristiques physiques monnaie */
@@ -2401,7 +2401,7 @@ public class ApplicationBean implements Serializable {
         var cp = selectedEntity.getCaracteristiquePhysique();
         if (cp == null) return false;
         return hasAnyValue(cp.getMateriaux()) || hasAnyValue(cp.getForme()) || hasAnyValue(cp.getDimensions())
-                || hasAnyValue(cp.getTechnique()) || hasAnyValue(cp.getFabrication());
+                || hasAnyValue(cp.getTechnique()) || hasAnyValue(selectedEntity.getFabricationsFaconnage());
     }
 
     /** Bloc Description (décors, marques, fonction, catégorie fonctionnelle) */
@@ -2410,7 +2410,7 @@ public class ApplicationBean implements Serializable {
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         var dd = selectedEntity.getDescriptionDetail();
         return hasAnyValue(dd != null ? dd.getDecors() : null) || hasAnyValue(dd != null ? dd.getMarques() : null)
-                || hasAnyValue(dd != null ? dd.getFonction() : null) || hasAnyValue(selectedEntity.getCategorieFonctionnelle());
+                || hasAnyValue(selectedEntity.getFonctionsUsage()) || hasAnyValue(selectedEntity.getCategorieFonctionnelle());
     }
 
     /** Bloc Production */
@@ -2418,7 +2418,7 @@ public class ApplicationBean implements Serializable {
         if (selectedEntity == null) return false;
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         var m = selectedEntity.getMetadata();
-        return hasAnyValue(selectedEntity.getProduction()) || hasAnyValue(m != null ? m.getAteliers() : null)
+        return hasAnyValue(selectedEntity.getProductions()) || hasAnyValue(m != null ? m.getAteliers() : null)
                 || hasAnyValue(selectedEntity.getAiresCirculation());
     }
 
@@ -2450,7 +2450,7 @@ public class ApplicationBean implements Serializable {
     public boolean showDatationBlock() {
         if (selectedEntity == null) return false;
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
-        return hasAnyValue(selectedEntity.getPeriode()) || hasAnyValue(selectedEntity.getTpq())
+        return hasAnyValue(selectedEntity.getPeriodes()) || hasAnyValue(selectedEntity.getTpq())
                 || hasAnyValue(selectedEntity.getTaq()) || hasAnyValue(selectedEntity.getCommentaireDatation());
     }
 

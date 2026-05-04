@@ -9,32 +9,38 @@
 
         <b><p:outputLabel value="Références" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
-        <!-- Référentiel -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Référentiel" />
-            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-book input-icon" title="Référentiel"/>
-                <p:chips value="#{entityUpdateBean.referentiels}"
-                         styleClass="users-chips"
-                         placeholder="Saisissez un référentiel et appuyez sur Entrée..."
-                         maxlength="500"
-                         addOnBlur="true">
-                    <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                    <p:ajax event="change" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
-                </p:chips>
+        <!-- Typologie scientifique -->
+        <div class="users-form-group users-form-group-full periode-group">
+            <div class="users-form-group users-form-group-full">
+                <p:outputLabel value="Typologie scientifique" />
+                <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                        <i class="pi pi-sitemap input-icon" title="Typologie scientifique"/>
+                        <p:inputText value="#{entityUpdateBean.typologieScientifique}"
+                                     styleClass="users-input"
+                                     placeholder="Aucun valeur pour typologie scientifique"/>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Typologie scientifique -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Typologie scientifique" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+        <!-- Référentiel -->
+        <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
+            <div class="users-form-group users-form-group-full">
+                <p:outputLabel value="Autre(s) référentiel(s)" />
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-sitemap input-icon" title="Typologie scientifique"/>
-                    <p:inputText value="#{entityUpdateBean.typologieScientifique}"
-                                 styleClass="users-input"
-                                 placeholder="Aucun valeur pour typologie scientifique"/>
+                    <i class="pi pi-book input-icon" title="Référentiel"/>
+                    <p:chips value="#{entityUpdateBean.referentiels}"
+                             styleClass="users-chips"
+                             placeholder="Saisissez un référentiel, Entrée ou séparez par point-virgule (;)..."
+                             maxlength="500"
+                             addOnBlur="true"
+                             addOnPaste="true"
+                             separator=";">
+                        <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
+                        <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
+                        <p:ajax event="change" listener="#{entityUpdateBean.saveReferences}" process="@this" update="@none"/>
+                    </p:chips>
                 </div>
             </div>
         </div>

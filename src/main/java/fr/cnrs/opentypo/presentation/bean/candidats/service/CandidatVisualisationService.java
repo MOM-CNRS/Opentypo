@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean.candidats.service;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
@@ -102,7 +103,7 @@ public class CandidatVisualisationService {
             }
 
             Step3FormData step3Data = formDataLoader.loadForView(entity.getId());
-            String periode = entity.getPeriode() != null ? entity.getPeriode().getValeur() : null;
+            String periode = formatPeriodesValeurs(entity);
 
             return VisualisationPrepareResult.builder()
                     .success(true)
@@ -147,7 +148,7 @@ public class CandidatVisualisationService {
                 .map(d -> CategoryDescriptionItem.builder().valeur(d.getValeur()).langueCode(d.getLangue().getCode()).langue(d.getLangue()).build())
                 .collect(Collectors.toList());
 
-        String periode = entity.getPeriode() != null ? entity.getPeriode().getValeur() : null;
+        String periode = formatPeriodesValeurs(entity);
         return new PrepareValidateResult(true, entity.getEntityType().getId(), labels, descs, periode, null);
     }
 
@@ -181,5 +182,15 @@ public class CandidatVisualisationService {
             log.error("Erreur lors de l'enregistrement des modifications", e);
             return new EnregistrerResult(false, null, "Une erreur est survenue : " + e.getMessage());
         }
+    }
+
+    private static String formatPeriodesValeurs(Entity entity) {
+        if (entity.getPeriodes() == null || entity.getPeriodes().isEmpty()) {
+            return null;
+        }
+        return entity.getPeriodes().stream()
+                .map(ReferenceOpentheso::getValeur)
+                .filter(v -> v != null && !v.isBlank())
+                .collect(Collectors.joining("; "));
     }
 }

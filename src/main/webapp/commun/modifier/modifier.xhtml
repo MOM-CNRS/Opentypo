@@ -155,4 +155,90 @@
             left: 20%;
         }
     </style>
+
+    <script type="text/javascript">
+        //<![CDATA[
+        /** Saisie libre OpenTheso : copier la valeur visible vers le champ caché avant l’AJAX. */
+        window.modifierSyncAutocompleteFreeTextBeforeAjax = function (widgetVar) {
+            var w = PF(widgetVar);
+            if (!w || !w.input || !w.input.length || !w.hinput) return;
+            var vis = (w.input.val() || '').trim();
+            if (!vis) return;
+            var $h = $(w.hinput);
+            var h = ($h.val() || '').trim();
+            if (h.indexOf('|||') === -1) {
+                $h.val(vis);
+            }
+        };
+        /**
+         * PrimeFaces AutoComplete : panneau ouvert sans sélection → Entrée ne fait que fermer.
+         * Capture : un seul Entrée pour valider la saisie libre (période, production, circulation).
+         */
+        (function () {
+            if (window.__modifierAutocompleteMultiEnterBound) return;
+            window.__modifierAutocompleteMultiEnterBound = true;
+            document.addEventListener('keydown', function modifierAutocompleteMultiEnterCapture(e) {
+                if (e.key !== 'Enter' && e.which !== 13) return;
+                var el = e.target;
+                if (!el || !el.classList || !el.classList.contains('ui-autocomplete-input')) return;
+                var editor = el.closest('.modifier-autocomplete-multi-editor');
+                if (!editor) return;
+
+                var widgetVar = el.closest('.modifier-periode-editor') ? 'modifierPeriodeAC'
+                        : el.closest('.modifier-production-editor') ? 'modifierProductionAC'
+                        : el.closest('.modifier-aires-circulation-editor') ? 'modifierAireCirculationAC'
+                        : el.closest('.modifier-fonction-usage-editor') ? 'modifierFonctionUsageAC'
+                        : el.closest('.modifier-fabrication-faconnage-editor') ? 'modifierFabricationFaconnageAC'
+                        : el.closest('.modifier-couleur-pate-editor') ? 'modifierCouleurPateAC'
+                        : el.closest('.modifier-nature-pate-editor') ? 'modifierNaturePateAC'
+                        : el.closest('.modifier-inclusions-pate-editor') ? 'modifierInclusionsPateAC'
+                        : el.closest('.modifier-cuisson-post-cuisson-editor') ? 'modifierCuissonPostCuissonAC' : null;
+                if (!widgetVar) return;
+
+                var w = PF(widgetVar);
+                if (!w || !w.panel || !w.panel.length) return;
+
+                var panelVisible = w.panel.is(':visible');
+                var $items = w.items && w.items.length ? w.items : w.panel.find('.ui-autocomplete-item');
+                var hasItems = $items.length > 0;
+                var highlighted = hasItems ? $items.filter('.ui-state-highlight') : $();
+
+                if (panelVisible && highlighted.length > 0) {
+                    return;
+                }
+                if (panelVisible && hasItems && highlighted.length === 0) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                e.stopPropagation();
+
+                modifierSyncAutocompleteFreeTextBeforeAjax(widgetVar);
+                if (panelVisible && typeof w.hide === 'function') {
+                    w.hide();
+                }
+                if (widgetVar === 'modifierPeriodeAC' && typeof modifierAddPeriodeCmd === 'function') {
+                    modifierAddPeriodeCmd();
+                } else if (widgetVar === 'modifierProductionAC' && typeof modifierAddProductionCmd === 'function') {
+                    modifierAddProductionCmd();
+                } else if (widgetVar === 'modifierAireCirculationAC' && typeof modifierAddAireCirculationCmd === 'function') {
+                    modifierAddAireCirculationCmd();
+                } else if (widgetVar === 'modifierFonctionUsageAC' && typeof modifierAddFonctionUsageCmd === 'function') {
+                    modifierAddFonctionUsageCmd();
+                } else if (widgetVar === 'modifierFabricationFaconnageAC' && typeof modifierAddFabricationFaconnageCmd === 'function') {
+                    modifierAddFabricationFaconnageCmd();
+                } else if (widgetVar === 'modifierCouleurPateAC' && typeof modifierAddCouleurPateCmd === 'function') {
+                    modifierAddCouleurPateCmd();
+                } else if (widgetVar === 'modifierNaturePateAC' && typeof modifierAddNaturePateCmd === 'function') {
+                    modifierAddNaturePateCmd();
+                } else if (widgetVar === 'modifierInclusionsPateAC' && typeof modifierAddInclusionsPateCmd === 'function') {
+                    modifierAddInclusionsPateCmd();
+                } else if (widgetVar === 'modifierCuissonPostCuissonAC' && typeof modifierAddCuissonPostCuissonCmd === 'function') {
+                    modifierAddCuissonPostCuissonCmd();
+                }
+            }, true);
+        })();
+        //]]>
+    </script>
 </ui:composition>

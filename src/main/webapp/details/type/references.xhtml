@@ -19,45 +19,45 @@
                     <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.reference : null)
                             or applicationBean.showFieldWithValue(applicationBean.selectedEntity.typologieScientifique)}">
                         <div class="concept-info-grid-band description-typo-band">
-                            <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
+                                <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
 
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.reference : null)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-database monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Référentiel</span>
-                                </div>
-                                <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.reference}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.reference, ';')}" var="ref" varStatus="status">
-                                            <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                <span class="bibliographie-badge">
-                                                    <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                </span>
-                                            </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <h:outputText value="Aucun référentiel disponible"
-                                                  rendered="#{empty applicationBean.selectedEntity.metadata.reference}"
-                                                  styleClass="bibliographie-empty"/>
-                                </div>
-                            </h:panelGroup>
+                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.typologieScientifique)}"
+                                              styleClass="concept-info-item description-typo-field" layout="block">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
+                                        <span>Typologique scientifique</span>
+                                    </div>
+                                    <div class="concept-info-value">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.typologieScientifique}">
+                                            #{applicationBean.selectedEntity.typologieScientifique}
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.typologieScientifique}">
+                                            <span class="empty-field-message">Non renseigné</span>
+                                        </ui:fragment>
+                                    </div>
+                                </h:panelGroup>
 
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.typologieScientifique)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Typologique scientifique</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.typologieScientifique}">
-                                        #{applicationBean.selectedEntity.typologieScientifique}
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.typologieScientifique}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
+                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.reference : null)}"
+                                              styleClass="concept-info-item description-typo-field" layout="block">
+                                    <div class="concept-info-label">
+                                        <i class="pi pi-database monnaie-communs-icon" aria-hidden="true"/>
+                                        <span>Autre(s) référentiel(s)</span>
+                                    </div>
+                                    <div class="concept-info-value bibliographie-container">
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.reference}">
+                                            <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.reference, ';')}" var="ref" varStatus="status">
+                                                <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
+                                                    <span class="bibliographie-badge">
+                                                        <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
+                                                    </span>
+                                                </ui:fragment>
+                                            </ui:repeat>
+                                        </ui:fragment>
+                                        <h:outputText value="Aucun référentiel disponible"
+                                                      rendered="#{empty applicationBean.selectedEntity.metadata.reference}"
+                                                      styleClass="bibliographie-empty"/>
+                                    </div>
+                                </h:panelGroup>
                             </div>
                         </div>
                     </ui:fragment>

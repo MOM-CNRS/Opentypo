@@ -15,7 +15,7 @@
                     <p:outputLabel value="Forme" />
                 </div>
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-                    <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <div id="formeAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                         <i class="pi pi-briefcase input-icon periode-autocomplete-icon" aria-hidden="true"/>
                         <p:autoComplete value="#{entityUpdateBean.formeAutocompleteSelection}"
                                         completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
@@ -25,7 +25,7 @@
                                         itemValue="#{concept}"
                                         dropdown="false"
                                         minQueryLength="2"
-                                        appendTo="#fonctionUsageAutocompleteWrapper"
+                                        appendTo="#formeAutocompleteWrapper"
                                         my="left top"
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
@@ -62,49 +62,81 @@
             <!-- Marques/estampilles -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Marques/estampilles" />
+                    <p:outputLabel value="Marques/estampilles" for="marquesEstampillesTextarea"/>
                 </div>
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-tag input-icon" />
-                    <p:chips value="#{entityUpdateBean.marquesEstampilles}"
-                             styleClass="users-chips"
-                             placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
-                             maxlength="500"
-                             addOnBlur="true">
-                        <p:ajax event="itemSelect" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                        <p:ajax event="itemUnselect" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                        <p:ajax event="change" listener="#{entityUpdateBean.saveMarquesEstampilles}" process="@this" update="@none"/>
-                    </p:chips>
+                <div class="periode-field-row">
+                    <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
+                        <div class="candidat-description-textarea-wrapper">
+                            <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
+                                <i class="pi pi-tag input-icon" aria-hidden="true"/>
+                                <p:inputTextarea id="marquesEstampillesTextarea"
+                                                 value="#{entityUpdateBean.marques}"
+                                                 placeholder="Saisissez les marques ou estampilles..."
+                                                 rows="4"
+                                                 styleClass="users-textarea"
+                                                 maxlength="2000"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Fonction/usage -->
+            <!-- Fonction/usage (multi) -->
             <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isCeramiqueTypo()}">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Fonction/usage" />
+                    <p:outputLabel value="Fonction/usage" for="fonctionUsageAutocomplete"/>
                 </div>
-                <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-                    <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                        <i class="pi pi-briefcase input-icon periode-autocomplete-icon" aria-hidden="true"/>
-                        <p:autoComplete value="#{entityUpdateBean.fonctionUsageAutocompleteSelection}"
-                                        completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                        converter="pactolsConceptConverter"
-                                        var="concept"
-                                        itemLabel="#{concept.selectedTerm}"
-                                        itemValue="#{concept}"
-                                        dropdown="false"
-                                        minQueryLength="2"
-                                        appendTo="#fonctionUsageAutocompleteWrapper"
-                                        my="left top"
-                                        at="left bottom"
-                                        panelStyleClass="periode-autocomplete-panel"
-                                        scrollHeight="280"
-                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                        placeholder="Ex. Contenant, Luminaire..."
-                                        styleClass="users-input periode-autocomplete-input"
-                                        forceSelection="false"/>
+                <p:outputPanel id="modifierFonctionUsagePanel" layout="block"
+                               styleClass="modifier-fonction-usage-editor modifier-autocomplete-multi-editor">
+                    <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                        <div id="fonctionUsageAutocompleteWrapper"
+                             class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                            <i class="pi pi-briefcase input-icon periode-autocomplete-icon" aria-hidden="true"/>
+                            <p:autoComplete id="fonctionUsageAutocomplete"
+                                            widgetVar="modifierFonctionUsageAC"
+                                            value="#{entityUpdateBean.fonctionUsageAutocompleteSelection}"
+                                            completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                            converter="pactolsConceptConverter"
+                                            var="concept"
+                                            itemLabel="#{concept.selectedTerm}"
+                                            itemValue="#{concept}"
+                                            dropdown="false"
+                                            minQueryLength="0"
+                                            queryDelay="350"
+                                            appendTo="#fonctionUsageAutocompleteWrapper"
+                                            my="left top"
+                                            at="left bottom"
+                                            panelStyleClass="periode-autocomplete-panel"
+                                            scrollHeight="280"
+                                            emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée pour ajouter votre texte tel quel."
+                                            placeholder="Ex. Contenant, Luminaire… puis Entrée"
+                                            styleClass="users-input periode-autocomplete-input"
+                                            forceSelection="false">
+                                <p:ajax event="itemSelect"
+                                        listener="#{entityUpdateBean.addFonctionUsageFromAutocomplete}"
+                                        process="modifierFonctionUsagePanel"
+                                        update="modifierFonctionUsagePanel :growl"/>
+                            </p:autoComplete>
+                        </div>
                     </div>
-                </div>
+                    <p:remoteCommand name="modifierAddFonctionUsageCmd"
+                                     actionListener="#{entityUpdateBean.addFonctionUsageFromAutocomplete}"
+                                     process="modifierFonctionUsagePanel"
+                                     update="modifierFonctionUsagePanel :growl"/>
+                    <div class="candidat-aires-circulation-chips mt-2">
+                        <ui:repeat value="#{entityUpdateBean.fonctionsUsage}" var="fu" id="fonctionsUsageRepeat">
+                            <span class="candidat-aire-chip">
+                                <span class="candidat-aire-chip-label">#{fu.valeur}</span>
+                                <p:commandButton icon="pi pi-times"
+                                                 styleClass="candidat-aire-chip-delete"
+                                                 action="#{entityUpdateBean.deleteFonctionUsage(fu.valeur)}"
+                                                 process="@this"
+                                                 ajax="true"
+                                                 update="@form :growl"/>
+                            </span>
+                        </ui:repeat>
+                    </div>
+                </p:outputPanel>
             </h:panelGroup>
 
             <!-- Catégorie fonctionnelle -->
@@ -114,7 +146,7 @@
                     <p:outputLabel value="Catégorie fonctionnelle" />
                 </div>
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-                    <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <div id="categorieFonctionnelleAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
                         <i class="pi pi-cog input-icon periode-autocomplete-icon" />
                         <p:autoComplete value="#{entityUpdateBean.categorieFonctionnelleAutocompleteSelection}"
                                         completeMethod="#{openThesoDialogBean.searchInOpenTheso}"

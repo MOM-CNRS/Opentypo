@@ -49,7 +49,7 @@
                      styleClass="candidat-labels-table candidats-mt-10"
                      emptyMessage="Aucune traduction ajoutée"
                      rendered="#{not empty entityUpdateBean.descriptions}">
-            <p:column headerText="Définitions" styleClass="candidat-table-label-column candidats-table-label-padding">
+            <p:column headerText="Liste description [et ses traductions]" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
                         <h:graphicImage library="img" name="flag/#{labelItem.langueCode}.png"

@@ -66,7 +66,7 @@
                         </div>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.marques : null) or (applicationBean.isCeramiqueTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.fonction : null))}">
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.marques : null) or (applicationBean.isCeramiqueTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.fonctionsUsage))}">
                         <div class="concept-info-grid-band description-typo-band">
                             <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
                                 <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.marques : null)}"
@@ -85,30 +85,34 @@
                                     </div>
                                 </h:panelGroup>
 
-                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.fonction : null)}"
+                                <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showFieldWithValue(applicationBean.selectedEntity.fonctionsUsage)}"
                                               styleClass="concept-info-item description-typo-field" layout="block">
                                     <div class="concept-info-label">
                                         <i class="pi pi-sitemap monnaie-communs-icon" aria-hidden="true"/>
                                         <span>Fonction/usage</span>
                                     </div>
                                     <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail.fonction}">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionDetail.fonction.url}">
-                                                <h:outputLink value="#{applicationBean.selectedEntity.descriptionDetail.fonction.url}"
-                                                              target="_blank" rel="noopener noreferrer"
-                                                              styleClass="concept-value-external-link">
-                                                    #{applicationBean.selectedEntity.descriptionDetail.fonction.valeur}
-                                                    <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                </h:outputLink>
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.fonction.url}">
-                                                <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                    <i class="pi pi-link-slash" aria-hidden="true"/>
-                                                    #{applicationBean.selectedEntity.descriptionDetail.fonction.valeur}
-                                                </span>
-                                            </ui:fragment>
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.fonctionsUsage}">
+                                            <ui:repeat value="#{applicationBean.selectedEntity.fonctionsUsage}" var="fu">
+                                                <ui:fragment rendered="#{fu != null and not empty fu.valeur}">
+                                                    <ui:fragment rendered="#{not empty fu.url}">
+                                                        <h:outputLink value="#{fu.url}"
+                                                                      target="_blank" rel="noopener noreferrer"
+                                                                      styleClass="concept-value-external-link">
+                                                            #{fu.valeur}
+                                                            <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                        </h:outputLink>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{empty fu.url}">
+                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                            <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                            #{fu.valeur}
+                                                        </span>
+                                                    </ui:fragment>
+                                                </ui:fragment>
+                                            </ui:repeat>
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.fonction}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.fonctionsUsage}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>

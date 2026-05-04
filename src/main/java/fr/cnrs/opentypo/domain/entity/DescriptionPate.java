@@ -29,22 +29,6 @@ public class DescriptionPate implements Serializable {
     @Column(name = "description", length = 255)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "couleur_id")
-    private ReferenceOpentheso couleur;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nature_id")
-    private ReferenceOpentheso nature;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inclusion_id")
-    private ReferenceOpentheso inclusion;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cuisson_id")
-    private ReferenceOpentheso cuisson;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entity_id", nullable = false, unique = true)
     private fr.cnrs.opentypo.domain.entity.Entity entity;

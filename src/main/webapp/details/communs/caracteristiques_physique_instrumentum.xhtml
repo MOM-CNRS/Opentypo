@@ -147,34 +147,38 @@
                         </div>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.fabrication : null)}">
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.fabricationsFaconnage)}">
                         <div class="concept-info-grid-band description-typo-band">
                             <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.fabrication : null)}"
+                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.fabricationsFaconnage)}"
                                               styleClass="concept-info-item concept-info-item-full description-typo-field" layout="block">
                                     <div class="concept-info-label">
                                         <i class="pi pi-cog monnaie-communs-icon" aria-hidden="true"/>
                                         <span>Fabrication</span>
                                     </div>
                                     <div class="concept-info-value concept-info-description">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication.url}">
-                                                <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.url}"
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              styleClass="concept-value-external-link">
-                                                    #{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}
-                                                    <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                </h:outputLink>
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication.url}">
-                                                <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                    <i class="pi pi-link-slash" aria-hidden="true"/>
-                                                    #{applicationBean.selectedEntity.caracteristiquePhysique.fabrication.valeur}
-                                                </span>
-                                            </ui:fragment>
+                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.fabricationsFaconnage}">
+                                            <ui:repeat value="#{applicationBean.selectedEntity.fabricationsFaconnage}" var="fab">
+                                                <ui:fragment rendered="#{fab != null and not empty fab.valeur}">
+                                                    <ui:fragment rendered="#{not empty fab.url}">
+                                                        <h:outputLink value="#{fab.url}"
+                                                                      target="_blank"
+                                                                      rel="noopener noreferrer"
+                                                                      styleClass="concept-value-external-link">
+                                                            #{fab.valeur}
+                                                            <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                        </h:outputLink>
+                                                    </ui:fragment>
+                                                    <ui:fragment rendered="#{empty fab.url}">
+                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                            <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                            #{fab.valeur}
+                                                        </span>
+                                                    </ui:fragment>
+                                                </ui:fragment>
+                                            </ui:repeat>
                                         </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.fabrication}">
+                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.fabricationsFaconnage}">
                                             <span class="empty-field-message">Non renseigné</span>
                                         </ui:fragment>
                                     </div>

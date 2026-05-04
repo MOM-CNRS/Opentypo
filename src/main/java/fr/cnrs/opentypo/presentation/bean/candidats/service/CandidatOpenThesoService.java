@@ -28,10 +28,11 @@ public class CandidatOpenThesoService {
 
     public ReferenceOpentheso loadFonctionUsage(Long entityId) {
         return loadRefFromEntity(entityId, e -> {
-            DescriptionDetail dd = e.getDescriptionDetail();
-            if (dd != null && dd.getFonction() != null) {
-                dd.getFonction().getValeur();
-                return dd.getFonction();
+            List<ReferenceOpentheso> l = e.getFonctionsUsage();
+            if (l != null && !l.isEmpty()) {
+                ReferenceOpentheso r = l.get(0);
+                if (r != null) r.getValeur();
+                return r;
             }
             return null;
         });
@@ -42,23 +43,38 @@ public class CandidatOpenThesoService {
     }
 
     public ReferenceOpentheso loadFabrication(Long entityId) {
-        return loadRefFromCaracteristique(entityId, CaracteristiquePhysique::getFabrication);
+        return loadRefFromEntity(entityId, e -> {
+            List<ReferenceOpentheso> l = e.getFabricationsFaconnage();
+            if (l != null && !l.isEmpty()) {
+                ReferenceOpentheso r = l.get(0);
+                if (r != null) r.getValeur();
+                return r;
+            }
+            return null;
+        });
     }
 
     public ReferenceOpentheso loadCouleurPate(Long entityId) {
-        return loadRefFromDescriptionPate(entityId, DescriptionPate::getCouleur);
+        return loadRefFromEntity(entityId, e -> firstRef(e.getCouleursPate()));
     }
 
     public ReferenceOpentheso loadNaturePate(Long entityId) {
-        return loadRefFromDescriptionPate(entityId, DescriptionPate::getNature);
+        return loadRefFromEntity(entityId, e -> firstRef(e.getNaturesPate()));
     }
 
     public ReferenceOpentheso loadInclusions(Long entityId) {
-        return loadRefFromDescriptionPate(entityId, DescriptionPate::getInclusion);
+        return loadRefFromEntity(entityId, e -> firstRef(e.getInclusionsPate()));
     }
 
     public ReferenceOpentheso loadCuissonPostCuisson(Long entityId) {
-        return loadRefFromDescriptionPate(entityId, DescriptionPate::getCuisson);
+        return loadRefFromEntity(entityId, e -> firstRef(e.getCuissonsPostCuisson()));
+    }
+
+    private static ReferenceOpentheso firstRef(List<ReferenceOpentheso> l) {
+        if (l == null || l.isEmpty()) return null;
+        ReferenceOpentheso r = l.get(0);
+        if (r != null) r.getValeur();
+        return r;
     }
 
     public ReferenceOpentheso loadProduction(Long entityId) {
@@ -144,10 +160,12 @@ public class CandidatOpenThesoService {
     @Transactional
     public DeleteResult deleteFonctionUsage(Long entityId) {
         Entity e = entityRepository.findById(entityId).orElse(null);
-        if (e == null || e.getDescriptionDetail() == null) return DeleteResult.NOTHING_TO_DELETE;
-        e.getDescriptionDetail().setFonction(null);
+        if (e == null || e.getFonctionsUsage() == null || e.getFonctionsUsage().isEmpty()) {
+            return DeleteResult.NOTHING_TO_DELETE;
+        }
+        e.getFonctionsUsage().clear();
         entityRepository.save(e);
-        log.info("Fonction/usage supprimée pour l'entité ID={}", entityId);
+        log.info("Fonctions / usages vidées pour l'entité ID={}", entityId);
         return DeleteResult.SUCCESS;
     }
 
@@ -158,48 +176,67 @@ public class CandidatOpenThesoService {
 
     @Transactional
     public DeleteResult deleteFabrication(Long entityId) {
-        return deleteFromCaracteristique(entityId, cp -> cp.setFabrication(null));
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null || e.getFabricationsFaconnage() == null || e.getFabricationsFaconnage().isEmpty()) {
+            return DeleteResult.NOTHING_TO_DELETE;
+        }
+        e.getFabricationsFaconnage().clear();
+        entityRepository.save(e);
+        return DeleteResult.SUCCESS;
     }
 
     @Transactional
     public DeleteResult deleteCouleurPate(Long entityId) {
-        return deleteFromDescriptionPate(entityId, dp -> dp.setCouleur(null));
+        return clearEntityOpenthesoList(entityId, Entity::getCouleursPate);
     }
 
     @Transactional
     public DeleteResult deleteNaturePate(Long entityId) {
-        return deleteFromDescriptionPate(entityId, dp -> dp.setNature(null));
+        return clearEntityOpenthesoList(entityId, Entity::getNaturesPate);
     }
 
     @Transactional
     public DeleteResult deleteInclusions(Long entityId) {
-        return deleteFromDescriptionPate(entityId, dp -> dp.setInclusion(null));
+        return clearEntityOpenthesoList(entityId, Entity::getInclusionsPate);
     }
 
     @Transactional
     public DeleteResult deleteCuissonPostCuisson(Long entityId) {
-        return deleteFromDescriptionPate(entityId, dp -> dp.setCuisson(null));
+        return clearEntityOpenthesoList(entityId, Entity::getCuissonsPostCuisson);
+    }
+
+    private DeleteResult clearEntityOpenthesoList(Long entityId,
+            java.util.function.Function<Entity, List<ReferenceOpentheso>> listGetter) {
+        Entity e = entityRepository.findById(entityId).orElse(null);
+        if (e == null) return DeleteResult.NOTHING_TO_DELETE;
+        List<ReferenceOpentheso> list = listGetter.apply(e);
+        if (list == null || list.isEmpty()) return DeleteResult.NOTHING_TO_DELETE;
+        list.clear();
+        entityRepository.save(e);
+        return DeleteResult.SUCCESS;
     }
 
     @Transactional
     public DeleteResult deletePeriode(Long entityId) {
         Entity e = entityRepository.findById(entityId).orElse(null);
-        if (e == null || e.getPeriode() == null) return DeleteResult.NOTHING_TO_DELETE;
-        referenceOpenthesoRepository.deleteById(e.getPeriode().getId());
-        e.setPeriode(null);
+        if (e == null || e.getPeriodes() == null || e.getPeriodes().isEmpty()) {
+            return DeleteResult.NOTHING_TO_DELETE;
+        }
+        e.getPeriodes().clear();
         entityRepository.save(e);
-        log.info("Période supprimée pour l'entité ID={}", entityId);
+        log.info("Liste périodes vidée pour l'entité ID={}", entityId);
         return DeleteResult.SUCCESS;
     }
 
     @Transactional
     public DeleteResult deleteProduction(Long entityId) {
         Entity e = entityRepository.findById(entityId).orElse(null);
-        if (e == null || e.getProduction() == null) return DeleteResult.NOTHING_TO_DELETE;
-        referenceOpenthesoRepository.deleteById(e.getProduction().getId());
-        e.setProduction(null);
+        if (e == null || e.getProductions() == null || e.getProductions().isEmpty()) {
+            return DeleteResult.NOTHING_TO_DELETE;
+        }
+        e.getProductions().clear();
         entityRepository.save(e);
-        log.info("Production supprimée pour l'entité ID={}", entityId);
+        log.info("Liste production vidée pour l'entité ID={}", entityId);
         return DeleteResult.SUCCESS;
     }
 

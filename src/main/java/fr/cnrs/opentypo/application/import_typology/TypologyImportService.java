@@ -544,7 +544,7 @@ public class TypologyImportService {
         if (fab) {
             ReferenceOpentheso r = saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION),
                     ReferenceOpenthesoEnum.FABRICATION_FACONNAGE.name());
-            cp.setFabrication(r);
+            entity.setFabricationFaconnage(r);
         }
     }
 
@@ -901,7 +901,7 @@ public class TypologyImportService {
             dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
         }
         if (touchFonction) {
-            dd.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
+            entity.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
         }
     }
 
@@ -925,7 +925,8 @@ public class TypologyImportService {
             cp.setMetrologie(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), "METROLOGIE"));
         }
         if (touchFab) {
-            cp.setFabrication(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION), "FABRICATION"));
+            entity.setFabricationFaconnage(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION),
+                    ReferenceOpenthesoEnum.FABRICATION_FACONNAGE.name()));
         }
     }
 
@@ -948,16 +949,20 @@ public class TypologyImportService {
             dp.setDescription(trimToNull(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE)));
         }
         if (touchCouleur) {
-            dp.setCouleur(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE), "COULEUR_PATE"));
+            entity.setCouleurPate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE),
+                    ReferenceOpenthesoEnum.COULEUR_PATE.name()));
         }
         if (touchNature) {
-            dp.setNature(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE), "NATURE_PATE"));
+            entity.setNaturePate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE),
+                    ReferenceOpenthesoEnum.NATURE_PATE.name()));
         }
         if (touchIncl) {
-            dp.setInclusion(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION), "INCLUSION"));
+            entity.setInclusionPate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION),
+                    ReferenceOpenthesoEnum.INCLUSIONS.name()));
         }
         if (touchCuisson) {
-            dp.setCuisson(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON), "CUISSON"));
+            entity.setCuissonPostCuissonRef(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON),
+                    ReferenceOpenthesoEnum.CUISSON_POST_CUISSON.name()));
         }
     }
 

@@ -5,7 +5,6 @@ import fr.cnrs.opentypo.application.dto.pactols.*;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.PactolsService;
-import fr.cnrs.opentypo.domain.entity.DescriptionDetail;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
@@ -539,22 +538,25 @@ public class OpenThesoDialogBean implements Serializable {
 
         final String valueForCallbackAndLambda = valueToSave;
 
-        // Pour les codes qui utilisent une seule référence (PRODUCTION, PERIODE, etc.)
-        // on met à jour directement la colonne dans Entity
+        // PRODUCTION / PERIODE : liste reference-opentheso ; autres cas selon le switch.
         switch (referenceCode) {
             case ReferenceOpenthesoEnum.PRODUCTION:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                entity.setProduction(createdReference);
+                if (entity.getProductions() == null) {
+                    entity.setProductions(new ArrayList<>());
+                }
+                entity.getProductions().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateProductionFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.PERIODE:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                entity.setPeriode(createdReference);
+                if (entity.getPeriodes() == null) {
+                    entity.setPeriodes(new ArrayList<>());
+                }
+                entity.getPeriodes().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updatePeriodeFromOpenTheso();
                 break;
@@ -591,13 +593,11 @@ public class OpenThesoDialogBean implements Serializable {
                 break;
             case ReferenceOpenthesoEnum.FONCTION_USAGE:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getDescriptionDetail() == null) {
-                    entity.setDescriptionDetail(new DescriptionDetail());
-                    entity.getDescriptionDetail().setEntity(entity);
+                if (entity.getFonctionsUsage() == null) {
+                    entity.setFonctionsUsage(new ArrayList<>());
                 }
-                entity.getDescriptionDetail().setFonction(createdReference);
+                entity.getFonctionsUsage().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateFonctionUsageFromOpenTheso();
                 break;
@@ -615,61 +615,51 @@ public class OpenThesoDialogBean implements Serializable {
                 break;
             case ReferenceOpenthesoEnum.FABRICATION_FACONNAGE:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getCaracteristiquePhysique() == null) {
-                    entity.setCaracteristiquePhysique(new CaracteristiquePhysique());
-                    entity.getCaracteristiquePhysique().setEntity(entity);
+                if (entity.getFabricationsFaconnage() == null) {
+                    entity.setFabricationsFaconnage(new ArrayList<>());
                 }
-                entity.getCaracteristiquePhysique().setFabrication(createdReference);
+                entity.getFabricationsFaconnage().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateFabricationFaconnageFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.COULEUR_PATE:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getDescriptionPate() == null) {
-                    entity.setDescriptionPate(new DescriptionPate());
-                    entity.getDescriptionPate().setEntity(entity);
+                if (entity.getCouleursPate() == null) {
+                    entity.setCouleursPate(new ArrayList<>());
                 }
-                entity.getDescriptionPate().setCouleur(createdReference);
+                entity.getCouleursPate().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateCouleurPateFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.NATURE_PATE:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getDescriptionPate() == null) {
-                    entity.setDescriptionPate(new DescriptionPate());
-                    entity.getDescriptionPate().setEntity(entity);
+                if (entity.getNaturesPate() == null) {
+                    entity.setNaturesPate(new ArrayList<>());
                 }
-                entity.getDescriptionPate().setNature(createdReference);
+                entity.getNaturesPate().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateNaturePateFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.INCLUSIONS:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getDescriptionPate() == null) {
-                    entity.setDescriptionPate(new DescriptionPate());
-                    entity.getDescriptionPate().setEntity(entity);
+                if (entity.getInclusionsPate() == null) {
+                    entity.setInclusionsPate(new ArrayList<>());
                 }
-                entity.getDescriptionPate().setInclusion(createdReference);
+                entity.getInclusionsPate().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateInclusionsFromOpenTheso();
                 break;
             case ReferenceOpenthesoEnum.CUISSON_POST_CUISSON:
                 referenceOpentheso.setEntity(entity);
-                // Sauvegarder la référence d'abord
                 createdReference = referenceOpenthesoRepository.save(referenceOpentheso);
-                if (entity.getDescriptionPate() == null) {
-                    entity.setDescriptionPate(new DescriptionPate());
-                    entity.getDescriptionPate().setEntity(entity);
+                if (entity.getCuissonsPostCuisson() == null) {
+                    entity.setCuissonsPostCuisson(new ArrayList<>());
                 }
-                entity.getDescriptionPate().setCuisson(createdReference);
+                entity.getCuissonsPostCuisson().add(createdReference);
                 entityRepository.save(entity);
                 candidatBean.updateCuissonPostCuissonFromOpenTheso();
                 break;

@@ -93,8 +93,6 @@ public class EntityDeletionService {
         descriptionMonnaieRepository.deleteByEntityId(entityId);
         caracteristiquePhysiqueMonnaieRepository.deleteByEntityId(entityId);
 
-        referenceOpenthesoRepository.clearEntityPeriodeRefsToAires(entityId);
-        referenceOpenthesoRepository.clearEntityProductionRefsToAires(entityId);
         referenceOpenthesoRepository.clearEntityCategorieFonctionnelleRefsToAires(entityId);
         referenceOpenthesoRepository.deleteByEntityId(entityId);
 

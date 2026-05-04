@@ -132,14 +132,13 @@ public class CandidatValidationService {
         boolean hasPeriode = entity.getPeriode() != null;
         boolean hasTpq = entity.getTpq() != null;
         boolean hasTaq = entity.getTaq() != null;
-        boolean hasProduction = entity.getProduction() != null;
+        boolean hasProduction = entity.getProductions() != null && !entity.getProductions().isEmpty();
 
         boolean hasAireCirculation = entity.getAiresCirculation() != null
             && entity.getAiresCirculation().stream()
                 .anyMatch(ref -> ReferenceOpenthesoEnum.AIRE_CIRCULATION.name().equals(ref.getCode()));
 
-        DescriptionDetail descDetail = entity.getDescriptionDetail();
-        boolean hasFonctionUsage = descDetail != null && descDetail.getFonction() != null;
+        boolean hasFonctionUsage = entity.getFonctionsUsage() != null && !entity.getFonctionsUsage().isEmpty();
 
         String identifiant = entity.getIdentifiantPerenne();
         boolean hasIdentifiantPerenne = identifiant != null && !identifiant.trim().isEmpty();

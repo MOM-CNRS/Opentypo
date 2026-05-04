@@ -31,34 +31,62 @@
         </div>
     </div>
 
-    <!-- Fabrication/façonnage -->
+    <!-- Fabrication/façonnage (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Fabrication/façonnage" />
+            <p:outputLabel value="Fabrication/façonnage" for="fabricationFaconnageAutocomplete"/>
         </div>
-        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-            <div id="fabricationFaconnageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                <i class="pi pi-wrench input-icon periode-autocomplete-icon" />
-                <p:autoComplete id="fabricationFaconnageAutocomplete"
-                                value="#{entityUpdateBean.fabricationFaconnageAutocompleteSelection}"
-                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                converter="pactolsConceptConverter"
-                                var="concept"
-                                itemLabel="#{concept.selectedTerm}"
-                                itemValue="#{concept}"
-                                dropdown="false"
-                                minQueryLength="2"
-                                appendTo="#fabricationFaconnageAutocompleteWrapper"
-                                my="left top"
-                                at="left bottom"
-                                panelStyleClass="periode-autocomplete-panel"
-                                scrollHeight="280"
-                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION_FACONNAGE')}"
-                                placeholder="Ex. Tournage, Moulage..."
-                                styleClass="users-input periode-autocomplete-input"
-                                forceSelection="false"/>
+        <p:outputPanel id="modifierFabricationFaconnagePanel" layout="block"
+                       styleClass="modifier-fabrication-faconnage-editor modifier-autocomplete-multi-editor">
+            <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                <div id="fabricationFaconnageAutocompleteWrapper"
+                     class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-wrench input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="fabricationFaconnageAutocomplete"
+                                    widgetVar="modifierFabricationFaconnageAC"
+                                    value="#{entityUpdateBean.fabricationFaconnageAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="0"
+                                    queryDelay="350"
+                                    appendTo="#fabricationFaconnageAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION_FACONNAGE')}"
+                                    placeholder="Ex. Tournage, Moulage… puis Entrée"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.addFabricationFaconnageFromAutocomplete}"
+                                process="modifierFabricationFaconnagePanel"
+                                update="modifierFabricationFaconnagePanel :growl"/>
+                    </p:autoComplete>
+                </div>
             </div>
-        </div>
+            <p:remoteCommand name="modifierAddFabricationFaconnageCmd"
+                             actionListener="#{entityUpdateBean.addFabricationFaconnageFromAutocomplete}"
+                             process="modifierFabricationFaconnagePanel"
+                             update="modifierFabricationFaconnagePanel :growl"/>
+            <div class="candidat-aires-circulation-chips mt-2">
+                <ui:repeat value="#{entityUpdateBean.fabricationsFaconnage}" var="fab" id="fabricationsFaconnageRepeat">
+                    <span class="candidat-aire-chip">
+                        <span class="candidat-aire-chip-label">#{fab.valeur}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-aire-chip-delete"
+                                         action="#{entityUpdateBean.deleteFabricationFaconnage(fab.valeur)}"
+                                         process="@this"
+                                         ajax="true"
+                                         update="@form :growl"/>
+                    </span>
+                </ui:repeat>
+            </div>
+        </p:outputPanel>
     </div>
 
     <!-- Description pâte (champ texte, valeur simple) -->
@@ -88,123 +116,236 @@
         </div>
     </div>
 
-    <!-- Couleur de pâte -->
+    <!-- Couleur de pâte (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Couleur de pâte" />
+            <p:outputLabel value="Couleur de pâte" for="couleurPateAutocomplete"/>
         </div>
-        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-            <div id="couleurPateAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                <i class="pi pi-palette input-icon periode-autocomplete-icon" />
-                <p:autoComplete value="#{entityUpdateBean.couleurPateAutocompleteSelection}"
-                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                converter="pactolsConceptConverter"
-                                var="concept"
-                                itemLabel="#{concept.selectedTerm}"
-                                itemValue="#{concept}"
-                                dropdown="false"
-                                minQueryLength="2"
-                                appendTo="#couleurPateAutocompleteWrapper"
-                                my="left top"
-                                at="left bottom"
-                                panelStyleClass="periode-autocomplete-panel"
-                                scrollHeight="280"
-                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('COULEUR_PATE')}"
-                                placeholder="Ex. Rouge, Brun..."
-                                styleClass="users-input periode-autocomplete-input"
-                                forceSelection="false"/>
+        <p:outputPanel id="modifierCouleurPatePanel" layout="block"
+                       styleClass="modifier-couleur-pate-editor modifier-autocomplete-multi-editor">
+            <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                <div id="couleurPateAutocompleteWrapper"
+                     class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-palette input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="couleurPateAutocomplete"
+                                    widgetVar="modifierCouleurPateAC"
+                                    value="#{entityUpdateBean.couleurPateAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="0"
+                                    queryDelay="350"
+                                    appendTo="#couleurPateAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('COULEUR_PATE')}"
+                                    placeholder="Ex. Rouge, Brun… puis Entrée"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.addCouleurPateFromAutocomplete}"
+                                process="modifierCouleurPatePanel"
+                                update="modifierCouleurPatePanel :growl"/>
+                    </p:autoComplete>
+                </div>
             </div>
-        </div>
+            <p:remoteCommand name="modifierAddCouleurPateCmd"
+                             actionListener="#{entityUpdateBean.addCouleurPateFromAutocomplete}"
+                             process="modifierCouleurPatePanel"
+                             update="modifierCouleurPatePanel :growl"/>
+            <div class="candidat-aires-circulation-chips mt-2">
+                <ui:repeat value="#{entityUpdateBean.couleursPate}" var="coul" id="couleursPateRepeat">
+                    <span class="candidat-aire-chip">
+                        <span class="candidat-aire-chip-label">#{coul.valeur}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-aire-chip-delete"
+                                         action="#{entityUpdateBean.deleteCouleurPate(coul.valeur)}"
+                                         process="@this"
+                                         ajax="true"
+                                         update="@form :growl"/>
+                    </span>
+                </ui:repeat>
+            </div>
+        </p:outputPanel>
     </div>
 
-    <!-- Nature de pâte -->
+    <!-- Nature de pâte (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Nature de pâte" />
+            <p:outputLabel value="Nature de pâte" for="naturePateAutocomplete"/>
         </div>
-        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-            <div id="naturePateAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                <i class="pi pi-th-large input-icon periode-autocomplete-icon" />
-                <p:autoComplete id="naturePateAutocomplete"
-                                value="#{entityUpdateBean.naturePateAutocompleteSelection}"
-                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                converter="pactolsConceptConverter"
-                                var="concept"
-                                itemLabel="#{concept.selectedTerm}"
-                                itemValue="#{concept}"
-                                dropdown="false"
-                                minQueryLength="2"
-                                appendTo="#naturePateAutocompleteWrapper"
-                                my="left top"
-                                at="left bottom"
-                                panelStyleClass="periode-autocomplete-panel"
-                                scrollHeight="280"
-                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('NATURE_PATE')}"
-                                placeholder="Ex. Fine, Grossière..."
-                                styleClass="users-input periode-autocomplete-input"
-                                forceSelection="false"/>
+        <p:outputPanel id="modifierNaturePatePanel" layout="block"
+                       styleClass="modifier-nature-pate-editor modifier-autocomplete-multi-editor">
+            <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                <div id="naturePateAutocompleteWrapper"
+                     class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-th-large input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="naturePateAutocomplete"
+                                    widgetVar="modifierNaturePateAC"
+                                    value="#{entityUpdateBean.naturePateAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="0"
+                                    queryDelay="350"
+                                    appendTo="#naturePateAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('NATURE_PATE')}"
+                                    placeholder="Ex. Fine, Grossière… puis Entrée"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.addNaturePateFromAutocomplete}"
+                                process="modifierNaturePatePanel"
+                                update="modifierNaturePatePanel :growl"/>
+                    </p:autoComplete>
+                </div>
             </div>
-        </div>
+            <p:remoteCommand name="modifierAddNaturePateCmd"
+                             actionListener="#{entityUpdateBean.addNaturePateFromAutocomplete}"
+                             process="modifierNaturePatePanel"
+                             update="modifierNaturePatePanel :growl"/>
+            <div class="candidat-aires-circulation-chips mt-2">
+                <ui:repeat value="#{entityUpdateBean.naturesPate}" var="nat" id="naturesPateRepeat">
+                    <span class="candidat-aire-chip">
+                        <span class="candidat-aire-chip-label">#{nat.valeur}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-aire-chip-delete"
+                                         action="#{entityUpdateBean.deleteNaturePate(nat.valeur)}"
+                                         process="@this"
+                                         ajax="true"
+                                         update="@form :growl"/>
+                    </span>
+                </ui:repeat>
+            </div>
+        </p:outputPanel>
     </div>
 
-    <!-- Inclusions -->
+    <!-- Inclusions (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Inclusions" />
+            <p:outputLabel value="Inclusions" for="inclusionsAutocomplete"/>
         </div>
-        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-            <div id="inclusionsAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                <i class="pi pi-circle input-icon periode-autocomplete-icon" />
-                <p:autoComplete id="inclusionsAutocomplete"
-                                value="#{entityUpdateBean.inclusionsAutocompleteSelection}"
-                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                converter="pactolsConceptConverter"
-                                var="concept"
-                                itemLabel="#{concept.selectedTerm}"
-                                itemValue="#{concept}"
-                                dropdown="false"
-                                minQueryLength="2"
-                                appendTo="#inclusionsAutocompleteWrapper"
-                                my="left top"
-                                at="left bottom"
-                                panelStyleClass="periode-autocomplete-panel"
-                                scrollHeight="280"
-                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('INCLUSIONS')}"
-                                placeholder="Ex. Mica, Calcite..."
-                                styleClass="users-input periode-autocomplete-input"
-                                forceSelection="false"/>
+        <p:outputPanel id="modifierInclusionsPatePanel" layout="block"
+                       styleClass="modifier-inclusions-pate-editor modifier-autocomplete-multi-editor">
+            <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                <div id="inclusionsAutocompleteWrapper"
+                     class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-circle input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="inclusionsAutocomplete"
+                                    widgetVar="modifierInclusionsPateAC"
+                                    value="#{entityUpdateBean.inclusionsAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="0"
+                                    queryDelay="350"
+                                    appendTo="#inclusionsAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('INCLUSIONS')}"
+                                    placeholder="Ex. Mica, Calcite… puis Entrée"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.addInclusionsPateFromAutocomplete}"
+                                process="modifierInclusionsPatePanel"
+                                update="modifierInclusionsPatePanel :growl"/>
+                    </p:autoComplete>
+                </div>
             </div>
-        </div>
-        <p:message for="@previous" display="icon"/>
+            <p:remoteCommand name="modifierAddInclusionsPateCmd"
+                             actionListener="#{entityUpdateBean.addInclusionsPateFromAutocomplete}"
+                             process="modifierInclusionsPatePanel"
+                             update="modifierInclusionsPatePanel :growl"/>
+            <div class="candidat-aires-circulation-chips mt-2">
+                <ui:repeat value="#{entityUpdateBean.inclusionsPate}" var="inc" id="inclusionsPateRepeat">
+                    <span class="candidat-aire-chip">
+                        <span class="candidat-aire-chip-label">#{inc.valeur}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-aire-chip-delete"
+                                         action="#{entityUpdateBean.deleteInclusionsPate(inc.valeur)}"
+                                         process="@this"
+                                         ajax="true"
+                                         update="@form :growl"/>
+                    </span>
+                </ui:repeat>
+            </div>
+        </p:outputPanel>
+        <p:message for="inclusionsAutocomplete" display="icon"/>
     </div>
 
-    <!-- Cuisson/post-cuisson -->
+    <!-- Cuisson/post-cuisson (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Cuisson/post-cuisson" />
+            <p:outputLabel value="Cuisson/post-cuisson" for="cuissonPostCuissonAutocomplete"/>
         </div>
-        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
-            <div id="cuissonPostCuissonAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
-                <i class="pi pi-credit-card input-icon periode-autocomplete-icon" />
-                <p:autoComplete id="cuissonPostCuissonAutocomplete"
-                                value="#{entityUpdateBean.cuissonPostCuissonAutocompleteSelection}"
-                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                converter="pactolsConceptConverter"
-                                var="concept"
-                                itemLabel="#{concept.selectedTerm}"
-                                itemValue="#{concept}"
-                                dropdown="false"
-                                minQueryLength="2"
-                                appendTo="#cuissonPostCuissonAutocompleteWrapper"
-                                my="left top"
-                                at="left bottom"
-                                panelStyleClass="periode-autocomplete-panel"
-                                scrollHeight="280"
-                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('CUISSON_POST_CUISSON')}"
-                                placeholder="Ex. Oxydante, Réductrice..."
-                                styleClass="users-input periode-autocomplete-input"
-                                forceSelection="false"/>
+        <p:outputPanel id="modifierCuissonPostCuissonPanel" layout="block"
+                       styleClass="modifier-cuisson-post-cuisson-editor modifier-autocomplete-multi-editor">
+            <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                <div id="cuissonPostCuissonAutocompleteWrapper"
+                     class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                    <i class="pi pi-credit-card input-icon periode-autocomplete-icon" />
+                    <p:autoComplete id="cuissonPostCuissonAutocomplete"
+                                    widgetVar="modifierCuissonPostCuissonAC"
+                                    value="#{entityUpdateBean.cuissonPostCuissonAutocompleteSelection}"
+                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                    converter="pactolsConceptConverter"
+                                    var="concept"
+                                    itemLabel="#{concept.selectedTerm}"
+                                    itemValue="#{concept}"
+                                    dropdown="false"
+                                    minQueryLength="0"
+                                    queryDelay="350"
+                                    appendTo="#cuissonPostCuissonAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('CUISSON_POST_CUISSON')}"
+                                    placeholder="Ex. Oxydante, Réductrice… puis Entrée"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="false">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.addCuissonPostCuissonFromAutocomplete}"
+                                process="modifierCuissonPostCuissonPanel"
+                                update="modifierCuissonPostCuissonPanel :growl"/>
+                    </p:autoComplete>
+                </div>
             </div>
-        </div>
+            <p:remoteCommand name="modifierAddCuissonPostCuissonCmd"
+                             actionListener="#{entityUpdateBean.addCuissonPostCuissonFromAutocomplete}"
+                             process="modifierCuissonPostCuissonPanel"
+                             update="modifierCuissonPostCuissonPanel :growl"/>
+            <div class="candidat-aires-circulation-chips mt-2">
+                <ui:repeat value="#{entityUpdateBean.cuissonsPostCuisson}" var="cq" id="cuissonsPostCuissonRepeat">
+                    <span class="candidat-aire-chip">
+                        <span class="candidat-aire-chip-label">#{cq.valeur}</span>
+                        <p:commandButton icon="pi pi-times"
+                                         styleClass="candidat-aire-chip-delete"
+                                         action="#{entityUpdateBean.deleteCuissonPostCuisson(cq.valeur)}"
+                                         process="@this"
+                                         ajax="true"
+                                         update="@form :growl"/>
+                    </span>
+                </ui:repeat>
+            </div>
+        </p:outputPanel>
     </div>
 </ui:composition>

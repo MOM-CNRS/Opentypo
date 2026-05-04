@@ -5,12 +5,14 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Label;
+import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service de conversion entre Entity et Candidat
@@ -56,8 +58,15 @@ public class CandidatConverter {
         }
         candidat.setLangue(langue);
         
-        // Période
-        candidat.setPeriode(entity.getPeriode() != null ? entity.getPeriode().getValeur() : "");
+        // Période (plusieurs valeurs jointes pour le formulaire candidat)
+        String periodeJoined = "";
+        if (entity.getPeriodes() != null && !entity.getPeriodes().isEmpty()) {
+            periodeJoined = entity.getPeriodes().stream()
+                    .map(ReferenceOpentheso::getValeur)
+                    .filter(v -> v != null && !v.isBlank())
+                    .collect(Collectors.joining("; "));
+        }
+        candidat.setPeriode(periodeJoined);
         
         // Dates et autres champs
         candidat.setTpq(entity.getTpq());

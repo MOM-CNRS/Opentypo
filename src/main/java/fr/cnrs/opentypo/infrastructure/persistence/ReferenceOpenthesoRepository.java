@@ -52,20 +52,10 @@ public interface ReferenceOpenthesoRepository extends JpaRepository<ReferenceOpe
     void deleteByEntityId(@Param("idEntity") Long idEntity);
 
     /**
-     * Libère periode_id, production_id, categorie_fonctionnelle de toutes les entités
+     * Libère categorie_fonctionnelle de toutes les entités
      * qui pointent vers des ReferenceOpentheso dont entity_id = :entityId.
      * Requis avant deleteByEntityId car ces ReferenceOpentheso peuvent être référencées par entity.
      */
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE entity SET periode_id = NULL WHERE periode_id IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)
-    void clearEntityPeriodeRefsToAires(@Param("entityId") Long entityId);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE entity SET production_id = NULL WHERE production_id IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)
-    void clearEntityProductionRefsToAires(@Param("entityId") Long entityId);
-
     @Modifying
     @Transactional
     @Query(value = "UPDATE entity SET categorie_fonctionnelle = NULL WHERE categorie_fonctionnelle IN (SELECT id FROM \"reference-opentheso\" WHERE entity_id = :entityId)", nativeQuery = true)

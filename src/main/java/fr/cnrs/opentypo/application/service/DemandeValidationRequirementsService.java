@@ -138,7 +138,7 @@ public class DemandeValidationRequirementsService {
         if (entity.getImages() == null || entity.getImages().isEmpty()) {
             missing.add("Image(s) : au moins une image est requise");
         }
-        if (entity.getPeriode() == null) {
+        if (entity.getPeriodes() == null || entity.getPeriodes().isEmpty()) {
             missing.add("Période");
         }
         if (entity.getTpq() == null) {
@@ -147,7 +147,7 @@ public class DemandeValidationRequirementsService {
         if (entity.getTaq() == null) {
             missing.add("TAQ");
         }
-        if (entity.getProduction() == null) {
+        if (entity.getProductions() == null || entity.getProductions().isEmpty()) {
             missing.add("Production");
         }
         if (!hasAireCirculation(entity)) {
@@ -170,7 +170,7 @@ public class DemandeValidationRequirementsService {
         if (!textPresent(entity.getCode())) {
             missing.add("Code");
         }
-        if (entity.getPeriode() == null) {
+        if (entity.getPeriodes() == null || entity.getPeriodes().isEmpty()) {
             missing.add("Période");
         }
         if (entity.getTpq() == null) {
@@ -179,7 +179,7 @@ public class DemandeValidationRequirementsService {
         if (entity.getTaq() == null) {
             missing.add("TAQ");
         }
-        if (entity.getProduction() == null) {
+        if (entity.getProductions() == null || entity.getProductions().isEmpty()) {
             missing.add("Production");
         }
         if (!semicolonListPresent(entity.getAteliers())) {

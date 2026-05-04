@@ -56,8 +56,5 @@ public class CaracteristiquePhysique implements Serializable {
     @JoinColumn(name = "technique_id")
     private ReferenceOpentheso technique;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fabrication_id")
-    private ReferenceOpentheso fabrication;
 }
 

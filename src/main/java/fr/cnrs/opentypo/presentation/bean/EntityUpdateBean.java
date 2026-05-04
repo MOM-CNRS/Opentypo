@@ -240,9 +240,8 @@ public class EntityUpdateBean implements Serializable {
     private List<Langue> availableLanguages;
     private List<ReferenceOpentheso> airesCirculation;
     private List<ReferenceOpentheso> appellationsUsuelles;
-    private ReferenceOpentheso fonctionUsage;
-    private List<String> marquesEstampilles = new ArrayList<>();
-    private String marqueEstampilleValue;
+    /** Marques / estampilles (texte libre, colonne description_detail.marques). */
+    private String marques;
     private String descriptionPate;
     private String corpusExterne;
     private String corpusLies;
@@ -279,11 +278,21 @@ public class EntityUpdateBean implements Serializable {
         private String matchType;
     }
 
-    private PactolsConcept periodeAutocompleteSelection;
+    private PactolsConcept periodeAutocompleteSelection = new PactolsConcept();
     private PactolsConcept productionAutocompleteSelection = new PactolsConcept();
+    /** Périodes (reference-opentheso PERIODE). */
+    private List<ReferenceOpentheso> periodes = new ArrayList<>();
+    /** Édition des aires de production (persistées comme reference-opentheso PRODUCTION). */
+    private List<ReferenceOpentheso> productions = new ArrayList<>();
     private PactolsConcept appellationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept aireCirculationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept fonctionUsageAutocompleteSelection = new PactolsConcept();
+    private List<ReferenceOpentheso> fonctionsUsage = new ArrayList<>();
+    private List<ReferenceOpentheso> fabricationsFaconnage = new ArrayList<>();
+    private List<ReferenceOpentheso> couleursPate = new ArrayList<>();
+    private List<ReferenceOpentheso> naturesPate = new ArrayList<>();
+    private List<ReferenceOpentheso> inclusionsPate = new ArrayList<>();
+    private List<ReferenceOpentheso> cuissonsPostCuisson = new ArrayList<>();
     private PactolsConcept categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
     private PactolsConcept relationImitationAutocompleteSelection = new PactolsConcept();
     private PactolsConcept denominationInstrumentumAutocompleteSelection = new PactolsConcept();
@@ -390,13 +399,30 @@ public class EntityUpdateBean implements Serializable {
         }
         commentaireDatation = entity.getCommentaireDatation() == null ? "" : entity.getCommentaireDatation();
 
-        marquesEstampilles = new ArrayList<>();
-        if (entity.getDescriptionDetail() != null && entity.getDescriptionDetail().getMarques() != null && !entity.getDescriptionDetail().getMarques().isEmpty()) {
-            marquesEstampilles = new ArrayList<>(java.util.Arrays.asList(entity.getDescriptionDetail().getMarques().split(";\\s*")));
-        }
+        marques = entity.getDescriptionDetail() == null ? ""
+                : (entity.getDescriptionDetail().getMarques() != null ? entity.getDescriptionDetail().getMarques() : "");
 
-        productionAutocompleteSelection = refToConcept(entity.getProduction());
-        fonctionUsageAutocompleteSelection = refToConcept(entity.getDescriptionDetail() != null ? entity.getDescriptionDetail().getFonction() : null);
+        List<ReferenceOpentheso> prodSrc = entity.getProductions();
+        productions = prodSrc != null && !prodSrc.isEmpty() ? new ArrayList<>(prodSrc) : new ArrayList<>();
+        productionAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> fu = entity.getFonctionsUsage();
+        fonctionsUsage = fu != null && !fu.isEmpty() ? new ArrayList<>(fu) : new ArrayList<>();
+        fonctionUsageAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> fab = entity.getFabricationsFaconnage();
+        fabricationsFaconnage = fab != null && !fab.isEmpty() ? new ArrayList<>(fab) : new ArrayList<>();
+        fabricationFaconnageAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> cpList = entity.getCouleursPate();
+        couleursPate = cpList != null && !cpList.isEmpty() ? new ArrayList<>(cpList) : new ArrayList<>();
+        couleurPateAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> npList = entity.getNaturesPate();
+        naturesPate = npList != null && !npList.isEmpty() ? new ArrayList<>(npList) : new ArrayList<>();
+        naturePateAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> incList = entity.getInclusionsPate();
+        inclusionsPate = incList != null && !incList.isEmpty() ? new ArrayList<>(incList) : new ArrayList<>();
+        inclusionsAutocompleteSelection = new PactolsConcept();
+        List<ReferenceOpentheso> cqList = entity.getCuissonsPostCuisson();
+        cuissonsPostCuisson = cqList != null && !cqList.isEmpty() ? new ArrayList<>(cqList) : new ArrayList<>();
+        cuissonPostCuissonAutocompleteSelection = new PactolsConcept();
         categorieFonctionnelleAutocompleteSelection = refToConcept(entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getEntity().getCategorieFonctionnelle() : null);
         relationImitationAutocompleteSelection = new PactolsConcept();
         if (entity.getMetadata() != null && StringUtils.hasText(entity.getMetadata().getRelationImitation())) {
@@ -409,13 +435,10 @@ public class EntityUpdateBean implements Serializable {
         metrologie = entity.getCaracteristiquePhysiqueMonnaie() == null ? "" : entity.getCaracteristiquePhysiqueMonnaie().getMetrologie();
         descriptionPate = entity.getDescriptionPate() == null ? "" : (entity.getDescriptionPate().getDescription() != null ? entity.getDescriptionPate().getDescription() : "");
 
-        periodeAutocompleteSelection = refToConcept(entity.getPeriode());
+        List<ReferenceOpentheso> periodesSrc = entity.getPeriodes();
+        periodes = periodesSrc != null && !periodesSrc.isEmpty() ? new ArrayList<>(periodesSrc) : new ArrayList<>();
+        periodeAutocompleteSelection = new PactolsConcept();
         metrologieAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getMetrologie() : null);
-        fabricationFaconnageAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getFabrication() : null);
-        couleurPateAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getCouleur() : null);
-        naturePateAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getNature() : null);
-        inclusionsAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getInclusion() : null);
-        cuissonPostCuissonAutocompleteSelection = refToConcept(entity.getDescriptionPate() != null ? entity.getDescriptionPate().getCuisson() : null);
         dimensionsAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getDimensions() : null);
         formeAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getForme() : null);
         materiauxAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getMateriaux() : null);
@@ -556,11 +579,19 @@ public class EntityUpdateBean implements Serializable {
         metrologie = null;
         airesCirculation = new ArrayList<>();
         appellationsUsuelles = new ArrayList<>();
-        marquesEstampilles = new ArrayList<>();
+        marques = null;
         periodeAutocompleteSelection = new PactolsConcept();
+        periodes = new ArrayList<>();
         productionAutocompleteSelection = new PactolsConcept();
+        productions = new ArrayList<>();
         appellationAutocompleteSelection = new PactolsConcept();
         fonctionUsageAutocompleteSelection = new PactolsConcept();
+        fonctionsUsage = new ArrayList<>();
+        fabricationsFaconnage = new ArrayList<>();
+        couleursPate = new ArrayList<>();
+        naturesPate = new ArrayList<>();
+        inclusionsPate = new ArrayList<>();
+        cuissonsPostCuisson = new ArrayList<>();
         categorieFonctionnelleAutocompleteSelection = new PactolsConcept();
         relationImitationAutocompleteSelection = new PactolsConcept();
         denominationInstrumentumAutocompleteSelection = new PactolsConcept();
@@ -1316,20 +1347,34 @@ public class EntityUpdateBean implements Serializable {
         // Corpus externe (metadata)
         entityToUpdate.setMetadata(saveEntityMetadata(entityToUpdate));
 
-        // Période
-        if (periodeAutocompleteSelection != null && StringUtils.hasText(periodeAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso per = conceptToReferenceOpentheso(periodeAutocompleteSelection, ReferenceOpenthesoEnum.PERIODE.name(), entityToUpdate);
-            entityToUpdate.setPeriode(referenceOpenthesoRepository.save(per));
-        } else {
-            entityToUpdate.setPeriode(null);
+        // Période(s) (remplacer la liste)
+        entityToUpdate.getPeriodes().clear();
+        if (periodes != null) {
+            for (ReferenceOpentheso ref : periodes) {
+                ReferenceOpentheso r = ReferenceOpentheso.builder()
+                        .valeur(ref.getValeur())
+                        .conceptId(ref.getConceptId())
+                        .url(ref.getUrl())
+                        .code(ReferenceOpenthesoEnum.PERIODE.name())
+                        .entity(entityToUpdate)
+                        .build();
+                entityToUpdate.getPeriodes().add(referenceOpenthesoRepository.save(r));
+            }
         }
 
-        // Production
-        if (productionAutocompleteSelection != null && StringUtils.hasText(productionAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso prod = conceptToReferenceOpentheso(productionAutocompleteSelection, ReferenceOpenthesoEnum.PRODUCTION.name(), entityToUpdate);
-            entityToUpdate.setProduction(referenceOpenthesoRepository.save(prod));
-        } else {
-            entityToUpdate.setProduction(null);
+        // Aire(s) de production (remplacer la liste)
+        entityToUpdate.getProductions().clear();
+        if (productions != null) {
+            for (ReferenceOpentheso ref : productions) {
+                ReferenceOpentheso r = ReferenceOpentheso.builder()
+                        .valeur(ref.getValeur())
+                        .conceptId(ref.getConceptId())
+                        .url(ref.getUrl())
+                        .code(ReferenceOpenthesoEnum.PRODUCTION.name())
+                        .entity(entityToUpdate)
+                        .build();
+                entityToUpdate.getProductions().add(referenceOpenthesoRepository.save(r));
+            }
         }
 
         // Aires de circulation (remplacer la liste)
@@ -1360,6 +1405,13 @@ public class EntityUpdateBean implements Serializable {
                 entityToUpdate.getAppellationsUsuelles().add(referenceOpenthesoRepository.save(r));
             }
         }
+
+        replaceEntityOpenthesoList(entityToUpdate, fonctionsUsage, ReferenceOpenthesoEnum.FONCTION_USAGE, Entity::getFonctionsUsage);
+        replaceEntityOpenthesoList(entityToUpdate, fabricationsFaconnage, ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, Entity::getFabricationsFaconnage);
+        replaceEntityOpenthesoList(entityToUpdate, couleursPate, ReferenceOpenthesoEnum.COULEUR_PATE, Entity::getCouleursPate);
+        replaceEntityOpenthesoList(entityToUpdate, naturesPate, ReferenceOpenthesoEnum.NATURE_PATE, Entity::getNaturesPate);
+        replaceEntityOpenthesoList(entityToUpdate, inclusionsPate, ReferenceOpenthesoEnum.INCLUSIONS, Entity::getInclusionsPate);
+        replaceEntityOpenthesoList(entityToUpdate, cuissonsPostCuisson, ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, Entity::getCuissonsPostCuisson);
 
         String newBib = (referenceBibliographiqueList != null && !referenceBibliographiqueList.isEmpty())
                 ? referenceBibliographiqueList.stream()
@@ -1680,13 +1732,6 @@ public class EntityUpdateBean implements Serializable {
             caracteristiquePhysique.setTechnique(null);
         }
 
-        if (fabricationFaconnageAutocompleteSelection != null && StringUtils.hasText(fabricationFaconnageAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso f = conceptToReferenceOpentheso(fabricationFaconnageAutocompleteSelection, ReferenceOpenthesoEnum.FABRICATION_FACONNAGE.name(), entityToUpdate);
-            caracteristiquePhysique.setFabrication(referenceOpenthesoRepository.save(f));
-        } else {
-            caracteristiquePhysique.setFabrication(null);
-        }
-
         return caracteristiquePhysiqueRepository.save(caracteristiquePhysique);
     }
 
@@ -1699,27 +1744,6 @@ public class EntityUpdateBean implements Serializable {
         }
 
         descriptionPate.setDescription(this.descriptionPate);
-
-        if (couleurPateAutocompleteSelection != null && StringUtils.hasText(couleurPateAutocompleteSelection.getSelectedTerm())) {
-            descriptionPate.setCouleur(referenceOpenthesoRepository.save(conceptToReferenceOpentheso(couleurPateAutocompleteSelection, ReferenceOpenthesoEnum.COULEUR_PATE.name(), entityToUpdate)));
-        } else {
-            descriptionPate.setCouleur(null);
-        }
-        if (naturePateAutocompleteSelection != null && StringUtils.hasText(naturePateAutocompleteSelection.getSelectedTerm())) {
-            descriptionPate.setNature(referenceOpenthesoRepository.save(conceptToReferenceOpentheso(naturePateAutocompleteSelection, ReferenceOpenthesoEnum.NATURE_PATE.name(), entityToUpdate)));
-        } else {
-            descriptionPate.setNature(null);
-        }
-        if (inclusionsAutocompleteSelection != null && StringUtils.hasText(inclusionsAutocompleteSelection.getSelectedTerm())) {
-            descriptionPate.setInclusion(referenceOpenthesoRepository.save(conceptToReferenceOpentheso(inclusionsAutocompleteSelection, ReferenceOpenthesoEnum.INCLUSIONS.name(), entityToUpdate)));
-        } else {
-            descriptionPate.setInclusion(null);
-        }
-        if (cuissonPostCuissonAutocompleteSelection != null && StringUtils.hasText(cuissonPostCuissonAutocompleteSelection.getSelectedTerm())) {
-            descriptionPate.setCuisson(referenceOpenthesoRepository.save(conceptToReferenceOpentheso(cuissonPostCuissonAutocompleteSelection, ReferenceOpenthesoEnum.CUISSON_POST_CUISSON.name(), entityToUpdate)));
-        } else {
-            descriptionPate.setCuisson(null);
-        }
 
         return descriptionPateRepository.save(descriptionPate);
     }
@@ -1734,17 +1758,7 @@ public class EntityUpdateBean implements Serializable {
 
         descriptionDetail.setDecors(decors != null && !decors.trim().isEmpty() ? decors.trim() : null);
 
-        String marquesStr = (marquesEstampilles != null && !marquesEstampilles.isEmpty())
-                ? String.join("; ", marquesEstampilles.stream().filter(s -> s != null && !s.isBlank()).toList())
-                : null;
-        descriptionDetail.setMarques(marquesStr);
-
-        if (fonctionUsageAutocompleteSelection != null && StringUtils.hasText(fonctionUsageAutocompleteSelection.getSelectedTerm())) {
-            ReferenceOpentheso fonc = conceptToReferenceOpentheso(fonctionUsageAutocompleteSelection, ReferenceOpenthesoEnum.FONCTION_USAGE.name(), entityToUpdate);
-            descriptionDetail.setFonction(referenceOpenthesoRepository.save(fonc));
-        } else {
-            descriptionDetail.setFonction(null);
-        }
+        descriptionDetail.setMarques(marques != null && !marques.trim().isEmpty() ? marques.trim() : null);
 
         return descriptionDetailRepository.save(descriptionDetail);
     }
@@ -1826,6 +1840,138 @@ public class EntityUpdateBean implements Serializable {
         }
     }
 
+    public void addPeriodeFromAutocomplete() {
+        if (periodeAutocompleteSelection == null || periodeAutocompleteSelection.getSelectedTerm() == null) return;
+        String valeur = periodeAutocompleteSelection.getSelectedTerm().trim();
+        if (valeur.isEmpty()) return;
+        if (periodes == null) periodes = new ArrayList<>();
+        boolean dejaPresent = periodes.stream()
+                .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
+        if (dejaPresent) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
+                            "« " + valeur + " » est déjà dans la liste des périodes."));
+            return;
+        }
+        periodes.add(ReferenceOpentheso.builder()
+                .code(ReferenceOpenthesoEnum.PERIODE.name())
+                .valeur(valeur)
+                .conceptId(periodeAutocompleteSelection.getIdConcept())
+                .url(periodeAutocompleteSelection.getUri())
+                .build());
+        periodeAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deletePeriode(String valeur) {
+        if (periodes == null) return;
+        for (int i = 0; i < periodes.size(); i++) {
+            if (periodes.get(i).getValeur() != null
+                    && periodes.get(i).getValeur().equalsIgnoreCase(valeur)) {
+                periodes.remove(i);
+                break;
+            }
+        }
+    }
+
+    public void addFonctionUsageFromAutocomplete() {
+        if (fonctionsUsage == null) fonctionsUsage = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(fonctionsUsage, fonctionUsageAutocompleteSelection,
+                ReferenceOpenthesoEnum.FONCTION_USAGE, "des fonctions / usages");
+        fonctionUsageAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteFonctionUsage(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(fonctionsUsage, valeur);
+    }
+
+    public void addFabricationFaconnageFromAutocomplete() {
+        if (fabricationsFaconnage == null) fabricationsFaconnage = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(fabricationsFaconnage, fabricationFaconnageAutocompleteSelection,
+                ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, "des fabrications / façonnages");
+        fabricationFaconnageAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteFabricationFaconnage(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(fabricationsFaconnage, valeur);
+    }
+
+    public void addCouleurPateFromAutocomplete() {
+        if (couleursPate == null) couleursPate = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(couleursPate, couleurPateAutocompleteSelection,
+                ReferenceOpenthesoEnum.COULEUR_PATE, "des couleurs de pâte");
+        couleurPateAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteCouleurPate(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(couleursPate, valeur);
+    }
+
+    public void addNaturePateFromAutocomplete() {
+        if (naturesPate == null) naturesPate = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(naturesPate, naturePateAutocompleteSelection,
+                ReferenceOpenthesoEnum.NATURE_PATE, "des natures de pâte");
+        naturePateAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteNaturePate(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(naturesPate, valeur);
+    }
+
+    public void addInclusionsPateFromAutocomplete() {
+        if (inclusionsPate == null) inclusionsPate = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(inclusionsPate, inclusionsAutocompleteSelection,
+                ReferenceOpenthesoEnum.INCLUSIONS, "des inclusions");
+        inclusionsAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteInclusionsPate(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(inclusionsPate, valeur);
+    }
+
+    public void addCuissonPostCuissonFromAutocomplete() {
+        if (cuissonsPostCuisson == null) cuissonsPostCuisson = new ArrayList<>();
+        addOpenthesoFromAutocompleteList(cuissonsPostCuisson, cuissonPostCuissonAutocompleteSelection,
+                ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, "des cuissons / post-cuissons");
+        cuissonPostCuissonAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteCuissonPostCuisson(String valeur) {
+        removeOpenthesoByValeurIgnoreCase(cuissonsPostCuisson, valeur);
+    }
+
+    public void addProductionFromAutocomplete() {
+        if (productionAutocompleteSelection == null || productionAutocompleteSelection.getSelectedTerm() == null) return;
+        String valeur = productionAutocompleteSelection.getSelectedTerm().trim();
+        if (valeur.isEmpty()) return;
+        if (productions == null) productions = new ArrayList<>();
+        boolean dejaPresent = productions.stream()
+                .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
+        if (dejaPresent) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
+                            "« " + valeur + " » est déjà dans la liste des aires de production."));
+            return;
+        }
+        productions.add(ReferenceOpentheso.builder()
+                .code(ReferenceOpenthesoEnum.PRODUCTION.name())
+                .valeur(valeur)
+                .conceptId(productionAutocompleteSelection.getIdConcept())
+                .url(productionAutocompleteSelection.getUri())
+                .build());
+        productionAutocompleteSelection = new PactolsConcept();
+    }
+
+    public void deleteProduction(String valeur) {
+        if (productions == null) return;
+        for (int i = 0; i < productions.size(); i++) {
+            if (productions.get(i).getValeur() != null
+                    && productions.get(i).getValeur().equalsIgnoreCase(valeur)) {
+                productions.remove(i);
+                break;
+            }
+        }
+    }
+
     public void addAppellationUsuelleFromAutocomplete() {
         if (appellationAutocompleteSelection == null || appellationAutocompleteSelection.getSelectedTerm() == null) return;
         String valeur = appellationAutocompleteSelection.getSelectedTerm().trim();
@@ -1892,11 +2038,6 @@ public class EntityUpdateBean implements Serializable {
         }
     }
 
-    /** Les chips mettent à jour marquesEstampilles directement. No-op pour compatibilité. */
-    public void saveMarquesEstampilles() {
-        // no-op: p:chips met à jour marquesEstampilles directement
-    }
-
     private static PactolsConcept refToConcept(ReferenceOpentheso ref) {
         return ref != null ? new PactolsConcept(ref.getConceptId(), ref.getUrl(), ref.getValeur()) : new PactolsConcept();
     }
@@ -1955,6 +2096,57 @@ public class EntityUpdateBean implements Serializable {
             try { userId = Long.parseLong(s.trim()); } catch (NumberFormatException e) { return null; }
         }
         return userId != null ? utilisateurRepository.findById(userId).orElse(null) : null;
+    }
+
+    private void replaceEntityOpenthesoList(Entity entityToUpdate, List<ReferenceOpentheso> edited,
+                                            ReferenceOpenthesoEnum code,
+                                            java.util.function.Function<Entity, List<ReferenceOpentheso>> listAccessor) {
+        List<ReferenceOpentheso> target = listAccessor.apply(entityToUpdate);
+        target.clear();
+        if (edited == null) {
+            return;
+        }
+        for (ReferenceOpentheso ref : edited) {
+            ReferenceOpentheso r = ReferenceOpentheso.builder()
+                    .valeur(ref.getValeur())
+                    .conceptId(ref.getConceptId())
+                    .url(ref.getUrl())
+                    .code(code.name())
+                    .entity(entityToUpdate)
+                    .build();
+            target.add(referenceOpenthesoRepository.save(r));
+        }
+    }
+
+    private void addOpenthesoFromAutocompleteList(List<ReferenceOpentheso> list, PactolsConcept selection,
+                                                  ReferenceOpenthesoEnum code, String messageListe) {
+        if (selection == null || selection.getSelectedTerm() == null) return;
+        String valeur = selection.getSelectedTerm().trim();
+        if (valeur.isEmpty()) return;
+        boolean dejaPresent = list.stream()
+                .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
+        if (dejaPresent) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
+                            "« " + valeur + " » est déjà dans la liste " + messageListe + "."));
+            return;
+        }
+        list.add(ReferenceOpentheso.builder()
+                .code(code.name())
+                .valeur(valeur)
+                .conceptId(selection.getIdConcept())
+                .url(selection.getUri())
+                .build());
+    }
+
+    private static void removeOpenthesoByValeurIgnoreCase(List<ReferenceOpentheso> list, String valeur) {
+        if (list == null) return;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getValeur() != null && list.get(i).getValeur().equalsIgnoreCase(valeur)) {
+                list.remove(i);
+                break;
+            }
+        }
     }
 
     private ReferenceOpentheso conceptToReferenceOpentheso(PactolsConcept concept, String code, Entity entity) {

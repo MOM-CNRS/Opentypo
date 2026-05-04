@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -38,10 +37,6 @@ public class DescriptionDetail implements Serializable {
 
     @Column(name = "marques", columnDefinition = "TEXT")
     private String marques;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fonction_id")
-    private ReferenceOpentheso fonction;
 
     @Column(name = "metrologie", columnDefinition = "TEXT")
     private String metrologie;

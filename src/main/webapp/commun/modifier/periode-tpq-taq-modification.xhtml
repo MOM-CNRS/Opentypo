@@ -12,31 +12,59 @@
         <h:panelGroup class="users-form-group users-form-group-full" id="periode"
                       rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
             <div class="periode-header-row">
-                <p:outputLabel value="Période" />
+                <p:outputLabel value="Période" for="periodeAutocomplete"/>
             </div>
-            <div class="periode-field-row periode-autocomplete-row">
-                <div id="periodeAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper">
-                    <i class="pi pi-calendar input-icon periode-autocomplete-icon" />
-                    <p:autoComplete id="periodeAutocomplete"
-                                    value="#{entityUpdateBean.periodeAutocompleteSelection}"
-                                    completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
-                                    converter="pactolsConceptConverter"
-                                    var="concept"
-                                    itemLabel="#{concept.selectedTerm}"
-                                    itemValue="#{concept}"
-                                    dropdown="false"
-                                    minQueryLength="2"
-                                    appendTo="#periodeAutocompleteWrapper"
-                                    my="left top"
-                                    at="left bottom"
-                                    panelStyleClass="periode-autocomplete-panel"
-                                    scrollHeight="280"
-                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                    placeholder="Ex. Antiquité, Moyen Âge..."
-                                    styleClass="users-input periode-autocomplete-input"
-                                    forceSelection="false"/>
+            <p:outputPanel id="modifierPeriodesPanel" layout="block"
+                           styleClass="modifier-periode-editor modifier-autocomplete-multi-editor">
+                <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
+                    <div id="periodeAutocompleteWrapper"
+                         class="flex-grow-1 min-w-0 candidat-aires-wrapper input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                        <i class="pi pi-calendar input-icon periode-autocomplete-icon" aria-hidden="true"/>
+                        <p:autoComplete id="periodeAutocomplete"
+                                        widgetVar="modifierPeriodeAC"
+                                        value="#{entityUpdateBean.periodeAutocompleteSelection}"
+                                        completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                        converter="pactolsConceptConverter"
+                                        var="concept"
+                                        itemLabel="#{concept.selectedTerm}"
+                                        itemValue="#{concept}"
+                                        dropdown="false"
+                                        minQueryLength="0"
+                                        queryDelay="350"
+                                        appendTo="#periodeAutocompleteWrapper"
+                                        my="left top"
+                                        at="left bottom"
+                                        panelStyleClass="periode-autocomplete-panel"
+                                        scrollHeight="280"
+                                        emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée pour ajouter votre texte tel quel."
+                                        placeholder="Ex. Antiquité, Moyen Âge… puis Entrée"
+                                        styleClass="users-input periode-autocomplete-input"
+                                        forceSelection="false">
+                            <p:ajax event="itemSelect"
+                                    listener="#{entityUpdateBean.addPeriodeFromAutocomplete}"
+                                    process="modifierPeriodesPanel"
+                                    update="modifierPeriodesPanel :growl"/>
+                        </p:autoComplete>
+                    </div>
                 </div>
-            </div>
+                <p:remoteCommand name="modifierAddPeriodeCmd"
+                                 actionListener="#{entityUpdateBean.addPeriodeFromAutocomplete}"
+                                 process="modifierPeriodesPanel"
+                                 update="modifierPeriodesPanel :growl"/>
+                <div class="candidat-aires-circulation-chips mt-2">
+                    <ui:repeat value="#{entityUpdateBean.periodes}" var="per" id="periodesRepeat">
+                        <span class="candidat-aire-chip">
+                            <span class="candidat-aire-chip-label">#{per.valeur}</span>
+                            <p:commandButton icon="pi pi-times"
+                                             styleClass="candidat-aire-chip-delete"
+                                             action="#{entityUpdateBean.deletePeriode(per.valeur)}"
+                                             process="@this"
+                                             ajax="true"
+                                             update="@form :growl"/>
+                        </span>
+                    </ui:repeat>
+                </div>
+            </p:outputPanel>
         </h:panelGroup>
 
         <!-- TPQ et TAQ sur la même ligne -->

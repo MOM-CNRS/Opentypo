@@ -517,11 +517,11 @@ public class AuditService {
             return;
         }
         try {
-            // entity_aud : statut, id_ark, display_order, periode_id, production_id, categorie_fonctionnelle
+            // entity_aud : statut, id_ark, display_order, categorie_fonctionnelle (période et production = listes reference-opentheso)
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> entityRows = entityManager.createNativeQuery(
-                    "SELECT statut, id_ark, display_order, periode_id, production_id, categorie_fonctionnelle FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
+                    "SELECT statut, id_ark, display_order, categorie_fonctionnelle FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -531,9 +531,7 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("statut", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("idArk", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("displayOrder", row[2]);
-                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "periode", (Number) row[3], revisionNumber);
-                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "production", (Number) row[4], revisionNumber);
-                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "categorieFonctionnelle", (Number) row[5], revisionNumber);
+                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "categorieFonctionnelle", (Number) row[3], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur entity_aud: {}", e.getMessage());
@@ -577,11 +575,11 @@ public class AuditService {
                 log.debug("Erreur entity_metadata_aud: {}", e.getMessage());
             }
             
-            // description_detail_aud : decors, marques, metrologie, fonction_id
+            // description_detail_aud : decors, marques, metrologie (fonction → liste sur entity / reference-opentheso)
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> ddRows = entityManager.createNativeQuery(
-                    "SELECT decors, marques, metrologie, fonction_id FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                    "SELECT decors, marques, metrologie FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -591,17 +589,16 @@ public class AuditService {
                     if (row.length > 0 && row[0] != null) data.put("decors", row[0].toString());
                     if (row.length > 1 && row[1] != null) data.put("marques", row[1].toString());
                     if (row.length > 2 && row[2] != null) data.put("metrologieDetail", row[2].toString());
-                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "fonctionUsage", (Number) row[3], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur description_detail_aud: {}", e.getMessage());
             }
             
-            // description_pate_aud : description, couleur_id, nature_id, inclusion_id, cuisson_id
+            // description_pate_aud : description (couleur/nature/inclusion/cuisson → listes sur entity)
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> dpRows = entityManager.createNativeQuery(
-                    "SELECT description, couleur_id, nature_id, inclusion_id, cuisson_id FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                    "SELECT description FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -609,10 +606,6 @@ public class AuditService {
                 if (!dpRows.isEmpty() && dpRows.get(0) != null) {
                     Object[] row = dpRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("descriptionPate", row[0].toString());
-                    if (row.length > 1 && row[1] != null) resolveAndPutRefValeur(data, "couleurPate", (Number) row[1], revisionNumber);
-                    if (row.length > 2 && row[2] != null) resolveAndPutRefValeur(data, "naturePate", (Number) row[2], revisionNumber);
-                    if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "inclusionPate", (Number) row[3], revisionNumber);
-                    if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "cuissonPate", (Number) row[4], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur description_pate_aud: {}", e.getMessage());
@@ -662,11 +655,11 @@ public class AuditService {
                 log.debug("Erreur description_monnaie_aud: {}", e.getMessage());
             }
 
-            // caracteristique_physique_aud : metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id, fabrication_id
+            // caracteristique_physique_aud : metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id (fabrication → liste entity)
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> cpRows = entityManager.createNativeQuery(
-                    "SELECT metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id, fabrication_id " +
+                    "SELECT metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id " +
                     "FROM caracteristique_physique_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
                 )
                 .setParameter("entityId", entityId)
@@ -679,7 +672,6 @@ public class AuditService {
                     if (row.length > 2 && row[2] != null) resolveAndPutRefValeur(data, "forme", (Number) row[2], revisionNumber);
                     if (row.length > 3 && row[3] != null) resolveAndPutRefValeur(data, "dimensions", (Number) row[3], revisionNumber);
                     if (row.length > 4 && row[4] != null) resolveAndPutRefValeur(data, "technique", (Number) row[4], revisionNumber);
-                    if (row.length > 5 && row[5] != null) resolveAndPutRefValeur(data, "fabricationPhysique", (Number) row[5], revisionNumber);
                 }
             } catch (Exception e) {
                 log.debug("Erreur caracteristique_physique_aud: {}", e.getMessage());
@@ -751,8 +743,48 @@ public class AuditService {
             } catch (Exception e) {
                 log.debug("Erreur reference_opentheso_aud appellations: {}", e.getMessage());
             }
+
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "FONCTION_USAGE", "fonctionUsage");
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "FABRICATION_FACONNAGE", "fabricationPhysique");
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "COULEUR_PATE", "couleurPate");
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "NATURE_PATE", "naturePate");
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "INCLUSIONS", "inclusionPate");
+            putReferenceOpenthesoAudList(data, entityId, revisionNumber, "CUISSON_POST_CUISSON", "cuissonPate");
         } catch (Exception e) {
             log.debug("Erreur extractEnrichedData: {}", e.getMessage());
+        }
+    }
+
+    /** Liste des valeurs {@code reference-opentheso_aud} pour un code (révisions multiples par entité). */
+    private void putReferenceOpenthesoAudList(Map<String, Object> data, Long entityId, Long revisionNumber,
+                                              String code, String mapKey) {
+        if (entityId == null || revisionNumber == null || code == null || mapKey == null) {
+            return;
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object[]> roRows = entityManager.createNativeQuery(
+                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
+                            + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = :code"
+            )
+                    .setParameter("entityId", entityId)
+                    .setParameter("revisionNumber", revisionNumber)
+                    .setParameter("code", code)
+                    .getResultList();
+            if (roRows.isEmpty()) {
+                return;
+            }
+            List<String> vals = new ArrayList<>();
+            for (Object[] row : roRows) {
+                if (row != null && row.length > 0 && row[0] != null && !row[0].toString().trim().isEmpty()) {
+                    vals.add(row[0].toString().trim());
+                }
+            }
+            if (!vals.isEmpty()) {
+                data.put(mapKey, vals);
+            }
+        } catch (Exception e) {
+            log.debug("Erreur reference_opentheso_aud {}: {}", mapKey, e.getMessage());
         }
     }
 

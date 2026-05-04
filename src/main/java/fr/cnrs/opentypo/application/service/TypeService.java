@@ -169,8 +169,32 @@ public class TypeService implements Serializable {
         duplicate.setStatut(source.getStatut());
         duplicate.setCreateDate(LocalDateTime.now());
         duplicate.setCreateBy(source.getCreateBy());
-        duplicate.setPeriode(source.getPeriode());
-        duplicate.setProduction(source.getProduction());
+        if (source.getPeriodes() != null) {
+            for (ReferenceOpentheso srcPer : source.getPeriodes()) {
+                duplicate.getPeriodes().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.PERIODE.name())
+                        .valeur(srcPer.getValeur())
+                        .url(srcPer.getUrl())
+                        .conceptId(srcPer.getConceptId())
+                        .thesaurusId(srcPer.getThesaurusId())
+                        .collectionId(srcPer.getCollectionId())
+                        .entity(duplicate)
+                        .build());
+            }
+        }
+        if (source.getProductions() != null) {
+            for (ReferenceOpentheso srcProd : source.getProductions()) {
+                duplicate.getProductions().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.PRODUCTION.name())
+                        .valeur(srcProd.getValeur())
+                        .url(srcProd.getUrl())
+                        .conceptId(srcProd.getConceptId())
+                        .thesaurusId(srcProd.getThesaurusId())
+                        .collectionId(srcProd.getCollectionId())
+                        .entity(duplicate)
+                        .build());
+            }
+        }
         duplicate.setCategorieFonctionnelle(source.getCategorieFonctionnelle());
         duplicate.setAuteurs(source.getAuteurs() != null ? new ArrayList<>(source.getAuteurs()) : new ArrayList<>());
         duplicate.setImages(new ArrayList<>()); // Pas d'images
@@ -215,6 +239,60 @@ public class TypeService implements Serializable {
                         .collectionId(srcApp.getCollectionId())
                         .entity(duplicate)
                         .build());
+            }
+        }
+        if (source.getFonctionsUsage() != null) {
+            for (ReferenceOpentheso src : source.getFonctionsUsage()) {
+                duplicate.getFonctionsUsage().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.FONCTION_USAGE.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
+            }
+        }
+        if (source.getFabricationsFaconnage() != null) {
+            for (ReferenceOpentheso src : source.getFabricationsFaconnage()) {
+                duplicate.getFabricationsFaconnage().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.FABRICATION_FACONNAGE.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
+            }
+        }
+        if (source.getCouleursPate() != null) {
+            for (ReferenceOpentheso src : source.getCouleursPate()) {
+                duplicate.getCouleursPate().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.COULEUR_PATE.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
+            }
+        }
+        if (source.getNaturesPate() != null) {
+            for (ReferenceOpentheso src : source.getNaturesPate()) {
+                duplicate.getNaturesPate().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.NATURE_PATE.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
+            }
+        }
+        if (source.getInclusionsPate() != null) {
+            for (ReferenceOpentheso src : source.getInclusionsPate()) {
+                duplicate.getInclusionsPate().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.INCLUSIONS.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
+            }
+        }
+        if (source.getCuissonsPostCuisson() != null) {
+            for (ReferenceOpentheso src : source.getCuissonsPostCuisson()) {
+                duplicate.getCuissonsPostCuisson().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.CUISSON_POST_CUISSON.name())
+                        .valeur(src.getValeur()).url(src.getUrl()).conceptId(src.getConceptId())
+                        .thesaurusId(src.getThesaurusId()).collectionId(src.getCollectionId())
+                        .entity(duplicate).build());
             }
         }
 
@@ -265,7 +343,6 @@ public class TypeService implements Serializable {
             newDD.setEntity(duplicate);
             newDD.setDecors(srcDD.getDecors());
             newDD.setMarques(srcDD.getMarques());
-            newDD.setFonction(srcDD.getFonction());
             newDD.setMetrologie(srcDD.getMetrologie());
             duplicate.setDescriptionDetail(newDD);
         }
@@ -280,7 +357,6 @@ public class TypeService implements Serializable {
             newCP.setForme(srcCP.getForme());
             newCP.setDimensions(srcCP.getDimensions());
             newCP.setTechnique(srcCP.getTechnique());
-            newCP.setFabrication(srcCP.getFabrication());
             duplicate.setCaracteristiquePhysique(newCP);
         }
 
@@ -290,10 +366,6 @@ public class TypeService implements Serializable {
             DescriptionPate newDP = new DescriptionPate();
             newDP.setEntity(duplicate);
             newDP.setDescription(srcDP.getDescription());
-            newDP.setCouleur(srcDP.getCouleur());
-            newDP.setNature(srcDP.getNature());
-            newDP.setInclusion(srcDP.getInclusion());
-            newDP.setCuisson(srcDP.getCuisson());
             duplicate.setDescriptionPate(newDP);
         }
 

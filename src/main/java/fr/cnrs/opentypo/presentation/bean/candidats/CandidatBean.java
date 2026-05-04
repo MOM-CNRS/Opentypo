@@ -1449,7 +1449,8 @@ public class CandidatBean implements Serializable {
         }
 
         Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
-        return refreshedEntity != null && refreshedEntity.getProduction() != null;
+        return refreshedEntity != null && refreshedEntity.getProductions() != null
+                && !refreshedEntity.getProductions().isEmpty();
     }
 
     public boolean hasPeriode() {

@@ -17,33 +17,37 @@
                 <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.production)}"
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.productions)}"
                                           styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
                                     <i class="pi pi-truck monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Aire de production</span>
                                 </div>
                                 <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production}">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.production.url}">
-                                            <h:outputLink value="#{applicationBean.selectedEntity.production.url}"
-                                                          target="_blank"
-                                                          rel="noopener noreferrer"
-                                                          styleClass="concept-value-external-link">
-                                                #{applicationBean.selectedEntity.production.valeur}
-                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                            </h:outputLink>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.production.url}">
-                                            <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                <i class="pi pi-link-slash" aria-hidden="true"/>
-                                                #{applicationBean.selectedEntity.production.valeur}
-                                            </span>
-                                        </ui:fragment>
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.productions}">
+                                        <ui:repeat value="#{applicationBean.selectedEntity.productions}" var="prod">
+                                            <ui:fragment rendered="#{prod != null and not empty prod.valeur}">
+                                                <ui:fragment rendered="#{not empty prod.url}">
+                                                    <h:outputLink value="#{prod.url}"
+                                                                  target="_blank"
+                                                                  rel="noopener noreferrer"
+                                                                  styleClass="concept-value-external-link">
+                                                        #{prod.valeur}
+                                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                    </h:outputLink>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{empty prod.url}">
+                                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                        <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                        #{prod.valeur}
+                                                    </span>
+                                                </ui:fragment>
+                                            </ui:fragment>
+                                        </ui:repeat>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.production}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
+                                    <h:outputText value="Non renseigné"
+                                                  rendered="#{empty applicationBean.selectedEntity.productions}"
+                                                  styleClass="empty-field-message"/>
                                 </div>
                             </h:panelGroup>
 

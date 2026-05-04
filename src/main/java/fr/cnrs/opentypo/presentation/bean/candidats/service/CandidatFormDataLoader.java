@@ -125,50 +125,35 @@ public class CandidatFormDataLoader {
             if (descDetail.getMarques() != null && !descDetail.getMarques().isEmpty()) {
                 marques = new ArrayList<>(Arrays.asList(descDetail.getMarques().split("; ")));
             }
-            fonction = descDetail.getFonction();
+            fonction = refreshedEntity.getFonction();
             if (fonction != null) fonction.getValeur();
         }
 
         // CaracteristiquePhysique
         CaracteristiquePhysique carPhysique = refreshedEntity.getCaracteristiquePhysique();
         ReferenceOpentheso metrologie = null;
-        ReferenceOpentheso fabrication = null;
+        ReferenceOpentheso fabrication = refreshedEntity.getFabricationFaconnage();
+        if (fabrication != null) fabrication.getValeur();
         if (carPhysique != null) {
             if (carPhysique.getMetrologie() != null) {
                 carPhysique.getMetrologie().getValeur();
                 metrologie = carPhysique.getMetrologie();
-            }
-            if (carPhysique.getFabrication() != null) {
-                carPhysique.getFabrication().getValeur();
-                fabrication = carPhysique.getFabrication();
             }
         }
 
         // DescriptionPate
         DescriptionPate descPate = refreshedEntity.getDescriptionPate();
         String descriptionPate = null;
-        ReferenceOpentheso couleurPate = null;
-        ReferenceOpentheso naturePate = null;
-        ReferenceOpentheso inclusions = null;
-        ReferenceOpentheso cuisson = null;
+        ReferenceOpentheso couleurPate = refreshedEntity.getCouleurPate();
+        if (couleurPate != null) couleurPate.getValeur();
+        ReferenceOpentheso naturePate = refreshedEntity.getNaturePate();
+        if (naturePate != null) naturePate.getValeur();
+        ReferenceOpentheso inclusions = refreshedEntity.getInclusionPate();
+        if (inclusions != null) inclusions.getValeur();
+        ReferenceOpentheso cuisson = refreshedEntity.getCuissonPostCuissonRef();
+        if (cuisson != null) cuisson.getValeur();
         if (descPate != null) {
             descriptionPate = descPate.getDescription();
-            if (descPate.getCouleur() != null) {
-                descPate.getCouleur().getValeur();
-                couleurPate = descPate.getCouleur();
-            }
-            if (descPate.getNature() != null) {
-                descPate.getNature().getValeur();
-                naturePate = descPate.getNature();
-            }
-            if (descPate.getInclusion() != null) {
-                descPate.getInclusion().getValeur();
-                inclusions = descPate.getInclusion();
-            }
-            if (descPate.getCuisson() != null) {
-                descPate.getCuisson().getValeur();
-                cuisson = descPate.getCuisson();
-            }
         }
 
         List<String> referentiels = new ArrayList<>();
@@ -244,7 +229,12 @@ public class CandidatFormDataLoader {
                 .typeDescription(typeDescription)
                 .tpq(refreshedEntity.getTpq())
                 .taq(refreshedEntity.getTaq())
-                .periode(refreshedEntity.getPeriode() != null ? refreshedEntity.getPeriode().getValeur() : "")
+                .periode(refreshedEntity.getPeriodes() != null && !refreshedEntity.getPeriodes().isEmpty()
+                        ? refreshedEntity.getPeriodes().stream()
+                        .map(ReferenceOpentheso::getValeur)
+                        .filter(v -> v != null && !v.isBlank())
+                        .collect(Collectors.joining("; "))
+                        : "")
                 .corpusExterne(refreshedEntity.getMetadata() != null ? refreshedEntity.getMetadata().getCorpusExterne() : "")
                 .droit(droit)
                 .legendeDroit(legendeDroit)

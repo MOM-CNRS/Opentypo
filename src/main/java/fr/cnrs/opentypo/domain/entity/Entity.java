@@ -91,13 +91,13 @@ public class Entity implements Serializable {
     }
 
     // Relations auto-référencées
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "periode_id")
-    private ReferenceOpentheso periode;
+    @SQLRestriction("code = 'PERIODE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> periodes = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "production_id")
-    private ReferenceOpentheso production;
+    @SQLRestriction("code = 'PRODUCTION'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> productions = new ArrayList<>();
 
     @SQLRestriction("code = 'AIRE_CIRCULATION'")
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -106,6 +106,30 @@ public class Entity implements Serializable {
     @SQLRestriction("code = 'APPELLATION_USUELLE'")
     @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReferenceOpentheso> appellationsUsuelles = new ArrayList<>();
+
+    @SQLRestriction("code = 'FONCTION_USAGE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> fonctionsUsage = new ArrayList<>();
+
+    @SQLRestriction("code = 'FABRICATION_FACONNAGE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> fabricationsFaconnage = new ArrayList<>();
+
+    @SQLRestriction("code = 'COULEUR_PATE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> couleursPate = new ArrayList<>();
+
+    @SQLRestriction("code = 'NATURE_PATE'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> naturesPate = new ArrayList<>();
+
+    @SQLRestriction("code = 'INCLUSIONS'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> inclusionsPate = new ArrayList<>();
+
+    @SQLRestriction("code = 'CUISSON_POST_CUISSON'")
+    @OneToMany(mappedBy = "entity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReferenceOpentheso> cuissonsPostCuisson = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_fonctionnelle")
@@ -638,6 +662,132 @@ public class Entity implements Serializable {
     public void setSitesArcheologiques(String sitesArcheologiques) {
         ensureMetadata();
         metadata.setSitesArcheologiques(sitesArcheologiques);
+    }
+
+    /** Première période (compatibilité avec l’ancien champ unique). */
+    public ReferenceOpentheso getPeriode() {
+        return (periodes == null || periodes.isEmpty()) ? null : periodes.get(0);
+    }
+
+    /** Remplace toute la liste par une seule période (import, dialogues, compatibilité). */
+    public void setPeriode(ReferenceOpentheso periode) {
+        if (this.periodes == null) {
+            this.periodes = new ArrayList<>();
+        }
+        this.periodes.clear();
+        if (periode != null) {
+            periode.setEntity(this);
+            this.periodes.add(periode);
+        }
+    }
+
+    /** Première fonction / usage (anciennement description_detail.fonction_id). */
+    public ReferenceOpentheso getFonction() {
+        return (fonctionsUsage == null || fonctionsUsage.isEmpty()) ? null : fonctionsUsage.get(0);
+    }
+
+    public void setFonction(ReferenceOpentheso fonction) {
+        if (this.fonctionsUsage == null) {
+            this.fonctionsUsage = new ArrayList<>();
+        }
+        this.fonctionsUsage.clear();
+        if (fonction != null) {
+            fonction.setEntity(this);
+            this.fonctionsUsage.add(fonction);
+        }
+    }
+
+    /** Première fabrication / façonnage (anciennement caracteristique_physique.fabrication_id). */
+    public ReferenceOpentheso getFabricationFaconnage() {
+        return (fabricationsFaconnage == null || fabricationsFaconnage.isEmpty()) ? null : fabricationsFaconnage.get(0);
+    }
+
+    public void setFabricationFaconnage(ReferenceOpentheso ref) {
+        if (this.fabricationsFaconnage == null) {
+            this.fabricationsFaconnage = new ArrayList<>();
+        }
+        this.fabricationsFaconnage.clear();
+        if (ref != null) {
+            ref.setEntity(this);
+            this.fabricationsFaconnage.add(ref);
+        }
+    }
+
+    public ReferenceOpentheso getCouleurPate() {
+        return (couleursPate == null || couleursPate.isEmpty()) ? null : couleursPate.get(0);
+    }
+
+    public void setCouleurPate(ReferenceOpentheso ref) {
+        if (this.couleursPate == null) {
+            this.couleursPate = new ArrayList<>();
+        }
+        this.couleursPate.clear();
+        if (ref != null) {
+            ref.setEntity(this);
+            this.couleursPate.add(ref);
+        }
+    }
+
+    public ReferenceOpentheso getNaturePate() {
+        return (naturesPate == null || naturesPate.isEmpty()) ? null : naturesPate.get(0);
+    }
+
+    public void setNaturePate(ReferenceOpentheso ref) {
+        if (this.naturesPate == null) {
+            this.naturesPate = new ArrayList<>();
+        }
+        this.naturesPate.clear();
+        if (ref != null) {
+            ref.setEntity(this);
+            this.naturesPate.add(ref);
+        }
+    }
+
+    public ReferenceOpentheso getInclusionPate() {
+        return (inclusionsPate == null || inclusionsPate.isEmpty()) ? null : inclusionsPate.get(0);
+    }
+
+    public void setInclusionPate(ReferenceOpentheso ref) {
+        if (this.inclusionsPate == null) {
+            this.inclusionsPate = new ArrayList<>();
+        }
+        this.inclusionsPate.clear();
+        if (ref != null) {
+            ref.setEntity(this);
+            this.inclusionsPate.add(ref);
+        }
+    }
+
+    public ReferenceOpentheso getCuissonPostCuissonRef() {
+        return (cuissonsPostCuisson == null || cuissonsPostCuisson.isEmpty()) ? null : cuissonsPostCuisson.get(0);
+    }
+
+    public void setCuissonPostCuissonRef(ReferenceOpentheso ref) {
+        if (this.cuissonsPostCuisson == null) {
+            this.cuissonsPostCuisson = new ArrayList<>();
+        }
+        this.cuissonsPostCuisson.clear();
+        if (ref != null) {
+            ref.setEntity(this);
+            this.cuissonsPostCuisson.add(ref);
+        }
+    }
+
+    /** Première aire de production (compatibilité avec l’ancien champ unique). */
+    public ReferenceOpentheso getProduction() {
+        return (productions == null || productions.isEmpty()) ? null : productions.get(0);
+    }
+
+    /** Remplace toute la liste par une seule production (import, dialogues, compatibilité). */
+    public void setProduction(ReferenceOpentheso production) {
+        if (this.productions == null) {
+            this.productions = new ArrayList<>();
+        }
+        this.productions.clear();
+        if (production != null) {
+            production.setEntity(this);
+            this.productions.add(production);
+        }
     }
 
     /**
