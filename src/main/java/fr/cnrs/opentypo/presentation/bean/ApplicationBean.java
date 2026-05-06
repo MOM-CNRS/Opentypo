@@ -13,6 +13,7 @@ import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.application.service.TypeService;
+import fr.cnrs.opentypo.application.service.ZoteroApiService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
@@ -199,6 +200,9 @@ public class ApplicationBean implements Serializable {
 
     @Autowired
     private AuditService auditService;
+
+    @Autowired
+    private ZoteroApiService zoteroApiService;
 
     private static final DateTimeFormatter ENTITY_AUDIT_DATETIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -2325,6 +2329,61 @@ public class ApplicationBean implements Serializable {
         if (value instanceof String s) return !s.trim().isEmpty();
         if (value instanceof java.util.Collection<?> c) return !c.isEmpty();
         return true;
+    }
+
+    /** Bibliographie : notes libres et/ou références Zotero liées à la fiche. */
+    public boolean showBibliographieSection() {
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+            return true;
+        }
+        if (hasAnyValue(selectedEntity.getBibliographie())) {
+            return true;
+        }
+        return hasZoteroBibliographyKeys();
+    }
+
+    public boolean hasZoteroBibliographyKeys() {
+        if (selectedEntity == null || zoteroApiService == null) {
+            return false;
+        }
+        return !zoteroApiService.parseItemKeysJson(selectedEntity.getZoteroItemKeys()).isEmpty();
+    }
+
+    /**
+     * Fragment HTML (XHTML) renvoyé par l'API Zotero ({@code format=bib}) pour les items liés.
+     */
+    public String getZoteroBibliographyHtml() {
+        if (selectedEntity == null || zoteroApiService == null) {
+            return "";
+        }
+        List<String> keys = zoteroApiService.parseItemKeysJson(selectedEntity.getZoteroItemKeys());
+        if (keys.isEmpty()) {
+            return "";
+        }
+        return zoteroApiService.fetchBibliographyHtml(keys);
+    }
+
+    public String getZoteroGroupLibraryUrl() {
+        long gid = zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+        return "https://www.zotero.org/groups/" + gid;
+    }
+
+    public List<String> getZoteroBibliographyKeyList() {
+        if (selectedEntity == null || zoteroApiService == null) {
+            return List.of();
+        }
+        return zoteroApiService.parseItemKeysJson(selectedEntity.getZoteroItemKeys());
+    }
+
+    public String zoteroItemWebUrl(String itemKey) {
+        if (itemKey == null || itemKey.isBlank()) {
+            return "";
+        }
+        long gid = zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+        return "https://www.zotero.org/groups/" + gid + "/items/" + itemKey.trim();
     }
 
     public List<Utilisateur> uniqueAuteurs(java.util.Collection<Utilisateur> auteurs) {

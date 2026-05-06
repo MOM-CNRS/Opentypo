@@ -15,5 +15,7 @@ public class EntityUpdateRequest {
     private Integer displayOrder;
     private String appellation;
     private String bibliographie;
+    /** JSON tableau de clés d'items Zotero, ex. {@code ["ABCDE123","FGHIJ456"]}. */
+    private String zoteroItemKeys;
     private String metadataCommentaire;
 }

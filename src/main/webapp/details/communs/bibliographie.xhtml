@@ -2,30 +2,70 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html">
 
-    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}" layout="block">
-    <div class="row mt-20 details-row-mt-15">
-        <div class="col-md-12">
-            <div class="concept-info-panel" role="region" aria-labelledby="entity-bibliographie-heading">
-                <div class="concept-info-header monnaie-communs-header">
-                    <div class="concept-info-title-section monnaie-communs-title-wrapper">
-                        <i class="pi pi-book monnaie-communs-title-icon" aria-hidden="true"/>
-                        <h2 id="entity-bibliographie-heading" class="concept-info-title monnaie-communs-title">Bibliographie</h2>
+    <h:panelGroup rendered="#{applicationBean.showBibliographieSection()}" layout="block">
+        <div class="row mt-20 details-row-mt-15">
+            <div class="col-md-12">
+                <div class="concept-info-panel" role="region" aria-labelledby="entity-bibliographie-heading">
+                    <div class="concept-info-header monnaie-communs-header">
+                        <div class="concept-info-title-section monnaie-communs-title-wrapper">
+                            <i class="pi pi-book monnaie-communs-title-icon" aria-hidden="true"/>
+                            <h2 id="entity-bibliographie-heading" class="concept-info-title monnaie-communs-title">Bibliographie</h2>
+                        </div>
                     </div>
-                </div>
-                <div class="concept-info-grid">
-                    <div class="concept-info-item concept-info-item-full type-detail-prose-block">
-                        <div class="concept-info-value concept-info-description">
-                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                #{applicationBean.selectedEntity.bibliographie}
-                            </ui:fragment>
-                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                <span class="empty-field-message">Non renseigné</span>
-                            </ui:fragment>
+                    <div class="concept-info-grid">
+                        <div class="concept-info-item concept-info-item-full type-detail-prose-block">
+                            <div class="concept-info-value concept-info-description">
+                                <p class="zotero-library-intro">
+                                    <h:outputLink value="#{applicationBean.zoteroGroupLibraryUrl}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  styleClass="concept-value-external-link">
+                                        Bibliothèque Zotero du projet (groupe partagé)
+                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                    </h:outputLink>
+                                </p>
+
+                                <ui:fragment rendered="#{applicationBean.hasZoteroBibliographyKeys()}">
+                                    <div class="zotero-bib-html type-detail-prose-block">
+                                        <h:outputText value="#{applicationBean.zoteroBibliographyHtml}"
+                                                      escape="false"
+                                                      rendered="#{not empty applicationBean.zoteroBibliographyHtml}"/>
+                                        <ui:fragment rendered="#{empty applicationBean.zoteroBibliographyHtml}">
+                                            <ul class="zotero-bib-fallback-list">
+                                                <ui:repeat value="#{applicationBean.zoteroBibliographyKeyList}" var="zk">
+                                                    <li>
+                                                        <h:outputLink value="#{applicationBean.zoteroItemWebUrl(zk)}"
+                                                                      target="_blank"
+                                                                      rel="noopener noreferrer"
+                                                                      styleClass="concept-value-external-link">
+                                                            Référence Zotero (#{zk})
+                                                            <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                        </h:outputLink>
+                                                    </li>
+                                                </ui:repeat>
+                                            </ul>
+                                            <p class="empty-field-message zotero-bib-fallback-hint">
+                                                La mise en forme détaillée sera disponible lorsque l’API Zotero sera joignable (ou après configuration d’une clé API).
+                                            </p>
+                                        </ui:fragment>
+                                    </div>
+                                </ui:fragment>
+
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                    <h3 class="zotero-notes-heading">Notes complémentaires</h3>
+                                    <div class="concept-info-description zotero-notes-prose">
+                                        <h:outputText value="#{applicationBean.selectedEntity.bibliographie}" escape="true"/>
+                                    </div>
+                                </ui:fragment>
+
+                                <ui:fragment rendered="#{!applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
+                                    <span class="empty-field-message">Non renseigné</span>
+                                </ui:fragment>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </h:panelGroup>
 </ui:composition>

@@ -52,6 +52,10 @@ public class EntityMetadata implements Serializable {
     @Column(name = "bibliographie", columnDefinition = "TEXT")
     private String bibliographie;
 
+    /** Clés d'items Zotero (groupe projet), JSON tableau de chaînes. */
+    @Column(name = "zotero_item_keys", columnDefinition = "TEXT")
+    private String zoteroItemKeys;
+
     // Référence bibliographique
     @Column(name = "rereference_bibliographique", columnDefinition = "TEXT")
     private String rereferenceBibliographique;

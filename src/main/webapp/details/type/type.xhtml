@@ -120,7 +120,7 @@
                                 <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
                                     <a href="#type-section-commentaire" class="type-page-nav__pill">Commentaire</a>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
                                     <a href="#type-section-bibliographie" class="type-page-nav__pill">Bibliographie</a>
                                 </ui:fragment>
                             </div>
@@ -318,7 +318,7 @@
                         </div>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                    <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
                         <div id="type-section-bibliographie" class="type-section-shell type-section-anchor">
                             <ui:include src="../communs/bibliographie.xhtml"/>
                         </div>

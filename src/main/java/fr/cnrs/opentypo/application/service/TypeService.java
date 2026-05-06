@@ -207,6 +207,7 @@ public class TypeService implements Serializable {
             newMeta.setCode(newCode.trim());
             newMeta.setCommentaireDatation(srcMeta.getCommentaireDatation());
             newMeta.setBibliographie(srcMeta.getBibliographie());
+            newMeta.setZoteroItemKeys(srcMeta.getZoteroItemKeys());
             newMeta.setRereferenceBibliographique(srcMeta.getRereferenceBibliographique());
             newMeta.setAlignementExterne(srcMeta.getAlignementExterne());
             newMeta.setReference(srcMeta.getReference());

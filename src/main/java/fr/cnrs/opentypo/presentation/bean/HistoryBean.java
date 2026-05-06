@@ -246,7 +246,7 @@ public class HistoryBean implements Serializable {
         "metrologieDetail",
         // attestations, sites, gestion, commentaire, bibliographie
         "attestations", "corpusLies", "sitesArcheologiques", "reference", "typologieScientifique",
-        "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie"
+        "identifiantPerenne", "ancienneVersion", "commentaireMetadata", "bibliographie", "zoteroItemKeys"
     };
 
     /**
@@ -283,7 +283,7 @@ public class HistoryBean implements Serializable {
         new DisplaySection("commentaire", "Commentaire", "pi pi-comment",
             List.of("commentaireMetadata"), "ALWAYS"),
         new DisplaySection("bibliographie", "Bibliographie", "pi pi-book",
-            List.of("bibliographie"), "ALWAYS")
+            List.of("bibliographie", "zoteroItemKeys"), "ALWAYS")
     );
 
     /**
@@ -438,6 +438,7 @@ public class HistoryBean implements Serializable {
             case "sitesArcheologiques" -> "pi pi-map-marker";
             case "commentaireMetadata" -> "pi pi-comment";
             case "bibliographie" -> "pi pi-book";
+            case "zoteroItemKeys" -> "pi pi-link";
             case "reference" -> "pi pi-database";
             case "rereferenceBibliographique" -> "pi pi-book";
             case "corpusExterne" -> "pi pi-globe";
@@ -492,6 +493,8 @@ public class HistoryBean implements Serializable {
                 return "Description";
             case "bibliographie":
                 return "Bibliographie";
+            case "zoteroItemKeys":
+                return "Références Zotero";
             case "appellation":
                 return "Appellation usuelle";
             case "reference":

@@ -10,6 +10,12 @@ opentypo:
     base-url: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_BASE_URL:http://localhost:8182}
     api-key: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_API_KEY:}
     path: ${OPENTYPO_REMOTE_IMAGE_UPLOAD_PATH:/api/upload}
+  # Bibliothèque Zotero du projet (API v3). Clé API recommandée pour les quotas : https://www.zotero.org/settings/keys
+  zotero:
+    group-id: ${OPENTYPO_ZOTERO_GROUP_ID:6519271}
+    api-key: ${OPENTYPO_ZOTERO_API_KEY:}
+    citation-style: ${OPENTYPO_ZOTERO_CITATION_STYLE:chicago-note-bibliography}
+    locale: ${OPENTYPO_ZOTERO_LOCALE:fr-FR}
 
 spring:
   autoconfigure:

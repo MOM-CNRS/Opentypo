@@ -196,6 +196,10 @@ public class EntityApiService {
         if (request.getBibliographie() != null) {
             entity.setBibliographie(request.getBibliographie());
         }
+        if (request.getZoteroItemKeys() != null) {
+            String z = request.getZoteroItemKeys().trim();
+            entity.setZoteroItemKeys(z.isEmpty() ? null : z);
+        }
         if (request.getMetadataCommentaire() != null) {
             entity.setMetadataCommentaire(request.getMetadataCommentaire());
         }

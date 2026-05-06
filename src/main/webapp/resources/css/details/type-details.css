@@ -1413,3 +1413,70 @@
         padding: 0.32rem 0.65rem;
     }
 }
+
+/* ---- Bibliographie Zotero (API format=bib + édition) ---- */
+.zotero-library-intro {
+    margin-bottom: 1rem;
+}
+
+.zotero-bib-html .csl-bib-body {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.zotero-bib-html .csl-entry {
+    margin-bottom: 0.65rem;
+    line-height: 1.45;
+}
+
+.zotero-notes-heading {
+    font-size: 1rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.zotero-notes-prose {
+    white-space: pre-wrap;
+}
+
+.zotero-bib-fallback-list {
+    margin: 0 0 0.75rem 1rem;
+    padding: 0;
+}
+
+.zotero-bib-fallback-hint {
+    font-size: 0.9rem;
+}
+
+.zotero-modifier-help {
+    font-size: 0.88rem;
+    margin-bottom: 0.65rem;
+    line-height: 1.45;
+}
+
+.zotero-attached-chips .zotero-attached-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.zotero-chip-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.zotero-chip-remove {
+    opacity: 0.65;
+    padding: 0 0.15rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.zotero-chip-remove:hover {
+    opacity: 1;
+}

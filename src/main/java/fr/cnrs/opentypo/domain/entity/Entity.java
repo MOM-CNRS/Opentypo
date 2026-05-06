@@ -375,6 +375,15 @@ public class Entity implements Serializable {
         metadata.setBibliographie(bibliographie);
     }
 
+    public String getZoteroItemKeys() {
+        return metadata != null ? metadata.getZoteroItemKeys() : null;
+    }
+
+    public void setZoteroItemKeys(String zoteroItemKeysJson) {
+        ensureMetadata();
+        metadata.setZoteroItemKeys(zoteroItemKeysJson);
+    }
+
     /**
      * Libellés d'appellation usuelle (références OpenTheso ou texte libre), concaténés pour API / export.
      */

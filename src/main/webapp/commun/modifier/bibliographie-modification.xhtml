@@ -1,8 +1,9 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <!-- Commentaire et bibliographie (communs) -->
+    <!-- Commentaire, Zotero et notes bibliographiques -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Commentaire (entity_metadata) -->
         <div class="users-form-group users-form-group-full" id="commentaire-metadata">
@@ -19,19 +20,89 @@
             </div>
         </div>
 
-        <!-- Bibliographie -->
-        <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Bibliographie" style="margin-bottom: 13px !important" />
-            <div class="periode-field-row candidat-production-wrapper candidat-production-group">
-                <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
-                    <i class="pi pi-book input-icon input-icon-textarea" />
-                    <p:inputTextarea value="#{entityUpdateBean.bibliographie}"
-                                     rows="5"
-                                     styleClass="users-textarea"
-                                     placeholder="Saisissez des informations bibliographiques complémentaires..."
-                                     maxlength="2000"/>
+        <p:outputPanel layout="block" styleClass="users-form-group users-form-group-full periode-group candidats-mt-10">
+            <p:outputLabel value="Bibliographie (Zotero)" style="margin-bottom: 8px !important"/>
+            <p class="zotero-modifier-help">
+                Recherchez dans la
+                <h:outputLink value="#{applicationBean.zoteroGroupLibraryUrl}"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              styleClass="concept-value-external-link">
+                    bibliothèque de groupe Opentypo
+                    <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                </h:outputLink>
+                puis sélectionnez une entrée pour l’associer à cette fiche.
+            </p>
+            <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+                <div id="zoteroBibliographieAutocompleteWrapper"
+                     class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper">
+                    <i class="pi pi-search input-icon periode-autocomplete-icon" aria-hidden="true"/>
+                    <p:autoComplete id="zoteroBibliographieAutocomplete"
+                                    value="#{entityUpdateBean.zoteroPendingKey}"
+                                    completeMethod="#{entityUpdateBean.completeZoteroBibliographie}"
+                                    var="hit"
+                                    itemLabel="#{hit.label}"
+                                    itemValue="#{hit.key}"
+                                    dropdown="false"
+                                    minQueryLength="2"
+                                    queryDelay="300"
+                                    appendTo="#zoteroBibliographieAutocompleteWrapper"
+                                    my="left top"
+                                    at="left bottom"
+                                    panelStyleClass="periode-autocomplete-panel"
+                                    scrollHeight="280"
+                                    emptyMessage="Aucun résultat dans la bibliothèque Zotero du projet."
+                                    placeholder="Tapez au moins 2 caractères (titre, auteur…)"
+                                    styleClass="users-input periode-autocomplete-input"
+                                    forceSelection="true">
+                        <p:ajax event="itemSelect"
+                                listener="#{entityUpdateBean.onZoteroBibliographieSelect}"
+                                process="@this"
+                                update="@form :growl"/>
+                    </p:autoComplete>
                 </div>
             </div>
-        </div>
+
+            <div class="bibliographie-container zotero-attached-chips candidats-mt-10">
+                <ui:repeat value="#{entityUpdateBean.zoteroAttachedItems}" var="zline">
+                    <span class="bibliographie-badge zotero-attached-chip">
+                        <h:outputLink value="https://www.zotero.org/groups/#{entityUpdateBean.zoteroGroupId}/items/#{zline.key}"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      styleClass="bibliographie-badge-text zotero-chip-link"
+                                      title="Ouvrir dans Zotero">
+                            <i class="pi pi-link bibliographie-badge-icon" aria-hidden="true"/>
+                            <span class="bibliographie-badge-text">#{zline.label}</span>
+                        </h:outputLink>
+                        <p:commandLink type="button"
+                                       action="#{entityUpdateBean.removeZoteroBibliographieLine(zline.key)}"
+                                       process="@this"
+                                       update="@form"
+                                       styleClass="zotero-chip-remove"
+                                       title="Retirer de la fiche">
+                            <i class="pi pi-times" aria-hidden="true"/>
+                        </p:commandLink>
+                    </span>
+                </ui:repeat>
+                <h:outputText value="Aucune référence Zotero liée pour l’instant."
+                              rendered="#{empty entityUpdateBean.zoteroAttachedItems}"
+                              styleClass="empty-field-message"/>
+            </div>
+
+            <!-- Notes complémentaires (texte libre, hors Zotero) -->
+            <div class="users-form-group users-form-group-full candidats-mt-10">
+                <p:outputLabel value="Notes bibliographiques complémentaires" style="margin-bottom: 13px !important" />
+                <div class="periode-field-row candidat-production-wrapper candidat-production-group">
+                    <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
+                        <i class="pi pi-file-edit input-icon input-icon-textarea" />
+                        <p:inputTextarea value="#{entityUpdateBean.bibliographie}"
+                                         rows="5"
+                                         styleClass="users-textarea"
+                                         placeholder="Remarques, références non présentes dans Zotero, précisions…"
+                                         maxlength="2000"/>
+                    </div>
+                </div>
+            </div>
+        </p:outputPanel>
     </div>
 </ui:composition>

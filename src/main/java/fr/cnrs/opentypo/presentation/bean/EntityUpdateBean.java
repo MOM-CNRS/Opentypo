@@ -6,6 +6,8 @@ import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsConcept;
+import fr.cnrs.opentypo.application.dto.zotero.ZoteroSearchHit;
+import fr.cnrs.opentypo.application.service.ZoteroApiService;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
 import fr.cnrs.opentypo.domain.entity.AuteurScientifique;
@@ -51,6 +53,7 @@ import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DualListModel;
 import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,6 +150,9 @@ public class EntityUpdateBean implements Serializable {
     @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
 
+    @Autowired
+    private ZoteroApiService zoteroApiService;
+
     /** Images en cours d'édition (URL + légende) */
     private List<EditingImageItem> editingImages = new ArrayList<>();
 
@@ -216,6 +222,11 @@ public class EntityUpdateBean implements Serializable {
     private String newDescriptionLangueCode;
     private String newDescriptionValue;
     private String bibliographie;
+    /** Sélection autocomplétion Zotero (clé item). */
+    private String zoteroPendingKey;
+    /** Références Zotero attachées à la fiche (ordre d'affichage). */
+    private List<ZoteroAttachedLine> zoteroAttachedItems = new ArrayList<>();
+    private Map<String, String> zoteroAutocompleteLabelCache = new HashMap<>();
     private String commentaire;
     private String commentaireDatation;
     private String decors;
@@ -325,6 +336,17 @@ public class EntityUpdateBean implements Serializable {
         newLabelValue = "";
         newDescriptionValue = "";
         bibliographie = entity.getBibliographie();
+        zoteroPendingKey = null;
+        zoteroAutocompleteLabelCache.clear();
+        zoteroAttachedItems = new ArrayList<>();
+        if (zoteroApiService != null && entity.getZoteroItemKeys() != null) {
+            List<String> zk = zoteroApiService.parseItemKeysJson(entity.getZoteroItemKeys());
+            if (!zk.isEmpty()) {
+                zoteroAttachedItems = zoteroApiService.resolveLabels(zk).stream()
+                        .map(h -> new ZoteroAttachedLine(h.getKey(), h.getLabel()))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
+        }
         commentaire = entity.getCommentaire();
 
         List<ReferenceOpentheso> airesSrc = entity.getAiresCirculation();
@@ -554,6 +576,9 @@ public class EntityUpdateBean implements Serializable {
         newDescriptionLangueCode = null;
         newDescriptionValue = null;
         bibliographie = null;
+        zoteroPendingKey = null;
+        zoteroAttachedItems = new ArrayList<>();
+        zoteroAutocompleteLabelCache.clear();
         commentaire = null;
         decors = null;
         commentaireDatation = null;
@@ -1639,6 +1664,16 @@ public class EntityUpdateBean implements Serializable {
             entityMetadata.setBibliographie(newBibliographie);
         }
 
+        if (zoteroApiService != null) {
+            String zJson = zoteroApiService.serializeItemKeysJson(
+                    zoteroAttachedItems.stream()
+                            .map(ZoteroAttachedLine::getKey)
+                            .filter(k -> k != null && !k.isBlank())
+                            .map(String::trim)
+                            .toList());
+            entityMetadata.setZoteroItemKeys(zJson);
+        }
+
         entityMetadata.setAlignementExterne(alignementExterne != null && !alignementExterne.isBlank() ? alignementExterne.trim() : null);
 
         entityMetadata.setTypologieScientifique(typologieScientifique);
@@ -2188,5 +2223,52 @@ public class EntityUpdateBean implements Serializable {
         if (utilisateurRepository == null) return new ArrayList<>();
         List<Utilisateur> list = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
         return list != null ? list : new ArrayList<>();
+    }
+
+    public List<ZoteroSearchHit> completeZoteroBibliographie(String query) {
+        if (zoteroApiService == null || query == null || query.trim().length() < 2) {
+            return List.of();
+        }
+        List<ZoteroSearchHit> hits = zoteroApiService.searchTopLevelItems(query.trim(), 18);
+        for (ZoteroSearchHit h : hits) {
+            zoteroAutocompleteLabelCache.put(h.getKey(), h.getLabel());
+        }
+        return hits;
+    }
+
+    public void onZoteroBibliographieSelect(SelectEvent event) {
+        Object o = event.getObject();
+        if (!(o instanceof String key) || !StringUtils.hasText(key)) {
+            return;
+        }
+        String trimmed = key.trim();
+        if (zoteroAttachedItems.stream().anyMatch(z -> trimmed.equals(z.getKey()))) {
+            zoteroPendingKey = null;
+            return;
+        }
+        String label = zoteroAutocompleteLabelCache.getOrDefault(trimmed, trimmed);
+        zoteroAttachedItems.add(new ZoteroAttachedLine(trimmed, label));
+        zoteroPendingKey = null;
+    }
+
+    public void removeZoteroBibliographieLine(String itemKey) {
+        if (itemKey == null) {
+            return;
+        }
+        zoteroAttachedItems.removeIf(z -> itemKey.equals(z.getKey()));
+    }
+
+    public long getZoteroGroupId() {
+        return zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ZoteroAttachedLine implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String key;
+        private String label;
     }
 }
