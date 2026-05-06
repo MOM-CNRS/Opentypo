@@ -1030,13 +1030,14 @@ public class TypologyImportService {
                 continue;
             }
             String[] pair = splitPair(t);
-            if (!StringUtils.hasText(pair[1])) {
+            String valeur = limit500(firstNonBlank(pair[0], pair[1]));
+            if (!StringUtils.hasText(valeur)) {
                 continue;
             }
             ReferenceOpentheso ref = ReferenceOpentheso.builder()
                     .code("AIRE_CIRCULATION")
-                    .valeur(limit500(firstNonBlank(pair[0], pair[1])))
-                    .url(limit500(pair[1]))
+                    .valeur(valeur)
+                    .url(StringUtils.hasText(pair[1]) ? limit500(pair[1]) : null)
                     .entity(entity)
                     .build();
             entity.getAiresCirculation().add(referenceOpenthesoRepository.save(ref));
@@ -1143,13 +1144,14 @@ public class TypologyImportService {
             return null;
         }
         String[] pair = parseLabelUrl(raw);
-        if (!StringUtils.hasText(pair[1])) {
+        String valeur = limit500(firstNonBlank(pair[0], pair[1]));
+        if (!StringUtils.hasText(valeur)) {
             return null;
         }
         ReferenceOpentheso ref = ReferenceOpentheso.builder()
                 .code(code)
-                .valeur(limit500(firstNonBlank(pair[0], pair[1])))
-                .url(limit500(pair[1]))
+                .valeur(valeur)
+                .url(StringUtils.hasText(pair[1]) ? limit500(pair[1]) : null)
                 .entity(entity)
                 .build();
         return referenceOpenthesoRepository.save(ref);
@@ -1159,7 +1161,9 @@ public class TypologyImportService {
                            java.util.function.Supplier<ReferenceOpentheso> getter,
                            java.util.function.Consumer<ReferenceOpentheso> setter) {
         ReferenceOpentheso current = getter.get();
-        if (!StringUtils.hasText(url)) {
+        boolean hasUrl = StringUtils.hasText(url);
+        boolean hasLabel = StringUtils.hasText(libelle);
+        if (!hasUrl && !hasLabel) {
             if (current != null && current.getEntity() != null
                     && Objects.equals(current.getEntity().getId(), entity.getId())) {
                 setter.accept(null);
@@ -1180,11 +1184,14 @@ public class TypologyImportService {
             setter.accept(null);
             entityRepository.saveAndFlush(entity);
         }
-        String valeur = StringUtils.hasText(libelle) ? libelle.trim() : url.trim();
+        String valeur = hasLabel ? libelle.trim() : url.trim();
+        String cleanedUrl = hasUrl ? url.trim() : null;
         ReferenceOpentheso ref = ReferenceOpentheso.builder()
                 .code(slot.name())
                 .valeur(valeur.length() > 500 ? valeur.substring(0, 500) : valeur)
-                .url(url.trim().length() > 500 ? url.trim().substring(0, 500) : url.trim())
+                .url(cleanedUrl != null
+                        ? (cleanedUrl.length() > 500 ? cleanedUrl.substring(0, 500) : cleanedUrl)
+                        : null)
                 .entity(entity)
                 .build();
         ReferenceOpentheso saved = referenceOpenthesoRepository.save(ref);
@@ -1308,8 +1315,8 @@ public class TypologyImportService {
             return;
         }
         String[] pair = parseLabelUrl(raw);
-        if (!StringUtils.hasText(pair[1])) {
-            errors.add(col + " doit être au format label:url.");
+        if (!StringUtils.hasText(pair[0]) && !StringUtils.hasText(pair[1])) {
+            errors.add(col + " doit être au format label:url ou label.");
             return;
         }
         checkUrlOptional(pair[1], col, errors);

@@ -90,7 +90,7 @@ public final class TypologyImportFieldDocumentation {
                 "Illustrations : une ou plusieurs entrées séparées par || ; chaque entrée peut être une URL seule ou légende:url "
                         + "(deux-points avant http/https). Les URLs invalides sont ignorées à l’import.");
         m.put(TypologyImportConstants.COL_DATATION_PERIODE,
-                "Période OpenTheso au format libellé:url (URL du concept dans OpenTheso).");
+                "Période OpenTheso au format libellé:url (URL du concept dans OpenTheso) ou libellé seul.");
         m.put(TypologyImportConstants.COL_DATATION_TPQ,
                 "Terminus post quem (année entière, optionnel).");
         m.put(TypologyImportConstants.COL_DATATION_TAQ,
@@ -100,11 +100,11 @@ public final class TypologyImportFieldDocumentation {
 
         // Production & attestations
         m.put(TypologyImportConstants.COL_PRODUCTION_VALUE,
-                "Lieu ou mode de production OpenTheso : libellé:url.");
+                "Lieu ou mode de production OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_PRODUCTION_ATELIERS,
                 "Ateliers ou lieux de production : liste ; entrées séparées par || ou selon les « : » définis dans le mapping import.");
         m.put(TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION,
-                "Aires de circulation : plusieurs entrées || ; chaque entrée au format libellé:url OpenTheso.");
+                "Aires de circulation : plusieurs entrées || ; chaque entrée au format libellé:url OpenTheso ou libellé seul.");
         m.put(TypologyImportConstants.COL_ATTESTATIONS_VALEUR,
                 "Attestations / contextes : liste (séparateur || ou règles de liste du formulaire).");
         m.put(TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE,
@@ -112,27 +112,27 @@ public final class TypologyImportFieldDocumentation {
 
         // Céramique — description détail & pâte
         m.put(TypologyImportConstants.COL_DESCRIPTION_FORM,
-                "Forme (référence OpenTheso) : libellé:url.");
+                "Forme (référence OpenTheso) : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_DESCRIPTION_DECORS,
                 "Décors : texte ou liste selon le domaine.");
         m.put(TypologyImportConstants.COL_DESCRIPTION_MARQUES,
                 "Marques : valeurs séparées par || puis converties pour stockage.");
         m.put(TypologyImportConstants.COL_DESCRIPTION_FONCTION,
-                "Fonction / usage OpenTheso : libellé:url.");
+                "Fonction / usage OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE,
                 "Métrologie (céramique ou monnaie selon profil) : libellé:url lorsque stocké comme référence.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_FABRICATION,
-                "Fabrication / façonnage OpenTheso : libellé:url.");
+                "Fabrication / façonnage OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE,
                 "Description textuelle de la pâte (céramique).");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE,
-                "Couleur de pâte OpenTheso : libellé:url.");
+                "Couleur de pâte OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE,
-                "Nature de pâte OpenTheso : libellé:url.");
+                "Nature de pâte OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_INCLUSION,
-                "Inclusions OpenTheso : libellé:url.");
+                "Inclusions OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_CUISSON,
-                "Cuisson OpenTheso : libellé:url.");
+                "Cuisson OpenTheso : libellé:url ou libellé seul.");
 
         // Monnaie — descriptions & caractéristiques
         m.put(TypologyImportMonnaieConstants.COL_DESCRIPTION_DROIT,
@@ -144,29 +144,29 @@ public final class TypologyImportFieldDocumentation {
         m.put(TypologyImportMonnaieConstants.COL_DESCRIPTION_LEGENDE_REVERS,
                 "Légende au revers.");
         m.put(TypologyImportMonnaieConstants.COL_CARACT_PHYS_MATERIAU,
-                "Matériau OpenTheso : libellé:url.");
+                "Matériau OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportMonnaieConstants.COL_CARACT_PHYS_DENOMINATION,
-                "Dénomination OpenTheso : libellé:url.");
+                "Dénomination OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportMonnaieConstants.COL_CARACT_PHYS_VALEUR,
-                "Valeur faciale / type OpenTheso : libellé:url.");
+                "Valeur faciale / type OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportMonnaieConstants.COL_CARACT_PHYS_TECHNIQUE,
-                "Technique de frappe OpenTheso : libellé:url.");
+                "Technique de frappe OpenTheso : libellé:url ou libellé seul.");
 
         // Instrumentum — champs dédiés
         m.put(TypologyImportInstrumentumConstants.COL_DESCRIPTION_CATEGORIE_FONCTIONNELLE,
-                "Catégorie fonctionnelle OpenTheso : libellé:url.");
+                "Catégorie fonctionnelle OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_DESCRIPTION_RELATION_IMITATION,
-                "Relation d’imitation OpenTheso : libellé:url.");
+                "Relation d’imitation OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_DESCRIPTION_DENOMINATION,
-                "Dénomination de l’objet OpenTheso : libellé:url.");
+                "Dénomination de l’objet OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_CARACT_PHYS_MATERIAUX,
-                "Matériaux OpenTheso : libellé:url.");
+                "Matériaux OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_CARACT_PHYS_FORME,
-                "Forme OpenTheso : libellé:url.");
+                "Forme OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_CARACT_PHYS_DIMENSIONS,
-                "Dimensions OpenTheso : libellé:url.");
+                "Dimensions OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportInstrumentumConstants.COL_CARACT_PHYS_TECHNIQUE,
-                "Technique de fabrication OpenTheso : libellé:url.");
+                "Technique de fabrication OpenTheso : libellé:url ou libellé seul.");
 
         // Références & relations
         m.put(TypologyImportConstants.COL_REFERENCES_REFERENTIEL,
