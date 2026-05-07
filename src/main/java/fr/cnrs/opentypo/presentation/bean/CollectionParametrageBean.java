@@ -4,8 +4,12 @@ import fr.cnrs.opentypo.application.service.PactolsService;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsCollection;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsLangue;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsThesaurus;
+import fr.cnrs.opentypo.application.dto.zotero.ZoteroCollectionOption;
+import fr.cnrs.opentypo.application.service.ZoteroApiService;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Parametrage;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import jakarta.enterprise.context.SessionScoped;
@@ -17,11 +21,16 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Bean pour le paramétrage OpenTheso d'une collection (entité).
@@ -49,6 +58,12 @@ public class CollectionParametrageBean implements Serializable {
     @Inject
     private EntityRepository entityRepository;
 
+    @Autowired
+    private EntityRelationRepository entityRelationRepository;
+
+    @Inject
+    private ZoteroApiService zoteroApiService;
+
     /** Entité (collection) dont on édite le paramétrage. */
     private Entity currentCollectionEntity;
 
@@ -67,6 +82,14 @@ public class CollectionParametrageBean implements Serializable {
 
     /** URL du serveur OpenTheso (base URL) vers laquelle le système va chercher. */
     private String baseUrl;
+    /** URL du groupe Zotero (étape 1). */
+    private String bibliographieGroupUrl;
+    /** Group ID Zotero résolu depuis l'URL. */
+    private Long bibliographieGroupId;
+    /** Collections Zotero disponibles pour ce groupe (étape 2). */
+    private List<ZoteroCollectionOption> availableBibliographieCollections = new ArrayList<>();
+    /** Clé collection Zotero choisie (étape 3). */
+    private String selectedBibliographieCollectionKey;
 
     /**
      * Prépare l'ouverture du dialog de paramétrage pour la collection donnée.
@@ -85,6 +108,10 @@ public class CollectionParametrageBean implements Serializable {
         selectedThesaurusId = null;
         selectedLanguageId = null;
         selectedCollectionId = null;
+        bibliographieGroupUrl = null;
+        bibliographieGroupId = null;
+        selectedBibliographieCollectionKey = null;
+        availableBibliographieCollections = new ArrayList<>();
 
         String selectedLangue = searchBean.getLangSelected() != null ? searchBean.getLangSelected() : "fr";
 
@@ -99,6 +126,7 @@ public class CollectionParametrageBean implements Serializable {
             selectedThesaurusId = p.getIdTheso();
             selectedLanguageId = p.getIdLangue();
             selectedCollectionId = p.getIdGroupe();
+            initBibliographieFromSavedUrl(p.getBibliographieUrl());
 
             if (selectedThesaurusId != null && !selectedThesaurusId.trim().isEmpty()) {
                 availableLanguages = pactolsService.getThesaurusLanguages(selectedThesaurusId);
@@ -208,5 +236,200 @@ public class CollectionParametrageBean implements Serializable {
             new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Paramétrage enregistré."));
         PrimeFaces.current().executeScript("PF('collectionParametrageDialog').hide();");
         PrimeFaces.current().ajax().update(":growl");
+    }
+
+    /**
+     * Ouvre le dialog bibliographie Zotero pour un référentiel ou un groupe.
+     * Référentiel : formulaire vide (pas de préremplissage).
+     * Groupe : préremplissage depuis le paramétrage enregistré pour permettre la modification.
+     */
+    public void prepareAndShowBibliographieParametrageDialog(Entity collectionEntity) {
+        if (collectionEntity == null) {
+            log.warn("prepareAndShowBibliographieParametrageDialog: collectionEntity is null");
+            return;
+        }
+        if (collectionEntity.getId() == null) {
+            log.warn("prepareAndShowBibliographieParametrageDialog: collectionEntity id is null");
+            return;
+        }
+        List<Entity> loaded = entityRepository.findByIdInWithEntityType(Collections.singletonList(collectionEntity.getId()));
+        Entity resolved = loaded.isEmpty() ? collectionEntity : loaded.get(0);
+        this.currentCollectionEntity = resolved;
+
+        if (resolved.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_GROUP.equals(resolved.getEntityType().getCode())) {
+            String savedUrl = parametrageRepository.findByEntityId(resolved.getId())
+                    .map(Parametrage::getBibliographieUrl)
+                    .orElse(null);
+            initBibliographieFromSavedUrl(savedUrl);
+            return;
+        }
+
+        bibliographieGroupUrl = null;
+        bibliographieGroupId = null;
+        selectedBibliographieCollectionKey = null;
+        availableBibliographieCollections = new ArrayList<>();
+    }
+
+    /** Étape 2 : charger les collections Zotero d'un groupe à partir de l'URL saisie. */
+    public void loadBibliographieCollectionsFromUrl() {
+        availableBibliographieCollections = new ArrayList<>();
+        selectedBibliographieCollectionKey = null;
+        bibliographieGroupId = null;
+
+        Optional<Long> groupIdOpt = zoteroApiService != null
+                ? zoteroApiService.parseGroupIdFromGroupUrl(bibliographieGroupUrl)
+                : Optional.empty();
+        if (groupIdOpt.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
+                            "URL du groupe Zotero invalide. Format attendu : https://www.zotero.org/groups/{id}/..."));
+            PrimeFaces.current().ajax().update(":collectionBibliographieParametrageForm :growl");
+            return;
+        }
+        bibliographieGroupId = groupIdOpt.get();
+        availableBibliographieCollections = zoteroApiService.listTopCollections(bibliographieGroupId, 100);
+        if (availableBibliographieCollections.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
+                            "Aucune collection Zotero trouvée pour ce groupe."));
+        } else {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Bibliographie",
+                            availableBibliographieCollections.size() + " collection(s) Zotero trouvée(s)."));
+        }
+        PrimeFaces.current().ajax().update(":collectionBibliographieParametrageForm :growl");
+    }
+
+    /** Étape 4 : sauvegarde du choix de collection Zotero dans parametrage.bibliographie_url. */
+    public void saveBibliographieParametrage() {
+        if (currentCollectionEntity == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune collection sélectionnée."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        if (bibliographieGroupId == null || !StringUtils.hasText(selectedBibliographieCollectionKey)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
+                            "Veuillez d'abord saisir l'URL du groupe puis sélectionner une collection Zotero."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        Optional<Parametrage> existingOpt = parametrageRepository.findByEntityId(currentCollectionEntity.getId());
+        Parametrage p = existingOpt.orElseGet(() -> {
+            Parametrage n = new Parametrage();
+            Entity entity = entityRepository.findById(currentCollectionEntity.getId()).orElse(currentCollectionEntity);
+            n.setEntity(entity);
+            return n;
+        });
+        String bibUrl = resolveSelectedBibliographieUrl();
+        p.setBibliographieUrl(bibUrl);
+        parametrageRepository.save(p);
+
+        Entity referenceForPropagation = entityRepository.findById(currentCollectionEntity.getId())
+                .orElse(currentCollectionEntity);
+        int propagated = propagateBibliographieToGroupsWithoutConfig(referenceForPropagation, bibUrl);
+
+        String detail = propagated > 0
+                ? "Paramétrage bibliographie enregistré. " + propagated + " groupe(s) sans configuration bibliographique ont reçu cette URL."
+                : "Paramétrage bibliographie enregistré.";
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", detail));
+        PrimeFaces.current().executeScript("PF('collectionBibliographieParametrageDialog').hide();");
+        PrimeFaces.current().ajax().update(":growl");
+    }
+
+    /**
+     * Lorsque le paramétrage est enregistré sur un référentiel, recopie l’URL bibliographie Zotero
+     * vers chaque groupe du sous-arbre n’ayant pas encore d’URL bibliographique ({@code bibliographie_url} vide ou absente).
+     */
+    private int propagateBibliographieToGroupsWithoutConfig(Entity referenceEntity, String bibliographieUrl) {
+        if (referenceEntity == null
+                || referenceEntity.getId() == null
+                || !StringUtils.hasText(bibliographieUrl)
+                || entityRelationRepository == null) {
+            return 0;
+        }
+        if (referenceEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(referenceEntity.getEntityType().getCode())) {
+            return 0;
+        }
+        List<Object[]> rels = entityRelationRepository.findAllDescendantRelations(referenceEntity.getId());
+        if (rels == null || rels.isEmpty()) {
+            return 0;
+        }
+        Set<Long> descendantIds = new HashSet<>();
+        for (Object[] row : rels) {
+            if (row != null && row.length > 1 && row[1] != null) {
+                descendantIds.add(((Number) row[1]).longValue());
+            }
+        }
+        if (descendantIds.isEmpty()) {
+            return 0;
+        }
+        List<Entity> entities = entityRepository.findByIdInWithEntityType(descendantIds);
+        int updated = 0;
+        for (Entity candidate : entities) {
+            if (candidate == null
+                    || candidate.getEntityType() == null
+                    || !EntityConstants.ENTITY_TYPE_GROUP.equals(candidate.getEntityType().getCode())) {
+                continue;
+            }
+            Optional<Parametrage> opt = parametrageRepository.findByEntityId(candidate.getId());
+            if (opt.isEmpty()) {
+                Parametrage np = new Parametrage();
+                np.setEntity(entityRepository.findById(candidate.getId()).orElse(candidate));
+                np.setBibliographieUrl(bibliographieUrl);
+                parametrageRepository.save(np);
+                updated++;
+            } else {
+                Parametrage gp = opt.get();
+                if (!StringUtils.hasText(gp.getBibliographieUrl())) {
+                    gp.setBibliographieUrl(bibliographieUrl);
+                    parametrageRepository.save(gp);
+                    updated++;
+                }
+            }
+        }
+        if (updated > 0) {
+            log.info("{} groupe(s) ont hérité de l'URL bibliographie du référentiel id={}", updated, referenceEntity.getId());
+        }
+        return updated;
+    }
+
+    private void initBibliographieFromSavedUrl(String savedUrl) {
+        String url = trimToNull(savedUrl);
+        bibliographieGroupUrl = null;
+        bibliographieGroupId = null;
+        selectedBibliographieCollectionKey = null;
+        availableBibliographieCollections = new ArrayList<>();
+        if (url == null || zoteroApiService == null) {
+            return;
+        }
+        Optional<ZoteroApiService.ZoteroScope> scopeOpt = zoteroApiService.parseScopeFromCollectionUrl(url);
+        if (scopeOpt.isEmpty()) {
+            return;
+        }
+        ZoteroApiService.ZoteroScope scope = scopeOpt.get();
+        bibliographieGroupId = scope.groupId();
+        bibliographieGroupUrl = "https://www.zotero.org/groups/" + scope.groupId();
+        selectedBibliographieCollectionKey = scope.collectionKey();
+        availableBibliographieCollections = zoteroApiService.listTopCollections(scope.groupId(), 100);
+    }
+
+    private String resolveSelectedBibliographieUrl() {
+        if (zoteroApiService == null || bibliographieGroupId == null || !StringUtils.hasText(selectedBibliographieCollectionKey)) {
+            return null;
+        }
+        return zoteroApiService.buildCollectionWebUrl(bibliographieGroupId, selectedBibliographieCollectionKey);
+    }
+
+    private static String trimToNull(String s) {
+        if (s == null) {
+            return null;
+        }
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
     }
 }

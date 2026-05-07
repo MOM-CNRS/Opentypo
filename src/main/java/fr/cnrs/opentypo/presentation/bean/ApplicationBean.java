@@ -22,6 +22,7 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.AuteurRepository;
@@ -73,6 +74,7 @@ import java.util.Map;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -2363,11 +2365,21 @@ public class ApplicationBean implements Serializable {
         if (keys.isEmpty()) {
             return "";
         }
-        return zoteroApiService.fetchBibliographyHtml(keys);
+        return zoteroApiService.fetchBibliographyHtml(keys, resolveZoteroScopeFromParametrage()
+                .orElse(new ZoteroApiService.ZoteroScope(zoteroApiService.getConfiguredGroupId(), null)));
     }
 
     public String getZoteroGroupLibraryUrl() {
-        long gid = zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+        if (zoteroApiService == null) {
+            return "https://www.zotero.org/groups/6519271";
+        }
+        Optional<String> configuredCollectionUrl = findParametrageForZotero()
+                .map(Parametrage::getBibliographieUrl)
+                .filter(org.springframework.util.StringUtils::hasText);
+        if (configuredCollectionUrl.isPresent()) {
+            return configuredCollectionUrl.get().trim();
+        }
+        long gid = zoteroApiService.getConfiguredGroupId();
         return "https://www.zotero.org/groups/" + gid;
     }
 
@@ -2382,8 +2394,39 @@ public class ApplicationBean implements Serializable {
         if (itemKey == null || itemKey.isBlank()) {
             return "";
         }
-        long gid = zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+        long gid = resolveZoteroScopeFromParametrage()
+                .map(ZoteroApiService.ZoteroScope::groupId)
+                .orElseGet(() -> zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L);
         return "https://www.zotero.org/groups/" + gid + "/items/" + itemKey.trim();
+    }
+
+    private Optional<Parametrage> findParametrageForZotero() {
+        if (selectedEntity == null || parametrageRepository == null) {
+            return Optional.empty();
+        }
+        if (selectedEntity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_REFERENCE.equals(selectedEntity.getEntityType().getCode())) {
+            return parametrageRepository.findByEntityId(selectedEntity.getId());
+        }
+        Entity grp = getSelectedGroup();
+        if (grp != null && grp.getId() != null) {
+            return parametrageRepository.findByEntityId(grp.getId());
+        }
+        Entity ref = getSelectedReference();
+        if (ref != null && ref.getId() != null) {
+            return parametrageRepository.findByEntityId(ref.getId());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<ZoteroApiService.ZoteroScope> resolveZoteroScopeFromParametrage() {
+        if (zoteroApiService == null) {
+            return Optional.empty();
+        }
+        return findParametrageForZotero()
+                .map(Parametrage::getBibliographieUrl)
+                .filter(org.springframework.util.StringUtils::hasText)
+                .flatMap(zoteroApiService::parseScopeFromCollectionUrl);
     }
 
     public List<Utilisateur> uniqueAuteurs(java.util.Collection<Utilisateur> auteurs) {

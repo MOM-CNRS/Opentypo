@@ -47,6 +47,17 @@
                                         <p:tooltip value="Paramétrage" position="top"/>
                                     </p:commandLink>
 
+                                    <p:commandLink action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
+                                                   process="@this"
+                                                   update=":collectionBibliographieParametrageForm"
+                                                   styleClass="concept-action-button"
+                                                   title="Paramétrage bibliographie Zotero"
+                                                   rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"
+                                                   oncomplete="PF('collectionBibliographieParametrageDialog').show();">
+                                        <i class="pi pi-book" />
+                                        <p:tooltip value="Paramétrage bibliographie Zotero" position="top"/>
+                                    </p:commandLink>
+
                                     <!-- Bouton Historique -->
                                     <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                    process="@this"
@@ -75,7 +86,7 @@
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
                                                    styleClass="concept-action-button"
-                                                   rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}}">
+                                                   rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="Supprimer" position="top"/>
                                     </p:commandLink>

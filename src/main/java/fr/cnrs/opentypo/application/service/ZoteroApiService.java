@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.application.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.cnrs.opentypo.application.dto.zotero.ZoteroSearchHit;
+import fr.cnrs.opentypo.application.dto.zotero.ZoteroCollectionOption;
 import fr.cnrs.opentypo.infrastructure.config.ZoteroProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,8 @@ public class ZoteroApiService {
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(TIMEOUT)
             .build();
+
+    public record ZoteroScope(long groupId, String collectionKey) {}
 
     public List<String> parseItemKeysJson(String json) {
         if (!StringUtils.hasText(json)) {
@@ -95,13 +98,17 @@ public class ZoteroApiService {
      * Recherche rapide dans la bibliothèque groupe (titres / créateurs).
      */
     public List<ZoteroSearchHit> searchTopLevelItems(String query, int limit) {
+        return searchTopLevelItems(query, limit, new ZoteroScope(properties.getGroupId(), null));
+    }
+
+    public List<ZoteroSearchHit> searchTopLevelItems(String query, int limit, ZoteroScope scope) {
         if (!StringUtils.hasText(query) || query.trim().length() < 2) {
             return List.of();
         }
         int lim = Math.min(Math.max(limit, 1), 25);
         String q = URLEncoder.encode(query.trim(), StandardCharsets.UTF_8);
-        String uri = API_ROOT + "/groups/" + properties.getGroupId() + "/items/top?q=" + q
-                + "&limit=" + lim + "&format=json";
+        ZoteroScope effective = scope != null ? scope : new ZoteroScope(properties.getGroupId(), null);
+        String uri = buildSearchUri(effective, q, lim);
         Optional<String> body = httpGet(uri);
         if (body.isEmpty()) {
             return List.of();
@@ -140,13 +147,18 @@ public class ZoteroApiService {
      * Bibliographie formatée (XHTML) pour les clés données, dans l'ordre des lots API.
      */
     public String fetchBibliographyHtml(List<String> keys) {
+        return fetchBibliographyHtml(keys, new ZoteroScope(properties.getGroupId(), null));
+    }
+
+    public String fetchBibliographyHtml(List<String> keys, ZoteroScope scope) {
         if (keys == null || keys.isEmpty()) {
             return "";
         }
+        ZoteroScope effective = scope != null ? scope : new ZoteroScope(properties.getGroupId(), null);
         List<String> batches = batch(keys, MAX_ITEM_KEYS_PER_REQUEST);
         StringBuilder sb = new StringBuilder();
         for (String batch : batches) {
-            String uri = API_ROOT + "/groups/" + properties.getGroupId() + "/items?itemKey="
+            String uri = API_ROOT + "/groups/" + effective.groupId() + "/items?itemKey="
                     + URLEncoder.encode(batch, StandardCharsets.UTF_8)
                     + "&format=bib&linkwrap=1"
                     + "&style=" + URLEncoder.encode(properties.getCitationStyle(), StandardCharsets.UTF_8)
@@ -159,13 +171,18 @@ public class ZoteroApiService {
 
     /** Libellés courts pour recharger l'éditeur (batch JSON), ordre conservé. */
     public List<ZoteroSearchHit> resolveLabels(List<String> keys) {
+        return resolveLabels(keys, new ZoteroScope(properties.getGroupId(), null));
+    }
+
+    public List<ZoteroSearchHit> resolveLabels(List<String> keys, ZoteroScope scope) {
         if (keys == null || keys.isEmpty()) {
             return List.of();
         }
+        ZoteroScope effective = scope != null ? scope : new ZoteroScope(properties.getGroupId(), null);
         List<ZoteroSearchHit> out = new ArrayList<>();
         for (List<String> part : partition(keys, MAX_ITEM_KEYS_PER_REQUEST)) {
             String joined = String.join(",", part);
-            String uri = API_ROOT + "/groups/" + properties.getGroupId() + "/items?itemKey="
+            String uri = API_ROOT + "/groups/" + effective.groupId() + "/items?itemKey="
                     + URLEncoder.encode(joined, StandardCharsets.UTF_8) + "&limit=" + MAX_ITEM_KEYS_PER_REQUEST + "&format=json";
             Optional<String> body = httpGet(uri);
             Map<String, ZoteroSearchHit> byKey = new HashMap<>();
@@ -200,6 +217,144 @@ public class ZoteroApiService {
 
     public long getConfiguredGroupId() {
         return properties.getGroupId();
+    }
+
+    /**
+     * Libellé web du groupe (champ {@code name} côté API), pour l’interface utilisateur.
+     */
+    public Optional<String> fetchGroupName(long groupId) {
+        if (groupId <= 0) {
+            return Optional.empty();
+        }
+        String uri = API_ROOT + "/groups/" + groupId + "?format=json";
+        Optional<String> body = httpGet(uri);
+        if (body.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            JsonNode root = objectMapper.readTree(body.get());
+            JsonNode node = root.isArray() && !root.isEmpty() ? root.get(0) : root;
+            if (node == null || !node.isObject()) {
+                return Optional.empty();
+            }
+            JsonNode data = node.get("data");
+            if (data != null && data.isObject()) {
+                String name = text(data, "name");
+                if (StringUtils.hasText(name)) {
+                    return Optional.of(name.trim());
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Parse nom groupe Zotero {}: {}", groupId, e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ZoteroScope> parseScopeFromCollectionUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return Optional.empty();
+        }
+        try {
+            URI uri = URI.create(url.trim());
+            String path = uri.getPath();
+            if (!StringUtils.hasText(path)) {
+                return Optional.empty();
+            }
+            String[] rawParts = path.split("/");
+            List<String> parts = new ArrayList<>();
+            for (String p : rawParts) {
+                if (StringUtils.hasText(p)) {
+                    parts.add(p.trim());
+                }
+            }
+            int groupsIdx = parts.indexOf("groups");
+            int collectionsIdx = parts.indexOf("collections");
+            if (groupsIdx < 0 || collectionsIdx < 0 || groupsIdx + 1 >= parts.size() || collectionsIdx + 1 >= parts.size()) {
+                return Optional.empty();
+            }
+            long groupId = Long.parseLong(parts.get(groupsIdx + 1));
+            String collectionKey = parts.get(collectionsIdx + 1);
+            if (!StringUtils.hasText(collectionKey)) {
+                return Optional.empty();
+            }
+            return Optional.of(new ZoteroScope(groupId, collectionKey));
+        } catch (Exception e) {
+            log.debug("URL Zotero invalide [{}]: {}", url, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Long> parseGroupIdFromGroupUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return Optional.empty();
+        }
+        try {
+            URI uri = URI.create(url.trim());
+            String path = uri.getPath();
+            if (!StringUtils.hasText(path)) {
+                return Optional.empty();
+            }
+            String[] rawParts = path.split("/");
+            List<String> parts = new ArrayList<>();
+            for (String p : rawParts) {
+                if (StringUtils.hasText(p)) {
+                    parts.add(p.trim());
+                }
+            }
+            int groupsIdx = parts.indexOf("groups");
+            if (groupsIdx < 0 || groupsIdx + 1 >= parts.size()) {
+                return Optional.empty();
+            }
+            return Optional.of(Long.parseLong(parts.get(groupsIdx + 1)));
+        } catch (Exception e) {
+            log.debug("URL groupe Zotero invalide [{}]: {}", url, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public List<ZoteroCollectionOption> listTopCollections(long groupId, int limit) {
+        int lim = Math.min(Math.max(limit, 1), 100);
+        String uri = API_ROOT + "/groups/" + groupId + "/collections/top?format=json&limit=" + lim;
+        Optional<String> body = httpGet(uri);
+        if (body.isEmpty()) {
+            return List.of();
+        }
+        try {
+            JsonNode root = objectMapper.readTree(body.get());
+            if (!root.isArray()) {
+                return List.of();
+            }
+            List<ZoteroCollectionOption> out = new ArrayList<>();
+            for (JsonNode node : root) {
+                String key = text(node, "key");
+                JsonNode data = node.get("data");
+                String name = data != null && data.isObject() ? text(data, "name") : "";
+                if (StringUtils.hasText(key) && StringUtils.hasText(name)) {
+                    out.add(new ZoteroCollectionOption(key.trim(), name.trim()));
+                }
+            }
+            return out;
+        } catch (Exception e) {
+            log.debug("Parse collections Zotero: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    public String buildCollectionWebUrl(long groupId, String collectionKey) {
+        if (!StringUtils.hasText(collectionKey)) {
+            return "https://www.zotero.org/groups/" + groupId;
+        }
+        return "https://www.zotero.org/groups/" + groupId + "/collections/" + collectionKey.trim();
+    }
+
+    private String buildSearchUri(ZoteroScope scope, String encodedQuery, int limit) {
+        String base = API_ROOT + "/groups/" + scope.groupId();
+        if (StringUtils.hasText(scope.collectionKey())) {
+            base += "/collections/" + scope.collectionKey().trim() + "/items/top";
+        } else {
+            base += "/items/top";
+        }
+        return base + "?q=" + encodedQuery + "&limit=" + limit + "&format=json";
     }
 
     private Optional<String> httpGet(String uri) {

@@ -22,6 +22,7 @@ import fr.cnrs.opentypo.domain.entity.Image;
 import fr.cnrs.opentypo.domain.entity.InternalAlignment;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.Langue;
+import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
@@ -38,6 +39,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ExternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.InternalAlignmentRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
@@ -75,6 +77,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -152,6 +155,9 @@ public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private ZoteroApiService zoteroApiService;
+
+    @Autowired
+    private ParametrageRepository parametrageRepository;
 
     /** Images en cours d'édition (URL + légende) */
     private List<EditingImageItem> editingImages = new ArrayList<>();
@@ -2229,14 +2235,21 @@ public class EntityUpdateBean implements Serializable {
         if (zoteroApiService == null || query == null || query.trim().length() < 2) {
             return List.of();
         }
-        List<ZoteroSearchHit> hits = zoteroApiService.searchTopLevelItems(query.trim(), 18);
+        Optional<ZoteroApiService.ZoteroScope> scopeOpt = resolveZoteroScope();
+        if (scopeOpt.isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Bibliographie Zotero",
+                            "URL bibliographie non paramétrée. Le gestionnaire du référentiel doit la renseigner dans le paramétrage de la collection."));
+            return List.of();
+        }
+        List<ZoteroSearchHit> hits = zoteroApiService.searchTopLevelItems(query.trim(), 18, scopeOpt.get());
         for (ZoteroSearchHit h : hits) {
             zoteroAutocompleteLabelCache.put(h.getKey(), h.getLabel());
         }
         return hits;
     }
 
-    public void onZoteroBibliographieSelect(SelectEvent event) {
+    public void onZoteroBibliographieSelect(SelectEvent<?> event) {
         Object o = event.getObject();
         if (!(o instanceof String key) || !StringUtils.hasText(key)) {
             return;
@@ -2259,7 +2272,67 @@ public class EntityUpdateBean implements Serializable {
     }
 
     public long getZoteroGroupId() {
-        return zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L;
+        return resolveZoteroScope()
+                .map(ZoteroApiService.ZoteroScope::groupId)
+                .orElseGet(() -> zoteroApiService != null ? zoteroApiService.getConfiguredGroupId() : 6519271L);
+    }
+
+    public String getZoteroCollectionUrl() {
+        return findCurrentParametrage()
+                .map(Parametrage::getBibliographieUrl)
+                .filter(StringUtils::hasText)
+                .orElse("https://www.zotero.org/groups/" + getZoteroGroupId());
+    }
+
+    /**
+     * Nom du groupe Zotero utilisé pour la recherche bibliographique (API), avec repli sur l’identifiant.
+     * Mis en cache tant que l’identifiant de groupe effectif ne change pas.
+     */
+    public String getZoteroBibliographySearchGroupLabel() {
+        long gid = getZoteroGroupId();
+        if (zoteroBibliographyHelpLabelGroupId != null
+                && zoteroBibliographyHelpLabelGroupId == gid
+                && StringUtils.hasText(zoteroBibliographyHelpGroupLabel)) {
+            return zoteroBibliographyHelpGroupLabel;
+        }
+        if (zoteroApiService != null) {
+            Optional<String> name = zoteroApiService.fetchGroupName(gid);
+            zoteroBibliographyHelpGroupLabel = name.filter(StringUtils::hasText)
+                    .orElse("groupe " + gid);
+        } else {
+            zoteroBibliographyHelpGroupLabel = "groupe " + gid;
+        }
+        zoteroBibliographyHelpLabelGroupId = gid;
+        return zoteroBibliographyHelpGroupLabel;
+    }
+
+    private Long zoteroBibliographyHelpLabelGroupId;
+    private String zoteroBibliographyHelpGroupLabel;
+
+    private Optional<ZoteroApiService.ZoteroScope> resolveZoteroScope() {
+        if (zoteroApiService == null) {
+            return Optional.empty();
+        }
+        return findCurrentParametrage()
+                .map(Parametrage::getBibliographieUrl)
+                .filter(StringUtils::hasText)
+                .flatMap(zoteroApiService::parseScopeFromCollectionUrl);
+    }
+
+    private Optional<Parametrage> findCurrentParametrage() {
+        if (parametrageRepository == null || applicationBean == null) {
+            return Optional.empty();
+        }
+        Long paramEntityId = null;
+        if (applicationBean.getSelectedGroup() != null && applicationBean.getSelectedGroup().getId() != null) {
+            paramEntityId = applicationBean.getSelectedGroup().getId();
+        } else if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null) {
+            paramEntityId = applicationBean.getSelectedReference().getId();
+        }
+        if (paramEntityId == null) {
+            return Optional.empty();
+        }
+        return parametrageRepository.findByEntityId(paramEntityId);
     }
 
     @Getter

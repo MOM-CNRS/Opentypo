@@ -23,15 +23,15 @@
         <p:outputPanel layout="block" styleClass="users-form-group users-form-group-full periode-group candidats-mt-10">
             <p:outputLabel value="Bibliographie (Zotero)" style="margin-bottom: 8px !important"/>
             <p class="zotero-modifier-help">
-                Recherchez dans la
-                <h:outputLink value="#{applicationBean.zoteroGroupLibraryUrl}"
+                Recherchez dans la bibliothèque du groupe Zotero «
+                <h:outputLink value="#{entityUpdateBean.zoteroCollectionUrl}"
                               target="_blank"
                               rel="noopener noreferrer"
                               styleClass="concept-value-external-link">
-                    bibliothèque de groupe Opentypo
+                    #{entityUpdateBean.zoteroBibliographySearchGroupLabel}
                     <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
                 </h:outputLink>
-                puis sélectionnez une entrée pour l’associer à cette fiche.
+                » puis sélectionnez une entrée pour l’associer à cette fiche.
             </p>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="zoteroBibliographieAutocompleteWrapper"

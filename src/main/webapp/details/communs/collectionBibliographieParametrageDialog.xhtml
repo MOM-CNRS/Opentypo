@@ -1,0 +1,85 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="collectionBibliographieParametrageDialog"
+              widgetVar="collectionBibliographieParametrageDialog"
+              header="Paramétrage bibliographie Zotero"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="true"
+              width="620"
+              height="auto"
+              styleClass="opentheso-dialog parametrage-dialog"
+              showEffect="fade"
+              hideEffect="fade"
+              responsive="true">
+
+        <h:form id="collectionBibliographieParametrageForm" styleClass="parametrage-form">
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="zoteroGroupUrl" value="URL du groupe Zotero" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-link input-icon" />
+                        <p:inputText id="zoteroGroupUrl"
+                                     value="#{collectionParametrageBean.bibliographieGroupUrl}"
+                                     styleClass="users-input"
+                                     placeholder="https://www.zotero.org/groups/6519271/opentypo"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:commandButton value="Charger les collections Zotero"
+                                     icon="pi pi-refresh"
+                                     action="#{collectionParametrageBean.loadBibliographieCollectionsFromUrl}"
+                                     process="@this zoteroGroupUrl"
+                                     update=":collectionBibliographieParametrageForm :growl"
+                                     styleClass="parametrage-btn-refresh"
+                                     onstart="showLoading('Chargement...', 'spinner');"
+                                     oncomplete="setTimeout(function(){hideLoading();}, 200);"/>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="zoteroCollectionSelect" value="Collection bibliographie" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-sitemap input-icon" />
+                        <p:selectOneMenu id="zoteroCollectionSelect"
+                                         value="#{collectionParametrageBean.selectedBibliographieCollectionKey}"
+                                         styleClass="users-select"
+                                         filter="true"
+                                         filterMatchMode="contains">
+                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="#{null}" />
+                            <f:selectItems value="#{collectionParametrageBean.availableBibliographieCollections}" var="col"
+                                           itemLabel="#{col.name}" itemValue="#{col.key}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer" style="text-align: right">
+                <div class="opentheso-dialog-actions-buttons category-form-actions parametrage-form-actions">
+                    <p:button value="Annuler"
+                              icon="pi pi-times"
+                              onclick="PF('collectionBibliographieParametrageDialog').hide(); return false;"
+                              styleClass="category-btn category-btn-cancel"/>
+                    <p:commandButton value="Enregistrer"
+                                     icon="pi pi-check"
+                                     action="#{collectionParametrageBean.saveBibliographieParametrage}"
+                                     process="@form"
+                                     update=":growl"
+                                     styleClass="category-btn category-btn-validate"
+                                     onstart="showLoading('Enregistrement...', 'spinner');"
+                                     oncomplete="setTimeout(function(){hideLoading();}, 300);"
+                                     onerror="forceHideLoading();"/>
+                </div>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

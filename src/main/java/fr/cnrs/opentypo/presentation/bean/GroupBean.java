@@ -646,6 +646,7 @@ public class GroupBean implements Serializable {
         groupParam.setIdTheso(refParam.getIdTheso());
         groupParam.setIdLangue(refParam.getIdLangue());
         groupParam.setIdGroupe(refParam.getIdGroupe());
+        groupParam.setBibliographieUrl(refParam.getBibliographieUrl());
         parametrageRepository.save(groupParam);
         log.debug("Paramétrage OpenTheso copié de la référence {} vers le nouveau groupe {}", reference.getCode(), newGroup.getCode());
     }

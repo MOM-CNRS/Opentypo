@@ -65,6 +65,18 @@
                                 <p:tooltip value="Paramétrage" position="top"/>
                             </p:commandLink>
 
+                            <!-- Paramétrage bibliographie Zotero (ouvert depuis l'écran référentiel, sans préremplissage) -->
+                            <p:commandLink action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
+                                           process="@this"
+                                           update=":collectionBibliographieParametrageForm"
+                                           styleClass="concept-action-button"
+                                           title="Paramétrage bibliographie Zotero"
+                                           rendered="#{referenceBean.canEditReference(applicationBean)}"
+                                           oncomplete="PF('collectionBibliographieParametrageDialog').show();">
+                                <i class="pi pi-book" />
+                                <p:tooltip value="Paramétrage bibliographie Zotero" position="top"/>
+                            </p:commandLink>
+
                             <h:outputLink value="#{request.contextPath}/import/typology-import.xhtml"
                                           styleClass="typology-import-entry"
                                           title="Ouvrir l’assistant d’import CSV (catégories, groupes, séries, types)"

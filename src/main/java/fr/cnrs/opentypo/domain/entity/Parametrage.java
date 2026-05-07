@@ -48,4 +48,7 @@ public class Parametrage implements Serializable {
 
     @Column(name = "id_langue", length = 20)
     private String idLangue;
+
+    @Column(name = "bibliographie_url", length = 500)
+    private String bibliographieUrl;
 }
