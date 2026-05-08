@@ -108,7 +108,7 @@ public final class TypologyImportFieldDocumentation {
         m.put(TypologyImportConstants.COL_ATTESTATIONS_VALEUR,
                 "Attestations / contextes : liste (séparateur || ou règles de liste du formulaire).");
         m.put(TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE,
-                "Corpus liés : texte libre ou liste selon le modèle.");
+                "Corpus liés : liste d'entrées libellé|url séparées par || (ex. \"Corpus A|https://exemple.fr||Corpus B|https://exemple.fr/b\").");
 
         // Céramique — description détail & pâte
         m.put(TypologyImportConstants.COL_DESCRIPTION_FORM,

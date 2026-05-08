@@ -745,8 +745,49 @@ public class TypologyImportService {
             entity.setAteliers(listToSemicolon(getCell(row, TypologyImportConstants.COL_PRODUCTION_ATELIERS), false));
         }
         if (shouldWriteField(csvHeaders, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE, row, isCreate)) {
-            entity.setCorpusLies(trimToNull(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE)));
+            entity.setCorpusLies(corpusLinksToStorage(getCell(row, TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE)));
         }
+    }
+
+    /**
+     * Corpus liés : liste d'entrées {@code libellé|url} séparées par {@code ||} dans le CSV.
+     * Stockage en base : {@code libellé|url; libellé|url} (séparateur {@code ;}).
+     * Déduplique sur le couple (libellé, url) insensible à la casse.
+     */
+    private String corpusLinksToStorage(String raw) {
+        String t = trimToNull(raw);
+        if (!StringUtils.hasText(t)) {
+            return null;
+        }
+        String normalized = t.replace("##", "||");
+        String[] parts = LIST_SPLIT.split(normalized);
+        ArrayList<String> unique = new ArrayList<>();
+        for (String part : parts) {
+            if (!StringUtils.hasText(part)) continue;
+            String entry = part.trim();
+            if (!StringUtils.hasText(entry)) continue;
+            String[] pair = entry.split("\\|", 2);
+            if (pair.length < 2) {
+                continue;
+            }
+            String label = pair[0] != null ? pair[0].trim() : "";
+            String url = pair[1] != null ? pair[1].trim() : "";
+            if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) {
+                continue;
+            }
+            boolean dup = unique.stream().anyMatch(u -> {
+                String[] up = u.split("\\|", 2);
+                if (up.length < 2) return false;
+                return up[0].trim().equalsIgnoreCase(label) && up[1].trim().equalsIgnoreCase(url);
+            });
+            if (!dup) {
+                unique.add(label.replace("|", " ").replace(";", " ").trim() + "|" + url.replace("|", "%7C").replace(";", "%3B").trim());
+            }
+        }
+        if (unique.isEmpty()) {
+            return null;
+        }
+        return String.join("; ", unique);
     }
 
     /**

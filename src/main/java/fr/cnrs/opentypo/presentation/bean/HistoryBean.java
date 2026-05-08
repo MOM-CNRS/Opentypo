@@ -696,6 +696,50 @@ public class HistoryBean implements Serializable {
     }
 
     /**
+     * Version "HTML" pour certains champs dont l'affichage nécessite des liens.
+     * Utilisé par la page d'historique (escape=false).
+     */
+    public String formatValueForField(String key, Object value) {
+        if (isNullOrEmpty(value)) {
+            return "Aucune valeur";
+        }
+        if ("corpusLies".equals(key)) {
+            return formatCorpusLinksHtml(String.valueOf(value));
+        }
+        return formatValue(value);
+    }
+
+    private String formatCorpusLinksHtml(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "Aucune valeur";
+        }
+        String[] entries = raw.split("[;；]");
+        StringBuilder sb = new StringBuilder();
+        for (String e : entries) {
+            if (e == null) continue;
+            String t = e.trim();
+            if (t.isEmpty()) continue;
+            String[] pair = t.split("\\|", 2);
+            if (sb.length() > 0) sb.append(" ; ");
+            if (pair.length >= 2) {
+                String label = pair[0] != null ? stripHtml(pair[0].trim()) : "";
+                String url = pair[1] != null ? stripHtml(pair[1].trim()) : "";
+                if (!label.isEmpty() && !url.isEmpty()) {
+                    sb.append("<a href=\"")
+                      .append(url.replace("\"", "%22"))
+                      .append("\" target=\"_blank\" rel=\"noopener noreferrer\">")
+                      .append(label)
+                      .append("</a>");
+                    continue;
+                }
+            }
+            // ancien format / libellé seul
+            sb.append(stripHtml(t));
+        }
+        return sb.length() == 0 ? "Aucune valeur" : sb.toString();
+    }
+
+    /**
      * Retire les balises HTML d'une chaîne pour un affichage en texte brut
      */
     private String stripHtml(String text) {

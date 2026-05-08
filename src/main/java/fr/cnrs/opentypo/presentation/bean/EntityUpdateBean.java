@@ -261,7 +261,9 @@ public class EntityUpdateBean implements Serializable {
     private String marques;
     private String descriptionPate;
     private String corpusExterne;
-    private String corpusLies;
+    private String corpusLieLabel;
+    private String corpusLieUrl;
+    private List<CorpusLinkItem> corpusLies = new ArrayList<>();
     private String alignementExterne;
     private String periode;
     private Integer tpq;
@@ -293,6 +295,16 @@ public class EntityUpdateBean implements Serializable {
         private String label;
         private String url;
         private String matchType;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CorpusLinkItem implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String label;
+        private String url;
     }
 
     private PactolsConcept periodeAutocompleteSelection = new PactolsConcept();
@@ -490,7 +502,9 @@ public class EntityUpdateBean implements Serializable {
         tpq = entity.getTpq();
         taq = entity.getTaq();
         corpusExterne = entity.getMetadata() != null ? entity.getMetadata().getCorpusExterne() : null;
-        corpusLies = entity.getMetadata() != null ? entity.getMetadata().getCorpusLies() : null;
+        corpusLieLabel = null;
+        corpusLieUrl = null;
+        corpusLies = parseCorpusLies(entity.getMetadata() != null ? entity.getMetadata().getCorpusLies() : null);
         alignementExterne = entity.getMetadata() != null ? entity.getMetadata().getAlignementExterne() : null;
 
         droit = entity.getDescriptionMonnaie() != null ? entity.getDescriptionMonnaie().getDroit() : null;
@@ -639,7 +653,9 @@ public class EntityUpdateBean implements Serializable {
         tpq = null;
         taq = null;
         corpusExterne = null;
-        corpusLies = null;
+        corpusLieLabel = null;
+        corpusLieUrl = null;
+        corpusLies = new ArrayList<>();
         alignementExterne = null;
         droit = null;
         legendeDroit = null;
@@ -1722,7 +1738,7 @@ public class EntityUpdateBean implements Serializable {
                 : null);
 
         entityMetadata.setCorpusExterne(corpusExterne != null && !corpusExterne.isBlank() ? corpusExterne.trim() : null);
-        entityMetadata.setCorpusLies(corpusLies != null && !corpusLies.isBlank() ? corpusLies.trim() : null);
+        entityMetadata.setCorpusLies(serializeCorpusLies(corpusLies));
 
         String newCommentaire = commentaire != null ? commentaire.trim() : null;
         entityMetadata.setCommentaire(newCommentaire);
@@ -2077,6 +2093,107 @@ public class EntityUpdateBean implements Serializable {
             sitesArcheologiques.add(siteArcheologiqueValue.trim());
             siteArcheologiqueValue = "";
         }
+    }
+
+    public void addCorpusLie() {
+        String label = corpusLieLabel != null ? corpusLieLabel.trim() : "";
+        String url = corpusLieUrl != null ? corpusLieUrl.trim() : "";
+        if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "Veuillez saisir un libellé et une URL."));
+            return;
+        }
+        String normalizedUrl = url;
+        if (normalizedUrl.toLowerCase().startsWith("www.")) {
+            normalizedUrl = "https://" + normalizedUrl;
+        }
+        if (!(normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://"))) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "L’URL doit commencer par http://, https:// ou www."));
+            return;
+        }
+        final String normalizedUrlFinal = normalizedUrl;
+        if (corpusLies == null) corpusLies = new ArrayList<>();
+        boolean duplicate = corpusLies.stream().anyMatch(it ->
+                it != null
+                        && it.getLabel() != null
+                        && it.getUrl() != null
+                        && it.getLabel().trim().equalsIgnoreCase(label)
+                        && it.getUrl().trim().equalsIgnoreCase(normalizedUrlFinal));
+        if (duplicate) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "Cette entrée est déjà présente."));
+            return;
+        }
+        corpusLies.add(new CorpusLinkItem(label, normalizedUrlFinal));
+        corpusLieLabel = null;
+        corpusLieUrl = null;
+    }
+
+    public void removeCorpusLie(CorpusLinkItem item) {
+        if (item == null || corpusLies == null) {
+            return;
+        }
+        corpusLies.removeIf(it ->
+                it != null
+                        && safeEqualsIgnoreCaseTrim(it.getLabel(), item.getLabel())
+                        && safeEqualsIgnoreCaseTrim(it.getUrl(), item.getUrl()));
+    }
+
+    private static boolean safeEqualsIgnoreCaseTrim(String a, String b) {
+        String aa = a != null ? a.trim() : "";
+        String bb = b != null ? b.trim() : "";
+        return aa.equalsIgnoreCase(bb);
+    }
+
+    private static List<CorpusLinkItem> parseCorpusLies(String raw) {
+        if (!StringUtils.hasText(raw)) {
+            return new ArrayList<>();
+        }
+        String[] entries = raw.split("[;；]");
+        List<CorpusLinkItem> out = new ArrayList<>();
+        for (String e : entries) {
+            if (!StringUtils.hasText(e)) continue;
+            String t = e.trim();
+            if (t.isEmpty()) continue;
+            String[] pair = t.split("\\|", 2);
+            if (pair.length < 2) {
+                // compat: ancien texte libre -> ignoré (nouveau champ exige label+url)
+                continue;
+            }
+            String label = pair[0] != null ? pair[0].trim() : "";
+            String url = pair[1] != null ? pair[1].trim() : "";
+            if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) continue;
+            boolean dup = out.stream().anyMatch(it ->
+                    it != null
+                            && safeEqualsIgnoreCaseTrim(it.getLabel(), label)
+                            && safeEqualsIgnoreCaseTrim(it.getUrl(), url));
+            if (!dup) {
+                out.add(new CorpusLinkItem(label, url));
+            }
+        }
+        return out;
+    }
+
+    private static String serializeCorpusLies(List<CorpusLinkItem> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        List<String> parts = new ArrayList<>();
+        for (CorpusLinkItem it : list) {
+            if (it == null) continue;
+            String label = it.getLabel() != null ? it.getLabel().trim() : "";
+            String url = it.getUrl() != null ? it.getUrl().trim() : "";
+            if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) continue;
+            // '|' et ';' sont réservés par le format de stockage
+            label = label.replace("|", " ").replace(";", " ").replace("；", " ").trim();
+            url = url.replace("|", "%7C").replace(";", "%3B").replace("；", "%3B").trim();
+            parts.add(label + "|" + url);
+        }
+        if (parts.isEmpty()) {
+            return null;
+        }
+        return String.join("; ", parts);
     }
 
     private static PactolsConcept refToConcept(ReferenceOpentheso ref) {

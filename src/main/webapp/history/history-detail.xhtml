@@ -119,7 +119,7 @@
                                                             </div>
                                                             <div class="concept-info-value concept-info-description">
                                                                 <ui:fragment rendered="#{historyBean.selectedRevision.entityData.containsKey(key) and not empty historyBean.selectedRevision.entityData[key]}">
-                                                                    <h:outputText value="#{historyBean.formatValue(historyBean.selectedRevision.entityData[key])}" escape="false"/>
+                                                                    <h:outputText value="#{historyBean.formatValueForField(key, historyBean.selectedRevision.entityData[key])}" escape="false"/>
                                                                 </ui:fragment>
                                                                 <ui:fragment rendered="#{not historyBean.selectedRevision.entityData.containsKey(key) or empty historyBean.selectedRevision.entityData[key]}">
                                                                     <span class="empty-field-message">Non renseigné</span>
