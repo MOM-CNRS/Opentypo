@@ -1328,6 +1328,19 @@
     text-decoration: none !important;
 }
 
+/* Supprimer (fiche type) — même accent rouge que l’ancien item du menu */
+.type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button.type-detail-action-delete {
+    color: #c53030 !important;
+    border-color: rgba(197, 48, 48, 0.38) !important;
+    background: transparent !important;
+}
+
+.type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button.type-detail-action-delete:hover {
+    background: #c53030 !important;
+    color: #ffffff !important;
+    border-color: #c53030 !important;
+}
+
 @media (max-width: 768px) {
     .type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button {
         width: 36px !important;
