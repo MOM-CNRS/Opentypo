@@ -260,48 +260,28 @@
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
                     <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
-                        <div id="type-section-datation" class="type-section-shell type-section-anchor">
+                        <div id="type-section-datation" class="type-section-shell type-section-anchor candidats-mt-20">
                             <ui:include src="datation.xhtml"/>
                         </div>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
-                        <div id="type-section-production" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/production.xhtml"/>
-                        </div>
+                        <ui:include src="../communs/production.xhtml"/>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()}">
-                        <div id="type-section-description" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/description_monnaie.xhtml"/>
-                        </div>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()}">
-                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
-                        </div>
+                        <ui:include src="../communs/description_monnaie.xhtml"/>
+                        <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{(applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()) and applicationBean.showDescriptionBlock()}">
-                        <div id="type-section-description" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/description.xhtml"/>
-                        </div>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()}">
-                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/caracteristiques_physique.xhtml"/>
-                        </div>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock()}">
-                        <div id="type-section-caracteristiques-physiques" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
-                        </div>
+                    <ui:fragment rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showDescriptionBlock()}">
+                        <ui:include src="../communs/description_ceramrique.xhtml"/>
+                        <ui:include src="../communs/caracteristiques_physique.xhtml"/>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
-                        <div id="type-section-attestations" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="attestations.xhtml"/>
-                        </div>
+                    <ui:fragment rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showDescriptionBlock()}">
+                        <ui:include src="../communs/description_instrumentum.xhtml"/>
+                        <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                     </ui:fragment>
 
                     <!--<ui:include src="gestion.xhtml"/>-->

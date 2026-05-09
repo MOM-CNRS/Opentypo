@@ -236,20 +236,16 @@
 
                             <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
                                 <ui:include src="../communs/description_monnaie.xhtml"/>
-                            </h:panelGroup>
-                            <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()}">
-                                <ui:include src="../communs/description.xhtml"/>
-                            </h:panelGroup>
-
-                            <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
                                 <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                                <ui:include src="../communs/description_ceramrique.xhtml"/>
                                 <ui:include src="../communs/caracteristiques_physique.xhtml"/>
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                                <ui:include src="../communs/description_instrumentum.xhtml"/>
                                 <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                             </h:panelGroup>
 

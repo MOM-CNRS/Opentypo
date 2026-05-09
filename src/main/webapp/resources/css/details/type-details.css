@@ -424,6 +424,19 @@
     width: 100%;
 }
 
+/* Description monnaie / instrumentum : 2 champs par ligne dans chaque bande (sans repasser à 1 colonne sur petit écran) */
+.type-detail-page .description-two-per-row .description-typo-band-grid.concept-info-grid--two-columns-max {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.type-detail-page .description-two-per-row .description-typo-band-grid.concept-info-grid--two-columns-max .concept-info-item:nth-child(2n) {
+    border-right: none;
+}
+
+.type-detail-page .description-two-per-row .description-typo-band-grid.concept-info-grid--two-columns-max .concept-info-item:nth-child(odd) {
+    border-right: 1px solid rgba(var(--type-main-rgb), 0.06);
+}
+
 /* ========== Bloc Description — recherche scientifique, lisibilité & sobriété ========== */
 .type-detail-page .description-typo-root {
     margin-top: 0;
