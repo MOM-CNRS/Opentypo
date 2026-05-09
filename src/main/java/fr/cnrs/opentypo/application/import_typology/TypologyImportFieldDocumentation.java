@@ -37,6 +37,7 @@ public final class TypologyImportFieldDocumentation {
 
     /**
      * Colonnes dans l’ordre du modèle téléchargeable, avec la description adaptée au profil.
+     * Le profil Ceramique utilise la combinaison "commun + specifique ceramique".
      */
     public static List<FieldDocRow> rowsForProfile(TypologyImportCollectionProfile profile) {
         TypologyImportCollectionProfile p = profile == TypologyImportCollectionProfile.UNSUPPORTED
@@ -45,7 +46,7 @@ public final class TypologyImportFieldDocumentation {
         String[] order = switch (p) {
             case MONNAIE -> TypologyImportMonnaieConstants.KNOWN_COLUMNS_MONNAIE;
             case INSTRUMENTUM -> TypologyImportInstrumentumConstants.KNOWN_COLUMNS_INSTRUMENTUM;
-            case CERAMIQUE, UNSUPPORTED -> TypologyImportConstants.KNOWN_COLUMNS;
+            case CERAMIQUE, UNSUPPORTED -> TypologyImportCeramiqueConstants.KNOWN_COLUMNS_CERAMIQUE;
         };
         Map<String, String> desc = descriptionsByColumn();
         List<FieldDocRow> rows = new ArrayList<>(order.length);
@@ -111,27 +112,27 @@ public final class TypologyImportFieldDocumentation {
                 "Corpus liés : liste d'entrées libellé|url séparées par || (ex. \"Corpus A|https://exemple.fr||Corpus B|https://exemple.fr/b\").");
 
         // Céramique — description détail & pâte
-        m.put(TypologyImportConstants.COL_DESCRIPTION_FORM,
+        m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_FORM,
                 "Forme (référence OpenTheso) : libellé:url ou libellé seul.");
-        m.put(TypologyImportConstants.COL_DESCRIPTION_DECORS,
+        m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS,
                 "Décors : texte ou liste selon le domaine.");
-        m.put(TypologyImportConstants.COL_DESCRIPTION_MARQUES,
+        m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES,
                 "Marques : valeurs séparées par || puis converties pour stockage.");
-        m.put(TypologyImportConstants.COL_DESCRIPTION_FONCTION,
+        m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION,
                 "Fonction / usage OpenTheso : libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE,
                 "Métrologie (céramique ou monnaie selon profil) : libellé:url lorsque stocké comme référence.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_FABRICATION,
                 "Fabrication / façonnage OpenTheso : libellé:url ou libellé seul.");
-        m.put(TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE,
+        m.put(TypologyImportCeramiqueConstants.COL_CARACT_PHYS_DESCRIPTION_PATE,
                 "Description textuelle de la pâte (céramique).");
-        m.put(TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE,
+        m.put(TypologyImportCeramiqueConstants.COL_CARACT_PHYS_COULEUR_PATE,
                 "Couleur de pâte OpenTheso : libellé:url ou libellé seul.");
-        m.put(TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE,
+        m.put(TypologyImportCeramiqueConstants.COL_CARACT_PHYS_NATURE_PATE,
                 "Nature de pâte OpenTheso : libellé:url ou libellé seul.");
-        m.put(TypologyImportConstants.COL_CARACT_PHYS_INCLUSION,
+        m.put(TypologyImportCeramiqueConstants.COL_CARACT_PHYS_INCLUSION,
                 "Inclusions OpenTheso : libellé:url ou libellé seul.");
-        m.put(TypologyImportConstants.COL_CARACT_PHYS_CUISSON,
+        m.put(TypologyImportCeramiqueConstants.COL_CARACT_PHYS_CUISSON,
                 "Cuisson OpenTheso : libellé:url ou libellé seul.");
 
         // Monnaie — descriptions & caractéristiques

@@ -459,8 +459,8 @@ public class TypologyImportService {
     }
 
     private void applyDescriptionDetailInstrumentum(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
-        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_DECORS, row, isCreate);
-        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
+        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS, row, isCreate);
+        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
         if (!touchDecors && !touchMarques) {
             return;
         }
@@ -471,10 +471,10 @@ public class TypologyImportService {
             entity.setDescriptionDetail(dd);
         }
         if (touchDecors) {
-            dd.setDecors(trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_DECORS)));
+            dd.setDecors(trimToNull(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS)));
         }
         if (touchMarques) {
-            dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
+            dd.setMarques(listToSemicolon(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES), false));
         }
     }
 
@@ -923,9 +923,9 @@ public class TypologyImportService {
     }
 
     private void applyDescriptionDetail(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
-        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_DECORS, row, isCreate);
-        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
-        boolean touchFonction = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FONCTION, row, isCreate);
+        boolean touchDecors = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS, row, isCreate);
+        boolean touchMarques = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES, row, isCreate);
+        boolean touchFonction = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION, row, isCreate);
         if (!touchDecors && !touchMarques && !touchFonction) {
             return;
         }
@@ -936,18 +936,18 @@ public class TypologyImportService {
             entity.setDescriptionDetail(dd);
         }
         if (touchDecors) {
-            dd.setDecors(trimToNull(getCell(row, TypologyImportConstants.COL_DESCRIPTION_DECORS)));
+            dd.setDecors(trimToNull(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS)));
         }
         if (touchMarques) {
-            dd.setMarques(listToSemicolon(getCell(row, TypologyImportConstants.COL_DESCRIPTION_MARQUES), false));
+            dd.setMarques(listToSemicolon(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES), false));
         }
         if (touchFonction) {
-            entity.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
+            entity.setFonction(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION), "FONCTION_USAGE"));
         }
     }
 
     private void applyCaracteristiquePhysique(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
-        boolean touchForme = shouldWriteField(csvHeaders, TypologyImportConstants.COL_DESCRIPTION_FORM, row, isCreate);
+        boolean touchForme = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FORM, row, isCreate);
         boolean touchMetro = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE, row, isCreate);
         boolean touchFab = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION, row, isCreate);
         if (!touchForme && !touchMetro && !touchFab) {
@@ -960,7 +960,7 @@ public class TypologyImportService {
             entity.setCaracteristiquePhysique(cp);
         }
         if (touchForme) {
-            cp.setForme(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_DESCRIPTION_FORM), "FORME"));
+            cp.setForme(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FORM), "FORME"));
         }
         if (touchMetro) {
             cp.setMetrologie(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), "METROLOGIE"));
@@ -972,11 +972,11 @@ public class TypologyImportService {
     }
 
     private void applyDescriptionPate(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
-        boolean touchDesc = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE, row, isCreate);
-        boolean touchCouleur = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE, row, isCreate);
-        boolean touchNature = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE, row, isCreate);
-        boolean touchIncl = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION, row, isCreate);
-        boolean touchCuisson = shouldWriteField(csvHeaders, TypologyImportConstants.COL_CARACT_PHYS_CUISSON, row, isCreate);
+        boolean touchDesc = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_DESCRIPTION_PATE, row, isCreate);
+        boolean touchCouleur = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_COULEUR_PATE, row, isCreate);
+        boolean touchNature = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_NATURE_PATE, row, isCreate);
+        boolean touchIncl = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_INCLUSION, row, isCreate);
+        boolean touchCuisson = shouldWriteField(csvHeaders, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_CUISSON, row, isCreate);
         if (!touchDesc && !touchCouleur && !touchNature && !touchIncl && !touchCuisson) {
             return;
         }
@@ -987,22 +987,22 @@ public class TypologyImportService {
             entity.setDescriptionPate(dp);
         }
         if (touchDesc) {
-            dp.setDescription(trimToNull(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_DESCRIPTION_PATE)));
+            dp.setDescription(trimToNull(getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_DESCRIPTION_PATE)));
         }
         if (touchCouleur) {
-            entity.setCouleurPate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE),
+            entity.setCouleurPate(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_COULEUR_PATE),
                     ReferenceOpenthesoEnum.COULEUR_PATE.name()));
         }
         if (touchNature) {
-            entity.setNaturePate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE),
+            entity.setNaturePate(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_NATURE_PATE),
                     ReferenceOpenthesoEnum.NATURE_PATE.name()));
         }
         if (touchIncl) {
-            entity.setInclusionPate(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION),
+            entity.setInclusionPate(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_INCLUSION),
                     ReferenceOpenthesoEnum.INCLUSIONS.name()));
         }
         if (touchCuisson) {
-            entity.setCuissonPostCuissonRef(saveReferenceForEntity(entity, getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON),
+            entity.setCuissonPostCuissonRef(saveReferenceForEntity(entity, getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_CUISSON),
                     ReferenceOpenthesoEnum.CUISSON_POST_CUISSON.name()));
         }
     }
@@ -1306,14 +1306,14 @@ public class TypologyImportService {
     private static void previewOpenThesoCeramique(Map<String, String> row, List<String> errors) {
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DATATION_PERIODE), TypologyImportConstants.COL_DATATION_PERIODE, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_PRODUCTION_VALUE), TypologyImportConstants.COL_PRODUCTION_VALUE, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FORM), TypologyImportConstants.COL_DESCRIPTION_FORM, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_DESCRIPTION_FONCTION), TypologyImportConstants.COL_DESCRIPTION_FONCTION, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FORM), TypologyImportCeramiqueConstants.COL_DESCRIPTION_FORM, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION), TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE), TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE, errors);
         checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_FABRICATION), TypologyImportConstants.COL_CARACT_PHYS_FABRICATION, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE), TypologyImportConstants.COL_CARACT_PHYS_COULEUR_PATE, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE), TypologyImportConstants.COL_CARACT_PHYS_NATURE_PATE, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_INCLUSION), TypologyImportConstants.COL_CARACT_PHYS_INCLUSION, errors);
-        checkLabelUrlOptional(getCell(row, TypologyImportConstants.COL_CARACT_PHYS_CUISSON), TypologyImportConstants.COL_CARACT_PHYS_CUISSON, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_COULEUR_PATE), TypologyImportCeramiqueConstants.COL_CARACT_PHYS_COULEUR_PATE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_NATURE_PATE), TypologyImportCeramiqueConstants.COL_CARACT_PHYS_NATURE_PATE, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_INCLUSION), TypologyImportCeramiqueConstants.COL_CARACT_PHYS_INCLUSION, errors);
+        checkLabelUrlOptional(getCell(row, TypologyImportCeramiqueConstants.COL_CARACT_PHYS_CUISSON), TypologyImportCeramiqueConstants.COL_CARACT_PHYS_CUISSON, errors);
     }
 
     private static void previewOpenThesoMonnaie(Map<String, String> row, List<String> errors) {

@@ -14,227 +14,225 @@
                     </div>
                 </header>
 
-                <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
-                    <!-- Ligne 1 : Métrologie | Fabrication/façonnage | Description pâte -->
+                <div class="description-typo-grid ceram-phys-layout">
+                    <!-- Colonne gauche : description pâte (texte libre) uniquement -->
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionPate != null ? applicationBean.selectedEntity.descriptionPate.description : null)}">
+                        <div class="ceram-phys-layout__col ceram-phys-layout__col--left">
+                            <div class="concept-info-grid-band description-typo-band">
+                                <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionPate != null ? applicationBean.selectedEntity.descriptionPate.description : null)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-arrows-h monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Description pâte</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionPate.description}">
+                                                <h:outputText value="#{applicationBean.selectedEntity.descriptionPate.description}" escape="false"/>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionPate.description}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
+                            </div>
+                        </div>
+                    </ui:fragment>
+
+                    <!-- Colonne droite : autres champs, une ligne par champ -->
                     <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.metrologie : null)
                             or applicationBean.showFieldWithValue(applicationBean.selectedEntity.fabricationsFaconnage)
-                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionPate != null ? applicationBean.selectedEntity.descriptionPate.description : null)}">
-                        <div class="concept-info-grid-band description-typo-band">
-                            <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
-                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.metrologie : null)}"
-                                              styleClass="concept-info-item description-typo-field" layout="block">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-calculator monnaie-communs-icon" aria-hidden="true"/>
-                                        <span>Métrologie</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
-                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
-                                                <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}"
-                                                              target="_blank"
-                                                              rel="noopener noreferrer"
-                                                              styleClass="concept-value-external-link">
-                                                    #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
-                                                    <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                </h:outputLink>
-                                            </ui:fragment>
-                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
-                                                #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
-                                            </ui:fragment>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.fabricationsFaconnage)}"
-                                              styleClass="concept-info-item description-typo-field" layout="block">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-circle monnaie-communs-icon" aria-hidden="true"/>
-                                        <span>Fabrication/façonnage</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.fabricationsFaconnage}">
-                                            <ui:repeat value="#{applicationBean.selectedEntity.fabricationsFaconnage}" var="fab">
-                                                <ui:fragment rendered="#{fab != null and not empty fab.valeur}">
-                                                    <ui:fragment rendered="#{not empty fab.url}">
-                                                        <h:outputLink value="#{fab.url}"
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      styleClass="concept-value-external-link">
-                                                            #{fab.valeur}
-                                                            <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                        </h:outputLink>
-                                                    </ui:fragment>
-                                                    <ui:fragment rendered="#{empty fab.url}">
-                                                        #{fab.valeur}
-                                                    </ui:fragment>
-                                                </ui:fragment>
-                                            </ui:repeat>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.fabricationsFaconnage}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.cuissonsPostCuisson)}"
-                                              layout="block"
-                                              styleClass="concept-info-item description-typo-field">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
-                                        <span>Cuisson/post-cuisson</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.cuissonsPostCuisson}">
-                                            <ui:repeat value="#{applicationBean.selectedEntity.cuissonsPostCuisson}" var="cq">
-                                                <ui:fragment rendered="#{cq != null and not empty cq.valeur}">
-                                                    <ui:fragment rendered="#{not empty cq.url}">
-                                                        <h:outputLink value="#{cq.url}"
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      styleClass="concept-value-external-link">
-                                                            #{cq.valeur}
-                                                            <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                        </h:outputLink>
-                                                    </ui:fragment>
-                                                    <ui:fragment rendered="#{empty cq.url}">
-                                                        #{cq.valeur}
-                                                    </ui:fragment>
-                                                </ui:fragment>
-                                            </ui:repeat>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.cuissonsPostCuisson}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </h:panelGroup>
-                            </div>
-                        </div>
-                    </ui:fragment>
-
-                    <!-- Ligne : Couleur | Nature | Inclusions -->
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.couleursPate)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.cuissonsPostCuisson)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.couleursPate)
                             or applicationBean.showFieldWithValue(applicationBean.selectedEntity.naturesPate)
                             or applicationBean.showFieldWithValue(applicationBean.selectedEntity.inclusionsPate)}">
-                        <div class="concept-info-grid-band description-typo-band">
-                            <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.couleursPate)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-cog monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Couleur de pâte</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.couleursPate}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.couleursPate}" var="coul">
-                                            <ui:fragment rendered="#{coul != null and not empty coul.valeur}">
-                                                <ui:fragment rendered="#{not empty coul.url}">
-                                                    <h:outputLink value="#{coul.url}"
+                        <div class="ceram-phys-layout__col ceram-phys-layout__col--right">
+                            <div class="concept-info-grid-band description-typo-band">
+                                <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.caracteristiquePhysique != null ? applicationBean.selectedEntity.caracteristiquePhysique.metrologie : null)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-calculator monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Métrologie</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
+                                                    <h:outputLink value="#{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}"
                                                                   target="_blank"
                                                                   rel="noopener noreferrer"
                                                                   styleClass="concept-value-external-link">
-                                                        #{coul.valeur}
+                                                        #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
                                                         <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
                                                     </h:outputLink>
                                                 </ui:fragment>
-                                                <ui:fragment rendered="#{empty coul.url}">
-                                                    #{coul.valeur}
+                                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie.url}">
+                                                    #{applicationBean.selectedEntity.caracteristiquePhysique.metrologie.valeur}
                                                 </ui:fragment>
                                             </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.couleursPate}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.naturesPate)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Nature de pâte</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.naturesPate}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.naturesPate}" var="nat">
-                                            <ui:fragment rendered="#{nat != null and not empty nat.valeur}">
-                                                <ui:fragment rendered="#{not empty nat.url}">
-                                                    <h:outputLink value="#{nat.url}"
-                                                                  target="_blank"
-                                                                  rel="noopener noreferrer"
-                                                                  styleClass="concept-value-external-link">
-                                                        #{nat.valeur}
-                                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                    </h:outputLink>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{empty nat.url}">
-                                                    #{nat.valeur}
-                                                </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.metrologie}">
+                                                <span class="empty-field-message">Non renseigné</span>
                                             </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.naturesPate}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
+                                        </div>
+                                    </h:panelGroup>
 
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.inclusionsPate)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
-                                    <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Inclusions</span>
-                                </div>
-                                <div class="concept-info-value">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.inclusionsPate}">
-                                        <ui:repeat value="#{applicationBean.selectedEntity.inclusionsPate}" var="inc">
-                                            <ui:fragment rendered="#{inc != null and not empty inc.valeur}">
-                                                <ui:fragment rendered="#{not empty inc.url}">
-                                                    <h:outputLink value="#{inc.url}"
-                                                                  target="_blank"
-                                                                  rel="noopener noreferrer"
-                                                                  styleClass="concept-value-external-link">
-                                                        #{inc.valeur}
-                                                        <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
-                                                    </h:outputLink>
-                                                </ui:fragment>
-                                                <ui:fragment rendered="#{empty inc.url}">
-                                                    #{inc.valeur}
-                                                </ui:fragment>
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.fabricationsFaconnage)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-circle monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Fabrication/façonnage</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.fabricationsFaconnage}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.fabricationsFaconnage}" var="fab">
+                                                    <ui:fragment rendered="#{fab != null and not empty fab.valeur}">
+                                                        <ui:fragment rendered="#{not empty fab.url}">
+                                                            <h:outputLink value="#{fab.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{fab.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty fab.url}">
+                                                            #{fab.valeur}
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
                                             </ui:fragment>
-                                        </ui:repeat>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.inclusionsPate}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-                            </div>
-                        </div>
-                    </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.fabricationsFaconnage}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
 
-                    <!-- Ligne : description pâte (texte libre) seule -->
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionPate != null ? applicationBean.selectedEntity.descriptionPate.description : null)}">
-                        <div class="concept-info-grid-band description-typo-band">
-                            <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionPate != null ? applicationBean.selectedEntity.descriptionPate.description : null)}"
-                                              styleClass="concept-info-item description-typo-field" layout="block">
-                                    <div class="concept-info-label">
-                                        <i class="pi pi-arrows-h monnaie-communs-icon" aria-hidden="true"/>
-                                        <span>Description pâte</span>
-                                    </div>
-                                    <div class="concept-info-value">
-                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.descriptionPate.description}">
-                                            <h:outputText value="#{applicationBean.selectedEntity.descriptionPate.description}" escape="false"/>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionPate.description}">
-                                            <span class="empty-field-message">Non renseigné</span>
-                                        </ui:fragment>
-                                    </div>
-                                </h:panelGroup>
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.cuissonsPostCuisson)}"
+                                                  layout="block"
+                                                  styleClass="concept-info-item description-typo-field">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Cuisson/post-cuisson</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.cuissonsPostCuisson}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.cuissonsPostCuisson}" var="cq">
+                                                    <ui:fragment rendered="#{cq != null and not empty cq.valeur}">
+                                                        <ui:fragment rendered="#{not empty cq.url}">
+                                                            <h:outputLink value="#{cq.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{cq.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty cq.url}">
+                                                            #{cq.valeur}
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.cuissonsPostCuisson}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.couleursPate)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-cog monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Couleur de pâte</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.couleursPate}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.couleursPate}" var="coul">
+                                                    <ui:fragment rendered="#{coul != null and not empty coul.valeur}">
+                                                        <ui:fragment rendered="#{not empty coul.url}">
+                                                            <h:outputLink value="#{coul.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{coul.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty coul.url}">
+                                                            #{coul.valeur}
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.couleursPate}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.naturesPate)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Nature de pâte</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.naturesPate}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.naturesPate}" var="nat">
+                                                    <ui:fragment rendered="#{nat != null and not empty nat.valeur}">
+                                                        <ui:fragment rendered="#{not empty nat.url}">
+                                                            <h:outputLink value="#{nat.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{nat.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty nat.url}">
+                                                            #{nat.valeur}
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.naturesPate}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.inclusionsPate)}"
+                                                  styleClass="concept-info-item description-typo-field" layout="block">
+                                        <div class="concept-info-label">
+                                            <i class="pi pi-wrench monnaie-communs-icon" aria-hidden="true"/>
+                                            <span>Inclusions</span>
+                                        </div>
+                                        <div class="concept-info-value">
+                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.inclusionsPate}">
+                                                <ui:repeat value="#{applicationBean.selectedEntity.inclusionsPate}" var="inc">
+                                                    <ui:fragment rendered="#{inc != null and not empty inc.valeur}">
+                                                        <ui:fragment rendered="#{not empty inc.url}">
+                                                            <h:outputLink value="#{inc.url}"
+                                                                          target="_blank"
+                                                                          rel="noopener noreferrer"
+                                                                          styleClass="concept-value-external-link">
+                                                                #{inc.valeur}
+                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                            </h:outputLink>
+                                                        </ui:fragment>
+                                                        <ui:fragment rendered="#{empty inc.url}">
+                                                            #{inc.valeur}
+                                                        </ui:fragment>
+                                                    </ui:fragment>
+                                                </ui:repeat>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.inclusionsPate}">
+                                                <span class="empty-field-message">Non renseigné</span>
+                                            </ui:fragment>
+                                        </div>
+                                    </h:panelGroup>
+                                </div>
                             </div>
                         </div>
                     </ui:fragment>

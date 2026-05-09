@@ -5,6 +5,10 @@
 .typology-import-page {
     --ti-accent: var(--color-action-main, #47624D);
     --ti-accent-soft: rgba(71, 98, 77, 0.12);
+    --ti-upload-bg: rgba(209, 216, 190, 0.65);
+    --ti-upload-bg-hover: rgba(167, 193, 168, 0.42);
+    --ti-cancel-bg: rgba(238, 239, 224, 0.92);
+    --ti-cancel-bg-hover: rgba(209, 216, 190, 0.55);
     --ti-accent-border: rgba(71, 98, 77, 0.22);
     --ti-text-muted: var(--color-text-secondary, #819a91);
     --ti-card-shadow: 0 8px 26px rgba(36, 49, 38, 0.09);
@@ -208,6 +212,31 @@
 .typology-import-page .typology-import-upload .ui-fileupload-choose:hover {
     background: #3d5240 !important;
     border-color: #3d5240 !important;
+}
+
+/* Charger / Annuler : fond vert plus clair que le bouton principal « Choisir » */
+.typology-import-page .typology-import-upload .ui-fileupload-upload {
+    background: var(--ti-upload-bg) !important;
+    border-color: var(--ti-accent-border) !important;
+    color: #2a3d2d !important;
+}
+
+.typology-import-page .typology-import-upload .ui-fileupload-upload:hover:not(:disabled) {
+    background: var(--ti-upload-bg-hover) !important;
+    border-color: rgba(71, 98, 77, 0.35) !important;
+    color: #1e2a20 !important;
+}
+
+.typology-import-page .typology-import-upload .ui-fileupload-cancel {
+    background: var(--ti-cancel-bg) !important;
+    border-color: var(--ti-accent-border) !important;
+    color: var(--ti-accent) !important;
+}
+
+.typology-import-page .typology-import-upload .ui-fileupload-cancel:hover:not(:disabled) {
+    background: var(--ti-cancel-bg-hover) !important;
+    border-color: rgba(71, 98, 77, 0.32) !important;
+    color: #2f4a32 !important;
 }
 
 .typology-import-file-hint {

@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import jakarta.servlet.http.Part;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -935,6 +936,26 @@ public class ReferenceBean implements Serializable {
 
         return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
                 PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+    }
+
+    /**
+     * Navigation vers l’assistant d’import CSV typologique (équivalent au lien direct {@code /import/typology-import.xhtml}).
+     */
+    public void openTypologyImport() {
+        if (!canImportTypology(applicationBean)) {
+            return;
+        }
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc == null) {
+            return;
+        }
+        try {
+            String url = fc.getExternalContext().getRequestContextPath() + "/import/typology-import.xhtml";
+            fc.getExternalContext().redirect(url);
+            fc.responseComplete();
+        } catch (IOException e) {
+            log.warn("Redirection vers import typologie impossible : {}", e.getMessage());
+        }
     }
 
     public boolean showReferenceStatut() {

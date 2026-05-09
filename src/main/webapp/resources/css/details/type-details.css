@@ -93,7 +93,12 @@
     scroll-margin-top: calc(var(--type-nav-height, 3.25rem) + 0.75rem);
 }
 
-.type-detail-page--v2 #type-identity {
+.type-detail-page--v2 #type-identity,
+.type-detail-page--v2 #groupe-identity,
+.type-detail-page--v2 #serie-identity,
+.type-detail-page--v2 #collection-identity,
+.type-detail-page--v2 #reference-identity,
+.type-detail-page--v2 #category-identity {
     scroll-margin-top: var(--type-nav-height, 3.25rem);
 }
 
@@ -459,6 +464,41 @@
 }
 
 .type-detail-page .description-typo-grid > .description-typo-band.concept-info-grid-band:last-of-type {
+    margin-bottom: 0.25rem;
+}
+
+/* Caractéristiques physiques céramique : grille 2 colonnes (description pâte | liste des autres champs) */
+.type-detail-page .description-typo-grid.ceram-phys-layout {
+    display: grid;
+    gap: 0.75rem 1rem;
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .type-detail-page .description-typo-grid.ceram-phys-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .type-detail-page .description-typo-grid.ceram-phys-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.type-detail-page .ceram-phys-layout__col {
+    min-width: 0;
+}
+
+.type-detail-page .ceram-phys-layout__col:only-child {
+    grid-column: 1 / -1;
+}
+
+.type-detail-page .description-typo-grid.ceram-phys-layout .ceram-phys-layout__col .description-typo-band.concept-info-grid-band {
+    margin-bottom: 0.45rem;
+}
+
+.type-detail-page .description-typo-grid.ceram-phys-layout .ceram-phys-layout__col:last-child .description-typo-band.concept-info-grid-band {
     margin-bottom: 0.25rem;
 }
 
@@ -1267,6 +1307,65 @@
     background: var(--type-main);
     color: #ffffff;
     border-color: var(--type-main);
+}
+
+/* commandLink PrimeFaces : même rendu 40×40 que h:outputLink.concept-action-button */
+.type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+}
+
+.type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button:hover {
+    text-decoration: none !important;
+}
+
+@media (max-width: 768px) {
+    .type-detail-page .concept-info-actions > a.ui-commandlink.concept-action-button {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+    }
+
+    .type-detail-page .collection-visibility-card a.ui-commandlink.concept-action-button {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+    }
+}
+
+/* Bouton visibilité dans la carte : même gabarit que les autres actions du header */
+.type-detail-page .collection-visibility-card a.ui-commandlink.concept-action-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--type-border) !important;
+    color: var(--type-main) !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+.type-detail-page .collection-visibility-card a.ui-commandlink.concept-action-button:hover {
+    background: var(--type-main) !important;
+    color: #ffffff !important;
+    border-color: var(--type-main) !important;
+    text-decoration: none !important;
+    transform: none !important;
 }
 
 /* ---- Menu contextuel d'actions (type) ---- */
