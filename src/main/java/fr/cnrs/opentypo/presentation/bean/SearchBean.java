@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -222,7 +223,7 @@ public class SearchBean implements Serializable {
         List<SelectItem> items = new ArrayList<>();
         
         // Ajouter l'option "Toutes les collections"
-        items.add(new SelectItem("", "Toutes les typologies"));
+        items.add(new SelectItem("", JsfMessages.get("search.collection.allTypologies")));
 
         ApplicationBean appBean = applicationBeanProvider != null ? applicationBeanProvider.get() : null;
         
@@ -614,27 +615,27 @@ public class SearchBean implements Serializable {
      */
     public String getEntityTypeLabel(Entity entity) {
         if (entity == null || entity.getEntityType() == null) {
-            return "Entité";
+            return JsfMessages.get("search.entity.generic");
         }
         
         String entityTypeCode = entity.getEntityType().getCode();
         
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(entityTypeCode)) {
-            return "Collection";
+            return JsfMessages.get("search.entity.collection");
         } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(entityTypeCode)) {
-            return "Référentiel";
+            return JsfMessages.get("search.entity.reference");
         } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode) || 
                    "CATEGORIE".equals(entityTypeCode)) {
-            return "Catégorie";
+            return JsfMessages.get("search.entity.category");
         } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(entityTypeCode)) {
-            return "Groupe";
+            return JsfMessages.get("search.entity.group");
         } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)) {
-            return "Série";
+            return JsfMessages.get("search.entity.series");
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
-            return "Type";
+            return JsfMessages.get("search.entity.type");
         }
         
-        return "Entité";
+        return JsfMessages.get("search.entity.generic");
     }
 
     /**
@@ -644,7 +645,7 @@ public class SearchBean implements Serializable {
         List<SelectItem> items = new ArrayList<>();
         
         // Option "Tous les types"
-        items.add(new SelectItem("", "Tous les types"));
+        items.add(new SelectItem("", JsfMessages.get("search.filter.allEntityTypes")));
         
         try {
             // Récupérer tous les types d'entités depuis la base de données
@@ -672,22 +673,22 @@ public class SearchBean implements Serializable {
      */
     private String getEntityTypeDisplayLabel(String code) {
         if (code == null) {
-            return "Inconnu";
+            return JsfMessages.get("search.entity.unknown");
         }
         
         // Utiliser if-else pour éviter les problèmes avec les constantes et les valeurs littérales
         if (EntityConstants.ENTITY_TYPE_COLLECTION.equals(code)) {
-            return "Collection";
+            return JsfMessages.get("search.entity.collection");
         } else if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(code)) {
-            return "Référentiel";
+            return JsfMessages.get("search.entity.reference");
         } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(code)) {
-            return "Catégorie";
+            return JsfMessages.get("search.entity.category");
         } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(code)) {
-            return "Groupe";
+            return JsfMessages.get("search.entity.group");
         } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(code)) {
-            return "Série";
+            return JsfMessages.get("search.entity.series");
         } else if (EntityConstants.ENTITY_TYPE_TYPE.equals(code)) {
-            return "Type";
+            return JsfMessages.get("search.entity.type");
         } else {
             return code;
         }
@@ -698,9 +699,9 @@ public class SearchBean implements Serializable {
      */
     public List<SelectItem> getStatutFilterItems() {
         List<SelectItem> items = new ArrayList<>();
-        items.add(new SelectItem("", "Tous"));
-        items.add(new SelectItem("public", "Public"));
-        items.add(new SelectItem("prive", "Privé"));
+        items.add(new SelectItem("", JsfMessages.get("search.filter.all")));
+        items.add(new SelectItem("public", JsfMessages.get("search.filter.public")));
+        items.add(new SelectItem("prive", JsfMessages.get("search.filter.private")));
         return items;
     }
 
@@ -709,9 +710,9 @@ public class SearchBean implements Serializable {
      */
     public List<SelectItem> getEtatFilterItems() {
         List<SelectItem> items = new ArrayList<>();
-        items.add(new SelectItem("", "Tous"));
-        items.add(new SelectItem("publie", "Publié"));
-        items.add(new SelectItem("proposition", "Proposition"));
+        items.add(new SelectItem("", JsfMessages.get("search.filter.all")));
+        items.add(new SelectItem("publie", JsfMessages.get("search.filter.published")));
+        items.add(new SelectItem("proposition", JsfMessages.get("search.filter.proposal")));
         return items;
     }
 
@@ -720,9 +721,9 @@ public class SearchBean implements Serializable {
      */
     public List<SelectItem> getSearchTypeFilterItems() {
         List<SelectItem> items = new ArrayList<>();
-        items.add(new SelectItem("CONTAINS", "Contient"));
-        items.add(new SelectItem("STARTS_WITH", "Commence par"));
-        items.add(new SelectItem("EXACT", "Chaîne exacte"));
+        items.add(new SelectItem("CONTAINS", JsfMessages.get("search.match.contains")));
+        items.add(new SelectItem("STARTS_WITH", JsfMessages.get("search.match.startsWith")));
+        items.add(new SelectItem("EXACT", JsfMessages.get("search.match.exact")));
         return items;
     }
 }

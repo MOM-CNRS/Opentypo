@@ -16,12 +16,12 @@
                     <div>
                         <h1 class="authors-title">
                             <i class="pi pi-users authors-title-icon"/>
-                            Gestion des auteurs scientifiques
+                            #{msg['scientificAuthors.title']}
                         </h1>
-                        <p class="authors-subtitle">Consultez, filtrez et maintenez votre référentiel d'auteurs avec une vue claire et rapide.</p>
+                        <p class="authors-subtitle">#{msg['scientificAuthors.subtitle']}</p>
                     </div>
                     <h:panelGroup rendered="#{scientificAuthorBean.canManageScientificAuthors()}">
-                        <p:commandButton value="Nouvel auteur"
+                        <p:commandButton value="#{msg['scientificAuthors.new']}"
                                          icon="pi pi-plus"
                                          styleClass="authors-primary-btn"
                                          actionListener="#{scientificAuthorBean.startCreate()}"
@@ -31,15 +31,15 @@
                 </div>
                 <div class="authors-kpis">
                     <div class="authors-kpi-card">
-                        <span class="authors-kpi-label">Total</span>
+                        <span class="authors-kpi-label">#{msg['scientificAuthors.kpi.total']}</span>
                         <strong class="authors-kpi-value">#{scientificAuthorBean.allAuthors.size()}</strong>
                     </div>
                     <div class="authors-kpi-card authors-kpi-card-active">
-                        <span class="authors-kpi-label">Visibles</span>
+                        <span class="authors-kpi-label">#{msg['scientificAuthors.kpi.visible']}</span>
                         <strong class="authors-kpi-value">#{scientificAuthorBean.activeAuthorsCount}</strong>
                     </div>
                     <div class="authors-kpi-card authors-kpi-card-inactive">
-                        <span class="authors-kpi-label">Masqués</span>
+                        <span class="authors-kpi-label">#{msg['scientificAuthors.kpi.hidden']}</span>
                         <strong class="authors-kpi-value">#{scientificAuthorBean.inactiveAuthorsCount}</strong>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                     <span class="ui-input-icon-left authors-search-wrap">
                         <i class="pi pi-search"/>
                         <p:inputText value="#{scientificAuthorBean.searchText}"
-                                     placeholder="Rechercher par nom ou prénom"
+                                     placeholder="#{msg['scientificAuthors.search.placeholder']}"
                                      styleClass="authors-search-input">
                             <p:ajax event="keyup" listener="#{scientificAuthorBean.applyFilter}" update="authorsTable"/>
                         </p:inputText>
@@ -61,30 +61,30 @@
                     <div class="authors-editor-animated-shell #{scientificAuthorBean.editorVisible ? 'is-visible' : 'is-hidden'}">
                         <div class="authors-editor-card">
                             <div class="authors-editor-header">
-                                <h3>#{scientificAuthorBean.editMode ? 'Modifier un auteur scientifique' : 'Ajouter un auteur scientifique'}</h3>
+                                <h3>#{scientificAuthorBean.editMode ? msg['scientificAuthors.editor.editTitle'] : msg['scientificAuthors.editor.addTitle']}</h3>
                                 <p:commandButton icon="pi pi-times"
                                                  styleClass="authors-editor-close"
-                                                 title="Fermer"
+                                                 title="#{msg['scientificAuthors.close']}"
                                                  actionListener="#{scientificAuthorBean.resetForm()}"
                                                  process="@this"
                                                  update=":authorsForm:authorEditor"/>
                             </div>
                             <div class="authors-editor-grid">
                                 <div class="authors-field">
-                                    <p:outputLabel value="Nom" for="nomInput"/>
+                                    <p:outputLabel value="#{msg['scientificAuthors.field.lastName']}" for="nomInput"/>
                                     <p:inputText id="nomInput" value="#{scientificAuthorBean.editingAuthor.nom}" maxlength="120" required="true"/>
                                 </div>
                                 <div class="authors-field">
-                                    <p:outputLabel value="Prénom" for="prenomInput"/>
+                                    <p:outputLabel value="#{msg['scientificAuthors.field.firstName']}" for="prenomInput"/>
                                     <p:inputText id="prenomInput" value="#{scientificAuthorBean.editingAuthor.prenom}" maxlength="120" required="true"/>
                                 </div>
                                 <div class="authors-field authors-field-switch">
-                                    <p:outputLabel value="Visible (actif)" for="activeInput"/>
+                                    <p:outputLabel value="#{msg['scientificAuthors.field.visible']}" for="activeInput"/>
                                     <p:selectBooleanCheckbox id="activeInput" value="#{scientificAuthorBean.editingAuthor.active}"/>
                                 </div>
                             </div>
                             <div class="authors-editor-actions">
-                                <p:commandButton value="#{scientificAuthorBean.editMode ? 'Enregistrer les modifications' : 'Ajouter un auteur'}"
+                                <p:commandButton value="#{scientificAuthorBean.editMode ? msg['scientificAuthors.btn.saveEdit'] : msg['scientificAuthors.btn.add']}"
                                                  icon="pi pi-check"
                                                  styleClass="authors-primary-btn"
                                                  actionListener="#{scientificAuthorBean.saveAuthor()}"
@@ -97,21 +97,21 @@
 
                 <div class="authors-table-wrapper">
                     <div class="authors-table-header">
-                        <h3>Liste des auteurs</h3>
-                        <span class="authors-table-count">#{scientificAuthorBean.filteredAuthors.size()} résultat(s)</span>
+                        <h3>#{msg['scientificAuthors.list.title']}</h3>
+                        <span class="authors-table-count">#{scientificAuthorBean.filteredAuthors.size()} #{msg['scientificAuthors.list.resultsSuffix']}</span>
                     </div>
                     <p:dataTable id="authorsTable"
                                  value="#{scientificAuthorBean.filteredAuthors}"
                                  var="author"
                                  styleClass="authors-table"
-                                 emptyMessage="Aucun auteur scientifique trouvé."
+                                 emptyMessage="#{msg['scientificAuthors.table.empty']}"
                                  paginator="true"
                                  rows="12"
                                  rowsPerPageTemplate="12,24,50"
                                  paginatorPosition="bottom"
                                  sortMode="multiple">
 
-                        <p:column headerText="Auteur" sortBy="#{author.nom}">
+                        <p:column headerText="#{msg['scientificAuthors.col.author']}" sortBy="#{author.nom}">
                             <div class="authors-name-cell">
                                 <div class="authors-avatar">
                                     <i class="pi pi-user"/>
@@ -123,34 +123,34 @@
                             </div>
                         </p:column>
 
-                        <p:column headerText="Visibilité" sortBy="#{author.active}" styleClass="authors-col-status">
+                        <p:column headerText="#{msg['scientificAuthors.col.visibility']}" sortBy="#{author.active}" styleClass="authors-col-status">
                             <span class="authors-status-badge #{author.active ? 'authors-status-active' : 'authors-status-hidden'}">
                                 <i class="pi #{author.active ? 'pi-eye' : 'pi-eye-slash'}"/>
-                                #{author.active ? 'Visible' : 'Masqué'}
+                                #{author.active ? msg['scientificAuthors.status.visible'] : msg['scientificAuthors.status.hidden']}
                             </span>
                         </p:column>
 
-                        <p:column headerText="Actions" rendered="#{scientificAuthorBean.canManageScientificAuthors()}" styleClass="authors-col-actions">
+                        <p:column headerText="#{msg['scientificAuthors.col.actions']}" rendered="#{scientificAuthorBean.canManageScientificAuthors()}" styleClass="authors-col-actions">
                             <div class="authors-actions">
                                 <p:commandButton icon="pi pi-pencil"
-                                                 title="Modifier"
+                                                 title="#{msg['scientificAuthors.action.edit']}"
                                                  styleClass="authors-action-btn authors-action-edit"
                                                  actionListener="#{scientificAuthorBean.startEdit(author)}"
                                                  process="@this"
                                                  update=":authorsForm:authorEditor"/>
                                 <p:commandButton icon="#{author.active ? 'pi pi-eye-slash' : 'pi pi-eye'}"
-                                                 title="#{author.active ? 'Masquer' : 'Rendre visible'}"
+                                                 title="#{author.active ? msg['scientificAuthors.action.hide'] : msg['scientificAuthors.action.show']}"
                                                  styleClass="authors-action-btn authors-action-visibility"
                                                  actionListener="#{scientificAuthorBean.toggleVisibility(author)}"
                                                  process="@this"
                                                  update="@form"/>
                                 <p:commandButton icon="pi pi-trash"
-                                                 title="Supprimer"
+                                                 title="#{msg['scientificAuthors.action.delete']}"
                                                  styleClass="authors-action-btn authors-action-delete"
                                                  actionListener="#{scientificAuthorBean.deleteAuthor(author)}"
                                                  process="@this"
                                                  update="@form"
-                                                 onclick="return confirm('Supprimer cet auteur scientifique ?');"/>
+                                                 onclick="return confirm('#{msg['scientificAuthors.confirm.delete']}');"/>
                             </div>
                         </p:column>
                     </p:dataTable>

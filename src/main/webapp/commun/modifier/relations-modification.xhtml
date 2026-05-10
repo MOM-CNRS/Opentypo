@@ -7,18 +7,18 @@
     <!-- Commentaire et bibliographie (communs) -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
-        <b><p:outputLabel value="Références" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.references.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Typologie scientifique -->
         <div class="users-form-group users-form-group-full periode-group">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Typologie scientifique" />
+                <p:outputLabel value="#{msg['modifier.field.scientificTypology']}" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                        <i class="pi pi-sitemap input-icon" title="Typologie scientifique"/>
+                        <i class="pi pi-sitemap input-icon" title="#{msg['modifier.field.scientificTypology']}"/>
                         <p:inputText value="#{entityUpdateBean.typologieScientifique}"
                                      styleClass="users-input"
-                                     placeholder="Aucun valeur pour typologie scientifique"/>
+                                     placeholder="#{msg['modifier.placeholder.scientificTypology']}"/>
                     </div>
                 </div>
             </div>
@@ -27,12 +27,12 @@
         <!-- Référentiel -->
         <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Autre(s) référentiel(s)" />
+                <p:outputLabel value="#{msg['modifier.field.otherReferentials']}" />
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-book input-icon" title="Référentiel"/>
+                    <i class="pi pi-book input-icon" title="#{msg['modifier.icon.referential']}"/>
                     <p:chips value="#{entityUpdateBean.referentiels}"
                              styleClass="users-chips"
-                             placeholder="Saisissez un référentiel, Entrée ou séparez par point-virgule (;)..."
+                             placeholder="#{msg['modifier.placeholder.referentials']}"
                              maxlength="500"
                              addOnBlur="true"
                              addOnPaste="true"
@@ -46,8 +46,8 @@
         </div>
 
         <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
-            <p:outputLabel value="Alignement interne" />
-            <p class="internal-alignment-helper-text">Ajoutez un type cible puis choisissez le niveau de correspondance.</p>
+            <p:outputLabel value="#{msg['modifier.field.internalAlignment']}" />
+            <p class="internal-alignment-helper-text">#{msg['modifier.internalAlignment.helper']}</p>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-search input-icon" />
@@ -58,7 +58,7 @@
                                     itemLabel="#{entityUpdateBean.internalAlignmentTypeToLabel(typeItem)}"
                                     itemValue="#{typeItem.id}"
                                     forceSelection="true"
-                                    placeholder="Rechercher un type à aligner..."
+                                    placeholder="#{msg['modifier.placeholder.searchTypeAlign']}"
                                     styleClass="users-input"/>
                 </div>
             </div>
@@ -69,11 +69,11 @@
                     <p:selectOneMenu id="internalAlignmentMatchType"
                                      value="#{entityUpdateBean.selectedInternalAlignmentMatchType}"
                                      styleClass="users-input">
-                        <f:selectItem itemLabel="ExactMatch" itemValue="ExactMatch"/>
-                        <f:selectItem itemLabel="CloseMatch" itemValue="CloseMatch"/>
+                        <f:selectItem itemLabel="#{msg['modifier.match.exact']}" itemValue="ExactMatch"/>
+                        <f:selectItem itemLabel="#{msg['modifier.match.close']}" itemValue="CloseMatch"/>
                     </p:selectOneMenu>
                 </div>
-                <p:commandButton value="Ajouter"
+                <p:commandButton value="#{msg['modifier.action.add']}"
                                  icon="pi pi-plus"
                                  styleClass="reference-btn-add internal-alignment-add-btn"
                                  actionListener="#{entityUpdateBean.addInternalAlignment}"
@@ -88,9 +88,9 @@
                             <div class="internal-alignment-item-main">
                                 <ui:fragment rendered="#{not empty alignment.targetTypeCode}">
                                     <h:outputLink value="#{request.contextPath}/#{alignment.targetTypeCode}" styleClass="internal-alignment-target-link"
-                                                title="Ouvrir la fiche #{alignment.targetTypeCode}">
+                                                title="#{msg['modifier.internalAlignment.openSheet']} #{alignment.targetTypeCode}">
                                         #{alignment.targetTypeCode}
-                                        <ui:fragment rendered="#{not empty alignment.targetTypeLabel and alignment.targetTypeLabel ne 'Non renseigné'}">
+                                        <ui:fragment rendered="#{not empty alignment.targetTypeLabel and alignment.targetTypeLabel ne msg['production.empty.notProvided']}">
                                             (#{alignment.targetTypeLabel})
                                         </ui:fragment>
                                     </h:outputLink>
@@ -114,8 +114,8 @@
         </div>
 
         <div class="users-form-group users-form-group-full periode-group candidats-mt-10">
-            <p:outputLabel value="Alignement externe" />
-            <p class="internal-alignment-helper-text">Ajoutez un libellé, une URL publique et le niveau de correspondance.</p>
+            <p:outputLabel value="#{msg['modifier.field.alignementExterne']}" />
+            <p class="internal-alignment-helper-text">#{msg['modifier.externalAlignment.helper']}</p>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-tag input-icon" />
@@ -123,7 +123,7 @@
                                  value="#{entityUpdateBean.selectedExternalAlignmentLabel}"
                                  styleClass="users-input"
                                  maxlength="255"
-                                 placeholder="Ex: Wikidata"/>
+                                 placeholder="#{msg['modifier.placeholder.externalLabel.example']}"/>
                 </div>
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt-10">
@@ -132,7 +132,7 @@
                     <p:inputText id="externalAlignmentUrl"
                                  value="#{entityUpdateBean.selectedExternalAlignmentUrl}"
                                  styleClass="users-input"
-                                 placeholder="Ex: https://www.wikidata.org/wiki/Q12345"/>
+                                 placeholder="#{msg['modifier.placeholder.externalUrl.example']}"/>
                 </div>
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt-10">
@@ -141,11 +141,11 @@
                     <p:selectOneMenu id="externalAlignmentMatchType"
                                      value="#{entityUpdateBean.selectedExternalAlignmentMatchType}"
                                      styleClass="users-input">
-                        <f:selectItem itemLabel="ExactMatch" itemValue="ExactMatch"/>
-                        <f:selectItem itemLabel="CloseMatch" itemValue="CloseMatch"/>
+                        <f:selectItem itemLabel="#{msg['modifier.match.exact']}" itemValue="ExactMatch"/>
+                        <f:selectItem itemLabel="#{msg['modifier.match.close']}" itemValue="CloseMatch"/>
                     </p:selectOneMenu>
                 </div>
-                <p:commandButton value="Ajouter"
+                <p:commandButton value="#{msg['modifier.action.add']}"
                                  icon="pi pi-plus"
                                  styleClass="reference-btn-add internal-alignment-add-btn"
                                  actionListener="#{entityUpdateBean.addExternalAlignment}"
@@ -158,7 +158,7 @@
                     <div class="internal-alignment-item">
                         <div class="internal-alignment-item-main">
                             <h:outputLink value="#{alignment.url}" styleClass="internal-alignment-target-link"
-                                          target="_blank" title="Ouvrir le lien externe">
+                                          target="_blank" title="#{msg['modifier.link.openExternal.title']}">
                                 #{alignment.label}
                             </h:outputLink>
                             <span class="internal-alignment-match-badge #{alignment.matchType == 'CloseMatch' ? 'internal-alignment-match-close' : 'internal-alignment-match-exact'}">

@@ -16,6 +16,12 @@ opentypo:
     api-key: ${OPENTYPO_ZOTERO_API_KEY:}
     citation-style: ${OPENTYPO_ZOTERO_CITATION_STYLE:chicago-note-bibliography}
     locale: ${OPENTYPO_ZOTERO_LOCALE:fr-FR}
+  # ARK : aucune attribution tant que naan et shoulder ne sont pas renseignés (ici ou sur le référentiel).
+  # NAAN officiel : https://n2t.net/e/naan_request — variables OPENTYPO_ARK_NAAN / OPENTYPO_ARK_SHOULDER.
+  ark:
+    enabled: ${OPENTYPO_ARK_ENABLED:true}
+    naan: ${OPENTYPO_ARK_NAAN:}
+    shoulder: ${OPENTYPO_ARK_SHOULDER:}
 
 spring:
   autoconfigure:

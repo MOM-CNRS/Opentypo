@@ -12,15 +12,15 @@
                     <i class="pi pi-database" />
                 </div>
                 <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des référentiels</h3>
+                    <h3 class="collection-references-title">#{msg['list.references.title']}</h3>
                 </div>
             </div>
             <span class="reference-categories-count-badge">
-                #{applicationBean.childsReferencesSize} référentiel#{applicationBean.childsReferencesSize gt 1 ? 's' : ''}
+                #{applicationBean.childsReferencesSize} #{applicationBean.childsReferencesSize gt 1 ? msg['list.entity.reference.plural'] : msg['list.entity.reference.singular']}
             </span>
             <h:panelGroup class="collection-references-actions"
                           rendered="#{collectionBean.canEditCollection(applicationBean)}">
-                <p:commandButton value="Réorganiser l'ordre"
+                <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
                                  rendered="#{applicationBean.filteredReferencesSize gt 1}"
                                  styleClass="collection-create-btn collection-reorder-btn"
@@ -51,21 +51,21 @@
                     <p:inputText id="referencesSearchInput"
                                  value="#{applicationBean.referencesSearchQuery}"
                                  styleClass="reference-categories-search-input"
-                                 placeholder="Rechercher par code ou label...">
+                                 placeholder="#{msg['list.search.placeholder']}">
                         <p:ajax event="keyup"
                                 process="@this"
                                 update="referencesContent"
                                 delay="300"/>
                     </p:inputText>
                 </div>
-                <p:commandLink value="#{applicationBean.referencesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                <p:commandLink value="#{applicationBean.referencesViewAll ? msg['list.viewAll.pageMode'] : msg['list.viewAll.all']}"
                                icon="#{applicationBean.referencesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
                                styleClass="list-view-all-btn"
                                rendered="#{applicationBean.filteredReferencesSize gt 6}"
                                process="@this"
                                update="collectionReferencesContainer"
                                action="#{applicationBean.toggleReferencesViewAll()}"
-                               title="#{applicationBean.referencesViewAllToggleTitle}"/>
+                               title="#{applicationBean.referencesViewAll ? msg['list.viewAll.title.backPaged'] : msg['list.viewAll.title.allReferences']}"/>
             </div>
 
             <h:panelGroup id="referencesContent" class="collections-grid collections-grid-cadre">
@@ -82,7 +82,7 @@
                                                 update=":centerContent"
                                                 pt:data-entity-code="#{reference.code}"
                                                 onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                                onstart="showLoading('Chargement du référentiel...', 'spinner');"
+                                                onstart="showLoading('#{msg['list.references.loading']}', 'spinner');"
                                                 oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                                 onerror="forceHideLoading();"
                                                 styleClass="collection-panel-title-link">
@@ -103,7 +103,7 @@
                             <div class="collection-panel-image">
                                 <p:graphicImage value="#{reference.imagePrincipaleUrl}"
                                                 styleClass="collection-image"
-                                                alt="Image du référentiel"
+                                                alt="#{msg['reference.alt.image']}"
                                                 rendered="#{not empty reference.imagePrincipaleUrl}"/>
                                 <h:panelGroup rendered="#{empty reference.imagePrincipaleUrl}">
                                     <div class="collection-image-placeholder">
@@ -116,7 +116,7 @@
                                 <div class="collection-info-item collection-info-item-full">
                                     <div class="collection-info-label">
                                         <i class="pi pi-file collection-info-icon" />
-                                        <span>Description</span>
+                                        <span>#{msg['common.description']}</span>
                                     </div>
                                     <div class="collection-info-value collection-info-description">
                                         <h:outputText value="#{applicationBean.getEntityDescription(reference)}" escape="false"/>
@@ -126,7 +126,7 @@
                                 <div class="collection-info-item">
                                     <div class="collection-info-label">
                                         <i class="pi pi-user collection-info-icon" />
-                                        <span>Auteur(s)</span>
+                                        <span>#{msg['list.references.authors']}</span>
                                     </div>
                                     <div class="collection-info-value bibliographie-container">
                                         <ui:fragment rendered="#{not empty reference.auteurs}">
@@ -136,7 +136,7 @@
                                                         </span>
                                             </ui:repeat>
                                         </ui:fragment>
-                                        <h:outputText value="Aucun auteur disponible"
+                                        <h:outputText value="#{msg['type.authors.empty']}"
                                                     rendered="#{empty reference.auteurs}"
                                                     styleClass="bibliographie-empty" />
                                     </div>
@@ -145,7 +145,7 @@
                                 <div class="collection-info-item">
                                     <div class="collection-info-label">
                                         <i class="pi pi-book collection-info-icon" />
-                                        <span>Référence bibliographique</span>
+                                        <span>#{msg['reference.meta.bibliography.label']}</span>
                                     </div>
                                     <div class="collection-info-value bibliographie-container">
                                         <ui:fragment rendered="#{not empty reference.referenceBibliographique}">
@@ -157,7 +157,7 @@
                                                 </ui:fragment>
                                             </ui:repeat>
                                         </ui:fragment>
-                                        <h:outputText value="Aucune référence bibliographique disponible"
+                                        <h:outputText value="#{msg['reference.meta.bibliography.empty']}"
                                                     rendered="#{empty reference.referenceBibliographique}"
                                                     styleClass="bibliographie-empty" />
                                     </div>
@@ -173,8 +173,8 @@
                         <i class="pi pi-inbox" aria-hidden="true"/>
                     </div>
                     <div class="reference-categories-empty-content">
-                        <h4 class="reference-categories-empty-title">Aucun référentiel disponible</h4>
-                        <p class="reference-categories-empty-text">Cette collection ne contient actuellement aucun référentiel.</p>
+                        <h4 class="reference-categories-empty-title">#{msg['list.references.empty.title']}</h4>
+                        <p class="reference-categories-empty-text">#{msg['list.references.empty.body']}</p>
                     </div>
                 </h:panelGroup>
                 <!-- Message si recherche sans résultat -->
@@ -184,8 +184,8 @@
                         <i class="pi pi-search" aria-hidden="true"/>
                     </div>
                     <div class="reference-categories-empty-content">
-                        <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                        <p class="reference-categories-empty-text">Aucun référentiel ne correspond à votre recherche.</p>
+                        <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                        <p class="reference-categories-empty-text">#{msg['list.references.noResults']}</p>
                     </div>
                 </h:panelGroup>
 
@@ -197,9 +197,9 @@
                                     update="referencesContent"
                                     action="#{applicationBean.referencesPreviousPage()}"
                                     disabled="#{applicationBean.referencesFirstPage}"
-                                    title="Page précédente"/>
+                                    title="#{msg['list.pagination.previous']}"/>
                     <span class="reference-categories-page-info">
-                        Page #{applicationBean.referencesCurrentPage} / #{applicationBean.referencesTotalPages}
+                        #{msg['list.pagination.pageWord']} #{applicationBean.referencesCurrentPage} / #{applicationBean.referencesTotalPages}
                     </span>
                     <p:commandButton icon="pi pi-chevron-right"
                                     styleClass="reference-categories-page-btn"
@@ -207,7 +207,7 @@
                                     update="referencesContent"
                                     action="#{applicationBean.referencesNextPage()}"
                                     disabled="#{applicationBean.referencesLastPage}"
-                                    title="Page suivante"/>
+                                    title="#{msg['list.pagination.next']}"/>
                 </h:panelGroup>
             </h:panelGroup>
         </h:panelGroup>

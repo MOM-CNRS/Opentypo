@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.service.SitePresentationService;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.domain.entity.Langue;
 import fr.cnrs.opentypo.domain.entity.SitePresentation;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
@@ -91,13 +92,15 @@ public class SitePresentationBean implements Serializable {
     public void savePresentation() {
         if (!canEditPresentation()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Vous n'avez pas les droits pour modifier la présentation."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("sitePresentation.error.noRights.summary")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (editLangueCode == null || editLangueCode.isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Veuillez sélectionner une langue."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("sitePresentation.error.selectLang.summary")));
             PrimeFaces.current().ajax().update(":sitePresentationContent :growl");
             return;
         }
@@ -105,13 +108,15 @@ public class SitePresentationBean implements Serializable {
             sitePresentationService.save(editLangueCode, editTitre, editDescription);
             editing = false;
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "La présentation a été enregistrée."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                            JsfMessages.get("sitePresentation.success.saved.summary")));
             PrimeFaces.current().ajax().update(":growl :sitePresentationContent");
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement de la présentation", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Une erreur est survenue : " + (e.getMessage() != null ? e.getMessage() : e.toString())));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("sitePresentation.error.save.detail",
+                                    e.getMessage() != null ? e.getMessage() : e.toString())));
             PrimeFaces.current().ajax().update(":sitePresentationContent :growl");
         }
     }

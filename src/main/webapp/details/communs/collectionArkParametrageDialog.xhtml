@@ -1,0 +1,82 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <p:dialog id="collectionArkParametrageDialog"
+              widgetVar="collectionArkParametrageDialog"
+              header="#{msg['reference.action.settings.ark.title']}"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="true"
+              width="560"
+              height="auto"
+              styleClass="opentheso-dialog parametrage-dialog"
+              showEffect="fade"
+              hideEffect="fade"
+              responsive="true">
+
+        <h:form id="collectionArkParametrageForm" styleClass="parametrage-form">
+            <p class="ark-parametrage-hint">
+                #{msg['reference.action.settings.ark.intro']}
+                <strong>#{msg['reference.action.settings.ark.fallbackNaan']} #{collectionParametrageBean.fallbackArkNaanHint}</strong>,
+                <strong>#{msg['reference.action.settings.ark.fallbackShoulder']} #{collectionParametrageBean.fallbackArkShoulderHint}</strong>.
+            </p>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="arkNaanField" value="#{msg['reference.action.settings.ark.field.naan']}" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-hashtag input-icon" />
+                        <p:inputText id="arkNaanField"
+                                     value="#{collectionParametrageBean.arkNaanEdit}"
+                                     styleClass="users-input"
+                                     placeholder="#{msg['reference.action.settings.ark.placeholder.naan']}"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="arkShoulderField" value="#{msg['reference.action.settings.ark.field.shoulder']}" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-tag input-icon" />
+                        <p:inputText id="arkShoulderField"
+                                     value="#{collectionParametrageBean.arkShoulderEdit}"
+                                     styleClass="users-input"
+                                     placeholder="#{msg['reference.action.settings.ark.placeholder.shoulder']}"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row">
+                <div class="opentheso-dialog-field-full">
+                    <p:outputLabel for="arkResolverField" value="#{msg['reference.action.settings.ark.field.resolver']}" />
+                    <div class="input-wrapper">
+                        <i class="pi pi-external-link input-icon" />
+                        <p:inputText id="arkResolverField"
+                                     value="#{collectionParametrageBean.arkResolverBaseEdit}"
+                                     styleClass="users-input"
+                                     placeholder="#{msg['reference.action.settings.ark.placeholder.resolver']}"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer" style="text-align: right">
+                <div class="opentheso-dialog-actions-buttons category-form-actions parametrage-form-actions">
+                    <p:button value="#{msg['reference.action.settings.ark.cancel']}"
+                              icon="pi pi-times"
+                              onclick="PF('collectionArkParametrageDialog').hide(); return false;"
+                              styleClass="category-btn category-btn-cancel"/>
+                    <p:commandButton value="#{msg['reference.action.settings.ark.save']}"
+                                     icon="pi pi-check"
+                                     action="#{collectionParametrageBean.saveArkParametrage}"
+                                     process="@form"
+                                     update=":growl"
+                                     styleClass="category-btn category-btn-validate"/>
+                </div>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:fragment>

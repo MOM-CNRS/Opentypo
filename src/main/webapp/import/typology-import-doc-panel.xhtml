@@ -2,29 +2,27 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui">
 
-    <p:panel header="Documentation des colonnes CSV — #{typologyImportBean.importCollectionTypologyLabel}"
+    <p:panel header="#{msg['import.doc.panel.header']} #{typologyImportBean.importCollectionTypologyLabel}"
              toggleable="true"
              collapsed="true"
              styleClass="typology-import-doc-panel">
         <div class="typology-import-doc-intro">
             <p class="typology-import-doc-intro-lead">
-                Une ligne du fichier correspond à une catégorie, un groupe, une série ou un type
-                (selon les codes renseignés). Les en-têtes doivent reprendre exactement les noms du modèle.
+                #{msg['import.doc.intro']}
             </p>
             <ul class="typology-import-doc-rules">
-                <li>Séparateur de colonnes : <strong>virgule</strong> ou <strong>point-virgule</strong> (détection automatique).</li>
-                <li>Listes multi-valeurs dans une cellule : séparateur <code>||</code> (le séparateur <code>##</code> est aussi accepté pour les images).</li>
-                <li>Références OpenTheso : format <code>libellé:url</code> avec une URL <code>http(s)</code>.</li>
-                <li><strong>auteur_scientifique</strong> : <code>{Prénom, Nom}</code> pour chaque personne, plusieurs auteurs avec <code>||</code> ;
-                    si une valeur contient des virgules dans un CSV à virgules, entourer la cellule de guillemets doubles.</li>
+                <li>#{msg['import.doc.rule.1']}</li>
+                <li>#{msg['import.doc.rule.2']}</li>
+                <li>#{msg['import.doc.rule.3']}</li>
+                <li>#{msg['import.doc.rule.4']}</li>
             </ul>
         </div>
         <div class="typology-import-doc-scroll" tabindex="0">
             <table class="typology-import-doc-table">
                 <thead>
                 <tr>
-                    <th scope="col">Colonne</th>
-                    <th scope="col">Description</th>
+                    <th scope="col">#{msg['import.doc.table.column']}</th>
+                    <th scope="col">#{msg['import.doc.table.description']}</th>
                 </tr>
                 </thead>
                 <tbody>

@@ -9,11 +9,11 @@
                 <div id="type-identity" class="concept-info-panel type-identity-panel #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-mode' : ''}">
                     <div class="concept-info-header type-identity-header">
                         <div class="concept-info-title-section">
-                            <span class="reference-entity-type-badge">Type</span>
+                            <span class="reference-entity-type-badge">#{msg['type.badge']}</span>
                             <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                           styleClass="collection-not-published-icon">
                                 <i class="pi pi-clock"/>
-                                <p:tooltip value="Type non publiée" position="top"/>
+                                <p:tooltip value="#{msg['type.tooltip.notPublished']}" position="top"/>
                             </h:panelGroup>
                             <div class="collection-panel-title-wrapper">
                                 <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
@@ -21,6 +21,7 @@
                                     <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
                                 </span>
                             </div>
+                            <ui:include src="../communs/entity-id-ark-display.xhtml"/>
                         </div>
 
                         <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
@@ -29,20 +30,20 @@
                                            process="@this"
                                            update="@none"
                                            styleClass="concept-action-button"
-                                           title="Voir l'historique des modifications"
+                                           title="#{msg['common.history.title']}"
                                            immediate="true">
                                 <i class="pi pi-history"/>
-                                <p:tooltip value="Voir l'historique" position="top"/>
+                                <p:tooltip value="#{msg['common.history.tooltip']}" position="top"/>
                             </p:commandLink>
 
                             <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                            process="@this"
                                            update=":contentPanels :leftTreePanel :searchSectionWrapper"
                                            styleClass="concept-action-button"
-                                           title="Modifier la fiche type"
+                                           title="#{msg['type.action.edit.title']}"
                                            rendered="#{typeBean.canEditType(applicationBean)}">
                                 <i class="pi pi-file-edit"/>
-                                <p:tooltip value="Modifier" position="top"/>
+                                <p:tooltip value="#{msg['common.edit']}" position="top"/>
                             </p:commandLink>
 
                             <p:commandLink action="#{typeBean.prepareMoveTypeDialog()}"
@@ -50,10 +51,10 @@
                                            update=":moveTypeDialog"
                                            oncomplete="PF('moveTypeDialog').show();"
                                            styleClass="concept-action-button"
-                                           title="Déplacer le type dans l'arborescence"
+                                           title="#{msg['type.action.move.title']}"
                                            rendered="#{typeBean.canEditType(applicationBean)}">
                                 <i class="pi pi-arrow-right-arrow-left"/>
-                                <p:tooltip value="Déplacer" position="top"/>
+                                <p:tooltip value="#{msg['type.action.move.tooltip']}" position="top"/>
                             </p:commandLink>
 
                             <p:commandLink action="#{typeBean.prepareDuplicateTypeDialog()}"
@@ -61,10 +62,10 @@
                                            update=":duplicateTypeDialog :duplicateTypeDialogForm"
                                            oncomplete="PF('duplicateTypeDialog').show();"
                                            styleClass="concept-action-button"
-                                           title="Dupliquer ce type"
+                                           title="#{msg['type.action.duplicate.title']}"
                                            rendered="#{typeBean.canEditType(applicationBean)}">
                                 <i class="pi pi-copy"/>
-                                <p:tooltip value="Dupliquer" position="top"/>
+                                <p:tooltip value="#{msg['type.action.duplicate.tooltip']}" position="top"/>
                             </p:commandLink>
 
                             <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
@@ -73,9 +74,9 @@
                                            oncomplete="PF('confirmDeleteDialog').show();"
                                            rendered="#{typeBean.canEditType(applicationBean)}"
                                            styleClass="concept-action-button type-detail-action-delete"
-                                           title="Supprimer ce type">
+                                           title="#{msg['type.action.delete.title']}">
                                 <i class="pi pi-trash"/>
-                                <p:tooltip value="Supprimer" position="top"/>
+                                <p:tooltip value="#{msg['common.delete']}" position="top"/>
                             </p:commandLink>
 
                             <h:panelGroup rendered="#{loginBean.currentUser != null}">
@@ -86,7 +87,7 @@
                                                 <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
                                             </div>
                                             <div class="collection-visibility-info">
-                                                <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? msg['common.visibility.public'] : msg['common.visibility.private']}</span>
                                             </div>
                                         </div>
                                         <h:panelGroup rendered="#{typeBean.canEditType(applicationBean)}"
@@ -94,9 +95,10 @@
                                             <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                            process="@this"
                                                            update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                           title="#{msg['common.visibility.toggle.title']}"
                                                            action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                 <i class="pi pi-sync" />
-                                                <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                <p:tooltip value="#{msg['common.visibility.toggle.tooltip']}" position="top"/>
                                             </p:commandLink>
                                         </h:panelGroup>
                                     </div>
@@ -106,33 +108,33 @@
                     </div>
 
                     <h:panelGroup rendered="#{!entityUpdateBean.editingEntity}">
-                        <nav class="type-page-nav" aria-label="Accès rapide aux sections de la fiche">
+                        <nav class="type-page-nav" aria-label="#{msg['type.nav.aria']}">
                             <div class="type-page-nav__scroller">
-                                <span class="type-page-nav__label">Accès rapide</span>
-                                <a href="#type-identity" class="type-page-nav__pill">Présentation</a>
+                                <span class="type-page-nav__label">#{msg['type.nav.quickAccess']}</span>
+                                <a href="#type-identity" class="type-page-nav__pill">#{msg['type.nav.presentation']}</a>
                                 <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
-                                    <a href="#type-section-datation" class="type-page-nav__pill">Datation</a>
+                                    <a href="#type-section-datation" class="type-page-nav__pill">#{msg['common.section.datation']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
-                                    <a href="#type-section-production" class="type-page-nav__pill">Production</a>
+                                    <a href="#type-section-production" class="type-page-nav__pill">#{msg['common.section.production']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()) or ((applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()) and applicationBean.showDescriptionBlock())}">
-                                    <a href="#type-section-description" class="type-page-nav__pill">Description</a>
+                                    <a href="#type-section-description" class="type-page-nav__pill">#{msg['common.description']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()) or (applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()) or (applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock())}">
-                                    <a href="#type-section-caracteristiques-physiques" class="type-page-nav__pill">Caractéristiques physiques</a>
+                                    <a href="#type-section-caracteristiques-physiques" class="type-page-nav__pill">#{msg['common.section.physicalCharacteristics']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
-                                    <a href="#type-section-attestations" class="type-page-nav__pill">Attestations</a>
+                                    <a href="#type-section-attestations" class="type-page-nav__pill">#{msg['common.section.attestations']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
-                                    <a href="#type-section-references" class="type-page-nav__pill">Références</a>
+                                    <a href="#type-section-references" class="type-page-nav__pill">#{msg['common.section.references']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
-                                    <a href="#type-section-commentaire" class="type-page-nav__pill">Commentaire</a>
+                                    <a href="#type-section-commentaire" class="type-page-nav__pill">#{msg['common.section.comment']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
-                                    <a href="#type-section-bibliographie" class="type-page-nav__pill">Bibliographie</a>
+                                    <a href="#type-section-bibliographie" class="type-page-nav__pill">#{msg['common.section.bibliography']}</a>
                                 </ui:fragment>
                             </div>
                         </nav>
@@ -150,12 +152,12 @@
                     </div>
 
                     <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
-                             aria-label="Texte de la fiche type">
+                             aria-label="#{msg['type.presentation.region']}">
                         <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="type-identity-texte-heading">
                             <header class="concept-info-header monnaie-communs-header description-typo-header">
                                 <div class="concept-info-title-section monnaie-communs-title-wrapper">
                                     <i class="pi pi-file-edit monnaie-communs-title-icon" aria-hidden="true"/>
-                                    <h2 id="type-identity-texte-heading" class="concept-info-title monnaie-communs-title">Présentation</h2>
+                                    <h2 id="type-identity-texte-heading" class="concept-info-title monnaie-communs-title">#{msg['common.presentation']}</h2>
                                 </div>
                             </header>
 
@@ -166,7 +168,7 @@
                                             <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
                                                 <div class="concept-info-label">
                                                     <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
-                                                    <span>Description</span>
+                                                    <span>#{msg['common.description']}</span>
                                                 </div>
                                                 <div class="concept-info-value concept-info-description description-typo-prose-body">
                                                     <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
@@ -179,7 +181,7 @@
                                                                     <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                                                 </div>
                                                                 <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
-                                                                    afficher la suite
+                                                                    #{msg['common.description.showMore']}
                                                                 </button>
                                                             </div>
                                                         </ui:fragment>
@@ -190,7 +192,7 @@
                                                         </ui:fragment>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                                        <span class="empty-field-message">Non renseigné</span>
+                                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                     </ui:fragment>
                                                 </div>
                                             </h:panelGroup>
@@ -204,7 +206,7 @@
                                             <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
                                                 <div class="concept-info-label">
                                                     <i class="pi pi-tag monnaie-communs-icon" aria-hidden="true"/>
-                                                    <span>Appellation(s) usuelle(s)</span>
+                                                    <span>#{msg['type.appellation.label']}</span>
                                                 </div>
                                                 <div class="concept-info-value concept-info-description">
                                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.appellationsUsuelles}">
@@ -220,7 +222,7 @@
                                                                     </h:outputLink>
                                                                 </ui:fragment>
                                                                 <ui:fragment rendered="#{empty ref.url}">
-                                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
+                                                                        <span class="concept-value-no-link" title="#{msg['type.appellation.noLinkTitle']}">
                                                                             <i class="pi pi-link-slash" aria-hidden="true"/>
                                                                             #{ref.valeur}
                                                                         </span>
@@ -228,7 +230,7 @@
                                                             </ui:fragment>
                                                         </ui:repeat>
                                                     </ui:fragment>
-                                                    <h:outputText value="Non renseigné"
+                                                    <h:outputText value="#{msg['common.empty.notProvided']}"
                                                                   rendered="#{empty applicationBean.selectedEntity.appellationsUsuelles}"
                                                                   styleClass="empty-field-message"/>
                                                 </div>
@@ -243,7 +245,7 @@
                                             <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
                                                 <div class="concept-info-label">
                                                     <i class="pi pi-users monnaie-communs-icon" aria-hidden="true"/>
-                                                    <span>Auteur(s) scientifique(s)</span>
+                                                    <span>#{msg['type.authors.label']}</span>
                                                 </div>
 
                                                 <div class="concept-info-value bibliographie-container">
@@ -256,7 +258,7 @@
                                                         </ui:repeat>
                                                     </ui:fragment>
 
-                                                    <h:outputText value="Aucun auteur scientifique disponible" styleClass="bibliographie-empty"
+                                                    <h:outputText value="#{msg['type.authors.empty']}" styleClass="bibliographie-empty"
                                                                   rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}" />
                                                 </div>
                                             </h:panelGroup>

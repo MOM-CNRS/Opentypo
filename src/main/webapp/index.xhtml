@@ -64,14 +64,14 @@
                         <h:form rendered="#{applicationBean.showTypePanel and typeBean.canPublishOrRefusePropositionType(applicationBean) and not entityUpdateBean.editingEntity}"
                                 styleClass="groupe-proposition-actions candidats-mt-20">
                             <div class="groupe-proposition-actions-wrapper">
-                                <p:commandButton value="Publier"
+                                <p:commandButton value="#{msg['common.publish']}"
                                                  icon="pi pi-check-circle"
                                                  styleClass="groupe-proposition-btn groupe-proposition-btn-publish"
                                                  process="@this"
                                                  update=":confirmPropositionActionDialog"
                                                  action="#{applicationBean.prepareConfirmPropositionAction(true)}"/>
 
-                                <p:commandButton value="Refuser"
+                                <p:commandButton value="#{msg['common.refuse']}"
                                                  icon="pi pi-times-circle"
                                                  styleClass="groupe-proposition-btn groupe-proposition-btn-refuse"
                                                  process="@this"
@@ -83,6 +83,7 @@
                         <!-- Dialog paramétrage OpenTheso (utilisé par collection et groupe) -->
                         <ui:include src="details/communs/collectionParametrageDialog.xhtml"/>
                         <ui:include src="details/communs/collectionBibliographieParametrageDialog.xhtml"/>
+                        <ui:include src="details/communs/collectionArkParametrageDialog.xhtml"/>
                         <ui:include src="details/communs/confirmVisibilityChangeDialog.xhtml"/>
                         <ui:include src="details/communs/confirmPropositionActionDialog.xhtml"/>
                         <ui:include src="dialogs/typeDialog.xhtml"/>

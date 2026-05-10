@@ -13,16 +13,16 @@
                     <i class="pi pi-tag" />
                 </div>
                 <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des types</h3>
+                    <h3 class="collection-references-title">#{msg['list.types.title']}</h3>
                 </div>
             </div>
 
             <span class="reference-categories-count-badge">
-                #{applicationBean.childsTypesSize} type#{applicationBean.childsTypesSize gt 1 ? 's' : ''}
+                #{applicationBean.childsTypesSize} #{applicationBean.childsTypesSize gt 1 ? msg['list.entity.type.plural'] : msg['list.entity.type.singular']}
             </span>
 
             <h:panelGroup class="collection-references-actions" rendered="#{typeBean.canCreateType(applicationBean) or typeBean.canEditType(applicationBean)}">
-                <p:commandButton value="Réorganiser l'ordre"
+                <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
                                  rendered="#{typeBean.canEditType(applicationBean) and applicationBean.filteredTypesSize gt 1}"
                                  styleClass="collection-create-btn collection-reorder-btn"
@@ -30,7 +30,7 @@
                                  process="@this"
                                  update=":orderListDialog"
                                  oncomplete="PF('orderListDialog').show();"/>
-                <p:commandButton value="Créer un nouveau type"
+                <p:commandButton value="#{msg['list.types.create']}"
                                  icon="pi pi-plus"
                                  rendered="#{typeBean.canCreateType(applicationBean)}"
                                  styleClass="collection-create-btn"
@@ -55,21 +55,21 @@
                     <p:inputText id="categoriesSearchInput"
                                  value="#{applicationBean.typesSearchQuery}"
                                  styleClass="reference-categories-search-input"
-                                 placeholder="Rechercher par code ou label...">
+                                 placeholder="#{msg['list.search.placeholder']}">
                         <p:ajax event="keyup"
                                 process="@this"
                                 update="categoriesContent"
                                 delay="300"/>
                     </p:inputText>
                 </div>
-                <p:commandLink value="#{applicationBean.typesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                <p:commandLink value="#{applicationBean.typesViewAll ? msg['list.viewAll.pageMode'] : msg['list.viewAll.all']}"
                                icon="#{applicationBean.typesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
                                styleClass="list-view-all-btn"
                                rendered="#{applicationBean.filteredTypesSize gt 6}"
                                process="@this"
                                update="categoriesContainer2"
                                action="#{applicationBean.toggleTypesViewAll()}"
-                               title="#{applicationBean.typesViewAll ? 'Revenir à la pagination' : 'Afficher tous les types en une seule page'}"/>
+                               title="#{applicationBean.typesViewAll ? msg['list.viewAll.title.backPaged'] : msg['list.viewAll.title.allTypes']}"/>
             </div>
 
             <h:panelGroup id="categoriesContent">
@@ -81,13 +81,13 @@
                                        update=":centerContent"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        pt:data-entity-code="#{type.code}"
-                                       onstart="showLoading('Chargement du type...', 'spinner');"
+                                       onstart="showLoading('#{msg['list.types.loading']}', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <div class="typologie-card-image-wrapper">
                                 <p:graphicImage value="#{type.image.url}"
                                                 styleClass="typologie-card-image"
-                                                alt="Typologie"
+                                                alt="#{msg['list.types.card.alt']}"
                                                 rendered="#{not empty type.image and not empty type.image.url}"/>
                                 <div class="typologie-card-overlay"></div>
                                 <h:panelGroup class="reference-image-placeholder"
@@ -107,11 +107,11 @@
                             <i class="pi pi-inbox" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun type disponible</h4>
-                            <p class="reference-categories-empty-text">Aucun type n'est rattaché à l'élément sélectionné.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.types.empty.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.types.empty.body']}</p>
                             <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                 <i class="pi pi-info-circle" aria-hidden="true"/>
-                                <span>Il faut passer par un brouillon pour en ajouter un.</span>
+                                <span>#{msg['list.hint.draftAdd.one']}</span>
                             </h:panelGroup>
                         </div>
                     </h:panelGroup>
@@ -122,8 +122,8 @@
                             <i class="pi pi-search" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                            <p class="reference-categories-empty-text">Aucun type ne correspond à votre recherche.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.types.noResults']}</p>
                         </div>
                     </h:panelGroup>
 
@@ -135,9 +135,9 @@
                                          update="categoriesContent"
                                          action="#{applicationBean.typesPreviousPage()}"
                                          disabled="#{applicationBean.typesFirstPage}"
-                                         title="Page précédente"/>
+                                         title="#{msg['list.pagination.previous']}"/>
                         <span class="reference-categories-page-info">
-                            Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
+                            #{msg['list.pagination.pageWord']} #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
                         </span>
                         <p:commandButton icon="pi pi-chevron-right"
                                          styleClass="reference-categories-page-btn"
@@ -145,7 +145,7 @@
                                          update="categoriesContent"
                                          action="#{applicationBean.typesNextPage()}"
                                          disabled="#{applicationBean.typesLastPage}"
-                                         title="Page suivante"/>
+                                         title="#{msg['list.pagination.next']}"/>
                     </h:panelGroup>
                 </div>
             </h:panelGroup>

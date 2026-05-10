@@ -46,7 +46,7 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Non renseigné"
+                                    <h:outputText value="#{msg['production.empty.notProvided']}"
                                                   rendered="#{empty applicationBean.selectedEntity.productions}"
                                                   styleClass="empty-field-message"/>
                                 </div>
@@ -68,7 +68,7 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Non renseigné"
+                                    <h:outputText value="#{msg['production.empty.notProvided']}"
                                                   rendered="#{empty applicationBean.selectedEntity.metadata or empty applicationBean.selectedEntity.metadata.ateliers}"
                                                   styleClass="empty-field-message"/>
                                 </div>
@@ -102,7 +102,7 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Non renseigné"
+                                    <h:outputText value="#{msg['production.empty.notProvided']}"
                                                   rendered="#{empty applicationBean.selectedEntity.airesCirculation}"
                                                   styleClass="empty-field-message"/>
                                 </div>

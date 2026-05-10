@@ -12,7 +12,7 @@
                         <i class="pi pi-pencil"/>
                     </div>
                     <div class="group-dialog-permission-card-label">
-                        <label>Rédacteurs</label>
+                        <label>#{msg['modifier.role.editors']}</label>
                     </div>
                 </div>
                 <p:pickList id="redacteursPickList"
@@ -25,12 +25,12 @@
                             showSourceFilter="true"
                             showTargetFilter="true"
                             filterMatchMode="contains"
-                            sourceFilterPlaceholder="Rechercher..."
-                            targetFilterPlaceholder="Rechercher..."
+                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
                             responsive="true"
                             rendered="#{not empty entityUpdateBean.redacteursList}"/>
                 <h:panelGroup rendered="#{empty entityUpdateBean.redacteursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun rédacteur disponible</span>
+                    <span>#{msg['modifier.role.editors.none']}</span>
                 </h:panelGroup>
             </div>
         </div>
@@ -42,7 +42,7 @@
                         <i class="pi pi-check-circle"/>
                     </div>
                     <div class="group-dialog-permission-card-label">
-                        <label>Validateurs</label>
+                        <label>#{msg['modifier.role.validators']}</label>
                     </div>
                 </div>
                 <p:pickList id="validateursPickList"
@@ -55,12 +55,12 @@
                             showSourceFilter="true"
                             showTargetFilter="true"
                             filterMatchMode="contains"
-                            sourceFilterPlaceholder="Rechercher..."
-                            targetFilterPlaceholder="Rechercher..."
+                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
                             responsive="true"
                             rendered="#{not empty entityUpdateBean.validateursList}"/>
                 <h:panelGroup rendered="#{empty entityUpdateBean.validateursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun validateur disponible</span>
+                    <span>#{msg['modifier.role.validators.none']}</span>
                 </h:panelGroup>
             </div>
         </div>
@@ -71,7 +71,7 @@
                         <i class="pi pi-pencil"/>
                     </div>
                     <div class="group-dialog-permission-card-label">
-                        <label>Relecteurs</label>
+                        <label>#{msg['modifier.role.proofreaders']}</label>
                     </div>
                 </div>
                 <p:pickList id="relecteursPickList"
@@ -84,12 +84,12 @@
                             showSourceFilter="true"
                             showTargetFilter="true"
                             filterMatchMode="contains"
-                            sourceFilterPlaceholder="Rechercher..."
-                            targetFilterPlaceholder="Rechercher..."
+                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
                             responsive="true"
                             rendered="#{not empty entityUpdateBean.relecteursList}"/>
                 <h:panelGroup rendered="#{empty entityUpdateBean.relecteursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun relecteur disponible</span>
+                    <span>#{msg['modifier.role.proofreaders.none']}</span>
                 </h:panelGroup>
             </div>
         </div>

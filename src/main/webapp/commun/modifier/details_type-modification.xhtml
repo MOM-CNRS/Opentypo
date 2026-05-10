@@ -6,26 +6,26 @@
 
         <!-- Identifiant pérenne -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Identifiant pérenne" />
+            <p:outputLabel value="#{msg['modifier.details.permanentId']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group ">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-link input-icon" title="Identifiant pérenne"/>
+                    <i class="pi pi-link input-icon" title="#{msg['modifier.details.permanentId']}"/>
                     <p:inputText value="#{entityUpdateBean.identifiantPerenne}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'identifiant perenne"/>
+                                 placeholder="#{msg['modifier.placeholder.permanentId']}"/>
                 </div>
             </div>
         </div>
 
         <!-- Ancienne version -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Ancienne version" />
+            <p:outputLabel value="#{msg['modifier.details.oldVersion']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                    <i class="pi pi-history input-icon" title="Ancienne version"/>
+                    <i class="pi pi-history input-icon" title="#{msg['modifier.details.oldVersion']}"/>
                     <p:inputText value="#{entityUpdateBean.ancienneVersion}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'ancienne version"/>
+                                 placeholder="#{msg['modifier.placeholder.oldVersion']}"/>
                 </div>
             </div>
         </div>

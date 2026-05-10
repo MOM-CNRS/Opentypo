@@ -11,17 +11,17 @@
                     <i class="pi pi-tag" />
                 </div>
                 <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des catégories</h3>
+                    <h3 class="collection-references-title">#{msg['list.categories.title']}</h3>
                 </div>
             </div>
 
             <span class="reference-categories-count-badge">
-                #{applicationBean.childsCategoriesSize} catégorie#{applicationBean.childsCategoriesSize gt 1 ? 's' : ''}
+                #{applicationBean.childsCategoriesSize} #{applicationBean.childsCategoriesSize gt 1 ? msg['list.entity.category.plural'] : msg['list.entity.category.singular']}
             </span>
 
             <h:panelGroup class="collection-references-actions"
                           rendered="#{referenceBean.canEditReference(applicationBean)}">
-                <p:commandButton value="Réorganiser l'ordre"
+                <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
                                  rendered="#{applicationBean.filteredCategoriesSize gt 1}"
                                  styleClass="collection-create-btn collection-reorder-btn"
@@ -29,7 +29,7 @@
                                  process="@this"
                                  update=":orderListDialog"
                                  oncomplete="PF('orderListDialog').show();"/>
-                <p:commandButton value="Créer une nouvelle catégorie"
+                <p:commandButton value="#{msg['list.categories.create']}"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"
                                  action="#{categoryBean.resetCategoryDialogForm}"
@@ -53,21 +53,21 @@
                     <p:inputText id="categoriesSearchInput"
                                  value="#{applicationBean.categoriesSearchQuery}"
                                  styleClass="reference-categories-search-input"
-                                 placeholder="Rechercher par code ou label...">
+                                 placeholder="#{msg['list.search.placeholder']}">
                         <p:ajax event="keyup"
                                 process="@this"
                                 update="categoriesContent"
                                 delay="300"/>
                     </p:inputText>
                 </div>
-                <p:commandLink value="#{applicationBean.categoriesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                <p:commandLink value="#{applicationBean.categoriesViewAll ? msg['list.viewAll.pageMode'] : msg['list.viewAll.all']}"
                                icon="#{applicationBean.categoriesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
                                styleClass="list-view-all-btn"
                                rendered="#{applicationBean.filteredCategoriesSize gt 6}"
                                process="@this"
                                update="categoriesContainer"
                                action="#{applicationBean.toggleCategoriesViewAll()}"
-                               title="#{applicationBean.categoriesViewAll ? 'Revenir à la pagination' : 'Afficher toutes les catégories en une seule page'}"/>
+                               title="#{applicationBean.categoriesViewAll ? msg['list.viewAll.title.backPaged'] : msg['list.viewAll.title.allCategories']}"/>
             </div>
 
             <h:panelGroup id="categoriesContent">
@@ -79,7 +79,7 @@
                                        update=":centerContent"
                                        pt:data-entity-code="#{category.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                       onstart="showLoading('Chargement de la catégorie...', 'spinner');"
+                                       onstart="showLoading('#{msg['list.categories.loading']}', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
@@ -108,7 +108,7 @@
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(category)}">
                                         <p class="reference-category-card-description reference-category-card-description-empty">
-                                            <i class="pi pi-info-circle"/><span>Non renseigné</span>
+                                            <i class="pi pi-info-circle"/><span>#{msg['common.empty.notProvided']}</span>
                                         </p>
                                     </ui:fragment>
                                 </div>
@@ -122,11 +122,11 @@
                             <i class="pi pi-inbox" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucune catégorie disponible</h4>
-                            <p class="reference-categories-empty-text">Ce référentiel ne contient actuellement aucune catégorie.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.categories.empty.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.categories.empty.body']}</p>
                             <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                 <i class="pi pi-info-circle" aria-hidden="true"/>
-                                <span>Il faut passer la rubrique brouillon pour en ajouter une.</span>
+                                <span>#{msg['list.hint.draftCategory']}</span>
                             </h:panelGroup>
                         </div>
                     </h:panelGroup>
@@ -138,8 +138,8 @@
                             <i class="pi pi-search" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                            <p class="reference-categories-empty-text">Aucune catégorie ne correspond à votre recherche.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.categories.noResults']}</p>
                         </div>
                     </h:panelGroup>
                 </div>
@@ -152,9 +152,9 @@
                                      update="categoriesContent"
                                      action="#{applicationBean.categoriesPreviousPage()}"
                                      disabled="#{applicationBean.categoriesFirstPage}"
-                                     title="Page précédente"/>
+                                     title="#{msg['list.pagination.previous']}"/>
                     <span class="reference-categories-page-info">
-                                        Page #{applicationBean.categoriesCurrentPage} / #{applicationBean.categoriesTotalPages}
+                                        #{msg['list.pagination.pageWord']} #{applicationBean.categoriesCurrentPage} / #{applicationBean.categoriesTotalPages}
                                     </span>
                     <p:commandButton icon="pi pi-chevron-right"
                                      styleClass="reference-categories-page-btn"
@@ -162,7 +162,7 @@
                                      update="categoriesContent"
                                      action="#{applicationBean.categoriesNextPage()}"
                                      disabled="#{applicationBean.categoriesLastPage}"
-                                     title="Page suivante"/>
+                                     title="#{msg['list.pagination.next']}"/>
                 </h:panelGroup>
             </h:panelGroup>
         </h:panelGroup>

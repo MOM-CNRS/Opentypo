@@ -43,16 +43,16 @@
     </style>
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-        <b><p:outputLabel value="Attestations et contextes" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.attestations.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Attestation(s)/Contexte(s) -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel value="Attestation(s)/Contexte(s)" />
+            <p:outputLabel value="#{msg['modifier.field.attestationsContexts']}" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
-                <i class="pi pi-check-circle input-icon" title="Attestations"/>
+                <i class="pi pi-check-circle input-icon" title="#{msg['modifier.field.attestationsContexts']}"/>
                 <p:chips value="#{entityUpdateBean.attestations}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une attestation, Entrée ou séparez par point-virgule (;)..."
+                         placeholder="#{msg['modifier.placeholder.attestations']}"
                          maxlength="500"
                          addOnBlur="true"
                          addOnPaste="true"
@@ -66,12 +66,12 @@
 
         <!-- Sites archéologiques -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Sites archéologiques" />
+            <p:outputLabel value="#{msg['modifier.field.archSites']}" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-map-marker input-icon" title="Sites archéologiques"/>
                 <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un site, Entrée ou séparez par point-virgule (;)..."
+                         placeholder="#{msg['modifier.placeholder.archSites']}"
                          maxlength="500"
                          addOnBlur="true"
                          addOnPaste="true"
@@ -84,29 +84,29 @@
         </div>
 
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Corpus lié(s)" />
+            <p:outputLabel value="#{msg['modifier.field.linkedCorpora']}" />
             <div class="users-form-group users-form-group-full periode-group" style="margin-top:6px; border:1px solid #cfdac7; border-radius:12px; padding:14px;;">
                 <div class="candidats-flex-row candidats-gap-8 corpus-lie-row"
                      style="display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; gap:8px; width:100%;">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border corpus-lie-label-col"
                          style="flex:0 1 32%; min-width:0; box-shadow: inset 0 0 0 1px rgba(71, 98, 77, 0.06);">
-                        <i class="pi pi-tag input-icon" title="Libellé"/>
+                        <i class="pi pi-tag input-icon" title="#{msg['modifier.placeholder.corpusLabel']}"/>
                         <p:inputText id="corpusLieLabelInput"
                                      value="#{entityUpdateBean.corpusLieLabel}"
                                      styleClass="users-input"
-                                     placeholder="Libellé du corpus"
+                                     placeholder="#{msg['modifier.placeholder.corpusLabel']}"
                                      maxlength="200"/>
                     </div>
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border corpus-lie-url-col"
                          style="flex:1 1 auto; min-width:0; box-shadow: inset 0 0 0 1px rgba(71, 98, 77, 0.06);">
-                        <i class="pi pi-link input-icon" title="URL"/>
+                        <i class="pi pi-link input-icon" title="#{msg['modifier.placeholder.url']}"/>
                         <p:inputText id="corpusLieUrlInput"
                                      value="#{entityUpdateBean.corpusLieUrl}"
                                      styleClass="users-input"
-                                     placeholder="URL"
+                                     placeholder="#{msg['modifier.placeholder.url']}"
                                      maxlength="500"/>
                     </div>
-                    <p:commandButton value="Ajouter"
+                    <p:commandButton value="#{msg['modifier.action.add']}"
                                      icon="pi pi-plus"
                                      action="#{entityUpdateBean.addCorpusLie}"
                                      process="@this corpusLieLabelInput corpusLieUrlInput"
@@ -133,12 +133,12 @@
                                            process="@this"
                                            update="corpusLiesListPanel :growl"
                                            styleClass="zotero-chip-remove"
-                                           title="Retirer">
+                                           title="#{msg['modifier.action.remove']}">
                                 <i class="pi pi-times" aria-hidden="true"/>
                             </p:commandLink>
                         </div>
                     </ui:repeat>
-                    <h:outputText value="Aucun corpus lié."
+                    <h:outputText value="#{msg['modifier.corpus.empty']}"
                                   rendered="#{empty entityUpdateBean.corpusLies}"
                                   styleClass="empty-field-message"
                                   style="padding:8px 4px;"/>

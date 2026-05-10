@@ -6,7 +6,7 @@
     <!-- Matériau -->
     <h:panelGroup styleClass="users-form-group users-form-group-full">
         <div class="periode-header-row periode-header-row-with-icon">
-            <p:outputLabel value="Matériau" />
+            <p:outputLabel value="#{msg['modifier.monnais.material']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="materiauMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -25,7 +25,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAUX')}"
-                                placeholder="Ex. Or, Argent..."
+                                placeholder="#{msg['modifier.placeholder.goldSilver']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>
@@ -35,7 +35,7 @@
     <!-- Dénomination -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row periode-header-row-with-icon">
-            <p:outputLabel value="Dénomination" />
+            <p:outputLabel value="#{msg['modifier.monnais.denomination']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="denominationMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -54,7 +54,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('DENOMINATION')}"
-                                placeholder="Ex. Denier, Sesterce..."
+                                placeholder="#{msg['modifier.placeholder.coinTypes']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>
@@ -64,14 +64,14 @@
     <!-- Métrologie (texte libre) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row periode-header-row-with-icon">
-            <p:outputLabel value="Métrologie" />
+            <p:outputLabel value="#{msg['modifier.monnais.metrologie']}" />
         </div>
         <div class="periode-field-row candidat-production-wrapper candidat-production-group">
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-sliders-h input-icon" aria-hidden="true"/>
                 <p:inputText value="#{entityUpdateBean.metrologie}"
                              styleClass="users-input"
-                             placeholder="Ex. Poids, diamètre..."/>
+                             placeholder="#{msg['modifier.placeholder.metrologie.free']}"/>
             </div>
         </div>
     </div>
@@ -79,7 +79,7 @@
     <!-- Valeur -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row periode-header-row-with-icon">
-            <p:outputLabel value="Valeur" />
+            <p:outputLabel value="#{msg['modifier.monnais.value']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="valeurMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -98,7 +98,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('VALEUR')}"
-                                placeholder="Ex. 1/4 de statère..."
+                                placeholder="#{msg['modifier.placeholder.coinValue']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>
@@ -108,7 +108,7 @@
     <!-- Technique -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row periode-header-row-with-icon">
-            <p:outputLabel value="Technique" />
+            <p:outputLabel value="#{msg['modifier.monnais.technique']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="techniqueMonnaieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -127,7 +127,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('TECHNIQUE')}"
-                                placeholder="Ex. Frappé, Coulé..."
+                                placeholder="#{msg['modifier.placeholder.technique.coin']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>

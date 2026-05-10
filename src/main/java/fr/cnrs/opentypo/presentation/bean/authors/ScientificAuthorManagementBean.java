@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.AuteurScientifiqueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -67,7 +68,7 @@ public class ScientificAuthorManagementBean implements Serializable {
 
     public void startCreate() {
         if (!canManageScientificAuthors()) {
-            notificationBean.showError("Accès refusé", "Vous n'avez pas les droits pour créer un auteur scientifique.");
+            notificationBean.showError(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.create"));
             return;
         }
         resetForm();
@@ -77,11 +78,11 @@ public class ScientificAuthorManagementBean implements Serializable {
 
     public void startEdit(AuteurScientifique author) {
         if (!canManageScientificAuthors()) {
-            notificationBean.showError("Accès refusé", "Vous n'avez pas les droits pour modifier un auteur scientifique.");
+            notificationBean.showError(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.edit"));
             return;
         }
         if (author == null || author.getId() == null) {
-            notificationBean.showError("Erreur", "Auteur scientifique introuvable.");
+            notificationBean.showError(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.notFound"));
             return;
         }
         editingAuthor = new AuteurScientifique(author.getId(), author.getNom(), author.getPrenom(), author.getActive());
@@ -92,7 +93,7 @@ public class ScientificAuthorManagementBean implements Serializable {
 
     public void saveAuthor() {
         if (!canManageScientificAuthors()) {
-            notificationBean.showErrorWithUpdate("Accès refusé", "Vous n'avez pas les droits pour cette action.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.action"), ":growl, :authorsForm");
             return;
         }
 
@@ -100,15 +101,15 @@ public class ScientificAuthorManagementBean implements Serializable {
         String prenom = editingAuthor != null ? normalize(editingAuthor.getPrenom()) : "";
 
         if (!StringUtils.hasText(nom)) {
-            notificationBean.showErrorWithUpdate("Validation", "Le nom est obligatoire.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("authors.msg.validation.lastName"), ":growl, :authorsForm");
             return;
         }
         if (!StringUtils.hasText(prenom)) {
-            notificationBean.showErrorWithUpdate("Validation", "Le prénom est obligatoire.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("authors.msg.validation.firstName"), ":growl, :authorsForm");
             return;
         }
         if (nom.length() > 120 || prenom.length() > 120) {
-            notificationBean.showErrorWithUpdate("Validation", "Le nom et le prénom ne peuvent pas dépasser 120 caractères.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("authors.msg.validation.length"),
                     ":growl, :authorsForm");
             return;
         }
@@ -117,7 +118,7 @@ public class ScientificAuthorManagementBean implements Serializable {
         if (editMode && editingAuthor.getId() != null) {
             Optional<AuteurScientifique> existingOpt = auteurScientifiqueRepository.findById(editingAuthor.getId());
             if (existingOpt.isEmpty()) {
-                notificationBean.showErrorWithUpdate("Erreur", "L'auteur scientifique n'existe plus.", ":growl, :authorsForm");
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.stale"), ":growl, :authorsForm");
                 reloadAuthors();
                 return;
             }
@@ -133,16 +134,16 @@ public class ScientificAuthorManagementBean implements Serializable {
         auteurScientifiqueRepository.save(entityToSave);
         reloadAuthors();
         resetForm();
-        notificationBean.showSuccessWithUpdate("Succès", "Auteur scientifique enregistré avec succès.", ":growl, :authorsForm");
+        notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"), JsfMessages.get("authors.msg.save.success"), ":growl, :authorsForm");
     }
 
     public void deleteAuthor(AuteurScientifique author) {
         if (!canManageScientificAuthors()) {
-            notificationBean.showErrorWithUpdate("Accès refusé", "Vous n'avez pas les droits pour cette action.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.action"), ":growl, :authorsForm");
             return;
         }
         if (author == null || author.getId() == null) {
-            notificationBean.showErrorWithUpdate("Erreur", "Auteur scientifique introuvable.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.notFound"), ":growl, :authorsForm");
             return;
         }
 
@@ -151,22 +152,22 @@ public class ScientificAuthorManagementBean implements Serializable {
         if (editMode && editingAuthor != null && author.getId().equals(editingAuthor.getId())) {
             resetForm();
         }
-        notificationBean.showSuccessWithUpdate("Succès", "Auteur scientifique supprimé.", ":growl, :authorsForm");
+        notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"), JsfMessages.get("authors.msg.delete.success"), ":growl, :authorsForm");
     }
 
     public void toggleVisibility(AuteurScientifique author) {
         if (!canManageScientificAuthors()) {
-            notificationBean.showErrorWithUpdate("Accès refusé", "Vous n'avez pas les droits pour cette action.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.action"), ":growl, :authorsForm");
             return;
         }
         if (author == null || author.getId() == null) {
-            notificationBean.showErrorWithUpdate("Erreur", "Auteur scientifique introuvable.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.notFound"), ":growl, :authorsForm");
             return;
         }
 
         Optional<AuteurScientifique> opt = auteurScientifiqueRepository.findById(author.getId());
         if (opt.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur", "L'auteur scientifique n'existe plus.", ":growl, :authorsForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.stale"), ":growl, :authorsForm");
             reloadAuthors();
             return;
         }
@@ -180,8 +181,8 @@ public class ScientificAuthorManagementBean implements Serializable {
             editingAuthor.setActive(target);
         }
         reloadAuthors();
-        notificationBean.showInfoWithUpdate("Visibilité mise à jour",
-                target ? "L'auteur scientifique est maintenant actif." : "L'auteur scientifique est maintenant masqué.",
+        notificationBean.showInfoWithUpdate(JsfMessages.get("authors.msg.visibility.title"),
+                target ? JsfMessages.get("authors.msg.visibility.active") : JsfMessages.get("authors.msg.visibility.hidden"),
                 ":growl, :authorsForm");
     }
 

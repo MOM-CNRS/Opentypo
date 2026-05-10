@@ -7,12 +7,12 @@
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Caractéristiques physiques -->
-        <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.description.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <h:panelGroup rendered="#{!applicationBean.isCashTypo()}">
             <h:panelGroup styleClass="users-form-group users-form-group-full" rendered="#{applicationBean.isCeramiqueTypo()}">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Forme" />
+                    <p:outputLabel value="#{msg['modifier.field.form']}" />
                 </div>
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                     <div id="formeAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -30,8 +30,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                        placeholder="Ex. Contenant, Luminaire..."
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.manual']}"
+                                        placeholder="#{msg['modifier.placeholder.form.ceramique']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false"/>
                     </div>
@@ -41,7 +41,7 @@
             <!-- Décors -->
             <div class="users-form-group users-form-group-full  candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Décors" />
+                    <p:outputLabel value="#{msg['modifier.field.decors']}" />
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
@@ -49,7 +49,7 @@
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-palette input-icon" aria-hidden="true"/>
                                 <p:inputTextarea value="#{entityUpdateBean.decors}"
-                                                 placeholder="Saisissez le décor du groupe..."
+                                                 placeholder="#{msg['modifier.placeholder.decors']}"
                                                  rows="4"
                                                  styleClass="users-textarea"
                                                  maxlength="2000"/>
@@ -62,7 +62,7 @@
             <!-- Marques/estampilles -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Marques/estampilles" for="marquesEstampillesTextarea"/>
+                    <p:outputLabel value="#{msg['modifier.field.marks']}" for="marquesEstampillesTextarea"/>
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
@@ -71,7 +71,7 @@
                                 <i class="pi pi-tag input-icon" aria-hidden="true"/>
                                 <p:inputTextarea id="marquesEstampillesTextarea"
                                                  value="#{entityUpdateBean.marques}"
-                                                 placeholder="Saisissez les marques ou estampilles..."
+                                                 placeholder="#{msg['modifier.placeholder.marks']}"
                                                  rows="4"
                                                  styleClass="users-textarea"
                                                  maxlength="2000"/>
@@ -84,7 +84,7 @@
             <!-- Fonction/usage (multi) -->
             <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isCeramiqueTypo()}">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Fonction/usage" for="fonctionUsageAutocomplete"/>
+                    <p:outputLabel value="#{msg['modifier.field.functionUsage']}" for="fonctionUsageAutocomplete"/>
                 </div>
                 <p:outputPanel id="modifierFonctionUsagePanel" layout="block"
                                styleClass="modifier-fonction-usage-editor modifier-autocomplete-multi-editor">
@@ -108,8 +108,8 @@
                                             at="left bottom"
                                             panelStyleClass="periode-autocomplete-panel"
                                             scrollHeight="280"
-                                            emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée pour ajouter votre texte tel quel."
-                                            placeholder="Ex. Contenant, Luminaire… puis Entrée"
+                                            emptyMessage="#{msg['modifier.autocomplete.empty.enterOnly']}"
+                                            placeholder="#{msg['modifier.placeholder.functionUsage.enter']}"
                                             styleClass="users-input periode-autocomplete-input"
                                             forceSelection="false">
                                 <p:ajax event="itemSelect"
@@ -143,7 +143,7 @@
             <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10"
                           rendered="#{applicationBean.isInstrumentumTypo() or applicationBean.isInstrumentumTypo()}">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Catégorie fonctionnelle" />
+                    <p:outputLabel value="#{msg['modifier.field.functionalCategory']}" />
                 </div>
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                     <div id="categorieFonctionnelleAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -161,8 +161,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                        placeholder="Ex. Contenant, Luminaire..."
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.manual']}"
+                                        placeholder="#{msg['modifier.placeholder.form.ceramique']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false"/>
                     </div>
@@ -171,7 +171,7 @@
 
             <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isInstrumentumTypo()}">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Relation(s) d'imitation" />
+                    <p:outputLabel value="#{msg['modifier.field.imitationRelations']}" />
                 </div>
                 <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                     <div id="relationImitationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -189,8 +189,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                        placeholder="Ex. Imitation locale, variante régionale..."
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.manual']}"
+                                        placeholder="#{msg['modifier.placeholder.imitation']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false"/>
                     </div>
@@ -202,14 +202,14 @@
             <!-- Droit (avers) -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Droit" />
+                    <p:outputLabel value="#{msg['modifier.field.obverse']}" />
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-arrow-circle-right input-icon" aria-hidden="true"/>
                             <p:inputText value="#{entityUpdateBean.droit}"
-                                         placeholder="Saisissez la description de la face droite (avers)..."
+                                         placeholder="#{msg['modifier.placeholder.obverse']}"
                                          styleClass="users-input"
                                          maxlength="500"/>
                         </div>
@@ -220,7 +220,7 @@
             <!-- Légende du droit -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Légende du droit" />
+                    <p:outputLabel value="#{msg['modifier.field.obverseLegend']}" />
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
@@ -228,7 +228,7 @@
                             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                                 <i class="pi pi-align-left input-icon" aria-hidden="true"/>
                                 <p:inputText value="#{entityUpdateBean.legendeDroit}"
-                                             placeholder="Saisissez l'inscription ou légende du droit..."
+                                             placeholder="#{msg['modifier.placeholder.obverseLegend']}"
                                              styleClass="users-input"
                                              maxlength="500"/>
                             </div>
@@ -240,14 +240,14 @@
             <!-- Revers -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Revers" />
+                    <p:outputLabel value="#{msg['modifier.field.reverse']}" />
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-arrows-h input-icon" aria-hidden="true"/>
                             <p:inputText value="#{entityUpdateBean.revers}"
-                                         placeholder="Saisissez la description de la face gauche (revers)..."
+                                         placeholder="#{msg['modifier.placeholder.reverse']}"
                                          styleClass="users-input"
                                          maxlength="500"/>
                         </div>
@@ -258,14 +258,14 @@
             <!-- Légende du revers -->
             <div class="users-form-group users-form-group-full candidats-mt-10">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Légende du revers" />
+                    <p:outputLabel value="#{msg['modifier.field.reverseLegend']}" />
                 </div>
                 <div class="periode-field-row">
                     <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-palette input-icon" />
                             <p:inputText value="#{entityUpdateBean.legendeRevers}"
-                                         placeholder="Saisissez la déscription de la façe droite..."
+                                         placeholder="#{msg['modifier.placeholder.reverseLegend']}"
                                          styleClass="users-input"
                                          maxlength="500"/>
                         </div>
@@ -277,7 +277,7 @@
 
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10" rendered="#{applicationBean.isInstrumentumTypo()}">
             <div class="periode-header-row">
-                <p:outputLabel value="Dénomination" />
+                <p:outputLabel value="#{msg['modifier.field.denomination']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="denominationInstrumentumAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -295,8 +295,8 @@
                                     at="left bottom"
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
-                                    emptyMessage="Aucun résultat. Vous pouvez saisir une valeur manuellement."
-                                    placeholder="Ex. Agrafe, Boucle..."
+                                    emptyMessage="#{msg['modifier.autocomplete.empty.manual']}"
+                                    placeholder="#{msg['modifier.placeholder.denomination.instrumentum']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false"/>
                 </div>

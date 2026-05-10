@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.SerieWithTypes;
+import fr.cnrs.opentypo.application.service.ArkIdentifierService;
 import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.CollectionService;
@@ -205,6 +206,9 @@ public class ApplicationBean implements Serializable {
 
     @Autowired
     private ZoteroApiService zoteroApiService;
+
+    @Autowired
+    private ArkIdentifierService arkIdentifierService;
 
     private static final DateTimeFormatter ENTITY_AUDIT_DATETIME_FORMAT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -745,6 +749,32 @@ public class ApplicationBean implements Serializable {
             fc.getExternalContext().getRequestMap().put(cacheKey, v);
         }
         return v;
+    }
+
+    /**
+     * URL pour ouvrir l'ARK dans le résolveur (ex. N2T), si le référentiel a {@code ark_resolver_base}
+     * et que l'entité courante a un {@code idArk}.
+     */
+    public String getSelectedEntityArkResolverUrl() {
+        if (selectedEntity == null || !org.springframework.util.StringUtils.hasText(selectedEntity.getIdArk())) {
+            return null;
+        }
+        Entity ref = typeService.findReferenceAncestor(selectedEntity);
+        if (ref == null || ref.getId() == null) {
+            return null;
+        }
+        String base = parametrageRepository.findByEntityId(ref.getId())
+                .map(Parametrage::getArkResolverBase)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .orElse(null);
+        if (base == null) {
+            return null;
+        }
+        while (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        return base + "/" + selectedEntity.getIdArk().trim();
     }
 
     /** Enfants de type Référentiel (filtre sur childs + visibilité catalogue). */
@@ -2223,6 +2253,9 @@ public class ApplicationBean implements Serializable {
         }
 
         selectedEntity.setStatut(requestedVisibilityStatus ? EntityStatusEnum.PUBLIQUE.name() : EntityStatusEnum.PRIVEE.name());
+        if (Boolean.TRUE.equals(requestedVisibilityStatus)) {
+            arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(selectedEntity);
+        }
         selectedEntity = entityRepository.save(applicationBean.getSelectedEntity());
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
@@ -2280,6 +2313,9 @@ public class ApplicationBean implements Serializable {
         for (Long entityId : entityIdsToUpdate) {
             entityRepository.findById(entityId).ifPresent(entity -> {
                 entity.setStatut(newStatut);
+                if (requestedPropositionAction) {
+                    arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
+                }
                 entityRepository.save(entity);
             });
         }

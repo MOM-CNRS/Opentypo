@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.presentation.bean.users;
 
 import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.domain.entity.Groupe;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.GroupeRepository;
@@ -117,60 +118,60 @@ public class UserManagementBean implements Serializable {
 
         // Validation email
         if (email.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "L'email est obligatoire.", ":growl, :userForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.email"), ":growl, :userForm");
             return;
         }
         
         // Validation format email
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!email.matches(emailPattern)) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", 
-                "Le format de l'email est invalide. Veuillez saisir une adresse email valide (exemple: utilisateur@domaine.com).", 
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                JsfMessages.get("users.validation.emailFormat"),
                 ":growl, :userForm");
             return;
         }
         
         if (email.length() > 255) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", 
-                "L'email ne peut pas dépasser 255 caractères.", 
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                JsfMessages.get("users.validation.emailMax"),
                 ":growl, :userForm");
             return;
         }
 
         // Validation prénom
         if (firstName.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le prénom est obligatoire.", ":growl, :userForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.firstName"), ":growl, :userForm");
             return;
         }
         
         if (firstName.length() < 2) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", 
-                "Le prénom doit contenir au moins 2 caractères.", 
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                JsfMessages.get("users.validation.firstNameMin"),
                 ":growl, :userForm");
             return;
         }
         
         if (firstName.length() > 100) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", 
-                "Le prénom ne peut pas dépasser 100 caractères.", 
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                JsfMessages.get("users.validation.firstNameMax"),
                 ":growl, :userForm");
             return;
         }
 
         // Validation nom
         if (lastName.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom est obligatoire.", ":growl, :userForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.lastName"), ":growl, :userForm");
             return;
         }
         
         if (lastName.length() < 2) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom doit contenir au moins 2 caractères.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.lastNameMin"),
                 ":growl, :userForm");
             return;
         }
         
         if (lastName.length() > 100) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom ne peut pas dépasser 100 caractères.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.lastNameMax"),
                     ":growl, :userForm");
             return;
         }
@@ -178,21 +179,21 @@ public class UserManagementBean implements Serializable {
         // Validation mot de passe
         if (!isEditMode) {
             if (password.isEmpty()) {
-                notificationBean.showErrorWithUpdate("Erreur de validation", "Le mot de passe est obligatoire pour un nouvel utilisateur.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.passwordNew"),
                     ":growl, :userForm");
                 return;
             }
             
             if (password.length() < 6) {
-                notificationBean.showErrorWithUpdate("Erreur de validation", "Le mot de passe doit contenir au moins 6 caractères.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.passwordMin"),
                     ":growl, :userForm");
                 return;
             }
         } else {
             // En mode édition, si un mot de passe est fourni, il doit respecter les règles
             if (!password.isEmpty() && password.length() < 6) {
-                notificationBean.showErrorWithUpdate("Erreur de validation", 
-                    "Le mot de passe doit contenir au moins 6 caractères.", 
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("users.validation.passwordMin"),
                     ":growl, :userForm");
                 return;
             }
@@ -200,22 +201,22 @@ public class UserManagementBean implements Serializable {
 
         // Validation groupe
         if (selectedGroupe == null) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le groupe est obligatoire.", ":growl, :userForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.group"), ":growl, :userForm");
             return;
         }
 
         if (!isEditMode) {
             // Création d'un nouvel utilisateur
             if (utilisateurRepository.existsByEmail(newUser.getEmail().trim())) {
-                notificationBean.showErrorWithUpdate("Erreur",
-                        "Un utilisateur avec cet email existe déjà.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("users.error.emailExists"),
                         ":growl, :userForm");
                 return;
             }
 
             if (newUser.getPasswordHash() == null || newUser.getPasswordHash().trim().isEmpty()) {
-                notificationBean.showErrorWithUpdate("Erreur",
-                        "Le mot de passe est requis pour un nouvel utilisateur.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("users.error.passwordRequiredCreate"),
                         ":growl, :userForm");
                 return;
             }
@@ -233,13 +234,13 @@ public class UserManagementBean implements Serializable {
 
             utilisateurRepository.save(utilisateur);
 
-            notificationBean.showSuccessWithUpdate("Succès", "L'utilisateur a été créé avec succès.", ":growl, :userForm");
+            notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"), JsfMessages.get("users.success.created"), ":growl, :userForm");
         } else {
             // Modification d'un utilisateur existant
             Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findById(newUser.getId());
 
             if (utilisateurOpt.isEmpty()) {
-                notificationBean.showErrorWithUpdate("Erreur", "L'utilisateur à modifier n'existe pas.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("users.error.userMissing"),
                         ":growl, :userForm");
                 return;
             }
@@ -249,7 +250,7 @@ public class UserManagementBean implements Serializable {
             // Vérifier si l'email est unique (sauf pour l'utilisateur actuel)
             if (!utilisateur.getEmail().equals(newUser.getEmail().trim())) {
                 if (utilisateurRepository.existsByEmail(newUser.getEmail().trim())) {
-                    notificationBean.showErrorWithUpdate("Erreur", "Un utilisateur avec cet email existe déjà.",
+                    notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("users.error.emailExists"),
                             ":growl, :userForm");
                     return;
                 }
@@ -269,7 +270,7 @@ public class UserManagementBean implements Serializable {
 
             utilisateur = utilisateurRepository.save(utilisateur);
 
-            notificationBean.showSuccessWithUpdate("Succès", "L'utilisateur a été modifié avec succès.",
+            notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"), JsfMessages.get("users.success.updated"),
                     ":growl, :userForm");
         }
 
@@ -283,7 +284,7 @@ public class UserManagementBean implements Serializable {
     public void supprimerUser(Utilisateur utilisateur) {
 
         if (utilisateur == null || utilisateur.getId() == null) {
-            notificationBean.showErrorWithUpdate("Erreur", "Aucun utilisateur sélectionné pour la suppression.", ":growl, :usersForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("users.error.delete.none"), ":growl, :usersForm");
             return;
         }
 
@@ -294,24 +295,25 @@ public class UserManagementBean implements Serializable {
                 
                 // Vérifier si l'utilisateur n'est pas l'utilisateur actuellement connecté
                 if (currentUserBean.getUsername() != null && user.getEmail().equals(currentUserBean.getUsername())) {
-                    notificationBean.showErrorWithUpdate("Erreur", "Vous ne pouvez pas supprimer votre propre compte.",
+                    notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("users.error.delete.self"),
                         ":growl, :usersForm");
                     return;
                 }
 
                 utilisateurRepository.delete(user);
-                notificationBean.showSuccessWithUpdate("Succès",
-                        "L'utilisateur " + user.getPrenom() + " " + user.getNom() + " a été supprimé avec succès.",
+                notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"),
+                        JsfMessages.format("users.success.delete", user.getPrenom(), user.getNom()),
                     ":growl, :usersForm");
                 
                 // Recharger la liste des utilisateurs
                 users = utilisateurRepository.findAll();
             } else {
-                notificationBean.showErrorWithUpdate("Erreur", "L'utilisateur à supprimer n'existe pas.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("users.error.delete.notFound"),
                     ":growl, :usersForm");
             }
         } catch (Exception e) {
-            notificationBean.showErrorWithUpdate("Erreur", "Erreur lors de la suppression : " + e.getMessage(),
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("users.error.delete.failed", e.getMessage()),
                 ":growl, :usersForm");
         }
         PrimeFaces.current().ajax().update(":growl, :usersForm");

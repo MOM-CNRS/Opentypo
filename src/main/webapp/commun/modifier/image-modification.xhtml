@@ -4,7 +4,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <b><p:outputLabel value="Illustrations" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+    <b><p:outputLabel value="#{msg['modifier.images.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
     <div class="modifier-image-container">
         <div class="reference-image-sources modifier-image-sources candidats-mt-10">
@@ -13,8 +13,8 @@
                     <div class="modifier-slot-add-zone modifier-file-upload-zone">
                         <div class="modifier-slot-add-content">
                             <i class="pi pi-plus-circle modifier-add-icon"/>
-                            <span class="modifier-add-main">Cliquez pour choisir une ou plusieurs images</span>
-                            <span class="modifier-add-formats">JPG, PNG, GIF ou WebP</span>
+                            <span class="modifier-add-main">#{msg['modifier.images.upload.main']}</span>
+                            <span class="modifier-add-formats">#{msg['modifier.images.upload.formats']}</span>
                         </div>
                         <p:fileUpload listener="#{entityUpdateBean.handleFileUpload}"
                                       mode="advanced"
@@ -24,8 +24,8 @@
                                       update=":contentPanels :growl"
                                       allowTypes="/(\.|\/)(jpe?g|png|gif|webp)$/"
                                       label=""
-                                      invalidFileMessage="Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WebP."
-                                      fileLimitMessage="Fichiers en trop."
+                                      invalidFileMessage="#{msg['modifier.images.invalidFile']}"
+                                      fileLimitMessage="#{msg['modifier.images.fileLimit']}"
                                       styleClass="modifier-file-upload"
                                       onstart="ModifierImage.showUploading();"
                                       oncomplete="ModifierImage.hideUploading();"
@@ -36,7 +36,7 @@
 
             <div class="reference-image-divider">
                 <span class="reference-image-divider-line"/>
-                <span class="reference-image-divider-text">ou</span>
+                <span class="reference-image-divider-text">#{msg['modifier.images.divider.or']}</span>
                 <span class="reference-image-divider-line"/>
             </div>
 
@@ -45,10 +45,10 @@
                     <i class="pi pi-tag input-icon" />
                     <p:inputText id="newImageUrlInput"
                                  value="#{entityUpdateBean.newImageUrlInput}"
-                                 placeholder="Collez l'adresse d'une image sur internet"
+                                 placeholder="#{msg['modifier.images.url.placeholder']}"
                                  styleClass="users-input"/>
                 </div>
-                <p:commandButton value="Ajouter cette image"
+                <p:commandButton value="#{msg['modifier.images.addFromUrl']}"
                                  icon="pi pi-plus"
                                  styleClass="reference-btn-add reference-image-url-btn"
                                  actionListener="#{entityUpdateBean.addImageFromUrl()}"
@@ -62,7 +62,7 @@
         <div id="modifierImageUploadOverlay" class="modifier-upload-overlay" style="display:none;" aria-hidden="true">
             <div class="modifier-upload-overlay-content">
                 <i class="pi pi-spin pi-spinner modifier-upload-spinner"/>
-                <span class="modifier-upload-text">Chargement de l'image...</span>
+                <span class="modifier-upload-text">#{msg['modifier.images.upload.loading']}</span>
             </div>
         </div>
 
@@ -71,30 +71,30 @@
                      var="imgItem"
                      rowIndexVar="idx"
                      styleClass="candidat-labels-table candidats-mt-10 modifier-images-table"
-                     emptyMessage="Aucune image"
+                     emptyMessage="#{msg['modifier.images.table.empty']}"
                      rendered="#{not empty entityUpdateBean.editingImages}">
-            <p:column headerText="Aperçu" styleClass="candidat-table-label-column" width="80">
+            <p:column headerText="#{msg['modifier.images.column.preview']}" styleClass="candidat-table-label-column" width="80">
                 <div class="candidat-table-label-cell modifier-image-preview-cell"
                      data-image-url="#{imgItem.url}"
                      data-image-legende="#{imgItem.legende}"
                      onclick="var u=this.getAttribute('data-image-url');var l=this.getAttribute('data-image-legende')||'';if(u&amp;&amp;typeof showFullscreenImage==='function'){showFullscreenImage(u,l);}return false;"
                      role="button"
-                     title="Cliquer pour afficher en plein écran">
+                     title="#{msg['modifier.images.preview.fullscreen.title']}">
                     <p:graphicImage value="#{imgItem.url}"
-                                    alt="Aperçu"
+                                    alt="#{msg['modifier.images.preview.alt']}"
                                     style="max-width: 48px; max-height: 36px; object-fit: contain;"/>
                 </div>
             </p:column>
-            <p:column headerText="Légende" styleClass="candidat-table-label-column candidats-table-label-padding">
+            <p:column headerText="#{msg['modifier.images.column.caption']}" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <ui:fragment rendered="#{entityUpdateBean.isRecentlyAddedImage(imgItem.url)}">
-                            <span class="modifier-image-new-badge" title="Image ajoutée dans cette session">
-                                <i class="pi pi-star-fill"/> Nouvelle
+                            <span class="modifier-image-new-badge" title="#{msg['modifier.images.badge.new.title']}">
+                                <i class="pi pi-star-fill"/> #{msg['modifier.images.badge.new']}
                             </span>
                     </ui:fragment>
                     <p:inputText value="#{imgItem.legende}"
                                  styleClass="users-input modifier-image-legende-input"
-                                 placeholder="Légende de l'image"
+                                 placeholder="#{msg['modifier.images.caption.placeholder']}"
                                  maxlength="500"/>
                 </div>
             </p:column>
@@ -106,7 +106,7 @@
                                      process="@this"
                                      ajax="true"
                                      update=":contentPanels :growl"
-                                     title="Supprimer cette image"/>
+                                     title="#{msg['modifier.images.delete.title']}"/>
                 </div>
             </p:column>
         </p:dataTable>
@@ -116,8 +116,8 @@
                 <div class="candidat-no-labels-content">
                     <div class="candidat-no-labels-icon"><i class="pi pi-images" /></div>
                     <div class="candidat-no-labels-text">
-                        <h4 class="candidat-no-labels-title">Aucune image</h4>
-                        <p class="candidat-no-labels-message">Ajoutez des images depuis votre ordinateur ou collez une adresse web ci-dessus.</p>
+                        <h4 class="candidat-no-labels-title">#{msg['modifier.images.empty.title']}</h4>
+                        <p class="candidat-no-labels-message">#{msg['modifier.images.empty.message']}</p>
                     </div>
                 </div>
             </div>

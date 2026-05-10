@@ -14,12 +14,12 @@
                     <div>
                         <h1 class="users-title">
                             <i class="pi pi-#{userManagementBean.editMode ? 'pencil' : 'plus-circle'} users-title-icon" />
-                            #{userManagementBean.editMode ? 'Modifier' : 'Créer'} un utilisateur
+                            #{userManagementBean.editMode ? msg['users.create.title.edit'] : msg['users.create.title.new']}
                         </h1>
-                        <p class="users-subtitle">#{userManagementBean.editMode ? 'Modifiez les informations de l\'utilisateur' : 'Ajoutez un nouvel utilisateur à l\'application'}</p>
+                        <p class="users-subtitle">#{userManagementBean.editMode ? msg['users.create.subtitle.edit'] : msg['users.create.subtitle.new']}</p>
                     </div>
                     <h:form>
-                        <p:commandButton value="Retour à la liste"
+                        <p:commandButton value="#{msg['users.create.back']}"
                                        icon="pi pi-arrow-left"
                                        styleClass="users-create-button"
                                        action="/users/users.xhtml?faces-redirect=true"
@@ -32,66 +32,66 @@
             <!-- Formulaire utilisateur -->
             <div class="users-content">
                 <h:form id="userForm">
-                    <p:panel header="Informations de l'utilisateur" styleClass="users-form-panel">
+                    <p:panel header="#{msg['users.panel.title']}" styleClass="users-form-panel">
                         <div class="users-form-grid">
                             <div class="users-form-group users-form-group-full">
-                                <p:outputLabel for="email" value="Email" />
+                                <p:outputLabel for="email" value="#{msg['users.form.email']}" />
                                 <p:inputText id="email"
                                            value="#{userManagementBean.newUser.email}"
                                            required="true"
-                                           requiredMessage="Le nom d'utilisateur est obligatoire"
+                                           requiredMessage="#{msg['users.form.email.required']}"
                                            disabled="#{userManagementBean.editMode}"
                                            styleClass="users-input"
-                                           placeholder="nom d'utilisateur"
+                                           placeholder="#{msg['users.form.email.placeholder']}"
                                            maxlength="255" />
                                 <p:message for="email" display="icon"/>
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="firstName" value="Prénom" />
+                                <p:outputLabel for="firstName" value="#{msg['users.form.firstName']}" />
                                 <p:inputText id="firstName"
                                            value="#{userManagementBean.newUser.prenom}"
                                            required="true"
-                                           requiredMessage="Le prénom est obligatoire"
+                                           requiredMessage="#{msg['users.form.firstName.required']}"
                                            styleClass="users-input"
-                                           placeholder="Prénom"
+                                           placeholder="#{msg['users.form.firstName.placeholder']}"
                                            maxlength="100" />
                                 <p:message for="firstName" display="icon"/>
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="lastName" value="Nom" />
+                                <p:outputLabel for="lastName" value="#{msg['users.form.lastName']}" />
                                 <p:inputText id="lastName"
                                            value="#{userManagementBean.newUser.nom}"
                                            required="true"
-                                           requiredMessage="Le nom est obligatoire"
+                                           requiredMessage="#{msg['users.form.lastName.required']}"
                                            styleClass="users-input"
-                                           placeholder="Nom"
+                                           placeholder="#{msg['users.form.lastName.placeholder']}"
                                            maxlength="100" />
                                 <p:message for="lastName" display="icon"/>
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="password" value="Mot de passe #{userManagementBean.editMode ? '(laisser vide pour ne pas modifier)' : '*'} " />
+                                <p:outputLabel for="password" value="#{msg['users.form.password']} #{userManagementBean.editMode ? msg['users.form.password.optional'] : '*'}" />
                                 <p:password id="password"
                                          value="#{userManagementBean.newUser.passwordHash}"
-                                         requiredMessage="Le mot de passe est obligatoire"
+                                         requiredMessage="#{msg['users.form.password.required']}"
                                          feedback="false"
                                          styleClass="users-input"
-                                         placeholder="Mot de passe"
+                                         placeholder="#{msg['users.form.password.placeholder']}"
                                          maxlength="255" />
                                 <p:message for="password" display="icon"/>
-                                <p:tooltip for="password" value="Le mot de passe doit contenir au moins 6 caractères" position="right"/>
+                                <p:tooltip for="password" value="#{msg['users.form.password.tooltip']}" position="right"/>
                             </div>
 
                             <div class="users-form-group">
-                                <p:outputLabel for="groupe" value="Groupe" />
+                                <p:outputLabel for="groupe" value="#{msg['users.form.group']}" />
                                 <p:selectOneMenu id="groupe"
                                                  value="#{userManagementBean.selectedGroupeId}"
                                                  required="true"
-                                                 requiredMessage="Le groupe est obligatoire"
+                                                 requiredMessage="#{msg['users.form.group.required']}"
                                                  styleClass="users-select">
-                                    <f:selectItem itemLabel="Sélectionner un groupe" itemValue=""/>
+                                    <f:selectItem itemLabel="#{msg['users.form.group.select']}" itemValue=""/>
                                     <f:selectItems value="#{userManagementBean.availableGroups}" var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
                                     <p:ajax event="change"
                                             process="@this"
@@ -103,20 +103,20 @@
                             <div class="users-form-group users-form-group-full">
                                 <div class="users-checkbox-wrapper">
                                     <p:selectBooleanCheckbox id="active" value="#{userManagementBean.newUser.active}" styleClass="users-checkbox"/>
-                                    <p:outputLabel for="active" value="Compte actif" />
+                                    <p:outputLabel for="active" value="#{msg['users.form.active']}" />
                                 </div>
                             </div>
                         </div>
                     </p:panel>
 
                     <div class="users-form-actions">
-                        <p:commandButton value="Annuler"
+                        <p:commandButton value="#{msg['users.form.cancel']}"
                                        icon="pi pi-times"
                                        styleClass="users-btn users-btn-cancel"
                                        action="/users/users.xhtml?faces-redirect=true"
                                        process="@this"
                                        update="@none"/>
-                        <p:commandButton value="Sauvegarder"
+                        <p:commandButton value="#{msg['users.form.save']}"
                                        icon="pi pi-check"
                                        styleClass="users-btn users-btn-save"
                                        action="#{userManagementBean.sauvegarderUser}"
@@ -129,4 +129,3 @@
     </ui:define>
 
 </ui:composition>
-

@@ -7,12 +7,12 @@
     <!-- Période, TPQ et TAQ -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
-        <b><p:outputLabel value="Datation" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.dating.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <h:panelGroup class="users-form-group users-form-group-full" id="periode"
                       rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
             <div class="periode-header-row">
-                <p:outputLabel value="Période" for="periodeAutocomplete"/>
+                <p:outputLabel value="#{msg['modifier.field.period']}" for="periodeAutocomplete"/>
             </div>
             <p:outputPanel id="modifierPeriodesPanel" layout="block"
                            styleClass="modifier-periode-editor modifier-autocomplete-multi-editor">
@@ -36,8 +36,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée pour ajouter votre texte tel quel."
-                                        placeholder="Ex. Antiquité, Moyen Âge… puis Entrée"
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.enterOnly']}"
+                                        placeholder="#{msg['modifier.placeholder.period.enter']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false">
                             <p:ajax event="itemSelect"
@@ -73,7 +73,7 @@
             <div class="users-form-grid">
                 <div class="users-form-group">
                     <div class="periode-header-row">
-                        <p:outputLabel for="groupTpq" value="TPQ (Terminus Post Quem)" />
+                        <p:outputLabel for="groupTpq" value="#{msg['modifier.field.tpq']}" />
                     </div>
                     <div class="periode-field-row">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -81,7 +81,7 @@
                             <p:inputNumber id="groupTpq"
                                            value="#{entityUpdateBean.tpq}"
                                            styleClass="users-input"
-                                           placeholder="Ex: 1500"
+                                           placeholder="#{msg['modifier.placeholder.yearExample']}"
                                            minValue="-9999"
                                            maxValue="9999"
                                            decimalPlaces="0"/>
@@ -92,7 +92,7 @@
 
                 <div class="users-form-group">
                     <div class="periode-header-row">
-                        <p:outputLabel for="groupTaq" value="TAQ (Terminus Ante Quem)" />
+                        <p:outputLabel for="groupTaq" value="#{msg['modifier.field.taq']}" />
                     </div>
                     <div class="periode-field-row">
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -100,7 +100,7 @@
                             <p:inputNumber id="groupTaq"
                                            value="#{entityUpdateBean.taq}"
                                            styleClass="users-input"
-                                           placeholder="Ex: 1500"
+                                           placeholder="#{msg['modifier.placeholder.yearExample']}"
                                            minValue="-9999"
                                            maxValue="9999"
                                            decimalPlaces="0"/>
@@ -112,13 +112,13 @@
 
         <!-- Appellation usuelle -->
         <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}" class="candidats-mt-15">
-            <p:outputLabel value="Commentaire datation" style="margin-bottom: 13px !important" />
+            <p:outputLabel value="#{msg['modifier.field.datingComment']}" style="margin-bottom: 13px !important" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
                     <p:inputText value="#{entityUpdateBean.commentaireDatation}"
                                  styleClass="users-input"
-                                 placeholder="Aucun valeur pour l'appellation usuelle"/>
+                                 placeholder="#{msg['modifier.placeholder.datingComment']}"/>
                 </div>
             </div>
         </h:panelGroup>
@@ -126,13 +126,13 @@
         <h:panelGroup rendered="#{!applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1
                 and applicationBean.selectedEntity.entityType.id != 5 and applicationBean.selectedEntity.entityType.id != 6}">
             <div class="users-form-group users-form-group-full candidats-mt-15" id="corpusExterneGroup">
-                <p:outputLabel value="Corpus externe" />
+                <p:outputLabel value="#{msg['modifier.field.externalCorpus']}" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-cog input-icon" />
                         <p:inputText value="#{entityUpdateBean.corpusExterne}"
                                      styleClass="users-input"
-                                     placeholder="Ex. Corpus externe..."
+                                     placeholder="#{msg['modifier.placeholder.externalCorpus']}"
                                      rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
                     </div>
                 </div>
@@ -142,13 +142,13 @@
         <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.selectedEntity.entityType.id != 1
                     and applicationBean.selectedEntity.entityType.id != 5 and applicationBean.selectedEntity.entityType.id != 6}">
             <div class="users-form-group users-form-group-full candidats-mt-15" id="alignementExterneGroup">
-                <p:outputLabel value="Alignement externe" />
+                <p:outputLabel value="#{msg['modifier.field.alignementExterne']}" />
                 <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                         <i class="pi pi-link input-icon" />
                         <p:inputText value="#{entityUpdateBean.alignementExterne}"
                                      styleClass="users-input"
-                                     placeholder="Ex. URL d'alignement externe..."
+                                     placeholder="#{msg['modifier.placeholder.alignmentUrl']}"
                                      rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
                     </div>
                 </div>

@@ -5,7 +5,7 @@
 
     <div class="users-form-group users-form-group-full">
         <div class="periode-header-row">
-            <p:outputLabel value="Métrologie" />
+            <p:outputLabel value="#{msg['modifier.ceramique.metrologie']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="metrologieAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -24,7 +24,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('METROLOGIE')}"
-                                placeholder="Ex. Dimensions, poids..."
+                                placeholder="#{msg['modifier.placeholder.metrologie.dimensions']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>
@@ -34,7 +34,7 @@
     <!-- Fabrication/façonnage (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Fabrication/façonnage" for="fabricationFaconnageAutocomplete"/>
+            <p:outputLabel value="#{msg['modifier.ceramique.fabrication']}" for="fabricationFaconnageAutocomplete"/>
         </div>
         <p:outputPanel id="modifierFabricationFaconnagePanel" layout="block"
                        styleClass="modifier-fabrication-faconnage-editor modifier-autocomplete-multi-editor">
@@ -59,7 +59,7 @@
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
                                     emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION_FACONNAGE')}"
-                                    placeholder="Ex. Tournage, Moulage… puis Entrée"
+                                    placeholder="#{msg['modifier.placeholder.fabrication.enter']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
@@ -91,11 +91,11 @@
 
     <!-- Description pâte (champ texte, valeur simple) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
-        <p:outputLabel value="Description pâte" />
+        <p:outputLabel value="#{msg['modifier.ceramique.pasteDescription']}" />
         <div class="candidat-definition-editor-row">
             <div class="candidat-definition-editor-inner">
                 <p:textEditor value="#{entityUpdateBean.descriptionPate}"
-                              placeholder="Saisissez la description de la pâte..."
+                              placeholder="#{msg['modifier.placeholder.pasteDescription']}"
                               secure="false"
                               height="30"
                               styleClass="candidat-definition-texteditor">
@@ -119,7 +119,7 @@
     <!-- Couleur de pâte (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Couleur de pâte" for="couleurPateAutocomplete"/>
+            <p:outputLabel value="#{msg['modifier.ceramique.pasteColor']}" for="couleurPateAutocomplete"/>
         </div>
         <p:outputPanel id="modifierCouleurPatePanel" layout="block"
                        styleClass="modifier-couleur-pate-editor modifier-autocomplete-multi-editor">
@@ -144,7 +144,7 @@
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
                                     emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('COULEUR_PATE')}"
-                                    placeholder="Ex. Rouge, Brun… puis Entrée"
+                                    placeholder="#{msg['modifier.placeholder.pasteColor.enter']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
@@ -177,7 +177,7 @@
     <!-- Nature de pâte (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Nature de pâte" for="naturePateAutocomplete"/>
+            <p:outputLabel value="#{msg['modifier.ceramique.pasteNature']}" for="naturePateAutocomplete"/>
         </div>
         <p:outputPanel id="modifierNaturePatePanel" layout="block"
                        styleClass="modifier-nature-pate-editor modifier-autocomplete-multi-editor">
@@ -202,7 +202,7 @@
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
                                     emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('NATURE_PATE')}"
-                                    placeholder="Ex. Fine, Grossière… puis Entrée"
+                                    placeholder="#{msg['modifier.placeholder.pasteNature.enter']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
@@ -235,7 +235,7 @@
     <!-- Inclusions (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Inclusions" for="inclusionsAutocomplete"/>
+            <p:outputLabel value="#{msg['modifier.ceramique.inclusions']}" for="inclusionsAutocomplete"/>
         </div>
         <p:outputPanel id="modifierInclusionsPatePanel" layout="block"
                        styleClass="modifier-inclusions-pate-editor modifier-autocomplete-multi-editor">
@@ -260,7 +260,7 @@
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
                                     emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('INCLUSIONS')}"
-                                    placeholder="Ex. Mica, Calcite… puis Entrée"
+                                    placeholder="#{msg['modifier.placeholder.inclusions.enter']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"
@@ -294,7 +294,7 @@
     <!-- Cuisson/post-cuisson (multi) -->
     <div class="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Cuisson/post-cuisson" for="cuissonPostCuissonAutocomplete"/>
+            <p:outputLabel value="#{msg['modifier.ceramique.firing']}" for="cuissonPostCuissonAutocomplete"/>
         </div>
         <p:outputPanel id="modifierCuissonPostCuissonPanel" layout="block"
                        styleClass="modifier-cuisson-post-cuisson-editor modifier-autocomplete-multi-editor">
@@ -319,7 +319,7 @@
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
                                     emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('CUISSON_POST_CUISSON')}"
-                                    placeholder="Ex. Oxydante, Réductrice… puis Entrée"
+                                    placeholder="#{msg['modifier.placeholder.firing.enter']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="false">
                         <p:ajax event="itemSelect"

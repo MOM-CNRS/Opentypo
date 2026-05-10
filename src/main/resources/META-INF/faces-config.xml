@@ -3,6 +3,19 @@
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facesconfig_3_0.xsd"
               version="3.0">
+
+    <application>
+        <locale-config>
+            <default-locale>fr</default-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>en</supported-locale>
+        </locale-config>
+        <resource-bundle>
+            <base-name>i18n.messages</base-name>
+            <var>msg</var>
+        </resource-bundle>
+    </application>
+
     <factory>
         <exception-handler-factory>
             fr.cnrs.opentypo.infrastructure.config.ViewExpiredExceptionHandlerFactory
@@ -10,5 +23,6 @@
     </factory>
     <lifecycle>
         <phase-listener>fr.cnrs.opentypo.infrastructure.config.EntityCodeFromUrlPhaseListener</phase-listener>
+        <phase-listener>fr.cnrs.opentypo.infrastructure.config.LocaleRestorePhaseListener</phase-listener>
     </lifecycle>
 </faces-config>

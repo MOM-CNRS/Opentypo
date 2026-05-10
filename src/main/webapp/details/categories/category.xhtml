@@ -13,7 +13,7 @@
                             <!-- En-tête avec titre et actions -->
                             <div class="concept-info-header #{entityUpdateBean.editingEntity ? 'collection-edit-header' : ''}">
                                 <div class="concept-info-title-section">
-                                    <span class="reference-entity-type-badge">Catégorie</span>
+                                    <span class="reference-entity-type-badge">#{msg['category.badge']}</span>
                                     <div class="concept-info-language-flag">
                                         <h:graphicImage library="img" name="flag/#{searchBean.langSelected != null and searchBean.langSelected != '' ? searchBean.langSelected : 'fr'}.png"
                                                         styleClass="language-flag"
@@ -23,7 +23,7 @@
                                     <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                                   styleClass="collection-not-published-icon">
                                         <i class="pi pi-clock"/>
-                                        <p:tooltip value="Catégorie non publiée" position="top"/>
+                                        <p:tooltip value="#{msg['category.tooltip.notPublished']}" position="top"/>
                                     </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
@@ -50,12 +50,12 @@
                                                    update=":centerContent :searchSectionWrapper"
                                                    rendered="#{categoryBean.canCreateCategory()}"
                                                    styleClass="concept-action-button"
-                                                   title="Modifier la catégorie"
-                                                   onstart="showLoading('Chargement...', 'spinner');"
+                                                   title="#{msg['category.action.edit.title']}"
+                                                   onstart="showLoading(&quot;#{msg['common.loading']}&quot;, &quot;spinner&quot;);"
                                                    oncomplete="setTimeout(function(){hideLoading();}, 0);"
                                                    onerror="forceHideLoading();">
                                         <i class="pi pi-file-edit" />
-                                        <p:tooltip value="Modifier" position="top"/>
+                                        <p:tooltip value="#{msg['common.edit']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
@@ -65,7 +65,7 @@
                                                    rendered="#{categoryBean.canCreateCategory()}"
                                                    styleClass="concept-action-button type-detail-action-delete">
                                         <i class="pi pi-trash" />
-                                        <p:tooltip value="Supprimer" position="top"/>
+                                        <p:tooltip value="#{msg['common.delete']}" position="top"/>
                                     </p:commandLink>
 
                                     <h:panelGroup class="collection-visibility-card" rendered="#{loginBean.currentUser != null}">
@@ -75,16 +75,17 @@
                                                     <i class="pi #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
                                                 </div>
                                                 <div class="collection-visibility-info">
-                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'Public' : 'Privé'}</span>
+                                                    <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? msg['common.visibility.public'] : msg['common.visibility.private']}</span>
                                                 </div>
                                             </div>
                                             <h:panelGroup rendered="#{categoryBean.canCreateCategory()}" styleClass="collection-visibility-toggle-wrapper">
                                                 <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                process="@this"
                                                                update=":confirmReferenceVisibilityChangeDialog :growl"
+                                                               title="#{msg['common.visibility.toggle.title']}"
                                                                action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                     <i class="pi pi-sync" />
-                                                    <p:tooltip value="Cliquez pour changer la visibilité" position="top"/>
+                                                    <p:tooltip value="#{msg['common.visibility.toggle.tooltip']}" position="top"/>
                                                 </p:commandLink>
                                             </h:panelGroup>
                                         </div>
@@ -100,12 +101,12 @@
                         <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
                             <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
-                                     aria-label="Contenu de la fiche catégorie">
+                                     aria-label="#{msg['category.fiche.region']}">
                                 <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="category-fiche-heading">
                                     <header class="concept-info-header monnaie-communs-header description-typo-header">
                                         <div class="concept-info-title-section monnaie-communs-title-wrapper">
                                             <i class="pi pi-th-large monnaie-communs-title-icon" aria-hidden="true"/>
-                                            <h2 id="category-fiche-heading" class="concept-info-title monnaie-communs-title">Fiche catégorie</h2>
+                                            <h2 id="category-fiche-heading" class="concept-info-title monnaie-communs-title">#{msg['category.fiche.heading']}</h2>
                                         </div>
                                     </header>
                                     <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
@@ -116,7 +117,7 @@
                                                     <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
-                                                            <span>Description</span>
+                                                            <span>#{msg['common.description']}</span>
                                                         </div>
                                                         <div class="concept-info-value concept-info-description description-typo-prose-body">
                                                             <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
@@ -129,7 +130,7 @@
                                                                             <h:outputText value="#{applicationBean.getEntityDescription(applicationBean.selectedEntity)}" escape="false"/>
                                                                         </div>
                                                                         <button type="button" class="concept-info-description-toggle" data-description-toggle="true" aria-expanded="false">
-                                                                            Afficher la suite
+                                                                            #{msg['common.description.showMore']}
                                                                         </button>
                                                                     </div>
                                                                 </ui:fragment>
@@ -140,7 +141,7 @@
                                                                 </ui:fragment>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
-                                                                <span class="empty-field-message">Non renseigné</span>
+                                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                             </ui:fragment>
                                                         </div>
                                                     </h:panelGroup>
@@ -161,7 +162,7 @@
                                                                 <h:outputText value="#{applicationBean.selectedEntity.metadataCommentaire}" escape="false"/>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
-                                                                <span class="empty-field-message">Non renseigné</span>
+                                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                             </ui:fragment>
                                                         </div>
                                                     </h:panelGroup>
@@ -175,7 +176,7 @@
                                                     <h:panelGroup styleClass="concept-info-item description-typo-field description-typo-field--solo" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
-                                                            <span>Bibliographie</span>
+                                                            <span>#{msg['common.section.bibliography']}</span>
                                                         </div>
                                                         <div class="concept-info-value bibliographie-container">
                                                             <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
@@ -188,7 +189,7 @@
                                                                 </ui:repeat>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
-                                                                <span class="empty-field-message">Non renseigné</span>
+                                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                             </ui:fragment>
                                                         </div>
                                                     </h:panelGroup>

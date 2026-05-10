@@ -6,17 +6,17 @@
 
     <div class="users-form-group users-form-group-full periode-group">
 
-        <b><p:outputLabel value="Codification / Identification" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.identification.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Code -->
         <h:panelGroup class="users-form-group users-form-group-full periode-group" rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
-            <p:outputLabel value="Code" />
+            <p:outputLabel value="#{msg['modifier.field.code']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-align-left input-icon" />
                     <p:inputText value="#{entityUpdateBean.code}"
                                  styleClass="users-input"
-                                 placeholder="Saisissez le code ..."
+                                 placeholder="#{msg['modifier.placeholder.code']}"
                                  maxlength="255"/>
                 </div>
             </div>
@@ -27,7 +27,7 @@
         <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 4 or applicationBean.selectedEntity.entityType.id == 5}">
             <div class="users-form-group users-form-group-full candidats-mt-15 periode-group" id="appellationUsuelleGroup">
                 <div class="periode-header-row">
-                    <p:outputLabel value="Appellation(s) usuelle(s)" for="modifierAppellationInput"/>
+                    <p:outputLabel value="#{msg['modifier.field.usualNames']}" for="modifierAppellationInput"/>
                 </div>
                 <p:outputPanel id="modifierAppellationsPanel" layout="block" styleClass="modifier-aires-circulation-editor">
                     <div class="d-flex gap-2 align-items-stretch flex-wrap modifier-aires-toolbar">
@@ -50,8 +50,8 @@
                                             at="left bottom"
                                             panelStyleClass="periode-autocomplete-panel"
                                             scrollHeight="280"
-                                            emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée ou + pour ajouter votre texte tel quel."
-                                            placeholder="OpenTheso ou texte libre, puis Entrée ou +"
+                                            emptyMessage="#{msg['modifier.autocomplete.empty.enterPlus']}"
+                                            placeholder="#{msg['modifier.placeholder.openthesoFreeThenEnter']}"
                                             styleClass="users-input periode-autocomplete-input"
                                             forceSelection="false"
                                             rendered="#{entityUpdateBean.canEditCurrentBrouillon()}">
@@ -126,9 +126,9 @@
 
         <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
                       class="users-form-group users-form-group-full periode-group candidats-mt-20">
-            <p:outputLabel value="Auteur(s) scientifique(s)" style="margin-bottom: 13px !important" />
+            <p:outputLabel value="#{msg['modifier.field.scientificAuthors']}" style="margin-bottom: 13px !important" />
             <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"
-                                  label="Sélectionner un ou plusieurs auteurs"
+                                  label="#{msg['modifier.selectAuthors.label']}"
                                   styleClass="users-input modifier-scientific-authors-select"
                                   filter="true"
                                   filterMatchMode="contains"
@@ -137,7 +137,7 @@
                 <f:selectItems value="#{entityUpdateBean.availableScientificAuthors}"
                                var="scientificAuthor"
                                itemValue="#{scientificAuthor.id}"
-                               itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : ' (masqué)'}"/>
+                               itemLabel="#{scientificAuthor.prenom} #{scientificAuthor.nom}#{scientificAuthor.active ? '' : msg['modifier.user.hidden']}"/>
             </p:selectCheckboxMenu>
         </h:panelGroup>
     </div>

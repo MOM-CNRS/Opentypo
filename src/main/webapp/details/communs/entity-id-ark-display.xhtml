@@ -1,0 +1,29 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGroup layout="block" styleClass="entity-id-ark-banner"
+                  rendered="#{not empty applicationBean.selectedEntity.idArk}">
+        <div class="entity-id-ark-inner">
+            <i class="pi pi-id-card entity-id-ark-icon" aria-hidden="true"/>
+            <div class="entity-id-ark-body">
+                <span class="entity-id-ark-label" title="#{msg['common.entity.idArk.title']}">#{msg['common.entity.idArk']}</span>
+                <h:panelGroup layout="block" styleClass="entity-id-ark-value-row">
+                    <h:outputLink value="#{applicationBean.selectedEntityArkResolverUrl}"
+                                  styleClass="entity-id-ark-value entity-id-ark-link"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  rendered="#{not empty applicationBean.selectedEntityArkResolverUrl}"
+                                  title="#{msg['common.entity.idArk.openResolver']}">
+                        <h:outputText value="#{applicationBean.selectedEntity.idArk}" escape="true"/>
+                        <i class="pi pi-external-link entity-id-ark-link-icon" aria-hidden="true"/>
+                    </h:outputLink>
+                    <h:outputText styleClass="entity-id-ark-value"
+                                  value="#{applicationBean.selectedEntity.idArk}"
+                                  escape="true"
+                                  rendered="#{empty applicationBean.selectedEntityArkResolverUrl}"/>
+                </h:panelGroup>
+            </div>
+        </div>
+    </h:panelGroup>
+</ui:fragment>

@@ -14,11 +14,11 @@
                     <div>
                         <h1 class="users-title">
                             <i class="pi pi-user-edit users-title-icon" />
-                            Gestion des utilisateurs
+                            #{msg['users.page.title']}
                         </h1>
-                        <p class="users-subtitle">Gérez les utilisateurs de l'application</p>
+                        <p class="users-subtitle">#{msg['users.page.subtitle']}</p>
                     </div>
-                    <p:commandButton value="Nouvel utilisateur"
+                    <p:commandButton value="#{msg['users.new']}"
                                      icon="pi pi-plus"
                                      styleClass="users-create-button"
                                      actionListener="#{userManagementBean.initNouveauUser()}"
@@ -35,7 +35,7 @@
                                    value="#{userManagementBean.users}"
                                    var="user"
                                    styleClass="modern-users-table"
-                                   emptyMessage="Aucun utilisateur trouvé"
+                                   emptyMessage="#{msg['users.table.empty']}"
                                    paginator="true"
                                    rows="10"
                                    rowsPerPageTemplate="10,20,50"
@@ -44,7 +44,7 @@
                                    sortMode="multiple"
                                    rowStyleClass="modern-users-row">
                             
-                            <p:column headerText="Utilisateur" sortBy="#{user.lastName}" styleClass="users-col-user">
+                            <p:column headerText="#{msg['users.col.user']}" sortBy="#{user.lastName}" styleClass="users-col-user">
                                 <div class="user-info-cell">
                                     <div class="user-avatar">
                                         <i class="pi pi-user"/>
@@ -56,20 +56,20 @@
                                 </div>
                             </p:column>
                             
-                            <p:column headerText="Rôle" sortBy="#{user.groupe.nom}" styleClass="users-col-role">
+                            <p:column headerText="#{msg['users.col.role']}" sortBy="#{user.groupe.nom}" styleClass="users-col-role">
                                 <span class="role-badge #{userManagementBean.getGroupeEtiquette(user.groupe)}">
                                     #{user.groupe.nom}
                                 </span>
                             </p:column>
                             
-                            <p:column headerText="Statut" sortBy="#{user.active}" styleClass="users-col-status">
+                            <p:column headerText="#{msg['users.col.status']}" sortBy="#{user.active}" styleClass="users-col-status">
                                 <span class="status-badge status-badge-#{user.active ? 'active' : 'inactive'}">
                                     <i class="pi #{user.active ? 'pi-check-circle' : 'pi-times-circle'}"/>
-                                    #{user.active ? 'Actif' : 'Inactif'}
+                                    #{user.active ? msg['users.status.active'] : msg['users.status.inactive']}
                                 </span>
                             </p:column>
                             
-                            <p:column headerText="Date création" sortBy="#{user.createDate}" styleClass="users-col-date">
+                            <p:column headerText="#{msg['users.col.created']}" sortBy="#{user.createDate}" styleClass="users-col-date">
                                 <div class="date-cell">
                                     <i class="pi pi-calendar"/>
                                     <h:outputText value="#{user.createDate}">
@@ -78,22 +78,22 @@
                                 </div>
                             </p:column>
                             
-                            <p:column headerText="Actions" styleClass="users-col-actions">
+                            <p:column headerText="#{msg['users.col.actions']}" styleClass="users-col-actions">
                                 <div class="users-actions-modern">
                                     <p:commandButton icon="pi pi-pencil"
                                                      styleClass="action-btn action-edit"
-                                                     title="Modifier"
+                                                     title="#{msg['users.action.edit']}"
                                                      action="#{userManagementBean.initEditUser(user)}"
                                                      process="@this"
                                                      update=":usersForm"/>
 
                                     <p:commandButton icon="pi pi-trash"
                                                    styleClass="action-btn action-delete"
-                                                   title="Supprimer"
+                                                   title="#{msg['users.action.delete']}"
                                                    action="#{userManagementBean.supprimerUser(user)}"
                                                    process="@this"
                                                    update=":usersForm"
-                                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');"/>
+                                                   onclick="return confirm('#{msg['users.confirm.delete']}');"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -105,4 +105,3 @@
 
     <h:outputScript library="js" name="users/users-list.js"/>
 </ui:composition>
-

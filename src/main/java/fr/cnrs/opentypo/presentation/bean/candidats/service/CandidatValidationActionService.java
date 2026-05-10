@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.candidats.service;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
+import fr.cnrs.opentypo.application.service.ArkIdentifierService;
 import fr.cnrs.opentypo.application.service.DemandeValidationRequirementsService;
 import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CandidatValidationActionService {
 
     @Inject private EntityRepository entityRepository;
+    @Inject private ArkIdentifierService arkIdentifierService;
     @Inject private DemandeValidationRequirementsService demandeValidationRequirementsService;
     @Inject private TypeValidationAuthorityService typeValidationAuthorityService;
     @Inject private CandidatEntityService candidatEntityService;
@@ -58,6 +60,7 @@ public class CandidatValidationActionService {
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
 
         entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
+        arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
@@ -173,6 +176,7 @@ public class CandidatValidationActionService {
                     "Champs obligatoires incomplets : " + String.join("; ", missing));
         }
         entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
+        arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
         String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";

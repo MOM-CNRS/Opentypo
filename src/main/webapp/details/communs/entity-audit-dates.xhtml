@@ -10,7 +10,7 @@
 
             <div class="entity-audit-dates__authors-header">
                 <i class="pi pi-user concept-info-icon" />
-                <span>Auteur saisie</span>
+                <span>#{msg['entity.audit.entryAuthor']}</span>
             </div>
 
             <div class="concept-info-value bibliographie-container">
@@ -22,18 +22,18 @@
                             </span>
                     </ui:repeat>
                 </ui:fragment>
-                <h:outputText value="Aucun auteur disponible" styleClass="bibliographie-empty"
+                <h:outputText value="#{msg['entity.audit.emptyAuthors']}" styleClass="bibliographie-empty"
                               rendered="#{empty applicationBean.uniqueAuteurs(applicationBean.selectedEntity.auteurs)}" />
             </div>
         </h:panelGroup>
 
-        <div class="entity-audit-dates__inner" role="region" aria-label="Dates de l'entité">
+        <div class="entity-audit-dates__inner" role="region" aria-label="#{msg['entity.audit.regionLabel']}">
             <div class="entity-audit-dates__card">
                 <span class="entity-audit-dates__icon" aria-hidden="true">
                     <i class="pi pi-calendar" />
                 </span>
                 <div class="entity-audit-dates__meta">
-                    <span class="entity-audit-dates__label">Création</span>
+                    <span class="entity-audit-dates__label">#{msg['entity.audit.created']}</span>
                     <h:outputText styleClass="entity-audit-dates__value" value="#{applicationBean.formattedSelectedEntityCreateDate}"/>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     <i class="pi pi-history" />
                 </span>
                 <div class="entity-audit-dates__meta">
-                    <span class="entity-audit-dates__label">Dernière modification</span>
+                    <span class="entity-audit-dates__label">#{msg['entity.audit.lastModified']}</span>
                     <h:outputText styleClass="entity-audit-dates__value" value="#{applicationBean.formattedSelectedEntityLastModificationDate}"/>
                 </div>
             </div>

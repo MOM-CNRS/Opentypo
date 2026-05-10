@@ -33,7 +33,7 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Aucune attestation disponible"
+                                    <h:outputText value="#{msg['attestations.empty.none']}"
                                                   rendered="#{empty applicationBean.selectedEntity.metadata.attestations}"
                                                   styleClass="bibliographie-empty"/>
                                 </div>
@@ -55,7 +55,7 @@
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Aucun site archéologique disponible"
+                                    <h:outputText value="#{msg['attestations.sites.empty']}"
                                                   rendered="#{empty applicationBean.selectedEntity.metadata.sitesArcheologiques}"
                                                   styleClass="bibliographie-empty"/>
                                 </div>

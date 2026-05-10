@@ -6,7 +6,7 @@
 
     <p:dialog id="idLoginDialog"
               widgetVar="loginDialog"
-              header="Authentification"
+              header="#{msg['login.dialogTitle']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -23,8 +23,8 @@
                     <i class="pi pi-lock modern-login-header-icon" />
                 </div>
                 <div class="modern-login-header-text">
-                    <h3 class="modern-login-header-title">Connexion</h3>
-                    <p class="modern-login-header-subtitle">Accédez à votre espace Opentypo</p>
+                    <h3 class="modern-login-header-title">#{msg['login.title']}</h3>
+                    <p class="modern-login-header-subtitle">#{msg['login.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -42,44 +42,44 @@
                             styleClass="modern-login-messages" />
 
                 <div class="modern-login-field">
-                    <p:outputLabel for="username" value="Nom d'utilisateur" styleClass="modern-login-label" />
+                    <p:outputLabel for="username" value="#{msg['login.username']}" styleClass="modern-login-label" />
                     <div class="modern-login-input-wrapper">
                         <i class="pi pi-user modern-login-input-icon" />
                         <p:inputText id="username"
                                      value="#{loginBean.username}"
-                                     placeholder="Entrez votre nom d'utilisateur"
+                                     placeholder="#{msg['login.username.placeholder']}"
                                      styleClass="modern-login-input"
                                      required="true"
-                                     requiredMessage="Le nom d'utilisateur est requis"
+                                     requiredMessage="#{msg['login.username.required']}"
                                      autocomplete="username" />
                     </div>
                 </div>
 
                 <div class="modern-login-field">
-                    <p:outputLabel for="password" value="Mot de passe" styleClass="modern-login-label" />
+                    <p:outputLabel for="password" value="#{msg['login.password']}" styleClass="modern-login-label" />
                     <div class="modern-login-input-wrapper">
                         <i class="pi pi-lock modern-login-input-icon" />
                         <p:password id="password"
                                     value="#{loginBean.password}"
-                                    placeholder="Entrez votre mot de passe"
+                                    placeholder="#{msg['login.password.placeholder']}"
                                     styleClass="modern-login-input"
                                     toggleMask="true"
                                     redisplay="true"
                                     required="true"
-                                    requiredMessage="Le mot de passe est requis"
+                                    requiredMessage="#{msg['login.password.required']}"
                                     feedback="false"
                                     autocomplete="current-password" />
                     </div>
                 </div>
 
                 <div class="modern-login-actions">
-                    <p:commandButton value="Annuler"
+                    <p:commandButton value="#{msg['login.cancel']}"
                                      icon="pi pi-times"
                                      onclick="PF('loginDialog').hide(); return false;"
                                      type="button"
                                      styleClass="modern-login-btn modern-login-btn-secondary" />
 
-                    <p:commandButton value="Se connecter"
+                    <p:commandButton value="#{msg['login.submit']}"
                                      icon="pi pi-sign-in"
                                      action="#{loginBean.login(applicationBean)}"
                                      update=":loginForm:loginMessages, :growl, :headerForm, :sidebarForm, :cardsContainer, :contentPanels, :collectionsForm, :searchForm, :leftTreePanel"

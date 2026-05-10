@@ -6,7 +6,7 @@
     <!-- Matériau -->
     <h:panelGroup styleClass="users-form-group users-form-group-full">
         <div class="periode-header-row">
-            <p:outputLabel value="Matériaux" />
+            <p:outputLabel value="#{msg['modifier.instrumentum.materials']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -25,7 +25,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAUX')}"
-                                placeholder="Ex. Or, Argent..."
+                                placeholder="#{msg['modifier.placeholder.goldSilver']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"/>
             </div>
@@ -35,7 +35,7 @@
     <!-- Dénomination -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Forme" />
+            <p:outputLabel value="#{msg['modifier.instrumentum.form']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="denominationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -54,7 +54,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FORME')}"
-                                placeholder="Ex. Sphérique, Plat..."
+                                placeholder="#{msg['modifier.placeholder.shape']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"
                                 rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
@@ -65,7 +65,7 @@
     <!-- Dimensions -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Dimensions" />
+            <p:outputLabel value="#{msg['modifier.instrumentum.dimensions']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="dimensionsAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -84,7 +84,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('DIMENSIONS')}"
-                                placeholder="Ex. Poids, diamètre..."
+                                placeholder="#{msg['modifier.placeholder.dimensions']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"
                                 rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
@@ -95,7 +95,7 @@
     <!-- Technique -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Technique" />
+            <p:outputLabel value="#{msg['modifier.instrumentum.technique']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="techniqueAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -114,7 +114,7 @@
                                 panelStyleClass="periode-autocomplete-panel"
                                 scrollHeight="280"
                                 emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('TECHNIQUE')}"
-                                placeholder="Ex. Frappé, Coulé..."
+                                placeholder="#{msg['modifier.placeholder.technique.object']}"
                                 styleClass="users-input periode-autocomplete-input"
                                 forceSelection="false"
                                 rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
@@ -125,7 +125,7 @@
     <!-- Fabrication -->
     <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
         <div class="periode-header-row">
-            <p:outputLabel value="Fabrication" />
+            <p:outputLabel value="#{msg['modifier.instrumentum.fabrication']}" />
         </div>
         <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
             <div id="fabricationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -144,7 +144,7 @@
                                  panelStyleClass="periode-autocomplete-panel"
                                  scrollHeight="280"
                                  emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FABRICATION')}"
-                                 placeholder="Ex. Frappé, Coulé..."
+                                 placeholder="#{msg['modifier.placeholder.fabrication.object']}"
                                  styleClass="users-input periode-autocomplete-input"
                                  forceSelection="false"
                                  rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>

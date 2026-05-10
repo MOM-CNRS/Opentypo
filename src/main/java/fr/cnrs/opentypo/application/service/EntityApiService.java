@@ -37,6 +37,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class EntityApiService {
 
+    private final ArkIdentifierService arkIdentifierService;
+
     private final EntityRepository entityRepository;
     private final EntityTypeRepository entityTypeRepository;
     private final LangueRepository langueRepository;
@@ -202,6 +204,10 @@ public class EntityApiService {
         }
         if (request.getMetadataCommentaire() != null) {
             entity.setMetadataCommentaire(request.getMetadataCommentaire());
+        }
+
+        if (EntityStatusEnum.PUBLIQUE.name().equals(entity.getStatut())) {
+            arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         }
 
         entityRepository.save(entity);

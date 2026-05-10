@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      lang="#{localeBean.languageTag}"
+      xml:lang="#{localeBean.languageTag}">
 
+<f:view locale="#{localeBean.locale}" contentType="text/html">
 <!-- ========== HEAD : métadonnées, CSS, scripts globaux ========== -->
 <h:head>
-    <title>OpenTypo</title>
+    <title>#{msg['app.title']}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="icon" type="image/png" href="#{request.contextPath}/resources/img/o.png"/>
 
@@ -27,6 +31,7 @@
     <!-- Styles critiques pour la zone de présentation - garantis pour persister -->
     <!-- NOTE: Les styles ont été déplacés dans template_styles.css -->
     <h:outputStylesheet library="css" name="template_styles.css"/>
+    <h:outputStylesheet library="css" name="locale-switch.css"/>
     
     <!-- Styles pour les animations de chargement -->
     <h:outputStylesheet library="css" name="loading.css"/>
@@ -108,20 +113,20 @@
     <!-- Overlay image plein écran (galerie, référence, etc.) — navigation clavier + flèches latérales + compteur -->
     <div id="fullscreenImageOverlay" class="fullscreen-image-overlay" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();">
         <button type="button" id="fullscreenImagePrev" class="fullscreen-image-nav fullscreen-image-nav-prev"
-                aria-label="Image précédente" title="Précédent (←)"
+                aria-label="#{msg['fullscreen.prev']}" title="#{msg['fullscreen.prev.title']}"
                 onclick="event.stopPropagation(); if(typeof fullscreenImageGoPrev==='function')fullscreenImageGoPrev();">
             <i class="pi pi-chevron-left" aria-hidden="true"/>
         </button>
         <button type="button" id="fullscreenImageNext" class="fullscreen-image-nav fullscreen-image-nav-next"
-                aria-label="Image suivante" title="Suivant (→)"
+                aria-label="#{msg['fullscreen.next']}" title="#{msg['fullscreen.next.title']}"
                 onclick="event.stopPropagation(); if(typeof fullscreenImageGoNext==='function')fullscreenImageGoNext();">
             <i class="pi pi-chevron-right" aria-hidden="true"/>
         </button>
         <div class="fullscreen-image-wrapper" onclick="event.stopPropagation();">
-            <button type="button" class="fullscreen-image-close" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();" title="Fermer (Échap)">
+            <button type="button" class="fullscreen-image-close" onclick="if(typeof hideFullscreenImage==='function')hideFullscreenImage();" title="#{msg['fullscreen.close']}">
                 <i class="pi pi-times"/>
             </button>
-            <img id="fullscreenImageElement" class="fullscreen-image-content" alt="Image en plein écran" />
+            <img id="fullscreenImageElement" class="fullscreen-image-content" alt="#{msg['fullscreen.alt']}" />
             <div id="fullscreenImageLegend" class="fullscreen-image-legend" style="display:none;"></div>
         </div>
         <div id="fullscreenImageCounter" class="fullscreen-image-counter" style="display:none;" role="navigation"
@@ -132,9 +137,10 @@
     <h:outputScript library="js" name="description-expand.js"/>
 
     <!-- Bouton retour en haut - visible uniquement après défilement vers le bas (classe ui-scrolltop-visible gérée par scrollTop.js) -->
-    <button type="button" id="scrollTopBtn" class="ui-scrolltop custom-scrolltop scroll-top-button" aria-label="Retour en haut">
+    <button type="button" id="scrollTopBtn" class="ui-scrolltop custom-scrolltop scroll-top-button" aria-label="#{msg['scroll.top']}">
         <i class="pi pi-arrow-up ui-scrolltop-icon"/>
     </button>
     <h:outputScript library="js" name="scrollTop.js"/>
 </h:body>
+</f:view>
 </html>

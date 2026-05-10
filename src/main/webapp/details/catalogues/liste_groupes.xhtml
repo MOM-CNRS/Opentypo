@@ -11,16 +11,16 @@
                     <i class="pi pi-database" />
                 </div>
                 <div class="collection-references-title-wrapper">
-                    <h3 class="collection-references-title">Liste des Groupes</h3>
+                    <h3 class="collection-references-title">#{msg['list.groups.title']}</h3>
                 </div>
             </div>
 
             <span class="reference-categories-count-badge">
-                #{applicationBean.childsGroupesSize} groupe#{applicationBean.childsGroupesSize gt 1 ? 's' : ''}
+                #{applicationBean.childsGroupesSize} #{applicationBean.childsGroupesSize gt 1 ? msg['list.entity.group.plural'] : msg['list.entity.group.singular']}
             </span>
 
             <h:panelGroup class="collection-references-actions" rendered="#{groupBean.canCreateGroup() or groupBean.canEditGroup(applicationBean)}">
-                <p:commandButton value="Réorganiser l'ordre"
+                <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
                                  rendered="#{groupBean.canEditGroup(applicationBean) and applicationBean.filteredGroupesSize gt 1}"
                                  styleClass="collection-create-btn collection-reorder-btn"
@@ -28,7 +28,7 @@
                                  process="@this"
                                  update=":orderListDialog"
                                  oncomplete="PF('orderListDialog').show();"/>
-                <p:commandButton value="Créer un nouveau groupe"
+                <p:commandButton value="#{msg['list.groups.create']}"
                                  icon="pi pi-plus"
                                  styleClass="collection-create-btn"
                                  action="#{groupBean.prepareCreateGroup}"
@@ -51,21 +51,21 @@
                     <i class="pi pi-search reference-categories-search-icon"/>
                     <p:inputText value="#{applicationBean.groupesSearchQuery}"
                                  styleClass="reference-categories-search-input"
-                                 placeholder="Rechercher par code ou label...">
+                                 placeholder="#{msg['list.search.placeholder']}">
                         <p:ajax event="keyup"
                                 process="@this"
                                 update="groupesContent"
                                 delay="300"/>
                     </p:inputText>
                 </div>
-                <p:commandLink value="#{applicationBean.groupesViewAll ? 'Afficher par page' : 'Tout afficher'}"
+                <p:commandLink value="#{applicationBean.groupesViewAll ? msg['list.viewAll.pageMode'] : msg['list.viewAll.all']}"
                                icon="#{applicationBean.groupesViewAll ? 'pi pi-list' : 'pi pi-th-large'}"
                                styleClass="list-view-all-btn"
                                rendered="#{applicationBean.filteredGroupesSize gt 6}"
                                process="@this"
                                update="groupesContainer"
                                action="#{applicationBean.toggleGroupesViewAll()}"
-                               title="#{applicationBean.groupesViewAllToggleTitle}"/>
+                               title="#{applicationBean.groupesViewAll ? msg['list.viewAll.title.backPaged'] : msg['list.viewAll.title.allGroups']}"/>
             </div>
 
             <h:panelGroup id="groupesContent" class="reference-categories-section reference-cards-container reference-categories-form">
@@ -77,7 +77,7 @@
                                        update=":centerContent"
                                        pt:data-entity-code="#{group.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                       onstart="showLoading('Chargement du groupe...', 'spinner');"
+                                       onstart="showLoading('#{msg['list.groups.loading']}', 'spinner');"
                                        oncomplete="setTimeout(function(){window.scrollTo({ top: 0, behavior: 'smooth' }); hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
@@ -91,13 +91,13 @@
                                         <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
                                                     <span class="reference-category-card-period">
                                                         <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">
-                                                            Période: #{group.tpq} - #{group.taq}
+                                                            #{msg['list.groups.period']} #{group.tpq} - #{group.taq}
                                                         </ui:fragment>
                                                         <ui:fragment rendered="#{not empty group.tpq and empty group.taq}">
-                                                            TPQ: #{group.tpq}
+                                                            #{msg['list.groups.tpq']} #{group.tpq}
                                                         </ui:fragment>
                                                         <ui:fragment rendered="#{empty group.tpq and not empty group.taq}">
-                                                            TAQ: #{group.taq}
+                                                            #{msg['list.groups.taq']} #{group.taq}
                                                         </ui:fragment>
                                                     </span>
                                         </ui:fragment>
@@ -119,7 +119,7 @@
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.getEntityDescription(group)}">
                                         <p class="reference-category-card-description reference-category-card-description-empty">
-                                            <i class="pi pi-info-circle"/><span>Non renseigné</span>
+                                            <i class="pi pi-info-circle"/><span>#{msg['common.empty.notProvided']}</span>
                                         </p>
                                     </ui:fragment>
                                 </div>
@@ -133,11 +133,11 @@
                             <i class="pi pi-inbox" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun groupe disponible</h4>
-                            <p class="reference-categories-empty-text">Cette catégorie ne contient actuellement aucun groupe.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.groups.empty.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.groups.empty.body']}</p>
                             <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                 <i class="pi pi-info-circle" aria-hidden="true"/>
-                                <span>Il faut passer par un brouillon pour en ajouter un.</span>
+                                <span>#{msg['list.hint.draftAdd.one']}</span>
                             </h:panelGroup>
                         </div>
                     </h:panelGroup>
@@ -148,8 +148,8 @@
                             <i class="pi pi-search" aria-hidden="true"/>
                         </div>
                         <div class="reference-categories-empty-content">
-                            <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                            <p class="reference-categories-empty-text">Aucun groupe ne correspond à votre recherche.</p>
+                            <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.groups.noResults']}</p>
                         </div>
                     </h:panelGroup>
                 </div>
@@ -161,9 +161,9 @@
                                      update="groupesContent"
                                      action="#{applicationBean.groupesPreviousPage()}"
                                      disabled="#{applicationBean.groupesFirstPage}"
-                                     title="Page précédente"/>
+                                     title="#{msg['list.pagination.previous']}"/>
                     <span class="reference-categories-page-info">
-                                Page #{applicationBean.groupesCurrentPage} / #{applicationBean.groupesTotalPages}
+                                #{msg['list.pagination.pageWord']} #{applicationBean.groupesCurrentPage} / #{applicationBean.groupesTotalPages}
                             </span>
                     <p:commandButton icon="pi pi-chevron-right"
                                      styleClass="reference-categories-page-btn"
@@ -171,7 +171,7 @@
                                      update="groupesContent"
                                      action="#{applicationBean.groupesNextPage()}"
                                      disabled="#{applicationBean.groupesLastPage}"
-                                     title="Page suivante"/>
+                                     title="#{msg['list.pagination.next']}"/>
                 </h:panelGroup>
             </h:panelGroup>
         </h:panelGroup>

@@ -7,7 +7,7 @@
     <!-- Dialog de confirmation de déconnexion -->
     <p:dialog id="confirmLogoutDialog"
               widgetVar="confirmLogoutDialog"
-              header="Confirmation de déconnexion"
+              header="#{msg['logout.dialogTitle']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -22,8 +22,8 @@
                     <i class="pi pi-sign-out modern-logout-header-icon" />
                 </div>
                 <div class="modern-logout-header-content">
-                    <h3 class="modern-logout-header-title">Déconnexion</h3>
-                    <p class="modern-logout-header-subtitle">Confirmez votre déconnexion</p>
+                    <h3 class="modern-logout-header-title">#{msg['logout.title']}</h3>
+                    <p class="modern-logout-header-subtitle">#{msg['logout.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -35,17 +35,17 @@
                         <i class="pi pi-exclamation-triangle" />
                     </div>
                     <p class="modern-logout-message-text">
-                        Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à nouveau à votre espace.
+                        #{msg['logout.message']}
                     </p>
                 </div>
 
                 <div class="modern-logout-actions">
-                    <p:commandButton value="Annuler"
+                    <p:commandButton value="#{msg['logout.cancel']}"
                                      icon="pi pi-times"
                                      onclick="PF('confirmLogoutDialog').hide(); return false;"
                                      type="button"
                                      styleClass="modern-logout-button modern-logout-button-cancel" />
-                    <p:commandButton value="Oui, me déconnecter"
+                    <p:commandButton value="#{msg['logout.confirm']}"
                                      icon="pi pi-sign-out"
                                      action="#{loginBean.logout()}"
                                      process="@this" ajax="true"

@@ -5,12 +5,12 @@
     <!-- PRODUCTION -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
 
-        <b><p:outputLabel value="Production et circulation" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.production.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Aire(s) de production : même mode que « Aire de circulation » (multi + Entrée une fois) -->
         <div class="users-form-group users-form-group-full" id="productionGroup">
             <div class="periode-header-row">
-                <p:outputLabel value="Aire(s) de production" for="productionAutocomplete"/>
+                <p:outputLabel value="#{msg['modifier.field.productionAreas']}" for="productionAutocomplete"/>
             </div>
             <p:outputPanel id="modifierProductionPanel" layout="block"
                            styleClass="modifier-production-editor modifier-autocomplete-multi-editor">
@@ -34,8 +34,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée pour ajouter votre texte tel quel."
-                                        placeholder="Ex. Céramique, Verre… puis Entrée"
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.enterOnly']}"
+                                        placeholder="#{msg['modifier.placeholder.production.enter']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false">
                             <p:ajax event="itemSelect"
@@ -68,13 +68,13 @@
         <!-- Atelier(s) (Saisie libre avec tags) -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel value="Atelier(s)" />
+                <p:outputLabel value="#{msg['modifier.field.workshops']}" />
             </div>
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-wrench input-icon" />
                 <p:chips value="#{entityUpdateBean.ateliers}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un atelier, Entrée ou séparez par point-virgule (;)..."
+                         placeholder="#{msg['modifier.placeholder.workshops']}"
                          maxlength="500"
                          addOnBlur="true"
                          addOnPaste="true"
@@ -89,7 +89,7 @@
         <!-- Aire de circulation : OpenTheso ou texte libre ; Entrée ou bouton + pour ajouter -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel value="Aire de circulation" for="aireCirculationInput"/>
+                <p:outputLabel value="#{msg['modifier.field.circulationArea']}" for="aireCirculationInput"/>
             </div>
             <p:outputPanel id="modifierAiresCirculationPanel" layout="block"
                            styleClass="modifier-aires-circulation-editor modifier-autocomplete-multi-editor">
@@ -113,8 +113,8 @@
                                         at="left bottom"
                                         panelStyleClass="periode-autocomplete-panel"
                                         scrollHeight="280"
-                                        emptyMessage="Pas de correspondance OpenTheso : validez avec Entrée ou + pour ajouter votre texte tel quel."
-                                        placeholder="Ex. Gaule, Italie… puis Entrée ou +"
+                                        emptyMessage="#{msg['modifier.autocomplete.empty.enterPlus']}"
+                                        placeholder="#{msg['modifier.placeholder.circulation.enterPlus']}"
                                         styleClass="users-input periode-autocomplete-input"
                                         forceSelection="false">
                             <p:ajax event="itemSelect"

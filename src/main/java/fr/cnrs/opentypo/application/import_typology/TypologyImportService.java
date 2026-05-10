@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.application.import_typology;
 
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
+import fr.cnrs.opentypo.application.service.ArkIdentifierService;
 import fr.cnrs.opentypo.application.service.CategoryService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.SerieService;
@@ -97,6 +98,8 @@ public class TypologyImportService {
     private SerieService serieService;
     @Autowired
     private TypeService typeService;
+    @Autowired
+    private ArkIdentifierService arkIdentifierService;
     @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
 
@@ -437,6 +440,7 @@ public class TypologyImportService {
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
         applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
         replaceAuteursScientifiques(entity, row, csvHeaders);
+        arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         entityRepository.save(entity);
     }
 

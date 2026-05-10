@@ -782,6 +782,16 @@ select:hover {
     gap: 10px;
 }
 
+/* Actions du bandeau : le formulaire regroupe boutons + langue — flex pour tout aligner verticalement */
+.app-header .header-right form {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
 .header-icon {
     color: white;
     font-size: 1.2rem;

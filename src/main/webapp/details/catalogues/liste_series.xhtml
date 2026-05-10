@@ -21,12 +21,12 @@
                             <i class="pi pi-list" />
                         </div>
                         <div class="collection-references-title-wrapper">
-                            <h3 class="collection-references-title">Liste des Séries</h3>
+                            <h3 class="collection-references-title">#{msg['list.series.title']}</h3>
                         </div>
                     </div>
 
                     <h:form id="createSerieBtnForm" styleClass="inline-form">
-                        <p:commandButton value="Réorganiser l'ordre"
+                        <p:commandButton value="#{msg['list.action.reorder']}"
                                          icon="pi pi-sort-alt"
                                          rendered="#{serieBean.canEditSerie(applicationBean) and applicationBean.filteredSeriesSize gt 1}"
                                          styleClass="collection-create-btn collection-reorder-btn"
@@ -34,7 +34,7 @@
                                          process="@this"
                                          update=":orderListDialog"
                                          oncomplete="PF('orderListDialog').show();"/>
-                        <p:commandButton value="Créer une nouvelle série"
+                        <p:commandButton value="#{msg['list.series.create']}"
                                          icon="pi pi-plus"
                                          styleClass="collection-create-btn"
                                          action="#{serieBean.prepareCreateSerie}"
@@ -45,7 +45,7 @@
                     </h:form>
 
                     <span class="reference-categories-count-badge">
-                        #{applicationBean.filteredSeriesSize} série#{applicationBean.filteredSeriesSize gt 1 ? 's' : ''}
+                        #{applicationBean.filteredSeriesSize} #{applicationBean.filteredSeriesSize gt 1 ? msg['list.entity.serie.plural'] : msg['list.entity.serie.singular']}
                     </span>
 
                     <i class="pi pi-chevron-down reference-categories-toggle-icon"/>
@@ -66,7 +66,7 @@
                             <p:inputText id="seriesSearchInput"
                                          value="#{applicationBean.seriesSearchQuery}"
                                          styleClass="reference-categories-search-input"
-                                         placeholder="Rechercher par code ou label...">
+                                         placeholder="#{msg['list.search.placeholder']}">
                                 <p:ajax event="keyup"
                                         process="@this"
                                         update="seriesContent"
@@ -84,7 +84,7 @@
                                                update=":centerContent"
                                                pt:data-entity-code="#{serie.code}"
                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                               onstart="showLoading('Chargement de la série...', 'spinner');"
+                                               onstart="showLoading('#{msg['list.series.loading']}', 'spinner');"
                                                oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                                onerror="forceHideLoading();">
                                     <article class="reference-category-card-inner">
@@ -111,7 +111,7 @@
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.getEntityDescription(serie)}">
                                                 <p class="reference-category-card-description reference-category-card-description-empty">
-                                                    <i class="pi pi-info-circle"/><span>Non renseigné</span>
+                                                    <i class="pi pi-info-circle"/><span>#{msg['common.empty.notProvided']}</span>
                                                 </p>
                                             </ui:fragment>
                                         </div>
@@ -129,7 +129,7 @@
                                     <p class="reference-categories-empty-text">Ce groupe ne contient actuellement aucune série.</p>
                                     <h:panelGroup class="reference-categories-empty-hint" rendered="#{loginBean.canCreateOrEdit()}">
                                         <i class="pi pi-info-circle" aria-hidden="true"/>
-                                        <span>Il faut passer par un brouillon pour en ajouter une.</span>
+                                        <span>#{msg['list.hint.draftAdd.female']}</span>
                                     </h:panelGroup>
                                 </div>
                             </h:panelGroup>
@@ -140,8 +140,8 @@
                                     <i class="pi pi-search" aria-hidden="true"/>
                                 </div>
                                 <div class="reference-categories-empty-content">
-                                    <h4 class="reference-categories-empty-title">Aucun résultat</h4>
-                                    <p class="reference-categories-empty-text">Aucune série ne correspond à votre recherche.</p>
+                                    <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                                    <p class="reference-categories-empty-text">#{msg['list.series.noResults']}</p>
                                 </div>
                             </h:panelGroup>
                         </div>
@@ -154,9 +154,9 @@
                                              update="seriesContent"
                                              action="#{applicationBean.seriesPreviousPage()}"
                                              disabled="#{applicationBean.seriesFirstPage}"
-                                             title="Page précédente"/>
+                                             title="#{msg['list.pagination.previous']}"/>
                             <span class="reference-categories-page-info">
-                                Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
+                                #{msg['list.pagination.pageWord']} #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
                             </span>
                             <p:commandButton icon="pi pi-chevron-right"
                                              styleClass="reference-categories-page-btn"
@@ -164,7 +164,7 @@
                                              update="seriesContent"
                                              action="#{applicationBean.seriesNextPage()}"
                                              disabled="#{applicationBean.seriesLastPage}"
-                                             title="Page suivante"/>
+                                             title="#{msg['list.pagination.next']}"/>
                         </h:panelGroup>
                     </h:panelGroup>
                 </h:panelGroup>

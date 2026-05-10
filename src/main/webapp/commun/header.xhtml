@@ -11,7 +11,7 @@
                 <p:commandButton icon="pi pi-bars text-white"
                                  styleClass="mobile-burger-button"
                                  type="button"
-                                 title="Menu"
+                                 title="#{msg['header.menu']}"
                                  onclick="toggleSidebar(); return false;" />
             </div>
 
@@ -40,7 +40,7 @@
                 <p:commandButton icon="pi pi-bell text-white"
                                  styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
                                  style="color: white"
-                                 title="Alertes"
+                                 title="#{msg['header.alerts']}"
                                  action="#{notificationBean.showAlerts}" />
 
                 <p:button icon="pi pi-code text-white"
@@ -48,14 +48,82 @@
                           target="_blank"
                           styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
                           style="color: white"
-                          title="Documentation API (Swagger)" />
+                          title="#{msg['header.apiDocs']}" />
+
+                <div class="header-locale-switch" role="group" aria-label="#{msg['header.locale']}">
+                    <p:commandButton id="localeMenuBtn"
+                                     type="button"
+                                     value="  "
+                                     icon="pi pi-angle-down"
+                                     iconPos="right"
+                                     title="#{msg['header.locale.menuHint']}"
+                                     styleClass="header-locale-menubtn p-button-rounded p-button-text p-button-secondary header-icon"
+                                     style="color: white; --locale-flag: url('#{localeBean.activeFlagUrl}')" />
+                    <p:overlayPanel id="localeOverlayPanel"
+                                    widgetVar="wvLocalePanel"
+                                    for="localeMenuBtn"
+                                    appendTo="@(body)"
+                                    dismissable="true"
+                                    styleClass="header-locale-overlay-panel">
+                        <div class="header-locale-overlay-body">
+                            <p:commandLink action="#{localeBean.switchToFrench}"
+                                           ajax="false"
+                                           onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                                           styleClass="header-locale-option"
+                                           rendered="#{!localeBean.french}">
+                                <h:graphicImage library="img"
+                                                name="flags/fr.svg"
+                                                alt=""
+                                                width="22"
+                                                height="15"
+                                                styleClass="header-locale-flag-img"/>
+                                <span>#{msg['locale.labelFr']}</span>
+                            </p:commandLink>
+                            <h:panelGroup layout="block"
+                                          styleClass="header-locale-option header-locale-option-current"
+                                          rendered="#{localeBean.french}">
+                                <h:graphicImage library="img"
+                                                name="flags/fr.svg"
+                                                alt=""
+                                                width="22"
+                                                height="15"
+                                                styleClass="header-locale-flag-img"/>
+                                <span>#{msg['locale.labelFr']}</span>
+                            </h:panelGroup>
+                            <p:commandLink action="#{localeBean.switchToEnglish}"
+                                           ajax="false"
+                                           onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                                           styleClass="header-locale-option"
+                                           rendered="#{!localeBean.english}">
+                                <h:graphicImage library="img"
+                                                name="flags/gb.svg"
+                                                alt=""
+                                                width="22"
+                                                height="15"
+                                                styleClass="header-locale-flag-img"/>
+                                <span>#{msg['locale.labelEn']}</span>
+                            </p:commandLink>
+                            <h:panelGroup layout="block"
+                                          styleClass="header-locale-option header-locale-option-current"
+                                          rendered="#{localeBean.english}">
+                                <h:graphicImage library="img"
+                                                name="flags/gb.svg"
+                                                alt=""
+                                                width="22"
+                                                height="15"
+                                                styleClass="header-locale-flag-img"/>
+                                <span>#{msg['locale.labelEn']}</span>
+                            </h:panelGroup>
+                        </div>
+                    </p:overlayPanel>
+                </div>
 
                 <!-- Bouton de connexion/déconnexion -->
                 <h:panelGroup rendered="#{!loginBean.authenticated}">
                     <p:commandButton icon="pi pi-user text-white"
                                      styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
                                      style="color: white"
-                                     title="Se connecter"
+                                     title="#{msg['header.login']}"
                                      type="button"
                                      onclick="showLoginDialog(); return false;" />
                 </h:panelGroup>
@@ -63,11 +131,11 @@
                     <p:menuButton value="#{loginBean.userDisplayName}"
                                   icon="pi pi-user-check text-white"
                                   styleClass="p-button-rounded p-button-text p-button-secondary header-icon authenticated-user">
-                        <p:menuitem value="Mon profil"
+                        <p:menuitem value="#{msg['header.profile']}"
                                     icon="pi pi-user"
                                     outcome="/profile/myAccount.xhtml?faces-redirect=true" />
                         <p:separator />
-                        <p:menuitem value="Déconnexion"
+                        <p:menuitem value="#{msg['header.logout']}"
                                     icon="pi pi-sign-out"
                                     type="button"
                                     onclick="PF('confirmLogoutDialog').show(); return false;" />

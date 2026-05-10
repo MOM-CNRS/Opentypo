@@ -12,11 +12,11 @@
             <div class="tree-toggle-wrapper" id="treeToggleButton">
                 <p:commandButton icon="pi pi-sitemap"
                                  styleClass="search-tree-toggle-btn"
-                                 aria-label="Afficher ou masquer l'arbre de navigation"
-                                 title="Parcourir la typologie (Collection → Référentiel → Catégorie →…)"
+                                 aria-label="#{msg['search.treeToggle.ariaLabel']}"
+                                 title="#{msg['search.treeToggle.title']}"
                                  process="@this" update="@none"
                                  onclick="toggleTreePanel(); return false;">
-                    <span class="search-tree-toggle-label">Parcourir</span>
+                    <span class="search-tree-toggle-label">#{msg['search.treeToggle.label']}</span>
                 </p:commandButton>
             </div>
 
@@ -24,7 +24,7 @@
             <div class="burger-search-control">
                 <p:commandButton icon="pi pi-sliders-h"
                                  styleClass="search-burger-button p-button-rounded p-button-text"
-                                 title="Options de recherche"
+                                 title="#{msg['search.burger.title']}"
                                  process="@this" update="@none"
                                  onclick="SearchPage.toggleAdvancedSearch(); return false;"/>
             </div>
@@ -33,13 +33,13 @@
             <p:selectOneMenu id="collectionSelect" 
                              value="#{searchBean.collectionSelected}"
                              styleClass="search-compact-select"
-                             placeholder="Typologie"
+                             placeholder="#{msg['search.collection.placeholder']}"
                              filter="true"
                              filterMatchMode="contains">
                 <f:selectItems value="#{searchBean.hierarchicalCollectionItems}"/>
                 <p:ajax event="change" listener="#{searchBean.onCollectionChange(entityUpdateBean)}"
                         update=":centerContent, :selectedEntityLabel, :collectionsForm" process="@this"
-                        onstart="showLoading('Chargement...', 'spinner');"
+                        onstart="showLoading('#{msg['common.loading']}', 'spinner');"
                         oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible();}, 500);"
                         onerror="forceHideLoading();"/>
             </p:selectOneMenu>
@@ -62,7 +62,7 @@
                 <i class="pi pi-search search-input-group-icon" aria-hidden="true"/>
                 <p:inputText id="searchInput" 
                              value="#{searchBean.searchTerm}"
-                             placeholder="Rechercher (min. 2 caractères)..." 
+                             placeholder="#{msg['search.input.placeholder']}" 
                              styleClass="search-input-compact"
                              autocomplete="off"
                              maxlength="255">
@@ -73,12 +73,12 @@
                 <p:commandButton id="searchButton"
                                  icon="pi pi-search"
                                  styleClass="search-button-compact"
-                                 aria-label="Lancer la recherche"
+                                 aria-label="#{msg['search.submit.ariaLabel']}"
                                  actionListener="#{searchBean.applySearch()}"
                                  process="@form" 
                                  update=":centerContent, :searchForm"
                                  oncomplete="if(typeof SearchPage !== 'undefined' &amp;&amp; SearchPage.onSearchComplete) SearchPage.onSearchComplete();"
-                                 title="Rechercher (minimum 2 caractères requis)"/>
+                                 title="#{msg['search.submit.title']}"/>
             </div>
 
             <!-- Bouton recherche avancée - Compact (masqué sur mobile, remplacé par burger) -->
@@ -94,7 +94,7 @@
                              styleClass="search-advanced-compact search-toggle-results"
                              process="@this" 
                              update="@none"
-                             title="Afficher / Cacher les résultats"
+                             title="#{msg['search.toggleResults.title']}"
                              onclick="SearchPage.toggleRightPanel(); return false;"/>
         </div>
 
@@ -103,7 +103,7 @@
             <div class="advanced-filters-compact">
                 <!-- Filtre Type -->
                 <div class="filter-group-compact">
-                    <p:outputLabel for="typeFilter" value="Type" styleClass="filter-label-compact"/>
+                    <p:outputLabel for="typeFilter" value="#{msg['search.filter.type']}" styleClass="filter-label-compact"/>
                     <p:selectOneMenu id="typeFilter" 
                                      value="#{searchBean.typeFilter}" 
                                      styleClass="filter-select-compact">
@@ -113,7 +113,7 @@
 
                 <!-- Filtre Statut -->
                 <div class="filter-group-compact">
-                    <p:outputLabel for="statutFilter" value="Statut" styleClass="filter-label-compact"/>
+                    <p:outputLabel for="statutFilter" value="#{msg['search.filter.status']}" styleClass="filter-label-compact"/>
                     <p:selectOneMenu id="statutFilter" 
                                      value="#{searchBean.statutFilter}" 
                                      styleClass="filter-select-compact">
@@ -123,7 +123,7 @@
 
                 <!-- Filtre État -->
                 <div class="filter-group-compact">
-                    <p:outputLabel for="etatFilter" value="État" styleClass="filter-label-compact"/>
+                    <p:outputLabel for="etatFilter" value="#{msg['search.filter.state']}" styleClass="filter-label-compact"/>
                     <p:selectOneMenu id="etatFilter" 
                                      value="#{searchBean.etatFilter}" 
                                      styleClass="filter-select-compact">
@@ -133,7 +133,7 @@
 
                 <!-- Filtre Type de recherche -->
                 <div class="filter-group-compact">
-                    <p:outputLabel for="searchTypeFilter" value="Type de recherche" styleClass="filter-label-compact"/>
+                    <p:outputLabel for="searchTypeFilter" value="#{msg['search.filter.searchType']}" styleClass="filter-label-compact"/>
                     <p:selectOneMenu id="searchTypeFilter" 
                                      value="#{searchBean.searchTypeFilter}" 
                                      styleClass="filter-select-compact">

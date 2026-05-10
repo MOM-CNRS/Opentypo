@@ -17,7 +17,7 @@
                         <h2 class="site-presentation-title">#{sitePresentationBean.currentPresentation.titre}</h2>
                         <p:commandButton icon="pi pi-pencil"
                                          styleClass="site-presentation-edit-btn p-button-text p-button-rounded"
-                                         title="Modifier la présentation"
+                                         title="#{msg['sitePresentation.btn.editPresentation']}"
                                          rendered="#{sitePresentationBean.canEditPresentation()}"
                                          action="#{sitePresentationBean.startEdit()}"
                                          process="@this"
@@ -39,16 +39,16 @@
                     <div class="site-presentation-icon">
                         <i class="pi pi-pencil" />
                     </div>
-                    <h2 class="site-presentation-title">Modifier la présentation</h2>
+                    <h2 class="site-presentation-title">#{msg['sitePresentation.editMode.title']}</h2>
                 </div>
                 <div class="site-presentation-body site-presentation-edit-fields">
                     <div class="site-presentation-edit-field site-presentation-langue-field">
-                        <p:outputLabel for="editLangueCode" value="Langue" styleClass="site-presentation-edit-label"/>
+                        <p:outputLabel for="editLangueCode" value="#{msg['sitePresentation.lang']}" styleClass="site-presentation-edit-label"/>
                         <p:selectOneMenu id="editLangueCode"
                                          value="#{sitePresentationBean.editLangueCode}"
                                          style="border: none !important"
                                          styleClass="collection-select">
-                            <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                            <f:selectItem itemLabel="#{msg['sitePresentation.selectLanguage']}" itemValue="" />
                             <f:selectItems value="#{sitePresentationBean.availableLanguages}"
                                            var="langue"
                                            itemLabel="#{langue.nom}"
@@ -60,7 +60,7 @@
                         </p:selectOneMenu>
                     </div>
                     <div class="site-presentation-edit-field">
-                        <p:outputLabel for="editTitre" value="Titre" styleClass="site-presentation-edit-label"/>
+                        <p:outputLabel for="editTitre" value="#{msg['sitePresentation.field.title']}" styleClass="site-presentation-edit-label"/>
                         <p:inputText id="editTitre"
                                      value="#{sitePresentationBean.editTitre}"
                                      styleClass="site-presentation-edit-input"
@@ -70,25 +70,25 @@
                         <div class="site-presentation-editor-inner">
                             <div class="site-presentation-editor-header">
                                 <i class="pi pi-align-left site-presentation-editor-icon" />
-                                <span class="site-presentation-editor-label">Saisissez la description</span>
+                                <span class="site-presentation-editor-label">#{msg['sitePresentation.editor.hint']}</span>
                             </div>
                             <p:textEditor id="editDescription"
                                           value="#{sitePresentationBean.editDescription}"
                                           height="160"
                                           secure="false"
                                           styleClass="site-presentation-texteditor"
-                                          placeholder="Saisissez la description…"/>
+                                          placeholder="#{msg['sitePresentation.placeholder.description']}"/>
                         </div>
                     </div>
                     <div class="site-presentation-edit-actions">
-                        <p:commandButton value="Annuler"
+                        <p:commandButton value="#{msg['sitePresentation.cancel']}"
                                          icon="pi pi-times"
                                          styleClass="p-button-secondary site-presentation-action-btn"
                                          action="#{sitePresentationBean.cancelEdit()}"
                                          process="@this"
                                          update=":sitePresentationContent"
                                          oncomplete="sitePresentationEnterAnimation()"/>
-                        <p:commandButton value="Enregistrer"
+                        <p:commandButton value="#{msg['sitePresentation.save']}"
                                          icon="pi pi-check"
                                          styleClass="p-button-primary site-presentation-action-btn"
                                          action="#{sitePresentationBean.savePresentation()}"

@@ -6,6 +6,7 @@ import fr.cnrs.opentypo.application.dto.pactols.PactolsLangue;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsThesaurus;
 import fr.cnrs.opentypo.application.dto.zotero.ZoteroCollectionOption;
 import fr.cnrs.opentypo.application.service.ZoteroApiService;
+import fr.cnrs.opentypo.infrastructure.config.OpentypoArkProperties;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Parametrage;
@@ -31,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Bean pour le paramétrage OpenTheso d'une collection (entité).
@@ -64,6 +66,9 @@ public class CollectionParametrageBean implements Serializable {
     @Inject
     private ZoteroApiService zoteroApiService;
 
+    @Autowired
+    private OpentypoArkProperties opentypoArkProperties;
+
     /** Entité (collection) dont on édite le paramétrage. */
     private Entity currentCollectionEntity;
 
@@ -90,6 +95,29 @@ public class CollectionParametrageBean implements Serializable {
     private List<ZoteroCollectionOption> availableBibliographieCollections = new ArrayList<>();
     /** Clé collection Zotero choisie (étape 3). */
     private String selectedBibliographieCollectionKey;
+
+    /** ARK : NAAN du référentiel (prioritaire sur {@code opentypo.ark.naan} pour les typologies de l'arbre). */
+    private String arkNaanEdit;
+    /** ARK : épaule / préfixe local (prioritaire sur {@code opentypo.ark.shoulder} si renseigné). */
+    private String arkShoulderEdit;
+    /** ARK : URL de base du résolveur (ex. https://n2t.net) pour liens depuis les fiches typologie. */
+    private String arkResolverBaseEdit;
+
+    /** Valeur NAAN fallback (configuration application), pour aide dans le dialog. */
+    public String getFallbackArkNaanHint() {
+        if (opentypoArkProperties == null || !StringUtils.hasText(opentypoArkProperties.getNaan())) {
+            return "—";
+        }
+        return opentypoArkProperties.getNaan().trim();
+    }
+
+    /** Valeur épaule fallback (configuration application), pour aide dans le dialog. */
+    public String getFallbackArkShoulderHint() {
+        if (opentypoArkProperties == null || !StringUtils.hasText(opentypoArkProperties.getShoulder())) {
+            return "—";
+        }
+        return opentypoArkProperties.getShoulder().trim();
+    }
 
     /**
      * Prépare l'ouverture du dialog de paramétrage pour la collection donnée.
@@ -337,6 +365,86 @@ public class CollectionParametrageBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", detail));
         PrimeFaces.current().executeScript("PF('collectionBibliographieParametrageDialog').hide();");
+        PrimeFaces.current().ajax().update(":growl");
+    }
+
+    /**
+     * Dialogue paramétrage ARK : réservé à une entité de type référentiel.
+     */
+    public void prepareAndShowArkParametrageDialog(Entity referentielEntity) {
+        arkNaanEdit = null;
+        arkShoulderEdit = null;
+        arkResolverBaseEdit = null;
+
+        if (referentielEntity == null || referentielEntity.getId() == null) {
+            log.warn("prepareAndShowArkParametrageDialog: entité ou id null");
+            return;
+        }
+
+        List<Entity> loaded = entityRepository.findByIdInWithEntityType(Collections.singletonList(referentielEntity.getId()));
+        Entity resolved = loaded.isEmpty() ? referentielEntity : loaded.get(0);
+
+        if (resolved.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(resolved.getEntityType().getCode())) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "ARK",
+                            "Le paramétrage ARK du serveur ne s'applique qu'à un référentiel."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        this.currentCollectionEntity = resolved;
+        parametrageRepository.findByEntityId(resolved.getId()).ifPresent(p -> {
+            arkNaanEdit = p.getArkNaan();
+            arkShoulderEdit = p.getArkShoulder();
+            arkResolverBaseEdit = p.getArkResolverBase();
+        });
+    }
+
+    /** Persiste NAAN / épaule / résolveur ARK pour le référentiel courant. */
+    public void saveArkParametrage() {
+        if (currentCollectionEntity == null || currentCollectionEntity.getId() == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun référentiel sélectionné."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+        if (currentCollectionEntity.getEntityType() == null
+                || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(currentCollectionEntity.getEntityType().getCode())) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                            "Le paramétrage ARK ne peut être enregistré que pour un référentiel."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        String naanTrim = trimToNull(arkNaanEdit);
+        if (naanTrim != null && !Pattern.compile("\\d{5,}").matcher(naanTrim).matches()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "ARK",
+                            "Le NAAN doit être numérique (au moins 5 chiffres), ou laisser vide pour utiliser la valeur de l'application."));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
+
+        String shoulderTrim = trimToNull(arkShoulderEdit);
+        String resolverTrim = trimToNull(arkResolverBaseEdit);
+
+        Optional<Parametrage> existingOpt = parametrageRepository.findByEntityId(currentCollectionEntity.getId());
+        Parametrage p = existingOpt.orElseGet(() -> {
+            Parametrage n = new Parametrage();
+            Entity entity = entityRepository.findById(currentCollectionEntity.getId()).orElse(currentCollectionEntity);
+            n.setEntity(entity);
+            return n;
+        });
+        p.setArkNaan(naanTrim);
+        p.setArkShoulder(shoulderTrim);
+        p.setArkResolverBase(resolverTrim);
+        parametrageRepository.save(p);
+
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Paramétrage ARK enregistré."));
+        PrimeFaces.current().executeScript("PF('collectionArkParametrageDialog').hide();");
         PrimeFaces.current().ajax().update(":growl");
     }
 

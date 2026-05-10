@@ -6,16 +6,16 @@
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20 candidat-definition-form">
         <div class="periode-header-row">
-            <p:outputLabel value="Description [et ses traductions]" />
+            <p:outputLabel value="#{msg['modifier.definition.section.title']}" />
         </div>
         <div class="candidat-definition-editor-row">
             <div class="candidat-definition-editor-inner">
                 <div class="candidat-definition-editor-header">
                     <i class="pi pi-align-left candidat-definition-editor-icon" />
-                    <span class="candidat-definition-editor-label">Saisissez la traduction de la définition</span>
+                    <span class="candidat-definition-editor-label">#{msg['modifier.definition.enterTranslation']}</span>
                 </div>
                 <p:textEditor value="#{entityUpdateBean.newDescriptionValue}"
-                              placeholder="Saisissez la traduction de la définition..."
+                              placeholder="#{msg['modifier.placeholder.definitionTranslation']}"
                               secure="false"
                               height="160"
                               styleClass="candidat-definition-texteditor"/>
@@ -27,7 +27,7 @@
                     <i class="pi pi-globe input-icon" />
                     <p:selectOneMenu value="#{entityUpdateBean.newDescriptionLangueCode}"
                                      styleClass="users-select">
-                        <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                        <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                         <f:selectItems value="#{entityUpdateBean.availableTmpLanguagesForDefinition}"
                                        var="langue"
                                        itemLabel="#{langue.nom}"
@@ -35,7 +35,7 @@
                     </p:selectOneMenu>
                 </div>
             </div>
-            <p:commandButton value="Ajouter"
+            <p:commandButton value="#{msg['modifier.action.add']}"
                              icon="pi pi-plus"
                              styleClass="candidat-btn-add"
                              actionListener="#{entityUpdateBean.addTempDescription()}"
@@ -47,9 +47,9 @@
         <p:dataTable value="#{entityUpdateBean.descriptions}"
                      var="labelItem"
                      styleClass="candidat-labels-table candidats-mt-10"
-                     emptyMessage="Aucune traduction ajoutée"
+                     emptyMessage="#{msg['modifier.label.table.empty']}"
                      rendered="#{not empty entityUpdateBean.descriptions}">
-            <p:column headerText="Liste description [et ses traductions]" styleClass="candidat-table-label-column candidats-table-label-padding">
+            <p:column headerText="#{msg['modifier.definition.table.header']}" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
                         <h:graphicImage library="img" name="flag/#{labelItem.langueCode}.png"
@@ -66,7 +66,7 @@
                                      process="@form"
                                      ajax="true"
                                      update=":centerContent :growl"
-                                     title="Supprimer cette définition"/>
+                                     title="#{msg['modifier.action.deleteDefinition.title']}"/>
                 </div>
             </p:column>
         </p:dataTable>
@@ -76,8 +76,8 @@
                 <div class="candidat-no-labels-content">
                     <div class="candidat-no-labels-icon"><i class="pi pi-info-circle" /></div>
                     <div class="candidat-no-labels-text">
-                        <h4 class="candidat-no-labels-title">Aucune traduction ajoutée</h4>
-                        <p class="candidat-no-labels-message">Utilisez le formulaire ci-dessus pour ajouter une traduction de la définition dans une autre langue.</p>
+                        <h4 class="candidat-no-labels-title">#{msg['modifier.label.empty.title']}</h4>
+                        <p class="candidat-no-labels-message">#{msg['modifier.definition.empty.message']}</p>
                     </div>
                 </div>
             </div>

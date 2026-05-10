@@ -15,7 +15,7 @@
                 <ui:param name="sizeGt1" value="#{applicationBean.collections.size() gt 1}"/>
                 <ui:param name="styleClass" value="collections-sort-selector"/>
                 <ui:param name="optionClassPrefix" value="collections-sort"/>
-                <ui:param name="label" value="Ordre d'affichage"/>
+                <ui:param name="label" value="#{msg['index.collections.sortLabel']}"/>
             </ui:include>
 
             <h:panelGroup layout="block" styleClass="collections-toolbar-divider" rendered="#{applicationBean.collections.size() gt 1 and loginBean.isAdminTechniqueOrFonctionnel()}"/>
@@ -29,7 +29,7 @@
                                  process="@this"
                                  update=":orderListDialog"
                                  oncomplete="PF('orderListDialog').show();"/>
-                <p:commandButton value="Créer une nouvelle typologie"
+                <p:commandButton value="#{msg['index.collections.create']}"
                                  icon="pi pi-plus"
                                  styleClass="collection-toolbar-btn collection-toolbar-btn-primary"
                                  process="@this"
@@ -52,7 +52,7 @@
                                        update=":centerContent :selectedEntityLabel :searchForm :collectionSelect"
                                        pt:data-entity-code="#{collection.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                       onstart="showLoading('Chargement de la typologie...', 'spinner');"
+                                       onstart="showLoading('#{msg['index.collections.loadLoading']}', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); ensureRootTogglerVisible(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                        onerror="forceHideLoading();">
                             <div class="modern-card-content">
@@ -63,7 +63,7 @@
                                     <h3 class="modern-card-title">#{applicationBean.getEntityLabel(collection)}</h3>
                                     <h:panelGroup rendered="#{loginBean.isAuthenticated()}">
                                         <div class="collection-card-status-badge #{collection.statut == 'PUBLIQUE' ? 'collection-status-public' : 'collection-status-private'}"
-                                             title="#{collection.statut == 'PUBLIQUE' ? 'Collection publique' : 'Collection privée'}">
+                                             title="#{collection.statut == 'PUBLIQUE' ? msg['index.collections.badge.public'] : msg['index.collections.badge.private']}">
                                             <i class="pi #{collection.statut == 'PUBLIQUE' ? 'pi-globe' : 'pi-lock'}" />
                                         </div>
                                     </h:panelGroup>
@@ -84,11 +84,11 @@
                         <i class="pi pi-inbox" />
                     </div>
                     <div class="empty-categories-content">
-                        <h4 class="empty-categories-title">Aucune collection disponible</h4>
+                        <h4 class="empty-categories-title">#{msg['index.collections.empty.title']}</h4>
                         <h:panelGroup class="empty-categories-hint" rendered="#{loginBean.canCreateOrEdit()}">
                             <i class="pi pi-info-circle" />
-                            <span>Il n'y a actuellement aucune collection dans la base de données.<br/>
-                                Utilisez le bouton "Créer une nouvelle typologie" pour en ajouter une.</span>
+                            <span>#{msg['index.collections.empty.hint.line1']}<br/>
+                                #{msg['index.collections.empty.hint.line2']}</span>
                         </h:panelGroup>
                     </div>
                 </h:panelGroup>

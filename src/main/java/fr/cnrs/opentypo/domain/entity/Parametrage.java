@@ -51,4 +51,18 @@ public class Parametrage implements Serializable {
 
     @Column(name = "bibliographie_url", length = 500)
     private String bibliographieUrl;
+
+    /** NAAN ARK pour ce référentiel (prioritaire sur la config application si renseigné). */
+    @Column(name = "ark_naan", length = 32)
+    private String arkNaan;
+
+    /** Épaule / préfixe local ARK (prioritaire sur la config application si renseigné). */
+    @Column(name = "ark_shoulder", length = 128)
+    private String arkShoulder;
+
+    /**
+     * Base du résolveur ARK (ex. https://n2t.net), pour liens « ouvrir » depuis l'interface ; optionnel.
+     */
+    @Column(name = "ark_resolver_base", length = 512)
+    private String arkResolverBase;
 }

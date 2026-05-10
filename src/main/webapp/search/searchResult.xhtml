@@ -14,14 +14,9 @@
                 <div class="search-results-header-content">
                     <i class="pi pi-search search-results-header-icon" />
                     <div class="search-results-header-text">
-                        <h3 class="search-results-title">Résultats de la recherche</h3>
+                        <h3 class="search-results-title">#{msg['search.results.title']}</h3>
                         <p class="search-results-count">
-                            <ui:fragment rendered="#{searchBean.searchResultsCount == 1}">
-                                #{searchBean.searchResultsCount} résultat trouvé
-                            </ui:fragment>
-                            <ui:fragment rendered="#{searchBean.searchResultsCount != 1}">
-                                #{searchBean.searchResultsCount} résultats trouvés
-                            </ui:fragment>
+                            #{searchBean.searchResultsCount} #{searchBean.searchResultsCount == 1 ? msg['search.results.singularSuffix'] : msg['search.results.pluralSuffix']}
                         </p>
                     </div>
                 </div>
@@ -41,7 +36,7 @@
                                              pt:data-entity-code="#{result.code}"
                                              onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                              styleClass="search-result-item-title-link"
-                                             onstart="showLoading('Chargement...', 'spinner');"
+                                             onstart="showLoading('#{msg['common.loading']}', 'spinner');"
                                              oncomplete="setTimeout(function(){hideLoading(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                              onerror="forceHideLoading();">
                                     <h:outputText value="#{result.nom}" />
@@ -69,12 +64,14 @@
                     <div class="search-results-empty-icon-wrapper">
                         <i class="pi pi-search search-results-empty-icon" />
                     </div>
-                    <h3 class="search-results-empty-title">Aucun résultat trouvé</h3>
+                    <h3 class="search-results-empty-title">#{msg['search.empty.title']}</h3>
                     <p class="search-results-empty-text">
-                        Aucune entité ne correspond à votre recherche "<strong>#{searchBean.searchTerm}</strong>".
+                        <h:outputFormat value="#{msg['search.empty.body']}" escape="false">
+                            <f:param value="#{searchBean.searchTerm}" />
+                        </h:outputFormat>
                     </p>
                     <p class="search-results-empty-hint">
-                        Essayez de modifier vos critères de recherche ou de vérifier l'orthographe.
+                        #{msg['search.empty.hint']}
                     </p>
                 </div>
             </div>
@@ -87,9 +84,9 @@
                     <div class="search-results-placeholder-icon-wrapper">
                         <i class="pi pi-search search-results-placeholder-icon" />
                     </div>
-                    <h3 class="search-results-placeholder-title">Rechercher dans OpenTypo</h3>
+                    <h3 class="search-results-placeholder-title">#{msg['search.placeholder.title']}</h3>
                     <p class="search-results-placeholder-text">
-                        Entrez un terme de recherche dans le champ ci-dessus et cliquez sur le bouton de recherche pour commencer.
+                        #{msg['search.placeholder.body']}
                     </p>
                 </div>
             </div>
