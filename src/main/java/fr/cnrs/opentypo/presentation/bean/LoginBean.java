@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
+import fr.cnrs.opentypo.infrastructure.security.OpentypoAuthSupport;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -12,17 +13,13 @@ import lombok.Setter;
 import org.primefaces.PrimeFaces;
 
 import java.io.IOException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 
@@ -40,6 +37,9 @@ public class LoginBean implements Serializable {
     
     @Inject
     private NotificationBean notificationBean;
+
+    @Inject
+    private OpentypoAuthSupport opentypoAuthSupport;
 
     private String username; // Email de l'utilisateur
     private String password;
@@ -103,22 +103,7 @@ public class LoginBean implements Serializable {
             String displayName = utilisateur.getPrenom() + " " + utilisateur.getNom();
             userBean.setUsername(displayName);
             
-            // Construire les rôles basés sur le groupe de l'utilisateur
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-            
-            // Ajouter un rôle spécifique basé sur le groupe
-            if (utilisateur.getGroupe() != null) {
-                String groupeNom = utilisateur.getGroupe().getNom();
-                if (GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
-                        || GroupEnum.ADMINISTRATEUR_FONCTIONNEL.getLabel().equalsIgnoreCase(groupeNom)) {
-                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                }
-                // Utilisateur : ROLE_USER uniquement (déjà ajouté plus haut)
-            }
-            
-            // Créer une authentification Spring Security
-            Authentication authentication = new UsernamePasswordAuthenticationToken(utilisateur.getEmail(), null, authorities);
+            Authentication authentication = opentypoAuthSupport.buildAuthentication(utilisateur);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
             // Sauvegarder l'authentification dans la session HTTP

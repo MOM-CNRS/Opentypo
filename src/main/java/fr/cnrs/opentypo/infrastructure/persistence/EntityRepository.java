@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.Entity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -61,11 +62,46 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     List<Long> findIdsByLabelContainingInLang(@Param("q") String q, @Param("langCode") String langCode);
 
     /**
+     * Liste paginée d'identifiants pour l'API (filtre statut optionnel, tri par date de création via {@link Pageable}).
+     */
+    @Query("SELECT e.id FROM Entity e WHERE (:statut IS NULL OR e.statut = :statut)")
+    List<Long> listIdsForApi(@Param("statut") String statut, Pageable pageable);
+
+    /**
+     * Liste paginée triée par code métier (croissant).
+     */
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY LOWER(CAST(m.code AS string)) ASC")
+    List<Long> listIdsForApiOrderByCodeAsc(@Param("statut") String statut, Pageable pageable);
+
+    /**
+     * Liste paginée triée par code métier (décroissant).
+     */
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY LOWER(CAST(m.code AS string)) DESC")
+    List<Long> listIdsForApiOrderByCodeDesc(@Param("statut") String statut, Pageable pageable);
+
+    /**
+     * Collections (ou autre type) avec filtre statut optionnel et pagination.
+     */
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE e.entityType.code = :typeCode "
+            + "AND (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY COALESCE(e.displayOrder, 999999), LOWER(m.code)")
+    List<Long> findIdsByEntityTypeForApi(
+            @Param("typeCode") String typeCode,
+            @Param("statut") String statut,
+            Pageable pageable);
+
+    /**
      * Loads an entity with type, metadata and labels (REST API / detail views).
      */
     @Query("SELECT DISTINCT e FROM Entity e "
             + "LEFT JOIN FETCH e.entityType "
             + "LEFT JOIN FETCH e.metadata "
+            + "LEFT JOIN FETCH e.categorieFonctionnelle "
             + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
             + "WHERE e.id = :id")
     Optional<Entity> findByIdForApi(@Param("id") Long id);
@@ -77,9 +113,101 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     @Query("SELECT DISTINCT e FROM Entity e "
             + "LEFT JOIN FETCH e.entityType "
             + "LEFT JOIN FETCH e.metadata "
+            + "LEFT JOIN FETCH e.categorieFonctionnelle "
             + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
             + "WHERE e.id IN :ids")
     List<Entity> findByIdsForApi(@Param("ids") Collection<Long> ids);
+
+    /**
+     * Loads an entity by metadata code (same graph as {@link #findByIdForApi(Long)}).
+     */
+    @Query("SELECT DISTINCT e FROM Entity e "
+            + "LEFT JOIN FETCH e.entityType "
+            + "LEFT JOIN FETCH e.metadata m "
+            + "LEFT JOIN FETCH e.categorieFonctionnelle "
+            + "LEFT JOIN FETCH e.labels l LEFT JOIN FETCH l.langue "
+            + "WHERE LOWER(CAST(m.code AS string)) = LOWER(CAST(:code AS string))")
+    Optional<Entity> findByCodeForApi(@Param("code") String code);
+
+    /**
+     * Filtered search returning entity ids (REST API advanced search). All filter parameters may be null
+     * (caller must ensure at least one is non-null). Combined with AND.
+     */
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE (:typeCode IS NULL OR e.entityType.code = :typeCode) "
+            + "AND (:statut IS NULL OR e.statut = :statut) "
+            + "AND (:statuts IS NULL OR e.statut IN :statuts) "
+            + "AND (:code IS NULL OR LOWER(CAST(m.code AS string)) = LOWER(CAST(:code AS string))) "
+            + "AND (:codeContains IS NULL OR LOWER(CAST(m.code AS string)) LIKE LOWER(CAST(CONCAT('%', CAST(:codeContains AS string), '%') AS string))) "
+            + "AND (:idArk IS NULL OR e.idArk = :idArk) "
+            + "AND (:q IS NULL OR ("
+            + "  LOWER(CAST(m.code AS string)) LIKE LOWER(CAST(CONCAT('%', CAST(:q AS string), '%') AS string)) "
+            + "  OR EXISTS ("
+            + "    SELECT 1 FROM Label lb WHERE lb.entity.id = e.id "
+            + "    AND (:labelLang IS NULL OR lb.langue.code = :labelLang) "
+            + "    AND LOWER(CAST(lb.nom AS string)) LIKE LOWER(CAST(CONCAT('%', CAST(:q AS string), '%') AS string))"
+            + "  )"
+            + ")) "
+            + "ORDER BY e.createDate DESC")
+    List<Long> searchIdsForApi(
+            @Param("typeCode") String typeCode,
+            @Param("statut") String statut,
+            @Param("statuts") List<String> statuts,
+            @Param("code") String code,
+            @Param("codeContains") String codeContains,
+            @Param("idArk") String idArk,
+            @Param("q") String q,
+            @Param("labelLang") String labelLang,
+            Pageable pageable);
+
+    /**
+     * Identifiants des entités de type {@code TYPE}, filtrés par statut optionnel.
+     */
+    @Query("SELECT e.id FROM Entity e "
+            + "WHERE e.entityType.code = :typeCode "
+            + "AND (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY e.createDate DESC")
+    List<Long> findIdsByEntityTypeAndStatut(
+            @Param("typeCode") String typeCode,
+            @Param("statut") String statut,
+            Pageable pageable);
+
+    /**
+     * Identifiants des entités d'un type donné, filtrées par une liste de statuts.
+     */
+    @Query("SELECT e.id FROM Entity e "
+            + "JOIN e.metadata m "
+            + "WHERE e.entityType.code = :typeCode "
+            + "AND e.statut IN :statuts "
+            + "ORDER BY COALESCE(e.displayOrder, 999999), LOWER(m.code)")
+    List<Long> findIdsByEntityTypeAndStatutIn(
+            @Param("typeCode") String typeCode,
+            @Param("statuts") List<String> statuts,
+            Pageable pageable);
+
+    /**
+     * Types archéologiques ({@code TYPE}) dans le sous-arbre d'une racine (collection, référentiel, …).
+     */
+    @Query(
+            value = """
+            WITH RECURSIVE subtree AS (
+                SELECT CAST(:rootId AS bigint) AS entity_id
+                UNION ALL
+                SELECT er.child_id FROM entity_relation er
+                INNER JOIN subtree s ON er.parent_id = s.entity_id
+            )
+            SELECT e.id FROM entity e
+            INNER JOIN entity_type et ON e.entity_type_id = et.id
+            INNER JOIN subtree s ON e.id = s.entity_id
+            WHERE et.code = 'TYPE'
+            AND (:statut IS NULL OR e.statut = :statut)
+            ORDER BY e.create_date DESC
+            """,
+            nativeQuery = true)
+    List<Long> findTypeIdsInSubtree(
+            @Param("rootId") Long rootId,
+            @Param("statut") String statut,
+            Pageable pageable);
 
     /**
      * Vérifie si une entité existe avec le code donné (via metadata)

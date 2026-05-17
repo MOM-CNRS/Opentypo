@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -99,4 +100,16 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
         SELECT parent_id, child_id, COALESCE(display_order, 999999) FROM subtree
         """, nativeQuery = true)
     List<Object[]> findAllDescendantRelations(@Param("rootId") Long rootId);
+
+    /**
+     * Pairs (childId, parentId) for batch REST enrichment.
+     */
+    @Query("SELECT er.child.id, er.parent.id FROM EntityRelation er WHERE er.child.id IN :childIds")
+    List<Object[]> findParentIdsByChildIds(@Param("childIds") Collection<Long> childIds);
+
+    /**
+     * Pairs (parentId, childId) for batch REST enrichment.
+     */
+    @Query("SELECT er.parent.id, er.child.id FROM EntityRelation er WHERE er.parent.id IN :parentIds")
+    List<Object[]> findChildIdsByParentIds(@Param("parentIds") Collection<Long> parentIds);
 }

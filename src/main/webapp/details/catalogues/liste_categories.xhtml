@@ -20,10 +20,10 @@
             </span>
 
             <h:panelGroup class="collection-references-actions"
-                          rendered="#{referenceBean.canEditReference(applicationBean)}">
+                          rendered="#{referenceBean.canEditReference(applicationBean) or referenceBean.canCreateCategoryInReference(applicationBean)}">
                 <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
-                                 rendered="#{applicationBean.filteredCategoriesSize gt 1}"
+                                 rendered="#{applicationBean.filteredCategoriesSize gt 1 and referenceBean.canEditReference(applicationBean)}"
                                  styleClass="collection-create-btn collection-reorder-btn"
                                  action="#{applicationBean.prepareCategoriesOrderDialog()}"
                                  process="@this"
@@ -31,6 +31,7 @@
                                  oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="#{msg['list.categories.create']}"
                                  icon="pi pi-plus"
+                                 rendered="#{referenceBean.canCreateCategoryInReference(applicationBean)}"
                                  styleClass="collection-create-btn"
                                  action="#{categoryBean.resetCategoryDialogForm}"
                                  process="@this"

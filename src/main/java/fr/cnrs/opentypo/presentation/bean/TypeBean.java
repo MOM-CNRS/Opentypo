@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.TypeService;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -99,6 +100,9 @@ public class TypeBean implements Serializable {
 
     @Autowired
     private TypeValidationAuthorityService typeValidationAuthorityService;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     private String typeCode;
     private String typeLabel;
@@ -821,6 +825,12 @@ public class TypeBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun type sélectionné."));
             return;
         }
+        if (!canDeleteType(applicationBean)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                            "Vous n'avez pas les droits pour supprimer ce type."));
+            return;
+        }
         try {
             Entity type = applicationBean.getSelectedEntity();
             String typeCode = type.getCode();
@@ -870,30 +880,22 @@ public class TypeBean implements Serializable {
      * Utilisé quand selectedEntity est une série ou un groupe.
      */
     public boolean canCreateType(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
+        return entityAuthorityService.canCreate(
+                loginBean.getCurrentUser(),
+                EntityConstants.ENTITY_TYPE_TYPE,
+                applicationBean.getSelectedEntity().getId());
+    }
 
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
+    public boolean canDeleteType(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
         }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        Entity group = applicationBean.getSelectedGroup();
-        return group != null && group.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
     /**
@@ -925,41 +927,12 @@ public class TypeBean implements Serializable {
         return false;
     }
 
-    /**
-     * Indique si l'utilisateur connecté peut modifier le type (bouton Modifier sur un type).
-     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
-     * rédacteur ou valideur du groupe contenant le type.
-     */
     public boolean canEditType(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        Entity group = applicationBean.getSelectedGroup();
-        if (group != null && group.getId() != null) {
-            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
-                return true;
-            }
-            return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, group.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
-        }
-        return false;
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
 

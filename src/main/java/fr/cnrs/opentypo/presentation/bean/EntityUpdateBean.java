@@ -31,6 +31,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.CaracteristiquePhysiqueReposi
 import fr.cnrs.opentypo.infrastructure.persistence.AuteurScientifiqueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionDetailRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionMonnaieRepository;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
@@ -110,6 +111,9 @@ public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     @Autowired
     private DescriptionDetailRepository descriptionDetailRepository;
@@ -1390,6 +1394,13 @@ public class EntityUpdateBean implements Serializable {
     public void saveModification() {
 
         Entity entityToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
+
+        if (loginBean == null || loginBean.getCurrentUser() == null
+                || !entityAuthorityService.canUpdate(loginBean.getCurrentUser(), entityToUpdate)) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Vous n'avez pas les droits pour modifier cette entité."));
+            return;
+        }
 
         // Corpus externe (metadata)
         entityToUpdate.setMetadata(saveEntityMetadata(entityToUpdate));

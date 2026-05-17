@@ -54,7 +54,7 @@
                                                update=":confirmDeleteDialogContent"
                                                oncomplete="PF('confirmDeleteDialog').show();"
                                                styleClass="concept-action-button type-detail-action-delete"
-                                               rendered="#{serieBean.canCreateSerie(applicationBean)}">
+                                               rendered="#{serieBean.canDeleteSerie(applicationBean)}">
                                     <i class="pi pi-trash" />
                                     <p:tooltip value="#{msg['common.delete']}" position="top"/>
                                 </p:commandLink>

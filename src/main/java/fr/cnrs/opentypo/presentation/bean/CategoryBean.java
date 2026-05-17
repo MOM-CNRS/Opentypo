@@ -18,6 +18,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -77,6 +78,9 @@ public class CategoryBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     private List<NameItem> categoryNames = new ArrayList<>();
     private List<DescriptionItem> categoryDescriptions = new ArrayList<>();
@@ -217,6 +221,17 @@ public class CategoryBean implements Serializable {
             return;
         }
 
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || !entityAuthorityService.canCreate(
+                        loginBean.getCurrentUser(),
+                        EntityConstants.ENTITY_TYPE_CATEGORY,
+                        applicationBean.getSelectedReference().getId())) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Vous n'avez pas les droits pour créer une catégorie dans ce référentiel."));
+            PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
+            return;
+        }
+
         if (!EntityValidator.validateCode(categoryCode, entityRepository)) {
             return;
         }
@@ -322,6 +337,11 @@ public class CategoryBean implements Serializable {
      */
     @Transactional
     public void deleteCategory(ApplicationBean applicationBean) {
+        if (!canDeleteCategory()) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Vous n'avez pas les droits pour supprimer cette catégorie."));
+            return;
+        }
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "Erreur", "Aucune category sélectionnée."));
@@ -459,24 +479,25 @@ public class CategoryBean implements Serializable {
         log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
     }
 
+    public boolean canEditCategory() {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+    }
+
+    public boolean canDeleteCategory() {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
+        }
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+    }
+
+    /** @deprecated Utiliser {@link #canEditCategory()} pour l'édition et la suppression. */
+    @Deprecated
     public boolean canCreateCategory() {
-        if (!loginBean.isAuthenticated()) return false;
-
-        List<Entity> parent = entityRelationRepository.findParentsByChild(applicationBean.getSelectedEntity());
-        if (!CollectionUtils.isEmpty(parent) && userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(), parent.get(0).getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-
-        boolean isGestionnaireCollection= userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                applicationBean.getSelectedCollection().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
-        if (isGestionnaireCollection) {
-            return true;
-        }
-
-        return loginBean.isAdminTechniqueOrFonctionnel();
+        return canEditCategory();
     }
 }

@@ -22,6 +22,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
@@ -83,6 +84,9 @@ public class GroupBean implements Serializable {
 
     @Autowired
     private EntityEditModeBean entityEditModeBean;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     @Autowired
     private TreeBean treeBean;
@@ -505,6 +509,13 @@ public class GroupBean implements Serializable {
             return;
         }
 
+        if (!canCreateGroup()) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                    "Vous n'avez pas les droits pour créer un groupe dans ce référentiel."));
+            PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
+            return;
+        }
+
         if (!EntityValidator.validateCode(groupCode, entityRepository)) {
             return;
         }
@@ -661,6 +672,12 @@ public class GroupBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun groupe sélectionné."));
             return;
         }
+        if (!canDeleteOrChangeVisibilityGroup(applicationBean)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                            "Vous n'avez pas les droits pour supprimer ce groupe."));
+            return;
+        }
         try {
             Entity group = applicationBean.getSelectedEntity();
             String groupCode = group.getCode();
@@ -696,90 +713,35 @@ public class GroupBean implements Serializable {
     }
 
     public boolean canCreateGroup() {
-        if (!loginBean.isAuthenticated()) return false;
-
-        List<Entity> parent = entityRelationRepository.findParentsByChild(applicationBean.getSelectedEntity());
-        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                parent.get(0).getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return false;
         }
-
-        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                loginBean.getCurrentUser().getId(),
-                applicationBean.getSelectedCollection().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
+        Entity parent = applicationBean.getSelectedCategory() != null
+                ? applicationBean.getSelectedCategory()
+                : applicationBean.getSelectedEntity();
+        if (parent == null || parent.getId() == null) {
+            return false;
         }
-
-        return loginBean.isAdminTechniqueOrFonctionnel();
+        return entityAuthorityService.canCreate(
+                loginBean.getCurrentUser(),
+                EntityConstants.ENTITY_TYPE_GROUP,
+                parent.getId());
     }
 
-    /**
-     * Indique si l'utilisateur connecté peut supprimer l'entité ou modifier sa visibilité.
-     * Visible uniquement pour : administrateur technique, gestionnaire de la collection,
-     * ou gestionnaire de la référence contenant l'entité.
-     * Utilisable pour groupe, série, type, etc.
-     */
     public boolean canDeleteOrChangeVisibilityGroup(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        return false;
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
-    /**
-     * Indique si l'utilisateur connecté peut modifier le groupe (bouton Modifier).
-     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
-     * rédacteur ou valideur du groupe.
-     */
     public boolean canEditGroup(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        Entity reference = applicationBean.getSelectedReference();
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.REDACTEUR.getLabel())) {
-            return true;
-        }
-        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.VALIDEUR.getLabel());
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
 

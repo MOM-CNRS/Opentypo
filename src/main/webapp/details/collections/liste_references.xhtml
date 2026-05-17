@@ -19,10 +19,10 @@
                 #{applicationBean.childsReferencesSize} #{applicationBean.childsReferencesSize gt 1 ? msg['list.entity.reference.plural'] : msg['list.entity.reference.singular']}
             </span>
             <h:panelGroup class="collection-references-actions"
-                          rendered="#{collectionBean.canEditCollection(applicationBean)}">
+                          rendered="#{collectionBean.canEditCollection(applicationBean) or referenceBean.canCreateReference(applicationBean)}">
                 <p:commandButton value="#{msg['list.action.reorder']}"
                                  icon="pi pi-sort-alt"
-                                 rendered="#{applicationBean.filteredReferencesSize gt 1}"
+                                 rendered="#{applicationBean.filteredReferencesSize gt 1 and collectionBean.canEditCollection(applicationBean)}"
                                  styleClass="collection-create-btn collection-reorder-btn"
                                  action="#{applicationBean.prepareReferencesOrderDialog()}"
                                  process="@this"
@@ -30,6 +30,7 @@
                                  oncomplete="PF('orderListDialog').show();"/>
                 <p:commandButton value="Créer une nouvelle référence"
                                  icon="pi pi-plus"
+                                 rendered="#{referenceBean.canCreateReference(applicationBean)}"
                                  styleClass="collection-create-btn"
                                  action="#{referenceBean.prepareCreateReference}"
                                  process="@this"

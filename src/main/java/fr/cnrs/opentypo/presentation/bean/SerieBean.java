@@ -6,6 +6,7 @@ import fr.cnrs.opentypo.application.dto.NameItem;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
@@ -82,6 +83,9 @@ public class SerieBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     private String serieCode;
     private String serieLabel;
@@ -449,6 +453,12 @@ public class SerieBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune série sélectionnée."));
             return;
         }
+        if (!canDeleteSerie(applicationBean)) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
+                            "Vous n'avez pas les droits pour supprimer cette série."));
+            return;
+        }
         try {
             Entity serie = applicationBean.getSelectedEntity();
             String serieCode = serie.getCode();
@@ -484,42 +494,12 @@ public class SerieBean implements Serializable {
         }
     }
 
-    /**
-     * Indique si l'utilisateur connecté peut modifier la série (bouton Modifier sur une série).
-     * Visible si : administrateur technique, gestionnaire de la collection, gestionnaire du référentiel,
-     * rédacteur ou valideur du groupe contenant la série.
-     */
     public boolean canEditSerie(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedCollection().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-
-        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-
-        if (applicationBean.getSelectedGroup() != null && applicationBean.getSelectedGroup().getId() != null) {
-            if (userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId,
-                    applicationBean.getSelectedGroup().getId(), PermissionRoleEnum.REDACTEUR.getLabel())) {
-                return true;
-            }
-            return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId,
-                    applicationBean.getSelectedGroup().getId(), PermissionRoleEnum.VALIDEUR.getLabel());
-        }
-        return false;
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
     /**
@@ -528,28 +508,22 @@ public class SerieBean implements Serializable {
      * ou rédacteur du groupe. Utilisé quand selectedEntity est un groupe.
      */
     public boolean canCreateSerie(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
-        }
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
+        return entityAuthorityService.canCreate(
+                loginBean.getCurrentUser(),
+                EntityConstants.ENTITY_TYPE_SERIES,
+                applicationBean.getSelectedEntity().getId());
+    }
 
-        if (applicationBean.getSelectedCollection() != null && applicationBean.getSelectedCollection().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedCollection().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
+    public boolean canDeleteSerie(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
         }
-
-        if (applicationBean.getSelectedReference() != null && applicationBean.getSelectedReference().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedReference().getId(),
-                PermissionRoleEnum.REDACTEUR.getLabel());
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
     /**

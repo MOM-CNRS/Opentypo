@@ -19,6 +19,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -61,6 +62,9 @@ public class CollectionBean implements Serializable {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     @Autowired
     private LangueRepository langueRepository;
@@ -754,6 +758,11 @@ public class CollectionBean implements Serializable {
      */
     @Transactional
     public void deleteCollection(ApplicationBean applicationBean) {
+        if (!canDeleteCollection(applicationBean)) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Vous n'avez pas les droits pour supprimer cette collection."));
+            return;
+        }
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "Erreur", "Aucune typologie sélectionnée."));
@@ -794,20 +803,18 @@ public class CollectionBean implements Serializable {
     }
 
     public boolean canEditCollection(ApplicationBean applicationBean) {
-
-        if (!loginBean.isAuthenticated()) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
             return false;
         }
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+    }
 
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
+    public boolean canDeleteCollection(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
         }
-
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        return applicationBean.getSelectedEntity() != null && applicationBean.getSelectedEntity().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel());
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 }

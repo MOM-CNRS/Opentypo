@@ -48,7 +48,7 @@
                                     <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":centerContent :searchSectionWrapper"
-                                                   rendered="#{categoryBean.canCreateCategory()}"
+                                                   rendered="#{categoryBean.canEditCategory()}"
                                                    styleClass="concept-action-button"
                                                    title="#{msg['category.action.edit.title']}"
                                                    onstart="showLoading(&quot;#{msg['common.loading']}&quot;, &quot;spinner&quot;);"
@@ -62,7 +62,7 @@
                                                    process="@this"
                                                    update=":confirmDeleteDialogContent"
                                                    oncomplete="PF('confirmDeleteDialog').show();"
-                                                   rendered="#{categoryBean.canCreateCategory()}"
+                                                   rendered="#{categoryBean.canDeleteCategory()}"
                                                    styleClass="concept-action-button type-detail-action-delete">
                                         <i class="pi pi-trash" />
                                         <p:tooltip value="#{msg['common.delete']}" position="top"/>
@@ -78,7 +78,7 @@
                                                     <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? msg['common.visibility.public'] : msg['common.visibility.private']}</span>
                                                 </div>
                                             </div>
-                                            <h:panelGroup rendered="#{categoryBean.canCreateCategory()}" styleClass="collection-visibility-toggle-wrapper">
+                                            <h:panelGroup rendered="#{categoryBean.canEditCategory()}" styleClass="collection-visibility-toggle-wrapper">
                                                 <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                process="@this"
                                                                update=":confirmReferenceVisibilityChangeDialog :growl"

@@ -1,5 +1,8 @@
 package fr.cnrs.opentypo.infrastructure.config;
 
+import fr.cnrs.opentypo.application.dto.api.ApiErrorMessages;
+import fr.cnrs.opentypo.infrastructure.security.JwtAuthenticationFilter;
+import fr.cnrs.opentypo.infrastructure.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -29,8 +33,15 @@ import java.util.Set;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService) {
+        return new JwtAuthenticationFilter(jwtService);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+            throws Exception {
         http
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             // Exclure les ressources JSF de Spring Security - elles sont servies directement par JSF
             // Cela évite que Spring Security intercepte ces requêtes et les redirige
             // Désactiver CSRF pour JSF (peut être réactivé si nécessaire)
@@ -110,6 +121,9 @@ public class SecurityConfig {
                 // OpenAPI / Swagger UI (springdoc)
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
+                // Connexion API (JWT)
+                .requestMatchers("/api/v1/auth/**").permitAll()
+
                 // Permettre l'accès à l'endpoint de vérification de session
                 .requestMatchers("/session-check").permitAll()
 
@@ -131,7 +145,8 @@ public class SecurityConfig {
                     if (requestPath != null && requestPath.contains("/api/")) {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        response.getWriter().write(
+                                ApiErrorMessages.toJson(HttpServletResponse.SC_UNAUTHORIZED, ApiErrorMessages.UNAUTHORIZED));
                         return;
                     }
                     // Ne PAS rediriger les ressources JSF/statiques - laisser JSF les servir
@@ -163,7 +178,8 @@ public class SecurityConfig {
                     if (requestPath != null && requestPath.contains("/api/")) {
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write("{\"error\":\"Forbidden\"}");
+                        response.getWriter().write(
+                                ApiErrorMessages.toJson(HttpServletResponse.SC_FORBIDDEN, ApiErrorMessages.FORBIDDEN));
                         return;
                     }
                     // Ne PAS rediriger les ressources JSF/statiques

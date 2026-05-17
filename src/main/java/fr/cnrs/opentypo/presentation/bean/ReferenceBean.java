@@ -15,6 +15,7 @@ import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.domain.entity.UserPermission;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
+import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
@@ -93,6 +94,9 @@ public class ReferenceBean implements Serializable {
 
     @Autowired
     private EntityImageService entityImageService;
+
+    @Autowired
+    private EntityAuthorityService entityAuthorityService;
 
     @Autowired
     private ImageRepository imageRepository;
@@ -485,6 +489,11 @@ public class ReferenceBean implements Serializable {
     public void createReference() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
+        if (!canCreateReference(applicationBean)) {
+            addErrorMessage("Vous n'avez pas les droits pour créer un référentiel.");
+            return;
+        }
+
         // Si un fichier local a été sélectionné, l'enregistrer dans le répertoire images avant création
         if (uploadedFilePart != null && uploadedFilePart.getSize() > 0) {
             try {
@@ -759,6 +768,10 @@ public class ReferenceBean implements Serializable {
     }
 
     private void doDeleteReference(ApplicationBean applicationBean, Entity reference) {
+        if (loginBean.getCurrentUser() == null || !entityAuthorityService.canDelete(loginBean.getCurrentUser(), reference)) {
+            addErrorMessage("Vous n'avez pas les droits pour supprimer ce référentiel.");
+            return;
+        }
 
         applicationBean.setSelectedEntity(applicationBean.getSelectedCollection());
         // Supprimer récursivement le référentiel et toutes ses entités enfants
@@ -883,32 +896,48 @@ public class ReferenceBean implements Serializable {
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :referenceDialogForm");
     }
 
-    public boolean canEditReference(ApplicationBean applicationBean) {
-
-        if (!loginBean.isAuthenticated() || applicationBean.getSelectedEntity() == null) {
+    /**
+     * Création d'un référentiel : administrateur technique ou fonctionnel uniquement.
+     */
+    public boolean canCreateReference(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
             return false;
         }
+        Long collectionId = applicationBean.getSelectedCollection() != null
+                ? applicationBean.getSelectedCollection().getId()
+                : null;
+        return entityAuthorityService.canCreate(
+                loginBean.getCurrentUser(), EntityConstants.ENTITY_TYPE_REFERENCE, collectionId);
+    }
 
-        if (loginBean.isAdminTechniqueOrFonctionnel()) {
-            return true;
+    /**
+     * Création d'une catégorie dans le référentiel sélectionné.
+     */
+    public boolean canCreateCategoryInReference(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedReference() == null) {
+            return false;
         }
+        return entityAuthorityService.canCreate(
+                loginBean.getCurrentUser(),
+                EntityConstants.ENTITY_TYPE_CATEGORY,
+                applicationBean.getSelectedReference().getId());
+    }
 
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = applicationBean.getSelectedCollection();
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
+    public boolean canEditReference(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
         }
+        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+    }
 
-        if (applicationBean.getSelectedEntity() != null && applicationBean.getSelectedEntity().getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, applicationBean.getSelectedEntity().getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
+    public boolean canDeleteReference(ApplicationBean applicationBean) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || applicationBean.getSelectedEntity() == null) {
+            return false;
         }
-        return false;
+        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
     }
 
     /**

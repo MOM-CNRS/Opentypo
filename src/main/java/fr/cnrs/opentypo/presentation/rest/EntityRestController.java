@@ -1,13 +1,19 @@
 package fr.cnrs.opentypo.presentation.rest;
 
+import fr.cnrs.opentypo.application.dto.api.ApiErrorResponse;
+import fr.cnrs.opentypo.application.dto.api.EntityApiStatutFilter;
 import fr.cnrs.opentypo.application.dto.api.EntityCreateRequest;
+import fr.cnrs.opentypo.application.dto.api.EntityListOrder;
 import fr.cnrs.opentypo.application.dto.api.EntityResponseDto;
 import fr.cnrs.opentypo.application.dto.api.EntityUpdateRequest;
+import fr.cnrs.opentypo.application.dto.api.EntityVisibilityRequest;
 import fr.cnrs.opentypo.application.service.EntityApiService;
+import fr.cnrs.opentypo.infrastructure.config.OpenApiConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,17 +42,11 @@ import java.util.List;
 
 /**
  * REST API for typology {@link fr.cnrs.opentypo.domain.entity.Entity} resources.
- * <p>
- * Conventions: plural collection path {@code /api/v1/entities}, numeric id in path for item resource,
- * {@code GET} on collection with query parameters for filtering (no RPC-style subpaths),
- * {@code POST} returns {@code 201 Created} with {@code Location}, partial updates via {@code PATCH},
- * {@code DELETE} returns {@code 204 No Content}.
- * </p>
  */
 @Tag(
         name = "Entités typologiques",
-        description = "Recherche, liste, création, mise à jour partielle et suppression (cascade) des entités")
-@SecurityRequirement(name = "sessionCookie")
+        description = "Recherche, création, mise à jour partielle et suppression (cascade) des entités typologiques.")
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
 @RestController
 @RequestMapping(path = "/api/v1/entities", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
@@ -55,60 +55,87 @@ public class EntityRestController {
     private final EntityApiService entityApiService;
 
     @Operation(
-            operationId = "lookupEntities",
-            summary = "Rechercher par code ou par libellé (langue)",
-            description = "Recherche dédiée : soit sur le **code métier** (metadata), soit sur le **libellé** dans une langue. "
-                    + "Paramètre `match` : `EXACT` (égalité, insensible à la casse) ou `CONTAINS` (sous-chaîne). "
-                    + "Pour `field=LABEL`, fournir `lang` (ex. fr, en) ; défaut `fr`.")
+            operationId = "listEntities",
+            summary = "Lister ou rechercher des entités",
+            description = """
+                    Recherche sur le **code métier** (`field=CODE`) ou le **libellé** (`field=LABEL`, avec `lang`, défaut fr).
+                    `match` : `EXACT` ou `CONTAINS`. `value` : texte recherché.
+                    Sans `field`/`match`/`value` : liste paginée filtrée par `statut` uniquement.
+                    **statut** : `PUBLIQUE`, `PROPOSITION`, `REFUSED` (stocké REFUSE), ou `tous` (tous les statuts).
+                    **order** : `date_desc` (défaut), `date`, `code`, `code_desc`.
+                    **limit** : défaut 200, max 1000.""")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Liste d'entités correspondantes (vide si aucun résultat).",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = EntityResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Paramètres invalides (field, match, value, langue).", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content)
+                            array = @ArraySchema(schema = @Schema(implementation = EntityResponseDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Paramètres invalides.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping
-    public List<EntityResponseDto> lookupEntities(
+    public List<EntityResponseDto> listEntities(
             @Parameter(
                     name = "field",
                     in = ParameterIn.QUERY,
-                    description = "`CODE` = code métier (metadata) ; `LABEL` = libellé dans la langue `lang`.",
-                    required = true,
+                    description = "`CODE` ou `LABEL`.",
                     example = "CODE",
                     schema = @Schema(allowableValues = {"CODE", "LABEL"}))
-            @RequestParam String field,
+            @RequestParam(required = false) String field,
             @Parameter(
                     name = "match",
                     in = ParameterIn.QUERY,
                     description = "`EXACT` ou `CONTAINS`.",
-                    required = true,
                     example = "EXACT",
                     schema = @Schema(allowableValues = {"EXACT", "CONTAINS"}))
-            @RequestParam String match,
+            @RequestParam(required = false) String match,
             @Parameter(
                     name = "value",
                     in = ParameterIn.QUERY,
                     description = "Texte recherché.",
-                    required = true,
                     example = "CER")
-            @RequestParam String value,
+            @RequestParam(required = false) String value,
+            @Parameter(
+                    name = "statut",
+                    in = ParameterIn.QUERY,
+                    description = "Filtre par statut métier.",
+                    example = "PUBLIQUE",
+                    schema = @Schema(allowableValues = {"PUBLIQUE", "PROPOSITION", "REFUSED", EntityApiStatutFilter.VALUE_TOUS}))
+            @RequestParam(required = false) String statut,
             @Parameter(
                     name = "lang",
                     in = ParameterIn.QUERY,
-                    description = "Code langue ISO (obligatoire pour field=LABEL ; défaut fr).",
+                    description = "Code langue pour field=LABEL (défaut fr).",
                     example = "fr")
-            @RequestParam(required = false) String lang) {
-        return entityApiService.lookupByField(field, match, value, lang);
+            @RequestParam(required = false) String lang,
+            @Parameter(
+                    name = "limit",
+                    in = ParameterIn.QUERY,
+                    description = "Nombre max de résultats (défaut 200, max 1000).",
+                    example = "200")
+            @RequestParam(required = false) Integer limit,
+            @Parameter(
+                    name = "order",
+                    in = ParameterIn.QUERY,
+                    description = "Tri des résultats.",
+                    example = EntityListOrder.DEFAULT_VALUE,
+                    schema = @Schema(allowableValues = {"date_desc", "date", "code", "code_desc"}))
+            @RequestParam(required = false) String order) {
+        return entityApiService.listEntities(field, match, value, statut, lang, limit, order);
     }
 
     @Operation(
-            operationId = "getEntityById",
-            summary = "Obtenir une entité par identifiant",
-            description = "Ressource unitaire : détail d'une entité par clé primaire numérique.")
+            operationId = "getEntityByCode",
+            summary = "Obtenir une entité par code métier",
+            description = "Ressource unitaire par code métier (insensible à la casse), avec détail complet.")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -116,16 +143,137 @@ public class EntityRestController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = EntityResponseDto.class))),
-            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Code vide.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/by-code/{code}")
+    public EntityResponseDto getEntityByCode(
+            @Parameter(
+                    name = "code",
+                    in = ParameterIn.PATH,
+                    description = "Code métier unique.",
+                    required = true,
+                    example = "DECOCER")
+            @PathVariable String code) {
+        return entityApiService.getByCode(code);
+    }
+
+    @Operation(
+            operationId = "getEntityChildren",
+            summary = "Lister les enfants directs d'une entité",
+            description = "Enfants directs, ordonnés par display_order puis code. Filtre **statut** optionnel.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Liste des enfants (vide si aucun).",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = EntityResponseDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Paramètre statut invalide.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité parente introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/{id}/children")
+    public List<EntityResponseDto> getEntityChildren(
+            @Parameter(
+                    name = "id",
+                    in = ParameterIn.PATH,
+                    required = true,
+                    schema = @Schema(type = "integer", format = "int64"))
+            @PathVariable Long id,
+            @Parameter(
+                    name = "statut",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(allowableValues = {"PUBLIQUE", "PROPOSITION", "REFUSED", EntityApiStatutFilter.VALUE_TOUS}))
+            @RequestParam(required = false) String statut) {
+        return entityApiService.getChildren(id, EntityApiStatutFilter.parse(statut));
+    }
+
+    @Operation(
+            operationId = "getEntityParents",
+            summary = "Lister les parents directs d'une entité",
+            description = "Parents directs dans l'arbre typologique. Filtre **statut** optionnel.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Liste des parents (vide si aucun).",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = EntityResponseDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Paramètre statut invalide.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/{id}/parents")
+    public List<EntityResponseDto> getEntityParents(
+            @Parameter(
+                    name = "id",
+                    in = ParameterIn.PATH,
+                    required = true,
+                    schema = @Schema(type = "integer", format = "int64"))
+            @PathVariable Long id,
+            @Parameter(
+                    name = "statut",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(allowableValues = {"PUBLIQUE", "PROPOSITION", "REFUSED", EntityApiStatutFilter.VALUE_TOUS}))
+            @RequestParam(required = false) String statut) {
+        return entityApiService.getParents(id, EntityApiStatutFilter.parse(statut));
+    }
+
+    @Operation(
+            operationId = "getEntityById",
+            summary = "Obtenir une entité par identifiant",
+            description = "Détail complet incluant rubriques Description, Caractéristiques physiques et descriptions de présentation.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Entité trouvée.",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = EntityResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/{id}")
     public EntityResponseDto getEntity(
             @Parameter(
                     name = "id",
                     in = ParameterIn.PATH,
-                    description = "Identifiant technique de l'entité.",
                     required = true,
                     example = "42",
                     schema = @Schema(type = "integer", format = "int64"))
@@ -158,13 +306,18 @@ public class EntityRestController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Requête invalide : type ou langue inconnue, parent introuvable, validation Bean Validation.",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Conflit : un code d'entité identique existe déjà.",
-                    content = @Content)
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Conflit : un code d'entité identique existe déjà.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EntityResponseDto> createEntity(
@@ -180,13 +333,8 @@ public class EntityRestController {
     @Operation(
             operationId = "patchEntity",
             summary = "Mise à jour partielle d'une entité",
-            description = "Style RFC 5789 : seuls les champs **non null** du corps sont appliqués.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Champs optionnels : statut, code, idArk, ordre d'affichage, appellation, bibliographie, commentaire métadonnées.",
-                    required = true,
-                    content = @Content(
-                            mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = EntityUpdateRequest.class))))
+            description = "Style RFC 5789 : seuls les champs **non null** du corps sont appliqués. "
+                    + "La publication (`PUBLIQUE`) peut déclencher l'attribution automatique d'un ARK si absent.")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -194,21 +342,30 @@ public class EntityRestController {
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = EntityResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Requête invalide.", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Requête invalide.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(
                     responseCode = "409",
                     description = "Conflit : le nouveau code est déjà utilisé par une autre entité.",
-                    content = @Content)
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public EntityResponseDto patchEntity(
             @Parameter(
                     name = "id",
                     in = ParameterIn.PATH,
-                    description = "Identifiant technique de l'entité à modifier.",
                     required = true,
                     schema = @Schema(type = "integer", format = "int64"))
             @PathVariable Long id,
@@ -217,14 +374,66 @@ public class EntityRestController {
     }
 
     @Operation(
+            operationId = "updateEntityVisibility",
+            summary = "Modifier la visibilité (publique / privée)",
+            description = """
+                    Bascule le statut de visibilité de l'entité :
+                    - `publique: true` → statut **PUBLIQUE** ;
+                    - `publique: false` → statut **PRIVEE**.
+                    Une entité au statut **PROPOSITION** ne peut pas être modifiée via cet endpoint.
+                    Le passage en **PUBLIQUE** peut déclencher l'attribution automatique d'un ARK si absent.""",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = EntityVisibilityRequest.class))))
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Visibilité mise à jour.",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = EntityResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Requête invalide ou statut PROPOSITION.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Droits insuffisants.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PatchMapping(path = "/{id}/visibility", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public EntityResponseDto updateEntityVisibility(
+            @Parameter(
+                    name = "id",
+                    in = ParameterIn.PATH,
+                    required = true,
+                    schema = @Schema(type = "integer", format = "int64"))
+            @PathVariable Long id,
+            @Valid @RequestBody EntityVisibilityRequest request) {
+        return entityApiService.updateVisibility(id, request);
+    }
+
+    @Operation(
             operationId = "deleteEntity",
             summary = "Supprimer une entité (cascade)",
             description = "Suppression récursive alignée sur l'interface (descendants et relations). Réponse sans corps.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Suppression effectuée."),
-            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Non authentifié.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité introuvable.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -232,7 +441,6 @@ public class EntityRestController {
             @Parameter(
                     name = "id",
                     in = ParameterIn.PATH,
-                    description = "Identifiant technique de l'entité à supprimer.",
                     required = true,
                     schema = @Schema(type = "integer", format = "int64"))
             @PathVariable Long id) {

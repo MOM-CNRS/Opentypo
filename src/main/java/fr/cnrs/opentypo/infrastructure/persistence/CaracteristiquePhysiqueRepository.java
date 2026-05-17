@@ -2,6 +2,10 @@ package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public interface CaracteristiquePhysiqueRepository extends JpaRepository<CaracteristiquePhysique, Long> {
+
+    @Query("SELECT cp FROM CaracteristiquePhysique cp "
+            + "LEFT JOIN FETCH cp.forme "
+            + "LEFT JOIN FETCH cp.metrologie "
+            + "LEFT JOIN FETCH cp.materiaux "
+            + "LEFT JOIN FETCH cp.dimensions "
+            + "LEFT JOIN FETCH cp.technique "
+            + "WHERE cp.entity.id = :entityId")
+    Optional<CaracteristiquePhysique> findByEntityIdForApi(@Param("entityId") Long entityId);
 
     @Modifying
     @Transactional

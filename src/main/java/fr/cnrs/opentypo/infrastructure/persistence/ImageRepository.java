@@ -2,6 +2,7 @@ package fr.cnrs.opentypo.infrastructure.persistence;
 
 import fr.cnrs.opentypo.domain.entity.Image;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -22,4 +23,17 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     @Transactional
     @Query("DELETE FROM Image i WHERE i.entity.id = :entityId")
     void deleteByEntityId(@Param("entityId") Long entityId);
+
+    /**
+     * First image URL per entity (lowest id), for REST API batch loading.
+     */
+    @Query(
+            value = """
+            SELECT DISTINCT ON (entity_id) entity_id, url
+            FROM image
+            WHERE entity_id IN (:entityIds)
+            ORDER BY entity_id, id
+            """,
+            nativeQuery = true)
+    List<Object[]> findPrimaryImageUrlsByEntityIds(@Param("entityIds") Collection<Long> entityIds);
 }

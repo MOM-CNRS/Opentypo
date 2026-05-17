@@ -72,7 +72,7 @@
                                            process="@this"
                                            update=":confirmDeleteDialogContent"
                                            oncomplete="PF('confirmDeleteDialog').show();"
-                                           rendered="#{typeBean.canEditType(applicationBean)}"
+                                           rendered="#{typeBean.canDeleteType(applicationBean)}"
                                            styleClass="concept-action-button type-detail-action-delete"
                                            title="#{msg['type.action.delete.title']}">
                                 <i class="pi pi-trash"/>
