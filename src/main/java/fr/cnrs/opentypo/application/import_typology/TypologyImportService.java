@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.service.ArkIdentifierService;
 import fr.cnrs.opentypo.application.service.CategoryService;
+import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.application.service.TypeService;
@@ -99,6 +100,8 @@ public class TypologyImportService {
     @Autowired
     private TypeService typeService;
     @Autowired
+    private EntityCodeUniquenessService entityCodeUniquenessService;
+    @Autowired
     private ArkIdentifierService arkIdentifierService;
     @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
@@ -159,19 +162,15 @@ public class TypologyImportService {
 
             validateCodeFormat(targets[rowIndex], err.get(rowIndex));
 
-            Integer first = firstOccurrenceIdx.putIfAbsent(targets[rowIndex], rowIndex);
+            String dupKey = importDuplicateKey(kinds[rowIndex], ccArr[rowIndex], cgArr[rowIndex], csArr[rowIndex], targets[rowIndex]);
+            Integer first = firstOccurrenceIdx.putIfAbsent(dupKey, rowIndex);
             if (first != null) {
                 err.get(rowIndex).add("Code « " + targets[rowIndex] + " » dupliqué dans le fichier (ligne " + (first + 2) + ").");
                 err.get(first).add("Code « " + targets[rowIndex] + " » dupliqué dans le fichier (ligne " + csvRowNumber + ").");
             }
 
-            entityRepository.findByCode(targets[rowIndex]).ifPresent(existing -> {
-                Entity anc = typeService.findReferenceAncestor(existing);
-                if (anc == null || !Objects.equals(anc.getId(), reference.getId())) {
-                    err.get(rowIndex).add("Le code « " + targets[rowIndex]
-                            + " » existe déjà hors de ce référentiel ou sans rattachement attendu.");
-                }
-            });
+            validateImportScopedCode(reference, kinds[rowIndex], targets[rowIndex], ccArr[rowIndex], cgArr[rowIndex],
+                    csArr[rowIndex], err.get(rowIndex));
 
             previewImages(row, warn.get(rowIndex));
             if (collectionProfile == TypologyImportCollectionProfile.MONNAIE) {
@@ -246,7 +245,7 @@ public class TypologyImportService {
             String tgt = targets[i];
             boolean hasErr = !err.get(i).isEmpty();
             boolean create = k != null && k != TypologyImportKind.NON_CLASSIFIE && tgt != null && !hasErr
-                    && entityRepository.findByCode(tgt).isEmpty();
+                    && !importEntityExistsInScope(reference, k, tgt, ccArr[i], cgArr[i], csArr[i]);
             boolean okLine = k != null && k != TypologyImportKind.NON_CLASSIFIE && tgt != null && !hasErr;
             if (!okLine) {
                 allOk = false;
@@ -367,10 +366,11 @@ public class TypologyImportService {
                                 Langue langLabel, Langue langDesc, String statutStr,
                                 Map<String, String> row, EntityType catType, Utilisateur user,
                                 Set<String> csvHeaders, TypologyImportCollectionProfile collectionProfile) {
-        Optional<Entity> existingOpt = entityRepository.findByCode(code);
-        boolean isCreate = existingOpt.isEmpty();
+        Optional<Long> existingId = entityCodeUniquenessService.findEntityIdInReference(
+                reference, EntityConstants.ENTITY_TYPE_CATEGORY, code);
+        boolean isCreate = existingId.isEmpty();
         Entity entity;
-        if (existingOpt.isEmpty()) {
+        if (existingId.isEmpty()) {
             entity = new Entity();
             entity.setEntityType(catType);
             entity.setCode(code);
@@ -380,7 +380,7 @@ public class TypologyImportService {
             entity = entityRepository.save(entity);
             linkParentChild(reference, entity);
         } else {
-            entity = loadEntityForImport(existingOpt.get().getId());
+            entity = loadEntityForImport(existingId.get());
             entity.setStatut(statutStr != null ? statutStr : entity.getStatut());
             if (!entityRelationRepository.existsByParentAndChild(reference.getId(), entity.getId())) {
                 linkParentChild(reference, entity);
@@ -400,10 +400,11 @@ public class TypologyImportService {
                              Langue langLabel, Langue langDesc, String statutStr,
                              Map<String, String> row, Utilisateur user, Set<String> csvHeaders,
                              TypologyImportCollectionProfile collectionProfile) {
-        Optional<Entity> existingOpt = entityRepository.findByCode(code);
-        boolean isCreate = existingOpt.isEmpty();
+        Optional<Long> existingId = findExistingEntityIdInImportScope(parent, expectedTypeCode, code);
+        boolean isCreate = existingId.isEmpty();
         Entity entity;
-        if (existingOpt.isEmpty()) {
+        if (existingId.isEmpty()) {
+            assertImportCodeAvailableOnCreate(parent, expectedTypeCode, code);
             entity = new Entity();
             entity.setEntityType(concreteType);
             entity.setCode(code);
@@ -413,7 +414,7 @@ public class TypologyImportService {
             entity = entityRepository.save(entity);
             linkParentChild(parent, entity);
         } else {
-            entity = loadEntityForImport(existingOpt.get().getId());
+            entity = loadEntityForImport(existingId.get());
             if (entity.getEntityType() == null || !expectedTypeCode.equals(entity.getEntityType().getCode())) {
                 throw new IllegalStateException("Le code « " + code + " » existe avec un autre type d'entité.");
             }
@@ -1413,6 +1414,126 @@ public class TypologyImportService {
         return grp.flatMap(g -> serieService.loadGroupSeries(g).stream()
                 .filter(s -> serieCode.equals(s.getCode()))
                 .findFirst());
+    }
+
+    private static String importDuplicateKey(
+            TypologyImportKind kind, String catCode, String groupCode, String serieCode, String targetCode) {
+        if (kind == null || targetCode == null) {
+            return "";
+        }
+        return switch (kind) {
+            case CATEGORIE -> "CAT:" + targetCode;
+            case GROUPE -> "GRP:" + targetCode;
+            case SERIE -> "SER:" + catCode + KEY_SEP + groupCode + KEY_SEP + targetCode;
+            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> "TYP:" + catCode + KEY_SEP + groupCode + KEY_SEP + targetCode;
+            default -> "UNK:" + targetCode;
+        };
+    }
+
+    private void validateImportScopedCode(
+            Entity reference,
+            TypologyImportKind kind,
+            String targetCode,
+            String catCode,
+            String groupCode,
+            String serieCode,
+            List<String> errors) {
+        if (kind == null || targetCode == null || kind == TypologyImportKind.NON_CLASSIFIE) {
+            return;
+        }
+        if (importEntityExistsInScope(reference, kind, targetCode, catCode, groupCode, serieCode)) {
+            return;
+        }
+        String message = switch (kind) {
+            case CATEGORIE -> EntityConstants.ERROR_CATEGORY_CODE_EXISTS_IN_REFERENCE;
+            case GROUPE -> EntityConstants.ERROR_GROUP_CODE_EXISTS_IN_REFERENCE;
+            case SERIE -> EntityConstants.ERROR_SERIE_CODE_EXISTS_IN_GROUP;
+            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> EntityConstants.ERROR_TYPE_CODE_EXISTS_IN_GROUP;
+            default -> EntityConstants.ERROR_CODE_ALREADY_EXISTS;
+        };
+        if (isImportCodeTakenOnCreate(reference, kind, targetCode, catCode, groupCode, serieCode)) {
+            errors.add("Le code « " + targetCode + " » : " + message);
+        }
+    }
+
+    private boolean isImportCodeTakenOnCreate(
+            Entity reference,
+            TypologyImportKind kind,
+            String targetCode,
+            String catCode,
+            String groupCode,
+            String serieCode) {
+        return switch (kind) {
+            case CATEGORIE -> entityCodeUniquenessService.isCategoryCodeTakenInReference(reference, targetCode, null);
+            case GROUPE -> entityCodeUniquenessService.isGroupCodeTakenInReference(reference, targetCode, null);
+            case SERIE -> findGroup(reference, catCode, groupCode)
+                    .map(grp -> entityCodeUniquenessService.isSerieCodeTakenInGroup(grp, targetCode, null))
+                    .orElse(false);
+            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> findGroup(reference, catCode, groupCode)
+                    .map(grp -> entityCodeUniquenessService.isTypeCodeTakenInGroup(grp, targetCode, null))
+                    .orElse(false);
+            default -> false;
+        };
+    }
+
+    private boolean importEntityExistsInScope(
+            Entity reference,
+            TypologyImportKind kind,
+            String targetCode,
+            String catCode,
+            String groupCode,
+            String serieCode) {
+        return findExistingEntityIdInImportScope(reference, kind, targetCode, catCode, groupCode, serieCode).isPresent();
+    }
+
+    private Optional<Long> findExistingEntityIdInImportScope(
+            Entity parent,
+            String expectedTypeCode,
+            String code) {
+        Entity reference = typeService.findReferenceAncestor(parent);
+        return switch (expectedTypeCode) {
+            case EntityConstants.ENTITY_TYPE_GROUP -> reference == null
+                    ? Optional.empty()
+                    : entityCodeUniquenessService.findEntityIdInReference(
+                            reference, EntityConstants.ENTITY_TYPE_GROUP, code);
+            case EntityConstants.ENTITY_TYPE_SERIES -> entityCodeUniquenessService.resolveGroup(parent)
+                    .flatMap(grp -> entityCodeUniquenessService.findSerieIdInGroup(grp, code));
+            case EntityConstants.ENTITY_TYPE_TYPE -> entityCodeUniquenessService.resolveGroup(parent)
+                    .flatMap(grp -> entityCodeUniquenessService.findTypeIdInGroup(grp, code));
+            default -> Optional.empty();
+        };
+    }
+
+    private Optional<Long> findExistingEntityIdInImportScope(
+            Entity reference,
+            TypologyImportKind kind,
+            String targetCode,
+            String catCode,
+            String groupCode,
+            String serieCode) {
+        return switch (kind) {
+            case CATEGORIE -> entityCodeUniquenessService.findEntityIdInReference(
+                    reference, EntityConstants.ENTITY_TYPE_CATEGORY, targetCode);
+            case GROUPE -> entityCodeUniquenessService.findEntityIdInReference(
+                    reference, EntityConstants.ENTITY_TYPE_GROUP, targetCode);
+            case SERIE -> findGroup(reference, catCode, groupCode)
+                    .flatMap(grp -> entityCodeUniquenessService.findSerieIdInGroup(grp, targetCode));
+            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> findGroup(reference, catCode, groupCode)
+                    .flatMap(grp -> entityCodeUniquenessService.findTypeIdInGroup(grp, targetCode));
+            default -> Optional.empty();
+        };
+    }
+
+    private void assertImportCodeAvailableOnCreate(Entity parent, String expectedTypeCode, String code) {
+        if (entityCodeUniquenessService.isCodeTakenForCreate(expectedTypeCode, parent, code, null)) {
+            String message = switch (expectedTypeCode) {
+                case EntityConstants.ENTITY_TYPE_GROUP -> EntityConstants.ERROR_GROUP_CODE_EXISTS_IN_REFERENCE;
+                case EntityConstants.ENTITY_TYPE_SERIES -> EntityConstants.ERROR_SERIE_CODE_EXISTS_IN_GROUP;
+                case EntityConstants.ENTITY_TYPE_TYPE -> EntityConstants.ERROR_TYPE_CODE_EXISTS_IN_GROUP;
+                default -> EntityConstants.ERROR_CODE_ALREADY_EXISTS;
+            };
+            throw new IllegalStateException(message);
+        }
     }
 
     private static List<Integer> sortedRowIndices(int n, TypologyImportKind[] kinds) {

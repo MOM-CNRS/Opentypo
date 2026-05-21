@@ -232,6 +232,34 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
             Pageable pageable);
 
     /**
+     * Identifiant d'une entité d'un type donné, de code métier donné, dans le sous-arbre d'une racine
+     * (référentiel pour catégorie/groupe, groupe pour série/type).
+     */
+    @Query(
+            value = """
+            WITH RECURSIVE subtree AS (
+                SELECT CAST(:rootId AS bigint) AS entity_id
+                UNION ALL
+                SELECT er.child_id FROM entity_relation er
+                INNER JOIN subtree s ON er.parent_id = s.entity_id
+            )
+            SELECT e.id FROM entity e
+            INNER JOIN entity_type et ON e.entity_type_id = et.id
+            INNER JOIN entity_metadata em ON e.id = em.entity_id
+            INNER JOIN subtree s ON e.id = s.entity_id
+            WHERE et.code = :entityTypeCode
+            AND LOWER(em.code) = LOWER(:code)
+            AND (:excludeEntityId IS NULL OR e.id <> :excludeEntityId)
+            LIMIT 1
+            """,
+            nativeQuery = true)
+    Optional<Long> findEntityIdByTypedCodeInSubtree(
+            @Param("rootId") Long rootId,
+            @Param("entityTypeCode") String entityTypeCode,
+            @Param("code") String code,
+            @Param("excludeEntityId") Long excludeEntityId);
+
+    /**
      * Vérifie si une entité existe avec le code donné (via metadata)
      */
     @Query("SELECT COUNT(e) > 0 FROM Entity e JOIN e.metadata m WHERE m.code = :code")

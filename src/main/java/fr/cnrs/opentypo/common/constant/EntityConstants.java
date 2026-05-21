@@ -28,5 +28,13 @@ public final class EntityConstants {
     public static final String ERROR_CODE_TOO_LONG = "Le code ne peut pas dépasser " + MAX_CODE_LENGTH + " caractères.";
     public static final String ERROR_LABEL_TOO_LONG = "Le label ne peut pas dépasser " + MAX_LABEL_LENGTH + " caractères.";
     public static final String ERROR_CODE_ALREADY_EXISTS = "Un élément avec ce code existe déjà.";
+    public static final String ERROR_CATEGORY_CODE_EXISTS_IN_REFERENCE =
+            "Une catégorie avec ce code existe déjà dans ce référentiel.";
+    public static final String ERROR_GROUP_CODE_EXISTS_IN_REFERENCE =
+            "Un groupe avec ce code existe déjà dans ce référentiel.";
+    public static final String ERROR_SERIE_CODE_EXISTS_IN_GROUP =
+            "Une série avec ce code existe déjà dans ce groupe.";
+    public static final String ERROR_TYPE_CODE_EXISTS_IN_GROUP =
+            "Un type avec ce code existe déjà dans ce groupe.";
 }
 

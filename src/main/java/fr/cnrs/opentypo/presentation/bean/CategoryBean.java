@@ -19,6 +19,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
+import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -81,6 +82,9 @@ public class CategoryBean implements Serializable {
 
     @Autowired
     private EntityAuthorityService entityAuthorityService;
+
+    @Autowired
+    private EntityCodeUniquenessService entityCodeUniquenessService;
 
     private List<NameItem> categoryNames = new ArrayList<>();
     private List<DescriptionItem> categoryDescriptions = new ArrayList<>();
@@ -232,7 +236,8 @@ public class CategoryBean implements Serializable {
             return;
         }
 
-        if (!EntityValidator.validateCode(categoryCode, entityRepository)) {
+        if (!EntityValidator.validateCategoryCodeForCreate(
+                categoryCode, applicationBean.getSelectedReference(), entityCodeUniquenessService)) {
             return;
         }
 

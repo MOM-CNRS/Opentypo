@@ -6,6 +6,7 @@ import fr.cnrs.opentypo.application.service.CollectionService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
+import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Description;
@@ -104,6 +105,9 @@ public class TypeBean implements Serializable {
     @Autowired
     private EntityAuthorityService entityAuthorityService;
 
+    @Autowired
+    private EntityCodeUniquenessService entityCodeUniquenessService;
+
     private String typeCode;
     private String typeLabel;
     private String typeDescription;
@@ -180,8 +184,7 @@ public class TypeBean implements Serializable {
             return;
         }
 
-        // Validation : unicité du code (EntityValidator.validateCode vérifie aussi vide et longueur)
-        if (!EntityValidator.validateCode(typeDialogCode, entityRepository)) {
+        if (!EntityValidator.validateTypeCodeForCreate(typeDialogCode, parent, entityCodeUniquenessService)) {
             return;
         }
 
@@ -319,16 +322,16 @@ public class TypeBean implements Serializable {
             return;
         }
 
-        if (!EntityValidator.validateCode(newCode, entityRepository)) {
-            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
-            return;
-        }
-
         Entity parent = duplicateTypeSelectedParentId != null
                 ? entityRepository.findById(duplicateTypeSelectedParentId).orElse(null)
                 : null;
         if (parent == null) {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Veuillez sélectionner un parent."));
+            PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
+            return;
+        }
+
+        if (!EntityValidator.validateTypeCodeForCreate(newCode, parent, entityCodeUniquenessService)) {
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
@@ -601,12 +604,17 @@ public class TypeBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         // Validation des champs obligatoires
-        if (!EntityValidator.validateCode(typeCode, entityRepository) || !EntityValidator.validateLabel(typeLabel)) {
+        ApplicationBean applicationBean = applicationBeanProvider.get();
+
+        Entity typeParent = applicationBean != null ? applicationBean.getSelectedSerie() : null;
+        if (typeParent == null && applicationBean != null) {
+            typeParent = applicationBean.getSelectedGroup();
+        }
+        if (!EntityValidator.validateTypeCodeForCreate(typeCode, typeParent, entityCodeUniquenessService)
+                || !EntityValidator.validateLabel(typeLabel)) {
             return;
         }
 
-        ApplicationBean applicationBean = applicationBeanProvider.get();
-        
         // Vérifier qu'un groupe est sélectionné
         if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
             facesContext.addMessage(null,

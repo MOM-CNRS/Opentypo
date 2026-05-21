@@ -7,6 +7,7 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
+import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
@@ -86,6 +87,9 @@ public class SerieBean implements Serializable {
 
     @Autowired
     private EntityAuthorityService entityAuthorityService;
+
+    @Autowired
+    private EntityCodeUniquenessService entityCodeUniquenessService;
 
     private String serieCode;
     private String serieLabel;
@@ -244,7 +248,8 @@ public class SerieBean implements Serializable {
     @Transactional
     public void createSerieFromDialog() {
 
-        if (!EntityValidator.validateCode(serieDialogCode, entityRepository)) {
+        if (!EntityValidator.validateSerieCodeForCreate(
+                serieDialogCode, applicationBean.getSelectedGroup(), entityCodeUniquenessService)) {
             return;
         }
 
@@ -353,7 +358,8 @@ public class SerieBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         // Validation des champs obligatoires
-        if (!fr.cnrs.opentypo.presentation.bean.util.EntityValidator.validateCode(serieCode, entityRepository)) {
+        if (!EntityValidator.validateSerieCodeForCreate(
+                serieCode, applicationBean.getSelectedGroup(), entityCodeUniquenessService)) {
             return;
         }
 

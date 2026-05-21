@@ -72,6 +72,7 @@ public class EntityApiService {
     private final EntityAuthorityService entityAuthorityService;
     private final UtilisateurRepository utilisateurRepository;
     private final EntityStatusCascadeService entityStatusCascadeService;
+    private final EntityCodeUniquenessService entityCodeUniquenessService;
 
     @Transactional(readOnly = true)
     public EntityResponseDto getById(Long id) {
@@ -241,9 +242,6 @@ public class EntityApiService {
         entityAuthorityService.assertCanCreate(
                 currentUser, request.entityTypeCode().trim(), request.parentEntityId());
 
-        if (entityRepository.existsByCode(request.code().trim())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ApiErrorMessages.CODE_ALREADY_EXISTS);
-        }
         EntityType type = entityTypeRepository.findByCode(request.entityTypeCode())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST, ApiErrorMessages.unknownEntityType(request.entityTypeCode())));
@@ -255,6 +253,14 @@ public class EntityApiService {
         if (lang == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ApiErrorMessages.unknownLanguageCode(labelLangCode));
         }
+
+        Entity parent = null;
+        if (request.parentEntityId() != null) {
+            parent = entityRepository.findById(request.parentEntityId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST, ApiErrorMessages.parentEntityNotFound(request.parentEntityId())));
+        }
+        assertCodeAvailableForCreate(type.getCode(), parent, request.code().trim(), null);
 
         Entity entity = new Entity();
         entity.setEntityType(type);
@@ -273,10 +279,7 @@ public class EntityApiService {
 
         Entity saved = entityRepository.save(entity);
 
-        if (request.parentEntityId() != null) {
-            Entity parent = entityRepository.findById(request.parentEntityId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.BAD_REQUEST, ApiErrorMessages.parentEntityNotFound(request.parentEntityId())));
+        if (parent != null) {
             if (!entityRelationRepository.existsByParentAndChild(parent.getId(), saved.getId())) {
                 EntityRelation relation = new EntityRelation();
                 relation.setParent(parent);
@@ -303,8 +306,8 @@ public class EntityApiService {
         if (request.getCode() != null && !request.getCode().isBlank()) {
             String newCode = request.getCode().trim();
             if (!newCode.equals(entity.getCode())
-                    && entityRepository.existsByCodeExcludingEntityId(newCode, entity.getId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, ApiErrorMessages.CODE_ALREADY_EXISTS);
+                    && entityCodeUniquenessService.isCodeTakenForUpdate(entity, newCode)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, conflictMessageForEntity(entity));
             }
             entity.setCode(newCode);
         }
@@ -581,5 +584,30 @@ public class EntityApiService {
                 presentationDescriptions,
                 description,
                 physicalCharacteristics);
+    }
+
+    private void assertCodeAvailableForCreate(
+            String entityTypeCode, Entity parent, String code, Long excludeEntityId) {
+        if (entityCodeUniquenessService.isCodeTakenForCreate(entityTypeCode, parent, code, excludeEntityId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, conflictMessageForType(entityTypeCode));
+        }
+    }
+
+    private static String conflictMessageForEntity(Entity entity) {
+        String typeCode = entity.getEntityType() != null ? entity.getEntityType().getCode() : null;
+        return conflictMessageForType(typeCode);
+    }
+
+    private static String conflictMessageForType(String entityTypeCode) {
+        if (entityTypeCode == null) {
+            return ApiErrorMessages.CODE_ALREADY_EXISTS;
+        }
+        return switch (entityTypeCode) {
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> ApiErrorMessages.CATEGORY_CODE_EXISTS_IN_REFERENCE;
+            case EntityConstants.ENTITY_TYPE_GROUP -> ApiErrorMessages.GROUP_CODE_EXISTS_IN_REFERENCE;
+            case EntityConstants.ENTITY_TYPE_SERIES -> ApiErrorMessages.SERIE_CODE_EXISTS_IN_GROUP;
+            case EntityConstants.ENTITY_TYPE_TYPE -> ApiErrorMessages.TYPE_CODE_EXISTS_IN_GROUP;
+            default -> ApiErrorMessages.CODE_ALREADY_EXISTS;
+        };
     }
 }

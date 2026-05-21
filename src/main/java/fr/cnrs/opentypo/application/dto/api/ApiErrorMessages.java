@@ -42,6 +42,14 @@ public final class ApiErrorMessages {
     public static final String REFERENTIEL_OR_PARENT_EXCLUSIVE =
             "Utilisez soit referentielId, soit parentId, pas les deux";
     public static final String CODE_ALREADY_EXISTS = "Une entité avec ce code existe déjà";
+    public static final String CATEGORY_CODE_EXISTS_IN_REFERENCE =
+            "Une catégorie avec ce code existe déjà dans ce référentiel";
+    public static final String GROUP_CODE_EXISTS_IN_REFERENCE =
+            "Un groupe avec ce code existe déjà dans ce référentiel";
+    public static final String SERIE_CODE_EXISTS_IN_GROUP =
+            "Une série avec ce code existe déjà dans ce groupe";
+    public static final String TYPE_CODE_EXISTS_IN_GROUP =
+            "Un type avec ce code existe déjà dans ce groupe";
     public static final String LIMIT_MIN_ONE = "Le paramètre limit doit être au moins égal à 1";
     public static final String BAD_REQUEST = "Requête invalide";
     public static final String NOT_FOUND = "Ressource introuvable";

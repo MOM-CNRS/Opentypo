@@ -23,6 +23,8 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
+import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
+import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
@@ -87,6 +89,12 @@ public class GroupBean implements Serializable {
 
     @Autowired
     private EntityAuthorityService entityAuthorityService;
+
+    @Autowired
+    private EntityCodeUniquenessService entityCodeUniquenessService;
+
+    @Autowired
+    private TypeService typeService;
 
     @Autowired
     private TreeBean treeBean;
@@ -516,7 +524,8 @@ public class GroupBean implements Serializable {
             return;
         }
 
-        if (!EntityValidator.validateCode(groupCode, entityRepository)) {
+        Entity reference = typeService.findReferenceAncestor(applicationBean.getSelectedCategory());
+        if (!EntityValidator.validateGroupCodeForCreate(groupCode, reference, entityCodeUniquenessService)) {
             return;
         }
 
