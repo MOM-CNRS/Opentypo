@@ -71,6 +71,7 @@ public class EntityApiService {
     private final EntityApiDetailMapper entityApiDetailMapper;
     private final EntityAuthorityService entityAuthorityService;
     private final UtilisateurRepository utilisateurRepository;
+    private final EntityStatusCascadeService entityStatusCascadeService;
 
     @Transactional(readOnly = true)
     public EntityResponseDto getById(Long id) {
@@ -120,10 +121,12 @@ public class EntityApiService {
             String statut,
             String lang,
             Integer limit,
-            String order) {
+            String order,
+            Long rootId) {
         EntityApiStatutFilter statutFilter = EntityApiStatutFilter.parse(statut);
         int effectiveLimit = resolveLimit(limit);
         EntityListOrder listOrder = EntityListOrder.parse(order);
+        Optional<Set<Long>> subtreeScope = resolveSubtreeScope(rootId);
 
         boolean hasPartialLookup = (field != null || match != null || value != null)
                 && (field == null || match == null || value == null);
@@ -131,9 +134,9 @@ public class EntityApiService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ApiErrorMessages.LOOKUP_PARAMS_INCOMPLETE);
         }
         if (field != null) {
-            return lookupByField(field, match, value, lang, statutFilter, effectiveLimit, listOrder);
+            return lookupByField(field, match, value, lang, statutFilter, effectiveLimit, listOrder, subtreeScope);
         }
-        return listByStatut(statutFilter, effectiveLimit, listOrder);
+        return listByStatut(statutFilter, effectiveLimit, listOrder, subtreeScope);
     }
 
     /**
@@ -168,7 +171,8 @@ public class EntityApiService {
             String labelLang,
             EntityApiStatutFilter statutFilter,
             int limit,
-            EntityListOrder order) {
+            EntityListOrder order,
+            Optional<Set<Long>> subtreeScope) {
         if (value == null || value.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ApiErrorMessages.VALUE_REQUIRED);
         }
@@ -207,7 +211,9 @@ public class EntityApiService {
         Set<Long> seen = new LinkedHashSet<>();
         for (Long id : ids) {
             if (id != null && seen.add(id)) {
-                orderedUniqueIds.add(id);
+                if (subtreeScope.isEmpty() || subtreeScope.get().contains(id)) {
+                    orderedUniqueIds.add(id);
+                }
             }
         }
         List<Entity> entities = filterByStatut(loadEntitiesInOrder(orderedUniqueIds), statutFilter);
@@ -220,8 +226,11 @@ public class EntityApiService {
 
     @Transactional(readOnly = true)
     public List<EntityResponseDto> listByStatut(
-            EntityApiStatutFilter statutFilter, int limit, EntityListOrder order) {
-        List<Long> ids = listIdsForApi(statutFilter, limit, order);
+            EntityApiStatutFilter statutFilter,
+            int limit,
+            EntityListOrder order,
+            Optional<Set<Long>> subtreeScope) {
+        List<Long> ids = listIdsForApi(statutFilter, limit, order, subtreeScope);
         return toDtoList(loadEntitiesInOrder(ids));
     }
 
@@ -383,12 +392,6 @@ public class EntityApiService {
         return Math.min(limit, MAX_TYPOLOGY_LIMIT);
     }
 
-    private static void ensureMatchesStatut(Entity entity, EntityApiStatutFilter statutFilter) {
-        if (statutFilter != null && statutFilter.isFiltered() && !statutFilter.matches(entity.getStatut())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ApiErrorMessages.ENTITY_NOT_FOUND);
-        }
-    }
-
     private static List<Entity> filterByStatut(List<Entity> entities, EntityApiStatutFilter statutFilter) {
         if (statutFilter == null || !statutFilter.isFiltered() || entities.isEmpty()) {
             return entities;
@@ -396,11 +399,37 @@ public class EntityApiService {
         return entities.stream().filter(e -> statutFilter.matches(e.getStatut())).toList();
     }
 
-    private List<Long> listIdsForApi(EntityApiStatutFilter statutFilter, int limit, EntityListOrder order) {
+    private Optional<Set<Long>> resolveSubtreeScope(Long rootId) {
+        if (rootId == null) {
+            return Optional.empty();
+        }
+        if (!entityRepository.existsById(rootId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, ApiErrorMessages.entityNotFound(rootId));
+        }
+        return Optional.of(entityStatusCascadeService.collectSelfAndDescendantIds(rootId));
+    }
+
+    private List<Long> listIdsForApi(
+            EntityApiStatutFilter statutFilter,
+            int limit,
+            EntityListOrder order,
+            Optional<Set<Long>> subtreeScope) {
         String statut = statutFilter.statutForQuery();
         Pageable pageable = order.usesJpaSort()
                 ? order.toPageable(limit)
                 : PageRequest.of(0, limit);
+        if (subtreeScope.isPresent()) {
+            Set<Long> entityIds = subtreeScope.get();
+            if (entityIds.isEmpty()) {
+                return List.of();
+            }
+            return switch (order) {
+                case CODE_ASC -> entityRepository.listIdsForApiInSubtreeOrderByCodeAsc(entityIds, statut, pageable);
+                case CODE_DESC -> entityRepository.listIdsForApiInSubtreeOrderByCodeDesc(entityIds, statut, pageable);
+                default -> entityRepository.listIdsForApiInSubtree(entityIds, statut, pageable);
+            };
+        }
         return switch (order) {
             case CODE_ASC -> entityRepository.listIdsForApiOrderByCodeAsc(statut, pageable);
             case CODE_DESC -> entityRepository.listIdsForApiOrderByCodeDesc(statut, pageable);

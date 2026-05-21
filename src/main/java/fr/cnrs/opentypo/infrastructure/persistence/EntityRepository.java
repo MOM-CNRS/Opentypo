@@ -83,6 +83,28 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
             + "ORDER BY LOWER(CAST(m.code AS string)) DESC")
     List<Long> listIdsForApiOrderByCodeDesc(@Param("statut") String statut, Pageable pageable);
 
+    @Query("SELECT e.id FROM Entity e WHERE e.id IN :entityIds AND (:statut IS NULL OR e.statut = :statut)")
+    List<Long> listIdsForApiInSubtree(
+            @Param("entityIds") Collection<Long> entityIds,
+            @Param("statut") String statut,
+            Pageable pageable);
+
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE e.id IN :entityIds AND (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY LOWER(CAST(m.code AS string)) ASC")
+    List<Long> listIdsForApiInSubtreeOrderByCodeAsc(
+            @Param("entityIds") Collection<Long> entityIds,
+            @Param("statut") String statut,
+            Pageable pageable);
+
+    @Query("SELECT e.id FROM Entity e JOIN e.metadata m "
+            + "WHERE e.id IN :entityIds AND (:statut IS NULL OR e.statut = :statut) "
+            + "ORDER BY LOWER(CAST(m.code AS string)) DESC")
+    List<Long> listIdsForApiInSubtreeOrderByCodeDesc(
+            @Param("entityIds") Collection<Long> entityIds,
+            @Param("statut") String statut,
+            Pageable pageable);
+
     /**
      * Collections (ou autre type) avec filtre statut optionnel et pagination.
      */

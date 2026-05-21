@@ -62,13 +62,13 @@ public final class TypologyImportFieldDocumentation {
 
         // Hiérarchie & identification
         m.put(TypologyImportConstants.COL_CODE_CATEGORIE,
-                "Code technique de la catégorie — obligatoire sur chaque ligne ; ancrage dans la hiérarchie du référentiel.");
+                "Obligatoire. Seul ce code renseigné → import d'une catégorie. Avec code_groupe → groupe ; + code_serie → série ; + code_type → type.");
         m.put(TypologyImportConstants.COL_CODE_GROUPE,
-                "Code du groupe : requis pour créer ou rattacher un groupe, une série ou un type sous ce groupe.");
+                "Optionnel. Renseigné sans code_serie ni code_type → import d'un groupe (code_categorie requis).");
         m.put(TypologyImportConstants.COL_CODE_SERIE,
-                "Code de la série : pour une ligne « série » ou « type rattaché à une série ».");
+                "Optionnel. Renseigné avec code_groupe, sans code_type → import d'une série.");
         m.put(TypologyImportConstants.COL_CODE_TYPE,
-                "Code du type : lorsque la ligne décrit un type (avec groupe, et série si besoin).");
+                "Optionnel. Renseigné avec code_groupe → import d'un type (sous la série si code_serie est aussi renseigné, sinon directement sous le groupe).");
         m.put(TypologyImportConstants.COL_NOM_COMPLET_FR,
                 "Libellé principal en français (nom affiché du concept).");
         m.put(TypologyImportConstants.COL_NOM_COMPLET_EN,

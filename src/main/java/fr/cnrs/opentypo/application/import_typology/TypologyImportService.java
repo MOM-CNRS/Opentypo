@@ -144,15 +144,12 @@ public class TypologyImportService {
             final int rowIndex = i;
             int csvRowNumber = rowIndex + 2;
             Map<String, String> row = rows.get(rowIndex);
-            String cc = getCell(row, TypologyImportConstants.COL_CODE_CATEGORIE);
-            String cg = get(row, TypologyImportConstants.COL_CODE_GROUPE);
-            String cs = get(row, TypologyImportConstants.COL_CODE_SERIE);
-            String ct = get(row, TypologyImportConstants.COL_CODE_TYPE);
-            ccArr[rowIndex] = cc;
-            cgArr[rowIndex] = cg;
-            csArr[rowIndex] = cs;
+            HierarchyCodes codes = hierarchyCodesFromRow(row);
+            ccArr[rowIndex] = codes.categorie() != null ? codes.categorie() : "";
+            cgArr[rowIndex] = codes.groupe() != null ? codes.groupe() : "";
+            csArr[rowIndex] = codes.serie() != null ? codes.serie() : "";
 
-            Optional<ClassifyResult> clf = classify(cc, cg, cs, ct, err.get(rowIndex));
+            Optional<ClassifyResult> clf = classify(codes, err.get(rowIndex));
             if (clf.isEmpty()) {
                 kinds[rowIndex] = TypologyImportKind.NON_CLASSIFIE;
                 continue;
@@ -295,11 +292,8 @@ public class TypologyImportService {
 
         for (int i = 0; i < n; i++) {
             Map<String, String> row = rows.get(i);
-            String cc = getCell(row, TypologyImportConstants.COL_CODE_CATEGORIE);
-            String cg = get(row, TypologyImportConstants.COL_CODE_GROUPE);
-            String cs = get(row, TypologyImportConstants.COL_CODE_SERIE);
-            String ct = get(row, TypologyImportConstants.COL_CODE_TYPE);
-            Optional<ClassifyResult> clf = classify(cc, cg, cs, ct, new ArrayList<>());
+            HierarchyCodes codes = hierarchyCodesFromRow(row);
+            Optional<ClassifyResult> clf = classify(codes, new ArrayList<>());
             if (clf.isPresent()) {
                 kinds[i] = clf.get().kind();
                 targets[i] = clf.get().targetCode();
@@ -324,10 +318,8 @@ public class TypologyImportService {
                 continue;
             }
             Map<String, String> row = rows.get(idx);
-            String cc = getCell(row, TypologyImportConstants.COL_CODE_CATEGORIE);
-            String cg = get(row, TypologyImportConstants.COL_CODE_GROUPE);
-            String cs = get(row, TypologyImportConstants.COL_CODE_SERIE);
-            applyRow(ref, row, kinds[idx], targets[idx], cc, cg, cs,
+            HierarchyCodes codes = hierarchyCodesFromRow(row);
+            applyRow(ref, row, kinds[idx], targets[idx], codes.categorie(), codes.groupe(), codes.serie(),
                     catType, grpType, serType, typType, user, csvHeaders, collectionProfile);
         }
     }
@@ -1439,21 +1431,30 @@ public class TypologyImportService {
         return idx;
     }
 
-    private static Optional<ClassifyResult> classify(String cc, String cg, String cs, String ct, List<String> errors) {
+    /**
+     * Détermine le niveau hiérarchique créé/mis à jour selon les codes renseignés :
+     * <ul>
+     *   <li>{@code code_categorie} seul → catégorie</li>
+     *   <li>+ {@code code_groupe} (sans série ni type) → groupe</li>
+     *   <li>+ {@code code_serie} (sans type) → série</li>
+     *   <li>+ {@code code_type} → type (sous série si série renseignée, sinon sous groupe)</li>
+     * </ul>
+     */
+    private static Optional<ClassifyResult> classify(HierarchyCodes codes, List<String> errors) {
+        String cc = codes.categorie();
         if (!StringUtils.hasText(cc)) {
             errors.add("code_categorie est obligatoire.");
             return Optional.empty();
         }
-        cc = cc.trim();
+        String cg = codes.groupe();
+        String cs = codes.serie();
+        String ct = codes.type();
         if (StringUtils.hasText(ct)) {
-            ct = ct.trim();
             if (!StringUtils.hasText(cg)) {
                 errors.add("code_groupe est requis lorsque code_type est renseigné.");
                 return Optional.empty();
             }
-            cg = cg.trim();
             if (StringUtils.hasText(cs)) {
-                cs = cs.trim();
                 return Optional.of(new ClassifyResult(TypologyImportKind.TYPE_SOUS_SERIE, ct));
             }
             return Optional.of(new ClassifyResult(TypologyImportKind.TYPE_SOUS_GROUPE, ct));
@@ -1463,15 +1464,23 @@ public class TypologyImportService {
                 errors.add("code_groupe est requis lorsque code_serie est renseigné.");
                 return Optional.empty();
             }
-            cg = cg.trim();
-            cs = cs.trim();
             return Optional.of(new ClassifyResult(TypologyImportKind.SERIE, cs));
         }
         if (StringUtils.hasText(cg)) {
-            cg = cg.trim();
             return Optional.of(new ClassifyResult(TypologyImportKind.GROUPE, cg));
         }
         return Optional.of(new ClassifyResult(TypologyImportKind.CATEGORIE, cc));
+    }
+
+    private static HierarchyCodes hierarchyCodesFromRow(Map<String, String> row) {
+        return new HierarchyCodes(
+                trimToNull(getCell(row, TypologyImportConstants.COL_CODE_CATEGORIE)),
+                trimToNull(getCell(row, TypologyImportConstants.COL_CODE_GROUPE)),
+                trimToNull(getCell(row, TypologyImportConstants.COL_CODE_SERIE)),
+                trimToNull(getCell(row, TypologyImportConstants.COL_CODE_TYPE)));
+    }
+
+    private record HierarchyCodes(String categorie, String groupe, String serie, String type) {
     }
 
     private record ClassifyResult(TypologyImportKind kind, String targetCode) {

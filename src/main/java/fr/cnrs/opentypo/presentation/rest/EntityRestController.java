@@ -63,7 +63,8 @@ public class EntityRestController {
                     Sans `field`/`match`/`value` : liste paginée filtrée par `statut` uniquement.
                     **statut** : `PUBLIQUE`, `PROPOSITION`, `REFUSED` (stocké REFUSE), ou `tous` (tous les statuts).
                     **order** : `date_desc` (défaut), `date`, `code`, `code_desc`.
-                    **limit** : défaut 200, max 1000.""")
+                    **limit** : défaut 200, max 1000.
+                    **rootId** (optionnel) : limite la recherche au sous-arbre dont cette entité est la racine (elle incluse).""")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
@@ -78,6 +79,9 @@ public class EntityRestController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Accès refusé.", content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Entité racine (rootId) introuvable.", content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
@@ -128,8 +132,15 @@ public class EntityRestController {
                     description = "Tri des résultats.",
                     example = EntityListOrder.DEFAULT_VALUE,
                     schema = @Schema(allowableValues = {"date_desc", "date", "code", "code_desc"}))
-            @RequestParam(required = false) String order) {
-        return entityApiService.listEntities(field, match, value, statut, lang, limit, order);
+            @RequestParam(required = false) String order,
+            @Parameter(
+                    name = "rootId",
+                    in = ParameterIn.QUERY,
+                    description = "Identifiant de l'entité racine : recherche limitée à son sous-arbre (descendants inclus).",
+                    example = "42",
+                    schema = @Schema(type = "integer", format = "int64"))
+            @RequestParam(required = false) Long rootId) {
+        return entityApiService.listEntities(field, match, value, statut, lang, limit, order, rootId);
     }
 
     @Operation(
