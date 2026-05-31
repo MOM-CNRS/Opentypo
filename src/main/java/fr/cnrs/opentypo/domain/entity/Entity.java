@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
@@ -46,10 +47,10 @@ public class Entity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "statut", length = 50)
+    @Column(name = "statut", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String statut;
 
-    @Column(name = "id_ark", length = 255)
+    @Column(name = "id_ark", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String idArk;
 
     /**
@@ -207,7 +208,7 @@ public class Entity implements Serializable {
     private LocalDateTime createDate;
 
     @CreatedBy
-    @Column(name = "create_by", length = 100, updatable = false)
+    @Column(name = "create_by", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, updatable = false)
     private String createBy;
 
     // ============================================

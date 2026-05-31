@@ -1,7 +1,8 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
-             xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:p="http://primefaces.org/ui"
-             xmlns:ui="http://java.sun.com/jsf/facelets">
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
+             xmlns:ui="http://java.sun.com/jsf/facelets"
+             xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
     <!-- En-tête : burger (mobile), logo, zone centrale (label entité sélectionnée), actions -->
 
     <header class="app-header">
@@ -16,18 +17,25 @@
             </div>
 
             <!-- Logo texte : Opentypo -->
-            <div class="logo-desktop header-logo-text">
-                <span class="logo-accent" />
-                <span class="logo-text">
-                    <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
-                </span>
-            </div>
-            <div class="logo-mobile header-logo-text">
-                <span class="logo-accent" />
-                <span class="logo-text">
-                    <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
-                </span>
-            </div>
+            <h:form>
+                <p:commandLink action="#{applicationBean.goToAccueil(entityUpdateBean)}"
+                               styleClass="sidebar-menu-item"
+                               pt:data-menu-item="accueil"
+                               ajax="false">
+                    <div class="logo-desktop header-logo-text">
+                        <span class="logo-accent" />
+                        <span class="logo-text">
+                        <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
+                    </span>
+                    </div>
+                    <div class="logo-mobile header-logo-text">
+                        <span class="logo-accent" />
+                        <span class="logo-text">
+                        <span class="logo-text-main">Open</span><span class="logo-text-accent">typo</span>
+                    </span>
+                    </div>
+                </p:commandLink>
+            </h:form>
         </div>
 
         <h:panelGroup id="selectedEntityLabel" styleClass="header-title" rendered="#{facesContext.viewRoot.viewId != null and facesContext.viewRoot.viewId.contains('/index.xhtml')}">
@@ -36,13 +44,6 @@
 
         <div class="header-right">
             <h:form id="headerForm">
-                <!-- Icône d'alertes -->
-                <p:commandButton icon="pi pi-bell text-white"
-                                 styleClass="p-button-rounded p-button-text p-button-secondary header-icon"
-                                 style="color: white"
-                                 title="#{msg['header.alerts']}"
-                                 action="#{notificationBean.showAlerts}" />
-
                 <p:button icon="pi pi-code text-white"
                           href="#{request.contextPath}/swagger-ui/index.html"
                           target="_blank"

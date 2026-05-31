@@ -43,9 +43,9 @@
                                                         title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
                                     </div>
                                     <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                                  styleClass="collection-not-published-icon">
+                                                  styleClass="collection-not-published-icon"
+                                                  title="#{msg['reference.tooltip.notPublished']}">
                                         <i class="pi pi-clock"/>
-                                        <p:tooltip value="#{msg['reference.tooltip.notPublished']}" position="top"/>
                                     </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
@@ -66,7 +66,6 @@
                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"
                                                    oncomplete="PF('collectionParametrageDialog').show();">
                                         <i class="pi pi-cog"/>
-                                        <p:tooltip value="#{msg['reference.action.settings.opentheso.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <!-- Paramétrage bibliographie Zotero (ouvert depuis l'écran référentiel, sans préremplissage) -->
@@ -78,7 +77,6 @@
                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"
                                                    oncomplete="PF('collectionBibliographieParametrageDialog').show();">
                                         <i class="pi pi-book"/>
-                                        <p:tooltip value="#{msg['reference.action.settings.bibliography.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{collectionParametrageBean.prepareAndShowArkParametrageDialog(applicationBean.selectedEntity)}"
@@ -89,7 +87,6 @@
                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"
                                                    oncomplete="PF('collectionArkParametrageDialog').show();">
                                         <i class="pi pi-id-card"/>
-                                        <p:tooltip value="#{msg['reference.action.settings.ark.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{referenceBean.openTypologyImport}"
@@ -98,7 +95,6 @@
                                                    title="#{msg['reference.action.importTypology.title']}"
                                                    rendered="#{referenceBean.canImportTypology(applicationBean)}">
                                         <i class="pi pi-upload"/>
-                                        <p:tooltip value="#{msg['reference.action.importTypology.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <!-- Bouton Historique -->
@@ -110,7 +106,6 @@
                                                    title="#{msg['common.history.title']}"
                                                    immediate="true">
                                         <i class="pi pi-history"/>
-                                        <p:tooltip value="#{msg['common.history.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{entityUpdateBean.startEditing()}"
@@ -120,7 +115,6 @@
                                                    title="#{msg['reference.action.edit.title']}"
                                                    rendered="#{referenceBean.canEditReference(applicationBean)}">
                                         <i class="pi pi-file-edit"/>
-                                        <p:tooltip value="#{msg['common.edit']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
@@ -131,7 +125,6 @@
                                                    styleClass="concept-action-button type-detail-action-delete"
                                                    title="#{msg['reference.action.delete.title']}">
                                         <i class="pi pi-trash"/>
-                                        <p:tooltip value="#{msg['common.delete']}" position="top"/>
                                     </p:commandLink>
 
                                     <h:panelGroup rendered="#{loginBean.currentUser != null}">
@@ -153,7 +146,6 @@
                                                                    title="#{msg['common.visibility.toggle.title']}"
                                                                    action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                         <i class="pi pi-sync"/>
-                                                        <p:tooltip value="#{msg['common.visibility.toggle.tooltip']}" position="top"/>
                                                     </p:commandLink>
                                                 </h:panelGroup>
                                             </div>
@@ -182,7 +174,7 @@
                                         <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                             <div class="concept-info-grid-band description-typo-band">
                                                 <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                    <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
+                                                    <h:panelGroup styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                             <span>#{msg['common.description']}</span>

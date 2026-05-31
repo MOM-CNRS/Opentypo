@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,13 +41,13 @@ public class Utilisateur implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nom", nullable = false, length = 100)
+    @Column(name = "nom", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String nom;
 
-    @Column(name = "prenom", nullable = false, length = 100)
+    @Column(name = "prenom", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String prenom;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
@@ -72,7 +73,7 @@ public class Utilisateur implements Serializable {
     private LocalDateTime createDate;
 
     @CreatedBy
-    @Column(name = "create_by", length = 100, updatable = false)
+    @Column(name = "create_by", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, updatable = false)
     private String createBy;
 }
 

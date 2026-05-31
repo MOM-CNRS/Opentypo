@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,7 @@ public class SitePresentation implements Serializable {
     @JoinColumn(name = "langue_code", nullable = false, unique = true)
     private Langue langue;
 
-    @Column(name = "titre", length = 255)
+    @Column(name = "titre", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String titre;
 
     @Column(name = "description", columnDefinition = "TEXT")

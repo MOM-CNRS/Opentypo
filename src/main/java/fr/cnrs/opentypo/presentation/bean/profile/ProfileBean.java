@@ -108,8 +108,9 @@ public class ProfileBean implements Serializable {
             notificationBean.showErrorWithUpdate("Erreur de validation", "Le prénom doit contenir au moins 2 caractères.", ":growl, :profileForm");
             return;
         }
-        if (prenomTrim.length() > 100) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le prénom ne peut pas dépasser 100 caractères.", ":growl, :profileForm");
+        if (prenomTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
+            notificationBean.showErrorWithUpdate("Erreur de validation",
+                    "Le prénom ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
             return;
         }
 
@@ -121,8 +122,9 @@ public class ProfileBean implements Serializable {
             notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom doit contenir au moins 2 caractères.", ":growl, :profileForm");
             return;
         }
-        if (nomTrim.length() > 100) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom ne peut pas dépasser 100 caractères.", ":growl, :profileForm");
+        if (nomTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
+            notificationBean.showErrorWithUpdate("Erreur de validation",
+                    "Le nom ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
             return;
         }
 
@@ -135,8 +137,9 @@ public class ProfileBean implements Serializable {
             notificationBean.showErrorWithUpdate("Erreur de validation", "Le format de l'email est invalide.", ":growl, :profileForm");
             return;
         }
-        if (emailTrim.length() > 255) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "L'email ne peut pas dépasser 255 caractères.", ":growl, :profileForm");
+        if (emailTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
+            notificationBean.showErrorWithUpdate("Erreur de validation",
+                    "L'email ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
             return;
         }
 

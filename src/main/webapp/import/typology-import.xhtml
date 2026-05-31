@@ -9,6 +9,36 @@
         <f:event type="preRenderView" listener="#{typologyImportBean.onPageEnter}"/>
 
         <h:outputStylesheet library="css" name="pages/import/typology-import.css"/>
+        <h:outputScript target="body">
+            function typologyImportStartPoll() {
+                try {
+                    if (typeof PF === 'function') {
+                        var poll = PF('typologyImportPoll');
+                        if (poll) {
+                            poll.start();
+                        }
+                    }
+                } catch (e) {
+                    console.warn('typologyImportPoll start', e);
+                }
+            }
+            function typologyImportStopPoll() {
+                try {
+                    if (typeof PF === 'function') {
+                        var poll = PF('typologyImportPoll');
+                        if (poll) {
+                            poll.stop();
+                        }
+                        var block = PF('typologyImportBlock');
+                        if (block) {
+                            block.hide();
+                        }
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            }
+        </h:outputScript>
 
         <h:panelGroup layout="block" id="typologyImportScope" styleClass="typology-import-page">
             <div class="typology-import-hero">
@@ -24,6 +54,21 @@
                     #{msg['import.page.subtitle.part2']} <code>||</code>.
                 </p>
             </div>
+
+            <h:panelGroup id="importScreenStatusPanel" layout="block">
+                <h:panelGroup rendered="#{typologyImportBean.screenStatusVisible}"
+                              layout="block"
+                              styleClass="typology-import-screen-status typology-import-screen-status--#{typologyImportBean.screenStatusSeverity}"
+                              role="alert"
+                              aria-live="assertive">
+                    <i class="pi #{typologyImportBean.screenStatusSeverity == 'warn' ? 'pi-exclamation-triangle' : (typologyImportBean.screenStatusSeverity == 'info' ? 'pi-info-circle' : 'pi-times-circle')}"
+                       aria-hidden="true"/>
+                    <h:panelGroup layout="block" styleClass="typology-import-screen-status__body">
+                        <p class="typology-import-screen-status__title">#{typologyImportBean.screenStatusTitle}</p>
+                        <p class="typology-import-screen-status__detail">#{typologyImportBean.screenStatusDetail}</p>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </h:panelGroup>
 
             <h:panelGroup rendered="#{!typologyImportBean.canUseImport()}"
                           layout="block" styleClass="typology-import-alert typology-import-alert-warn">
@@ -96,7 +141,6 @@
                                          update=":importForm :growl"
                                          disabled="#{typologyImportBean.parsedCsv == null}"
                                          onclick="PF('typologyImportBlock').show()"
-                                         oncomplete="PF('typologyImportBlock').hide()"
                                          styleClass="typology-import-btn-primary"/>
                     </div>
                 </h:panelGroup>
@@ -184,14 +228,22 @@
                                          icon="pi pi-check"
                                          actionListener="#{typologyImportBean.runConfirmImport}"
                                          process="@form"
-                                         update=":importForm :growl :centerContent"
+                                         update=":importForm :importScreenStatusPanel :centerContent :importProgressPanel"
                                          onclick="PF('typologyImportBlock').show()"
-                                         oncomplete="PF('typologyImportBlock').hide()"
                                          rendered="#{typologyImportBean.analysis != null and typologyImportBean.analysis.successful()}"
                                          styleClass="typology-import-btn-primary"/>
                     </div>
                 </h:panelGroup>
+            </h:form>
 
+            <h:form id="typologyImportPollForm" rendered="#{typologyImportBean.canUseImport()}">
+                <p:poll interval="300"
+                        listener="#{typologyImportBean.pollImportProgress}"
+                        process="@this"
+                        update=":importProgressPanel :importForm :importScreenStatusPanel"
+                        autoStart="false"
+                        widgetVar="typologyImportPoll"
+                        ignoreAutoUpdate="true"/>
             </h:form>
 
             <div class="typology-import-back">
@@ -208,12 +260,24 @@
 
         <p:blockUI block="typologyImportScope" widgetVar="typologyImportBlock"
                    styleClass="typology-import-blockui">
-            <div class="typology-import-blocking" role="status" aria-live="polite">
-                <i class="pi pi-spin pi-spinner typology-import-blocking__icon" aria-hidden="true"/>
-                <p class="typology-import-blocking__title">#{msg['import.block.title']}</p>
-                <p class="typology-import-blocking__hint">#{msg['import.block.hint']}</p>
-                <p:progressBar mode="indeterminate" styleClass="typology-import-blocking__bar"/>
-            </div>
+            <h:panelGroup id="importProgressPanel" layout="block" styleClass="typology-import-blocking" role="status" aria-live="polite">
+                <h:panelGroup layout="block"
+                              styleClass="typology-import-progress-ring"
+                              rendered="#{typologyImportBean.importProgressShowPercent}"
+                              style="--ti-progress: #{typologyImportBean.importProgressPercent}">
+                    <span class="typology-import-progress-ring__value">#{typologyImportBean.importProgressPercent}%</span>
+                </h:panelGroup>
+                <h:panelGroup layout="block"
+                              styleClass="typology-import-progress-ring typology-import-progress-ring--indeterminate"
+                              rendered="#{typologyImportBean.importProgressIndeterminateRing}"/>
+                <p class="typology-import-blocking__title">#{typologyImportBean.importProgressPhaseLabel}</p>
+                <p class="typology-import-blocking__hint typology-import-blocking__detail">
+                    <h:outputText value="#{typologyImportBean.importProgressDetailLabel}"
+                                  rendered="#{not empty typologyImportBean.importProgressDetailLabel}"/>
+                    <h:outputText value="#{msg['import.block.hint']}"
+                                  rendered="#{empty typologyImportBean.importProgressDetailLabel}"/>
+                </p>
+            </h:panelGroup>
         </p:blockUI>
     </ui:define>
 </ui:composition>

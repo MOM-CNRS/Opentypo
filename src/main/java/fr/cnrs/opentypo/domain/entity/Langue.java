@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -25,10 +26,10 @@ import java.io.Serializable;
 public class Langue implements Serializable {
 
     @Id
-    @Column(name = "code", length = 10)
+    @Column(name = "code", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String code;
 
-    @Column(name = "nom", nullable = false, length = 100)
+    @Column(name = "nom", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String nom;
 }
 

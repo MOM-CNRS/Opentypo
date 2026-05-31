@@ -108,7 +108,8 @@ public class ScientificAuthorManagementBean implements Serializable {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("authors.msg.validation.firstName"), ":growl, :authorsForm");
             return;
         }
-        if (nom.length() > 120 || prenom.length() > 120) {
+        if (nom.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH
+                || prenom.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("authors.msg.validation.length"),
                     ":growl, :authorsForm");
             return;

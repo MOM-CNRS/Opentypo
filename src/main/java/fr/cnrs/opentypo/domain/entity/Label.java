@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class Label implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nom", nullable = false, length = 255)
+    @Column(name = "nom", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String nom;
 
     @ManyToOne(fetch = FetchType.LAZY)

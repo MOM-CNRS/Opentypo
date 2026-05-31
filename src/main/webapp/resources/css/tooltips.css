@@ -1,0 +1,110 @@
+/**
+ * OpenTypo — infobulles unifiées (#opentypo-tooltip)
+ * Les tooltips du menu latéral réduit restent dans openTypo_style.css (.sidebar-menu-item-tooltip).
+ */
+
+#opentypo-tooltip {
+    position: fixed;
+    z-index: 11050;
+    max-width: min(20rem, calc(100vw - 1.5rem));
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: #2a3b2e;
+    color: #fff;
+    font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0.01em;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition:
+        opacity 0.18s ease,
+        visibility 0.18s ease,
+        transform 0.18s ease;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.08),
+        0 10px 24px rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#opentypo-tooltip.opentypo-tooltip--visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#opentypo-tooltip::before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #2a3b2e;
+    transform: rotate(45deg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#opentypo-tooltip.opentypo-tooltip--top::before {
+    bottom: -5px;
+    left: var(--opentypo-tooltip-arrow-offset, 50%);
+    margin-left: -5px;
+    border-top: none;
+    border-left: none;
+}
+
+#opentypo-tooltip.opentypo-tooltip--bottom::before {
+    top: -5px;
+    left: var(--opentypo-tooltip-arrow-offset, 50%);
+    margin-left: -5px;
+    border-bottom: none;
+    border-right: none;
+}
+
+#opentypo-tooltip.opentypo-tooltip--left::before {
+    right: -5px;
+    top: var(--opentypo-tooltip-arrow-offset, 50%);
+    margin-top: -5px;
+    border-bottom: none;
+    border-left: none;
+}
+
+#opentypo-tooltip.opentypo-tooltip--right::before {
+    left: -5px;
+    top: var(--opentypo-tooltip-arrow-offset, 50%);
+    margin-top: -5px;
+    border-top: none;
+    border-right: none;
+}
+
+/* Anciens tooltips PrimeFaces (pages non migrées) — même charte visuelle */
+.ui-tooltip.opentypo-tooltip {
+    max-width: min(20rem, calc(100vw - 1.5rem)) !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+    background: #2a3b2e !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    line-height: 1.45 !important;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.08),
+        0 10px 24px rgba(0, 0, 0, 0.16) !important;
+}
+
+.ui-tooltip.opentypo-tooltip .ui-tooltip-text {
+    padding: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #opentypo-tooltip {
+        transition: none;
+    }
+}

@@ -22,9 +22,9 @@
                                     <div class="collection-panel-title-wrapper collection-detail-title-row">
                                         <h3 class="collection-panel-title">#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}</h3>
                                         <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                                      styleClass="collection-not-published-icon">
+                                                      styleClass="collection-not-published-icon"
+                                                      title="#{msg['collection.tooltip.notPublished']}">
                                             <i class="pi pi-clock"/>
-                                            <p:tooltip value="#{msg['collection.tooltip.notPublished']}" position="top"/>
                                         </h:panelGroup>
                                     </div>
                                 </div>
@@ -38,16 +38,15 @@
                                                    title="#{msg['common.history.title']}"
                                                    immediate="true">
                                         <i class="pi pi-history" />
-                                        <p:tooltip value="#{msg['common.history.tooltip']}" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                    process="@this"
                                                    update=":centerContent :searchSectionWrapper"
                                                    styleClass="concept-action-button"
+                                                   title="#{msg['common.edit']}"
                                                    rendered="#{collectionBean.canEditCollection(applicationBean)}">
                                         <i class="pi pi-file-edit" />
-                                        <p:tooltip value="Modifier" position="top"/>
                                     </p:commandLink>
 
                                     <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
@@ -58,7 +57,6 @@
                                                    rendered="#{collectionBean.canDeleteCollection(applicationBean)}"
                                                    title="#{msg['collection.action.delete.title']}">
                                         <i class="pi pi-trash" />
-                                        <p:tooltip value="#{msg['common.delete']}" position="top"/>
                                     </p:commandLink>
 
                                     <h:panelGroup rendered="#{loginBean.currentUser != null}">
@@ -80,7 +78,6 @@
                                                                    title="#{msg['common.visibility.toggle.title']}"
                                                                    action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                         <i class="pi pi-sync" />
-                                                        <p:tooltip value="#{msg['common.visibility.toggle.tooltip']}" position="top"/>
                                                     </p:commandLink>
                                                 </h:panelGroup>
                                             </div>
@@ -109,7 +106,7 @@
                                         <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.getSelectedEntity()))}">
                                             <div class="concept-info-grid-band description-typo-band">
                                                 <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                    <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
+                                                    <h:panelGroup styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                             <span>#{msg['common.description']}</span>

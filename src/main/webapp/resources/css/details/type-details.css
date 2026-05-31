@@ -638,6 +638,13 @@
     color: var(--type-text);
 }
 
+.type-detail-page .description-typo-prose--full-width .description-typo-prose-body.concept-info-description,
+.type-detail-page .description-typo-prose--full-width .concept-info-value,
+.type-detail-page .description-typo-prose--full-width.concept-info-item-full {
+    max-width: 100%;
+    width: 100%;
+}
+
 .type-detail-page .description-typo-prose.concept-info-item-full:hover {
     box-shadow: none;
     background: #f4f7f5;

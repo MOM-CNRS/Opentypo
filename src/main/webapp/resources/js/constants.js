@@ -9,6 +9,15 @@ const AppConstants = {
     // Délais et timeouts
     MENU_CLOSE_DELAY: 300,
     TOOLTIP_SETUP_DELAY: 100,
+
+    // Infobulles globales (tooltipUtils.js)
+    TOOLTIP: {
+        SHOW_DELAY: 400,
+        HIDE_DELAY: 80,
+        GAP: 8,
+        MAX_WIDTH: 320,
+        VIEWPORT_PADDING: 8
+    },
     
     // Classes CSS
     CSS: {

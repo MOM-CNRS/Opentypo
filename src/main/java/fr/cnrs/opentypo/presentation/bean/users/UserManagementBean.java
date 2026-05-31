@@ -1,6 +1,7 @@
 package fr.cnrs.opentypo.presentation.bean.users;
 
 import fr.cnrs.opentypo.application.dto.GroupEnum;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
 import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.domain.entity.Groupe;
@@ -131,7 +132,7 @@ public class UserManagementBean implements Serializable {
             return;
         }
         
-        if (email.length() > 255) {
+        if (email.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
                 JsfMessages.get("users.validation.emailMax"),
                 ":growl, :userForm");
@@ -151,7 +152,7 @@ public class UserManagementBean implements Serializable {
             return;
         }
         
-        if (firstName.length() > 100) {
+        if (firstName.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
                 JsfMessages.get("users.validation.firstNameMax"),
                 ":growl, :userForm");
@@ -170,7 +171,7 @@ public class UserManagementBean implements Serializable {
             return;
         }
         
-        if (lastName.length() > 100) {
+        if (lastName.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"), JsfMessages.get("users.validation.lastNameMax"),
                     ":growl, :userForm");
             return;

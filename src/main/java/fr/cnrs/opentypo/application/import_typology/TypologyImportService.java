@@ -30,10 +30,15 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import java.net.URI;
@@ -53,7 +58,7 @@ import java.util.regex.Pattern;
 
 /**
  * Import CSV des catégories, groupes, séries et types pour un référentiel donné.
- * Analyse sans écriture ; exécution transactionnelle tout-ou-rien.
+ * Analyse sans écriture ; exécution par lots (commit partiel possible après analyse).
  */
 @Slf4j
 @Service
@@ -105,12 +110,35 @@ public class TypologyImportService {
     private ArkIdentifierService arkIdentifierService;
     @Autowired
     private AuteurScientifiqueRepository auteurScientifiqueRepository;
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private TransactionTemplate importTransactionTemplate;
+
+    @PostConstruct
+    void initImportTransactionTemplate() {
+        importTransactionTemplate = new TransactionTemplate(platformTransactionManager);
+        importTransactionTemplate.setTimeout(3_600);
+    }
 
     /**
      * Analyse le fichier : classification, détection d'erreurs, aperçu création/mise à jour.
      */
     public TypologyImportAnalyzeResult analyze(Entity reference, TypologyCsvParser.ParsedCsv parsed,
                                                TypologyImportCollectionProfile collectionProfile) {
+        return analyze(reference, parsed, collectionProfile, null);
+    }
+
+    /**
+     * Analyse avec remontée de progression (optionnelle).
+     * Exécutée sur le thread de la requête JSF (contexte JPA / sécurité).
+     */
+    @Transactional(readOnly = true)
+    public TypologyImportAnalyzeResult analyze(Entity reference, TypologyCsvParser.ParsedCsv parsed,
+                                               TypologyImportCollectionProfile collectionProfile,
+                                               TypologyImportProgress progress) {
         List<String> blocking = new ArrayList<>();
         if (reference == null || reference.getId() == null) {
             blocking.add("Aucun référentiel sélectionné.");
@@ -128,6 +156,9 @@ public class TypologyImportService {
 
         List<Map<String, String>> rows = parsed.rows();
         int n = rows.size();
+        if (progress != null) {
+            progress.beginAnalyzing(n);
+        }
         List<List<String>> err = new ArrayList<>();
         List<List<String>> warn = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -182,6 +213,9 @@ public class TypologyImportService {
             }
             previewDatation(row, err.get(rowIndex));
             previewScientificAuthors(row, warn.get(rowIndex));
+            if (progress != null) {
+                progress.tickAnalyzing(rowIndex, n, csvRowNumber);
+            }
         }
 
         List<Integer> order = sortedRowIndices(n, kinds);
@@ -264,11 +298,41 @@ public class TypologyImportService {
     }
 
     /**
-     * Applique l'import dans une transaction unique (tout ou rien).
+     * Applique l'import (lots transactionnels ; échec possible avec lignes déjà enregistrées).
      */
-    @Transactional
     public void execute(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user,
                         TypologyImportCollectionProfile collectionProfile) {
+        failIfNotSuccessful(executeImport(reference, parsed, user, collectionProfile, null, false, null, null));
+    }
+
+    /**
+     * Applique l'import avec remontée de progression (optionnelle).
+     */
+    public void execute(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user,
+                        TypologyImportCollectionProfile collectionProfile, TypologyImportProgress progress) {
+        failIfNotSuccessful(executeImport(reference, parsed, user, collectionProfile, progress, false, null, null));
+    }
+
+    /**
+     * Applique l'import avec progression. Si {@code skipPriorAnalysis}, ne relance pas l'analyse (déjà validée à l'étape 2).
+     */
+    public void execute(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user,
+                        TypologyImportCollectionProfile collectionProfile, TypologyImportProgress progress,
+                        boolean skipPriorAnalysis) {
+        failIfNotSuccessful(executeImport(reference, parsed, user, collectionProfile, progress, skipPriorAnalysis, null, null));
+    }
+
+    private static final int IMPORT_BATCH_SIZE = 250;
+    private static final int IMPORT_PROGRESS_LOG_EVERY = 250;
+    private static final int IMPORT_FLUSH_EVERY = 50;
+
+    /**
+     * Applique l'import par lots avec progression et publication session HTTP pour le poll UI.
+     */
+    public TypologyImportExecutionResult executeImport(Entity reference, TypologyCsvParser.ParsedCsv parsed, Utilisateur user,
+                        TypologyImportCollectionProfile collectionProfile, TypologyImportProgress progress,
+                        boolean skipPriorAnalysis, TypologyImportAnalyzeResult priorAnalysis,
+                        jakarta.servlet.http.HttpSession httpSession) {
         Entity ref = entityRepository.findById(Objects.requireNonNull(reference.getId()))
                 .orElseThrow(() -> new IllegalArgumentException("Référentiel introuvable."));
         if (ref.getEntityType() == null
@@ -279,9 +343,14 @@ public class TypologyImportService {
             throw new IllegalArgumentException("Typologie de collection non prise en charge pour l'import CSV.");
         }
 
-        TypologyImportAnalyzeResult analysis = analyze(ref, parsed, collectionProfile);
-        if (!analysis.successful()) {
-            throw new IllegalStateException("L'analyse signale des erreurs bloquantes ; import annulé.");
+        if (!skipPriorAnalysis) {
+            TypologyImportAnalyzeResult analysis = analyze(ref, parsed, collectionProfile);
+            if (!analysis.successful()) {
+                throw new IllegalStateException("L'analyse signale des erreurs bloquantes ; import annulé.");
+            }
+        } else if (progress != null) {
+            progress.setPreparingImport("Préparation de l'import…");
+            publishProgress(httpSession, progress);
         }
 
         List<Map<String, String>> rows = parsed.rows();
@@ -289,14 +358,25 @@ public class TypologyImportService {
         TypologyImportKind[] kinds = new TypologyImportKind[n];
         String[] targets = new String[n];
 
-        for (int i = 0; i < n; i++) {
-            Map<String, String> row = rows.get(i);
-            HierarchyCodes codes = hierarchyCodesFromRow(row);
-            Optional<ClassifyResult> clf = classify(codes, new ArrayList<>());
-            if (clf.isPresent()) {
-                kinds[i] = clf.get().kind();
-                targets[i] = clf.get().targetCode();
+        boolean reusedAnalysis = skipPriorAnalysis
+                && fillKindsFromPriorAnalysis(n, kinds, targets, priorAnalysis);
+        if (!reusedAnalysis) {
+            for (int i = 0; i < n; i++) {
+                Map<String, String> row = rows.get(i);
+                HierarchyCodes codes = hierarchyCodesFromRow(row);
+                Optional<ClassifyResult> clf = classify(codes, new ArrayList<>());
+                if (clf.isPresent()) {
+                    kinds[i] = clf.get().kind();
+                    targets[i] = clf.get().targetCode();
+                }
+                if (progress != null && (i % 200 == 0 || i == n - 1)) {
+                    progress.setPreparingImport("Classification des lignes…");
+                    progress.tickImporting(0, n, i + 2);
+                    publishProgress(httpSession, progress);
+                }
             }
+        } else {
+            log.info("Import : réutilisation de la classification de l'étape analyse ({} lignes)", n);
         }
 
         List<Integer> order = sortedRowIndices(n, kinds);
@@ -312,48 +392,203 @@ public class TypologyImportService {
 
         Set<String> csvHeaders = parsed.headerKeySet();
 
+        int importTotal = 0;
+        for (int idx : order) {
+            if (kinds[idx] != null) {
+                importTotal++;
+            }
+        }
+        if (progress != null) {
+            if (progress.getPhase() == TypologyImportProgress.Phase.IMPORTING && progress.getTotal() > 0) {
+                progress.syncImportTotal(importTotal);
+            } else {
+                progress.beginImporting(importTotal);
+            }
+        }
+
+        log.info("Import : enregistrement de {} lignes en lots de {} (référentiel id={})",
+                importTotal, IMPORT_BATCH_SIZE, ref.getId());
+        if (progress != null) {
+            progress.setPreparingImport("Enregistrement en base…");
+            publishProgress(httpSession, progress);
+        }
+
+        TypologyImportLookupCache lookupCache = TypologyImportLookupCache.warm(
+                ref, categoryService, groupService, serieService, entityRepository);
+        Langue langLabel = resolveLangCode("fr", "fr");
+        Langue langDesc = langLabel;
+        ImportExecutionContext ctx = new ImportExecutionContext(
+                ref.getId(), rows, kinds, targets, order, catType, grpType, serType, typType,
+                csvHeaders, collectionProfile, importTotal);
+
+        List<List<Integer>> batches = buildImportBatches(order, kinds);
+        int importDone = 0;
+        for (List<Integer> batch : batches) {
+            final int batchSize = batch.size();
+            try {
+                importTransactionTemplate.executeWithoutResult(status ->
+                        processImportBatch(ctx, batch, lookupCache, user, langLabel, langDesc));
+            } catch (Exception ex) {
+                String rootMessage = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
+                if (importDone > 0) {
+                    String partialMsg = importDone + " / " + importTotal
+                            + " lignes enregistrées avant l'arrêt : " + rootMessage;
+                    log.warn("Import partiel (référentiel id={}) : {}", ref.getId(), partialMsg, ex);
+                    if (progress != null) {
+                        progress.tickImporting(importDone, importTotal, batch.get(0) + 2);
+                        publishProgress(httpSession, progress);
+                    }
+                    return TypologyImportExecutionResult.partial(
+                            importDone, importTotal, batch.get(0) + 2, partialMsg);
+                }
+                log.error("Import échoué avant toute ligne (référentiel id={})", ref.getId(), ex);
+                return TypologyImportExecutionResult.failure(rootMessage);
+            }
+            entityManager.clear();
+            for (int idx : batch) {
+                importDone++;
+                if (progress != null) {
+                    progress.tickImporting(importDone, importTotal, idx + 2);
+                    publishProgress(httpSession, progress);
+                }
+            }
+            if (importDone % IMPORT_PROGRESS_LOG_EVERY == 0 || importDone == importTotal) {
+                log.info("Import progression : {}/{} (référentiel id={})", importDone, importTotal, ref.getId());
+            }
+            log.debug("Import : lot validé (+{} lignes, total {}/{})", batchSize, importDone, importTotal);
+        }
+        return TypologyImportExecutionResult.ok(importTotal);
+    }
+
+    private static void failIfNotSuccessful(TypologyImportExecutionResult result) {
+        if (result == null || result.success()) {
+            return;
+        }
+        throw new IllegalStateException(result.message() != null ? result.message() : "Import échoué.");
+    }
+
+    private record ImportExecutionContext(
+            Long referenceId,
+            List<Map<String, String>> rows,
+            TypologyImportKind[] kinds,
+            String[] targets,
+            List<Integer> order,
+            EntityType catType,
+            EntityType grpType,
+            EntityType serType,
+            EntityType typType,
+            Set<String> csvHeaders,
+            TypologyImportCollectionProfile collectionProfile,
+            int importTotal) {
+    }
+
+    private static List<List<Integer>> buildImportBatches(List<Integer> order, TypologyImportKind[] kinds) {
+        List<List<Integer>> batches = new ArrayList<>();
+        List<Integer> current = new ArrayList<>(IMPORT_BATCH_SIZE);
         for (int idx : order) {
             if (kinds[idx] == null) {
                 continue;
             }
-            Map<String, String> row = rows.get(idx);
-            HierarchyCodes codes = hierarchyCodesFromRow(row);
-            applyRow(ref, row, kinds[idx], targets[idx], codes.categorie(), codes.groupe(), codes.serie(),
-                    catType, grpType, serType, typType, user, csvHeaders, collectionProfile);
+            current.add(idx);
+            if (current.size() >= IMPORT_BATCH_SIZE) {
+                batches.add(current);
+                current = new ArrayList<>(IMPORT_BATCH_SIZE);
+            }
         }
+        if (!current.isEmpty()) {
+            batches.add(current);
+        }
+        return batches;
+    }
+
+    private void processImportBatch(
+            ImportExecutionContext ctx,
+            List<Integer> batchIndices,
+            TypologyImportLookupCache lookupCache,
+            Utilisateur user,
+            Langue langLabel,
+            Langue langDesc) {
+        Entity ref = entityRepository.findById(Objects.requireNonNull(ctx.referenceId()))
+                .orElseThrow(() -> new IllegalArgumentException("Référentiel introuvable."));
+        int flushed = 0;
+        for (int idx : batchIndices) {
+            Map<String, String> row = ctx.rows().get(idx);
+            HierarchyCodes codes = hierarchyCodesFromRow(row);
+            applyRow(ref, row, ctx.kinds()[idx], ctx.targets()[idx],
+                    codes.categorie(), codes.groupe(), codes.serie(),
+                    ctx.catType(), ctx.grpType(), ctx.serType(), ctx.typType(),
+                    user, ctx.csvHeaders(), ctx.collectionProfile(), lookupCache, langLabel, langDesc);
+            flushed++;
+            if (flushed % IMPORT_FLUSH_EVERY == 0) {
+                entityRepository.flush();
+            }
+        }
+    }
+
+    private static void publishProgress(jakarta.servlet.http.HttpSession httpSession, TypologyImportProgress progress) {
+        if (httpSession != null && progress != null) {
+            TypologyImportProgressSession.publish(httpSession, progress);
+        }
+    }
+
+    private static boolean fillKindsFromPriorAnalysis(
+            int rowCount,
+            TypologyImportKind[] kinds,
+            String[] targets,
+            TypologyImportAnalyzeResult priorAnalysis) {
+        if (priorAnalysis == null || priorAnalysis.previewLines() == null) {
+            return false;
+        }
+        List<TypologyImportPreviewLine> lines = priorAnalysis.previewLines();
+        if (lines.size() != rowCount) {
+            return false;
+        }
+        for (int i = 0; i < rowCount; i++) {
+            TypologyImportPreviewLine line = lines.get(i);
+            if (line != null && line.lineOk() && line.kind() != null
+                    && line.kind() != TypologyImportKind.NON_CLASSIFIE
+                    && line.targetCode() != null && !line.targetCode().isBlank()) {
+                kinds[i] = line.kind();
+                targets[i] = line.targetCode();
+            }
+        }
+        return true;
     }
 
     private void applyRow(Entity reference, Map<String, String> row, TypologyImportKind kind, String targetCode,
                           String cc, String cg, String cs,
                           EntityType catType, EntityType grpType, EntityType serType, EntityType typType,
                           Utilisateur user, Set<String> csvHeaders,
-                          TypologyImportCollectionProfile collectionProfile) {
-
-        Langue langLabel = resolveLangCode("fr", "fr");
-        Langue langDesc = resolveLangCode("fr", "fr");
+                          TypologyImportCollectionProfile collectionProfile,
+                          TypologyImportLookupCache lookupCache, Langue langLabel, Langue langDesc) {
 
         String statutStr = null;
 
         switch (kind) {
-            case CATEGORIE -> upsertCategory(reference, targetCode, langLabel, langDesc,
-                    statutStr, row, catType, user, csvHeaders, collectionProfile);
+            case CATEGORIE -> {
+                Entity saved = upsertCategory(reference, targetCode, langLabel, langDesc,
+                        statutStr, row, catType, user, csvHeaders, collectionProfile);
+                lookupCache.registerCategory(saved);
+            }
             case GROUPE -> {
-                Entity cat = findCategory(reference, cc).orElseThrow();
-                upsertChild(cat, targetCode, EntityConstants.ENTITY_TYPE_GROUP, grpType,
+                Entity cat = lookupCache.findCategory(cc).orElseThrow();
+                Entity saved = upsertChild(cat, targetCode, EntityConstants.ENTITY_TYPE_GROUP, grpType,
                         langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                lookupCache.registerGroup(cc, saved);
             }
             case SERIE -> {
-                Entity grp = findGroup(reference, cc, cg).orElseThrow();
-                upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_SERIES, serType,
+                Entity grp = lookupCache.findGroup(cc, cg).orElseThrow();
+                Entity saved = upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_SERIES, serType,
                         langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                lookupCache.registerSerie(cc, cg, saved);
             }
             case TYPE_SOUS_SERIE -> {
-                Entity serie = findSerie(reference, cc, cg, cs).orElseThrow();
+                Entity serie = lookupCache.findSerie(cc, cg, cs).orElseThrow();
                 upsertChild(serie, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
                         langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
             case TYPE_SOUS_GROUPE -> {
-                Entity grp = findGroup(reference, cc, cg).orElseThrow();
+                Entity grp = lookupCache.findGroup(cc, cg).orElseThrow();
                 upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
                         langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
             }
@@ -362,7 +597,7 @@ public class TypologyImportService {
         }
     }
 
-    private void upsertCategory(Entity reference, String code,
+    private Entity upsertCategory(Entity reference, String code,
                                 Langue langLabel, Langue langDesc, String statutStr,
                                 Map<String, String> row, EntityType catType, Utilisateur user,
                                 Set<String> csvHeaders, TypologyImportCollectionProfile collectionProfile) {
@@ -393,10 +628,10 @@ public class TypologyImportService {
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
         applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
         replaceAuteursScientifiques(entity, row, csvHeaders);
-        entityRepository.save(entity);
+        return entityRepository.save(entity);
     }
 
-    private void upsertChild(Entity parent, String code, String expectedTypeCode, EntityType concreteType,
+    private Entity upsertChild(Entity parent, String code, String expectedTypeCode, EntityType concreteType,
                              Langue langLabel, Langue langDesc, String statutStr,
                              Map<String, String> row, Utilisateur user, Set<String> csvHeaders,
                              TypologyImportCollectionProfile collectionProfile) {
@@ -434,7 +669,7 @@ public class TypologyImportService {
         applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
         replaceAuteursScientifiques(entity, row, csvHeaders);
         arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
-        entityRepository.save(entity);
+        return entityRepository.save(entity);
     }
 
     private void applyTypologySpecificDetails(Entity entity, Map<String, String> row, Set<String> csvHeaders,
@@ -1029,9 +1264,9 @@ public class TypologyImportService {
             String valeur;
             String urlToken = StringUtils.hasText(pair[1]) ? pair[1].trim() : null;
             if (StringUtils.hasText(urlToken)) {
-                valeur = limit500(firstNonBlank(pair[0], pair[1]));
+                valeur = limitVarcharColumn(firstNonBlank(pair[0], pair[1]));
             } else if (StringUtils.hasText(pair[0])) {
-                valeur = limit500(pair[0].trim());
+                valeur = limitVarcharColumn(pair[0].trim());
                 urlToken = null;
             } else {
                 continue;
@@ -1039,7 +1274,7 @@ public class TypologyImportService {
             ReferenceOpentheso ref = ReferenceOpentheso.builder()
                     .code(ReferenceOpenthesoEnum.APPELLATION_USUELLE.name())
                     .valeur(valeur)
-                    .url(urlToken != null ? limit500(urlToken) : null)
+                    .url(urlToken != null ? limitVarcharColumn(urlToken) : null)
                     .entity(entity)
                     .build();
             entity.getAppellationsUsuelles().add(referenceOpenthesoRepository.save(ref));
@@ -1068,14 +1303,14 @@ public class TypologyImportService {
                 continue;
             }
             String[] pair = splitPair(t);
-            String valeur = limit500(firstNonBlank(pair[0], pair[1]));
+            String valeur = limitVarcharColumn(firstNonBlank(pair[0], pair[1]));
             if (!StringUtils.hasText(valeur)) {
                 continue;
             }
             ReferenceOpentheso ref = ReferenceOpentheso.builder()
                     .code("AIRE_CIRCULATION")
                     .valeur(valeur)
-                    .url(StringUtils.hasText(pair[1]) ? limit500(pair[1]) : null)
+                    .url(StringUtils.hasText(pair[1]) ? limitVarcharColumn(pair[1]) : null)
                     .entity(entity)
                     .build();
             entity.getAiresCirculation().add(referenceOpenthesoRepository.save(ref));
@@ -1182,14 +1417,14 @@ public class TypologyImportService {
             return null;
         }
         String[] pair = parseLabelUrl(raw);
-        String valeur = limit500(firstNonBlank(pair[0], pair[1]));
+        String valeur = limitVarcharColumn(firstNonBlank(pair[0], pair[1]));
         if (!StringUtils.hasText(valeur)) {
             return null;
         }
         ReferenceOpentheso ref = ReferenceOpentheso.builder()
                 .code(code)
                 .valeur(valeur)
-                .url(StringUtils.hasText(pair[1]) ? limit500(pair[1]) : null)
+                .url(StringUtils.hasText(pair[1]) ? limitVarcharColumn(pair[1]) : null)
                 .entity(entity)
                 .build();
         return referenceOpenthesoRepository.save(ref);
@@ -1226,9 +1461,9 @@ public class TypologyImportService {
         String cleanedUrl = hasUrl ? url.trim() : null;
         ReferenceOpentheso ref = ReferenceOpentheso.builder()
                 .code(slot.name())
-                .valeur(valeur.length() > 500 ? valeur.substring(0, 500) : valeur)
+                .valeur(limitVarcharColumn(valeur))
                 .url(cleanedUrl != null
-                        ? (cleanedUrl.length() > 500 ? cleanedUrl.substring(0, 500) : cleanedUrl)
+                        ? limitVarcharColumn(cleanedUrl)
                         : null)
                 .entity(entity)
                 .build();
@@ -1692,11 +1927,12 @@ public class TypologyImportService {
         return StringUtils.hasText(first) ? first : second;
     }
 
-    private static String limit500(String v) {
+    private static String limitVarcharColumn(String v) {
         if (!StringUtils.hasText(v)) {
             return v;
         }
-        return v.length() > 500 ? v.substring(0, 500) : v;
+        int max = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH;
+        return v.length() > max ? v.substring(0, max) : v;
     }
 
     private static String trimToNull(String s) {

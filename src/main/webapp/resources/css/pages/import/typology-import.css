@@ -365,6 +365,71 @@
     border-radius: 12px;
 }
 
+/* ========== Statut import (échec / partiel, hors popin) ========== */
+.typology-import-screen-status {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.15rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    line-height: 1.5;
+}
+
+.typology-import-screen-status .pi {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+    font-size: 1.15rem;
+}
+
+.typology-import-screen-status__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.typology-import-screen-status__title {
+    margin: 0 0 0.4rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.typology-import-screen-status__detail {
+    margin: 0;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.typology-import-screen-status--error {
+    background: rgba(184, 74, 60, 0.1);
+    border: 1px solid rgba(184, 74, 60, 0.4);
+    color: #5c2e28;
+}
+
+.typology-import-screen-status--error .pi {
+    color: var(--color-danger, #b84a3c);
+}
+
+.typology-import-screen-status--warn {
+    background: rgba(184, 130, 40, 0.12);
+    border: 1px solid rgba(184, 130, 40, 0.45);
+    color: #5c4520;
+}
+
+.typology-import-screen-status--warn .pi {
+    color: #b88228;
+}
+
+.typology-import-screen-status--info {
+    background: rgba(81, 109, 117, 0.08);
+    border: 1px solid rgba(81, 109, 117, 0.3);
+    color: var(--ti-text-muted);
+}
+
+.typology-import-screen-status--info .pi {
+    color: var(--color-link-discreet, #516d75);
+}
+
 /* ========== Tableau prévisualisation ========== */
 .typology-import-table.ui-datatable .ui-datatable-thead > tr > th {
     background: linear-gradient(180deg, var(--ti-accent-soft) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
@@ -465,6 +530,71 @@
         0 18px 42px rgba(36, 49, 38, 0.15);
 }
 
+/* Jauge circulaire (conic-gradient piloté par --ti-progress, 0–100) */
+.typology-import-progress-ring {
+    --ti-progress: 0;
+    position: relative;
+    width: 5.75rem;
+    height: 5.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: conic-gradient(
+        var(--ti-accent, #47624d) calc(var(--ti-progress) * 1%),
+        rgba(71, 98, 77, 0.14) 0
+    );
+    box-shadow: inset 0 0 0 1px rgba(71, 98, 77, 0.12);
+    transition: background 0.35s ease;
+}
+
+.typology-import-progress-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0.55rem;
+    border-radius: 50%;
+    background: #fafbf8;
+    box-shadow: 0 1px 3px rgba(36, 49, 38, 0.08);
+}
+
+.typology-import-progress-ring__value {
+    position: relative;
+    z-index: 1;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2f3f31;
+    line-height: 1;
+}
+
+.typology-import-progress-ring--indeterminate {
+    background: conic-gradient(
+        from 0deg,
+        var(--ti-accent, #47624d) 0deg,
+        rgba(71, 98, 77, 0.12) 120deg,
+        var(--ti-accent, #47624d) 240deg,
+        rgba(71, 98, 77, 0.12) 360deg
+    );
+    animation: typology-import-ring-spin 1.1s linear infinite;
+}
+
+.typology-import-progress-ring--indeterminate::before {
+    content: "";
+    position: absolute;
+    inset: 0.55rem;
+    border-radius: 50%;
+    background: #fafbf8;
+}
+
+@keyframes typology-import-ring-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.typology-import-blocking__detail {
+    min-height: 1.25rem;
+}
+
 .typology-import-blocking__icon {
     font-size: 2.25rem;
     color: var(--ti-accent, #47624d);
@@ -485,21 +615,6 @@
     color: #4a5c52;
     text-align: center;
     line-height: 1.4;
-}
-
-.typology-import-blocking__bar.ui-progressbar {
-    width: 100%;
-    height: 8px !important;
-    border-radius: 999px !important;
-    overflow: hidden;
-    margin-top: 0.35rem;
-    background: rgba(71, 98, 77, 0.18) !important;
-    border: 1px solid rgba(71, 98, 77, 0.12);
-}
-
-.typology-import-blocking__bar.ui-progressbar .ui-progressbar-value {
-    border-radius: 999px !important;
-    background: linear-gradient(90deg, #3d5240 0%, #47624d 55%, #5a7a62 100%) !important;
 }
 
 /* ========== Documentation colonnes CSV ========== */

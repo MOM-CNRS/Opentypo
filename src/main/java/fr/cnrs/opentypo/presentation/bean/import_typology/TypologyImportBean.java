@@ -6,8 +6,12 @@ import fr.cnrs.opentypo.application.import_typology.TypologyImportCollectionProf
 import fr.cnrs.opentypo.application.import_typology.TypologyImportConstants;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportCsvExport;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportFieldDocumentation;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportJobLauncher;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportPreviewLine;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportProgress;
+import fr.cnrs.opentypo.application.import_typology.TypologyImportProgressSession;
 import fr.cnrs.opentypo.application.import_typology.TypologyImportService;
+import jakarta.servlet.http.HttpSession;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.presentation.bean.ApplicationBean;
@@ -25,6 +29,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -46,6 +51,9 @@ public class TypologyImportBean implements Serializable {
     private transient TypologyImportService typologyImportService;
 
     @Autowired
+    private transient TypologyImportJobLauncher typologyImportJobLauncher;
+
+    @Autowired
     private ApplicationBean applicationBean;
 
     @Autowired
@@ -65,8 +73,30 @@ public class TypologyImportBean implements Serializable {
 
     private String uploadedFileName;
 
+    /** Message persistant sur l’écran d’import (échec / import partiel), distinct des popins growl. */
+    private String screenStatusTitle;
+    private String screenStatusDetail;
+    /** error | warn | info */
+    private String screenStatusSeverity = "error";
+
     public String getUploadedFileName() {
         return uploadedFileName;
+    }
+
+    public String getScreenStatusTitle() {
+        return screenStatusTitle;
+    }
+
+    public String getScreenStatusDetail() {
+        return screenStatusDetail;
+    }
+
+    public String getScreenStatusSeverity() {
+        return screenStatusSeverity != null ? screenStatusSeverity : "error";
+    }
+
+    public boolean isScreenStatusVisible() {
+        return StringUtils.hasText(screenStatusTitle) || StringUtils.hasText(screenStatusDetail);
     }
 
     public void onPageEnter() {
@@ -173,6 +203,7 @@ public class TypologyImportBean implements Serializable {
             this.uploadedFileName = event.getFile().getFileName();
             this.analysis = null;
             this.step = 1;
+            clearScreenStatus();
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Fichier chargé",
                     parsedCsv.rows().size() + " ligne(s) de données (hors en-tête)."));
             PrimeFaces.current().ajax().update(":importForm :growl");
@@ -190,11 +221,30 @@ public class TypologyImportBean implements Serializable {
         if (!canUseImport() || parsedCsv == null) {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Analyse",
                     "Chargez d’abord un fichier CSV."));
+            stopProgressUi();
             return;
         }
+        Entity reference = applicationBean.getSelectedEntity();
+        if (reference == null || reference.getId() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Analyse",
+                    "Référentiel introuvable."));
+            stopProgressUi();
+            return;
+        }
+        HttpSession httpSession = (HttpSession) fc.getExternalContext().getSession(false);
+        TypologyImportProgress progress = TypologyImportProgressSession.getOrCreate(httpSession);
+        progress.reset();
+        TypologyImportProgressSession.bind(httpSession, progress);
+        progress.beginAnalyzing(parsedCsv.rows().size());
         try {
-            analysis = typologyImportService.analyze(applicationBean.getSelectedEntity(), parsedCsv,
-                    resolveImportCollectionProfile());
+            log.info("Analyse typologique démarrée (référentiel id={}, {} lignes)",
+                    reference.getId(), parsedCsv.rows().size());
+            analysis = typologyImportService.analyze(
+                    reference,
+                    parsedCsv,
+                    resolveImportCollectionProfile(),
+                    progress);
+            progress.completeAnalyzing(analysis);
             step = 2;
             if (analysis.successful()) {
                 fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Analyse terminée",
@@ -203,12 +253,16 @@ public class TypologyImportBean implements Serializable {
                 fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Analyse terminée",
                         "Corrigez les erreurs ou le fichier avant de confirmer."));
             }
-            PrimeFaces.current().ajax().update(":importForm :growl");
+            log.info("Analyse typologique terminée (référentiel id={}, succès={})",
+                    reference.getId(), analysis.successful());
         } catch (Exception ex) {
-            log.error("Erreur analyse import", ex);
+            log.error("Erreur analyse import (référentiel id={})", reference.getId(), ex);
+            progress.fail(ex.getMessage());
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    ex.getMessage()));
-            PrimeFaces.current().ajax().update(":importForm :growl");
+                    Objects.toString(ex.getMessage(), "Erreur technique.")));
+        } finally {
+            stopProgressUi();
+            PrimeFaces.current().ajax().update(":importForm :growl :importProgressPanel");
         }
     }
 
@@ -217,53 +271,200 @@ public class TypologyImportBean implements Serializable {
         if (!canUseImport() || parsedCsv == null) {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
                     "Données manquantes."));
+            stopProgressUi();
             return;
         }
         if (analysis == null || !analysis.successful()) {
             fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
                     "L’analyse doit être valide avant confirmation."));
+            stopProgressUi();
             return;
         }
+        Entity referenceEntity = applicationBean.getSelectedEntity();
+        if (referenceEntity == null || referenceEntity.getId() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
+                    "Référentiel introuvable."));
+            stopProgressUi();
+            return;
+        }
+        clearScreenStatus();
+        HttpSession httpSession = (HttpSession) fc.getExternalContext().getSession(false);
+        TypologyImportProgress progress = TypologyImportProgressSession.getOrCreate(httpSession);
+        progress.reset();
+        progress.beginImporting(countImportableRows());
+        TypologyImportProgressSession.bind(httpSession, progress);
         try {
-            Entity referenceEntity = applicationBean.getSelectedEntity();
-            String referenceCode = referenceEntity != null ? referenceEntity.getCode() : null;
+            typologyImportJobLauncher.launchExecute(
+                    referenceEntity.getId(),
+                    parsedCsv,
+                    loginBean.getCurrentUser(),
+                    resolveImportCollectionProfile(),
+                    httpSession,
+                    analysis);
+            PrimeFaces.current().executeScript("typologyImportStartPoll()");
+        } catch (Exception ex) {
+            log.error("Démarrage import typologique impossible", ex);
+            progress.fail(ex.getMessage());
+            stopProgressUi();
+            step = 2;
+            showScreenStatus("error", "Import impossible",
+                    Objects.toString(ex.getMessage(), "Erreur technique."));
+            updateImportScreen();
+        }
+    }
 
-            typologyImportService.execute(referenceEntity, parsedCsv,
-                    loginBean.getCurrentUser(), resolveImportCollectionProfile());
+    private TypologyImportProgress activeProgress() {
+        return TypologyImportProgressSession.fromFacesContext();
+    }
 
-            Flash flash = fc.getExternalContext().getFlash();
-            flash.setKeepMessages(true);
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import terminé",
-                    "Les données ont été enregistrées. Ouverture du référentiel…"));
+    private int countImportableRows() {
+        if (analysis == null || analysis.previewLines() == null) {
+            return parsedCsv != null ? parsedCsv.rows().size() : 0;
+        }
+        return (int) analysis.previewLines().stream()
+                .filter(line -> line != null && line.lineOk())
+                .count();
+    }
 
+    /**
+     * Polling AJAX : met à jour la barre de progression et finalise analyse ou import lorsque le traitement est terminé.
+     */
+    public void pollImportProgress() {
+        TypologyImportProgress progress = activeProgress();
+        if (progress.isFinalized()) {
+            return;
+        }
+        if (progress.isRunning()) {
+            return;
+        }
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc == null) {
+            return;
+        }
+        if (progress.getPhase() == TypologyImportProgress.Phase.FAILED) {
+            log.warn("Import typologique : échec remonté au poll ({})", progress.getErrorMessage());
+            finalizeProgressFailure(fc, progress);
+            return;
+        }
+        if (progress.getPhase() != TypologyImportProgress.Phase.COMPLETE) {
+            return;
+        }
+        if (progress.getOperation() == TypologyImportProgress.Operation.IMPORT) {
+            finalizeImportSuccess(fc, progress);
+        }
+    }
+
+    private void finalizeImportSuccess(FacesContext fc, TypologyImportProgress progress) {
+        progress.setFinalized(true);
+        Entity referenceEntity = applicationBean.getSelectedEntity();
+        String referenceCode = referenceEntity != null ? referenceEntity.getCode() : null;
+
+        if (progress.isPartialSuccess()) {
+            stopProgressUi();
+            step = 2;
+            String detail = Objects.toString(progress.getWarningMessage(),
+                    progress.getCurrent() + " / " + progress.getTotal() + " lignes enregistrées.");
+            showScreenStatus("warn", "Import partiel", detail);
             applicationBean.refreshReferenceCategoriesList();
             if (applicationBean.getTreeBean() != null && referenceEntity != null && referenceEntity.getId() != null) {
                 applicationBean.getTreeBean().loadChildForEntity(referenceEntity);
             }
-            clearWizardState();
-            clearTypologyFileUploadWidget();
-
-            if (referenceCode != null && !referenceCode.isBlank()) {
-                try {
-                    String encoded = URLEncoder.encode(referenceCode, StandardCharsets.UTF_8).replace("+", "%20");
-                    String path = fc.getExternalContext().getRequestContextPath() + "/" + encoded;
-                    fc.getExternalContext().redirect(path);
-                    fc.responseComplete();
-                } catch (IOException ioe) {
-                    log.warn("Redirection après import impossible : {}", ioe.getMessage());
-                    fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Import terminé",
-                            "Ouverture automatique impossible ; ouvrez le référentiel depuis le menu."));
-                    PrimeFaces.current().ajax().update(":importForm :growl");
-                }
-            } else {
-                PrimeFaces.current().ajax().update(":importForm :growl :centerContent");
-            }
-        } catch (Exception ex) {
-            log.error("Échec import typologique", ex);
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import annulé",
-                    Objects.toString(ex.getMessage(), "Erreur technique.")));
-            PrimeFaces.current().ajax().update(":importForm :growl");
+            updateImportScreen();
+            return;
         }
+
+        Flash flash = fc.getExternalContext().getFlash();
+        flash.setKeepMessages(true);
+        fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import terminé",
+                "Les données ont été enregistrées. Ouverture du référentiel…"));
+
+        applicationBean.refreshReferenceCategoriesList();
+        if (applicationBean.getTreeBean() != null && referenceEntity != null && referenceEntity.getId() != null) {
+            applicationBean.getTreeBean().loadChildForEntity(referenceEntity);
+        }
+        clearWizardState();
+        clearTypologyFileUploadWidget();
+        stopProgressUi();
+
+        if (referenceCode != null && !referenceCode.isBlank()) {
+            try {
+                String encoded = URLEncoder.encode(referenceCode, StandardCharsets.UTF_8).replace("+", "%20");
+                String path = fc.getExternalContext().getRequestContextPath() + "/" + encoded;
+                fc.getExternalContext().redirect(path);
+                fc.responseComplete();
+            } catch (IOException ioe) {
+                log.warn("Redirection après import impossible : {}", ioe.getMessage());
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Import terminé",
+                        "Ouverture automatique impossible ; ouvrez le référentiel depuis le menu."));
+                PrimeFaces.current().ajax().update(":importForm :growl");
+            }
+        } else {
+            PrimeFaces.current().ajax().update(":importForm :growl :centerContent");
+        }
+    }
+
+    private void finalizeProgressFailure(FacesContext fc, TypologyImportProgress progress) {
+        progress.setFinalized(true);
+        stopProgressUi();
+        if (progress.getOperation() == TypologyImportProgress.Operation.IMPORT) {
+            step = 2;
+        }
+        String detail = Objects.toString(progress.getErrorMessage(), "Erreur technique.");
+        String title = progress.getOperation() == TypologyImportProgress.Operation.IMPORT
+                ? "Import interrompu"
+                : "Erreur";
+        showScreenStatus("error", title, detail);
+        updateImportScreen();
+    }
+
+    private static void stopProgressUi() {
+        PrimeFaces.current().executeScript("typologyImportStopPoll()");
+    }
+
+    public int getImportProgressPercent() {
+        return activeProgress().getPercent();
+    }
+
+    /** Anneau avec pourcentage (au moins une ligne traitée ou terminé). */
+    public boolean isImportProgressShowPercent() {
+        TypologyImportProgress progress = activeProgress();
+        return progress.getTotal() > 0
+                && (progress.getCurrent() > 0 || progress.getPhase() == TypologyImportProgress.Phase.COMPLETE);
+    }
+
+    /** Anneau animé sans pourcentage (démarrage ou préparation). */
+    public boolean isImportProgressIndeterminateRing() {
+        TypologyImportProgress progress = activeProgress();
+        return progress.isRunning() && !isImportProgressShowPercent();
+    }
+
+    public boolean isImportProgressRunning() {
+        return activeProgress().isRunning();
+    }
+
+    public String getImportProgressPhaseLabel() {
+        return switch (activeProgress().getPhase()) {
+            case ANALYZING -> "Analyse du fichier…";
+            case IMPORTING -> "Import des données…";
+            case COMPLETE -> "Terminé";
+            case FAILED -> "Échec";
+            default -> "Traitement en cours…";
+        };
+    }
+
+    public String getImportProgressDetailLabel() {
+        TypologyImportProgress progress = activeProgress();
+        int total = progress.getTotal();
+        int current = progress.getCurrent();
+        String detail = progress.getDetailMessage();
+        if (total > 0) {
+            if (current == 0 && detail != null && !detail.isBlank()) {
+                return detail;
+            }
+            String lineInfo = detail != null && !detail.isBlank() ? detail + " — " : "";
+            return lineInfo + current + " / " + total;
+        }
+        return detail != null ? detail : "";
     }
 
     /** Réinitialise fichier chargé, analyse et étape ; vide aussi le widget PrimeFaces de sélection de fichier. */
@@ -277,6 +478,24 @@ public class TypologyImportBean implements Serializable {
         analysis = null;
         uploadedFileName = null;
         step = 1;
+        clearScreenStatus();
+        TypologyImportProgressSession.fromFacesContext().reset();
+    }
+
+    private void clearScreenStatus() {
+        screenStatusTitle = null;
+        screenStatusDetail = null;
+        screenStatusSeverity = "error";
+    }
+
+    private void showScreenStatus(String severity, String title, String detail) {
+        screenStatusSeverity = severity != null ? severity : "error";
+        screenStatusTitle = title;
+        screenStatusDetail = detail;
+    }
+
+    private static void updateImportScreen() {
+        PrimeFaces.current().ajax().update(":importScreenStatusPanel :importForm :importProgressPanel");
     }
 
     private void clearTypologyFileUploadWidget() {
@@ -304,6 +523,7 @@ public class TypologyImportBean implements Serializable {
     /** Retour à l’étape fichier sans perdre le CSV chargé. */
     public void goToStep1() {
         step = 1;
+        clearScreenStatus();
     }
 
     public String kindLabel(TypologyImportPreviewLine line) {

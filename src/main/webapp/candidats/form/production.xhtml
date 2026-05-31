@@ -70,7 +70,7 @@
                          value="#{candidatBean.ateliers}"
                          styleClass="users-chips"
                          placeholder="Saisissez un atelier et appuyez sur Entrée..."
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveAteliers}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveAteliers}" process="@this" update="@none"/>

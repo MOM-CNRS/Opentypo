@@ -19,9 +19,9 @@
                                 </div>
 
                                 <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                              styleClass="collection-not-published-icon">
+                                              styleClass="collection-not-published-icon"
+                                              title="#{msg['serie.tooltip.notPublished']}">
                                     <i class="pi pi-clock"/>
-                                    <p:tooltip value="#{msg['serie.tooltip.notPublished']}" position="top"/>
                                 </h:panelGroup>
 
                                 <div class="collection-panel-title-wrapper">
@@ -35,18 +35,19 @@
 
                             <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
                                 <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                               process="@this" update="@none" styleClass="concept-action-button" immediate="true">
+                                               process="@this" update="@none" styleClass="concept-action-button"
+                                               title="#{msg['common.history.tooltip']}"
+                                               immediate="true">
                                     <i class="pi pi-history" />
-                                    <p:tooltip value="#{msg['common.history.tooltip']}" position="top"/>
                                 </p:commandLink>
 
                                 <p:commandLink action="#{entityUpdateBean.startEditing()}"
                                                process="@this"
                                                update=":contentPanels :leftTreePanel :searchSectionWrapper"
                                                rendered="#{serieBean.canEditSerie(applicationBean)}"
-                                               styleClass="concept-action-button">
+                                               styleClass="concept-action-button"
+                                               title="#{msg['common.edit']}">
                                     <i class="pi pi-file-edit" />
-                                    <p:tooltip value="#{msg['common.edit']}" position="top"/>
                                 </p:commandLink>
 
                                 <p:commandLink action="#{confirmDeleteBean.prepareDelete('SERIE')}"
@@ -54,9 +55,9 @@
                                                update=":confirmDeleteDialogContent"
                                                oncomplete="PF('confirmDeleteDialog').show();"
                                                styleClass="concept-action-button type-detail-action-delete"
+                                               title="#{msg['common.delete']}"
                                                rendered="#{serieBean.canDeleteSerie(applicationBean)}">
                                     <i class="pi pi-trash" />
-                                    <p:tooltip value="#{msg['common.delete']}" position="top"/>
                                 </p:commandLink>
 
                                 <h:panelGroup rendered="#{loginBean.currentUser != null}">
@@ -78,7 +79,6 @@
                                                                title="#{msg['common.visibility.toggle.title']}"
                                                                action="#{applicationBean.prepareConfirmVisibilityChange(applicationBean.selectedEntity.statut != 'PUBLIQUE')}">
                                                     <i class="pi pi-sync" />
-                                                    <p:tooltip value="#{msg['common.visibility.toggle.tooltip']}" position="top"/>
                                                 </p:commandLink>
                                             </h:panelGroup>
                                         </div>

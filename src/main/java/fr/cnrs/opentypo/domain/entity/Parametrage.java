@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -37,32 +38,32 @@ public class Parametrage implements Serializable {
     @JoinColumn(name = "entity_id", nullable = false, unique = true)
     private fr.cnrs.opentypo.domain.entity.Entity entity;
 
-    @Column(name = "base_url", length = 500)
+    @Column(name = "base_url", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String baseUrl;
 
-    @Column(name = "id_theso", length = 100)
+    @Column(name = "id_theso", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String idTheso;
 
-    @Column(name = "id_groupe", length = 100)
+    @Column(name = "id_groupe", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String idGroupe;
 
-    @Column(name = "id_langue", length = 20)
+    @Column(name = "id_langue", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String idLangue;
 
-    @Column(name = "bibliographie_url", length = 500)
+    @Column(name = "bibliographie_url", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String bibliographieUrl;
 
     /** NAAN ARK pour ce référentiel (prioritaire sur la config application si renseigné). */
-    @Column(name = "ark_naan", length = 32)
+    @Column(name = "ark_naan", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String arkNaan;
 
     /** Épaule / préfixe local ARK (prioritaire sur la config application si renseigné). */
-    @Column(name = "ark_shoulder", length = 128)
+    @Column(name = "ark_shoulder", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String arkShoulder;
 
     /**
      * Base du résolveur ARK (ex. https://n2t.net), pour liens « ouvrir » depuis l'interface ; optionnel.
      */
-    @Column(name = "ark_resolver_base", length = 512)
+    @Column(name = "ark_resolver_base", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String arkResolverBase;
 }

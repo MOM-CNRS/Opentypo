@@ -19,7 +19,7 @@ public record EntityCreateRequest(
                 maxLength = EntityConstants.MAX_CODE_LENGTH,
                 requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Le code est obligatoire")
-        @Size(max = 100, message = "Le code ne doit pas dépasser {max} caractères")
+        @Size(max = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, message = "Le code ne doit pas dépasser {max} caractères")
         String code,
         @Schema(
                 description = "Code du type d'entité.",
@@ -34,7 +34,7 @@ public record EntityCreateRequest(
                 },
                 requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Le type d'entité est obligatoire")
-        @Size(max = 50, message = "Le type d'entité ne doit pas dépasser {max} caractères")
+        @Size(max = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, message = "Le type d'entité ne doit pas dépasser {max} caractères")
         String entityTypeCode,
         @Schema(
                 description = "Libellé principal (nom affiché).",
@@ -42,13 +42,13 @@ public record EntityCreateRequest(
                 maxLength = EntityConstants.MAX_LABEL_LENGTH,
                 requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Le libellé est obligatoire")
-        @Size(max = 255, message = "Le libellé ne doit pas dépasser {max} caractères")
+        @Size(max = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, message = "Le libellé ne doit pas dépasser {max} caractères")
         String labelNom,
         @Schema(
                 description = "Code langue du libellé principal. Défaut : fr.",
                 example = "fr",
-                maxLength = 10)
-        @Size(max = 10, message = "Le code langue ne doit pas dépasser {max} caractères")
+                maxLength = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
+        @Size(max = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH, message = "Le code langue ne doit pas dépasser {max} caractères")
         String labelLangCode,
         @Schema(
                 description = "Statut initial. Défaut : PUBLIQUE si omis.",

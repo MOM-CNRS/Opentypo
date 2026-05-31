@@ -14,7 +14,7 @@
                          value="#{candidatBean.attestations}"
                          styleClass="users-chips"
                          placeholder="Saisissez une attestation et appuyez sur Entrée..."
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
@@ -39,7 +39,7 @@
                          value="#{candidatBean.sitesArcheologiques}"
                          styleClass="users-chips"
                          placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
@@ -64,7 +64,7 @@
                          value="#{candidatBean.references}"
                          styleClass="users-chips"
                          placeholder="Saisissez un référentiel et appuyez sur Entrée..."
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
                     <p:ajax event="itemUnselect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>

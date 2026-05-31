@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,7 +48,7 @@ public class RevisionInfo implements Serializable {
      * Email ou identifiant de l'utilisateur ayant effectué la modification.
      * Null si opération non authentifiée (ex: import batch).
      */
-    @Column(name = "modified_by", length = 255)
+    @Column(name = "modified_by", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String modifiedBy;
 
     /**

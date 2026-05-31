@@ -536,6 +536,150 @@
     }
 }
 
+/* Liste des référentiels — états vides (aucun élément / aucun résultat de recherche) */
+.references-list-frame .collections-grid-cadre .reference-categories-empty--references {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+}
+
+.references-list-frame .reference-categories-empty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    text-align: center;
+    padding: 2.5rem 1.75rem;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px dashed rgba(71, 98, 77, 0.3);
+    background: linear-gradient(
+        165deg,
+        rgba(71, 98, 77, 0.09) 0%,
+        rgba(71, 98, 77, 0.03) 42%,
+        #ffffff 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 2px 12px rgba(71, 98, 77, 0.06);
+}
+
+.references-list-frame .reference-categories-empty-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        var(--color-action-main, #47624D) 0%,
+        rgba(71, 98, 77, 0.4) 50%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
+
+.references-list-frame .reference-categories-empty-card::after {
+    content: '';
+    position: absolute;
+    bottom: -45%;
+    right: -8%;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(71, 98, 77, 0.07) 0%, transparent 68%);
+    pointer-events: none;
+}
+
+.references-list-frame .reference-categories-empty-visual {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.references-list-frame .reference-categories-empty-icon-ring {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid rgba(71, 98, 77, 0.16);
+    color: var(--color-action-main, #47624D);
+    font-size: 1.75rem;
+    box-shadow: 0 4px 18px rgba(71, 98, 77, 0.14);
+}
+
+.references-list-frame .reference-categories-empty-content {
+    position: relative;
+    z-index: 1;
+    max-width: 40rem;
+}
+
+.references-list-frame .reference-categories-empty-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-text-primary, #2c3e2f);
+    letter-spacing: -0.01em;
+}
+
+.references-list-frame .reference-categories-empty-text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary, #5a6b5c);
+    max-width: 36ch;
+}
+
+.references-list-frame .reference-categories-no-results .reference-categories-empty-card {
+    min-height: 168px;
+    padding: 2rem 1.75rem;
+    border-style: solid;
+    border-color: rgba(71, 98, 77, 0.14);
+    background: linear-gradient(165deg, rgba(71, 98, 77, 0.05) 0%, #fafbfa 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.references-list-frame .reference-categories-no-results .reference-categories-empty-card::before {
+    height: 2px;
+    opacity: 0.85;
+}
+
+.references-list-frame .reference-categories-no-results .reference-categories-empty-icon-ring {
+    width: 60px;
+    height: 60px;
+    font-size: 1.375rem;
+    background: rgba(71, 98, 77, 0.08);
+    border: none;
+    box-shadow: none;
+}
+
+.references-list-frame .reference-categories-no-results .reference-categories-empty-text {
+    max-width: 42ch;
+}
+
+@media (min-width: 640px) {
+    .references-list-frame .reference-categories-empty-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1.5rem;
+        text-align: left;
+        padding: 2rem 2.25rem;
+    }
+
+    .references-list-frame .reference-categories-empty-text {
+        max-width: none;
+    }
+}
+
 @media (max-width: 768px) {
     .collections-grid {
         grid-template-columns: 1fr;
@@ -2492,4 +2636,98 @@
     .collections-grid {
         padding: 0.375rem;
     }
+}
+
+/* Détail collection — description sur toute la largeur du panneau Présentation */
+.collection-detail-page .description-typo-band.concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.collection-detail-page .description-typo-band .description-typo-band-grid,
+.collection-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.collection-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+    padding: 0.5rem 0.65rem 0.6rem;
+    background: #fff;
+    border: none;
+    border-left: none;
+    box-shadow: none;
+}
+
+.collection-detail-page .description-typo-band .description-typo-prose .concept-info-label {
+    width: 100%;
+    margin-bottom: 0.35rem;
+}
+
+.collection-detail-page .description-typo-band .description-typo-prose .concept-info-value,
+.collection-detail-page .description-typo-band .description-typo-prose-body.concept-info-description,
+.collection-detail-page .description-typo-band .concept-info-description-wrapper,
+.collection-detail-page .description-typo-band .concept-info-description-content,
+.collection-detail-page .description-typo-band .concept-info-description-truncated,
+.collection-detail-page .description-typo-band .concept-info-description-full {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.collection-detail-page .description-typo-band .description-typo-prose-body.concept-info-description p,
+.collection-detail-page .description-typo-band .description-typo-prose-body.concept-info-description div {
+    max-width: 100%;
+}
+
+/* Détail référentiel — description sur toute la largeur du panneau Présentation */
+.reference-detail-page .description-typo-band.concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.reference-detail-page .description-typo-band .description-typo-band-grid,
+.reference-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.reference-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+    padding: 0.5rem 0.65rem 0.6rem;
+    background: #fff;
+    border: none;
+    border-left: none;
+    box-shadow: none;
+}
+
+.reference-detail-page .description-typo-band .description-typo-prose .concept-info-label {
+    width: 100%;
+    margin-bottom: 0.35rem;
+}
+
+.reference-detail-page .description-typo-band .description-typo-prose .concept-info-value,
+.reference-detail-page .description-typo-band .description-typo-prose-body.concept-info-description,
+.reference-detail-page .description-typo-band .concept-info-description-wrapper,
+.reference-detail-page .description-typo-band .concept-info-description-content,
+.reference-detail-page .description-typo-band .concept-info-description-truncated,
+.reference-detail-page .description-typo-band .concept-info-description-full {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.reference-detail-page .description-typo-band .description-typo-prose-body.concept-info-description p,
+.reference-detail-page .description-typo-band .description-typo-prose-body.concept-info-description div {
+    max-width: 100%;
 }

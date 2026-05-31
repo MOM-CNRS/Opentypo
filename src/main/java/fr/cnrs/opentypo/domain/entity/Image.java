@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,10 +35,10 @@ public class Image implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "url", nullable = false, length = 500)
+    @Column(name = "url", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String url;
 
-    @Column(name = "legende", length = 500)
+    @Column(name = "legende", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String legende;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = fr.cnrs.opentypo.domain.entity.Entity.class)

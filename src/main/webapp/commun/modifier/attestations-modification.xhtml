@@ -53,7 +53,7 @@
                 <p:chips value="#{entityUpdateBean.attestations}"
                          styleClass="users-chips"
                          placeholder="#{msg['modifier.placeholder.attestations']}"
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true"
                          addOnPaste="true"
                          separator=";">
@@ -72,7 +72,7 @@
                 <p:chips value="#{entityUpdateBean.sitesArcheologiques}"
                          styleClass="users-chips"
                          placeholder="#{msg['modifier.placeholder.archSites']}"
-                         maxlength="500"
+                         maxlength="1000"
                          addOnBlur="true"
                          addOnPaste="true"
                          separator=";">
@@ -95,7 +95,7 @@
                                      value="#{entityUpdateBean.corpusLieLabel}"
                                      styleClass="users-input"
                                      placeholder="#{msg['modifier.placeholder.corpusLabel']}"
-                                     maxlength="200"/>
+                                     maxlength="1000"/>
                     </div>
                     <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border corpus-lie-url-col"
                          style="flex:1 1 auto; min-width:0; box-shadow: inset 0 0 0 1px rgba(71, 98, 77, 0.06);">
@@ -104,7 +104,7 @@
                                      value="#{entityUpdateBean.corpusLieUrl}"
                                      styleClass="users-input"
                                      placeholder="#{msg['modifier.placeholder.url']}"
-                                     maxlength="500"/>
+                                     maxlength="1000"/>
                     </div>
                     <p:commandButton value="#{msg['modifier.action.add']}"
                                      icon="pi pi-plus"

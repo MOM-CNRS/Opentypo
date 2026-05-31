@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +42,7 @@ public class EntityMetadata implements Serializable {
     private fr.cnrs.opentypo.domain.entity.Entity entity;
 
     // Code de l'entité (identifiant unique)
-    @Column(name = "code", nullable = false, length = 100)
+    @Column(name = "code", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String code;
 
     // Commentaire datation
@@ -65,19 +66,19 @@ public class EntityMetadata implements Serializable {
     private String alignementExterne;
 
     // Référentiel
-    @Column(name = "reference", length = 255)
+    @Column(name = "reference", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String reference;
 
     // Typologie scientifique
-    @Column(name = "typologie_scientifique", length = 255)
+    @Column(name = "typologie_scientifique", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String typologieScientifique;
 
     // Identifiant pérenne
-    @Column(name = "identifiant_perenne", length = 255)
+    @Column(name = "identifiant_perenne", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String identifiantPerenne;
 
     // Ancienne version
-    @Column(name = "ancienne_version", length = 255)
+    @Column(name = "ancienne_version", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String ancienneVersion;
 
     // Datation : Terminus Post Quem (année de début)
@@ -125,6 +126,6 @@ public class EntityMetadata implements Serializable {
     private String commentaire;
 
     // Alignement interne
-    @Column(name = "interne", length = 255)
+    @Column(name = "interne", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String interne;
 }

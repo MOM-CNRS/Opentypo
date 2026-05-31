@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -56,7 +57,7 @@ public class UserPermission implements Serializable {
     /**
      * Rôle de la permission : Gestionnaire de collection, Gestionnaire de référentiel, Rédacteur, Valideur, Relecteur
      */
-    @Column(name = "role", length = 100)
+    @Column(name = "role", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String role;
 
     /**

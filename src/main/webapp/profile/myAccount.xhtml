@@ -3,7 +3,8 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core">
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <ui:define name="mainContent">
         <h:outputStylesheet library="css" name="profile/myAccount.css"/>
@@ -40,7 +41,7 @@
                                        requiredMessage="L'email est obligatoire"
                                        styleClass="users-input"
                                        placeholder="votre@email.com"
-                                       maxlength="255"/>
+                                       maxlength="1000"/>
                             <p:message for="email" display="icon"/>
                         </div>
 
@@ -52,7 +53,7 @@
                                        requiredMessage="Le prénom est obligatoire"
                                        styleClass="users-input"
                                        placeholder="Prénom"
-                                       maxlength="100"/>
+                                       maxlength="1000"/>
                             <p:message for="prenom" display="icon"/>
                         </div>
 
@@ -64,7 +65,7 @@
                                        requiredMessage="Le nom est obligatoire"
                                        styleClass="users-input"
                                        placeholder="Nom"
-                                       maxlength="100"/>
+                                       maxlength="1000"/>
                             <p:message for="nom" display="icon"/>
                         </div>
 
@@ -75,9 +76,10 @@
                                        feedback="false"
                                        styleClass="users-input"
                                        placeholder="Nouveau mot de passe"
-                                       maxlength="255"/>
+                                       maxlength="1000"
+                                       pt:data-tooltip="Minimum 6 caractères"
+                                       pt:data-tooltip-position="right"/>
                             <p:message for="nouveauMotDePasse" display="icon"/>
-                            <p:tooltip for="nouveauMotDePasse" value="Minimum 6 caractères" position="right"/>
                         </div>
                     </div>
                 </p:panel>

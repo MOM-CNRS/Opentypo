@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -39,7 +40,7 @@ public class InternalAlignment implements Serializable {
     @JoinColumn(name = "target_type_id", nullable = false)
     private Entity targetType;
 
-    @Column(name = "match_type", nullable = false, length = 20)
+    @Column(name = "match_type", nullable = false, length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String matchType;
 
     @Embeddable

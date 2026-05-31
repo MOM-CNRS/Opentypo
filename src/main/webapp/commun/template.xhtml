@@ -35,6 +35,7 @@
     
     <!-- Styles pour les animations de chargement -->
     <h:outputStylesheet library="css" name="loading.css"/>
+    <h:outputStylesheet library="css" name="tooltips.css"/>
 
     <!-- Styles des dialogs login / logout -->
     <h:outputStylesheet library="css" name="pages/user/login.css"/>
@@ -64,6 +65,7 @@
 <h:body styleClass="app-body" data-context-path="#{request.contextPath}">
     <!-- Scripts globaux (ordre de chargement) -->
     <h:outputScript library="js" name="constants.js"/>
+    <h:outputScript library="js" name="tooltipUtils.js"/>
     <!-- SidebarUtils DOIT être chargé avant theso_responsiveMenu_optimized.js -->
     <h:outputScript library="js" name="sidebarUtils.js"/>
     <!-- Charger le script JavaScript du menu après SidebarUtils -->

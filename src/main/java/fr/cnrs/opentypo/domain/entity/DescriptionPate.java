@@ -1,5 +1,6 @@
 package fr.cnrs.opentypo.domain.entity;
 
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class DescriptionPate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description", length = EntityConstants.VARCHAR_COLUMN_MAX_LENGTH)
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)

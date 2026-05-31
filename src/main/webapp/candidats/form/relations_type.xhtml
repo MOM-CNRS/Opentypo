@@ -17,7 +17,7 @@
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
                              placeholder="Saisissez la description de la pâte..."
-                             maxlength="255"
+                             maxlength="1000"
                              rendered="#{candidatBean.canEditCurrentBrouillon()}">
                     <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
                 </p:inputText>
@@ -38,7 +38,7 @@
                 <p:inputText value="#{candidatBean.descriptionPate}"
                              styleClass="users-input"
                              placeholder="Saisissez la description de la pâte..."
-                             maxlength="255"
+                             maxlength="1000"
                              rendered="#{candidatBean.canEditCurrentBrouillon()}">
                     <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
                 </p:inputText>

@@ -189,19 +189,9 @@
     }
 }
 
-/* ---- 14. Résultats recherche (searchResult.xhtml) - homogène ---- */
+/* ---- 14. Résultats recherche (searchResult.xhtml) - liste compacte ---- */
 .search-results-panel {
-    padding: 1rem !important;
-}
-
-.search-results-header {
-    padding: 0.875rem !important;
-    border-radius: 8px !important;
-}
-
-.search-result-item {
-    border-radius: 8px !important;
-    transition: background-color 0.2s ease !important;
+    padding: 0 !important;
 }
 
 /* ---- 15. Breadcrumb (breadCrumb.xhtml) - responsive ---- */

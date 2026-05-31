@@ -3,91 +3,85 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:fn="http://java.sun.com/jsp/jstl/functions"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
-    <!-- Panneau résultats : en-tête + liste ou message vide ou placeholder -->
     <h:panelGroup id="searchResultsPanel" styleClass="search-results-panel">
         <ui:fragment rendered="#{searchBean.hasSearchResults()}">
-            <!-- En-tête (titre + nombre de résultats) -->
             <div class="search-results-header">
-                <div class="search-results-header-content">
-                    <i class="pi pi-search search-results-header-icon" />
-                    <div class="search-results-header-text">
-                        <h3 class="search-results-title">#{msg['search.results.title']}</h3>
-                        <p class="search-results-count">
-                            #{searchBean.searchResultsCount} #{searchBean.searchResultsCount == 1 ? msg['search.results.singularSuffix'] : msg['search.results.pluralSuffix']}
-                        </p>
-                    </div>
-                </div>
+                <span class="search-results-header-badge">#{searchBean.searchResultsCount}</span>
+                <h3 class="search-results-title">#{msg['search.results.title']}</h3>
+                <p class="search-results-subtitle">
+                    #{searchBean.searchResultsCount == 1 ? msg['search.results.singularSuffix'] : msg['search.results.pluralSuffix']}
+                </p>
             </div>
-            <!-- Liste des résultats (liens vers détail entité) -->
-            <div class="search-results-content">
-                <ui:repeat value="#{searchBean.searchResults}" var="result">
-                    <div class="search-result-item">
-                        <div class="search-result-item-icon-wrapper">
-                            <i class="#{searchBean.getEntityIcon(result)} search-result-item-icon" />
-                        </div>
-                        <div class="search-result-item-content">
-                            <div class="search-result-item-header">
-                                <p:commandLink action="#{searchBean.showEntityDetail(result)}"
-                                             process="@this"
-                                             update="@all"
-                                             pt:data-entity-code="#{result.code}"
-                                             onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                             styleClass="search-result-item-title-link"
-                                             onstart="showLoading('#{msg['common.loading']}', 'spinner');"
-                                             oncomplete="setTimeout(function(){hideLoading(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                             onerror="forceHideLoading();">
-                                    <h:outputText value="#{result.nom}" />
-                                </p:commandLink>
-                            </div>
-                            <div class="search-result-item-meta">
-                                <span class="search-result-item-code">
-                                    <i class="pi pi-code" />
-                                    #{result.code}
-                                </span>
-                            </div>
-                            <span class="search-result-item-type-badge">
+
+            <div class="search-results-table" role="table" aria-label="#{msg['search.results.title']}">
+                <div class="search-results-table-head" role="row">
+                    <span class="search-results-col search-results-col--type" role="columnheader">
+                        #{msg['search.results.col.type']}
+                    </span>
+                    <span class="search-results-col search-results-col--code" role="columnheader">
+                        #{msg['search.results.col.code']}
+                    </span>
+                    <span class="search-results-col search-results-col--label" role="columnheader">
+                        #{msg['search.results.col.label']}
+                    </span>
+                </div>
+                <div class="search-results-content" role="rowgroup">
+                    <ui:repeat value="#{searchBean.searchResults}" var="result">
+                        <div class="search-results-table-row" role="row">
+                            <div class="search-results-col search-results-col--type" role="cell"
+                                 data-label="#{msg['search.results.col.type']}">
+                                <i class="#{searchBean.getEntityIcon(result)} search-results-type-icon" aria-hidden="true"/>
+                                <span class="search-results-type-text" title="#{searchBean.getEntityTypeLabel(result)}">
                                     #{searchBean.getEntityTypeLabel(result)}
                                 </span>
+                            </div>
+                            <div class="search-results-col search-results-col--code" role="cell"
+                                 data-label="#{msg['search.results.col.code']}">
+                                <code class="search-results-code">#{result.code}</code>
+                            </div>
+                            <div class="search-results-col search-results-col--label" role="cell">
+                                <p:commandLink action="#{searchBean.showEntityDetail(result)}"
+                                               process="@this"
+                                               update="@all"
+                                               pt:data-entity-code="#{result.code}"
+                                               onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                               styleClass="search-results-label-link"
+                                               title="#{result.nom}"
+                                               onstart="showLoading('#{msg['common.loading']}', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                               onerror="forceHideLoading();">
+                                    <h:outputText value="#{result.nom}"/>
+                                </p:commandLink>
+                            </div>
                         </div>
-                    </div>
-                </ui:repeat>
-            </div>
-        </ui:fragment>
-
-        <!-- Aucun résultat (recherche effectuée) -->
-        <ui:fragment rendered="#{not searchBean.hasSearchResults() and searchBean.searchTerm != null and not empty searchBean.searchTerm}">
-            <div class="search-results-empty">
-                <div class="search-results-empty-content">
-                    <div class="search-results-empty-icon-wrapper">
-                        <i class="pi pi-search search-results-empty-icon" />
-                    </div>
-                    <h3 class="search-results-empty-title">#{msg['search.empty.title']}</h3>
-                    <p class="search-results-empty-text">
-                        <h:outputFormat value="#{msg['search.empty.body']}" escape="false">
-                            <f:param value="#{searchBean.searchTerm}" />
-                        </h:outputFormat>
-                    </p>
-                    <p class="search-results-empty-hint">
-                        #{msg['search.empty.hint']}
-                    </p>
+                    </ui:repeat>
                 </div>
             </div>
         </ui:fragment>
 
-        <!-- Placeholder (aucune recherche encore) -->
+        <ui:fragment rendered="#{not searchBean.hasSearchResults() and searchBean.searchTerm != null and not empty searchBean.searchTerm}">
+            <div class="search-results-empty">
+                <i class="pi pi-search search-results-empty-icon" aria-hidden="true"/>
+                <div class="search-results-empty-body">
+                    <p class="search-results-empty-title">#{msg['search.empty.title']}</p>
+                    <p class="search-results-empty-text">
+                        <h:outputFormat value="#{msg['search.empty.body']}" escape="false">
+                            <f:param value="#{searchBean.searchTerm}"/>
+                        </h:outputFormat>
+                    </p>
+                    <p class="search-results-empty-hint">#{msg['search.empty.hint']}</p>
+                </div>
+            </div>
+        </ui:fragment>
+
         <ui:fragment rendered="#{searchBean.searchTerm == null or empty searchBean.searchTerm}">
             <div class="search-results-placeholder">
-                <div class="search-results-placeholder-content">
-                    <div class="search-results-placeholder-icon-wrapper">
-                        <i class="pi pi-search search-results-placeholder-icon" />
-                    </div>
-                    <h3 class="search-results-placeholder-title">#{msg['search.placeholder.title']}</h3>
-                    <p class="search-results-placeholder-text">
-                        #{msg['search.placeholder.body']}
-                    </p>
+                <i class="pi pi-search search-results-placeholder-icon" aria-hidden="true"/>
+                <div class="search-results-placeholder-body">
+                    <p class="search-results-placeholder-title">#{msg['search.placeholder.title']}</p>
+                    <p class="search-results-placeholder-text">#{msg['search.placeholder.body']}</p>
                 </div>
             </div>
         </ui:fragment>

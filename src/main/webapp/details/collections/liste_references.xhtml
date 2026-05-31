@@ -169,24 +169,35 @@
                 </ui:repeat>
 
                 <!-- Message si aucune référence -->
-                <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsReferences}">
-                    <div class="reference-categories-empty-icon">
-                        <i class="pi pi-inbox" aria-hidden="true"/>
-                    </div>
-                    <div class="reference-categories-empty-content">
-                        <h4 class="reference-categories-empty-title">#{msg['list.references.empty.title']}</h4>
-                        <p class="reference-categories-empty-text">#{msg['list.references.empty.body']}</p>
+                <h:panelGroup layout="block"
+                              styleClass="reference-categories-empty reference-categories-empty--references"
+                              rendered="#{empty applicationBean.childsReferences}">
+                    <div class="reference-categories-empty-card">
+                        <div class="reference-categories-empty-visual" aria-hidden="true">
+                            <span class="reference-categories-empty-icon-ring">
+                                <i class="pi pi-database"/>
+                            </span>
+                        </div>
+                        <div class="reference-categories-empty-content">
+                            <h4 class="reference-categories-empty-title">#{msg['list.references.empty.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.references.empty.body']}</p>
+                        </div>
                     </div>
                 </h:panelGroup>
                 <!-- Message si recherche sans résultat -->
-                <h:panelGroup class="reference-categories-empty reference-categories-no-results"
-                            rendered="#{not empty applicationBean.childsReferences and empty applicationBean.filteredReferences}">
-                    <div class="reference-categories-empty-icon">
-                        <i class="pi pi-search" aria-hidden="true"/>
-                    </div>
-                    <div class="reference-categories-empty-content">
-                        <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
-                        <p class="reference-categories-empty-text">#{msg['list.references.noResults']}</p>
+                <h:panelGroup layout="block"
+                              styleClass="reference-categories-empty reference-categories-empty--references reference-categories-no-results"
+                              rendered="#{not empty applicationBean.childsReferences and empty applicationBean.filteredReferences}">
+                    <div class="reference-categories-empty-card">
+                        <div class="reference-categories-empty-visual" aria-hidden="true">
+                            <span class="reference-categories-empty-icon-ring">
+                                <i class="pi pi-search"/>
+                            </span>
+                        </div>
+                        <div class="reference-categories-empty-content">
+                            <h4 class="reference-categories-empty-title">#{msg['list.empty.noResults.title']}</h4>
+                            <p class="reference-categories-empty-text">#{msg['list.references.noResults']}</p>
+                        </div>
                     </div>
                 </h:panelGroup>
 

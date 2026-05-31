@@ -17,9 +17,12 @@ public final class EntityConstants {
     public static final String ENTITY_TYPE_SERIES = "SERIE";
     public static final String ENTITY_TYPE_TYPE = "TYPE";
 
-    // Longueurs maximales
-    public static final int MAX_CODE_LENGTH = 100;
-    public static final int MAX_LABEL_LENGTH = 255;
+    /** Longueur max des colonnes VARCHAR en base (voir migration V61). */
+    public static final int VARCHAR_COLUMN_MAX_LENGTH = 1000;
+
+    // Longueurs maximales (alignées sur VARCHAR_COLUMN_MAX_LENGTH)
+    public static final int MAX_CODE_LENGTH = VARCHAR_COLUMN_MAX_LENGTH;
+    public static final int MAX_LABEL_LENGTH = VARCHAR_COLUMN_MAX_LENGTH;
     public static final int MAX_DESCRIPTION_LENGTH = 1000;
 
     // Messages d'erreur de validation

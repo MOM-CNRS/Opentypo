@@ -72,11 +72,11 @@
                             <div class="authors-editor-grid">
                                 <div class="authors-field">
                                     <p:outputLabel value="#{msg['scientificAuthors.field.lastName']}" for="nomInput"/>
-                                    <p:inputText id="nomInput" value="#{scientificAuthorBean.editingAuthor.nom}" maxlength="120" required="true"/>
+                                    <p:inputText id="nomInput" value="#{scientificAuthorBean.editingAuthor.nom}" maxlength="1000" required="true"/>
                                 </div>
                                 <div class="authors-field">
                                     <p:outputLabel value="#{msg['scientificAuthors.field.firstName']}" for="prenomInput"/>
-                                    <p:inputText id="prenomInput" value="#{scientificAuthorBean.editingAuthor.prenom}" maxlength="120" required="true"/>
+                                    <p:inputText id="prenomInput" value="#{scientificAuthorBean.editingAuthor.prenom}" maxlength="1000" required="true"/>
                                 </div>
                                 <div class="authors-field authors-field-switch">
                                     <p:outputLabel value="#{msg['scientificAuthors.field.visible']}" for="activeInput"/>
