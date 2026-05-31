@@ -30,34 +30,35 @@
                                 </div>
                                 <!-- Actions (masquées en mode édition) -->
                                 <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                                   process="@this"
-                                                   update="@none"
-                                                   rendered="#{loginBean.currentUser != null}"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['common.history.title']}"
-                                                   immediate="true">
-                                        <i class="pi pi-history" />
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                                   process="@this"
-                                                   update=":centerContent :searchSectionWrapper"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['common.edit']}"
-                                                   rendered="#{collectionBean.canEditCollection(applicationBean)}">
-                                        <i class="pi pi-file-edit" />
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
-                                                   process="@this"
-                                                   update=":confirmDeleteDialogContent"
-                                                   oncomplete="PF('confirmDeleteDialog').show();"
-                                                   styleClass="concept-action-button type-detail-action-delete"
-                                                   rendered="#{collectionBean.canDeleteCollection(applicationBean)}"
-                                                   title="#{msg['collection.action.delete.title']}">
-                                        <i class="pi pi-trash" />
-                                    </p:commandLink>
+                                    <p:menuButton icon="pi pi-ellipsis-v"
+                                                  styleClass="concept-action-menu-trigger"
+                                                  menuStyleClass="type-actions-menu-overlay"
+                                                  title="#{msg['common.actions']}"
+                                                  appendTo="@(body)"
+                                                  rendered="#{loginBean.currentUser != null or collectionBean.canEditCollection(applicationBean) or collectionBean.canDeleteCollection(applicationBean)}">
+                                        <p:menuitem value="#{msg['common.history.tooltip']}"
+                                                    icon="pi pi-history"
+                                                    action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update="@none"
+                                                    immediate="true"
+                                                    rendered="#{loginBean.currentUser != null}"/>
+                                        <p:menuitem value="#{msg['common.edit']}"
+                                                    icon="pi pi-file-edit"
+                                                    action="#{entityUpdateBean.startEditing()}"
+                                                    process="@this"
+                                                    update=":centerContent :searchSectionWrapper"
+                                                    rendered="#{collectionBean.canEditCollection(applicationBean)}"/>
+                                        <p:separator rendered="#{collectionBean.canDeleteCollection(applicationBean) and (loginBean.currentUser != null or collectionBean.canEditCollection(applicationBean))}"/>
+                                        <p:menuitem value="#{msg['common.delete']}"
+                                                    icon="pi pi-trash"
+                                                    styleClass="type-action-menu-delete"
+                                                    action="#{confirmDeleteBean.prepareDelete('COLLECTION')}"
+                                                    process="@this"
+                                                    update=":confirmDeleteDialogContent"
+                                                    oncomplete="PF('confirmDeleteDialog').show();"
+                                                    rendered="#{collectionBean.canDeleteCollection(applicationBean)}"/>
+                                    </p:menuButton>
 
                                     <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                         <div class="collection-visibility-card">

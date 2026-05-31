@@ -10,6 +10,27 @@
     --index-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Zone principale index : barre recherche + rangée panneaux à hauteur bornée */
+.app-main {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.app-main > .app-search,
+.app-main > [id$="searchSectionWrapper"] {
+    flex-shrink: 0 !important;
+}
+
+.app-main > .app-content,
+.app-main > [id$="centerContent"] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: 100% !important;
+}
+
 /* ---- 1. Barre de recherche - pleine largeur ---- */
 .app-search {
     flex-shrink: 0 !important;
@@ -123,19 +144,42 @@
     }
 }
 
-/* ---- 8. Panneau résultats recherche - fluide ---- */
+/* ---- 8. Panneau résultats recherche — hauteur alignée sur le panneau central ---- */
 .search-result {
     flex: 0 0 280px !important;
     min-width: 0 !important;
     max-width: 360px !important;
+    align-self: stretch !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    display: none !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
     border-radius: var(--index-radius) !important;
-    transition: all var(--index-transition) !important;
+    transition: opacity var(--index-transition), transform var(--index-transition) !important;
+    box-sizing: border-box !important;
+}
+
+.search-result.visible {
+    display: flex !important;
+}
+
+.search-result > .search-results-panel,
+.search-result > [id$="searchResultsPanel"] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
 }
 
 @media (max-width: 768px) {
     .search-result {
-        flex: 0 0 100% !important;
+        flex: 1 1 100% !important;
         max-width: 100% !important;
+        max-height: min(42vh, 360px) !important;
     }
 }
 
@@ -192,6 +236,9 @@
 /* ---- 14. Résultats recherche (searchResult.xhtml) - liste compacte ---- */
 .search-results-panel {
     padding: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
 }
 
 /* ---- 15. Breadcrumb (breadCrumb.xhtml) - responsive ---- */

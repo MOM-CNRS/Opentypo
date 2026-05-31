@@ -3521,24 +3521,21 @@ body .ui-tree {
     overflow-x: hidden;
     overflow-y: auto;
 }
-/* resultat de la recherche */
+/* resultat de la recherche — hauteur gérée par index-layout.css + search-results.css */
 .search-result {
     flex: 0 0 15%;
     background-color: var(--color-surface-secondary);
-    border-left: 1px solid #ccc; /* séparation gauche */
+    border-left: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: none; /* Caché par défaut */
+    overflow: hidden;
     max-width: 15%;
     opacity: 0;
     transform: translateX(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease, display 0.4s ease;
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .search-result.visible {
-    display: block;
     opacity: 1;
     transform: translateX(0);
     animation: slideInRight 0.4s ease-out;

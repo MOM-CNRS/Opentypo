@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
-    <h:panelGroup id="searchResultsPanel" styleClass="search-results-panel">
+    <h:panelGroup id="searchResultsPanel" layout="block" styleClass="search-results-panel">
         <ui:fragment rendered="#{searchBean.hasSearchResults()}">
             <div class="search-results-header">
                 <span class="search-results-header-badge">#{searchBean.searchResultsCount}</span>
@@ -15,47 +15,30 @@
                 </p>
             </div>
 
-            <div class="search-results-table" role="table" aria-label="#{msg['search.results.title']}">
-                <div class="search-results-table-head" role="row">
-                    <span class="search-results-col search-results-col--type" role="columnheader">
-                        #{msg['search.results.col.type']}
-                    </span>
-                    <span class="search-results-col search-results-col--code" role="columnheader">
-                        #{msg['search.results.col.code']}
-                    </span>
-                    <span class="search-results-col search-results-col--label" role="columnheader">
-                        #{msg['search.results.col.label']}
-                    </span>
-                </div>
-                <div class="search-results-content" role="rowgroup">
+            <div class="search-results-list" role="list" aria-label="#{msg['search.results.title']}">
+                <div class="search-results-content">
                     <ui:repeat value="#{searchBean.searchResults}" var="result">
-                        <div class="search-results-table-row" role="row">
-                            <div class="search-results-col search-results-col--type" role="cell"
-                                 data-label="#{msg['search.results.col.type']}">
+                        <p:commandLink action="#{searchBean.showEntityDetail(result)}"
+                                       process="@this"
+                                       update="@all"
+                                       pt:data-entity-code="#{result.code}"
+                                       onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                       styleClass="search-results-item-link"
+                                       title="#{result.nom}"
+                                       role="listitem"
+                                       onstart="showLoading('#{msg['common.loading']}', 'spinner');"
+                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                       onerror="forceHideLoading();">
+                            <span class="search-results-item-meta">
                                 <i class="#{searchBean.getEntityIcon(result)} search-results-type-icon" aria-hidden="true"/>
-                                <span class="search-results-type-text" title="#{searchBean.getEntityTypeLabel(result)}">
-                                    #{searchBean.getEntityTypeLabel(result)}
-                                </span>
-                            </div>
-                            <div class="search-results-col search-results-col--code" role="cell"
-                                 data-label="#{msg['search.results.col.code']}">
+                                <span class="search-results-type-text">#{searchBean.getEntityTypeLabel(result)}</span>
+                                <span class="search-results-meta-sep" aria-hidden="true">·</span>
                                 <code class="search-results-code">#{result.code}</code>
-                            </div>
-                            <div class="search-results-col search-results-col--label" role="cell">
-                                <p:commandLink action="#{searchBean.showEntityDetail(result)}"
-                                               process="@this"
-                                               update="@all"
-                                               pt:data-entity-code="#{result.code}"
-                                               onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                               styleClass="search-results-label-link"
-                                               title="#{result.nom}"
-                                               onstart="showLoading('#{msg['common.loading']}', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                               onerror="forceHideLoading();">
-                                    <h:outputText value="#{result.nom}"/>
-                                </p:commandLink>
-                            </div>
-                        </div>
+                            </span>
+                            <span class="search-results-item-label">
+                                <h:outputText value="#{result.nom}"/>
+                            </span>
+                        </p:commandLink>
                     </ui:repeat>
                 </div>
             </div>

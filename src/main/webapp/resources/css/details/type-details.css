@@ -1443,32 +1443,37 @@
     }
 }
 
-/* Items du menu */
-.type-actions-menu-overlay .ui-menuitem-link {
+/* Items du menu (spécificité > styles globaux header .ui-menu-dynamic) */
+body .ui-menu.type-actions-menu-overlay .ui-menuitem-link {
     padding: 0.6rem 1rem !important;
     transition: background 0.15s ease, color 0.15s ease !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--color-text-primary, #333) !important;
 }
 
-.type-actions-menu-overlay .ui-menuitem-link:hover {
+body .ui-menu.type-actions-menu-overlay .ui-menuitem-link:hover {
     background: rgba(71, 98, 77, 0.08) !important;
+    color: var(--color-text-primary, #333) !important;
 }
 
-.type-actions-menu-overlay .ui-menuitem-icon {
+body .ui-menu.type-actions-menu-overlay .ui-menuitem-icon {
     color: var(--type-overlay-main) !important;
 }
 
 /* Item Supprimer - style d'avertissement */
-.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link,
-.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-icon {
+body .ui-menu.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link,
+body .ui-menu.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-icon {
     color: #c53030 !important;
 }
 
-.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link:hover {
+body .ui-menu.type-actions-menu-overlay .type-action-menu-delete .ui-menuitem-link:hover {
     background: rgba(197, 48, 48, 0.1) !important;
+    color: #c53030 !important;
 }
 
 /* Séparateur */
-.type-actions-menu-overlay .ui-menu-separator {
+body .ui-menu.type-actions-menu-overlay .ui-menu-separator {
     border-color: var(--type-overlay-border) !important;
     margin: 0.25rem 0 !important;
 }
