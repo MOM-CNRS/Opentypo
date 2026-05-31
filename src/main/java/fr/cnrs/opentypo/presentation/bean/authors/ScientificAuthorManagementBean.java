@@ -115,6 +115,14 @@ public class ScientificAuthorManagementBean implements Serializable {
             return;
         }
 
+        if (isDuplicateNomPrenom(nom, prenom)) {
+            notificationBean.showErrorWithUpdate(
+                    JsfMessages.get("common.growl.validation"),
+                    JsfMessages.format("authors.msg.validation.duplicate", prenom, nom),
+                    ":growl, :authorsForm");
+            return;
+        }
+
         AuteurScientifique entityToSave;
         if (editMode && editingAuthor.getId() != null) {
             Optional<AuteurScientifique> existingOpt = auteurScientifiqueRepository.findById(editingAuthor.getId());
@@ -249,5 +257,20 @@ public class ScientificAuthorManagementBean implements Serializable {
 
     private String normalize(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    /**
+     * Vérifie l'unicité nom + prénom (insensible à la casse), en excluant l'auteur en cours d'édition.
+     */
+    private boolean isDuplicateNomPrenom(String nom, String prenom) {
+        Optional<AuteurScientifique> existing = auteurScientifiqueRepository
+                .findFirstByNomIgnoreCaseAndPrenomIgnoreCaseOrderByIdAsc(nom, prenom);
+        if (existing.isEmpty()) {
+            return false;
+        }
+        if (editMode && editingAuthor != null && editingAuthor.getId() != null) {
+            return !existing.get().getId().equals(editingAuthor.getId());
+        }
+        return true;
     }
 }

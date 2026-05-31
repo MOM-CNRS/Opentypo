@@ -98,7 +98,7 @@
                              onclick="SearchPage.toggleRightPanel(); return false;"/>
         </div>
 
-        <!-- 2. Options avancées (filtres type, statut, état, type de recherche) -->
+        <!-- 2. Options avancées (filtres type, statut, type de recherche) -->
         <div id="advanced-search-options" class="advanced-search-section-compact">
             <div class="advanced-filters-compact">
                 <!-- Filtre Type -->
@@ -111,24 +111,21 @@
                     </p:selectOneMenu>
                 </div>
 
-                <!-- Filtre Statut -->
+                <!-- Filtre Statut : hors ligne = Publié uniquement ; connecté = Tous / Publié / Privée / Brouillon -->
                 <div class="filter-group-compact">
                     <p:outputLabel for="statutFilter" value="#{msg['search.filter.status']}" styleClass="filter-label-compact"/>
-                    <p:selectOneMenu id="statutFilter" 
-                                     value="#{searchBean.statutFilter}" 
-                                     styleClass="filter-select-compact">
-                        <f:selectItems value="#{searchBean.statutFilterItems}"/>
-                    </p:selectOneMenu>
-                </div>
-
-                <!-- Filtre État -->
-                <div class="filter-group-compact">
-                    <p:outputLabel for="etatFilter" value="#{msg['search.filter.state']}" styleClass="filter-label-compact"/>
-                    <p:selectOneMenu id="etatFilter" 
-                                     value="#{searchBean.etatFilter}" 
-                                     styleClass="filter-select-compact">
-                        <f:selectItems value="#{searchBean.etatFilterItems}"/>
-                    </p:selectOneMenu>
+                    <h:panelGroup rendered="#{searchBean.statutFilterChoiceAvailable}">
+                        <p:selectOneMenu id="statutFilter"
+                                         value="#{searchBean.statutFilter}"
+                                         styleClass="filter-select-compact">
+                            <f:selectItems value="#{searchBean.statutFilterItems}"/>
+                        </p:selectOneMenu>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{not searchBean.statutFilterChoiceAvailable}"
+                                  styleClass="filter-select-compact filter-select-compact--readonly"
+                                  layout="block">
+                        <span class="search-statut-offline-value">#{msg['search.filter.published']}</span>
+                    </h:panelGroup>
                 </div>
 
                 <!-- Filtre Type de recherche -->

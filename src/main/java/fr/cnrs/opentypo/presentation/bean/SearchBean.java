@@ -3,11 +3,9 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
-import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -43,10 +41,10 @@ public class SearchBean implements Serializable {
     private EntityRelationRepository entityRelationRepository;
 
     @Inject
-    private EntityTypeRepository entityTypeRepository;
+    private Provider<ApplicationBean> applicationBeanProvider;
 
     @Inject
-    private Provider<ApplicationBean> applicationBeanProvider;
+    private LoginBean loginBean;
 
     @Inject
     private Provider<CollectionBean> collectionBeanProvider;
@@ -60,9 +58,8 @@ public class SearchBean implements Serializable {
     private String searchTerm; // Terme de recherche
     
     // Nouveaux filtres de recherche
-    private String typeFilter = ""; // Type d'entité (code de EntityType ou "" pour tous)
-    private String statutFilter = ""; // Statut : "", "public", "prive"
-    private String etatFilter = ""; // État : "", "publie", "proposition"
+    private String typeFilter = ""; // Type d'entité (code EntityConstants ou "" = tous)
+    private String statutFilter = ""; // Statut : "", "public" (publié), "prive", "brouillon"
     private String searchTypeFilter = "CONTAINS"; // Type de recherche : "STARTS_WITH", "CONTAINS", "EXACT"
     
     private List<Entity> references;
@@ -73,6 +70,12 @@ public class SearchBean implements Serializable {
     public void init() {
         loadReferences();
         loadCollections();
+        syncStatutFilterForAuthentication();
+    }
+
+    /** Indique si l'utilisateur peut choisir parmi tous les statuts dans les filtres de recherche. */
+    public boolean isStatutFilterChoiceAvailable() {
+        return loginBean != null && loginBean.isAuthenticated();
     }
     
     /**
@@ -345,6 +348,8 @@ public class SearchBean implements Serializable {
      */
     public void applySearch() {
         try {
+            syncStatutFilterForAuthentication();
+
             // Initialiser la liste des résultats
             searchResults = new ArrayList<>();
             
@@ -362,8 +367,8 @@ public class SearchBean implements Serializable {
                 return;
             }
             
-            log.debug("Début de la recherche avec le terme: '{}', type: '{}', statut: '{}', état: '{}', typeFilter: '{}'", 
-                     trimmedSearchTerm, searchTypeFilter, statutFilter, etatFilter, typeFilter);
+            log.debug("Début de la recherche avec le terme: '{}', type: '{}', statut: '{}', typeFilter: '{}'",
+                     trimmedSearchTerm, searchTypeFilter, statutFilter, typeFilter);
             
             // Effectuer la recherche selon le type de recherche (code + labels selon langue)
             List<Entity> allMatchingEntities;
@@ -397,35 +402,8 @@ public class SearchBean implements Serializable {
                         }
                         return e.getEntityType() != null && typeFilter.equals(e.getEntityType().getCode());
                     })
-                    // Filtre par statut (public/privé)
-                    .filter(e -> {
-                        if (statutFilter == null || statutFilter.isEmpty()) {
-                            return true; // Tous
-                        }
-                        if ("public".equals(statutFilter)) {
-                            return EntityStatusEnum.PUBLIQUE.name().equals(e.getStatut());
-                        }
-                        if ("prive".equals(statutFilter)) {
-                            return EntityStatusEnum.PRIVEE.name().equals(e.getStatut());
-                        }
-                        return true;
-                    })
-                    // Filtre par état (publié/proposition)
-                    .filter(e -> {
-                        if (etatFilter == null || etatFilter.isEmpty()) {
-                            return true; // Tous
-                        }
-                        if ("publie".equals(etatFilter)) {
-                            // Publié = PUBLIQUE
-                            String statut = e.getStatut();
-                            return EntityStatusEnum.PUBLIQUE.name().equals(statut);
-                        }
-                        if ("proposition".equals(etatFilter)) {
-                            // Proposition = PROPOSITION
-                            return "PROPOSITION".equals(e.getStatut());
-                        }
-                        return true;
-                    })
+                    // Filtre par statut (hors ligne : publié uniquement ; connecté : selon le filtre)
+                    .filter(e -> matchesStatutFilter(e, getEffectiveStatutFilter()))
                     // Filtre par collection si sélectionnée
                     .filter(e -> {
                         if (collectionSelected == null || collectionSelected.isEmpty()) {
@@ -639,32 +617,17 @@ public class SearchBean implements Serializable {
     }
 
     /**
-     * Retourne la liste des types d'entités pour le filtre
+     * Liste statique des types d'entités pour le filtre (ordre métier fixe).
      */
     public List<SelectItem> getEntityTypeFilterItems() {
         List<SelectItem> items = new ArrayList<>();
-        
-        // Option "Tous les types"
         items.add(new SelectItem("", JsfMessages.get("search.filter.allEntityTypes")));
-        
-        try {
-            // Récupérer tous les types d'entités depuis la base de données
-            List<EntityType> entityTypes = entityTypeRepository.findAll();
-            
-            // Trier par code
-            entityTypes.sort(Comparator.comparing(EntityType::getCode));
-            
-            // Ajouter chaque type avec son label
-            for (EntityType entityType : entityTypes) {
-                if (entityType != null && entityType.getCode() != null) {
-                    String label = getEntityTypeDisplayLabel(entityType.getCode());
-                    items.add(new SelectItem(entityType.getCode(), label));
-                }
-            }
-        } catch (Exception e) {
-            log.error("Erreur lors du chargement des types d'entités", e);
-        }
-        
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_COLLECTION, JsfMessages.get("search.filter.typology")));
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_REFERENCE, JsfMessages.get("search.entity.reference")));
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_CATEGORY, JsfMessages.get("search.entity.category")));
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_GROUP, JsfMessages.get("search.entity.group")));
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_SERIES, JsfMessages.get("search.entity.series")));
+        items.add(new SelectItem(EntityConstants.ENTITY_TYPE_TYPE, JsfMessages.get("search.entity.type")));
         return items;
     }
 
@@ -698,22 +661,47 @@ public class SearchBean implements Serializable {
      * Retourne la liste des statuts pour le filtre
      */
     public List<SelectItem> getStatutFilterItems() {
+        syncStatutFilterForAuthentication();
         List<SelectItem> items = new ArrayList<>();
+        if (!isStatutFilterChoiceAvailable()) {
+            items.add(new SelectItem("public", JsfMessages.get("search.filter.published")));
+            return items;
+        }
         items.add(new SelectItem("", JsfMessages.get("search.filter.all")));
-        items.add(new SelectItem("public", JsfMessages.get("search.filter.public")));
+        items.add(new SelectItem("public", JsfMessages.get("search.filter.published")));
         items.add(new SelectItem("prive", JsfMessages.get("search.filter.private")));
+        items.add(new SelectItem("brouillon", JsfMessages.get("search.filter.draft")));
         return items;
     }
 
-    /**
-     * Retourne la liste des états pour le filtre
-     */
-    public List<SelectItem> getEtatFilterItems() {
-        List<SelectItem> items = new ArrayList<>();
-        items.add(new SelectItem("", JsfMessages.get("search.filter.all")));
-        items.add(new SelectItem("publie", JsfMessages.get("search.filter.published")));
-        items.add(new SelectItem("proposition", JsfMessages.get("search.filter.proposal")));
-        return items;
+    private void syncStatutFilterForAuthentication() {
+        if (!isStatutFilterChoiceAvailable()) {
+            statutFilter = "public";
+        }
+    }
+
+    private String getEffectiveStatutFilter() {
+        if (!isStatutFilterChoiceAvailable()) {
+            return "public";
+        }
+        return statutFilter != null ? statutFilter : "";
+    }
+
+    private static boolean matchesStatutFilter(Entity entity, String filter) {
+        if (filter == null || filter.isEmpty()) {
+            return true;
+        }
+        String statut = entity.getStatut();
+        if ("public".equals(filter)) {
+            return EntityStatusEnum.PUBLIQUE.name().equals(statut);
+        }
+        if ("prive".equals(filter)) {
+            return EntityStatusEnum.PRIVEE.name().equals(statut);
+        }
+        if ("brouillon".equals(filter)) {
+            return EntityStatusEnum.PROPOSITION.name().equals(statut);
+        }
+        return true;
     }
 
     /**
