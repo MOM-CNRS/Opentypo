@@ -112,7 +112,7 @@ public class SecurityConfig {
                         return false;
                     }
                     return !Set.of("error", "candidats", "profile", "search", "login", "users",
-                            "details", "dialogs", "tree", "commun", "session-check").contains(lower);
+                            "details", "dialogs", "tree", "commun").contains(lower);
                 }).permitAll()
 
                 // Permettre l'accès à la page d'erreur pour tous
@@ -123,9 +123,6 @@ public class SecurityConfig {
 
                 // Connexion API (JWT)
                 .requestMatchers("/api/v1/auth/**").permitAll()
-
-                // Permettre l'accès à l'endpoint de vérification de session
-                .requestMatchers("/session-check").permitAll()
 
                 // Les pages de gestion des utilisateurs nécessitent le rôle ADMIN
                 .requestMatchers("/users/**").permitAll()

@@ -8,12 +8,11 @@ server:
   port: 8080
   servlet:
     session:
-      timeout: 60m  # 1 heure (60 minutes)
+      timeout: -1
       cookie:
         http-only: true
         secure: ${COOKIE_SECURE:false}  # true en production avec HTTPS
         same-site: strict
-        max-age: 3600  # 1 heure en secondes
 
 spring:
   servlet:

@@ -16,7 +16,6 @@ import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.application.service.ZoteroApiService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
-import fr.cnrs.opentypo.common.constant.ViewConstants;
 import fr.cnrs.opentypo.common.models.Language;
 import fr.cnrs.opentypo.domain.entity.Description;
 import fr.cnrs.opentypo.domain.entity.Entity;
@@ -321,7 +320,6 @@ public class ApplicationBean implements Serializable {
 
     @PostConstruct
     public void initialization() {
-        checkSessionExpiration();
         loadLanguages();
         loadAllCollections();
     }
@@ -1461,24 +1459,6 @@ public class ApplicationBean implements Serializable {
     public boolean isShowSeriePanel() { return panelState.isShowSeriePanel(); }
     public boolean isShowTypePanel() { return panelState.isShowTypePanel(); }
     public boolean isShowTreePanel() { return panelState.isShowTreePanel(); }
-
-    /**
-     * Vérifie si la session ou la vue a expiré
-     */
-    private void checkSessionExpiration() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        if (facesContext != null) {
-            String sessionExpired = facesContext.getExternalContext().getRequestParameterMap().get(ViewConstants.PARAM_SESSION_EXPIRED);
-            String viewExpired = facesContext.getExternalContext().getRequestParameterMap().get(ViewConstants.PARAM_VIEW_EXPIRED);
-            
-            if (ViewConstants.PARAM_TRUE.equals(sessionExpired) 
-                || ViewConstants.PARAM_TRUE.equals(viewExpired)) {
-                panelState.showCollections();
-            }
-        } else {
-            panelState.showCollections();
-        }
-    }
 
     /**
      * Charge les langues depuis la base de données

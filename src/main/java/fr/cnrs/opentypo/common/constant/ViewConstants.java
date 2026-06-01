@@ -10,8 +10,6 @@ public final class ViewConstants {
     }
 
     // Paramètres de requête
-    public static final String PARAM_SESSION_EXPIRED = "sessionExpired";
-    public static final String PARAM_VIEW_EXPIRED = "viewExpired";
     public static final String PARAM_LOGOUT = "logout";
     public static final String PARAM_TRUE = "true";
 

@@ -23,7 +23,7 @@ public class EntityCodeViewController {
     private static final Set<String> RESERVED_PATHS = Set.of(
             "index.xhtml", "error.xhtml", "error", "candidats", "profile", "search", "login",
             "users", "details", "dialogs", "tree", "commun", "resources", "webjars",
-            "uploaded-images", "session-check", "jakarta.faces.resource", "javax.faces.resource"
+            "uploaded-images", "jakarta.faces.resource", "javax.faces.resource"
     );
 
     private final EntityRepository entityRepository;

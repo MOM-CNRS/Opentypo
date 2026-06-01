@@ -20,7 +20,6 @@ import java.util.Iterator;
 public class ViewExpiredExceptionHandler extends ExceptionHandlerWrapper {
 
     private static final String INDEX_PAGE = "/index.xhtml";
-    private static final String VIEW_EXPIRED_PARAM = "viewExpired=true";
 
     private final ExceptionHandler wrapped;
 
@@ -67,7 +66,7 @@ public class ViewExpiredExceptionHandler extends ExceptionHandlerWrapper {
             
             HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
             String contextPath = request.getContextPath();
-            String redirectUrl = contextPath + INDEX_PAGE + "?" + VIEW_EXPIRED_PARAM + "&_r=" + System.currentTimeMillis();
+            String redirectUrl = contextPath + INDEX_PAGE + "?_r=" + System.currentTimeMillis();
 
             boolean isAjaxRequest = facesContext.getPartialViewContext().isAjaxRequest();
 
