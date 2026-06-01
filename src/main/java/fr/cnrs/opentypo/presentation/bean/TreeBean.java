@@ -209,11 +209,8 @@ public class TreeBean implements Serializable {
             return;
         }
         this.selectedNode = foundNode;
-        int childCountBefore = foundNode.getChildCount();
         loadChildrenIfNeeded(foundNode);
-        if (foundNode.getChildCount() > childCountBefore) {
-            foundNode.setExpanded(true);
-        }
+        prepareChildrenFragmentForNode(foundNode);
 
         if (foundNode.getData() == null || !(foundNode.getData() instanceof Entity entity)) return;
         navigateToEntity(entity);
@@ -456,6 +453,17 @@ public class TreeBean implements Serializable {
             return;
         }
         loadChildrenIfNeeded(node);
+        prepareChildrenFragmentForNode(node);
+    }
+
+    /**
+     * Prépare le fragment HTML des enfants à injecter dans l'arbre (lazy load côté client).
+     */
+    private void prepareChildrenFragmentForNode(TreeNode node) {
+        if (node == null || !canHaveChildren(node)) {
+            pendingChildrenTreeNode = null;
+            return;
+        }
         node.setExpanded(true);
         pendingChildrenTreeNode = node;
     }

@@ -42,14 +42,30 @@
      */
     window.injectTreeChildrenFragment = function(entityId) {
         if (!entityId) return;
-        var fragmentPanel = document.getElementById('treeExpandForm:treeLoadChildrenFragment') ||
-            document.querySelector('[id$="treeLoadChildrenFragment"]');
-        var ul = fragmentPanel ? fragmentPanel.querySelector('ul.simple-tree-children') : null;
         var tree = findTreeContainer();
         if (!tree) return;
         var targetLi = tree.querySelector('li.simple-tree-node[data-entity-id="' + entityId + '"]');
         if (!targetLi) return;
+
+        var existingUl = targetLi.querySelector(':scope > ul.simple-tree-children');
+        var hasChildrenInDom = existingUl && existingUl.querySelectorAll('li.simple-tree-node').length > 0;
+        if (hasChildrenInDom) {
+            void targetLi.offsetHeight;
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    targetLi.classList.add('expanded');
+                });
+            });
+            return;
+        }
+
+        var fragmentPanel = document.getElementById('treeLoadChildrenFragment') ||
+            document.querySelector('[id$="treeLoadChildrenFragment"]');
+        var ul = fragmentPanel ? fragmentPanel.querySelector('ul.simple-tree-children') : null;
         if (ul) {
+            if (existingUl) {
+                existingUl.remove();
+            }
             targetLi.appendChild(ul);
         }
         /* Forcer le navigateur à appliquer max-height: 0 (reflow), puis ajouter expanded pour que l'animation joue à tous les niveaux. */
