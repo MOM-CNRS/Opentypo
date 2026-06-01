@@ -1591,6 +1591,25 @@ body .ui-menu.type-actions-menu-overlay .ui-menu-separator {
     line-height: 1.45;
 }
 
+.zotero-search-config-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: #856404;
+    background: #fff8e6;
+    border-radius: 6px;
+    border-left: 3px solid #ffc107;
+}
+
+.zotero-search-config-warning .pi {
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
 .zotero-attached-chips .zotero-attached-chip {
     display: inline-flex;
     align-items: center;

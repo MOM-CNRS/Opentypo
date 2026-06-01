@@ -2762,3 +2762,28 @@
 .reference-detail-page .description-typo-band .description-typo-prose-body.concept-info-description div {
     max-width: 100%;
 }
+
+.reference-detail-page .reference-bibliographie-value {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+.reference-detail-page .reference-bibliographie-subsection--spaced {
+    margin-top: 1.15rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-light, #e8ece9);
+}
+
+.reference-detail-page .reference-bibliographie-subheading {
+    margin-top: 0;
+}
+
+.reference-detail-page .reference-zotero-chips {
+    margin-top: 0.35rem;
+}
+
+.reference-detail-page .reference-bibliographie-value .zotero-bib-html {
+    margin-top: 0.35rem;
+}

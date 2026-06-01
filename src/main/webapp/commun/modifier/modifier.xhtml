@@ -21,20 +21,8 @@
                 <ui:include src="image-modification.xhtml"/>
             </h:panelGroup>
 
-            <h:panelGroup layout="block" rendered="#{applicationBean.selectedEntity.entityType.id != 2}">
+            <h:panelGroup layout="block" rendered="#{applicationBean.selectedEntity.entityType.id != 1 and applicationBean.selectedEntity.entityType.id != 2 and applicationBean.selectedEntity.entityType.id != 6}">
                 <ui:include src="periode-tpq-taq-modification.xhtml"/>
-            </h:panelGroup>
-
-            <!-- Référence bibliographique -->
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}"
-                          class="users-form-group users-form-group-full periode-group candidats-mt-20 reference-modifier-bibliographie-group">
-                <p:outputLabel value="#{msg['reference.meta.bibliography.label']}" style="margin-bottom: 13px !important" />
-                <div class="reference-modifier-bibliographie-wrapper">
-                    <p:chips value="#{entityUpdateBean.referenceBibliographiqueList}"
-                             styleClass="reference-modifier-bibliographie-chips"
-                             placeholder="#{msg['modifier.bibliography.placeholder']}"
-                             separator=";"/>
-                </div>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6 and applicationBean.selectedEntity.entityType.id != 1
@@ -50,7 +38,6 @@
 
                 <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}">
                     <ui:include src="relations-modification.xhtml"/>
-                    <!--<ui:include src="details_type-modification.xhtml"/>-->
                 </h:panelGroup>
 
                 <!-- Section Permissions -->
@@ -59,7 +46,9 @@
                 </h:panelGroup>
             </h:panelGroup>
 
-            <ui:include src="bibliographie-modification.xhtml"/>
+            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
+                <ui:include src="bibliographie-modification.xhtml"/>
+            </h:panelGroup>
 
             <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 1}">
                 <!-- Gestionnaires du référentiel -->
@@ -79,28 +68,6 @@
                                 responsive="true"
                                 rendered="#{not empty referenceBean.gestionnairesList}"/>
                     <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                        <span>#{msg['modifier.noUsersAvailable']}</span>
-                    </h:panelGroup>
-                </div>
-            </h:panelGroup>
-
-            <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 6}">
-                <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-                    <p:outputLabel value="#{msg['modifier.typologyManagers.label']}" style="margin-bottom: 13px !important" />
-                    <p:pickList value="#{collectionBean.editingGestionnairesPickList}"
-                                var="userId"
-                                itemLabel="#{collectionBean.getUtilisateurDisplayName(userId)}"
-                                itemValue="#{userId}"
-                                converter="pickListLongConverter"
-                                styleClass="group-dialog-picklist"
-                                showSourceFilter="true"
-                                showTargetFilter="true"
-                                filterMatchMode="contains"
-                                sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                                targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                                responsive="true"
-                                rendered="#{not empty collectionBean.gestionnairesList}"/>
-                    <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
                         <span>#{msg['modifier.noUsersAvailable']}</span>
                     </h:panelGroup>
                 </div>

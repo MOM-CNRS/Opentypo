@@ -51,17 +51,27 @@
                                     at="left bottom"
                                     panelStyleClass="periode-autocomplete-panel"
                                     scrollHeight="280"
-                                    emptyMessage="#{msg['modifier.zotero.empty']}"
+                                    emptyMessage="#{entityUpdateBean.zoteroBibliographieSearchConfigMissing ? msg['modifier.zotero.urlNotConfigured'] : msg['modifier.zotero.empty']}"
                                     placeholder="#{msg['modifier.zotero.placeholder']}"
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="true">
+                        <p:ajax event="query"
+                                update="zoteroBibliographieSearchStatus :growl"/>
                         <p:ajax event="itemSelect"
                                 listener="#{entityUpdateBean.onZoteroBibliographieSelect}"
                                 process="@this"
-                                update="@form :growl"/>
+                                update="@form :growl zoteroBibliographieSearchStatus"/>
                     </p:autoComplete>
                 </div>
             </div>
+            <h:panelGroup id="zoteroBibliographieSearchStatus" layout="block">
+                <p:outputPanel layout="block"
+                               styleClass="zotero-search-config-warning"
+                               rendered="#{entityUpdateBean.zoteroBibliographieSearchConfigMissing}">
+                    <i class="pi pi-exclamation-triangle" aria-hidden="true"/>
+                    <h:outputText value="#{msg['modifier.zotero.urlNotConfigured']}"/>
+                </p:outputPanel>
+            </h:panelGroup>
 
             <div class="bibliographie-container zotero-attached-chips candidats-mt-10">
                 <ui:repeat value="#{entityUpdateBean.zoteroAttachedItems}" var="zline">

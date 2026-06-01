@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsConcept;
 import fr.cnrs.opentypo.application.dto.zotero.ZoteroSearchHit;
 import fr.cnrs.opentypo.application.service.ZoteroApiService;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
 import fr.cnrs.opentypo.domain.entity.AuteurScientifique;
@@ -237,6 +238,8 @@ public class EntityUpdateBean implements Serializable {
     /** Références Zotero attachées à la fiche (ordre d'affichage). */
     private List<ZoteroAttachedLine> zoteroAttachedItems = new ArrayList<>();
     private Map<String, String> zoteroAutocompleteLabelCache = new HashMap<>();
+    /** Affiché après une recherche Zotero si l'URL bibliographie n'est pas paramétrée. */
+    private boolean zoteroBibliographieSearchConfigMissing;
     private String commentaire;
     private String commentaireDatation;
     private String decors;
@@ -360,6 +363,7 @@ public class EntityUpdateBean implements Serializable {
         bibliographie = entity.getBibliographie();
         zoteroPendingKey = null;
         zoteroAutocompleteLabelCache.clear();
+        zoteroBibliographieSearchConfigMissing = false;
         zoteroAttachedItems = new ArrayList<>();
         if (zoteroApiService != null && entity.getZoteroItemKeys() != null) {
             List<String> zk = zoteroApiService.parseItemKeysJson(entity.getZoteroItemKeys());
@@ -603,6 +607,7 @@ public class EntityUpdateBean implements Serializable {
         zoteroPendingKey = null;
         zoteroAttachedItems = new ArrayList<>();
         zoteroAutocompleteLabelCache.clear();
+        zoteroBibliographieSearchConfigMissing = false;
         commentaire = null;
         decors = null;
         commentaireDatation = null;
@@ -2359,15 +2364,23 @@ public class EntityUpdateBean implements Serializable {
         return list != null ? list : new ArrayList<>();
     }
 
+    /** Indique si l'URL Zotero (paramétrage collection / référentiel) permet la recherche API. */
+    public boolean isZoteroBibliographieSearchConfigured() {
+        return resolveZoteroScope().isPresent();
+    }
+
     public List<ZoteroSearchHit> completeZoteroBibliographie(String query) {
+        zoteroBibliographieSearchConfigMissing = false;
         if (zoteroApiService == null || query == null || query.trim().length() < 2) {
             return List.of();
         }
         Optional<ZoteroApiService.ZoteroScope> scopeOpt = resolveZoteroScope();
         if (scopeOpt.isEmpty()) {
+            zoteroBibliographieSearchConfigMissing = true;
+            String summary = JsfMessages.get("modifier.zotero.urlNotConfigured.summary");
+            String detail = JsfMessages.get("modifier.zotero.urlNotConfigured");
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Bibliographie Zotero",
-                            "URL bibliographie non paramétrée. Le gestionnaire du référentiel doit la renseigner dans le paramétrage de la collection."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, summary, detail));
             return List.of();
         }
         List<ZoteroSearchHit> hits = zoteroApiService.searchTopLevelItems(query.trim(), 18, scopeOpt.get());

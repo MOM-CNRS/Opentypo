@@ -14,6 +14,7 @@ import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.SerieService;
 import fr.cnrs.opentypo.application.service.TypeService;
+import fr.cnrs.opentypo.application.dto.zotero.ZoteroSearchHit;
 import fr.cnrs.opentypo.application.service.ZoteroApiService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.common.models.Language;
@@ -2404,6 +2405,19 @@ public class ApplicationBean implements Serializable {
             return List.of();
         }
         return zoteroApiService.parseItemKeysJson(selectedEntity.getZoteroItemKeys());
+    }
+
+    /** Libellés des références Zotero liées (pour affichage en puces sur la fiche). */
+    public List<ZoteroSearchHit> getZoteroBibliographyDisplayHits() {
+        if (selectedEntity == null || zoteroApiService == null) {
+            return List.of();
+        }
+        List<String> keys = zoteroApiService.parseItemKeysJson(selectedEntity.getZoteroItemKeys());
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+        return zoteroApiService.resolveLabels(keys, resolveZoteroScopeFromParametrage()
+                .orElse(new ZoteroApiService.ZoteroScope(zoteroApiService.getConfiguredGroupId(), null)));
     }
 
     public String zoteroItemWebUrl(String itemKey) {

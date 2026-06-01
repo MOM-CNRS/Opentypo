@@ -57,75 +57,61 @@
 
                                 <!-- Actions (masquées en mode édition) -->
                                 <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                                    <!-- Paramétrage OpenTheso (associé au référentiel) -->
-                                    <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
-                                                   process="@this"
-                                                   update=":collectionParametrageForm"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['reference.action.settings.opentheso.title']}"
-                                                   rendered="#{referenceBean.canEditReference(applicationBean)}"
-                                                   oncomplete="PF('collectionParametrageDialog').show();">
-                                        <i class="pi pi-cog"/>
-                                    </p:commandLink>
-
-                                    <!-- Paramétrage bibliographie Zotero (ouvert depuis l'écran référentiel, sans préremplissage) -->
-                                    <p:commandLink action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
-                                                   process="@this"
-                                                   update=":collectionBibliographieParametrageForm"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['reference.action.settings.bibliography.title']}"
-                                                   rendered="#{referenceBean.canEditReference(applicationBean)}"
-                                                   oncomplete="PF('collectionBibliographieParametrageDialog').show();">
-                                        <i class="pi pi-book"/>
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{collectionParametrageBean.prepareAndShowArkParametrageDialog(applicationBean.selectedEntity)}"
-                                                   process="@this"
-                                                   update=":collectionArkParametrageForm :growl"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['reference.action.settings.ark.title']}"
-                                                   rendered="#{referenceBean.canEditReference(applicationBean)}"
-                                                   oncomplete="PF('collectionArkParametrageDialog').show();">
-                                        <i class="pi pi-id-card"/>
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{referenceBean.openTypologyImport}"
-                                                   ajax="false"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['reference.action.importTypology.title']}"
-                                                   rendered="#{referenceBean.canImportTypology(applicationBean)}">
-                                        <i class="pi pi-upload"/>
-                                    </p:commandLink>
-
-                                    <!-- Bouton Historique -->
-                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                                   rendered="#{loginBean.currentUser != null}"
-                                                   process="@this"
-                                                   update="@none"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['common.history.title']}"
-                                                   immediate="true">
-                                        <i class="pi pi-history"/>
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                                   process="@this"
-                                                   update=":centerContent :searchSectionWrapper"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['reference.action.edit.title']}"
-                                                   rendered="#{referenceBean.canEditReference(applicationBean)}">
-                                        <i class="pi pi-file-edit"/>
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
-                                                   process="@this"
-                                                   update=":confirmDeleteDialogContent"
-                                                   oncomplete="PF('confirmDeleteDialog').show();"
-                                                   rendered="#{referenceBean.canDeleteReference(applicationBean)}"
-                                                   styleClass="concept-action-button type-detail-action-delete"
-                                                   title="#{msg['reference.action.delete.title']}">
-                                        <i class="pi pi-trash"/>
-                                    </p:commandLink>
+                                    <p:menuButton icon="pi pi-ellipsis-v"
+                                                  styleClass="concept-action-menu-trigger"
+                                                  menuStyleClass="type-actions-menu-overlay"
+                                                  title="#{msg['common.actions']}"
+                                                  appendTo="@(body)"
+                                                  rendered="#{loginBean.currentUser != null or referenceBean.canEditReference(applicationBean) or referenceBean.canDeleteReference(applicationBean) or referenceBean.canImportTypology(applicationBean)}">
+                                        <p:menuitem value="#{msg['reference.action.settings.opentheso.title']}"
+                                                    icon="pi pi-cog"
+                                                    action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update=":collectionParametrageForm"
+                                                    oncomplete="PF('collectionParametrageDialog').show();"
+                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"/>
+                                        <p:menuitem value="#{msg['reference.action.settings.bibliography.title']}"
+                                                    icon="pi pi-book"
+                                                    action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update=":collectionBibliographieParametrageForm"
+                                                    oncomplete="PF('collectionBibliographieParametrageDialog').show();"
+                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"/>
+                                        <p:menuitem value="#{msg['reference.action.settings.ark.title']}"
+                                                    icon="pi pi-id-card"
+                                                    action="#{collectionParametrageBean.prepareAndShowArkParametrageDialog(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update=":collectionArkParametrageForm :growl"
+                                                    oncomplete="PF('collectionArkParametrageDialog').show();"
+                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"/>
+                                        <p:menuitem value="#{msg['reference.action.importTypology.tooltip']}"
+                                                    icon="pi pi-upload"
+                                                    action="#{referenceBean.openTypologyImport}"
+                                                    ajax="false"
+                                                    rendered="#{referenceBean.canImportTypology(applicationBean)}"/>
+                                        <p:menuitem value="#{msg['common.history.tooltip']}"
+                                                    icon="pi pi-history"
+                                                    action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update="@none"
+                                                    immediate="true"
+                                                    rendered="#{loginBean.currentUser != null}"/>
+                                        <p:menuitem value="#{msg['common.edit']}"
+                                                    icon="pi pi-file-edit"
+                                                    action="#{entityUpdateBean.startEditing()}"
+                                                    process="@this"
+                                                    update=":centerContent :searchSectionWrapper"
+                                                    rendered="#{referenceBean.canEditReference(applicationBean)}"/>
+                                        <p:separator rendered="#{referenceBean.canDeleteReference(applicationBean) and (loginBean.currentUser != null or referenceBean.canEditReference(applicationBean) or referenceBean.canImportTypology(applicationBean))}"/>
+                                        <p:menuitem value="#{msg['common.delete']}"
+                                                    icon="pi pi-trash"
+                                                    styleClass="type-action-menu-delete"
+                                                    action="#{confirmDeleteBean.prepareDelete('REFERENTIEL')}"
+                                                    process="@this"
+                                                    update=":confirmDeleteDialogContent"
+                                                    oncomplete="PF('confirmDeleteDialog').show();"
+                                                    rendered="#{referenceBean.canDeleteReference(applicationBean)}"/>
+                                    </p:menuButton>
 
                                     <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                         <div class="collection-visibility-card">
@@ -179,6 +165,7 @@
                                                             <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                             <span>#{msg['common.description']}</span>
                                                         </div>
+
                                                         <div class="concept-info-value concept-info-description description-typo-prose-body">
                                                             <ui:fragment rendered="#{not empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
                                                                 <ui:fragment rendered="#{applicationBean.isEntityDescriptionLong(applicationBean.selectedEntity, applicationBean.descriptionMaxChars)}">
@@ -201,6 +188,99 @@
                                                                 </ui:fragment>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{empty applicationBean.getEntityDescription(applicationBean.selectedEntity)}">
+                                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
+                                                            </ui:fragment>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </div>
+                                        </ui:fragment>
+
+                                        <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
+                                            <div class="concept-info-grid-band description-typo-band">
+                                                <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                                    <h:panelGroup styleClass="concept-info-item description-typo-field description-typo-field--solo" layout="block">
+                                                        <div class="concept-info-label">
+                                                            <i class="pi pi-comment monnaie-communs-icon" aria-hidden="true"/>
+                                                            <span>Commentaire</span>
+                                                        </div>
+                                                        <div class="concept-info-value concept-info-description">
+                                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadataCommentaire}">
+                                                                <h:outputText value="#{applicationBean.selectedEntity.metadataCommentaire}" escape="false"/>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
+                                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
+                                                            </ui:fragment>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </div>
+                                        </ui:fragment>
+
+                                        <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
+                                            <div class="concept-info-grid-band description-typo-band">
+                                                <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                                    <h:panelGroup styleClass="concept-info-item description-typo-field description-typo-field--solo reference-bibliographie-block" layout="block">
+                                                        <div class="concept-info-label">
+                                                            <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
+                                                            <span>#{msg['common.section.bibliography']}</span>
+                                                        </div>
+                                                        <div class="concept-info-value concept-info-description reference-bibliographie-value">
+                                                            <ui:fragment rendered="#{applicationBean.hasZoteroBibliographyKeys()}">
+                                                                <div class="reference-bibliographie-subsection">
+                                                                    <div class="zotero-bib-html type-detail-prose-block">
+                                                                        <h:outputText value="#{applicationBean.zoteroBibliographyHtml}"
+                                                                                      escape="false"
+                                                                                      rendered="#{not empty applicationBean.zoteroBibliographyHtml}"/>
+                                                                        <ui:fragment rendered="#{empty applicationBean.zoteroBibliographyHtml}">
+                                                                            <div class="bibliographie-container zotero-attached-chips reference-zotero-chips">
+                                                                                <ui:repeat value="#{applicationBean.zoteroBibliographyDisplayHits}" var="zHit">
+                                                                                    <span class="bibliographie-badge zotero-attached-chip">
+                                                                                        <h:outputLink value="#{applicationBean.zoteroItemWebUrl(zHit.key)}"
+                                                                                                      target="_blank"
+                                                                                                      rel="noopener noreferrer"
+                                                                                                      styleClass="bibliographie-badge-text zotero-chip-link"
+                                                                                                      title="#{msg['modifier.zotero.open.title']}">
+                                                                                            <i class="pi pi-link bibliographie-badge-icon" aria-hidden="true"/>
+                                                                                            <span class="bibliographie-badge-text">#{zHit.label}</span>
+                                                                                        </h:outputLink>
+                                                                                    </span>
+                                                                                </ui:repeat>
+                                                                            </div>
+                                                                            <ui:fragment rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
+                                                                                <ul class="zotero-bib-fallback-list">
+                                                                                    <ui:repeat value="#{applicationBean.zoteroBibliographyKeyList}" var="zk">
+                                                                                        <li>
+                                                                                            <h:outputLink value="#{applicationBean.zoteroItemWebUrl(zk)}"
+                                                                                                          target="_blank"
+                                                                                                          rel="noopener noreferrer"
+                                                                                                          styleClass="concept-value-external-link">
+                                                                                                #{msg['reference.bibliography.zotero.fallbackItem']} (#{zk})
+                                                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                                                            </h:outputLink>
+                                                                                        </li>
+                                                                                    </ui:repeat>
+                                                                                </ul>
+                                                                            </ui:fragment>
+                                                                            <p class="empty-field-message zotero-bib-fallback-hint"
+                                                                               rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
+                                                                                #{msg['reference.bibliography.zotero.formatHint']}
+                                                                            </p>
+                                                                        </ui:fragment>
+                                                                    </div>
+                                                                </div>
+                                                            </ui:fragment>
+
+                                                            <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                                                <div class="reference-bibliographie-subsection #{applicationBean.hasZoteroBibliographyKeys() ? 'reference-bibliographie-subsection--spaced' : ''}">
+                                                                    <h3 class="zotero-notes-heading reference-bibliographie-subheading">#{msg['modifier.biblioNotes.label']}</h3>
+                                                                    <div class="concept-info-description zotero-notes-prose description-typo-prose-body">
+                                                                        <h:outputText value="#{applicationBean.selectedEntity.bibliographie}" escape="true"/>
+                                                                    </div>
+                                                                </div>
+                                                            </ui:fragment>
+
+                                                            <ui:fragment rendered="#{!applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
                                                                 <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                             </ui:fragment>
                                                         </div>
