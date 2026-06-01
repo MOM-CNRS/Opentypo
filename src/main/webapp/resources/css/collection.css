@@ -35,6 +35,37 @@
     transform: scaleX(1);
 }
 
+/* Liste référentiels : carte entière cliquable */
+.references-list-frame .collection-panel--clickable,
+.references-list-frame .collection-panel--clickable.ui-commandlink {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100%;
+    min-width: 0;
+    text-decoration: none !important;
+    color: inherit !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    padding: 0 !important;
+    cursor: pointer;
+}
+
+.references-list-frame .collection-panel--clickable:hover,
+.references-list-frame .collection-panel--clickable.ui-commandlink:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.references-list-frame .collection-panel--clickable:focus-visible {
+    outline: 2px solid rgba(71, 98, 77, 0.45);
+    outline-offset: 2px;
+}
+
+.references-list-frame .collection-panel--clickable .collection-panel-title {
+    cursor: inherit;
+}
+
 /* En-tête ultra-compacte */
 .collection-panel-header {
     display: flex;

@@ -71,24 +71,23 @@
 
             <h:panelGroup id="referencesContent" class="collections-grid collections-grid-cadre">
                 <ui:repeat value="#{applicationBean.paginatedReferences}" var="reference">
-                    <div class="collection-panel">
+                    <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
+                                   process="@this"
+                                   update=":centerContent"
+                                   pt:data-entity-code="#{reference.code}"
+                                   onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                   onstart="showLoading('#{msg['list.references.loading']}', 'spinner');"
+                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                   onerror="forceHideLoading();"
+                                   styleClass="collection-panel collection-panel--clickable"
+                                   title="#{applicationBean.getEntityLabel(reference)}">
                         <div class="collection-panel-header">
                             <div class="collection-panel-title-section">
                                 <div class="collection-panel-icon">
                                     <i class="pi pi-database" />
                                 </div>
                                 <div class="collection-panel-title-wrapper">
-                                    <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
-                                                process="@this"
-                                                update=":centerContent"
-                                                pt:data-entity-code="#{reference.code}"
-                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                                onstart="showLoading('#{msg['list.references.loading']}', 'spinner');"
-                                                oncomplete="setTimeout(function(){hideLoading(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                                onerror="forceHideLoading();"
-                                                styleClass="collection-panel-title-link">
-                                        <h3 class="collection-panel-title">#{reference.code}</h3>
-                                    </p:commandLink>
+                                    <h3 class="collection-panel-title">#{reference.code}</h3>
                                     <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
                                 </div>
                                 <h:panelGroup rendered="#{loginBean.currentUser != null}" styleClass="collection-panel-status-badge">
@@ -165,7 +164,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </p:commandLink>
                 </ui:repeat>
 
                 <!-- Message si aucune référence -->
