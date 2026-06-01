@@ -2716,6 +2716,100 @@
     max-width: 100%;
 }
 
+/* Détail groupe — description sur toute la largeur du panneau Présentation */
+.groupe-detail-page .description-typo-band.concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.groupe-detail-page .description-typo-band .description-typo-band-grid,
+.groupe-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.groupe-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+    padding: 0.5rem 0.65rem 0.6rem;
+    background: #fff;
+    border: none;
+    border-left: none;
+    box-shadow: none;
+}
+
+.groupe-detail-page .description-typo-band .description-typo-prose .concept-info-label {
+    width: 100%;
+    margin-bottom: 0.35rem;
+}
+
+.groupe-detail-page .description-typo-band .description-typo-prose .concept-info-value,
+.groupe-detail-page .description-typo-band .description-typo-prose-body.concept-info-description,
+.groupe-detail-page .description-typo-band .concept-info-description-wrapper,
+.groupe-detail-page .description-typo-band .concept-info-description-content,
+.groupe-detail-page .description-typo-band .concept-info-description-truncated,
+.groupe-detail-page .description-typo-band .concept-info-description-full {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.groupe-detail-page .description-typo-band .description-typo-prose-body.concept-info-description p,
+.groupe-detail-page .description-typo-band .description-typo-prose-body.concept-info-description div {
+    max-width: 100%;
+}
+
+/* Détail catégorie — description sur toute la largeur du panneau Présentation */
+.category-detail-page .description-typo-band.concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.category-detail-page .description-typo-band .description-typo-band-grid,
+.category-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.category-detail-page .description-typo-band .description-typo-prose.concept-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+    padding: 0.5rem 0.65rem 0.6rem;
+    background: #fff;
+    border: none;
+    border-left: none;
+    box-shadow: none;
+}
+
+.category-detail-page .description-typo-band .description-typo-prose .concept-info-label {
+    width: 100%;
+    margin-bottom: 0.35rem;
+}
+
+.category-detail-page .description-typo-band .description-typo-prose .concept-info-value,
+.category-detail-page .description-typo-band .description-typo-prose-body.concept-info-description,
+.category-detail-page .description-typo-band .concept-info-description-wrapper,
+.category-detail-page .description-typo-band .concept-info-description-content,
+.category-detail-page .description-typo-band .concept-info-description-truncated,
+.category-detail-page .description-typo-band .concept-info-description-full {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.category-detail-page .description-typo-band .description-typo-prose-body.concept-info-description p,
+.category-detail-page .description-typo-band .description-typo-prose-body.concept-info-description div {
+    max-width: 100%;
+}
+
 /* Détail référentiel — description sur toute la largeur du panneau Présentation */
 .reference-detail-page .description-typo-band.concept-info-grid-band {
     grid-column: 1 / -1;
@@ -2786,4 +2880,47 @@
 
 .reference-detail-page .reference-bibliographie-value .zotero-bib-html {
     margin-top: 0.35rem;
+}
+
+/* Menu contextuel référentiel : chaque entrée sur une seule ligne (pas de retour à la ligne du libellé) */
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay {
+    width: max-content !important;
+    min-width: 20rem !important;
+    max-width: min(96vw, 32rem) !important;
+    padding: 0.35rem 0 !important;
+}
+
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay .ui-menu-list {
+    display: block !important;
+}
+
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay .ui-menuitem {
+    display: block !important;
+    width: 100% !important;
+}
+
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay .ui-menuitem-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    padding: 0.6rem 1rem !important;
+}
+
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay .ui-menuitem-text {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    flex: 0 1 auto !important;
+}
+
+body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay .ui-menu-separator {
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin: 0.25rem 0 !important;
+    border: none !important;
+    border-top: 1px solid rgba(71, 98, 77, 0.15) !important;
 }

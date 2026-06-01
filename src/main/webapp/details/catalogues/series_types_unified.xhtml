@@ -99,7 +99,9 @@
                                         </div>
                                         <div class="series-types-serie-heading">
                                             <h3 class="series-types-serie-title">#{swt.serie().code}</h3>
-                                            <span class="series-types-serie-label">#{applicationBean.getEntityLabel(swt.serie())}</span>
+                                            <h:outputText value="#{applicationBean.getEntityLabelHtml(swt.serie())}"
+                                                          escape="false"
+                                                          styleClass="series-types-serie-label entity-label-html"/>
                                         </div>
                                         <span class="series-types-serie-badge">#{swt.typesCount()} type#{swt.typesCount() gt 1 ? 's' : ''}</span>
                                         <i class="pi pi-chevron-right series-types-serie-arrow"/>

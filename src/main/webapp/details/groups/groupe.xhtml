@@ -26,68 +26,60 @@
                                 </h:panelGroup>
                                 <div class="collection-panel-title-wrapper">
                                     <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    <span class="collection-panel-subtitle">
-                                        <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
-                                    </span>
+                                    <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
+                                                  escape="false"
+                                                  styleClass="entity-label-display entity-label-html"/>
                                 </div>
                                 <ui:include src="../communs/entity-id-ark-display.xhtml"/>
                             </div>
 
                             <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-
-                                <!-- Paramétrage OpenTheso (associé au groupe, entity_id dans paramètrage) -->
-                                <p:commandLink action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
-                                               process="@this"
-                                               update=":collectionParametrageForm"
-                                               styleClass="concept-action-button"
-                                               title="#{msg['reference.action.settings.opentheso.title']}"
-                                               rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"
-                                               oncomplete="PF('collectionParametrageDialog').show();">
-                                    <i class="pi pi-cog" />
-                                </p:commandLink>
-
-                                <p:commandLink action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
-                                               process="@this"
-                                               update=":collectionBibliographieParametrageForm"
-                                               styleClass="concept-action-button"
-                                               title="Paramétrage bibliographie Zotero"
-                                               rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"
-                                               oncomplete="PF('collectionBibliographieParametrageDialog').show();">
-                                    <i class="pi pi-book" />
-                                </p:commandLink>
-
-                                <!-- Bouton Historique -->
-                                <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                               process="@this"
-                                               update="@none"
-                                               rendered="#{loginBean.currentUser != null}"
-                                               styleClass="concept-action-button"
-                                               title="#{msg['common.history.tooltip']}"
-                                               immediate="true">
-                                    <i class="pi pi-history" />
-                                </p:commandLink>
-
-                                <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                               process="@this"
-                                               update=":centerContent :searchSectionWrapper"
-                                               styleClass="concept-action-button"
-                                               title="#{msg['common.edit']}"
-                                               rendered="#{groupBean.canEditGroup(applicationBean)}"
-                                               onstart="if(typeof showLoading === 'function') showLoading(&quot;#{msg['group.edit.loadingForm']}&quot;, &quot;spinner&quot;);"
-                                               oncomplete="setTimeout(function(){ if(typeof hideLoading === 'function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
-                                               onerror="if(typeof hideLoading === 'function') hideLoading();">
-                                    <i class="pi pi-file-edit" />
-                                </p:commandLink>
-
-                                <p:commandLink action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
-                                               process="@this"
-                                               update=":confirmDeleteDialogContent"
-                                               oncomplete="PF('confirmDeleteDialog').show();"
-                                               styleClass="concept-action-button type-detail-action-delete"
-                                               title="#{msg['common.delete']}"
-                                               rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}">
-                                    <i class="pi pi-trash" />
-                                </p:commandLink>
+                                <p:menuButton icon="pi pi-ellipsis-v"
+                                              styleClass="concept-action-menu-trigger"
+                                              menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
+                                              title="#{msg['common.actions']}"
+                                              appendTo="@(body)"
+                                              rendered="#{loginBean.currentUser != null or groupBean.canEditGroup(applicationBean) or groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}">
+                                    <p:menuitem value="#{msg['reference.action.settings.opentheso.title']}"
+                                                icon="pi pi-cog"
+                                                action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
+                                                process="@this"
+                                                update=":collectionParametrageForm"
+                                                oncomplete="PF('collectionParametrageDialog').show();"
+                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                    <p:menuitem value="#{msg['reference.action.settings.bibliography.title']}"
+                                                icon="pi pi-book"
+                                                action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
+                                                process="@this"
+                                                update=":collectionBibliographieParametrageForm"
+                                                oncomplete="PF('collectionBibliographieParametrageDialog').show();"
+                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                    <p:menuitem value="#{msg['common.history.tooltip']}"
+                                                icon="pi pi-history"
+                                                action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                process="@this"
+                                                update="@none"
+                                                immediate="true"
+                                                rendered="#{loginBean.currentUser != null}"/>
+                                    <p:menuitem value="#{msg['common.edit']}"
+                                                icon="pi pi-file-edit"
+                                                action="#{entityUpdateBean.startEditing()}"
+                                                process="@this"
+                                                update=":centerContent :searchSectionWrapper"
+                                                rendered="#{groupBean.canEditGroup(applicationBean)}"
+                                                onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
+                                                oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
+                                                onerror="if(typeof hideLoading==='function') hideLoading();"/>
+                                    <p:separator rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean) and (loginBean.currentUser != null or groupBean.canEditGroup(applicationBean))}"/>
+                                    <p:menuitem value="#{msg['common.delete']}"
+                                                icon="pi pi-trash"
+                                                styleClass="type-action-menu-delete"
+                                                action="#{confirmDeleteBean.prepareDelete('GROUPE')}"
+                                                process="@this"
+                                                update=":confirmDeleteDialogContent"
+                                                oncomplete="PF('confirmDeleteDialog').show();"
+                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                </p:menuButton>
 
                                 <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                     <div class="collection-visibility-card">
@@ -136,7 +128,7 @@
                                     <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                         <div class="concept-info-grid-band description-typo-band">
                                             <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
+                                                <h:panelGroup styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
                                                     <div class="concept-info-label">
                                                         <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                         <span>#{msg['common.description']}</span>

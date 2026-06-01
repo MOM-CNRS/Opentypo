@@ -77,12 +77,12 @@
                         <p:commandLink action="#{applicationBean.showCategoryDetail(category)}"
                                        styleClass="reference-category-card"
                                        process="@this"
-                                       update=":centerContent"
+                                       update=":contentPanels :leftTreePanel :treeLoadChildrenFragment"
                                        pt:data-entity-code="#{category.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                       onstart="showLoading('#{msg['list.categories.loading']}', 'spinner');"
-                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                       onerror="forceHideLoading();">
+                                       onstart="if(typeof showPanelLoading==='function') showPanelLoading('contentPanelsWrapper', '#{msg['list.categories.loading']}', 'spinner'); else if(typeof showLoading==='function') showLoading('#{msg['list.categories.loading']}', 'spinner');"
+                                       oncomplete="setTimeout(function(){ if(typeof hidePanelLoading==='function') hidePanelLoading(); else if(typeof hideLoading==='function') hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined; }, 0);"
+                                       onerror="if(typeof hidePanelLoading==='function') hidePanelLoading(); else if(typeof forceHideLoading==='function') forceHideLoading();">
                             <article class="reference-category-card-inner">
                                 <header class="reference-category-card-header">
                                     <div class="reference-category-card-icon">
@@ -90,7 +90,9 @@
                                     </div>
                                     <div class="reference-category-card-heading">
                                         <h3 class="reference-category-card-title">#{category.code}</h3>
-                                        <span class="reference-category-card-label">#{applicationBean.getEntityLabel(category)}</span>
+                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(category)}"
+                                                      escape="false"
+                                                      styleClass="reference-category-card-label entity-label-html"/>
                                     </div>
                                     <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}" styleClass="reference-category-card-badge-wrapper">
                                                 <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(category)}"

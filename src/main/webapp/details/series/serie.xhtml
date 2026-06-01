@@ -26,9 +26,9 @@
 
                                 <div class="collection-panel-title-wrapper">
                                     <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                    <span class="collection-panel-subtitle">
-                                        <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
-                                    </span>
+                                    <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
+                                                  escape="false"
+                                                  styleClass="entity-label-display entity-label-html"/>
                                 </div>
                                 <ui:include src="../communs/entity-id-ark-display.xhtml"/>
                             </div>

@@ -49,9 +49,9 @@
                                     </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                        <span class="collection-panel-subtitle">
-                                            <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
-                                        </span>
+                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
+                                                      escape="false"
+                                                      styleClass="entity-label-display entity-label-html"/>
                                     </div>
                                 </div>
 
@@ -59,7 +59,7 @@
                                 <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
                                     <p:menuButton icon="pi pi-ellipsis-v"
                                                   styleClass="concept-action-menu-trigger"
-                                                  menuStyleClass="type-actions-menu-overlay"
+                                                  menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
                                                   title="#{msg['common.actions']}"
                                                   appendTo="@(body)"
                                                   rendered="#{loginBean.currentUser != null or referenceBean.canEditReference(applicationBean) or referenceBean.canDeleteReference(applicationBean) or referenceBean.canImportTypology(applicationBean)}">
@@ -262,10 +262,11 @@
                                                                                     </ui:repeat>
                                                                                 </ul>
                                                                             </ui:fragment>
-                                                                            <p class="empty-field-message zotero-bib-fallback-hint"
-                                                                               rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
-                                                                                #{msg['reference.bibliography.zotero.formatHint']}
-                                                                            </p>
+                                                                            <h:panelGroup rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
+                                                                                <p class="empty-field-message zotero-bib-fallback-hint">
+                                                                                    #{msg['reference.bibliography.zotero.formatHint']}
+                                                                                </p>
+                                                                            </h:panelGroup>
                                                                         </ui:fragment>
                                                                     </div>
                                                                 </div>

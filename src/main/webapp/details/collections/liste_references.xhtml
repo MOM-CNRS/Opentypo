@@ -80,7 +80,7 @@
                                    oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                    onerror="forceHideLoading();"
                                    styleClass="collection-panel collection-panel--clickable"
-                                   title="#{applicationBean.getEntityLabel(reference)}">
+                                   title="#{applicationBean.getEntityLabelPlainText(reference)}">
                         <div class="collection-panel-header">
                             <div class="collection-panel-title-section">
                                 <div class="collection-panel-icon">
@@ -88,7 +88,9 @@
                                 </div>
                                 <div class="collection-panel-title-wrapper">
                                     <h3 class="collection-panel-title">#{reference.code}</h3>
-                                    <span class="collection-panel-subtitle">#{applicationBean.getEntityLabel(reference)}</span>
+                                    <h:outputText value="#{applicationBean.getEntityLabelHtml(reference)}"
+                                                  escape="false"
+                                                  styleClass="entity-label-display entity-label-html"/>
                                 </div>
                                 <h:panelGroup rendered="#{loginBean.currentUser != null}" styleClass="collection-panel-status-badge">
                                     <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(reference)}"

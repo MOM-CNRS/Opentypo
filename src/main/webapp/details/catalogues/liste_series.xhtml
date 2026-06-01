@@ -94,7 +94,9 @@
                                             </div>
                                             <div class="reference-category-card-heading">
                                                 <h3 class="reference-category-card-title">#{serie.code}</h3>
-                                                <span class="reference-category-card-label">#{applicationBean.getEntityLabel(serie)}</span>
+                                                <h:outputText value="#{applicationBean.getEntityLabelHtml(serie)}"
+                                                              escape="false"
+                                                              styleClass="reference-category-card-label entity-label-html"/>
                                             </div>
                                             <h:panelGroup rendered="#{loginBean.canCreateOrEdit()}" styleClass="reference-category-card-badge-wrapper">
                                                 <span class="reference-category-card-badge #{treeBean.getUnifiedIndicatorCssClass(serie)}"

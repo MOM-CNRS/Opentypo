@@ -75,6 +75,7 @@
                                        styleClass="reference-category-card"
                                        process="@this"
                                        update=":centerContent"
+                                       title="#{applicationBean.getEntityLabelPlainText(group)}"
                                        pt:data-entity-code="#{group.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        onstart="showLoading('#{msg['list.groups.loading']}', 'spinner');"
@@ -86,8 +87,10 @@
                                         <i class="pi pi-users" aria-hidden="true"/>
                                     </div>
                                     <div class="reference-category-card-heading">
-                                        <h3 class="reference-category-card-title">#{group.nom}</h3>
-                                        <span class="reference-category-card-label">#{group.code}</span>
+                                        <h3 class="reference-category-card-title">#{group.code}</h3>
+                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(group)}"
+                                                      escape="false"
+                                                      styleClass="reference-category-card-label entity-label-html"/>
                                         <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
                                                     <span class="reference-category-card-period">
                                                         <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">

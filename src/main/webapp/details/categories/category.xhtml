@@ -27,45 +27,46 @@
                                     </h:panelGroup>
                                     <div class="collection-panel-title-wrapper">
                                         <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
-                                        <span class="collection-panel-subtitle">
-                                            <h:outputText value="#{applicationBean.getEntityLabel(applicationBean.selectedEntity)}" escape="true"/>
-                                        </span>
+                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
+                                                      escape="false"
+                                                      styleClass="entity-label-display entity-label-html"/>
                                     </div>
                                 </div>
 
                                 <!-- Actions (masquées en mode édition) -->
                                 <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                                    <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                                   rendered="#{loginBean.currentUser != null}"
-                                                   process="@this"
-                                                   update="@none"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['common.history.tooltip']}"
-                                                   immediate="true">
-                                        <i class="pi pi-history" />
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                                   process="@this"
-                                                   update=":centerContent :searchSectionWrapper"
-                                                   rendered="#{categoryBean.canEditCategory()}"
-                                                   styleClass="concept-action-button"
-                                                   title="#{msg['category.action.edit.title']}"
-                                                   onstart="showLoading(&quot;#{msg['common.loading']}&quot;, &quot;spinner&quot;);"
-                                                   oncomplete="setTimeout(function(){hideLoading();}, 0);"
-                                                   onerror="forceHideLoading();">
-                                        <i class="pi pi-file-edit" />
-                                    </p:commandLink>
-
-                                    <p:commandLink action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
-                                                   process="@this"
-                                                   update=":confirmDeleteDialogContent"
-                                                   oncomplete="PF('confirmDeleteDialog').show();"
-                                                   rendered="#{categoryBean.canDeleteCategory()}"
-                                                   styleClass="concept-action-button type-detail-action-delete"
-                                                   title="#{msg['common.delete']}">
-                                        <i class="pi pi-trash" />
-                                    </p:commandLink>
+                                    <p:menuButton icon="pi pi-ellipsis-v"
+                                                  styleClass="concept-action-menu-trigger"
+                                                  menuStyleClass="type-actions-menu-overlay"
+                                                  title="#{msg['common.actions']}"
+                                                  appendTo="@(body)"
+                                                  rendered="#{loginBean.currentUser != null or categoryBean.canEditCategory() or categoryBean.canDeleteCategory()}">
+                                        <p:menuitem value="#{msg['common.history.tooltip']}"
+                                                    icon="pi pi-history"
+                                                    action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                    process="@this"
+                                                    update="@none"
+                                                    immediate="true"
+                                                    rendered="#{loginBean.currentUser != null}"/>
+                                        <p:menuitem value="#{msg['common.edit']}"
+                                                    icon="pi pi-file-edit"
+                                                    action="#{entityUpdateBean.startEditing()}"
+                                                    process="@this"
+                                                    update=":centerContent :searchSectionWrapper"
+                                                    rendered="#{categoryBean.canEditCategory()}"
+                                                    onstart="if(typeof showLoading==='function') showLoading('#{msg['common.loading']}', 'spinner');"
+                                                    oncomplete="if(typeof hideLoading==='function') hideLoading();"
+                                                    onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
+                                        <p:separator rendered="#{categoryBean.canDeleteCategory() and (loginBean.currentUser != null or categoryBean.canEditCategory())}"/>
+                                        <p:menuitem value="#{msg['common.delete']}"
+                                                    icon="pi pi-trash"
+                                                    styleClass="type-action-menu-delete"
+                                                    action="#{confirmDeleteBean.prepareDelete('CATEGORIE')}"
+                                                    process="@this"
+                                                    update=":confirmDeleteDialogContent"
+                                                    oncomplete="PF('confirmDeleteDialog').show();"
+                                                    rendered="#{categoryBean.canDeleteCategory()}"/>
+                                    </p:menuButton>
 
                                     <h:panelGroup class="collection-visibility-card" rendered="#{loginBean.currentUser != null}">
                                         <div class="collection-visibility-card-content">
@@ -111,7 +112,7 @@
                                         <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
                                             <div class="concept-info-grid-band description-typo-band">
                                                 <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                    <h:panelGroup styleClass="concept-info-item description-typo-prose" layout="block">
+                                                    <h:panelGroup styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                             <span>#{msg['common.description']}</span>
@@ -167,25 +168,71 @@
                                             </div>
                                         </ui:fragment>
 
-                                        <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                        <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
                                             <div class="concept-info-grid-band description-typo-band">
                                                 <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                    <h:panelGroup styleClass="concept-info-item description-typo-field description-typo-field--solo" layout="block">
+                                                    <h:panelGroup styleClass="concept-info-item description-typo-field description-typo-field--solo reference-bibliographie-block" layout="block">
                                                         <div class="concept-info-label">
                                                             <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
                                                             <span>#{msg['common.section.bibliography']}</span>
                                                         </div>
-                                                        <div class="concept-info-value bibliographie-container">
-                                                            <ui:fragment rendered="#{not empty applicationBean.selectedEntity.bibliographie}">
-                                                                <ui:repeat value="#{fn:split(applicationBean.selectedEntity.bibliographie, ';')}" var="ref" varStatus="status">
-                                                                    <ui:fragment rendered="#{not empty ref and fn:trim(ref) != ''}">
-                                                                        <span class="bibliographie-badge">
-                                                                            <span class="bibliographie-badge-text">#{fn:trim(ref)}</span>
-                                                                        </span>
-                                                                    </ui:fragment>
-                                                                </ui:repeat>
+                                                        <div class="concept-info-value concept-info-description reference-bibliographie-value">
+                                                            <ui:fragment rendered="#{applicationBean.hasZoteroBibliographyKeys()}">
+                                                                <div class="reference-bibliographie-subsection">
+                                                                    <div class="zotero-bib-html type-detail-prose-block">
+                                                                        <h:outputText value="#{applicationBean.zoteroBibliographyHtml}"
+                                                                                      escape="false"
+                                                                                      rendered="#{not empty applicationBean.zoteroBibliographyHtml}"/>
+                                                                        <ui:fragment rendered="#{empty applicationBean.zoteroBibliographyHtml}">
+                                                                            <div class="bibliographie-container zotero-attached-chips reference-zotero-chips">
+                                                                                <ui:repeat value="#{applicationBean.zoteroBibliographyDisplayHits}" var="zHit">
+                                                                                    <span class="bibliographie-badge zotero-attached-chip">
+                                                                                        <h:outputLink value="#{applicationBean.zoteroItemWebUrl(zHit.key)}"
+                                                                                                      target="_blank"
+                                                                                                      rel="noopener noreferrer"
+                                                                                                      styleClass="bibliographie-badge-text zotero-chip-link"
+                                                                                                      title="#{msg['modifier.zotero.open.title']}">
+                                                                                            <i class="pi pi-link bibliographie-badge-icon" aria-hidden="true"/>
+                                                                                            <span class="bibliographie-badge-text">#{zHit.label}</span>
+                                                                                        </h:outputLink>
+                                                                                    </span>
+                                                                                </ui:repeat>
+                                                                            </div>
+                                                                            <ui:fragment rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
+                                                                                <ul class="zotero-bib-fallback-list">
+                                                                                    <ui:repeat value="#{applicationBean.zoteroBibliographyKeyList}" var="zk">
+                                                                                        <li>
+                                                                                            <h:outputLink value="#{applicationBean.zoteroItemWebUrl(zk)}"
+                                                                                                          target="_blank"
+                                                                                                          rel="noopener noreferrer"
+                                                                                                          styleClass="concept-value-external-link">
+                                                                                                #{msg['reference.bibliography.zotero.fallbackItem']} (#{zk})
+                                                                                                <i class="pi pi-external-link concept-value-external-link-icon" aria-hidden="true"/>
+                                                                                            </h:outputLink>
+                                                                                        </li>
+                                                                                    </ui:repeat>
+                                                                                </ul>
+                                                                            </ui:fragment>
+                                                                            <h:panelGroup rendered="#{empty applicationBean.zoteroBibliographyDisplayHits}">
+                                                                                <p class="empty-field-message zotero-bib-fallback-hint">
+                                                                                    #{msg['reference.bibliography.zotero.formatHint']}
+                                                                                </p>
+                                                                            </h:panelGroup>
+                                                                        </ui:fragment>
+                                                                    </div>
+                                                                </div>
                                                             </ui:fragment>
-                                                            <ui:fragment rendered="#{empty applicationBean.selectedEntity.bibliographie}">
+
+                                                            <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
+                                                                <div class="reference-bibliographie-subsection #{applicationBean.hasZoteroBibliographyKeys() ? 'reference-bibliographie-subsection--spaced' : ''}">
+                                                                    <h3 class="zotero-notes-heading reference-bibliographie-subheading">#{msg['modifier.biblioNotes.label']}</h3>
+                                                                    <div class="concept-info-description zotero-notes-prose description-typo-prose-body">
+                                                                        <h:outputText value="#{applicationBean.selectedEntity.bibliographie}" escape="true"/>
+                                                                    </div>
+                                                                </div>
+                                                            </ui:fragment>
+
+                                                            <ui:fragment rendered="#{!applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
                                                                 <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                             </ui:fragment>
                                                         </div>

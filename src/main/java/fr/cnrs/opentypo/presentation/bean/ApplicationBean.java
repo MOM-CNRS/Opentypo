@@ -1797,11 +1797,23 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'une catégorie spécifique
      */
     public void showCategoryDetail(Entity category) {
-        this.selectedEntity = category;
+        if (category == null) {
+            return;
+        }
+        Long categoryId = category.getId();
+        if (categoryId != null && selectedEntity != null && categoryId.equals(selectedEntity.getId())
+                && panelState.isShowCategoryPanel()) {
+            return;
+        }
+        if (categoryId != null) {
+            this.selectedEntity = entityRepository.findById(categoryId).orElse(category);
+        } else {
+            this.selectedEntity = category;
+        }
         panelState.showCategory();
         refreshChilds();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        getTreeBean().expandPathAndSelectEntity(category);
+        getTreeBean().expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
     }
 
     public void refreshCategoryGroupsList() {
@@ -1973,13 +1985,35 @@ public class ApplicationBean implements Serializable {
     public void prepareReferencesOrderDialog() { prepareOrderDialog(OrderingType.REFERENCES); }
 
     public String getEntityLabel(Entity entitySelected) {
-
+        if (entitySelected == null || entitySelected.getLabels() == null) {
+            return "Non renseigné";
+        }
         String codeLang = searchBean.getLangSelected();
         return entitySelected.getLabels().stream()
-                .filter(label -> codeLang.equalsIgnoreCase(label.getLangue().getCode()))
+                .filter(label -> label.getLangue() != null && codeLang.equalsIgnoreCase(label.getLangue().getCode()))
                 .findFirst()
                 .map(Label::getNom)
                 .orElse("Non renseigné");
+    }
+
+    /**
+     * Libellé pour affichage en page (HTML issu de l'éditeur riche des noms / traductions).
+     * À utiliser avec {@code escape="false"} sur {@code h:outputText}.
+     */
+    public String getEntityLabelHtml(Entity entitySelected) {
+        return getEntityLabel(entitySelected);
+    }
+
+    /**
+     * Libellé en texte brut (sans balises), pour attributs title, tooltips, tris, etc.
+     */
+    public String getEntityLabelPlainText(Entity entitySelected) {
+        String html = getEntityLabel(entitySelected);
+        if (html == null || html.isBlank() || "Non renseigné".equals(html)) {
+            return html != null ? html : "";
+        }
+        String withoutTags = html.replaceAll("<[^>]+>", " ");
+        return withoutTags.replaceAll("\\s+", " ").trim();
     }
 
     private static final int DESCRIPTION_MAX_CHARS = 400;

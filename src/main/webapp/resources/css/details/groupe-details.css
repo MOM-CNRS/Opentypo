@@ -110,6 +110,19 @@
     color: var(--gp-text);
 }
 
+/* Libellé riche sous le code (évite text-transform uppercase des cartes collection) */
+.groupe-detail-page .entity-label-display.entity-label-html,
+.groupe-detail-page .type-identity-header .entity-label-html {
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+}
+
+.groupe-detail-page .entity-label-html strong,
+.groupe-detail-page .entity-label-html b {
+    font-weight: 700;
+}
+
 .groupe-detail-page .collection-references-subtitle {
     font-size: 0.8125rem;
     color: var(--gp-text-muted);

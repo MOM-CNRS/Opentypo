@@ -744,33 +744,47 @@ public class TreeBean implements Serializable {
      * @param entity L'entité à atteindre et sélectionner (catégorie, groupe, référence, série, type, etc.)
      */
     public void expandPathAndSelectEntity(Entity entity) {
+        expandPathAndSelectEntity(entity, null);
+    }
+
+    /**
+     * Déplie le chemin jusqu'à l'entité et la sélectionne.
+     *
+     * @param entity entité cible
+     * @param pathFromRoot chemin racine → cible (ex. fil d'Ariane) ; si fourni, évite des requêtes parent redondantes
+     */
+    public void expandPathAndSelectEntity(Entity entity, List<Entity> pathFromRoot) {
         if (entity == null || entity.getId() == null || root == null || entityRelationRepository == null) {
             return;
         }
 
-        // Construire le chemin de l'entité vers la racine (ex. [catégorie, référentiel, collection])
-        List<Entity> pathToRoot = new ArrayList<>();
-        Entity e = entity;
-        while (e != null) {
-            pathToRoot.add(e);
-            List<Entity> parents = entityRelationRepository.findParentsByChild(e);
-            e = (parents == null || parents.isEmpty()) ? null : parents.get(0);
+        List<Entity> path = pathFromRoot;
+        if (path == null || path.isEmpty()) {
+            List<Entity> pathToRoot = new ArrayList<>();
+            Entity e = entity;
+            while (e != null) {
+                pathToRoot.add(e);
+                List<Entity> parents = entityRelationRepository.findParentsByChild(e);
+                e = (parents == null || parents.isEmpty()) ? null : parents.get(0);
+            }
+            if (pathToRoot.isEmpty()) {
+                return;
+            }
+            path = new ArrayList<>(pathToRoot);
+            Collections.reverse(path);
         }
-        if (pathToRoot.isEmpty()) return;
-        List<Entity> pathFromRoot = new ArrayList<>(pathToRoot);
-        Collections.reverse(pathFromRoot);
 
         // La racine de l'arbre doit correspondre au premier élément du chemin (collection)
         if (root.getData() == null || !(root.getData() instanceof Entity rootEntity) ||
-                !pathFromRoot.get(0).getId().equals(rootEntity.getId())) {
+                !path.get(0).getId().equals(rootEntity.getId())) {
             log.debug("expandPathAndSelectEntity: racine de l'arbre ne correspond pas au chemin");
             return;
         }
 
         TreeNode current = root;
-        for (int i = 1; i < pathFromRoot.size(); i++) {
+        for (int i = 1; i < path.size(); i++) {
             loadChildrenIfNeeded(current);
-            Entity targetEntity = pathFromRoot.get(i);
+            Entity targetEntity = path.get(i);
             TreeNode child = findChildNodeByEntityId(current, targetEntity.getId());
             if (child == null) {
                 log.warn("expandPathAndSelectEntity: nœud non trouvé pour l'entité {} (id={})", targetEntity.getCode(), targetEntity.getId());
@@ -781,7 +795,6 @@ public class TreeBean implements Serializable {
         }
         current.setExpanded(true);
         this.selectedNode = current;
-        expandNodePath(current);
         log.debug("expandPathAndSelectEntity: nœud sélectionné : {} (id={})", entity.getCode(), entity.getId());
     }
 

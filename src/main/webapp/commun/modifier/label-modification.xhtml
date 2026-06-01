@@ -68,7 +68,7 @@
                         <h:graphicImage library="img" name="flag/#{labelItem.langueCode}.png"
                                         styleClass="candidat-table-flag" alt="#{labelItem.langue.nom}" title="#{labelItem.langue.nom}"/>
                     </h:panelGroup>
-                    <h:outputText value="#{labelItem.nom}" styleClass="candidat-table-label-text" />
+                    <h:outputText value="#{labelItem.nom}" escape="false" styleClass="candidat-table-label-text entity-label-html" />
                 </div>
             </p:column>
             <p:column styleClass="candidat-table-action-column">

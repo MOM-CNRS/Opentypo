@@ -117,7 +117,8 @@
     line-height: 1.25;
 }
 
-.type-detail-page--v2 .type-identity-header .collection-panel-subtitle {
+/* Ancien sous-titre texte seul (sans HTML) */
+.type-detail-page--v2 .type-identity-header .collection-panel-subtitle:not(.entity-label-html) {
     font-size: 0.95rem;
     color: var(--type-text-muted);
     font-weight: 500;
@@ -262,6 +263,104 @@
     font-size: 0.92rem;
     line-height: 1.35;
     word-break: break-word;
+}
+
+/* Libellés issus de l'éditeur riche (gras, italique, etc.) — pas les styles « carte » (.collection-panel-subtitle) */
+.entity-label-display,
+.type-detail-page--v2 .type-identity-header .entity-label-html,
+.type-detail-page--v2 .collection-panel-subtitle .entity-label-html,
+.type-detail-page .entity-label-html {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+    color: var(--type-text-muted, #5c6f63);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.entity-label-html p,
+.type-detail-page .entity-label-html p {
+    margin: 0 0 0.25rem;
+}
+
+.entity-label-html p:last-child,
+.type-detail-page .entity-label-html p:last-child {
+    margin-bottom: 0;
+}
+
+.entity-label-html strong,
+.entity-label-html b,
+.type-detail-page .entity-label-html strong,
+.type-detail-page .entity-label-html b {
+    font-weight: 700;
+    color: var(--type-text, #2d3a32);
+}
+
+.entity-label-html em,
+.entity-label-html i,
+.type-detail-page .entity-label-html em,
+.type-detail-page .entity-label-html i {
+    font-style: italic;
+}
+
+.entity-label-html u,
+.type-detail-page .entity-label-html u {
+    text-decoration: underline;
+}
+
+.entity-label-html s,
+.entity-label-html strike,
+.type-detail-page .entity-label-html s,
+.type-detail-page .entity-label-html strike {
+    text-decoration: line-through;
+}
+
+/* Tailles Quill (éditeur libellé / description) */
+.entity-label-html .ql-size-small,
+.type-detail-page .entity-label-html .ql-size-small {
+    font-size: 0.85em;
+}
+
+.entity-label-html .ql-size-large,
+.type-detail-page .entity-label-html .ql-size-large {
+    font-size: 1.12em;
+}
+
+.entity-label-html .ql-size-huge,
+.type-detail-page .entity-label-html .ql-size-huge {
+    font-size: 1.28em;
+}
+
+.entity-label-html [style*="font-weight: bold"],
+.entity-label-html [style*="font-weight:bold"],
+.entity-label-html [style*="font-weight: 700"],
+.type-detail-page .entity-label-html [style*="font-weight: bold"],
+.type-detail-page .entity-label-html [style*="font-weight:bold"] {
+    font-weight: 700 !important;
+}
+
+.reference-category-card-label.entity-label-html,
+.reference-categories-section .entity-label-html.reference-category-card-label {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--ref-text-muted, #6c757d);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.reference-categories-section .entity-label-html.reference-category-card-label strong,
+.reference-categories-section .entity-label-html.reference-category-card-label b {
+    font-weight: 700;
+}
+
+.collection-panel-subtitle.entity-label-html,
+.type-detail-page .collection-panel-subtitle.entity-label-html {
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
 }
 
 .type-detail-page .concept-info-title,
