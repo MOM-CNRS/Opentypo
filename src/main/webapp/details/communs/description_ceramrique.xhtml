@@ -147,39 +147,6 @@
                                 </ui:fragment>
                             </div>
                         </h:panelGroup>
-
-                        <h:panelGroup layout="block"
-                                      styleClass="concept-info-item concept-info-item-full description-typo-field description-typo-field--solo description-typo-field--rich">
-                            <div class="concept-info-label">
-                                <i class="pi pi-share-alt monnaie-communs-icon" aria-hidden="true"/>
-                                <span>Relation(s) d'imitation</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.relationImitation}">
-                                    <h:outputText value="#{applicationBean.selectedEntity.metadata.relationImitation}" escape="false"/>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.relationImitation}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
-                        </h:panelGroup>
-
-                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}"
-                                      layout="block"
-                                      styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--denom">
-                            <div class="concept-info-label">
-                                <i class="pi pi-tag concept-info-icon" aria-hidden="true"/>
-                                <span>Dénomination</span>
-                            </div>
-                            <div class="concept-info-value concept-info-description description-typo-prose-body">
-                                <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.denominationInstrumentum}">
-                                    <h:outputText value="#{applicationBean.selectedEntity.metadata.denominationInstrumentum}" escape="false"/>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.denominationInstrumentum}">
-                                    <span class="empty-field-message">Non renseigné</span>
-                                </ui:fragment>
-                            </div>
-                        </h:panelGroup>
                     </div>
                 </div>
             </section>

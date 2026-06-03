@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:h="http://xmlns.jcp.org/jsf/html">
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <style>
         .corpus-lie-row {
@@ -118,7 +119,7 @@
                 <p:outputPanel id="corpusLiesListPanel" layout="block"
                                styleClass="bibliographie-container candidats-mt-5"
                                style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow:auto;">
-                    <ui:repeat value="#{entityUpdateBean.corpusLies}" var="c">
+                    <ui:repeat value="#{entityUpdateBean.corpusLies}" var="c" varStatus="corpusStatus">
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid #e4ebde; border-radius:8px; padding:8px 10px; background:#fff;">
                             <h:outputLink value="#{c.url}"
                                           target="_blank"
@@ -128,12 +129,12 @@
                                 <i class="pi pi-external-link" aria-hidden="true"/>
                                 <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:520px;">#{c.label}</span>
                             </h:outputLink>
-                            <p:commandLink type="button"
-                                           action="#{entityUpdateBean.removeCorpusLie(c)}"
+                            <p:commandLink actionListener="#{entityUpdateBean.removeCorpusLieFromEvent}"
                                            process="@this"
-                                           update="corpusLiesListPanel :growl"
+                                           update="@none"
                                            styleClass="zotero-chip-remove"
                                            title="#{msg['modifier.action.remove']}">
+                                <f:attribute name="corpusIndex" value="#{corpusStatus.index}"/>
                                 <i class="pi pi-times" aria-hidden="true"/>
                             </p:commandLink>
                         </div>

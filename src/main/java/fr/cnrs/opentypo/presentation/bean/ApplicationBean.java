@@ -2617,7 +2617,53 @@ public class ApplicationBean implements Serializable {
         if (selectedEntity == null) return false;
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
         return hasAnyValue(selectedEntity.getPeriodes()) || hasAnyValue(selectedEntity.getTpq())
-                || hasAnyValue(selectedEntity.getTaq()) || hasAnyValue(selectedEntity.getCommentaireDatation());
+                || hasAnyValue(selectedEntity.getTaq()) || hasAnyValue(selectedEntity.getCommentaireDatation())
+                || hasAnyValue(selectedEntity.getMetadata() != null ? selectedEntity.getMetadata().getCorpusLies() : null);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CorpusLinkViewItem implements Serializable {
+        private String label;
+        private String url;
+
+        public boolean isLinked() {
+            return url != null && !url.isBlank();
+        }
+    }
+
+    /** Corpus liés de l'entité sélectionnée (format stocké : {@code libellé|url;libellé|url}). */
+    public List<CorpusLinkViewItem> getSelectedEntityCorpusLinks() {
+        if (selectedEntity == null || selectedEntity.getMetadata() == null) {
+            return List.of();
+        }
+        return parseCorpusLinksForDisplay(selectedEntity.getMetadata().getCorpusLies());
+    }
+
+    private static List<CorpusLinkViewItem> parseCorpusLinksForDisplay(String raw) {
+        if (!org.springframework.util.StringUtils.hasText(raw)) {
+            return List.of();
+        }
+        List<CorpusLinkViewItem> out = new ArrayList<>();
+        for (String entry : raw.split("[;；]")) {
+            if (!org.springframework.util.StringUtils.hasText(entry)) {
+                continue;
+            }
+            String trimmed = entry.trim();
+            String[] pair = trimmed.split("\\|", 2);
+            if (pair.length >= 2) {
+                String label = pair[0] != null ? pair[0].trim() : "";
+                String url = pair[1] != null ? pair[1].trim() : "";
+                if (org.springframework.util.StringUtils.hasText(label) && org.springframework.util.StringUtils.hasText(url)) {
+                    out.add(new CorpusLinkViewItem(label, url));
+                } else if (org.springframework.util.StringUtils.hasText(label)) {
+                    out.add(new CorpusLinkViewItem(label, null));
+                }
+            } else if (org.springframework.util.StringUtils.hasText(trimmed)) {
+                out.add(new CorpusLinkViewItem(trimmed, null));
+            }
+        }
+        return out;
     }
 
     @Getter

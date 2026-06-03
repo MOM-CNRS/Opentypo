@@ -48,7 +48,9 @@ import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.servlet.http.Part;
+import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
@@ -2146,14 +2148,20 @@ public class EntityUpdateBean implements Serializable {
         corpusLieUrl = null;
     }
 
-    public void removeCorpusLie(CorpusLinkItem item) {
-        if (item == null || corpusLies == null) {
+    public void removeCorpusLieFromEvent(ActionEvent event) {
+        if (corpusLies == null || corpusLies.isEmpty() || event == null || event.getComponent() == null) {
             return;
         }
-        corpusLies.removeIf(it ->
-                it != null
-                        && safeEqualsIgnoreCaseTrim(it.getLabel(), item.getLabel())
-                        && safeEqualsIgnoreCaseTrim(it.getUrl(), item.getUrl()));
+        Object rawIndex = event.getComponent().getAttributes().get("corpusIndex");
+        if (rawIndex == null) {
+            return;
+        }
+        int index = rawIndex instanceof Number number ? number.intValue() : Integer.parseInt(String.valueOf(rawIndex));
+        if (index < 0 || index >= corpusLies.size()) {
+            return;
+        }
+        corpusLies.remove(index);
+        PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
 
     private static boolean safeEqualsIgnoreCaseTrim(String a, String b) {
@@ -2405,11 +2413,44 @@ public class EntityUpdateBean implements Serializable {
         zoteroPendingKey = null;
     }
 
+    public void removeZoteroBibliographieLineFromEvent(ActionEvent event) {
+        if (event == null || event.getComponent() == null || zoteroAttachedItems == null) {
+            return;
+        }
+        Object rawKey = event.getComponent().getAttributes().get("zoteroItemKey");
+        if (rawKey == null) {
+            return;
+        }
+        String itemKey = String.valueOf(rawKey).trim();
+        if (!StringUtils.hasText(itemKey)) {
+            return;
+        }
+        boolean removed = zoteroAttachedItems.removeIf(z -> itemKey.equals(z.getKey()));
+        if (!removed) {
+            return;
+        }
+        String panelClientId = findAncestorClientId(event.getComponent(), "zoteroAttachedItemsPanel");
+        if (panelClientId != null) {
+            PrimeFaces.current().ajax().update(panelClientId, ":growl");
+        }
+    }
+
     public void removeZoteroBibliographieLine(String itemKey) {
         if (itemKey == null) {
             return;
         }
         zoteroAttachedItems.removeIf(z -> itemKey.equals(z.getKey()));
+    }
+
+    private static String findAncestorClientId(UIComponent component, String id) {
+        UIComponent current = component;
+        while (current != null) {
+            if (id.equals(current.getId())) {
+                return current.getClientId();
+            }
+            current = current.getParent();
+        }
+        return null;
     }
 
     public long getZoteroGroupId() {

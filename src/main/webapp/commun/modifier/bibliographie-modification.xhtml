@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Commentaire, Zotero et notes bibliographiques -->
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
@@ -56,11 +57,12 @@
                                     styleClass="users-input periode-autocomplete-input"
                                     forceSelection="true">
                         <p:ajax event="query"
+                                process="@this"
                                 update="zoteroBibliographieSearchStatus :growl"/>
                         <p:ajax event="itemSelect"
                                 listener="#{entityUpdateBean.onZoteroBibliographieSelect}"
                                 process="@this"
-                                update="@form :growl zoteroBibliographieSearchStatus"/>
+                                update="zoteroBibliographieAutocomplete zoteroAttachedItemsPanel zoteroBibliographieSearchStatus :growl"/>
                     </p:autoComplete>
                 </div>
             </div>
@@ -73,7 +75,8 @@
                 </p:outputPanel>
             </h:panelGroup>
 
-            <div class="bibliographie-container zotero-attached-chips candidats-mt-10">
+            <p:outputPanel id="zoteroAttachedItemsPanel" layout="block"
+                           styleClass="bibliographie-container zotero-attached-chips candidats-mt-10">
                 <ui:repeat value="#{entityUpdateBean.zoteroAttachedItems}" var="zline">
                     <span class="bibliographie-badge zotero-attached-chip">
                         <h:outputLink value="https://www.zotero.org/groups/#{entityUpdateBean.zoteroGroupId}/items/#{zline.key}"
@@ -84,12 +87,12 @@
                             <i class="pi pi-link bibliographie-badge-icon" aria-hidden="true"/>
                             <span class="bibliographie-badge-text">#{zline.label}</span>
                         </h:outputLink>
-                        <p:commandLink type="button"
-                                       action="#{entityUpdateBean.removeZoteroBibliographieLine(zline.key)}"
+                        <p:commandLink actionListener="#{entityUpdateBean.removeZoteroBibliographieLineFromEvent}"
                                        process="@this"
-                                       update="@form"
+                                       update="@none"
                                        styleClass="zotero-chip-remove"
                                        title="#{msg['modifier.zotero.remove.title']}">
+                            <f:attribute name="zoteroItemKey" value="#{zline.key}"/>
                             <i class="pi pi-times" aria-hidden="true"/>
                         </p:commandLink>
                     </span>
@@ -97,7 +100,7 @@
                 <h:outputText value="#{msg['modifier.zotero.noneLinked']}"
                               rendered="#{empty entityUpdateBean.zoteroAttachedItems}"
                               styleClass="empty-field-message"/>
-            </div>
+            </p:outputPanel>
 
             <!-- Notes complémentaires (texte libre, hors Zotero) -->
             <div class="users-form-group users-form-group-full candidats-mt-10">

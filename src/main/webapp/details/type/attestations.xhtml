@@ -60,38 +60,35 @@
                                                   styleClass="bibliographie-empty"/>
                                 </div>
                             </h:panelGroup>
+                        </div>
+                    </div>
 
-                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.corpusLies : null)}"
-                                          styleClass="concept-info-item description-typo-field" layout="block">
+                    <div class="concept-info-grid-band description-typo-band">
+                        <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
                                 <div class="concept-info-label">
                                     <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Corpus lié(s)</span>
                                 </div>
                                 <div class="concept-info-value bibliographie-container">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.corpusLies}">
-                                        <ui:repeat value="#{fn:split(applicationBean.selectedEntity.metadata.corpusLies, ';')}" var="corpus">
-                                            <ui:fragment rendered="#{not empty corpus and fn:trim(corpus) != ''}">
-                                                <ui:fragment rendered="#{fn:length(fn:split(fn:trim(corpus), '\\\\|')) ge 2}">
-                                                    <span class="bibliographie-badge">
-                                                        <i class="pi pi-book bibliographie-badge-icon" aria-hidden="true"/>
-                                                        <h:outputLink value="#{fn:split(fn:trim(corpus), '\\\\|')[1]}"
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      styleClass="bibliographie-badge-text">
-                                                            #{fn:split(fn:trim(corpus), '\\\\|')[0]}
-                                                        </h:outputLink>
-                                                    </span>
+                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntityCorpusLinks}">
+                                        <ui:repeat value="#{applicationBean.selectedEntityCorpusLinks}" var="corpus">
+                                            <span class="bibliographie-badge">
+                                                <ui:fragment rendered="#{corpus.linked}">
+                                                    <h:outputLink value="#{corpus.url}"
+                                                                  target="_blank"
+                                                                  rel="noopener noreferrer"
+                                                                  styleClass="bibliographie-badge-text">
+                                                        #{corpus.label}
+                                                    </h:outputLink>
                                                 </ui:fragment>
-                                                <ui:fragment rendered="#{fn:length(fn:split(fn:trim(corpus), '\\\\|')) lt 2}">
-                                                    <span class="bibliographie-badge">
-                                                        <i class="pi pi-book bibliographie-badge-icon" aria-hidden="true"/>
-                                                        <span class="bibliographie-badge-text">#{fn:trim(corpus)}</span>
-                                                    </span>
+                                                <ui:fragment rendered="#{not corpus.linked}">
+                                                    <span class="bibliographie-badge-text">#{corpus.label}</span>
                                                 </ui:fragment>
-                                            </ui:fragment>
+                                            </span>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.corpusLies}">
+                                    <ui:fragment rendered="#{empty applicationBean.selectedEntityCorpusLinks}">
                                         <span class="empty-field-message">Non renseigné</span>
                                     </ui:fragment>
                                 </div>

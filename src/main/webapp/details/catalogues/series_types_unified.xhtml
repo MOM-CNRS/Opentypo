@@ -80,8 +80,9 @@
                     </div>
 
                     <h:panelGroup id="seriesTypesContent">
-                        <!-- Grille paginée des séries, chacune avec carousel de types -->
-                        <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
+                        <ui:fragment rendered="#{not empty applicationBean.childsSeries}">
+                            <!-- Grille paginée des séries, chacune avec carousel de types -->
+                            <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
                             <article class="series-types-serie-card"
                                      style="margin-left: 20px; margin-right: 20px; margin-top: 15px">
                                 <header class="series-types-serie-header">
@@ -156,10 +157,34 @@
                                     </p>
                                 </ui:fragment>
                             </article>
-                        </ui:repeat>
+                            </ui:repeat>
+
+                            <!-- Pagination (masquée si tout afficher) -->
+                            <h:panelGroup rendered="#{not applicationBean.seriesViewAll and applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
+                                <p:commandButton icon="pi pi-chevron-left"
+                                                 styleClass="reference-categories-page-btn"
+                                                 process="@this"
+                                                 update="seriesTypesContent"
+                                                 action="#{applicationBean.seriesPreviousPage()}"
+                                                 disabled="#{applicationBean.seriesFirstPage}"
+                                                 title="Page précédente"/>
+
+                                <span class="reference-categories-page-info">
+                                    Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
+                                </span>
+
+                                <p:commandButton icon="pi pi-chevron-right"
+                                                 styleClass="reference-categories-page-btn"
+                                                 process="@this"
+                                                 update="seriesTypesContent"
+                                                 action="#{applicationBean.seriesNextPage()}"
+                                                 disabled="#{applicationBean.seriesLastPage}"
+                                                 title="Page suivante"/>
+                            </h:panelGroup>
+                        </ui:fragment>
 
                         <!-- Message si aucune série -->
-                        <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsSeries and empty applicationBean.childsTypes}">
+                        <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsSeries}">
                             <div class="reference-categories-empty-icon">
                                 <i class="pi pi-inbox" aria-hidden="true"/>
                             </div>
@@ -183,29 +208,6 @@
                                 <h4 class="reference-categories-empty-title">Aucun résultat</h4>
                                 <p class="reference-categories-empty-text">Aucune série ne correspond à votre recherche.</p>
                             </div>
-                        </h:panelGroup>
-
-                        <!-- Pagination (masquée si tout afficher) -->
-                        <h:panelGroup rendered="#{not applicationBean.seriesViewAll and applicationBean.seriesTotalPages gt 1}" class="reference-categories-pagination">
-                            <p:commandButton icon="pi pi-chevron-left"
-                                             styleClass="reference-categories-page-btn"
-                                             process="@this"
-                                             update="seriesTypesContent"
-                                             action="#{applicationBean.seriesPreviousPage()}"
-                                             disabled="#{applicationBean.seriesFirstPage}"
-                                             title="Page précédente"/>
-
-                            <span class="reference-categories-page-info">
-                                Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
-                            </span>
-
-                            <p:commandButton icon="pi pi-chevron-right"
-                                             styleClass="reference-categories-page-btn"
-                                             process="@this"
-                                             update="seriesTypesContent"
-                                             action="#{applicationBean.seriesNextPage()}"
-                                             disabled="#{applicationBean.seriesLastPage}"
-                                             title="Page suivante"/>
                         </h:panelGroup>
                     </h:panelGroup>
                 </h:panelGroup>
@@ -283,7 +285,8 @@
 
                     <h:panelGroup id="categoriesContent">
                         <div class="reference-categories-grid" style="background-color: transparent !important; border-color: transparent !important;">
-                            <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
+                            <ui:fragment rendered="#{not empty applicationBean.childsTypes}">
+                                <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
                                 <p:commandLink action="#{applicationBean.showType(type)}"
                                                styleClass="type-catalog-card"
                                                process="@this"
@@ -311,7 +314,29 @@
                                         <span class="type-catalog-card__code">#{type.code}</span>
                                     </div>
                                 </p:commandLink>
-                            </ui:repeat>
+                                </ui:repeat>
+
+                                <!-- Pagination (masquée si tout afficher) -->
+                                <h:panelGroup rendered="#{not applicationBean.typesViewAll and applicationBean.typesTotalPages gt 1}" class="reference-categories-pagination">
+                                    <p:commandButton icon="pi pi-chevron-left"
+                                                     styleClass="reference-categories-page-btn"
+                                                     process="@this"
+                                                     update="categoriesContent"
+                                                     action="#{applicationBean.typesPreviousPage()}"
+                                                     disabled="#{applicationBean.typesFirstPage}"
+                                                     title="Page précédente"/>
+                                    <span class="reference-categories-page-info">
+                                        Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
+                                    </span>
+                                    <p:commandButton icon="pi pi-chevron-right"
+                                                     styleClass="reference-categories-page-btn"
+                                                     process="@this"
+                                                     update="categoriesContent"
+                                                     action="#{applicationBean.typesNextPage()}"
+                                                     disabled="#{applicationBean.typesLastPage}"
+                                                     title="Page suivante"/>
+                                </h:panelGroup>
+                            </ui:fragment>
 
                             <!-- Message si aucun type -->
                             <h:panelGroup class="reference-categories-empty" rendered="#{empty applicationBean.childsTypes}">
@@ -337,27 +362,6 @@
                                     <h4 class="reference-categories-empty-title">Aucun résultat</h4>
                                     <p class="reference-categories-empty-text">Aucun type ne correspond à votre recherche.</p>
                                 </div>
-                            </h:panelGroup>
-
-                            <!-- Pagination (masquée si tout afficher) -->
-                            <h:panelGroup rendered="#{not applicationBean.typesViewAll and applicationBean.typesTotalPages gt 1}" class="reference-categories-pagination">
-                                <p:commandButton icon="pi pi-chevron-left"
-                                                 styleClass="reference-categories-page-btn"
-                                                 process="@this"
-                                                 update="categoriesContent"
-                                                 action="#{applicationBean.typesPreviousPage()}"
-                                                 disabled="#{applicationBean.typesFirstPage}"
-                                                 title="Page précédente"/>
-                                <span class="reference-categories-page-info">
-                                    Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
-                                </span>
-                                <p:commandButton icon="pi pi-chevron-right"
-                                                 styleClass="reference-categories-page-btn"
-                                                 process="@this"
-                                                 update="categoriesContent"
-                                                 action="#{applicationBean.typesNextPage()}"
-                                                 disabled="#{applicationBean.typesLastPage}"
-                                                 title="Page suivante"/>
                             </h:panelGroup>
                         </div>
                     </h:panelGroup>
