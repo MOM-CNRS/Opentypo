@@ -105,7 +105,7 @@
                         <nav class="type-page-nav" aria-label="#{msg['type.nav.aria']}">
                             <div class="type-page-nav__scroller">
                                 <span class="type-page-nav__label">#{msg['type.nav.quickAccess']}</span>
-                                <a href="#type-identity" class="type-page-nav__pill">#{msg['type.nav.presentation']}</a>
+                                <a href="#type-section-presentation" class="type-page-nav__pill">#{msg['type.nav.presentation']}</a>
                                 <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
                                     <a href="#type-section-datation" class="type-page-nav__pill">#{msg['common.section.datation']}</a>
                                 </ui:fragment>
@@ -145,7 +145,8 @@
                         <ui:include src="galerie_images.xhtml"/>
                     </div>
 
-                    <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
+                    <section id="type-section-presentation"
+                             class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line type-section-shell type-section-anchor"
                              aria-label="#{msg['type.presentation.region']}">
                         <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="type-identity-texte-heading">
                             <header class="concept-info-header monnaie-communs-header description-typo-header">
@@ -266,15 +267,11 @@
 
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
-                    <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
-                        <div id="type-section-datation" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="datation.xhtml"/>
-                        </div>
-                    </ui:fragment>
+                    <ui:include src="datation.xhtml"/>
 
-                    <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
-                        <ui:include src="../communs/production.xhtml"/>
-                    </ui:fragment>
+                    <ui:include src="../communs/production.xhtml"/>
+
+                    <ui:include src="attestations.xhtml"/>
 
                     <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()}">
                         <ui:include src="../communs/description_monnaie.xhtml"/>
@@ -291,25 +288,11 @@
                         <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                     </ui:fragment>
 
-                    <!--<ui:include src="gestion.xhtml"/>-->
+                    <ui:include src="references.xhtml"/>
 
-                    <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
-                        <div id="type-section-references" class="type-section-shell type-section-anchor candidats-mt-20">
-                            <ui:include src="references.xhtml"/>
-                        </div>
-                    </ui:fragment>
+                    <ui:include src="../communs/commentaire.xhtml"/>
 
-                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
-                        <div id="type-section-commentaire" class="type-section-shell type-section-anchor">
-                            <ui:include src="../communs/commentaire.xhtml"/>
-                        </div>
-                    </ui:fragment>
-
-                    <ui:fragment rendered="#{applicationBean.showBibliographieSection()}">
-                        <div id="type-section-bibliographie" class="type-section-shell type-section-anchor">
-                            <ui:include src="../communs/bibliographie.xhtml"/>
-                        </div>
-                    </ui:fragment>
+                    <ui:include src="../communs/bibliographie.xhtml"/>
                 </ui:fragment>
             </h:form>
         </div>

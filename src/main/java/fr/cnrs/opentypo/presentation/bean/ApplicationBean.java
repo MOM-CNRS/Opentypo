@@ -537,6 +537,26 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Vérifie si l'utilisateur connecté est l'auteur (createBy ou liste auteurs) de l'entité.
+     */
+    private boolean isCurrentUserAuteurOf(Entity entity) {
+        if (loginBean == null || !loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
+                || entity == null) {
+            return false;
+        }
+        Utilisateur current = loginBean.getCurrentUser();
+        String email = current.getEmail();
+        if (email != null && email.equalsIgnoreCase(entity.getCreateBy())) {
+            return true;
+        }
+        if (entity.getAuteurs() == null || entity.getAuteurs().isEmpty()) {
+            return false;
+        }
+        return entity.getAuteurs().stream()
+                .anyMatch(a -> a != null && a.getId() != null && a.getId().equals(current.getId()));
+    }
+
+    /**
      * Indique si une entité est visible dans une liste de catalogue (références, catégories, groupes, séries, types).
      * Règles :
      * - Mode offline (non connecté) : publique = true ET statut différent de REFUSED et PROPOSITION
@@ -587,22 +607,23 @@ public class ApplicationBean implements Serializable {
             boolean isAdminRefOfReference = referenceAncestor != null
                     && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
             boolean hasRoleOnGroup = isCurrentUserHasAnyRoleOnGroup(entity);
-            return isAdminRefOfReference || hasRoleOnGroup;
+            return isAdminRefOfReference || hasRoleOnGroup || isCurrentUserAuteurOf(entity);
         }
         if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(entityTypeCode)) {
-            return referenceAncestor != null && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
+            return (referenceAncestor != null && isCurrentUserGestionnaireReferentielFor(referenceAncestor))
+                    || isCurrentUserAuteurOf(entity);
         }
         if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode) || "SERIE".equals(entityTypeCode)) {
             boolean isAdminRefOfReference = referenceAncestor != null
                     && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
             boolean hasRoleOnGroup = groupAncestor != null && isCurrentUserHasAnyRoleOnGroup(groupAncestor);
-            return isAdminRefOfReference || hasRoleOnGroup;
+            return isAdminRefOfReference || hasRoleOnGroup || isCurrentUserAuteurOf(entity);
         }
         if (EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
             boolean isAdminRefOfReference = referenceAncestor != null
                     && isCurrentUserGestionnaireReferentielFor(referenceAncestor);
             boolean hasRoleOnGroup = groupAncestor != null && isCurrentUserHasAnyRoleOnGroup(groupAncestor);
-            return isAdminRefOfReference || hasRoleOnGroup;
+            return isAdminRefOfReference || hasRoleOnGroup || isCurrentUserAuteurOf(entity);
         }
 
         return isEntityVisibleForCurrentUser(entity);

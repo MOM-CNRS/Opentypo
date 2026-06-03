@@ -335,13 +335,13 @@ public class SerieBean implements Serializable {
                 tb.addEntityToTree(savedSerie, applicationBean.getSelectedGroup());
             }
 
-            String labelPrincipal = serieNames.get(0).getNom();
+            String labelPrincipal = serieNames.isEmpty() ? savedSerie.getCode() : serieNames.get(0).getNom();
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
                     "La série '" + labelPrincipal + "' a été créée avec succès."));
 
             resetSerieDialogForm();
             PrimeFaces.current().executeScript("PF('serieDialog').hide();");
-            PrimeFaces.current().ajax().update(":growl, :serieDialogForm, :seriesContent, :centerContent");
+            PrimeFaces.current().ajax().update(":growl :serieDialogForm :contentPanels :leftTreePanel");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la série", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));

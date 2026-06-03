@@ -12,40 +12,46 @@
               draggable="false"
               resizable="false"
               styleClass="reference-dialog"
-              width="600"
+              width="640"
               height="auto"
               closable="true"
               responsive="true"
-              position="center">
+              position="center"
+              appendTo="@(body)">
 
         <h:form id="serieDialogForm">
             <p:remoteCommand name="resetSerieFormCommand"
                            action="#{serieBean.resetSerieDialogForm}"
                            update="@form"
                            process="@this"/>
-            <div class="reference-form-content">
-                <!-- Code -->
-                <div class="reference-form-group reference-form-section">
+
+            <!-- Code -->
+            <div class="collection-form-group">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
                         <span>Code de la série</span>
                     </div>
-                    <p:inputText id="serieCode"
-                               value="#{serieBean.serieDialogCode}"
-                               required="true"
-                               requiredMessage="Le code de la série est requis"
-                               styleClass="reference-input"
-                               placeholder="Ex: SER001"/>
+                    <div class="input-wrapper periode-input-wrapper collection-select">
+                        <p:inputText id="serieCode"
+                                   value="#{serieBean.serieDialogCode}"
+                                   required="true"
+                                   requiredMessage="Le code de la série est requis"
+                                   styleClass="reference-input"
+                                   placeholder="Ex: SER001"/>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Section Labels -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Labels -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
                         <span>Labels</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputText id="newNameInput"
                                        value="#{serieBean.newNameValue}"
                                        placeholder="Nom"
@@ -99,28 +105,29 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty serieBean.serieNames}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
-                                    </div>
+                        <h:panelGroup rendered="#{empty serieBean.serieNames}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
+            </div>
 
-                <!-- Section Descriptions -->
-                <div class="reference-form-group reference-form-section">
+            <!-- Section Descriptions -->
+            <div class="collection-form-group" style="padding-top: 15px">
+                <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
                         <span>Descriptions</span>
                     </div>
                     <div class="reference-name-input-row">
-                        <div class="reference-form-group reference-form-group-flex">
+                        <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                            value="#{serieBean.newDescriptionValue}"
                                            placeholder="Description"
@@ -128,7 +135,7 @@
                                            styleClass="reference-textarea"/>
                         </div>
                     </div>
-                    <div class="reference-name-input-row">
+                    <div class="reference-name-input-row" style="margin-top: 10px">
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{serieBean.newDescriptionLangueCode}"
@@ -178,14 +185,13 @@
                                 </div>
                             </p:column>
                         </p:dataTable>
-                        <h:panelGroup rendered="#{empty serieBean.serieDescriptions}">
-                            <div class="reference-no-names">
-                                <div class="reference-no-names-content">
-                                    <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
-                                    <div class="reference-no-names-text">
-                                        <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                        <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
-                                    </div>
+                        <h:panelGroup rendered="#{empty serieBean.serieDescriptions}"
+                                      class="reference-no-names collection-form-group" style="margin-top: 10px">
+                            <div class="reference-no-names-content">
+                                <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
+                                <div class="reference-no-names-text">
+                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
+                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -205,7 +211,7 @@
                                styleClass="reference-btn reference-btn-validate"
                                action="#{serieBean.createSerieFromDialog}"
                                process="@form" ajax="true"
-                               update="@form :growl :centerContent"
+                               update="@form :growl :contentPanels :leftTreePanel"
                                oncomplete="if(!args.validationFailed) {PF('serieDialog').hide();}"/>
             </div>
         </h:form>
