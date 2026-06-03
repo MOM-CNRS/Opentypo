@@ -36,8 +36,7 @@
                                                 </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme.url}">
-                                                <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                    <i class="pi pi-link-slash" aria-hidden="true"/>
+                                                <span class="concept-value-external-link" title="Aucun lien OpenTheso">
                                                     #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
                                                 </span>
                                             </ui:fragment>
@@ -103,10 +102,9 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty fu.url}">
-                                                        <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                                            <i class="pi pi-link-slash" aria-hidden="true"/>
-                                                            #{fu.valeur}
-                                                        </span>
+                                                    <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                        #{fu.valeur}
+                                                    </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                         </ui:repeat>
@@ -137,10 +135,9 @@
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle.url}">
-                                    <span class="concept-value-no-link" title="Aucun lien OpenTheso">
-                                        <i class="pi pi-link-slash" aria-hidden="true"/>
-                                        #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
-                                    </span>
+                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
+                                            </span>
                                         </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">

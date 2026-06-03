@@ -1,0 +1,155 @@
+/* Cartes type catalogue — cadre fixe, image intégrale, sans animation au survol */
+
+.type-catalog-cards-scope {
+    --type-catalog-card-height: 248px;
+    --type-catalog-card-media-height: 212px;
+    --type-catalog-card-footer-height: 36px;
+    --type-catalog-card-frame-inset: 10px;
+    --tc-main-rgb: var(--st-main-rgb, 71, 98, 77);
+    --tc-bg: var(--st-bg, var(--ref-bg, #ffffff));
+    --tc-border: var(--st-border, rgba(var(--tc-main-rgb), 0.12));
+    --tc-text: var(--st-text, var(--ref-text, #333));
+}
+
+.type-catalog-cards-scope .reference-categories-grid {
+    grid-auto-rows: var(--type-catalog-card-height) !important;
+    align-items: start !important;
+}
+
+.type-catalog-cards-scope .type-catalog-card,
+.type-catalog-cards-scope a.type-catalog-card,
+.type-catalog-cards-scope .ui-commandlink.type-catalog-card {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--type-catalog-card-height);
+    min-height: var(--type-catalog-card-height);
+    max-height: var(--type-catalog-card-height);
+    padding: 0;
+    text-decoration: none !important;
+    color: inherit;
+    background: var(--tc-bg);
+    border: 1px solid var(--tc-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: none;
+    transform: none;
+    position: relative;
+}
+
+.type-catalog-cards-scope .type-catalog-card::before {
+    display: none;
+}
+
+.type-catalog-cards-scope .type-catalog-card:focus-visible {
+    outline: 2px solid rgba(var(--tc-main-rgb), 0.45);
+    outline-offset: 2px;
+}
+
+.type-catalog-cards-scope .type-catalog-card:hover,
+.type-catalog-cards-scope .type-catalog-card:focus,
+.type-catalog-cards-scope .type-catalog-card:hover *,
+.type-catalog-cards-scope a.type-catalog-card:hover,
+.type-catalog-cards-scope .ui-commandlink.type-catalog-card:hover {
+    transform: none !important;
+    text-decoration: none !important;
+    color: inherit;
+    border-color: var(--tc-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.type-catalog-cards-scope .type-catalog-card__media {
+    flex: 0 0 var(--type-catalog-card-media-height);
+    width: 100%;
+    height: var(--type-catalog-card-media-height);
+    min-height: var(--type-catalog-card-media-height);
+    max-height: var(--type-catalog-card-media-height);
+    position: relative;
+    box-sizing: border-box;
+    background: #f7f8f7;
+    border-bottom: 1px solid var(--tc-border);
+    overflow: hidden;
+}
+
+.type-catalog-cards-scope .type-catalog-card__frame {
+    position: absolute;
+    inset: var(--type-catalog-card-frame-inset);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.type-catalog-cards-scope .type-catalog-card__media .ui-graphic,
+.type-catalog-cards-scope .type-catalog-card__media .ui-graphic-image {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.type-catalog-cards-scope .type-catalog-card__image,
+.type-catalog-cards-scope .type-catalog-card__frame img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    object-position: center;
+    transition: none !important;
+    transform: none !important;
+}
+
+.type-catalog-cards-scope .type-catalog-card:hover .type-catalog-card__image,
+.type-catalog-cards-scope .type-catalog-card:hover .type-catalog-card__image img {
+    transform: none !important;
+}
+
+.type-catalog-cards-scope .type-catalog-card__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(var(--tc-main-rgb), 0.22);
+    font-size: 1.75rem;
+}
+
+.type-catalog-cards-scope .type-catalog-card__footer {
+    flex: 0 0 var(--type-catalog-card-footer-height);
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--type-catalog-card-footer-height);
+    min-height: var(--type-catalog-card-footer-height);
+    max-height: var(--type-catalog-card-footer-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    text-align: center;
+    background: var(--tc-bg);
+    overflow: hidden;
+}
+
+.type-catalog-cards-scope .type-catalog-card__code {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: var(--tc-text);
+    font-variant-numeric: tabular-nums;
+}

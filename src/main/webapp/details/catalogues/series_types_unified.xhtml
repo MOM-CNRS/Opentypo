@@ -250,7 +250,7 @@
                 </div>
         
                 <h:panelGroup id="categoriesContainer2"
-                              class="reference-categories-section reference-cards-container reference-categories-form series-types-types-content">
+                              class="reference-categories-section reference-cards-container reference-categories-form series-types-types-content type-catalog-cards-scope">
                     <!-- Sélecteur de tri + barre de recherche + option tout afficher -->
                     <div class="reference-categories-search-bar reference-categories-search-row"
                          style="margin-left: 20px; margin-right: 20px;">
@@ -285,27 +285,30 @@
                         <div class="reference-categories-grid" style="background-color: transparent !important; border-color: transparent !important;">
                             <ui:repeat value="#{applicationBean.paginatedTypes}" var="type" varStatus="status">
                                 <p:commandLink action="#{applicationBean.showType(type)}"
-                                               styleClass="typologie-card"
+                                               styleClass="type-catalog-card"
                                                process="@this"
                                                update=":centerContent"
+                                               title="#{applicationBean.getEntityLabelPlainText(type)}"
                                                pt:data-entity-code="#{type.code}"
                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                                onstart="showLoading('Chargement du type...', 'spinner');"
                                                oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                                onerror="forceHideLoading();">
-                                    <div class="typologie-card-image-wrapper">
-                                        <p:graphicImage value="#{type.image.url}"
-                                                        styleClass="typologie-card-image"
-                                                        alt="Typologie"
-                                                        rendered="#{not empty type.image and not empty type.image.url}"/>
-                                        <div class="typologie-card-overlay"></div>
-                                        <h:panelGroup class="reference-image-placeholder"
-                                                      rendered="#{empty type.image or empty type.image.url}">
-                                            <span class="reference-placeholder-text">OpenTypo</span>
-                                        </h:panelGroup>
+                                    <div class="type-catalog-card__media">
+                                        <div class="type-catalog-card__frame">
+                                            <p:graphicImage value="#{type.image.url}"
+                                                            styleClass="type-catalog-card__image"
+                                                            alt="#{type.code}"
+                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
+                                            <ui:fragment rendered="#{empty type.image or empty type.image.url}">
+                                                <div class="type-catalog-card__placeholder" aria-hidden="true">
+                                                    <i class="pi pi-image"/>
+                                                </div>
+                                            </ui:fragment>
+                                        </div>
                                     </div>
-                                    <div class="typologie-card-content">
-                                        <h3 class="typologie-card-title">#{type.code}</h3>
+                                    <div class="type-catalog-card__footer">
+                                        <span class="type-catalog-card__code">#{type.code}</span>
                                     </div>
                                 </p:commandLink>
                             </ui:repeat>

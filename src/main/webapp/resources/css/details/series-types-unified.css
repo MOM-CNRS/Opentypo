@@ -487,51 +487,10 @@
 }
 
 /* ===== Section Types (cartes typologie) ===== */
-.series-types-types-content .reference-categories-grid {
+.series-types-types-content.type-catalog-cards-scope .reference-categories-grid {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)) !important;
     gap: 1.25rem !important;
-}
-
-.series-types-types-content .typologie-card {
-    border: 1px solid var(--st-border) !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: var(--st-shadow) !important;
-    transition: all var(--st-transition) !important;
-}
-
-.series-types-types-content .typologie-card:hover {
-    border-color: rgba(var(--st-main-rgb), 0.35) !important;
-    box-shadow: var(--st-shadow-hover) !important;
-    transform: translateY(-4px) !important;
-}
-
-.series-types-types-content .typologie-card::before {
-    background: linear-gradient(90deg, var(--st-main) 0%, rgba(var(--st-main-rgb), 0.6) 100%) !important;
-}
-
-.series-types-types-content .typologie-card-image-wrapper {
-    background: rgba(var(--st-main-rgb), 0.04) !important;
-}
-
-.series-types-types-content .typologie-card-title {
-    color: var(--st-text) !important;
-    font-weight: 600 !important;
-    transition: color var(--st-transition) !important;
-}
-
-.series-types-types-content .typologie-card:hover .typologie-card-title {
-    color: var(--st-main) !important;
-}
-
-.series-types-types-content .typologie-card-overlay {
-    background: linear-gradient(to bottom, transparent 0%, rgba(var(--st-main-rgb), 0.08) 100%) !important;
-    transition: background var(--st-transition) !important;
-}
-
-.series-types-types-content .typologie-card:hover .typologie-card-overlay {
-    background: linear-gradient(to bottom, transparent 0%, rgba(var(--st-main-rgb), 0.18) 100%) !important;
 }
 
 /* Bouton "Tout afficher" section Types */
