@@ -25,54 +25,52 @@
                         </div>
 
                         <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                            <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                           rendered="#{loginBean.currentUser != null}"
-                                           process="@this"
-                                           update="@none"
-                                           styleClass="concept-action-button"
-                                           title="#{msg['common.history.title']}"
-                                           immediate="true">
-                                <i class="pi pi-history"/>
-                            </p:commandLink>
-
-                            <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                           process="@this"
-                                           update=":contentPanels :leftTreePanel :searchSectionWrapper"
-                                           styleClass="concept-action-button"
-                                           title="#{msg['type.action.edit.title']}"
-                                           rendered="#{typeBean.canEditType(applicationBean)}">
-                                <i class="pi pi-file-edit"/>
-                            </p:commandLink>
-
-                            <p:commandLink action="#{typeBean.prepareMoveTypeDialog()}"
-                                           process="@this"
-                                           update=":moveTypeDialog"
-                                           oncomplete="PF('moveTypeDialog').show();"
-                                           styleClass="concept-action-button"
-                                           title="#{msg['type.action.move.title']}"
-                                           rendered="#{typeBean.canEditType(applicationBean)}">
-                                <i class="pi pi-arrow-right-arrow-left"/>
-                            </p:commandLink>
-
-                            <p:commandLink action="#{typeBean.prepareDuplicateTypeDialog()}"
-                                           process="@this"
-                                           update=":duplicateTypeDialog :duplicateTypeDialogForm"
-                                           oncomplete="PF('duplicateTypeDialog').show();"
-                                           styleClass="concept-action-button"
-                                           title="#{msg['type.action.duplicate.title']}"
-                                           rendered="#{typeBean.canEditType(applicationBean)}">
-                                <i class="pi pi-copy"/>
-                            </p:commandLink>
-
-                            <p:commandLink action="#{confirmDeleteBean.prepareDelete('TYPE')}"
-                                           process="@this"
-                                           update=":confirmDeleteDialogContent"
-                                           oncomplete="PF('confirmDeleteDialog').show();"
-                                           rendered="#{typeBean.canDeleteType(applicationBean)}"
-                                           styleClass="concept-action-button type-detail-action-delete"
-                                           title="#{msg['type.action.delete.title']}">
-                                <i class="pi pi-trash"/>
-                            </p:commandLink>
+                            <p:menuButton icon="pi pi-ellipsis-v"
+                                          styleClass="concept-action-menu-trigger"
+                                          menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
+                                          title="#{msg['common.actions']}"
+                                          appendTo="@(body)"
+                                          rendered="#{loginBean.currentUser != null or typeBean.canEditType(applicationBean) or typeBean.canDeleteType(applicationBean)}">
+                                <p:menuitem value="#{msg['common.history.title']}"
+                                            icon="pi pi-history"
+                                            action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                            process="@this"
+                                            update="@none"
+                                            immediate="true"
+                                            rendered="#{loginBean.currentUser != null}"/>
+                                <p:menuitem value="#{msg['type.action.edit.title']}"
+                                            icon="pi pi-file-edit"
+                                            action="#{entityUpdateBean.startEditing()}"
+                                            process="@this"
+                                            update=":contentPanels :leftTreePanel :searchSectionWrapper"
+                                            rendered="#{typeBean.canEditType(applicationBean)}"
+                                            onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
+                                            oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
+                                            onerror="if(typeof hideLoading==='function') hideLoading();"/>
+                                <p:menuitem value="#{msg['type.action.move.title']}"
+                                            icon="pi pi-arrow-right-arrow-left"
+                                            action="#{typeBean.prepareMoveTypeDialog()}"
+                                            process="@this"
+                                            update=":moveTypeDialog"
+                                            oncomplete="PF('moveTypeDialog').show();"
+                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
+                                <p:menuitem value="#{msg['type.action.duplicate.title']}"
+                                            icon="pi pi-copy"
+                                            action="#{typeBean.prepareDuplicateTypeDialog()}"
+                                            process="@this"
+                                            update=":duplicateTypeDialog :duplicateTypeDialogForm"
+                                            oncomplete="PF('duplicateTypeDialog').show();"
+                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
+                                <p:separator rendered="#{typeBean.canDeleteType(applicationBean) and (loginBean.currentUser != null or typeBean.canEditType(applicationBean))}"/>
+                                <p:menuitem value="#{msg['type.action.delete.title']}"
+                                            icon="pi pi-trash"
+                                            styleClass="type-action-menu-delete"
+                                            action="#{confirmDeleteBean.prepareDelete('TYPE')}"
+                                            process="@this"
+                                            update=":confirmDeleteDialogContent"
+                                            oncomplete="PF('confirmDeleteDialog').show();"
+                                            rendered="#{typeBean.canDeleteType(applicationBean)}"/>
+                            </p:menuButton>
 
                             <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                 <div class="collection-visibility-card">

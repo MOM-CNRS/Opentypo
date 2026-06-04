@@ -34,31 +34,38 @@
                             </div>
 
                             <h:panelGroup class="concept-info-actions" rendered="#{!entityUpdateBean.editingEntity}">
-                                <p:commandLink action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
-                                               process="@this" update="@none" styleClass="concept-action-button"
-                                               title="#{msg['common.history.tooltip']}"
-                                               immediate="true">
-                                    <i class="pi pi-history" />
-                                </p:commandLink>
-
-                                <p:commandLink action="#{entityUpdateBean.startEditing()}"
-                                               process="@this"
-                                               update=":contentPanels :leftTreePanel :searchSectionWrapper"
-                                               rendered="#{serieBean.canEditSerie(applicationBean)}"
-                                               styleClass="concept-action-button"
-                                               title="#{msg['common.edit']}">
-                                    <i class="pi pi-file-edit" />
-                                </p:commandLink>
-
-                                <p:commandLink action="#{confirmDeleteBean.prepareDelete('SERIE')}"
-                                               process="@this"
-                                               update=":confirmDeleteDialogContent"
-                                               oncomplete="PF('confirmDeleteDialog').show();"
-                                               styleClass="concept-action-button type-detail-action-delete"
-                                               title="#{msg['common.delete']}"
-                                               rendered="#{serieBean.canDeleteSerie(applicationBean)}">
-                                    <i class="pi pi-trash" />
-                                </p:commandLink>
+                                <p:menuButton icon="pi pi-ellipsis-v"
+                                              styleClass="concept-action-menu-trigger"
+                                              menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
+                                              title="#{msg['common.actions']}"
+                                              appendTo="@(body)"
+                                              rendered="#{loginBean.currentUser != null or serieBean.canEditSerie(applicationBean) or serieBean.canDeleteSerie(applicationBean)}">
+                                    <p:menuitem value="#{msg['common.history.tooltip']}"
+                                                icon="pi pi-history"
+                                                action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
+                                                process="@this"
+                                                update="@none"
+                                                immediate="true"
+                                                rendered="#{loginBean.currentUser != null}"/>
+                                    <p:menuitem value="#{msg['common.edit']}"
+                                                icon="pi pi-file-edit"
+                                                action="#{entityUpdateBean.startEditing()}"
+                                                process="@this"
+                                                update=":contentPanels :leftTreePanel :searchSectionWrapper"
+                                                rendered="#{serieBean.canEditSerie(applicationBean)}"
+                                                onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
+                                                oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
+                                                onerror="if(typeof hideLoading==='function') hideLoading();"/>
+                                    <p:separator rendered="#{serieBean.canDeleteSerie(applicationBean) and (loginBean.currentUser != null or serieBean.canEditSerie(applicationBean))}"/>
+                                    <p:menuitem value="#{msg['common.delete']}"
+                                                icon="pi pi-trash"
+                                                styleClass="type-action-menu-delete"
+                                                action="#{confirmDeleteBean.prepareDelete('SERIE')}"
+                                                process="@this"
+                                                update=":confirmDeleteDialogContent"
+                                                oncomplete="PF('confirmDeleteDialog').show();"
+                                                rendered="#{serieBean.canDeleteSerie(applicationBean)}"/>
+                                </p:menuButton>
 
                                 <h:panelGroup rendered="#{loginBean.currentUser != null}">
                                     <div class="collection-visibility-card">
@@ -72,7 +79,7 @@
                                                 </div>
                                             </div>
                                             <h:panelGroup class="collection-visibility-toggle-wrapper"
-                                                          rendered="#{typeBean.canEditType(applicationBean)}">
+                                                          rendered="#{serieBean.canEditSerie(applicationBean)}">
                                                 <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                                process="@this"
                                                                update=":confirmReferenceVisibilityChangeDialog :growl"
