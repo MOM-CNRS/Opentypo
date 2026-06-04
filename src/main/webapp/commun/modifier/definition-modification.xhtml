@@ -4,7 +4,8 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="users-form-group users-form-group-full periode-group candidats-mt-20 candidat-definition-form">
+    <p:outputPanel id="modifierDefinitionsPanel" layout="block"
+                   styleClass="users-form-group users-form-group-full periode-group candidats-mt-20 candidat-definition-form">
         <div class="periode-header-row">
             <p:outputLabel value="#{msg['modifier.definition.section.title']}" />
         </div>
@@ -39,23 +40,25 @@
                              icon="pi pi-plus"
                              styleClass="candidat-btn-add"
                              actionListener="#{entityUpdateBean.addTempDescription()}"
-                             process="@form"
+                             process="modifierDefinitionsPanel"
                              ajax="true"
-                             update=":centerContent :growl"/>
+                             update="modifierDefinitionsPanel :growl"
+                             onerror="if(typeof resetPrimeFacesButtonLoadingState==='function')resetPrimeFacesButtonLoadingState();"/>
         </div>
 
-        <p:dataTable value="#{entityUpdateBean.descriptions}"
+        <p:dataTable id="modifierDefinitionsTable"
+                     value="#{entityUpdateBean.descriptions}"
                      var="labelItem"
                      styleClass="candidat-labels-table candidats-mt-10"
-                     emptyMessage="#{msg['modifier.label.table.empty']}"
-                     rendered="#{not empty entityUpdateBean.descriptions}">
+                     emptyMessage="#{msg['modifier.label.table.empty']}">
+
             <p:column headerText="#{msg['modifier.definition.table.header']}" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
                         <h:graphicImage library="img" name="flag/#{labelItem.langueCode}.png"
                                         styleClass="candidat-table-flag" alt="#{labelItem.langue.nom}" title="#{labelItem.langue.nom}"/>
                     </h:panelGroup>
-                    <h:outputText value="#{labelItem.valeur}" styleClass="candidat-table-label-text" escape="false" />
+                    <h:outputText value="#{labelItem.valeur}" styleClass="candidat-table-label-text entity-label-html" escape="false" />
                 </div>
             </p:column>
             <p:column styleClass="candidat-table-action-column">
@@ -63,24 +66,13 @@
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      action="#{entityUpdateBean.removeTmpDescription(labelItem)}"
-                                     process="@form"
+                                     process="@this"
                                      ajax="true"
-                                     update=":centerContent :growl"
+                                     update="@form:modifierDefinitionsPanel :growl"
+                                     onerror="if(typeof resetPrimeFacesButtonLoadingState==='function')resetPrimeFacesButtonLoadingState();"
                                      title="#{msg['modifier.action.deleteDefinition.title']}"/>
                 </div>
             </p:column>
         </p:dataTable>
-
-        <ui:fragment rendered="#{empty entityUpdateBean.descriptions}">
-            <div class="candidat-no-labels">
-                <div class="candidat-no-labels-content">
-                    <div class="candidat-no-labels-icon"><i class="pi pi-info-circle" /></div>
-                    <div class="candidat-no-labels-text">
-                        <h4 class="candidat-no-labels-title">#{msg['modifier.label.empty.title']}</h4>
-                        <p class="candidat-no-labels-message">#{msg['modifier.definition.empty.message']}</p>
-                    </div>
-                </div>
-            </div>
-        </ui:fragment>
-    </div>
+    </p:outputPanel>
 </ui:composition>

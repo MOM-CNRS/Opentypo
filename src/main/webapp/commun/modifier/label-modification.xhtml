@@ -4,7 +4,8 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="#{applicationBean.selectedEntity.entityType.id != 6 ? 'users-form-group users-form-group-full periode-group candidats-mt-20' : 'users-form-group users-form-group-full periode-group'}">
+    <p:outputPanel id="modifierLabelsPanel" layout="block"
+                   styleClass="#{applicationBean.selectedEntity.entityType.id != 6 ? 'users-form-group users-form-group-full periode-group candidats-mt-20' : 'users-form-group users-form-group-full periode-group'}">
         <div class="periode-header-row">
             <p:outputLabel value="#{msg['modifier.label.fullName.title']}" />
         </div>
@@ -52,16 +53,18 @@
                              icon="pi pi-plus"
                              styleClass="candidat-btn-add"
                              actionListener="#{entityUpdateBean.addTempLabel()}"
-                             process="@form"
+                             process="modifierLabelsPanel"
                              ajax="true"
-                             update=":centerContent :growl"/>
+                             update="modifierLabelsPanel :growl"
+                             onerror="if(typeof resetPrimeFacesButtonLoadingState==='function')resetPrimeFacesButtonLoadingState();"/>
         </h:panelGroup>
 
-        <p:dataTable value="#{entityUpdateBean.noms}"
+        <p:dataTable id="modifierLabelsTable"
+                     value="#{entityUpdateBean.noms}"
                      var="labelItem"
                      styleClass="candidat-labels-table candidats-mt-10"
-                     emptyMessage="#{msg['modifier.label.table.empty']}"
-                     rendered="#{not empty entityUpdateBean.noms}">
+                     emptyMessage="#{msg['modifier.label.table.empty']}">
+
             <p:column headerText="#{msg['modifier.label.table.header']}" styleClass="candidat-table-label-column candidats-table-label-padding">
                 <div class="candidat-table-label-cell">
                     <h:panelGroup rendered="#{labelItem.langueCode != null}">
@@ -76,24 +79,13 @@
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
                                      action="#{entityUpdateBean.removeTempLabel(labelItem)}"
-                                     process="@form"
+                                     process="@this"
                                      ajax="true"
-                                     update=":centerContent :growl"
+                                     update="@form:modifierLabelsPanel :growl"
+                                     onerror="if(typeof resetPrimeFacesButtonLoadingState==='function')resetPrimeFacesButtonLoadingState();"
                                      title="#{msg['modifier.action.deleteTranslation.title']}"/>
                 </div>
             </p:column>
         </p:dataTable>
-
-        <ui:fragment rendered="#{empty entityUpdateBean.noms}">
-            <div class="candidat-no-labels">
-                <div class="candidat-no-labels-content">
-                    <div class="candidat-no-labels-icon"><i class="pi pi-info-circle" /></div>
-                    <div class="candidat-no-labels-text">
-                        <h4 class="candidat-no-labels-title">#{msg['modifier.label.empty.title']}</h4>
-                        <p class="candidat-no-labels-message">#{msg['modifier.label.empty.message']}</p>
-                    </div>
-                </div>
-            </div>
-        </ui:fragment>
-    </div>
+    </p:outputPanel>
 </ui:composition>

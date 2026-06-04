@@ -817,6 +817,7 @@ public class EntityUpdateBean implements Serializable {
         }
         updateAvailableTmpLanguagesForDefinition();
         addInfoMessage("La description a été supprimée avec succès.");
+        PrimeFaces.current().ajax().update("@form:modifierDefinitionsPanel", ":growl");
     }
 
     public void removeTempLabel(NameItem labelItem) {
@@ -824,6 +825,7 @@ public class EntityUpdateBean implements Serializable {
         if (noms != null) noms.remove(labelItem);
         updateAvailableTmpLanguagesForLabel();
         addInfoMessage("Le label a été supprimé avec succès.");
+        PrimeFaces.current().ajax().update("@form:modifierLabelsPanel", ":growl");
     }
 
     /** Indique si l'édition est autorisée (toujours true en mode modification catalogue). */
