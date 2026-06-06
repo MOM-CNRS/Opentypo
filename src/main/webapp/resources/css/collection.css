@@ -2882,6 +2882,18 @@
     margin-top: 0.35rem;
 }
 
+.reference-detail-page .description-typo-band .description-typo-field.concept-info-item .concept-info-value.reference-gestionnaires-value {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    align-content: flex-start;
+}
+
+.reference-detail-page .description-typo-band .description-typo-field.concept-info-item .reference-gestionnaires-value .bibliographie-badge {
+    max-width: calc(100% - 0.25rem);
+}
+
 /* Menu contextuel référentiel : chaque entrée sur une seule ligne (pas de retour à la ligne du libellé) */
 body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay {
     width: max-content !important;

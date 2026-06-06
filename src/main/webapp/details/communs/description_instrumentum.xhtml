@@ -148,25 +148,6 @@
 
                             <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
-                                    <i class="pi pi-share-alt monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Relation(s) d'imitation</span>
-                                </div>
-                                <div class="concept-info-value concept-info-description">
-                                    <ui:fragment rendered="#{not empty applicationBean.selectedEntity.metadata.relationImitation}">
-                                        <h:outputText value="#{applicationBean.selectedEntity.metadata.relationImitation}" escape="false"/>
-                                    </ui:fragment>
-                                    <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadata.relationImitation}">
-                                        <span class="empty-field-message">Non renseigné</span>
-                                    </ui:fragment>
-                                </div>
-                            </h:panelGroup>
-                        </div>
-                    </div>
-
-                    <div class="concept-info-grid-band description-typo-band">
-                        <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
-                                <div class="concept-info-label">
                                     <i class="pi pi-tag concept-info-icon" aria-hidden="true"/>
                                     <span>Dénomination</span>
                                 </div>
