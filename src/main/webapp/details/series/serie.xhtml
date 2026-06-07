@@ -196,7 +196,13 @@
                             <ui:include src="../type/datation.xhtml"/>
                         </ui:fragment>
 
-                        <ui:include src="../catalogues/liste_types.xhtml"/>
+                        <ui:include src="../../commun/entity-children-lazy.xhtml">
+                            <ui:param name="lazyInclude" value="/details/catalogues/liste_types.xhtml"/>
+                            <ui:param name="lazyLoadingMessageKey" value="list.types.loadingList"/>
+                            <ui:param name="lazyInsideParentForm" value="true"/>
+                            <ui:param name="lazyPanelKey" value="ser"/>
+                            <ui:param name="lazyAutoRun" value="#{applicationBean.showSeriePanel and applicationBean.entityChildrenPendingLoad}"/>
+                        </ui:include>
 
                         <ui:include src="../communs/production.xhtml"/>
 

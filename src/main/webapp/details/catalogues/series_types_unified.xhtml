@@ -83,80 +83,80 @@
                         <ui:fragment rendered="#{not empty applicationBean.childsSeries}">
                             <!-- Grille paginée des séries, chacune avec carousel de types -->
                             <ui:repeat value="#{applicationBean.paginatedSeriesWithTypes}" var="swt" varStatus="status">
-                            <article class="series-types-serie-card"
-                                     style="margin-left: 20px; margin-right: 20px; margin-top: 15px">
-                                <header class="series-types-serie-header">
-                                    <p:commandLink action="#{applicationBean.showSerie(swt.serie())}"
-                                                   styleClass="series-types-serie-link"
-                                                   process="@this"
-                                                   update=":centerContent"
-                                                   pt:data-entity-code="#{swt.serie().code}"
-                                                   onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                                   onstart="showLoading('Chargement de la série...', 'spinner');"
-                                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                                   onerror="forceHideLoading();">
-                                        <div class="series-types-serie-icon">
-                                            <i class="pi pi-list" aria-hidden="true"/>
-                                        </div>
-                                        <div class="series-types-serie-heading">
-                                            <h3 class="series-types-serie-title">#{swt.serie().code}</h3>
-                                            <h:outputText value="#{applicationBean.getEntityLabelHtml(swt.serie())}"
-                                                          escape="false"
-                                                          styleClass="series-types-serie-label entity-label-html"/>
-                                        </div>
-                                        <span class="series-types-serie-badge">#{swt.typesCount()} type#{swt.typesCount() gt 1 ? 's' : ''}</span>
-                                        <i class="pi pi-chevron-right series-types-serie-arrow"/>
-                                    </p:commandLink>
-                                </header>
+                                <article class="series-types-serie-card"
+                                        style="margin-left: 20px; margin-right: 20px; margin-top: 15px">
+                                    <header class="series-types-serie-header">
+                                        <p:commandLink action="#{applicationBean.showSerie(swt.serie())}"
+                                                    styleClass="series-types-serie-link"
+                                                    process="@this"
+                                                    update=":contentPanels :leftTreePanel"
+                                                    pt:data-entity-code="#{swt.serie().code}"
+                                                    onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                                    onstart="showLoading('#{msg['list.series.loading']}', 'spinner');"
+                                                    oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
+                                                    onerror="forceHideLoading();">
+                                            <div class="series-types-serie-icon">
+                                                <i class="pi pi-list" aria-hidden="true"/>
+                                            </div>
+                                            <div class="series-types-serie-heading">
+                                                <h3 class="series-types-serie-title">#{swt.serie().code}</h3>
+                                                <h:outputText value="#{applicationBean.getEntityLabelHtml(swt.serie())}"
+                                                            escape="false"
+                                                            styleClass="series-types-serie-label entity-label-html"/>
+                                            </div>
+                                            <span class="series-types-serie-badge">#{swt.typesCount()} type#{swt.typesCount() gt 1 ? 's' : ''}</span>
+                                            <i class="pi pi-chevron-right series-types-serie-arrow"/>
+                                        </p:commandLink>
+                                    </header>
 
-                                <!-- Carousel horizontal des types -->
-                                <div class="series-types-carousel-wrapper">
-                                    <button type="button" class="series-types-carousel-nav series-types-carousel-prev"
-                                            aria-label="Types précédents"
-                                            onclick="seriesTypesScrollPrev(this)">
-                                        <i class="pi pi-chevron-left"/>
-                                    </button>
-                                    <div class="series-types-carousel-scroll" data-serie-idx="#{status.index}">
-                                        <div class="series-types-carousel-track">
-                                            <ui:repeat value="#{swt.types()}" var="type">
-                                                <p:commandLink action="#{applicationBean.showType(type)}"
-                                                               styleClass="series-types-type-thumb"
-                                                               process="@this"
-                                                               update=":centerContent"
-                                                               pt:data-entity-code="#{type.code}"
-                                                               onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                                               onstart="showLoading('Chargement du type...', 'spinner');"
-                                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
-                                                               onerror="forceHideLoading();">
-                                                    <div class="series-types-type-thumb-image">
-                                                        <p:graphicImage value="#{type.image.url}"
-                                                                        styleClass="series-types-type-img"
-                                                                        alt="#{type.code}"
-                                                                        rendered="#{not empty type.image and not empty type.image.url}"/>
-                                                        <ui:fragment rendered="#{empty type.image or empty type.image.url}">
-                                                            <div class="series-types-type-placeholder">
-                                                                <i class="pi pi-image"/>
-                                                            </div>
-                                                        </ui:fragment>
-                                                    </div>
-                                                    <span class="series-types-type-label">#{type.nom}</span>
-                                                </p:commandLink>
-                                            </ui:repeat>
+                                    <!-- Carousel horizontal des types -->
+                                    <div class="series-types-carousel-wrapper">
+                                        <button type="button" class="series-types-carousel-nav series-types-carousel-prev"
+                                                aria-label="Types précédents"
+                                                onclick="seriesTypesScrollPrev(this)">
+                                            <i class="pi pi-chevron-left"/>
+                                        </button>
+                                        <div class="series-types-carousel-scroll" data-serie-idx="#{status.index}">
+                                            <div class="series-types-carousel-track">
+                                                <ui:repeat value="#{swt.types()}" var="type">
+                                                    <p:commandLink action="#{applicationBean.showType(type)}"
+                                                                styleClass="series-types-type-thumb"
+                                                                process="@this"
+                                                                update=":contentPanels :leftTreePanel"
+                                                                pt:data-entity-code="#{type.code}"
+                                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
+                                                                onstart="showLoading('#{msg['list.types.loading']}', 'spinner');"
+                                                                oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
+                                                                onerror="forceHideLoading();">
+                                                        <div class="series-types-type-thumb-image">
+                                                            <p:graphicImage value="#{type.image.url}"
+                                                                            styleClass="series-types-type-img"
+                                                                            alt="#{type.code}"
+                                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
+                                                            <ui:fragment rendered="#{empty type.image or empty type.image.url}">
+                                                                <div class="series-types-type-placeholder">
+                                                                    <i class="pi pi-image"/>
+                                                                </div>
+                                                            </ui:fragment>
+                                                        </div>
+                                                        <span class="series-types-type-label">#{type.nom}</span>
+                                                    </p:commandLink>
+                                                </ui:repeat>
+                                            </div>
                                         </div>
+                                        <button type="button" class="series-types-carousel-nav series-types-carousel-next"
+                                                aria-label="Types suivants"
+                                                onclick="seriesTypesScrollNext(this)">
+                                            <i class="pi pi-chevron-right"/>
+                                        </button>
                                     </div>
-                                    <button type="button" class="series-types-carousel-nav series-types-carousel-next"
-                                            aria-label="Types suivants"
-                                            onclick="seriesTypesScrollNext(this)">
-                                        <i class="pi pi-chevron-right"/>
-                                    </button>
-                                </div>
 
-                                <ui:fragment rendered="#{empty swt.types()}">
-                                    <p class="series-types-empty-types">
-                                        <i class="pi pi-info-circle"/> Aucun type dans cette série
-                                    </p>
-                                </ui:fragment>
-                            </article>
+                                    <ui:fragment rendered="#{empty swt.types()}">
+                                        <p class="series-types-empty-types">
+                                            <i class="pi pi-info-circle"/> Aucun type dans cette série
+                                        </p>
+                                    </ui:fragment>
+                                </article>
                             </ui:repeat>
 
                             <!-- Pagination (masquée si tout afficher) -->
@@ -290,30 +290,30 @@
                                 <p:commandLink action="#{applicationBean.showType(type)}"
                                                styleClass="type-catalog-card"
                                                process="@this"
-                                               update=":centerContent"
+                                               update=":contentPanels :leftTreePanel"
                                                title="#{applicationBean.getEntityLabelPlainText(type)}"
                                                pt:data-entity-code="#{type.code}"
                                                onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                               onstart="showLoading('Chargement du type...', 'spinner');"
-                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                               onstart="showLoading('#{msg['list.types.loading']}', 'spinner');"
+                                               oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
                                                onerror="forceHideLoading();">
-                                    <div class="type-catalog-card__media">
-                                        <div class="type-catalog-card__frame">
-                                            <p:graphicImage value="#{type.image.url}"
-                                                            styleClass="type-catalog-card__image"
-                                                            alt="#{type.code}"
-                                                            rendered="#{not empty type.image and not empty type.image.url}"/>
-                                            <ui:fragment rendered="#{empty type.image or empty type.image.url}">
-                                                <div class="type-catalog-card__placeholder" aria-hidden="true">
-                                                    <i class="pi pi-image"/>
-                                                </div>
-                                            </ui:fragment>
+                                        <div class="type-catalog-card__media">
+                                            <div class="type-catalog-card__frame">
+                                                <p:graphicImage value="#{type.image.url}"
+                                                                styleClass="type-catalog-card__image"
+                                                                alt="#{type.code}"
+                                                                rendered="#{not empty type.image and not empty type.image.url}"/>
+                                                <ui:fragment rendered="#{empty type.image or empty type.image.url}">
+                                                    <div class="type-catalog-card__placeholder" aria-hidden="true">
+                                                        <i class="pi pi-image"/>
+                                                    </div>
+                                                </ui:fragment>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="type-catalog-card__footer">
-                                        <span class="type-catalog-card__code">#{type.code}</span>
-                                    </div>
-                                </p:commandLink>
+                                        <div class="type-catalog-card__footer">
+                                            <span class="type-catalog-card__code">#{type.code}</span>
+                                        </div>
+                                    </p:commandLink>
                                 </ui:repeat>
 
                                 <!-- Pagination (masquée si tout afficher) -->

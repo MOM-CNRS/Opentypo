@@ -73,11 +73,11 @@
                 <ui:repeat value="#{applicationBean.paginatedReferences}" var="reference">
                     <p:commandLink action="#{applicationBean.showReferenceDetail(reference)}"
                                    process="@this"
-                                   update=":centerContent"
+                                   update=":contentPanels :leftTreePanel"
                                    pt:data-entity-code="#{reference.code}"
                                    onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                    onstart="showLoading('#{msg['list.references.loading']}', 'spinner');"
-                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                   oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
                                    onerror="forceHideLoading();"
                                    styleClass="collection-panel collection-panel--clickable"
                                    title="#{applicationBean.getEntityLabelPlainText(reference)}">

@@ -223,6 +223,16 @@ public class ApplicationBean implements Serializable {
     /** Enfants directs de l'entité sélectionnée (référentiels, catégories, groupes, séries ou types selon le niveau). */
     private List<Entity> childs = new ArrayList<>();
 
+    /** Cache requête Zotero (évite des appels HTTP répétés lors du rendu JSF). */
+    private Long cachedZoteroEntityId;
+    private String cachedZoteroBibliographyHtml;
+    private List<ZoteroSearchHit> cachedZoteroBibliographyDisplayHits;
+    private ZoteroApiService.ZoteroScope cachedZoteroScope;
+    private Long cachedZoteroScopeEntityId;
+
+    /** Enfants (catégories, groupes, séries/types…) : chargés en second temps via AJAX après la fiche. */
+    private boolean entityChildrenPendingLoad;
+
     /** Filtre de recherche pour les référentiels de la collection. */
     private String referencesSearchQuery = "";
     /** Page courante pour la pagination des référentiels (1-based). */
@@ -1744,32 +1754,86 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un groupe spécifique
      */
     public void showGroupe(Entity group) {
-        if (group != null && group.getId() != null) {
-            try {
-                this.selectedEntity = entityRepository.findById(group.getId()).orElse(group);
-            } catch (Exception e) {
-                log.error("Erreur lors du rechargement du groupe depuis la base de données", e);
-                this.selectedEntity = group;
-            }
-        } else {
-            this.selectedEntity = group;
+        if (group == null) {
+            return;
         }
+        this.selectedEntity = loadEntityForCatalogDetail(group);
         panelState.showGroupe();
-        refreshChilds();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        getTreeBean().expandPathAndSelectEntity(selectedEntity);
+        this.childs = new ArrayList<>();
+        this.entityChildrenPendingLoad = true;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        }
     }
 
     /**
      * Affiche les détails d'un référentiel spécifique
      */
     public void showReferenceDetail(Entity reference) {
-        this.selectedEntity = reference;
+        if (reference == null) {
+            return;
+        }
+        this.selectedEntity = loadEntityForCatalogDetail(reference);
+        clearZoteroPresentationCache();
         panelState.showReference();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
+        this.childs = new ArrayList<>();
+        this.entityChildrenPendingLoad = true;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        }
+    }
+
+    /**
+     * Charge les listes enfants après affichage de la fiche (2e requête AJAX).
+     */
+    public void loadEntityChildrenLazy() {
+        if (selectedEntity == null || !entityChildrenPendingLoad || !isLazyChildrenPanelActive()) {
+            return;
+        }
         refreshChilds();
-        getTreeBean().selectReferenceNode(reference);
-        getTreeBean().loadChildForEntity(reference);
+        entityChildrenPendingLoad = false;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.loadChildForEntity(selectedEntity);
+        }
+    }
+
+    private boolean isLazyChildrenPanelActive() {
+        return panelState.isShowReferencePanel()
+                || panelState.isShowCategoryPanel()
+                || panelState.isShowGroupePanel()
+                || panelState.isShowSeriePanel();
+    }
+
+    private Entity loadEntityForCatalogDetail(Entity entity) {
+        if (entity == null || entity.getId() == null) {
+            return entity;
+        }
+        Long id = entity.getId();
+        Entity loaded = entityRepository.findByIdForApi(id).orElse(entity);
+        entityRepository.findByIdWithImages(id).ifPresent(withImages -> {
+            if (withImages.getImages() != null) {
+                loaded.setImages(withImages.getImages());
+            }
+        });
+        entityRepository.findByIdWithDescriptions(id).ifPresent(withDescriptions -> {
+            if (withDescriptions.getDescriptions() != null) {
+                loaded.setDescriptions(withDescriptions.getDescriptions());
+            }
+        });
+        return loaded;
+    }
+
+    private void clearZoteroPresentationCache() {
+        cachedZoteroEntityId = null;
+        cachedZoteroBibliographyHtml = null;
+        cachedZoteroBibliographyDisplayHits = null;
+        cachedZoteroScope = null;
+        cachedZoteroScopeEntityId = null;
     }
 
     public void refreshCollectionReferencesList() {
@@ -1782,6 +1846,7 @@ public class ApplicationBean implements Serializable {
 
     public void refreshReferenceCategoriesList() {
         refreshChilds();
+        entityChildrenPendingLoad = false;
     }
 
     public void showSerie() {
@@ -1792,11 +1857,18 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'une série spécifique
      */
     public void showSerie(Entity serie) {
-        this.selectedEntity = entityRepository.findById(serie.getId()).orElse(serie);
+        if (serie == null) {
+            return;
+        }
+        this.selectedEntity = loadEntityForCatalogDetail(serie);
         panelState.showSerie();
-        refreshChilds();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        getTreeBean().expandPathAndSelectEntity(selectedEntity);
+        this.childs = new ArrayList<>();
+        this.entityChildrenPendingLoad = true;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        }
     }
 
     public void showType() {
@@ -1807,11 +1879,17 @@ public class ApplicationBean implements Serializable {
      * Affiche les détails d'un type spécifique (charge les images pour la galerie).
      */
     public void showType(Entity type) {
-        this.selectedEntity = entityRepository.findByIdWithImages(type.getId()).orElse(type);
+        if (type == null) {
+            return;
+        }
+        this.selectedEntity = loadEntityForCatalogDetail(type);
         panelState.showType();
-        refreshChilds();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        getTreeBean().expandPathAndSelectEntity(selectedEntity);
+        this.entityChildrenPendingLoad = false;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        }
     }
 
     /**
@@ -1827,18 +1905,23 @@ public class ApplicationBean implements Serializable {
             return;
         }
         if (categoryId != null) {
-            this.selectedEntity = entityRepository.findById(categoryId).orElse(category);
+            this.selectedEntity = loadEntityForCatalogDetail(category);
         } else {
             this.selectedEntity = category;
         }
         panelState.showCategory();
-        refreshChilds();
         breadCrumbElements = buildBreadcrumbFromSelectedEntity();
-        getTreeBean().expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        this.childs = new ArrayList<>();
+        this.entityChildrenPendingLoad = true;
+        TreeBean treeBean = getTreeBean();
+        if (treeBean != null) {
+            treeBean.expandPathAndSelectEntity(selectedEntity, breadCrumbElements);
+        }
     }
 
     public void refreshCategoryGroupsList() {
         refreshChilds();
+        entityChildrenPendingLoad = false;
     }
 
     /**
@@ -1857,6 +1940,7 @@ public class ApplicationBean implements Serializable {
      */
     public void refreshGroupSeriesList() {
         refreshChilds();
+        entityChildrenPendingLoad = false;
     }
 
     /**
@@ -1864,6 +1948,7 @@ public class ApplicationBean implements Serializable {
      */
     public void refreshGroupTypesList() {
         refreshChilds();
+        entityChildrenPendingLoad = false;
     }
 
     /**
@@ -2437,8 +2522,15 @@ public class ApplicationBean implements Serializable {
         if (keys.isEmpty()) {
             return "";
         }
-        return zoteroApiService.fetchBibliographyHtml(keys, resolveZoteroScopeFromParametrage()
+        Long entityId = selectedEntity.getId();
+        if (entityId != null && entityId.equals(cachedZoteroEntityId) && cachedZoteroBibliographyHtml != null) {
+            return cachedZoteroBibliographyHtml;
+        }
+        String html = zoteroApiService.fetchBibliographyHtml(keys, resolveZoteroScopeFromParametrage()
                 .orElse(new ZoteroApiService.ZoteroScope(zoteroApiService.getConfiguredGroupId(), null)));
+        cachedZoteroEntityId = entityId;
+        cachedZoteroBibliographyHtml = html;
+        return html;
     }
 
     public String getZoteroGroupLibraryUrl() {
@@ -2471,8 +2563,15 @@ public class ApplicationBean implements Serializable {
         if (keys.isEmpty()) {
             return List.of();
         }
-        return zoteroApiService.resolveLabels(keys, resolveZoteroScopeFromParametrage()
+        Long entityId = selectedEntity.getId();
+        if (entityId != null && entityId.equals(cachedZoteroEntityId) && cachedZoteroBibliographyDisplayHits != null) {
+            return cachedZoteroBibliographyDisplayHits;
+        }
+        List<ZoteroSearchHit> hits = zoteroApiService.resolveLabels(keys, resolveZoteroScopeFromParametrage()
                 .orElse(new ZoteroApiService.ZoteroScope(zoteroApiService.getConfiguredGroupId(), null)));
+        cachedZoteroEntityId = entityId;
+        cachedZoteroBibliographyDisplayHits = hits;
+        return hits;
     }
 
     public String zoteroItemWebUrl(String itemKey) {
@@ -2505,13 +2604,22 @@ public class ApplicationBean implements Serializable {
     }
 
     private Optional<ZoteroApiService.ZoteroScope> resolveZoteroScopeFromParametrage() {
-        if (zoteroApiService == null) {
+        if (zoteroApiService == null || selectedEntity == null || selectedEntity.getId() == null) {
             return Optional.empty();
         }
-        return findParametrageForZotero()
+        Long entityId = selectedEntity.getId();
+        if (entityId.equals(cachedZoteroScopeEntityId) && cachedZoteroScope != null) {
+            return Optional.of(cachedZoteroScope);
+        }
+        Optional<ZoteroApiService.ZoteroScope> scope = findParametrageForZotero()
                 .map(Parametrage::getBibliographieUrl)
                 .filter(org.springframework.util.StringUtils::hasText)
                 .flatMap(zoteroApiService::parseScopeFromCollectionUrl);
+        scope.ifPresent(resolved -> {
+            cachedZoteroScopeEntityId = entityId;
+            cachedZoteroScope = resolved;
+        });
+        return scope;
     }
 
     public List<Utilisateur> uniqueAuteurs(java.util.Collection<Utilisateur> auteurs) {

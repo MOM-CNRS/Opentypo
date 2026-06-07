@@ -78,12 +78,12 @@
                         <p:commandLink action="#{applicationBean.showType(type)}"
                                        styleClass="type-catalog-card"
                                        process="@this"
-                                       update=":centerContent"
+                                       update=":contentPanels :leftTreePanel"
                                        title="#{applicationBean.getEntityLabelPlainText(type)}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        pt:data-entity-code="#{type.code}"
                                        onstart="showLoading('#{msg['list.types.loading']}', 'spinner');"
-                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
                                        onerror="forceHideLoading();">
                             <div class="type-catalog-card__media">
                                 <div class="type-catalog-card__frame">

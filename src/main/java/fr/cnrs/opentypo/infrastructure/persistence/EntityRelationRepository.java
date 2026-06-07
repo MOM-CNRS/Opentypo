@@ -57,6 +57,20 @@ public interface EntityRelationRepository extends JpaRepository<EntityRelation, 
     List<Entity> findChildrenByParentAndType(@Param("parent") Entity parent, @Param("typeCode") String typeCode);
 
     /**
+     * Enfants d'un type donné, ordonnés, avec type / métadonnées / libellés pré-chargés (listes catalogue).
+     */
+    @Query("""
+        SELECT er.child FROM EntityRelation er
+        LEFT JOIN FETCH er.child.entityType
+        LEFT JOIN FETCH er.child.metadata
+        LEFT JOIN FETCH er.child.labels l
+        LEFT JOIN FETCH l.langue
+        WHERE er.parent = :parent AND er.child.entityType.code = :typeCode
+        ORDER BY COALESCE(er.displayOrder, 999999) ASC, LOWER(COALESCE(er.child.metadata.code, '')) ASC
+        """)
+    List<Entity> findChildrenByParentAndTypeOrdered(@Param("parent") Entity parent, @Param("typeCode") String typeCode);
+
+    /**
      * Trouve toutes les relations parent-enfant pour un type d'entité donné, ordonnées par display_order
      * (NULL en dernier = ordre alphabétique par code), puis par code de l'enfant.
      */

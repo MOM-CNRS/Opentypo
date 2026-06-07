@@ -2,7 +2,6 @@ package fr.cnrs.opentypo.application.service;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -34,9 +32,8 @@ public class GroupService implements Serializable {
      * Ordre par défaut : alphabétique croissant.
      */
     public List<Entity> loadCategoryGroups(Entity selectedCategory) {
-        List<EntityRelation> relations = entityRelationRepository.findRelationsByParentAndTypeOrdered(
+        return entityRelationRepository.findChildrenByParentAndTypeOrdered(
                 selectedCategory, EntityConstants.ENTITY_TYPE_GROUP);
-        return relations.stream().map(EntityRelation::getChild).collect(Collectors.toList());
     }
 
     /**

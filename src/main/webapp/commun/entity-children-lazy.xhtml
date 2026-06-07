@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
+        <ui:fragment rendered="#{lazyInsideParentForm ne true and lazyInsideParentForm ne 'true'}">
+            <h:form id="entityChildrenLazyForm_#{lazyPanelKey}" styleClass="reference-categories-lazy-form">
+                <ui:include src="entity-children-lazy-remote.xhtml"/>
+            </h:form>
+        </ui:fragment>
+        <ui:fragment rendered="#{lazyInsideParentForm eq true or lazyInsideParentForm eq 'true'}">
+            <ui:include src="entity-children-lazy-remote.xhtml"/>
+        </ui:fragment>
+        <h:panelGroup id="entityChildrenLazySection_#{lazyPanelKey}" layout="block" styleClass="reference-categories-lazy-root">
+            <ui:fragment rendered="#{not applicationBean.entityChildrenPendingLoad}">
+                <ui:include src="#{lazyInclude}"/>
+            </ui:fragment>
+            <h:panelGroup rendered="#{applicationBean.entityChildrenPendingLoad}"
+                          layout="block"
+                          styleClass="reference-categories-lazy-loading"
+                          role="status"
+                          aria-live="polite"
+                          aria-busy="true">
+                <i class="pi pi-spin pi-spinner reference-categories-lazy-spinner" aria-hidden="true"/>
+                <span>#{msg[lazyLoadingMessageKey]}</span>
+            </h:panelGroup>
+        </h:panelGroup>
+    </ui:fragment>
+</ui:composition>

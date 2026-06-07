@@ -74,12 +74,12 @@
                         <p:commandLink action="#{applicationBean.showGroupe(group)}"
                                        styleClass="reference-category-card"
                                        process="@this"
-                                       update=":centerContent"
+                                       update=":contentPanels :leftTreePanel"
                                        title="#{applicationBean.getEntityLabelPlainText(group)}"
                                        pt:data-entity-code="#{group.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        onstart="showLoading('#{msg['list.groups.loading']}', 'spinner');"
-                                       oncomplete="setTimeout(function(){window.scrollTo({ top: 0, behavior: 'smooth' }); hideLoading(); if(typeof applyTreeSelectionHighlight === 'function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
+                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
                                        onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
                                 <header class="reference-category-card-header">

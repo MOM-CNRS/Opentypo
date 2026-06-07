@@ -2894,6 +2894,34 @@
     max-width: calc(100% - 0.25rem);
 }
 
+.reference-detail-page .reference-categories-lazy-form {
+    display: none;
+}
+
+.reference-detail-page .reference-categories-lazy-root {
+    margin-top: 1rem;
+}
+
+.reference-detail-page .reference-categories-lazy-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 6rem;
+    margin: 0 20px 1rem;
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    border: 1px dashed var(--color-border-light, #d8e0dc);
+    background: rgba(71, 98, 77, 0.04);
+    color: var(--color-text-secondary, #819A91);
+    font-size: 0.9375rem;
+}
+
+.reference-detail-page .reference-categories-lazy-spinner {
+    color: var(--color-action-main, #47624D);
+    font-size: 1.125rem;
+}
+
 /* Menu contextuel référentiel : chaque entrée sur une seule ligne (pas de retour à la ligne du libellé) */
 body .ui-menu.ui-menu-dynamic.reference-actions-menu-overlay {
     width: max-content !important;

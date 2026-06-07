@@ -382,7 +382,7 @@ public class TreeBean implements Serializable {
     }
 
     private void loadChildForEntity(TreeNode entityNode, Entity parentEntity) {
-        List<Entity> elements = referenceService.loadChildOfEntity(parentEntity);
+        List<Entity> elements = resolveChildEntitiesForTree(parentEntity);
         ApplicationBean appBean = getApplicationBean();
 
         if (elements != null && !elements.isEmpty()) {
@@ -416,6 +416,43 @@ public class TreeBean implements Serializable {
                 }
             }
         }
+    }
+
+    private List<Entity> resolveChildEntitiesForTree(Entity parentEntity) {
+        if (parentEntity == null || parentEntity.getEntityType() == null) {
+            return referenceService.loadChildOfEntity(parentEntity);
+        }
+        ApplicationBean appBean = getApplicationBean();
+        if (appBean == null
+                || appBean.getSelectedEntity() == null
+                || parentEntity.getId() == null
+                || !parentEntity.getId().equals(appBean.getSelectedEntity().getId())) {
+            return referenceService.loadChildOfEntity(parentEntity);
+        }
+
+        String typeCode = parentEntity.getEntityType().getCode();
+        if (EntityConstants.ENTITY_TYPE_REFERENCE.equals(typeCode)) {
+            List<Entity> categories = appBean.getChildsCategories();
+            if (categories != null && !categories.isEmpty()) {
+                return categories;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_CATEGORY.equals(typeCode)) {
+            List<Entity> groups = appBean.getChildsGroupes();
+            if (groups != null && !groups.isEmpty()) {
+                return groups;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode)) {
+            List<Entity> children = appBean.getChilds();
+            if (children != null && !children.isEmpty()) {
+                return children;
+            }
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)) {
+            List<Entity> types = appBean.getChildsTypes();
+            if (types != null && !types.isEmpty()) {
+                return types;
+            }
+        }
+        return referenceService.loadChildOfEntity(parentEntity);
     }
 
     /**

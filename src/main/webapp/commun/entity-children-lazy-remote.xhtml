@@ -1,0 +1,13 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <p:remoteCommand id="loadEntityChildrenLazy_#{lazyPanelKey}"
+                     name="loadEntityChildrenLazy_#{lazyPanelKey}"
+                     action="#{applicationBean.loadEntityChildrenLazy}"
+                     process="@this"
+                     update="entityChildrenLazySection_#{lazyPanelKey} :leftTreePanel"
+                     global="false"
+                     autoRun="#{lazyAutoRun}"
+                     style="display:none"/>
+</ui:composition>

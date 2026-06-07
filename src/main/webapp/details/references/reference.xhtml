@@ -331,10 +331,13 @@
     </h:panelGroup>
     </div>
 
-    <!-- 3. Liste des catégories (masquée en mode édition) -->
-    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-        <ui:include src="../catalogues/liste_categories.xhtml"/>
-    </ui:fragment>
+    <!-- 3. Liste des catégories (chargement différé après la fiche) -->
+    <ui:include src="../../commun/entity-children-lazy.xhtml">
+        <ui:param name="lazyInclude" value="/details/catalogues/liste_categories.xhtml"/>
+        <ui:param name="lazyLoadingMessageKey" value="list.categories.loadingList"/>
+        <ui:param name="lazyPanelKey" value="ref"/>
+        <ui:param name="lazyAutoRun" value="#{applicationBean.showReferencePanel and applicationBean.entityChildrenPendingLoad}"/>
+    </ui:include>
 
     <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>

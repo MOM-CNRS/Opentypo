@@ -384,6 +384,14 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     Optional<Entity> findByIdWithImages(@Param("id") Long id);
 
     /**
+     * Charge les descriptions multilingues d'une entité (requête séparée pour éviter le multi-bag fetch).
+     */
+    @Query("SELECT DISTINCT e FROM Entity e "
+            + "LEFT JOIN FETCH e.descriptions d LEFT JOIN FETCH d.langue "
+            + "WHERE e.id = :id")
+    Optional<Entity> findByIdWithDescriptions(@Param("id") Long id);
+
+    /**
      * Supprime une entité par ID sans la charger (évite la cascade sur metadata
      * qui provoquerait une double suppression).
      */

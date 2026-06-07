@@ -250,10 +250,13 @@
         </div>
     </h:panelGroup>
 
-    <!-- 3. Liste des groupes (masquée en mode édition) -->
-    <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
-        <ui:include src="../catalogues/liste_groupes.xhtml"/>
-    </ui:fragment>
+    <!-- 3. Liste des groupes (chargement différé après la fiche) -->
+    <ui:include src="../../commun/entity-children-lazy.xhtml">
+        <ui:param name="lazyInclude" value="/details/catalogues/liste_groupes.xhtml"/>
+        <ui:param name="lazyLoadingMessageKey" value="list.groups.loadingList"/>
+        <ui:param name="lazyPanelKey" value="cat"/>
+        <ui:param name="lazyAutoRun" value="#{applicationBean.showCategoryPanel and applicationBean.entityChildrenPendingLoad}"/>
+    </ui:include>
 
     <h:outputStylesheet library="css" name="collection.css"/>
     <h:outputStylesheet library="css" name="candidats/opentheso-dialog.css"/>

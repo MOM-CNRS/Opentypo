@@ -77,12 +77,12 @@
                         <p:commandLink action="#{applicationBean.showCategoryDetail(category)}"
                                        styleClass="reference-category-card"
                                        process="@this"
-                                       update=":contentPanels :leftTreePanel :treeLoadChildrenFragment"
+                                       update=":contentPanels :leftTreePanel"
                                        pt:data-entity-code="#{category.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
-                                       onstart="if(typeof showPanelLoading==='function') showPanelLoading('contentPanelsWrapper', '#{msg['list.categories.loading']}', 'spinner'); else if(typeof showLoading==='function') showLoading('#{msg['list.categories.loading']}', 'spinner');"
-                                       oncomplete="setTimeout(function(){ if(typeof hidePanelLoading==='function') hidePanelLoading(); else if(typeof hideLoading==='function') hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined; }, 0);"
-                                       onerror="if(typeof hidePanelLoading==='function') hidePanelLoading(); else if(typeof forceHideLoading==='function') forceHideLoading();">
+                                       onstart="showLoading('#{msg['list.categories.loading']}', 'spinner');"
+                                       oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof selectTreeNodeAfterUpdate==='function') selectTreeNodeAfterUpdate(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 0);"
+                                       onerror="forceHideLoading();">
                             <article class="reference-category-card-inner">
                                 <header class="reference-category-card-header">
                                     <div class="reference-category-card-icon">

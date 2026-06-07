@@ -7,6 +7,10 @@ let isLoading = false;
 let loadingTimeout = null;
 let activeAjaxRequests = 0; // Compteur de requêtes AJAX actives
 let safetyTimeout = null; // Timeout de sécurité pour masquer le loader
+let minDisplayHideTimeout = null; // Masquage différé pour respecter la durée minimale
+
+/** Durée minimale d'affichage du spinner global (ms). */
+const LOADING_MIN_DISPLAY_MS = 0;
 
 /**
  * Affiche l'overlay de chargement global
@@ -26,6 +30,11 @@ function showLoading(message, type) {
     }
     
     isLoading = true;
+
+    if (minDisplayHideTimeout) {
+        clearTimeout(minDisplayHideTimeout);
+        minDisplayHideTimeout = null;
+    }
     
     // Annuler le timeout de sécurité s'il existe
     if (safetyTimeout) {
@@ -94,7 +103,7 @@ function showLoading(message, type) {
 }
 
 /**
- * Masque l'overlay de chargement global
+ * Masque l'overlay de chargement global (respecte {@link LOADING_MIN_DISPLAY_MS}).
  */
 function hideLoading() {
     // Décrémenter le compteur de requêtes
@@ -102,18 +111,55 @@ function hideLoading() {
         activeAjaxRequests--;
     }
     
-    // Ne masquer que si toutes les requêtes sont terminées
-    if (activeAjaxRequests > 0) {
+    scheduleHideWhenReady();
+}
+
+function getLoadingElapsedMs() {
+    const overlay = document.getElementById('globalLoadingOverlay');
+    if (!overlay) {
+        return LOADING_MIN_DISPLAY_MS;
+    }
+    const start = overlay.getAttribute('data-start-time');
+    if (!start) {
+        return LOADING_MIN_DISPLAY_MS;
+    }
+    return Date.now() - parseInt(start, 10);
+}
+
+function scheduleHideWhenReady() {
+    if (activeAjaxRequests > 0 || !isLoading) {
         return;
     }
-    
-    forceHideLoading();
+    if (minDisplayHideTimeout) {
+        return;
+    }
+
+    const remaining = LOADING_MIN_DISPLAY_MS - getLoadingElapsedMs();
+    if (remaining <= 0) {
+        performForceHideLoading();
+        return;
+    }
+
+    minDisplayHideTimeout = setTimeout(function() {
+        minDisplayHideTimeout = null;
+        if (activeAjaxRequests === 0 && isLoading) {
+            performForceHideLoading();
+        }
+    }, remaining);
 }
 
 /**
- * Force le masquage du loader (utilisé en cas de timeout ou d'erreur)
+ * Force le masquage du loader (utilisé en cas de timeout ou d'erreur).
  */
 function forceHideLoading() {
+    if (minDisplayHideTimeout) {
+        clearTimeout(minDisplayHideTimeout);
+        minDisplayHideTimeout = null;
+    }
+    performForceHideLoading();
+}
+
+function performForceHideLoading() {
     if (!isLoading) {
         return;
     }
@@ -400,7 +446,7 @@ function initPrimeFacesLoading() {
                     const timeSinceLastMutation = Date.now() - lastMutationTime;
                     // Vérifier que toutes les requêtes sont terminées et qu'il n'y a pas eu de mutations récentes
                     if (activeAjaxRequests === 0 && timeSinceLastMutation >= 800) {
-                        forceHideLoading();
+                        scheduleHideWhenReady();
                     }
                 }, 800);
             }

@@ -170,7 +170,13 @@
                             <ui:include src="../type/datation.xhtml"/>
                         </ui:fragment>
 
-                        <ui:include src="../catalogues/series_types_unified.xhtml"/>
+                        <ui:include src="../../commun/entity-children-lazy.xhtml">
+                            <ui:param name="lazyInclude" value="/details/catalogues/series_types_unified.xhtml"/>
+                            <ui:param name="lazyLoadingMessageKey" value="list.seriesTypes.loadingList"/>
+                            <ui:param name="lazyInsideParentForm" value="true"/>
+                            <ui:param name="lazyPanelKey" value="grp"/>
+                            <ui:param name="lazyAutoRun" value="#{applicationBean.isShowGroupePanel() and applicationBean.entityChildrenPendingLoad}"/>
+                        </ui:include>
 
                         <ui:include src="../communs/production.xhtml"/>
 

@@ -2,7 +2,6 @@ package fr.cnrs.opentypo.application.service;
 
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
-import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -29,9 +27,8 @@ public class CategoryService implements Serializable {
      * Ordre par défaut : alphabétique croissant.
      */
     public List<Entity> loadCategoriesByReference(Entity selectedReference) {
-        List<EntityRelation> relations = entityRelationRepository.findRelationsByParentAndTypeOrdered(
+        return entityRelationRepository.findChildrenByParentAndTypeOrdered(
                 selectedReference, EntityConstants.ENTITY_TYPE_CATEGORY);
-        return relations.stream().map(EntityRelation::getChild).collect(Collectors.toList());
     }
 
     /**
