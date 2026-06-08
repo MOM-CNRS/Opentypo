@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmDemandeValidationDialog"
               widgetVar="confirmDemandeValidationDialog"
-              header="Demande de validation"
+              header="#{msg['candidat.dialog.validationRequest.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -20,8 +20,8 @@
                     <i class="pi pi-send candidat-confirm-header-icon" />
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Confirmer la demande</h3>
-                    <p class="candidat-confirm-header-subtitle">La fiche passera en attente de décision du valideur</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.validationRequest.confirmHeader']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.validationRequest.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -30,19 +30,19 @@
                 <i class="pi pi-info-circle" />
             </div>
             <p class="candidat-confirm-message-text">
-                Confirmez-vous l’envoi en validation ? Les champs obligatoires pour votre typologie ont été vérifiés.<br/>
+                #{msg['candidat.dialog.validationRequest.messageIntro']}<br/>
                 <strong>#{candidatBean.candidatPourDemandeValidation != null ? candidatBean.candidatPourDemandeValidation.label : ''}</strong>
             </p>
         </div>
         <f:facet name="footer">
             <div class="candidat-confirm-footer">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
                                process="@this"
                                update="@none"
                                onclick="PF('confirmDemandeValidationDialog').hide(); return false;"/>
-                <p:commandButton value="Oui, envoyer"
+                <p:commandButton value="#{msg['common.action.yesSend']}"
                                icon="pi pi-check"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-confirm"
                                action="#{candidatBean.confirmDemandeValidation()}"

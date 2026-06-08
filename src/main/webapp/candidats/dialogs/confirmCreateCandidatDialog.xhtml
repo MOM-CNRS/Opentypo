@@ -1,12 +1,13 @@
 <ui:fragment xmlns="http://www.w3.org/1999/xhtml"
              xmlns:ui="http://java.sun.com/jsf/facelets"
              xmlns:p="http://primefaces.org/ui"
+             xmlns:h="http://xmlns.jcp.org/jsf/html"
              xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <!-- Dialog de confirmation de sauvegarde -->
     <p:dialog id="confirmSaveCandidatDialog"
               widgetVar="confirmSaveCandidatDialog"
-              header="Confirmer la création"
+              header="#{msg['candidat.dialog.create.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -21,8 +22,8 @@
                     <i class="pi pi-check-circle candidat-confirm-header-icon" />
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Confirmer la création</h3>
-                    <p class="candidat-confirm-header-subtitle">Le brouillon sera enregistré avec le statut PROPOSITION</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.create.header']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.create.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -32,25 +33,24 @@
                 <i class="pi pi-info-circle" />
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir créer cette entité ? Toutes les informations saisies seront enregistrées dans la base de données avec le statut <strong>PROPOSITION</strong>.
-                Vous pourrez ensuite la valider ou la modifier depuis la liste des brouillons.
+                <h:outputText value="#{msg['candidat.dialog.create.message']}" escape="false"/>
             </p>
         </div>
 
         <div class="candidat-confirm-actions">
-            <p:commandButton value="Annuler"
+            <p:commandButton value="#{msg['common.action.cancel']}"
                              icon="pi pi-times"
                              onclick="PF('confirmSaveCandidatDialog').hide(); return false;"
                              type="button"
                              styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
-            <p:commandButton value="Oui, créer"
+            <p:commandButton value="#{msg['common.action.yesCreate']}"
                              icon="pi pi-check"
                              action="#{candidatBean.sauvegarderCandidat()}"
                              process=":createCandidatForm"
                              ajax="true"
                              update=":createCandidatForm :growl"
                              styleClass="candidat-confirm-btn candidat-confirm-btn-validate"
-                             onstart="showLoading('Sauvegarde du brouillon...', 'spinner');"
+                             onstart="showLoading('#{msg['candidat.dialog.create.saving']}', 'spinner');"
                              oncomplete="setTimeout(function(){PF('confirmSaveCandidatDialog').hide(); hideLoading();}, 300);"
                              onerror="forceHideLoading();"/>
         </div>

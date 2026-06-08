@@ -6,21 +6,21 @@
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Commentaire (entity_metadata) -->
         <div class="users-form-group users-form-group-full" id="commentaire-metadata">
-            <p:outputLabel value="Commentaire" style="margin-bottom: 13px !important" />
+            <p:outputLabel value="#{msg['modifier.comment.label']}" style="margin-bottom: 13px !important" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
                     <i class="pi pi-comment input-icon input-icon-textarea" />
                     <p:inputTextarea value="#{candidatBean.candidatMetadataCommentaire}"
                                      rows="4"
                                      styleClass="users-textarea"
-                                     placeholder="Saisissez un commentaire..."
+                                     placeholder="#{msg['modifier.comment.placeholder']}"
                                      maxlength="2000"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputTextarea value="#{candidatBean.candidatMetadataCommentaire}"
                                      rows="4"
                                      styleClass="users-textarea"
                                      readonly="true"
-                                     placeholder="Aucun commentaire"
+                                     placeholder="#{msg['modifier.placeholder.noComment']}"
                                      rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
@@ -31,27 +31,27 @@
                                      process="@form"
                                      ajax="true"
                                      update=":growl"
-                                     title="Enregistrer le commentaire"/>
+                                     title="#{msg['modifier.tooltip.save.comment']}"/>
                 </div>
             </div>
         </div>
         <!-- Bibliographie -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Bibliographie" style="margin-bottom: 13px !important" />
+            <p:outputLabel value="#{msg['candidat.form.bibliography']}" style="margin-bottom: 13px !important" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border candidats-mt--10">
                     <i class="pi pi-book input-icon input-icon-textarea" />
                     <p:inputTextarea value="#{candidatBean.candidatBibliographie}"
                                      rows="5"
                                      styleClass="users-textarea"
-                                     placeholder="Saisissez des informations bibliographiques complémentaires..."
+                                     placeholder="#{msg['modifier.biblioNotes.placeholder']}"
                                      maxlength="2000"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputTextarea value="#{candidatBean.candidatBibliographie}"
                                      rows="5"
                                      styleClass="users-textarea"
                                      readonly="true"
-                                     placeholder="Aucune information bibliographique"
+                                     placeholder="#{msg['modifier.placeholder.noBibliography']}"
                                      rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
@@ -62,7 +62,7 @@
                                      process="@form"
                                      ajax="true"
                                      update=":growl"
-                                     title="Enregistrer la bibliographie"/>
+                                     title="#{msg['modifier.tooltip.save.bibliography']}"/>
                 </div>
             </div>
         </div>

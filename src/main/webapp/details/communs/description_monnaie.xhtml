@@ -30,7 +30,7 @@
                                                 #{applicationBean.selectedEntity.descriptionMonnaie.droit}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionMonnaie.droit}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -46,7 +46,7 @@
                                                 #{applicationBean.selectedEntity.descriptionMonnaie.legendeDroit}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionMonnaie.legendeDroit}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -68,7 +68,7 @@
                                                 #{applicationBean.selectedEntity.descriptionMonnaie.revers}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionMonnaie.revers}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -84,7 +84,7 @@
                                                 #{applicationBean.selectedEntity.descriptionMonnaie.legendeRevers}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionMonnaie.legendeRevers}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>

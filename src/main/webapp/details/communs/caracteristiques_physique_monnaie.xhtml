@@ -37,13 +37,13 @@
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.url}">
-                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                            <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                 #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux.valeur}
                                             </span>
                                         </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.materiaux}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -67,13 +67,13 @@
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination.url}">
-                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                            <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                 #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination.valeur}
                                             </span>
                                         </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.denomination}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -91,7 +91,7 @@
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
                                                 or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.metrologie}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -115,14 +115,14 @@
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur.url}">
-                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                            <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                 #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur.valeur}
                                             </span>
                                         </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
                                                 or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.valeur}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -146,14 +146,14 @@
                                             </h:outputLink>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique.url}">
-                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                            <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                 #{applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique.valeur}
                                             </span>
                                         </ui:fragment>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie
                                                 or empty applicationBean.selectedEntity.caracteristiquePhysiqueMonnaie.technique}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>

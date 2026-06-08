@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,25 +35,25 @@ public class CandidatLabelDescriptionService {
     @Transactional
     public AddLabelResult addLabel(Long entityId, String newLabelValue, String newLabelLangueCode, String principalLangueCode) {
 
-        if (entityId == null) return new AddLabelResult(false, null, "L'entité n'a pas encore été créée.");
-        if (newLabelValue == null || newLabelValue.trim().isEmpty()) return new AddLabelResult(false, null, "Le label est requis.");
-        if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) return new AddLabelResult(false, null, "La langue est requise.");
+        if (entityId == null) return new AddLabelResult(false, null, JsfMessages.get("candidat.labelDesc.entityNotCreatedYet"));
+        if (newLabelValue == null || newLabelValue.trim().isEmpty()) return new AddLabelResult(false, null, JsfMessages.get("modifier.msg.labelRequired"));
+        if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) return new AddLabelResult(false, null, JsfMessages.get("modifier.msg.languageRequired"));
         if (principalLangueCode != null && principalLangueCode.equals(newLabelLangueCode)) {
-            return new AddLabelResult(false, null, "Cette langue est déjà utilisée pour le label principal (étape 1).");
+            return new AddLabelResult(false, null, JsfMessages.get("candidat.labelDesc.langUsedForPrincipal"));
         }
 
         Entity entity = entityRepository.findById(entityId).orElse(null);
-        if (entity == null) return new AddLabelResult(false, null, "L'entité n'a pas été trouvée dans la base de données.");
+        if (entity == null) return new AddLabelResult(false, null, JsfMessages.get("candidat.error.entityNotFoundDb"));
 
         if (entity.getLabels() != null) {
             boolean used = entity.getLabels().stream()
                     .anyMatch(l -> l.getLangue() != null && l.getLangue().getCode() != null
                             && l.getLangue().getCode().equals(newLabelLangueCode));
-            if (used) return new AddLabelResult(false, null, "Cette langue est déjà utilisée pour un autre label.");
+            if (used) return new AddLabelResult(false, null, JsfMessages.get("candidat.labelDesc.langUsedForOtherLabel"));
         }
 
         Langue langue = langueRepository.findByCode(newLabelLangueCode);
-        if (langue == null) return new AddLabelResult(false, null, "La langue sélectionnée n'a pas été trouvée.");
+        if (langue == null) return new AddLabelResult(false, null, JsfMessages.get("candidat.labelDesc.langNotFound"));
 
         Label label = new Label();
         label.setNom(newLabelValue.trim());
@@ -67,7 +68,7 @@ public class CandidatLabelDescriptionService {
 
     @Transactional
     public RemoveLabelResult removeLabel(Long entityId, CategoryLabelItem labelItem) {
-        if (entityId == null) return new RemoveLabelResult(false, "L'entité n'a pas encore été créée.");
+        if (entityId == null) return new RemoveLabelResult(false, JsfMessages.get("candidat.labelDesc.entityNotCreatedYet"));
 
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null || entity.getLabels() == null) return new RemoveLabelResult(false, null);
@@ -110,22 +111,22 @@ public class CandidatLabelDescriptionService {
     @Transactional
     public AddDescriptionResult addDescription(Long entityId, String newDescValue, String newDescLangueCode,
                                                List<CategoryDescriptionItem> existingDescriptions) {
-        if (entityId == null) return new AddDescriptionResult(false, null, "L'entité n'a pas encore été créée.");
-        if (newDescValue == null || newDescValue.trim().isEmpty()) return new AddDescriptionResult(false, null, "La description est requise.");
-        if (newDescLangueCode == null || newDescLangueCode.trim().isEmpty()) return new AddDescriptionResult(false, null, "La langue est requise.");
+        if (entityId == null) return new AddDescriptionResult(false, null, JsfMessages.get("candidat.labelDesc.entityNotCreatedYet"));
+        if (newDescValue == null || newDescValue.trim().isEmpty()) return new AddDescriptionResult(false, null, JsfMessages.get("modifier.msg.descriptionRequired"));
+        if (newDescLangueCode == null || newDescLangueCode.trim().isEmpty()) return new AddDescriptionResult(false, null, JsfMessages.get("modifier.msg.languageRequired"));
 
         Entity entity = entityRepository.findById(entityId).orElse(null);
-        if (entity == null) return new AddDescriptionResult(false, null, "L'entité n'a pas été trouvée.");
+        if (entity == null) return new AddDescriptionResult(false, null, JsfMessages.get("candidat.error.entityNotFoundDb"));
 
         if (entity.getDescriptions() != null) {
             boolean used = entity.getDescriptions().stream()
                     .anyMatch(d -> d.getLangue() != null && d.getLangue().getCode() != null
                             && d.getLangue().getCode().equals(newDescLangueCode));
-            if (used) return new AddDescriptionResult(false, null, "Cette langue est déjà utilisée pour une autre description.");
+            if (used) return new AddDescriptionResult(false, null, JsfMessages.get("candidat.labelDesc.langUsedForOtherDescription"));
         }
 
         Langue langue = langueRepository.findByCode(newDescLangueCode);
-        if (langue == null) return new AddDescriptionResult(false, null, "La langue sélectionnée n'a pas été trouvée.");
+        if (langue == null) return new AddDescriptionResult(false, null, JsfMessages.get("candidat.labelDesc.langNotFound"));
 
         Description desc = new Description();
         desc.setValeur(newDescValue.trim());
@@ -140,7 +141,7 @@ public class CandidatLabelDescriptionService {
 
     @Transactional
     public RemoveDescriptionResult removeDescription(Long entityId, CategoryDescriptionItem descItem) {
-        if (entityId == null) return new RemoveDescriptionResult(false, "L'entité n'a pas encore été créée.");
+        if (entityId == null) return new RemoveDescriptionResult(false, JsfMessages.get("candidat.labelDesc.entityNotCreatedYet"));
 
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null || entity.getDescriptions() == null) return new RemoveDescriptionResult(false, null);

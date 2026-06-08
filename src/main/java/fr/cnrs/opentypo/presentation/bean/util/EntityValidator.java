@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
@@ -22,11 +23,11 @@ public final class EntityValidator {
      */
     public static boolean validateCodeFormat(String code) {
         if (code == null || code.trim().isEmpty()) {
-            addErrorMessage(EntityConstants.ERROR_CODE_REQUIRED);
+            addErrorMessage(JsfMessages.get("validator.codeRequired"));
             return false;
         }
         if (code.trim().length() > EntityConstants.MAX_CODE_LENGTH) {
-            addErrorMessage(EntityConstants.ERROR_CODE_TOO_LONG);
+            addErrorMessage(JsfMessages.format("validator.codeTooLong", EntityConstants.MAX_CODE_LENGTH));
             return false;
         }
         return true;
@@ -40,7 +41,7 @@ public final class EntityValidator {
             return false;
         }
         if (entityRepository.existsByCode(code.trim())) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
+            addErrorMessage(JsfMessages.get("validator.codeAlreadyExists"));
             return false;
         }
         return true;
@@ -56,11 +57,11 @@ public final class EntityValidator {
         String codeTrimmed = code.trim();
         if (excludeEntityId != null
                 && entityRepository.existsByCodeExcludingEntityId(codeTrimmed, excludeEntityId)) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
+            addErrorMessage(JsfMessages.get("validator.codeAlreadyExists"));
             return false;
         }
         if (excludeEntityId == null && entityRepository.existsByCode(codeTrimmed)) {
-            addErrorMessage(EntityConstants.ERROR_CODE_ALREADY_EXISTS);
+            addErrorMessage(JsfMessages.get("validator.codeAlreadyExists"));
             return false;
         }
         return true;
@@ -72,7 +73,7 @@ public final class EntityValidator {
             return false;
         }
         if (reference != null && uniquenessService.isCategoryCodeTakenInReference(reference, code.trim(), null)) {
-            addErrorMessage(EntityConstants.ERROR_CATEGORY_CODE_EXISTS_IN_REFERENCE);
+            addErrorMessage(JsfMessages.get("validator.categoryCodeExistsInReference"));
             return false;
         }
         return true;
@@ -84,7 +85,7 @@ public final class EntityValidator {
             return false;
         }
         if (reference != null && uniquenessService.isGroupCodeTakenInReference(reference, code.trim(), null)) {
-            addErrorMessage(EntityConstants.ERROR_GROUP_CODE_EXISTS_IN_REFERENCE);
+            addErrorMessage(JsfMessages.get("validator.groupCodeExistsInReference"));
             return false;
         }
         return true;
@@ -96,7 +97,7 @@ public final class EntityValidator {
             return false;
         }
         if (group != null && uniquenessService.isSerieCodeTakenInGroup(group, code.trim(), null)) {
-            addErrorMessage(EntityConstants.ERROR_SERIE_CODE_EXISTS_IN_GROUP);
+            addErrorMessage(JsfMessages.get("validator.serieCodeExistsInGroup"));
             return false;
         }
         return true;
@@ -110,13 +111,13 @@ public final class EntityValidator {
         return uniquenessService.resolveGroup(groupOrParent)
                 .map(group -> {
                     if (uniquenessService.isTypeCodeTakenInGroup(group, code.trim(), null)) {
-                        addErrorMessage(EntityConstants.ERROR_TYPE_CODE_EXISTS_IN_GROUP);
+                        addErrorMessage(JsfMessages.get("validator.typeCodeExistsInGroup"));
                         return false;
                     }
                     return true;
                 })
                 .orElseGet(() -> {
-                    addErrorMessage("Impossible de déterminer le groupe pour valider l'unicité du code.");
+                    addErrorMessage(JsfMessages.get("validator.codeUniqueGroup"));
                     return false;
                 });
     }
@@ -126,13 +127,13 @@ public final class EntityValidator {
      */
     public static boolean validateLabel(String label) {
         if (label == null || label.trim().isEmpty()) {
-            addErrorMessage(EntityConstants.ERROR_LABEL_REQUIRED);
+            addErrorMessage(JsfMessages.get("validator.labelRequired"));
             return false;
         }
 
         String labelTrimmed = label.trim();
         if (labelTrimmed.length() > EntityConstants.MAX_LABEL_LENGTH) {
-            addErrorMessage(EntityConstants.ERROR_LABEL_TOO_LONG);
+            addErrorMessage(JsfMessages.format("validator.labelTooLong", EntityConstants.MAX_LABEL_LENGTH));
             return false;
         }
 
@@ -142,7 +143,7 @@ public final class EntityValidator {
     private static void addErrorMessage(String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
+            new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), message));
         PrimeFaces.current().ajax().update(":growl");
     }
 }

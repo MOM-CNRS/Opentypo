@@ -29,6 +29,7 @@ import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -130,13 +131,13 @@ public class GroupBean implements Serializable {
     public void saveGroupe(ApplicationBean appBean) {
         if (appBean == null || appBean.getSelectedEntity() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucun groupe sélectionné."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.group")));
             return;
         }
         Entity group = appBean.getSelectedEntity();
         if (group.getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Groupe invalide."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.invalid.group")));
             return;
         }
 
@@ -186,7 +187,7 @@ public class GroupBean implements Serializable {
         entityEditModeBean.cancelEditing();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
-                FacesMessage.SEVERITY_INFO, "Succès", "Les modifications ont été enregistrées avec succès."));
+                FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
         log.info("Groupe modifié avec succès: {} (ID: {})", saved.getCode(), saved.getId());
     }
 
@@ -370,17 +371,17 @@ public class GroupBean implements Serializable {
     public void addNameFromInput() {
         if (newNameValue == null || newNameValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.fieldNameRequired")));
             return;
         }
         if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInNames(newNameLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedName")));
             return;
         }
         if (groupNames == null) groupNames = new ArrayList<>();
@@ -412,17 +413,17 @@ public class GroupBean implements Serializable {
     public void addDescriptionFromInput() {
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.descriptionRequired")));
             return;
         }
         if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInDescriptions(newDescriptionLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedDescription")));
             return;
         }
         if (groupDescriptions == null) groupDescriptions = new ArrayList<>();
@@ -511,15 +512,15 @@ public class GroupBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         if (applicationBean == null || applicationBean.getSelectedCategory() == null) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Aucune catégorie n'est sélectionnée. Veuillez sélectionner une catégorie avant de créer un groupe."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.parent.required.group")));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
             return;
         }
 
         if (!canCreateGroup()) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Vous n'avez pas les droits pour créer un groupe dans ce référentiel."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.permission.create.group")));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
             return;
         }
@@ -530,14 +531,14 @@ public class GroupBean implements Serializable {
         }
 
         if (groupNames == null || groupNames.isEmpty()) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameRequired")));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
             return;
         }
 
         for (NameItem item : groupNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameValueRequired")));
                 PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
                 return;
             }
@@ -548,7 +549,7 @@ public class GroupBean implements Serializable {
         try {
             EntityType groupType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_GROUP)
                     .orElseThrow(() -> new IllegalStateException(
-                            "Le type d'entité '" + EntityConstants.ENTITY_TYPE_GROUP + "' n'existe pas dans la base de données."));
+                            JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_GROUP)));
 
             Entity newGroup = new Entity();
             newGroup.setCode(codeTrimmed);
@@ -616,20 +617,20 @@ public class GroupBean implements Serializable {
             copyParametrageFromReferenceToGroup(applicationBean.getSelectedCategory(), savedGroup);
 
             String labelPrincipal = groupNames.get(0).getNom();
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le groupe '" + labelPrincipal + "' a été créé avec succès."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.create.success.group", labelPrincipal)));
 
             resetGroupDialogForm();
             PrimeFaces.current().executeScript("PF('groupDialog').hide();");
             PrimeFaces.current().ajax().update(":growl, :groupDialogForm, :groupesContent, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du groupe", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), e.getMessage()));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du groupe", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Une erreur est survenue lors de la création du groupe : " + e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("common.error.create.group", e.getMessage())));
             PrimeFaces.current().ajax().update(":groupDialogForm, :growl");
         }
     }
@@ -678,13 +679,13 @@ public class GroupBean implements Serializable {
     public void deleteGroup(ApplicationBean applicationBean) {
         if (applicationBean == null || applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun groupe sélectionné."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.group")));
             return;
         }
         if (!canDeleteOrChangeVisibilityGroup(applicationBean)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Vous n'avez pas les droits pour supprimer ce groupe."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("entity.permission.delete.group")));
             return;
         }
         try {
@@ -710,14 +711,14 @@ public class GroupBean implements Serializable {
             treeBean.initializeTreeWithCollection();
 
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            "Le groupe '" + groupCode + "' et toutes les entités rattachées ont été supprimés."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                            JsfMessages.format("entity.delete.success.group", groupCode)));
             log.info("Groupe supprimé avec succès: {} (ID: {})", groupCode, groupId);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du groupe", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("common.error.delete", e.getMessage())));
         }
     }
 

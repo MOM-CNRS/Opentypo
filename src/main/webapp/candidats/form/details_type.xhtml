@@ -6,14 +6,14 @@
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Attestations -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel for="attestations" value="Attestations" />
+            <p:outputLabel for="attestations" value="#{msg['modifier.field.attestationsContexts']}" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="attestations"
                          rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.attestations}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une attestation et appuyez sur Entrée..."
+                         placeholder="#{msg['modifier.placeholder.attestations']}"
                          maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveAttestations}" process="@this" update="@none"/>
@@ -31,14 +31,14 @@
 
         <!-- Sites archéologiques -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel for="sites_archeologiques" value="Sites archéologiques" />
+            <p:outputLabel for="sites_archeologiques" value="#{msg['modifier.field.archSites']}" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="sites_archeologiques"
                          rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.sitesArcheologiques}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un site archéologique et appuyez sur Entrée..."
+                         placeholder="#{msg['modifier.placeholder.archSites']}"
                          maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveSitesArcheologiques}" process="@this" update="@none"/>
@@ -48,7 +48,7 @@
                 <p:inputText value="#{fn:join(candidatBean.sitesArcheologiques, ', ')}"
                              styleClass="users-input"
                              readonly="true"
-                             placeholder="Aucun site archéologique"
+                             placeholder="#{msg['modifier.placeholder.noArchSite']}"
                              rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="sites_archeologiques" display="icon"/>
@@ -56,14 +56,14 @@
 
         <!-- Référentiel -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel for="referentiel" value="Référentiel" />
+            <p:outputLabel for="referentiel" value="#{msg['modifier.field.referential']}" />
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
                 <p:chips id="referentiel"
                          rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.references}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un référentiel et appuyez sur Entrée..."
+                         placeholder="#{msg['modifier.placeholder.referentials']}"
                          maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveReferences}" process="@this" update="@none"/>
@@ -73,7 +73,7 @@
                 <p:inputText value="#{fn:join(candidatBean.references, ', ')}"
                              styleClass="users-input"
                              readonly="true"
-                             placeholder="Aucun référentiel"
+                             placeholder="#{msg['modifier.placeholder.noReferential']}"
                              rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="referentiel" display="icon"/>
@@ -81,7 +81,7 @@
 
         <!-- Typologie scientifique -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
-            <p:outputLabel value="Typologie scientifique" />
+            <p:outputLabel value="#{msg['modifier.field.scientificTypology']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
@@ -92,7 +92,7 @@
                     <p:inputText value="#{candidatBean.typologieScientifique}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 
@@ -111,7 +111,7 @@
 
         <!-- Identifiant pérenne -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel value="Identifiant pérenne" />
+            <p:outputLabel value="#{msg['modifier.details.permanentId']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
@@ -122,7 +122,7 @@
                     <p:inputText value="#{candidatBean.identifiantPerenne}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 
@@ -141,7 +141,7 @@
 
         <!-- Ancienne version -->
         <div class="users-form-group users-form-group-full">
-            <p:outputLabel value="Ancienne version" />
+            <p:outputLabel value="#{msg['modifier.details.oldVersion']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-cog input-icon" />
@@ -152,7 +152,7 @@
                     <p:inputText value="#{candidatBean.ancienneVersion}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
 

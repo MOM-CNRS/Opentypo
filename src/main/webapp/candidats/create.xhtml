@@ -13,12 +13,12 @@
                     <div>
                         <h1 class="users-title">
                             <i class="pi pi-plus-circle users-title-icon" />
-                            Créer un nouveau candidat
+                            #{msg['candidat.create.title']}
                         </h1>
-                        <p class="users-subtitle">Proposez une nouvelle entité</p>
+                        <p class="users-subtitle">#{msg['candidat.create.subtitle']}</p>
                     </div>
                     <h:form>
-                        <p:commandButton value="Retour à la liste"
+                        <p:commandButton value="#{msg['common.action.backToList']}"
                                          icon="pi pi-arrow-left"
                                          styleClass="users-create-button"
                                          onclick="PF('confirmAbandonDialog').show(); return false;"
@@ -60,9 +60,9 @@
                                                 <i class="pi pi-tag" />
                                             </div>
                                             <div class="step-text-bar">
-                                                <div class="step-title-bar">Type et identification</div>
+                                                <div class="step-title-bar">#{msg['candidat.wizard.step1.title']}</div>
                                                 <div class="step-status-bar">
-                                                    #{candidatBean.isStep1() ? 'En cours' : ((candidatBean.isStep2() or candidatBean.isStep3()) ? 'Terminé' : 'À venir')}
+                                                    #{candidatBean.isStep1() ? msg['candidat.wizard.status.inProgress'] : ((candidatBean.isStep2() or candidatBean.isStep3()) ? msg['candidat.wizard.status.completed'] : msg['candidat.wizard.status.upcoming'])}
                                                 </div>
                                             </div>
                                         </div>
@@ -85,9 +85,9 @@
                                                 <i class="pi pi-sitemap" />
                                             </div>
                                             <div class="step-text-bar">
-                                                <div class="step-title-bar">Collection et référentiel</div>
+                                                <div class="step-title-bar">#{msg['candidat.wizard.step2.title']}</div>
                                                 <div class="step-status-bar">
-                                                    #{candidatBean.isStep2() ? 'En cours' : (candidatBean.isStep3() ? 'Terminé' : (candidatBean.isStep1() ? 'À venir' : 'Non disponible'))}
+                                                    #{candidatBean.isStep2() ? msg['candidat.wizard.status.inProgress'] : (candidatBean.isStep3() ? msg['candidat.wizard.status.completed'] : (candidatBean.isStep1() ? msg['candidat.wizard.status.upcoming'] : msg['candidat.wizard.status.unavailable']))}
                                                 </div>
                                             </div>
                                         </div>
@@ -105,9 +105,9 @@
                                                 <i class="pi pi-file-edit" />
                                             </div>
                                             <div class="step-text-bar">
-                                                <div class="step-title-bar">Détails</div>
+                                                <div class="step-title-bar">#{msg['candidat.wizard.step3.title']}</div>
                                                 <div class="step-status-bar">
-                                                    #{candidatBean.isStep3() ? 'En cours' : ((candidatBean.isStep1() or candidatBean.isStep2()) ? 'À venir' : 'Non disponible')}
+                                                    #{candidatBean.isStep3() ? msg['candidat.wizard.status.inProgress'] : ((candidatBean.isStep1() or candidatBean.isStep2()) ? msg['candidat.wizard.status.upcoming'] : msg['candidat.wizard.status.unavailable'])}
                                                 </div>
                                             </div>
                                         </div>
@@ -118,12 +118,12 @@
 
                         <!-- Contenu des étapes -->
                         <h:panelGroup id="wizardContent">
-                            <!-- Contenu de l'étape 1 : Type et identification -->
+                            <!-- Contenu de l'étape 1 : #{msg['candidat.wizard.step1.title']} -->
                             <ui:fragment rendered="#{candidatBean.isStep1()}">
                                 <ui:include src="create/first-step.xhtml"/>
                             </ui:fragment>
 
-                            <!-- Contenu de l'étape 2 : Collection et référentiel -->
+                            <!-- Contenu de l'étape 2 : #{msg['candidat.wizard.step2.title']} -->
                             <ui:fragment rendered="#{candidatBean.isStep2()}">
                                 <ui:include src="create/second-step.xhtml"/>
                             </ui:fragment>
@@ -137,7 +137,7 @@
                         <!-- Boutons de navigation -->
                         <h:panelGroup id="nav-button" class="wizard-navigation wizard-navigation--candidat">
                             <div class="wizard-nav-left">
-                                <p:commandButton value="Précédent"
+                                <p:commandButton value="#{msg['common.action.previous']}"
                                                icon="pi pi-arrow-left"
                                                styleClass="wizard-btn wizard-btn-prev"
                                                action="#{candidatBean.previousStep}"
@@ -148,7 +148,7 @@
                             </div>
 
                             <div class="wizard-nav-right">
-                                <p:commandButton value="Suivant"
+                                <p:commandButton value="#{msg['common.action.next']}"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
@@ -158,7 +158,7 @@
                                                  update=":createCandidatForm :growl"
                                                  rendered="#{candidatBean.isStep1()}"/>
 
-                                <p:commandButton value="Suivant"
+                                <p:commandButton value="#{msg['common.action.next']}"
                                                  icon="pi pi-arrow-right"
                                                  iconPos="right"
                                                  styleClass="wizard-btn wizard-btn-next"
@@ -168,7 +168,7 @@
                                                  update=":createCandidatForm :growl"
                                                  rendered="#{candidatBean.isStep2()}"/>
 
-                                <p:commandButton value="Terminer"
+                                <p:commandButton value="#{msg['common.action.finish']}"
                                                  icon="pi pi-check"
                                                  iconPos="right"
                                                  process="@form"

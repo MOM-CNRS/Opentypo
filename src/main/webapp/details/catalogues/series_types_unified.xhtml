@@ -26,7 +26,7 @@
                     </span>
 
                     <h:panelGroup class="collection-references-actions">
-                        <p:commandButton value="Réorganiser l'ordre"
+                        <p:commandButton value="#{msg['list.action.reorder']}"
                                          icon="pi pi-sort-alt"
                                          rendered="#{serieBean.canEditSerie(applicationBean) and applicationBean.filteredSeriesSize gt 1}"
                                          styleClass="collection-create-btn collection-reorder-btn"
@@ -34,7 +34,7 @@
                                          process="@this"
                                          update=":orderListDialog"
                                          oncomplete="PF('orderListDialog').show();"/>
-                        <p:commandButton value="Créer une nouvelle série"
+                        <p:commandButton value="#{msg['list.action.createSeries']}"
                                          icon="pi pi-plus"
                                          rendered="#{serieBean.canCreateSerie(applicationBean)}"
                                          styleClass="collection-create-btn"
@@ -61,7 +61,7 @@
                             <p:inputText id="seriesTypesSearchInput"
                                          value="#{applicationBean.seriesSearchQuery}"
                                          styleClass="reference-categories-search-input"
-                                         placeholder="Rechercher par code ou label...">
+                                         placeholder="#{msg['list.search.placeholder']}">
                                 <p:ajax event="keyup"
                                         process="@this"
                                         update="seriesTypesContent"
@@ -167,7 +167,7 @@
                                                  update="seriesTypesContent"
                                                  action="#{applicationBean.seriesPreviousPage()}"
                                                  disabled="#{applicationBean.seriesFirstPage}"
-                                                 title="Page précédente"/>
+                                                 title="#{msg['list.pagination.previous']}"/>
 
                                 <span class="reference-categories-page-info">
                                     Page #{applicationBean.seriesCurrentPage} / #{applicationBean.seriesTotalPages}
@@ -179,7 +179,7 @@
                                                  update="seriesTypesContent"
                                                  action="#{applicationBean.seriesNextPage()}"
                                                  disabled="#{applicationBean.seriesLastPage}"
-                                                 title="Page suivante"/>
+                                                 title="#{msg['list.pagination.next']}"/>
                             </h:panelGroup>
                         </ui:fragment>
 
@@ -230,7 +230,7 @@
                     </span>
 
                     <h:panelGroup class="collection-references-actions" rendered="#{typeBean.canCreateType(applicationBean) or typeBean.canEditType(applicationBean)}">
-                        <p:commandButton value="Réorganiser l'ordre"
+                        <p:commandButton value="#{msg['list.action.reorder']}"
                                          icon="pi pi-sort-alt"
                                          rendered="#{typeBean.canEditType(applicationBean) and applicationBean.filteredTypesSize gt 1}"
                                          styleClass="collection-create-btn collection-reorder-btn"
@@ -239,7 +239,7 @@
                                          update=":orderListDialog"
                                          oncomplete="PF('orderListDialog').show();"/>
 
-                        <p:commandButton value="Créer un nouveau type"
+                        <p:commandButton value="#{msg['list.action.createType']}"
                                          icon="pi pi-plus"
                                          rendered="#{typeBean.canCreateType(applicationBean)}"
                                          styleClass="collection-create-btn"
@@ -266,7 +266,7 @@
                             <p:inputText id="categoriesSearchInput"
                                          value="#{applicationBean.typesSearchQuery}"
                                          styleClass="reference-categories-search-input"
-                                         placeholder="Rechercher par code ou label...">
+                                         placeholder="#{msg['list.search.placeholder']}">
                                 <p:ajax event="keyup"
                                         process="@this"
                                         update="categoriesContent"
@@ -324,7 +324,7 @@
                                                      update="categoriesContent"
                                                      action="#{applicationBean.typesPreviousPage()}"
                                                      disabled="#{applicationBean.typesFirstPage}"
-                                                     title="Page précédente"/>
+                                                     title="#{msg['list.pagination.previous']}"/>
                                     <span class="reference-categories-page-info">
                                         Page #{applicationBean.typesCurrentPage} / #{applicationBean.typesTotalPages}
                                     </span>
@@ -334,7 +334,7 @@
                                                      update="categoriesContent"
                                                      action="#{applicationBean.typesNextPage()}"
                                                      disabled="#{applicationBean.typesLastPage}"
-                                                     title="Page suivante"/>
+                                                     title="#{msg['list.pagination.next']}"/>
                                 </h:panelGroup>
                             </ui:fragment>
 

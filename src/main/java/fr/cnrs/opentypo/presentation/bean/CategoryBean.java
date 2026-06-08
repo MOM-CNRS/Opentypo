@@ -21,6 +21,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -134,17 +135,17 @@ public class CategoryBean implements Serializable {
     public void addNameFromInput() {
         if (categoryLabel == null || categoryLabel.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.fieldNameRequired")));
             return;
         }
         if (labelLangueCode == null || labelLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInNames(labelLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedName")));
             return;
         }
         if (categoryNames == null) categoryNames = new ArrayList<>();
@@ -184,17 +185,17 @@ public class CategoryBean implements Serializable {
     public void addDescriptionFromInput() {
         if (categoryDescription == null || categoryDescription.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.descriptionRequired")));
             return;
         }
         if (descriptionLangueCode == null || descriptionLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInDescriptions(descriptionLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedDescription")));
             return;
         }
         if (categoryDescriptions == null) categoryDescriptions = new ArrayList<>();
@@ -219,8 +220,8 @@ public class CategoryBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         if (applicationBean == null || applicationBean.getSelectedReference() == null) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Aucun référentiel n'est sélectionné. Veuillez sélectionner un référentiel avant de créer une catégorie."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.parent.required.category")));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
             return;
         }
@@ -230,8 +231,8 @@ public class CategoryBean implements Serializable {
                         loginBean.getCurrentUser(),
                         EntityConstants.ENTITY_TYPE_CATEGORY,
                         applicationBean.getSelectedReference().getId())) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Vous n'avez pas les droits pour créer une catégorie dans ce référentiel."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.permission.create.category")));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
             return;
         }
@@ -242,14 +243,14 @@ public class CategoryBean implements Serializable {
         }
 
         if (categoryNames == null || categoryNames.isEmpty()) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameRequired")));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
             return;
         }
 
         for (NameItem item : categoryNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameValueRequired")));
                 PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
                 return;
             }
@@ -258,7 +259,7 @@ public class CategoryBean implements Serializable {
         try {
             EntityType categoryType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_CATEGORY)
                     .orElseThrow(() -> new IllegalStateException(
-                            "Le type d'entité '" + EntityConstants.ENTITY_TYPE_CATEGORY + "' n'existe pas dans la base de données."));
+                            JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_CATEGORY)));
 
             Entity newCategory = new Entity();
             newCategory.setCode(categoryCode.trim());
@@ -319,20 +320,20 @@ public class CategoryBean implements Serializable {
             applicationBean.refreshReferenceCategoriesList();
             treeBean.addEntityToTree(savedCategory, applicationBean.getSelectedReference());
 
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "La catégorie '" + categoryNames.get(0).getNom() + "' a été créée avec succès."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.create.success.category", categoryNames.get(0).getNom())));
 
             resetCategoryDialogForm();
             PrimeFaces.current().executeScript("PF('categoryDialog').hide();");
             PrimeFaces.current().ajax().update(":growl, :categoryDialogForm, :categoriesContainer, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la catégorie", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), e.getMessage()));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la catégorie", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Une erreur est survenue lors de la création de la catégorie : " + e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("common.error.create.category", e.getMessage())));
             PrimeFaces.current().ajax().update(":categoryDialogForm, :growl");
         }
     }
@@ -344,12 +345,12 @@ public class CategoryBean implements Serializable {
     public void deleteCategory(ApplicationBean applicationBean) {
         if (!canDeleteCategory()) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Vous n'avez pas les droits pour supprimer cette catégorie."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.permission.delete.category")));
             return;
         }
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucune category sélectionnée."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.category")));
             return;
         }
 
@@ -371,7 +372,7 @@ public class CategoryBean implements Serializable {
 
             // Afficher un message de succès
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès", "Le référentiel '" + referenceCode + "' et toutes ses entités rattachées ont été supprimés avec succès."));
+                    JsfMessages.get("common.growl.success"), JsfMessages.format("entity.delete.success.category", referenceCode)));
 
             // Afficher le panel de la collection
             if (applicationBean.getSelectedReference() != null) {
@@ -384,7 +385,7 @@ public class CategoryBean implements Serializable {
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du référentiel", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+                    JsfMessages.get("common.growl.error"), JsfMessages.format("common.error.delete", e.getMessage())));
         }
     }
 
@@ -479,7 +480,7 @@ public class CategoryBean implements Serializable {
         resetCategoryDialogForm();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès", "Les modifications ont été enregistrées avec succès."));
+                JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
 
         log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
     }

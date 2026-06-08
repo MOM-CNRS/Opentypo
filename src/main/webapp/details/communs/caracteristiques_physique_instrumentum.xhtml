@@ -39,13 +39,13 @@
                                                 </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux.url}">
-                                                <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                     #{applicationBean.selectedEntity.caracteristiquePhysique.materiaux.valeur}
                                                 </span>
                                             </ui:fragment>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.materiaux}">
-                                            <span class="empty-field-message">Non renseigné</span>
+                                            <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                         </ui:fragment>
                                     </div>
                                 </h:panelGroup>
@@ -68,13 +68,13 @@
                                                 </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme.url}">
-                                                <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                     #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
                                                 </span>
                                             </ui:fragment>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
-                                            <span class="empty-field-message">Non renseigné</span>
+                                            <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                         </ui:fragment>
                                     </div>
                                 </h:panelGroup>
@@ -103,13 +103,13 @@
                                                 </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions.url}">
-                                                <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                     #{applicationBean.selectedEntity.caracteristiquePhysique.dimensions.valeur}
                                                 </span>
                                             </ui:fragment>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.dimensions}">
-                                            <span class="empty-field-message">Non renseigné</span>
+                                            <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                         </ui:fragment>
                                     </div>
                                 </h:panelGroup>
@@ -132,13 +132,13 @@
                                                 </h:outputLink>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.technique.url}">
-                                                <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                     #{applicationBean.selectedEntity.caracteristiquePhysique.technique.valeur}
                                                 </span>
                                             </ui:fragment>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.technique}">
-                                            <span class="empty-field-message">Non renseigné</span>
+                                            <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                         </ui:fragment>
                                     </div>
                                 </h:panelGroup>

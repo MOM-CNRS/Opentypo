@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmDeleteDialog"
               widgetVar="confirmDeleteDialog"
-              header="Confirmer la suppression"
+              header="#{msg['candidat.dialog.delete.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -21,8 +21,8 @@
                     <i class="pi pi-exclamation-triangle candidat-confirm-header-icon candidats-icon-danger-only" />
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Confirmer la suppression</h3>
-                    <p class="candidat-confirm-header-subtitle">Cette action est irréversible</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.delete.header']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.delete.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -32,20 +32,20 @@
                 <i class="pi pi-info-circle" />
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir supprimer ce brouillon ?<br/>
+                #{msg['candidat.dialog.delete.messageIntro']}<br/>
                 <strong>#{candidatBean.candidatASupprimer != null ? candidatBean.candidatASupprimer.label : ''}</strong><br/>
-                <span class="candidats-confirm-warning-text">Cette action est définitive et ne peut pas être annulée.</span>
+                <span class="candidats-confirm-warning-text">#{msg['candidat.dialog.delete.messageWarning']}</span>
             </p>
         </div>
         <f:facet name="footer">
             <div class="candidat-confirm-footer">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
                                process="@this"
                                update="@none"
                                onclick="PF('confirmDeleteDialog').hide(); return false;"/>
-                <p:commandButton value="Oui, supprimer"
+                <p:commandButton value="#{msg['common.action.yesDelete']}"
                                icon="pi pi-trash"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-delete"
                                action="#{candidatBean.supprimerCandidatConfirm()}"

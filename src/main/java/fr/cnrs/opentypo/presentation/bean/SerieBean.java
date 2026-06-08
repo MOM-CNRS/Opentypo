@@ -23,6 +23,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -179,17 +180,17 @@ public class SerieBean implements Serializable {
     public void addSerieNameFromInput() {
         if (newNameValue == null || newNameValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.fieldNameRequired")));
             return;
         }
         if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInSerieNames(newNameLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedName")));
             return;
         }
         if (serieNames == null) serieNames = new ArrayList<>();
@@ -221,17 +222,17 @@ public class SerieBean implements Serializable {
     public void addSerieDescriptionFromInput() {
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.descriptionRequired")));
             return;
         }
         if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInSerieDescriptions(newDescriptionLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedDescription")));
             return;
         }
         if (serieDescriptions == null) serieDescriptions = new ArrayList<>();
@@ -256,7 +257,7 @@ public class SerieBean implements Serializable {
         for (NameItem item : serieNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Erreur", "Tous les noms doivent avoir une valeur."));
+                        JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameValueRequired")));
                 PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
                 return;
             }
@@ -266,7 +267,7 @@ public class SerieBean implements Serializable {
             EntityType serieType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_SERIES)
                     .orElse(entityTypeRepository.findByCode("SERIE")
                             .orElseThrow(() -> new IllegalStateException(
-                                    "Le type d'entité 'SERIES' ou 'SERIE' n'existe pas dans la base de données.")));
+                                    JsfMessages.get("entity.type.missing.series")));
 
             Entity newSerie = new Entity();
             newSerie.setCode(serieDialogCode.trim());
@@ -336,20 +337,20 @@ public class SerieBean implements Serializable {
             }
 
             String labelPrincipal = serieNames.isEmpty() ? savedSerie.getCode() : serieNames.get(0).getNom();
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "La série '" + labelPrincipal + "' a été créée avec succès."));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.create.success.series", labelPrincipal)));
 
             resetSerieDialogForm();
             PrimeFaces.current().executeScript("PF('serieDialog').hide();");
             PrimeFaces.current().ajax().update(":growl :serieDialogForm :contentPanels :leftTreePanel");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création de la série", e);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), e.getMessage()));
             PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la série", e);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Une erreur est survenue lors de la création de la série : " + e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("common.error.create.series", e.getMessage()));
             PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
         }
     }
@@ -371,8 +372,8 @@ public class SerieBean implements Serializable {
         if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Aucun groupe n'est sélectionné. Veuillez sélectionner un groupe avant de créer une série."));
+                            JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("entity.parent.required.series")));
             PrimeFaces.current().ajax().update(":growl, :serieForm");
             return;
         }
@@ -388,7 +389,7 @@ public class SerieBean implements Serializable {
             EntityType serieType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_SERIES)
                     .orElse(entityTypeRepository.findByCode("SERIE")
                             .orElseThrow(() -> new IllegalStateException(
-                                    "Le type d'entité 'SERIES' ou 'SERIE' n'existe pas dans la base de données.")));
+                                    JsfMessages.get("entity.type.missing.series")));
 
             // Créer la nouvelle entité série
             Entity newSerie = new Entity();
@@ -424,8 +425,8 @@ public class SerieBean implements Serializable {
             // Message de succès
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Succès",
-                            "La série '" + labelTrimmed + "' a été créée avec succès."));
+                            JsfMessages.get("common.growl.success"),
+                            JsfMessages.format("entity.create.success.series", labelTrimmed)));
 
             resetSerieForm();
 
@@ -436,15 +437,15 @@ public class SerieBean implements Serializable {
             log.error("Erreur lors de la création de la série", e);
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
+                            JsfMessages.get("common.growl.error"),
                             e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :serieForm");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la série", e);
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Une erreur est survenue lors de la création de la série : " + e.getMessage()));
+                            JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("common.error.create.series", e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :serieForm");
         }
     }
@@ -456,13 +457,13 @@ public class SerieBean implements Serializable {
     public void deleteSerie(ApplicationBean applicationBean) {
         if (applicationBean == null || applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune série sélectionnée."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.series")));
             return;
         }
         if (!canDeleteSerie(applicationBean)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Vous n'avez pas les droits pour supprimer cette série."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("entity.permission.delete.series")));
             return;
         }
         try {
@@ -489,14 +490,14 @@ public class SerieBean implements Serializable {
                 tb.initializeTreeWithCollection();
             }
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            "La série '" + serieCode + "' et toutes les entités rattachées ont été supprimées."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                            JsfMessages.format("entity.delete.success.series", serieCode)));
             log.info("Série supprimée avec succès: {} (ID: {})", serieCode, serieId);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression de la série", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("common.error.delete", e.getMessage()));
         }
     }
 

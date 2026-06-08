@@ -15,6 +15,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ReferenceOpenthesoRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -109,8 +110,8 @@ public class OpenThesoDialogBean implements Serializable {
             Optional<Parametrage> parametrage = parametrageRepository.findByEntityId(groupeParent.get().getId());
             if (parametrage.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La collection "
-                                + groupeParent.get().getCode() + " n'est pas paramétrée"));
+                        new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                                JsfMessages.format("opentheso.collectionNotConfigured", groupeParent.get().getCode())));
                 return;
             }
             collectionParametrage = parametrage.get();
@@ -178,31 +179,36 @@ public class OpenThesoDialogBean implements Serializable {
     public void onConceptSearch() {
         if (collectionParametrage == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le thésaurus n'est pas encore paramétrer pour ce référence"));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.get("opentheso.thesaurusNotConfigured")));
             return;
         }
 
         if (collectionParametrage.getIdTheso() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("opentheso.warn.selectThesaurus")));
             return;
         }
 
         if (collectionParametrage.getIdGroupe() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une collection."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("opentheso.warn.selectCollection")));
             return;
         }
 
         if (collectionParametrage.getIdLangue() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une langue."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("opentheso.warn.selectLanguage")));
             return;
         }
 
         if (searchValue == null || searchValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir un terme de recherche."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("opentheso.warn.searchTermRequired")));
             return;
         }
         
@@ -227,8 +233,8 @@ public class OpenThesoDialogBean implements Serializable {
         if (collectionParametrage == null || collectionParametrage.getIdTheso() == null
                 || collectionParametrage.getIdGroupe() == null || collectionParametrage.getIdLangue() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
-                            "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("opentheso.connection.title"),
+                            JsfMessages.get("opentheso.connection.managerMustConfigureGroup")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -268,8 +274,8 @@ public class OpenThesoDialogBean implements Serializable {
 
         if (parametrageEntityId == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
-                            "Le gestionnaire du référentiel doit paramétrer la connexion avec OpenTheso pour permettre la recherche dans le thésaurus."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("opentheso.connection.title"),
+                            JsfMessages.get("opentheso.connection.managerMustConfigure")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -277,8 +283,8 @@ public class OpenThesoDialogBean implements Serializable {
         Optional<Parametrage> parametrageOpt = parametrageRepository.findByEntityId(parametrageEntityId);
         if (parametrageOpt.isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
-                            "Le gestionnaire du référentiel doit paramétrer la connexion avec OpenTheso pour permettre la recherche dans le thésaurus."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("opentheso.connection.title"),
+                            JsfMessages.get("opentheso.connection.managerMustConfigure")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -301,8 +307,8 @@ public class OpenThesoDialogBean implements Serializable {
         } catch (Exception e) {
             log.warn("searchInOpenTheso failed for query [{}]: {}", term, e.getMessage());
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Recherche OpenTheso",
-                            "La recherche n’a pas pu aboutir. Vous pouvez saisir une aire librement et valider avec Entrée ou le bouton +."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("opentheso.search.title"),
+                            JsfMessages.get("opentheso.search.failedFreeEntry")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -338,8 +344,8 @@ public class OpenThesoDialogBean implements Serializable {
         if (collectionParametrage == null || collectionParametrage.getIdTheso() == null
                 || collectionParametrage.getIdGroupe() == null || collectionParametrage.getIdLangue() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Connexion OpenTheso",
-                            "Le gestionnaire du référentiel doit paramétrer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("opentheso.connection.title"),
+                            JsfMessages.get("opentheso.connection.managerMustConfigureGroup")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -355,8 +361,8 @@ public class OpenThesoDialogBean implements Serializable {
         } catch (Exception e) {
             log.warn("completeThesaurus {} failed for [{}]: {}", type, term, e.getMessage());
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Recherche OpenTheso",
-                            "La recherche n’a pas pu aboutir. Vous pouvez saisir une valeur libre et la valider."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("opentheso.search.title"),
+                            JsfMessages.get("opentheso.search.failedFreeValue")));
             PrimeFaces.current().ajax().update(":growl");
             return new ArrayList<>();
         }
@@ -384,8 +390,8 @@ public class OpenThesoDialogBean implements Serializable {
 
     public String getEmptyMessageFor(String typeCode) {
         return isOpenThesoParametrageMissing()
-                ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
-                : "Aucun résultat trouvé";
+                ? JsfMessages.get("opentheso.empty.notConfigured")
+                : JsfMessages.get("opentheso.empty.noResults");
     }
 
     /**
@@ -417,8 +423,8 @@ public class OpenThesoDialogBean implements Serializable {
      */
     public String getPeriodeEmptyMessage() {
         return isOpenThesoParametrageMissing()
-                ? "Connexion OpenTheso non paramétrée pour ce groupe. Le gestionnaire du référentiel doit configurer le paramétrage."
-                : "Aucun résultat trouvé";
+                ? JsfMessages.get("opentheso.empty.notConfigured")
+                : JsfMessages.get("opentheso.empty.noResults");
     }
 
     /**
@@ -438,7 +444,8 @@ public class OpenThesoDialogBean implements Serializable {
         CandidatBean cb = candidatBeanForAutocomplete;
         if (cb == null || cb.getCurrentEntity() == null || cb.getCurrentEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune entité en cours d'édition."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("opentheso.error.noEntity")));
             return;
         }
         PactolsConcept conceptToSave = concept;
@@ -450,14 +457,16 @@ public class OpenThesoDialogBean implements Serializable {
         }
         if (conceptToSave == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
-                            "Veuillez saisir ou sélectionner une " + (label != null ? label : "valeur") + "."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.format("opentheso.warn.selectOrEnter",
+                                    label != null ? label : JsfMessages.get("opentheso.defaultFieldLabel"))));
             return;
         }
         ensureThesaurusLoaded(cb, type);
         if (collectionParametrage == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le thésaurus n'est pas paramétré."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.get("opentheso.warn.thesaurusNotConfiguredShort")));
             return;
         }
         this.candidatBean = cb;
@@ -477,7 +486,8 @@ public class OpenThesoDialogBean implements Serializable {
         if (referenceCode == null) {
             log.error("referenceCode est null, impossible de créer la référence");
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Code de référence non défini."));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("opentheso.error.referenceCodeMissing")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -485,7 +495,8 @@ public class OpenThesoDialogBean implements Serializable {
         if (entityId == null) {
             log.error("entityId est null, impossible de lier la référence à une entité");
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "ID d'entité non défini."));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("opentheso.error.entityIdMissing")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -494,7 +505,8 @@ public class OpenThesoDialogBean implements Serializable {
         if (entity == null) {
             log.error("Aucun element trouvée avec l'id {}", entityId);
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Entité introuvable."));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("opentheso.error.entityNotFound")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -508,7 +520,8 @@ public class OpenThesoDialogBean implements Serializable {
             // Cas : sélection d'un concept issu de la recherche
             if (collectionParametrage == null || collectionParametrage.getIdTheso() == null || collectionParametrage.getIdTheso().trim().isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Thésaurus non sélectionné."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.get("opentheso.warn.thesaurusNotSelected")));
                 PrimeFaces.current().ajax().update(":growl");
                 return;
             }
@@ -530,8 +543,8 @@ public class OpenThesoDialogBean implements Serializable {
             // thesaurusId, conceptId, collectionId, url restent null
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
-                    "Veuillez sélectionner un concept dans les résultats ou saisir une valeur manuelle."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                    JsfMessages.get("opentheso.warn.selectConceptOrManual")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -701,8 +714,8 @@ public class OpenThesoDialogBean implements Serializable {
         PrimeFaces.current().executeScript("setTimeout(function() { PF('openthesoDialog').hide(); }, 100);");
 
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                        "Référence créée avec succès (Code: " + referenceCode + ")."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        JsfMessages.format("opentheso.success.referenceCreated", referenceCode)));
 
         log.info("Référence ReferenceOpentheso créée avec succès - ID: {}, Code: '{}', Valeur: '{}', Entity ID: {}",
                 createdReference.getId(), referenceCode, valueForCallbackAndLambda, entityId);

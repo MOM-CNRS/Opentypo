@@ -7,7 +7,7 @@
         <!-- Production -->
         <div class="users-form-group users-form-group-full" id="productionGroup">
             <div class="periode-header-row">
-                <p:outputLabel value="Production" />
+                <p:outputLabel value="#{msg['modifier.production.section.title']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="productionAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -27,20 +27,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('PRODUCTION')}"
-                                   placeholder="Ex. Céramique, Verre..."
+                                   placeholder="#{msg['modifier.placeholder.production.enter']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.currentEntity.production.valeur}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune production sélectionnée"
+                                 placeholder="#{msg['modifier.placeholder.noProduction']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la production"
+                                     title="#{msg['modifier.tooltip.save.production']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveProductionFromAutocomplete}"
                                      process="@form"
@@ -48,7 +48,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la production"
+                                     title="#{msg['modifier.tooltip.delete.production']}"
                                      rendered="#{candidatBean.hasProduction() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteProduction()}"
                                      process="@this"
@@ -61,7 +61,7 @@
         <!-- Atelier(s) (Saisie libre avec tags) -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="groupAteliers" value="Atelier(s)" />
+                <p:outputLabel for="groupAteliers" value="#{msg['modifier.field.workshops']}" />
             </div>
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-wrench input-icon" />
@@ -69,7 +69,7 @@
                          rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.ateliers}"
                          styleClass="users-chips"
-                         placeholder="Saisissez un atelier et appuyez sur Entrée..."
+                         placeholder="#{msg['modifier.placeholder.workshops']}"
                          maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveAteliers}" process="@this" update="@none"/>
@@ -79,7 +79,7 @@
                 <p:inputText value="#{candidatBean.currentEntity.ateliers}"
                              styleClass="users-input"
                              readonly="true"
-                             placeholder="Aucun atelier saisi"
+                             placeholder="#{msg['modifier.placeholder.noWorkshop']}"
                              rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <p:message for="groupAteliers" display="icon"/>
@@ -88,7 +88,7 @@
         <!-- Aire de circulation -->
         <h:panelGroup id="aireCirculationGroup" styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="aireAutocomplete" value="Aire de circulation" />
+                <p:outputLabel for="aireAutocomplete" value="#{msg['modifier.field.circulationArea']}" />
             </div>
             <h:panelGroup class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group candidat-aires-row"
                  rendered="#{candidatBean.canEditCurrentBrouillon()}">
@@ -109,7 +109,7 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('AIRE_CIRCULATION')}"
-                                   placeholder="Ex. Gaule, Italie..."
+                                   placeholder="#{msg['modifier.placeholder.circulation.enterPlus']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false">
                         <p:ajax event="itemSelect"
@@ -129,7 +129,7 @@
                                                      update="@form :growl" />
                                 </span>
                         </ui:repeat>
-                        <p:outputLabel value="Aucune aire de circulation sélectionnée"
+                        <p:outputLabel value="#{msg['candidat.form.noCirculationArea']}"
                                        styleClass="candidat-no-aires-message"
                                        rendered="#{empty candidatBean.airesCirculation}"/>
                     </div>

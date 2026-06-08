@@ -6,7 +6,7 @@
 
     <!-- Dialog pour créer une nouvelle catégorie (même formulaire que référence) -->
     <p:dialog id="categoryDialog"
-              header="Créer une nouvelle catégorie"
+              header="#{msg['dialog.category.create.header']}"
               widgetVar="categoryDialog"
               modal="true"
               draggable="false"
@@ -29,15 +29,15 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
-                        <span>Code de la catégorie</span>
+                        <span>#{msg['dialog.category.code']}</span>
                     </div>
                     <div class="input-wrapper periode-input-wrapper collection-select">
                         <p:inputText id="categoryCode"
                                      value="#{categoryBean.categoryCode}"
                                      required="true"
-                                     requiredMessage="Le code de la catégorie est requis"
+                                     requiredMessage="#{msg['validator.codeRequired']}"
                                      styleClass="reference-input"
-                                     placeholder="Ex: CAT001"/>
+                                     placeholder="#{msg['dialog.category.codePlaceholder']}"/>
                     </div>
                 </div>
             </div>
@@ -47,27 +47,27 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
-                        <span>Labels</span>
+                        <span>#{msg['dialog.shared.labels']}</span>
                     </div>
 
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputText value="#{categoryBean.categoryLabel}"
-                                         placeholder="Label"
+                                         placeholder="#{msg['candidat.wizard.label']}"
                                          styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
                                              value="#{categoryBean.labelLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{categoryBean.availableLanguagesForNewName}"
                                              var="langue"
                                              itemLabel="#{langue.nom}"
                                              itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                        icon="pi pi-plus"
                                        styleClass="reference-btn-add"
                                        actionListener="#{categoryBean.addNameFromInput()}"
@@ -101,7 +101,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":categoryDialogForm:categoryNamesTable :categoryDialogForm:newNameLangue"
-                                                     title="Supprimer ce nom"/>
+                                                     title="#{msg['dialog.shared.deleteName']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -111,8 +111,8 @@
                             <div class="reference-no-names-content">
                                 <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
                                 <div class="reference-no-names-text">
-                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
+                                    <h4 class="reference-no-names-title">#{msg['dialog.shared.noLabelAdded']}</h4>
+                                    <p class="reference-no-names-message">#{msg['dialog.shared.noLabelAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -125,14 +125,14 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
-                        <span>Descriptions</span>
+                        <span>#{msg['dialog.shared.descriptions']}</span>
                     </div>
 
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                            value="#{categoryBean.categoryDescription}"
-                                           placeholder="Description"
+                                           placeholder="#{msg['modifier.description.section.title']}"
                                            rows="3"
                                            styleClass="reference-textarea"/>
                         </div>
@@ -143,14 +143,14 @@
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{categoryBean.descriptionLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{categoryBean.availableLanguagesForNewDescription}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="reference-btn-add"
                                          actionListener="#{categoryBean.addDescriptionFromInput()}"
@@ -185,7 +185,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":categoryDialogForm:categoryDescriptionsTable :categoryDialogForm:newDescriptionLangue"
-                                                     title="Supprimer cette description"/>
+                                                     title="#{msg['dialog.shared.deleteDescription']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -195,8 +195,8 @@
                             <div class="reference-no-names-content">
                                 <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
                                 <div class="reference-no-names-text">
-                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    <h4 class="reference-no-names-title">#{msg['dialog.shared.noDescriptionAdded']}</h4>
+                                    <p class="reference-no-names-message">#{msg['dialog.shared.noDescriptionAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -209,11 +209,11 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-book reference-section-icon"/>
-                        <span>Bibliographie</span>
+                        <span>#{msg['candidat.form.bibliography']}</span>
                     </div>
                     <div class="reference-form-group reference-form-group-flex collection-select">
                         <p:inputTextarea value="#{categoryBean.categoryBibliographie}"
-                                         placeholder="Bibliographie"
+                                         placeholder="#{msg['candidat.form.bibliography']}"
                                          rows="3"
                                          styleClass="reference-textarea"/>
                     </div>
@@ -225,11 +225,11 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-book reference-section-icon"/>
-                        <span>Commentaire</span>
+                        <span>#{msg['modifier.comment.label']}</span>
                     </div>
                     <div class="reference-form-group reference-form-group-flex collection-select">
                         <p:inputTextarea value="#{categoryBean.categoryCommentaire}"
-                                         placeholder="Commentaire"
+                                         placeholder="#{msg['modifier.comment.label']}"
                                          rows="3"
                                          styleClass="reference-textarea"/>
                     </div>
@@ -239,13 +239,13 @@
             <!-- Section Visibilité -->
             <div class="collection-form-group" style="padding-top: 15px">
                 <div class="collection-visibility-section">
-                    <p:outputLabel value="Visibilité de la catégorie" styleClass="collection-visibility-label" />
+                    <p:outputLabel value="#{msg['entity.visibility.category.label']}" styleClass="collection-visibility-label" />
                     <div class="collection-switch-wrapper">
                         <h:panelGroup id="categorySwitchLabel" class="collection-switch-label">
-                            <h:outputText value="Publique"
+                            <h:outputText value="#{msg['entity.visibility.publicLabel']}"
                                           styleClass="reference-switch-text-public"
                                           rendered="#{categoryBean.categoryPublique}"/>
-                            <h:outputText value="Privé"
+                            <h:outputText value="#{msg['common.visibility.private']}"
                                           styleClass="reference-switch-text-private"
                                           rendered="#{not categoryBean.categoryPublique}"/>
                         </h:panelGroup>
@@ -259,13 +259,13 @@
             </div>
 
             <div class="reference-form-actions" style="padding-top: 15px">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"
                                onclick="PF('categoryDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Valider"
+                <p:commandButton value="#{msg['common.action.validate']}"
                                icon="pi pi-check"
                                styleClass="reference-btn reference-btn-validate"
                                action="#{categoryBean.createCategoryFromDialog}"

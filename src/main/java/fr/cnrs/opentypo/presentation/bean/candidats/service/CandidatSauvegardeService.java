@@ -12,6 +12,7 @@ import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionIte
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CandidatSauvegardeRequest;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CandidatSauvegardeResult;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,12 +39,12 @@ public class CandidatSauvegardeService {
      */
     public List<String> validateSauvegarde(CandidatSauvegardeRequest req) {
         List<String> errors = new ArrayList<>();
-        if (req.getSelectedEntityTypeId() == null) errors.add("Le type d'entité est requis.");
-        if (req.getEntityCode() == null || req.getEntityCode().trim().isEmpty()) errors.add("Le code est requis.");
-        if (req.getEntityLabel() == null || req.getEntityLabel().trim().isEmpty()) errors.add("Le label est requis.");
-        if (req.getSelectedLangueCode() == null) errors.add("La langue est requise.");
-        if (req.getSelectedCollectionId() == null) errors.add("La collection est requise.");
-        if (req.getSelectedParentEntity() == null) errors.add("Le référentiel est requis.");
+        if (req.getSelectedEntityTypeId() == null) errors.add(JsfMessages.get("candidat.save.entityTypeRequired"));
+        if (req.getEntityCode() == null || req.getEntityCode().trim().isEmpty()) errors.add(JsfMessages.get("candidat.save.codeRequired"));
+        if (req.getEntityLabel() == null || req.getEntityLabel().trim().isEmpty()) errors.add(JsfMessages.get("modifier.msg.labelRequired"));
+        if (req.getSelectedLangueCode() == null) errors.add(JsfMessages.get("modifier.msg.languageRequired"));
+        if (req.getSelectedCollectionId() == null) errors.add(JsfMessages.get("candidat.save.collectionRequired"));
+        if (req.getSelectedParentEntity() == null) errors.add(JsfMessages.get("candidat.save.parentRequired"));
         return errors;
     }
 
@@ -71,13 +72,13 @@ public class CandidatSauvegardeService {
             return CandidatSauvegardeResult.builder()
                     .success(true)
                     .savedEntity(savedEntity)
-                    .successMessage("Le candidat a été créé avec succès avec le statut PROPOSITION.")
+                    .successMessage(JsfMessages.get("candidat.save.successCreated"))
                     .build();
         } catch (Exception e) {
             log.error("Erreur lors de la sauvegarde du candidat", e);
             return CandidatSauvegardeResult.builder()
                     .success(false)
-                    .errorMessage("Une erreur est survenue lors de la sauvegarde : " + e.getMessage())
+                    .errorMessage(JsfMessages.format("common.error.save", e.getMessage()))
                     .build();
         }
     }

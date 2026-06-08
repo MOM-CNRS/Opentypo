@@ -4,12 +4,12 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
-        <b><p:outputLabel value="Caractéristiques physiques" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.physicalCharacteristics.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Matériau -->
         <h:panelGroup styleClass="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel value="Matériau" />
+                <p:outputLabel value="#{msg['modifier.monnais.material']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="materiauAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -28,20 +28,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('MATERIAUX')}"
-                                   placeholder="Ex. Or, Argent..."
+                                   placeholder="#{msg['modifier.placeholder.goldSilver']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.materiaux != null ? candidatBean.materiaux.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucun matériau sélectionné"
+                                 placeholder="#{msg['modifier.placeholder.noMaterial']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer le matériau"
+                                     title="#{msg['modifier.tooltip.save.material']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveMateriauxFromAutocomplete}"
                                      process="@form"
@@ -49,7 +49,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer le matériau"
+                                     title="#{msg['modifier.tooltip.delete.material']}"
                                      rendered="#{candidatBean.hasMateriaux() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteMateriaux()}"
                                      process="@this"
@@ -62,7 +62,7 @@
         <!-- Dénomination -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel value="Dénomination" />
+                <p:outputLabel value="#{msg['modifier.field.denomination']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="denominationAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -81,20 +81,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('DENOMINATION')}"
-                                   placeholder="Ex. Denier, Sesterce..."
+                                   placeholder="#{msg['modifier.placeholder.coinTypes']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.denomination != null ? candidatBean.denomination.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune dénomination sélectionnée"
+                                 placeholder="#{msg['modifier.placeholder.noDenomination']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la dénomination"
+                                     title="#{msg['modifier.tooltip.save.denomination']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveDenominationFromAutocomplete}"
                                      process="@form"
@@ -102,7 +102,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la dénomination"
+                                     title="#{msg['modifier.tooltip.delete.denomination']}"
                                      rendered="#{candidatBean.hasDenomination() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteDenomination()}"
                                      process="@this"
@@ -115,7 +115,7 @@
         <!-- Métrologie (texte libre) -->
         <div class="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="metrologieMonnaieInput" value="Métrologie" />
+                <p:outputLabel for="metrologieMonnaieInput" value="#{msg['modifier.ceramique.metrologie']}" />
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -123,18 +123,18 @@
                     <p:inputText id="metrologieMonnaieInput"
                                  value="#{candidatBean.metrologieMonnaie}"
                                  styleClass="users-input"
-                                 placeholder="Ex. Poids, diamètre..."
+                                 placeholder="#{msg['modifier.placeholder.metrologie.free']}"
                                  rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.metrologieMonnaie}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la métrologie"
+                                     title="#{msg['modifier.tooltip.save.metrology']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveMetrologieMonnaie}"
                                      process="@form"
@@ -148,7 +148,7 @@
         <!-- Valeur -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel value="Valeur" />
+                <p:outputLabel value="#{msg['modifier.monnais.value']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="valeurAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -167,20 +167,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('VALEUR')}"
-                                   placeholder="Ex. 1/4 de statère..."
+                                   placeholder="#{msg['modifier.placeholder.coinValue']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.valeur != null ? candidatBean.valeur.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune valeur sélectionnée"
+                                 placeholder="#{msg['modifier.placeholder.noValue']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la valeur"
+                                     title="#{msg['modifier.tooltip.save.value']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveValeurFromAutocomplete}"
                                      process="@form"
@@ -188,7 +188,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la valeur"
+                                     title="#{msg['modifier.tooltip.delete.value']}"
                                      rendered="#{candidatBean.hasValeur() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteValeur()}"
                                      process="@this"
@@ -201,7 +201,7 @@
         <!-- Technique -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="techniqueAutocomplete" value="Technique" />
+                <p:outputLabel for="techniqueAutocomplete" value="#{msg['modifier.monnais.technique']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="techniqueAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -221,20 +221,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('TECHNIQUE')}"
-                                   placeholder="Ex. Frappé, Coulé..."
+                                   placeholder="#{msg['modifier.placeholder.technique.coin']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.technique != null ? candidatBean.technique.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune technique sélectionnée"
+                                 placeholder="#{msg['modifier.placeholder.noTechnique']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la technique"
+                                     title="#{msg['modifier.tooltip.save.technique']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveTechniqueFromAutocomplete}"
                                      process="@form"
@@ -242,7 +242,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la technique"
+                                     title="#{msg['modifier.tooltip.delete.technique']}"
                                      rendered="#{candidatBean.hasTechnique() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteTechnique()}"
                                      process="@this"

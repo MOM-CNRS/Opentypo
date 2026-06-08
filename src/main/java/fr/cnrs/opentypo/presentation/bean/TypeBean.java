@@ -25,6 +25,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
 import fr.cnrs.opentypo.presentation.bean.util.EntityUtils;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import io.micrometer.common.util.StringUtils;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -171,15 +172,15 @@ public class TypeBean implements Serializable {
         }
 
         if (parent == null) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Aucun groupe ou série n'est sélectionné. Veuillez sélectionner un groupe ou une série avant de créer un type."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.parent.required.groupOrSeries")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
 
         if (StringUtils.isEmpty(typeDialogCode)) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Le code du type ne doit pas être vide."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.type.codeEmpty")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -193,7 +194,7 @@ public class TypeBean implements Serializable {
         try {
             EntityType typeEntityType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_TYPE)
                     .orElseThrow(() -> new IllegalStateException(
-                            "Le type d'entité 'TYPE' n'existe pas dans la base de données."));
+                            JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_TYPE)));
 
             Entity newType = new Entity();
             newType.setCode(codeTrimmed);
@@ -224,20 +225,20 @@ public class TypeBean implements Serializable {
                 treeBean.addEntityToTree(savedType, parent);
             }
 
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le type '" + codeTrimmed + "' a été créé avec succès."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.create.success.type", codeTrimmed)));
 
             resetTypeDialogForm();
             PrimeFaces.current().executeScript("PF('typeDialog').hide();");
             PrimeFaces.current().ajax().update(":growl, :typeDialogForm, :typesContent, :centerContent");
         } catch (IllegalStateException e) {
             log.error("Erreur lors de la création du type", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), e.getMessage()));
             PrimeFaces.current().ajax().update(":typeDialogForm, :growl");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du type", e);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Une erreur est survenue lors de la création du type : " + e.getMessage()));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("common.error.create.type", e.getMessage()));
             PrimeFaces.current().ajax().update(":typeDialogForm, :growl");
         }
     }
@@ -303,21 +304,21 @@ public class TypeBean implements Serializable {
         FacesContext fc = FacesContext.getCurrentInstance();
         ApplicationBean appBean = applicationBeanProvider.get();
         if (appBean == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Contexte invalide."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.invalid.context")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
         Entity type = appBean.getSelectedEntity();
 
         if (type == null || type.getId() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun type sélectionné."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.type")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
 
         String newCode = duplicateTypeCode != null ? duplicateTypeCode.trim() : "";
         if (newCode.isEmpty()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le code du nouveau type est obligatoire."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.duplicate.type.codeRequired")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
@@ -326,7 +327,7 @@ public class TypeBean implements Serializable {
                 ? entityRepository.findById(duplicateTypeSelectedParentId).orElse(null)
                 : null;
         if (parent == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Veuillez sélectionner un parent."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.duplicate.selectParent")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
@@ -337,13 +338,13 @@ public class TypeBean implements Serializable {
         }
 
         if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Seuls les types peuvent être dupliqués."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.duplicate.typesOnly")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
 
         if (!canEditType(appBean)) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Vous n'avez pas les droits pour dupliquer ce type."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.permission.duplicate.type")));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
             return;
         }
@@ -351,7 +352,7 @@ public class TypeBean implements Serializable {
         try {
             Entity sourceLoaded = entityRepository.findById(type.getId()).orElse(null);
             if (sourceLoaded == null) {
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Type introuvable."));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.notFound.type")));
                 PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
                 return;
             }
@@ -364,16 +365,16 @@ public class TypeBean implements Serializable {
                 treeBean.addEntityToTree(duplicated, parent);
             }
 
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                    "Le type a été dupliqué avec succès. Le nouveau type \"" + newCode + "\" a été créé sans images."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.duplicate.type.success", newCode)));
             duplicateTypeCode = null;
             duplicateTypeSelectedParentId = null;
             appBean.setSelectedEntity(duplicated);
             PrimeFaces.current().ajax().update(":growl :contentPanels :centerContent :leftTreePanel");
         } catch (Exception e) {
             log.error("Erreur lors de la duplication du type", e);
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Une erreur est survenue : " + (e.getMessage() != null ? e.getMessage() : e.toString())));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.format("common.error.generic", e.getMessage() != null ? e.getMessage() : e.toString())));
             PrimeFaces.current().ajax().update(":duplicateTypeDialogForm :growl");
         }
     }
@@ -442,10 +443,10 @@ public class TypeBean implements Serializable {
         Entity newParent = moveTypeSelectedParentId != null ? entityRepository.findById(moveTypeSelectedParentId).orElse(null) : null;
         confirmMoveFromDialog = true;
         if (type != null && newParent != null) {
-            confirmMoveMessage = "Voulez-vous déplacer le type \"" + (type.getCode() != null ? type.getCode() : type.getNom()) + "\" vers "
-                    + getParentOptionLabel(newParent) + " ?";
+            String typeCode = type.getCode() != null ? type.getCode() : type.getNom();
+            confirmMoveMessage = JsfMessages.format("entity.move.confirmWithTarget", typeCode, getParentOptionLabel(newParent));
         } else {
-            confirmMoveMessage = "Voulez-vous déplacer ce type vers le nouveau parent sélectionné ?";
+            confirmMoveMessage = JsfMessages.get("entity.move.confirmGeneric");
         }
     }
 
@@ -455,10 +456,10 @@ public class TypeBean implements Serializable {
         Entity newParent = moveTypeNewParentIdForDrag != null ? entityRepository.findById(moveTypeNewParentIdForDrag).orElse(null) : null;
         confirmMoveFromDialog = false;
         if (type != null && newParent != null) {
-            confirmMoveMessage = "Voulez-vous déplacer le type \"" + (type.getCode() != null ? type.getCode() : type.getNom()) + "\" vers "
-                    + getParentOptionLabel(newParent) + " ?";
+            String typeCode = type.getCode() != null ? type.getCode() : type.getNom();
+            confirmMoveMessage = JsfMessages.format("entity.move.confirmWithTarget", typeCode, getParentOptionLabel(newParent));
         } else {
-            confirmMoveMessage = "Voulez-vous déplacer ce type vers ce parent ?";
+            confirmMoveMessage = JsfMessages.get("entity.move.confirmParent");
         }
     }
 
@@ -477,11 +478,11 @@ public class TypeBean implements Serializable {
 
         if (parent.getEntityType() != null) {
             if (EntityConstants.ENTITY_TYPE_GROUP.equals(parent.getEntityType().getCode())) {
-                return "Groupe : " + parent.getCode();
+                return JsfMessages.format("entity.parent.label.group", parent.getCode());
             }
 
             if (EntityConstants.ENTITY_TYPE_SERIES.equals(parent.getEntityType().getCode())) {
-                return "Série : " + parent.getCode();
+                return JsfMessages.format("entity.parent.label.series", parent.getCode());
             }
         }
         return parent.getCode();
@@ -492,16 +493,16 @@ public class TypeBean implements Serializable {
 
         Entity type = applicationBeanProvider.get().getSelectedEntity();
         if (type == null || moveTypeSelectedParentId == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Veuillez sélectionner un nouveau parent."));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.move.selectParent")));
             PrimeFaces.current().ajax().update(":moveTypeDialogForm :growl");
             return;
         }
 
         Entity newParent = entityRepository.findById(moveTypeSelectedParentId).orElse(null);
         if (newParent == null) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Parent introuvable."));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.move.parentNotFound")));
             PrimeFaces.current().ajax().update(":moveTypeDialogForm :growl");
             return;
         }
@@ -544,8 +545,8 @@ public class TypeBean implements Serializable {
             treeBean.expandPathAndSelectEntity(type);
         }
 
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                "Le type a été déplacé vers " + getParentOptionLabel(newParent) + "."));
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.format("entity.move.success", getParentOptionLabel(newParent))));
         PrimeFaces.current().executeScript("PF('moveTypeDialog').hide();");
         PrimeFaces.current().executeScript("setTimeout(function(){ if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof hideLoading==='function') hideLoading(); }, 400);");
     }
@@ -558,39 +559,39 @@ public class TypeBean implements Serializable {
     public void moveTypeByDragAndDrop() {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (moveTypeIdForDrag == null || moveTypeNewParentIdForDrag == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Paramètres de déplacement invalides."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.move.invalidParams")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         Entity type = entityRepository.findById(moveTypeIdForDrag).orElse(null);
         Entity newParent = entityRepository.findById(moveTypeNewParentIdForDrag).orElse(null);
         if (type == null || newParent == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Type ou parent introuvable."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.move.notFound")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "L'élément déplacé n'est pas un type."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.move.notType")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (newParent.getEntityType() == null
                 || (!EntityConstants.ENTITY_TYPE_GROUP.equals(newParent.getEntityType().getCode())
                 && !EntityConstants.ENTITY_TYPE_SERIES.equals(newParent.getEntityType().getCode()))) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le parent cible doit être un groupe ou une série."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.move.invalidParent")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         List<Entity> oldParents = entityRelationRepository.findParentsByChild(type);
         Entity oldParent = (oldParents != null && !oldParents.isEmpty()) ? oldParents.get(0) : null;
         if (oldParent != null && oldParent.getId().equals(newParent.getId())) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Le type est déjà à cet emplacement."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), JsfMessages.get("entity.move.alreadyThere")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (!canMoveType(type)) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    "Vous n'avez pas les droits pour déplacer ce type."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.move.noRights")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -619,8 +620,8 @@ public class TypeBean implements Serializable {
         if (applicationBean == null || applicationBean.getSelectedGroup() == null) {
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Aucun groupe n'est sélectionné. Veuillez sélectionner un groupe avant de créer un type."));
+                            JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("entity.parent.required.typeGroup")));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
             return;
         }
@@ -634,7 +635,7 @@ public class TypeBean implements Serializable {
             // Récupérer le type d'entité TYPE
             EntityType typeEntityType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_TYPE)
                     .orElseThrow(() -> new IllegalStateException(
-                            "Le type d'entité 'TYPE' n'existe pas dans la base de données."));
+                            JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_TYPE)));
 
             // Créer la nouvelle entité type
             Entity newType = new Entity();
@@ -676,8 +677,8 @@ public class TypeBean implements Serializable {
             // Message de succès
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Succès",
-                            "Le type '" + labelTrimmed + "' a été créé avec succès."));
+                            JsfMessages.get("common.growl.success"),
+                            JsfMessages.format("entity.create.success.type", labelTrimmed)));
 
             resetTypeForm();
 
@@ -688,15 +689,15 @@ public class TypeBean implements Serializable {
             log.error("Erreur lors de la création du type", e);
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
+                            JsfMessages.get("common.growl.error"),
                             e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du type", e);
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur",
-                            "Une erreur est survenue lors de la création du type : " + e.getMessage()));
+                            JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("common.error.create.type", e.getMessage()));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
         }
     }
@@ -820,7 +821,7 @@ public class TypeBean implements Serializable {
         cancelEditingType();
         applicationBean.refreshGroupTypesList();
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Les modifications du type ont été enregistrées."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
     }
 
     /**
@@ -830,13 +831,13 @@ public class TypeBean implements Serializable {
     public void deleteType(ApplicationBean applicationBean) {
         if (applicationBean == null || applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun type sélectionné."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.type")));
             return;
         }
         if (!canDeleteType(applicationBean)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Vous n'avez pas les droits pour supprimer ce type."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("entity.permission.delete.type")));
             return;
         }
         try {
@@ -864,14 +865,14 @@ public class TypeBean implements Serializable {
             }
             cancelEditingType();
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            "Le type '" + typeCode + "' et toutes les entités rattachées ont été supprimés."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                            JsfMessages.format("entity.delete.success.type", typeCode)));
             log.info("Type supprimé avec succès: {} (ID: {})", typeCode, typeId);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du type", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Une erreur est survenue lors de la suppression : " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.format("common.error.delete", e.getMessage()));
         }
     }
 

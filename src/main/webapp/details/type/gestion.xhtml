@@ -26,7 +26,7 @@
                                 #{applicationBean.selectedEntity.identifiantPerenne}
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.identifiantPerenne}">
-                                <span class="empty-field-message">Non renseigné</span>
+                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                             </ui:fragment>
                         </div>
                     </h:panelGroup>
@@ -42,7 +42,7 @@
                                 #{applicationBean.selectedEntity.ancienneVersion}
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.ancienneVersion}">
-                                <span class="empty-field-message">Non renseigné</span>
+                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                             </ui:fragment>
                         </div>
                     </h:panelGroup>

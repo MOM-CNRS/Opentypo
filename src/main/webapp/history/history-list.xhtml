@@ -15,16 +15,16 @@
                 <div class="history-title-section">
                     <h2 class="history-title">
                         <i class="pi pi-history history-title-icon"/>
-                        Historique des modifications
+                        #{msg['history.title']}
                     </h2>
                     <p class="history-subtitle">
-                        #{historyBean.selectedEntity != null ? historyBean.selectedEntity.code : 'Entité'} - 
+                        #{historyBean.selectedEntity != null ? historyBean.selectedEntity.code : msg['profile.entityType.default']} -
                         #{historyBean.selectedEntity != null ? historyBean.selectedEntity.nom : ''}
                     </p>
                 </div>
                 <div class="history-actions">
                     <h:form>
-                        <p:commandButton value="Retour"
+                        <p:commandButton value="#{msg['common.action.back']}"
                                         icon="pi pi-arrow-left"
                                         styleClass="history-btn-back"
                                         action="#{historyBean.backToEntity()}"
@@ -38,7 +38,7 @@
                 <ui:fragment rendered="#{empty historyBean.revisions}">
                     <div class="history-empty">
                         <i class="pi pi-info-circle history-empty-icon"/>
-                        <p>Aucune modification enregistrée pour cette entité.</p>
+                        <p>#{msg['history.empty.noRevisions']}</p>
                     </div>
                 </ui:fragment>
 
@@ -56,19 +56,19 @@
                                         paginatorPosition="bottom"
                                         sortBy="#{revision.revisionDate}"
                                         sortOrder="descending"
-                                        emptyMessage="Aucune révision trouvée"
+                                        emptyMessage="#{msg['history.table.noRevisions']}"
                                         rowStyleClass="modern-users-row">
                         
                         <!-- Colonne Date (triable : clic sur l'en-tête pour croissant/décroissant) -->
-                        <p:column headerText="Date" styleClass="history-col-date" sortBy="#{revision.revisionDate}">
+                        <p:column headerText="#{msg['history.table.date']}" styleClass="history-col-date" sortBy="#{revision.revisionDate}">
                             <span>#{historyBean.formatRevisionDate(revision.revisionDate)}</span>
                         </p:column>
 
                         <!-- Colonne Statut -->
-                        <p:column headerText="Statut" styleClass="history-col-statut">
+                        <p:column headerText="#{msg['history.table.status']}" styleClass="history-col-statut">
                             <ui:fragment rendered="#{revision.statutChanged == true and revision.statutValue != null}">
                                 <span class="revision-statut-badge revision-statut-#{fn:toLowerCase(revision.statutValue)}" 
-                                      title="Changement de statut vers #{revision.statutValue}">
+                                      title="#{historyBean.getStatusChangeTitle(revision.statutValue)}">
                                     <i class="pi pi-sync"/>
                                     #{revision.statutValue}
                                 </span>
@@ -81,21 +81,21 @@
                         </p:column>
 
                         <!-- Colonne Champs modifiés -->
-                        <p:column headerText="Champs modifiés" styleClass="history-col-changed">
+                        <p:column headerText="#{msg['history.table.changedFields']}" styleClass="history-col-changed">
                             <span class="history-changed-fields">#{historyBean.getChangedFieldsDisplay(revision)}</span>
                         </p:column>
 
                         <!-- Colonne Modifié par -->
-                        <p:column headerText="Modifié par" styleClass="history-col-modified">
-                            <span>#{revision.modifiedBy != null ? revision.modifiedBy : 'Système'}</span>
+                        <p:column headerText="#{msg['history.table.modifiedBy']}" styleClass="history-col-modified">
+                            <span>#{revision.modifiedBy != null ? revision.modifiedBy : historyBean.systemUserLabel}</span>
                         </p:column>
 
                         <!-- Colonne Actions -->
-                        <p:column headerText="Actions" styleClass="history-col-actions">
+                        <p:column headerText="#{msg['history.table.actions']}" styleClass="history-col-actions">
                             <div class="history-actions-cell">
                                 <p:commandButton icon="pi pi-eye"
                                                styleClass="history-btn-view"
-                                               title="Voir les détails"
+                                               title="#{msg['history.action.viewDetails']}"
                                                action="#{historyBean.viewRevision(revision.revisionNumber)}"
                                                process="@this"
                                                update="@none"/>

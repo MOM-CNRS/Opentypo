@@ -9,7 +9,7 @@
             <div class="concept-info-panel commentaires-panel">
                 <div class="commentaires-panel-header">
                     <i class="pi pi-comments commentaires-panel-icon"/>
-                    <h3 class="commentaires-panel-title">Discussion</h3>
+                    <h3 class="commentaires-panel-title">#{msg['discussion.title']}</h3>
                 </div>
                 <h:form styleClass="commentaires-form">
                     <p:messages id="commentairesMessages" showDetail="true" closable="true" redisplay="true"/>
@@ -21,7 +21,7 @@
                                              rows="3"
                                              placeholder="Ajouter un commentaire..."
                                              styleClass="commentaires-add-input"/>
-                            <p:commandButton value="Publier"
+                            <p:commandButton value="#{msg['common.action.publish']}"
                                              icon="pi pi-send"
                                              action="#{commentaireBean.addCommentaire()}"
                                              process="@form"
@@ -37,7 +37,7 @@
                     <!-- Liste des commentaires -->
                     <div class="commentaires-list">
                         <ui:fragment rendered="#{empty commentaireBean.commentaires}">
-                            <p class="commentaires-empty">Aucun commentaire pour le moment.</p>
+                            <p class="commentaires-empty">#{msg['discussion.empty']}</p>
                         </ui:fragment>
                         <ui:repeat value="#{commentaireBean.commentaires}" var="comment">
                             <div class="commentaires-item">
@@ -70,13 +70,13 @@
                                                      rows="3"
                                                      styleClass="commentaires-edit-input"/>
                                     <div class="commentaires-item-actions">
-                                        <p:commandButton value="Annuler"
+                                        <p:commandButton value="#{msg['common.action.cancel']}"
                                                          icon="pi pi-times"
                                                          styleClass="commentaires-action-btn"
                                                          action="#{commentaireBean.cancelEditComment()}"
                                                          process="@this"
                                                          update="@form :growl"/>
-                                        <p:commandButton value="Enregistrer"
+                                        <p:commandButton value="#{msg['common.action.save']}"
                                                          icon="pi pi-check"
                                                          styleClass="commentaires-action-btn commentaires-action-btn-save"
                                                          action="#{commentaireBean.saveCommentaire()}"

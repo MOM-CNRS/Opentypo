@@ -10,6 +10,7 @@ import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -190,8 +191,8 @@ public class TreeBean implements Serializable {
 
         if (entityUpdateBeanProvider.get().isEditingEntity()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warnStrong"),
+                            JsfMessages.get("common.navigation.leaveEditFirst")));
             return;
         }
 
@@ -678,7 +679,9 @@ public class TreeBean implements Serializable {
      * Titre (tooltip) pour l'indicateur public/privé.
      */
     public String getEntityPublicTitle(Object node) {
-        return isEntityPublic(node) ? "Public" : "Privé";
+        return isEntityPublic(node)
+                ? JsfMessages.get("common.visibility.public")
+                : JsfMessages.get("common.visibility.private");
     }
 
     /**
@@ -715,10 +718,10 @@ public class TreeBean implements Serializable {
     public String getEntityStatusTitle(Object node) {
         Entity e = getEntityFromNode(node);
         if (e != null && EntityStatusEnum.IN_VALIDATION.name().equals(e.getStatut())) {
-            return "Demande de validation en cours";
+            return JsfMessages.get("tree.status.inValidation");
         }
-        if (isEntityStatusProposition(node)) return "Brouillon en cours de validation";
-        if (isEntityStatusValidated(node)) return "Validée";
+        if (isEntityStatusProposition(node)) return JsfMessages.get("tree.status.proposition");
+        if (isEntityStatusValidated(node)) return JsfMessages.get("tree.status.validated");
         return "";
     }
 
@@ -741,14 +744,14 @@ public class TreeBean implements Serializable {
 
     public String getUnifiedIndicatorTitle(Object node) {
         Entity e = getEntityFromNode(node);
-        if (e == null || e.getStatut() == null) return "Privé";
+        if (e == null || e.getStatut() == null) return JsfMessages.get("tree.indicator.private");
         return switch (e.getStatut()) {
-            case "PROPOSITION" -> "Brouillon";
-            case "IN_VALIDATION" -> "En validation";
-            case "PUBLIQUE" -> "Public";
-            case "PRIVEE" -> "Privé";
-            case "REFUSED", "REFUSE" -> "Refusé";
-            default -> "Privé";
+            case "PROPOSITION" -> JsfMessages.get("tree.indicator.draft");
+            case "IN_VALIDATION" -> JsfMessages.get("tree.indicator.inValidation");
+            case "PUBLIQUE" -> JsfMessages.get("tree.indicator.public");
+            case "PRIVEE" -> JsfMessages.get("tree.indicator.private");
+            case "REFUSED", "REFUSE" -> JsfMessages.get("tree.indicator.refused");
+            default -> JsfMessages.get("tree.indicator.private");
         };
     }
 

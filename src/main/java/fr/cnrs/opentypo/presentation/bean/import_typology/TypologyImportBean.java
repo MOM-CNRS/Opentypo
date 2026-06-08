@@ -17,6 +17,7 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.presentation.bean.ApplicationBean;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.ReferenceBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -113,20 +114,23 @@ public class TypologyImportBean implements Serializable {
             resetWizard();
         }
         if (!loginBean.isAuthenticated()) {
-            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Accès refusé",
-                    "Vous devez être connecté."));
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    JsfMessages.get("common.growl.accessDenied"),
+                    JsfMessages.get("import.accessDenied.detail")));
             return;
         }
         Entity sel = applicationBean.getSelectedEntity();
         if (sel == null || sel.getEntityType() == null
                 || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(sel.getEntityType().getCode())) {
-            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Référentiel requis",
-                    "Sélectionnez un référentiel dans l’arborescence puis ouvrez à nouveau l’import."));
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    JsfMessages.get("import.referentialRequired.summary"),
+                    JsfMessages.get("import.referentialRequired.detail")));
             return;
         }
         if (!referenceBean.canImportTypology(applicationBean)) {
-            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Droit insuffisant",
-                    "Seuls les administrateurs et les gestionnaires de ce référentiel peuvent importer."));
+            ctx.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    JsfMessages.get("import.insufficientRights.summary"),
+                    JsfMessages.get("import.insufficientRights.detail")));
         }
     }
 
@@ -159,10 +163,10 @@ public class TypologyImportBean implements Serializable {
      */
     public String getImportCollectionTypologyLabel() {
         return switch (resolveImportCollectionProfile()) {
-            case CERAMIQUE -> "Céramique";
-            case MONNAIE -> "Monnaie";
-            case INSTRUMENTUM -> "Instrumentum";
-            case UNSUPPORTED -> "Céramique (générique)";
+            case CERAMIQUE -> JsfMessages.get("import.typology.ceramique");
+            case MONNAIE -> JsfMessages.get("import.typology.monnaie");
+            case INSTRUMENTUM -> JsfMessages.get("import.typology.instrumentum");
+            case UNSUPPORTED -> JsfMessages.get("import.typology.ceramiqueGeneric");
         };
     }
 
@@ -175,10 +179,10 @@ public class TypologyImportBean implements Serializable {
      */
     public String getImportCollectionModelDescription() {
         return switch (resolveImportCollectionProfile()) {
-            case CERAMIQUE -> "En-tête + une ligne d’exemple complets, colonnes céramique (UTF-8).";
-            case MONNAIE -> "En-tête + ligne d’exemple au format Monnaie (droit, revers, caractéristiques, etc.).";
-            case INSTRUMENTUM -> "En-tête + ligne d’exemple au format Instrumentum (décors, marques, caract. physiques dédiées).";
-            case UNSUPPORTED -> "Collection non reconnue : le fichier proposé reprend le modèle Céramique. Idéalement, rattachez le référentiel à une collection Céramique, Monnaie ou Instrumentum.";
+            case CERAMIQUE -> JsfMessages.get("import.model.ceramique");
+            case MONNAIE -> JsfMessages.get("import.model.monnaie");
+            case INSTRUMENTUM -> JsfMessages.get("import.model.instrumentum");
+            case UNSUPPORTED -> JsfMessages.get("import.model.unsupported");
         };
     }
 
@@ -192,8 +196,8 @@ public class TypologyImportBean implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (!canUseImport()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
-                    "Opération non autorisée."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.title"),
+                    JsfMessages.get("import.notAuthorized")));
             return;
         }
         try {
@@ -204,13 +208,15 @@ public class TypologyImportBean implements Serializable {
             this.analysis = null;
             this.step = 1;
             clearScreenStatus();
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Fichier chargé",
-                    parsedCsv.rows().size() + " ligne(s) de données (hors en-tête)."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    JsfMessages.get("import.fileLoaded.summary"),
+                    JsfMessages.format("import.fileLoaded.detail", parsedCsv.rows().size())));
             PrimeFaces.current().ajax().update(":importForm :growl");
         } catch (Exception ex) {
             log.warn("CSV invalide", ex);
             this.parsedCsv = null;
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Fichier invalide",
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    JsfMessages.get("import.invalidFile.summary"),
                     ex.getMessage()));
             PrimeFaces.current().ajax().update(":importForm :growl");
         }
@@ -219,15 +225,15 @@ public class TypologyImportBean implements Serializable {
     public void runAnalyze() {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (!canUseImport() || parsedCsv == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Analyse",
-                    "Chargez d’abord un fichier CSV."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.analyze.title"),
+                    JsfMessages.get("import.analyze.loadFileFirst")));
             stopProgressUi();
             return;
         }
         Entity reference = applicationBean.getSelectedEntity();
         if (reference == null || reference.getId() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Analyse",
-                    "Référentiel introuvable."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.analyze.title"),
+                    JsfMessages.get("import.analyze.referentialNotFound")));
             stopProgressUi();
             return;
         }
@@ -247,19 +253,21 @@ public class TypologyImportBean implements Serializable {
             progress.completeAnalyzing(analysis);
             step = 2;
             if (analysis.successful()) {
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Analyse terminée",
-                        "Aucune erreur bloquante. Vous pouvez confirmer l’import."));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        JsfMessages.get("import.analyze.complete.summary"),
+                        JsfMessages.get("import.analyze.complete.ok")));
             } else {
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Analyse terminée",
-                        "Corrigez les erreurs ou le fichier avant de confirmer."));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        JsfMessages.get("import.analyze.complete.summary"),
+                        JsfMessages.get("import.analyze.complete.hasErrors")));
             }
             log.info("Analyse typologique terminée (référentiel id={}, succès={})",
                     reference.getId(), analysis.successful());
         } catch (Exception ex) {
             log.error("Erreur analyse import (référentiel id={})", reference.getId(), ex);
             progress.fail(ex.getMessage());
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    Objects.toString(ex.getMessage(), "Erreur technique.")));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    Objects.toString(ex.getMessage(), JsfMessages.get("import.error.technical"))));
         } finally {
             stopProgressUi();
             PrimeFaces.current().ajax().update(":importForm :growl :importProgressPanel");
@@ -269,21 +277,21 @@ public class TypologyImportBean implements Serializable {
     public void runConfirmImport() {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (!canUseImport() || parsedCsv == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
-                    "Données manquantes."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.title"),
+                    JsfMessages.get("import.dataMissing")));
             stopProgressUi();
             return;
         }
         if (analysis == null || !analysis.successful()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
-                    "L’analyse doit être valide avant confirmation."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.title"),
+                    JsfMessages.get("import.analysisRequired")));
             stopProgressUi();
             return;
         }
         Entity referenceEntity = applicationBean.getSelectedEntity();
         if (referenceEntity == null || referenceEntity.getId() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Import",
-                    "Référentiel introuvable."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("import.title"),
+                    JsfMessages.get("import.analyze.referentialNotFound")));
             stopProgressUi();
             return;
         }
@@ -307,8 +315,8 @@ public class TypologyImportBean implements Serializable {
             progress.fail(ex.getMessage());
             stopProgressUi();
             step = 2;
-            showScreenStatus("error", "Import impossible",
-                    Objects.toString(ex.getMessage(), "Erreur technique."));
+            showScreenStatus("error", JsfMessages.get("import.impossible.summary"),
+                    Objects.toString(ex.getMessage(), JsfMessages.get("import.error.technical")));
             updateImportScreen();
         }
     }
@@ -364,7 +372,7 @@ public class TypologyImportBean implements Serializable {
             step = 2;
             String detail = Objects.toString(progress.getWarningMessage(),
                     progress.getCurrent() + " / " + progress.getTotal() + " lignes enregistrées.");
-            showScreenStatus("warn", "Import partiel", detail);
+            showScreenStatus("warn", JsfMessages.get("import.partial.summary"), detail);
             applicationBean.refreshReferenceCategoriesList();
             if (applicationBean.getTreeBean() != null && referenceEntity != null && referenceEntity.getId() != null) {
                 applicationBean.getTreeBean().loadChildForEntity(referenceEntity);
@@ -375,8 +383,9 @@ public class TypologyImportBean implements Serializable {
 
         Flash flash = fc.getExternalContext().getFlash();
         flash.setKeepMessages(true);
-        fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Import terminé",
-                "Les données ont été enregistrées. Ouverture du référentiel…"));
+        fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                JsfMessages.get("import.complete.summary"),
+                JsfMessages.get("import.complete.detail")));
 
         applicationBean.refreshReferenceCategoriesList();
         if (applicationBean.getTreeBean() != null && referenceEntity != null && referenceEntity.getId() != null) {
@@ -394,8 +403,9 @@ public class TypologyImportBean implements Serializable {
                 fc.responseComplete();
             } catch (IOException ioe) {
                 log.warn("Redirection après import impossible : {}", ioe.getMessage());
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Import terminé",
-                        "Ouverture automatique impossible ; ouvrez le référentiel depuis le menu."));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        JsfMessages.get("import.complete.summary"),
+                        JsfMessages.get("import.complete.redirectFailed")));
                 PrimeFaces.current().ajax().update(":importForm :growl");
             }
         } else {
@@ -409,10 +419,10 @@ public class TypologyImportBean implements Serializable {
         if (progress.getOperation() == TypologyImportProgress.Operation.IMPORT) {
             step = 2;
         }
-        String detail = Objects.toString(progress.getErrorMessage(), "Erreur technique.");
+        String detail = Objects.toString(progress.getErrorMessage(), JsfMessages.get("import.error.technical"));
         String title = progress.getOperation() == TypologyImportProgress.Operation.IMPORT
-                ? "Import interrompu"
-                : "Erreur";
+                ? JsfMessages.get("import.interrupted.summary")
+                : JsfMessages.get("common.growl.error");
         showScreenStatus("error", title, detail);
         updateImportScreen();
     }
@@ -444,11 +454,11 @@ public class TypologyImportBean implements Serializable {
 
     public String getImportProgressPhaseLabel() {
         return switch (activeProgress().getPhase()) {
-            case ANALYZING -> "Analyse du fichier…";
-            case IMPORTING -> "Import des données…";
-            case COMPLETE -> "Terminé";
-            case FAILED -> "Échec";
-            default -> "Traitement en cours…";
+            case ANALYZING -> JsfMessages.get("import.progress.analyzing");
+            case IMPORTING -> JsfMessages.get("import.progress.importing");
+            case COMPLETE -> JsfMessages.get("import.progress.done");
+            case FAILED -> JsfMessages.get("import.progress.failed");
+            default -> JsfMessages.get("import.progress.processing");
         };
     }
 
@@ -531,12 +541,12 @@ public class TypologyImportBean implements Serializable {
             return "";
         }
         return switch (line.kind()) {
-            case CATEGORIE -> "Catégorie";
-            case GROUPE -> "Groupe";
-            case SERIE -> "Série";
-            case TYPE_SOUS_SERIE -> "Type (sous série)";
-            case TYPE_SOUS_GROUPE -> "Type (sous groupe)";
-            case NON_CLASSIFIE -> "—";
+            case CATEGORIE -> JsfMessages.get("import.kind.categorie");
+            case GROUPE -> JsfMessages.get("import.kind.groupe");
+            case SERIE -> JsfMessages.get("import.kind.serie");
+            case TYPE_SOUS_SERIE -> JsfMessages.get("import.kind.typeSousSerie");
+            case TYPE_SOUS_GROUPE -> JsfMessages.get("import.kind.typeSousGroupe");
+            case NON_CLASSIFIE -> JsfMessages.get("import.kind.nonClasse");
         };
     }
 

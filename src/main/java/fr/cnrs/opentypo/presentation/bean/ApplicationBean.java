@@ -49,6 +49,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.service.CandidatReferenceTreeService;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.presentation.bean.photos.Photo;
 import fr.cnrs.opentypo.presentation.bean.util.PanelStateManager;
 import jakarta.annotation.PostConstruct;
@@ -1650,9 +1651,7 @@ public class ApplicationBean implements Serializable {
         }
 
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return;
         }
 
@@ -1680,9 +1679,7 @@ public class ApplicationBean implements Serializable {
     public void showCollections(EntityUpdateBean entityUpdateBean) {
 
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return;
         }
 
@@ -1699,9 +1696,7 @@ public class ApplicationBean implements Serializable {
      */
     public String goToAccueil(EntityUpdateBean entityUpdateBean) throws Exception {
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return "";
         }
         showCollections(entityUpdateBean);
@@ -1710,9 +1705,7 @@ public class ApplicationBean implements Serializable {
 
     public String goToBrouillons(EntityUpdateBean entityUpdateBean) {
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return "";
         }
         return "/candidats/candidats.xhtml?faces-redirect=true";
@@ -1720,9 +1713,7 @@ public class ApplicationBean implements Serializable {
 
     public String goToUtilisateurs(EntityUpdateBean entityUpdateBean) {
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return "";
         }
         return "/users/users.xhtml?faces-redirect=true";
@@ -1730,9 +1721,7 @@ public class ApplicationBean implements Serializable {
 
     public String goToScientificAuthors(EntityUpdateBean entityUpdateBean) {
         if (entityUpdateBean.isEditingEntity()) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention !",
-                            "Vous devez quitter la page de modification avant de changer de page"));
+            warnLeaveEditFirst();
             return "";
         }
         return "/authors/scientific-authors.xhtml?faces-redirect=true";
@@ -2355,9 +2344,9 @@ public class ApplicationBean implements Serializable {
      */
     public void prepareConfirmVisibilityChange(boolean makePublic) {
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
-            String msg = getEntityLabel(selectedEntity) + " est une proposition, elle doit être approuvée avant pour pouvoir changer le statut";
+            String msg = JsfMessages.format("entity.visibility.propositionMustApprove", getEntityLabel(selectedEntity));
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", msg));
+                    JsfMessages.get("common.growl.error"), msg));
             return;
         }
         requestedVisibilityStatus = makePublic;
@@ -2379,8 +2368,10 @@ public class ApplicationBean implements Serializable {
         }
         selectedEntity = entityRepository.save(applicationBean.getSelectedEntity());
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                        requestedVisibilityStatus ? "L'élément est maintenant public." : "L'élément est maintenant privé."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        requestedVisibilityStatus
+                                ? JsfMessages.get("entity.visibility.nowPublic")
+                                : JsfMessages.get("entity.visibility.nowPrivate")));
         log.info("La visibilité du {} modifiée: {}", applicationBean.getSelectedEntity().getCode(), requestedVisibilityStatus ? "public" : "privé");
         requestedVisibilityStatus = null;
     }
@@ -2389,14 +2380,16 @@ public class ApplicationBean implements Serializable {
     public String getVisibilityConfirmMessage() {
         if (requestedVisibilityStatus == null) return "";
         return requestedVisibilityStatus
-                ? "Voulez-vous rendre cet élément public ? Il sera visible par tous les utilisateurs."
-                : "Voulez-vous rendre cet élément privé ? Seuls les utilisateurs autorisés pourront y accéder.";
+                ? JsfMessages.get("entity.visibility.confirm.makePublic")
+                : JsfMessages.get("entity.visibility.confirm.makePrivate");
     }
 
     /** Titre du dialog selon le changement demandé */
     public String getVisibilityConfirmTitle() {
-        if (requestedVisibilityStatus == null) return "Changer la visibilité";
-        return requestedVisibilityStatus ? "Rendre cet élément public" : "Rendre cet élément privé";
+        if (requestedVisibilityStatus == null) return JsfMessages.get("entity.visibility.confirm.title.default");
+        return requestedVisibilityStatus
+                ? JsfMessages.get("entity.visibility.confirm.title.makePublic")
+                : JsfMessages.get("entity.visibility.confirm.title.makePrivate");
     }
 
     // ==================== Publier / Refuser (entité PROPOSITION) ====================
@@ -2424,8 +2417,8 @@ public class ApplicationBean implements Serializable {
         }
         if (!EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
-                            "L'entité n'est plus en statut proposition."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.get("entity.visibility.proposition.noLonger")));
             requestedPropositionAction = null;
             return;
         }
@@ -2445,13 +2438,13 @@ public class ApplicationBean implements Serializable {
         int count = entityIdsToUpdate.size();
         String msg = requestedPropositionAction
                 ? (count > 1
-                        ? "L'élément et " + (count - 1) + " sous-élément(s) ont été publiés avec succès."
-                        : "L'élément a été publié avec succès.")
+                        ? JsfMessages.format("entity.proposition.published.multiple", count - 1)
+                        : JsfMessages.get("entity.proposition.published.single"))
                 : (count > 1
-                        ? "L'élément et " + (count - 1) + " sous-élément(s) ont été refusés."
-                        : "L'élément a été refusé.");
+                        ? JsfMessages.format("entity.proposition.refused.multiple", count - 1)
+                        : JsfMessages.get("entity.proposition.refused.single"));
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", msg));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), msg));
         log.info("Statut modifié ({} éléments): {} -> {}", count, selectedEntity.getCode(),
                 requestedPropositionAction ? "PUBLIQUE" : "REFUSE");
         requestedPropositionAction = null;
@@ -2461,14 +2454,23 @@ public class ApplicationBean implements Serializable {
     public String getPropositionConfirmMessage() {
         if (requestedPropositionAction == null) return "";
         return requestedPropositionAction
-                ? "Voulez-vous publier cet élément ? Lui et tous ses sous-éléments (séries, types, etc.) seront visibles par tous les utilisateurs."
-                : "Voulez-vous refuser cette proposition ? L'élément et tous ses sous-éléments ne seront plus visibles dans le référentiel.";
+                ? JsfMessages.get("entity.proposition.confirm.publish")
+                : JsfMessages.get("entity.proposition.confirm.refuse");
     }
 
     /** Titre du dialog Publier/Refuser */
     public String getPropositionConfirmTitle() {
         if (requestedPropositionAction == null) return "";
-        return requestedPropositionAction ? "Publier cette proposition" : "Refuser cette proposition";
+        return requestedPropositionAction
+                ? JsfMessages.get("entity.proposition.confirm.title.publish")
+                : JsfMessages.get("entity.proposition.confirm.title.refuse");
+    }
+
+    private void warnLeaveEditFirst() {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        JsfMessages.get("common.growl.warnStrong"),
+                        JsfMessages.get("common.navigation.leaveEditFirst")));
     }
 
     /** Indique si l'entité sélectionnée est en statut PROPOSITION */

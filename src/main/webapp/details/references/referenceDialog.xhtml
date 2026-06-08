@@ -6,7 +6,7 @@
 
     <!-- Dialog pour créer ou modifier un référentiel (aligné sur categoryDialog) -->
     <p:dialog id="referenceDialog"
-              header="Créer un nouveau référentiel"
+              header="#{msg['dialog.reference.create.header']}"
               widgetVar="referenceDialog"
               modal="true"
               draggable="false"
@@ -26,13 +26,13 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-key reference-section-icon"/>
-                        <span>Code du référentiel</span>
+                        <span>#{msg['dialog.reference.code']}</span>
                     </div>
                     <div class="input-wrapper periode-input-wrapper collection-select">
                         <p:inputText id="referenceCode"
                                      value="#{referenceBean.referenceCode}"
                                      styleClass="reference-input"
-                                     placeholder="Ex: REF001"/>
+                                     placeholder="#{msg['dialog.reference.codePlaceholder']}"/>
                     </div>
                 </div>
             </div>
@@ -42,27 +42,27 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
-                        <span>Labels</span>
+                        <span>#{msg['dialog.shared.labels']}</span>
                     </div>
                     <div class="collection-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputText id="newNameInput"
                                          value="#{referenceBean.newNameValue}"
-                                         placeholder="Nom"
+                                         placeholder="#{msg['candidat.wizard.label']}"
                                          styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
                                              value="#{referenceBean.newNameLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{referenceBean.availableLanguagesForNewName}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="reference-btn-add"
                                          actionListener="#{referenceBean.addNameFromInput()}"
@@ -95,7 +95,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":referenceDialogForm:referenceNamesTable :referenceDialogForm:newNameLangue"
-                                                     title="Supprimer ce nom"/>
+                                                     title="#{msg['dialog.shared.deleteName']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -106,8 +106,8 @@
                                     <i class="pi pi-info-circle" />
                                 </div>
                                 <div class="collection-no-names-text">
-                                    <h4 class="collection-no-names-title">Aucun label ajouté</h4>
-                                    <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un label dans une langue spécifique.</p>
+                                    <h4 class="collection-no-names-title">#{msg['dialog.shared.noLabelAdded']}</h4>
+                                    <p class="collection-no-names-message">#{msg['dialog.shared.noLabelAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -120,13 +120,13 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
-                        <span>Descriptions</span>
+                        <span>#{msg['dialog.shared.descriptions']}</span>
                     </div>
                     <div class="reference-name-input-row">
                         <div class="reference-form-group reference-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                              value="#{referenceBean.newDescriptionValue}"
-                                             placeholder="Description"
+                                             placeholder="#{msg['modifier.description.section.title']}"
                                              rows="3"
                                              styleClass="reference-textarea"/>
                         </div>
@@ -136,14 +136,14 @@
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{referenceBean.newDescriptionLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{referenceBean.availableLanguagesForNewDescription}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="reference-btn-add"
                                          actionListener="#{referenceBean.addDescriptionFromInput()}"
@@ -177,7 +177,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":referenceDialogForm:referenceDescriptionsTable :referenceDialogForm:newDescriptionLangue"
-                                                     title="Supprimer cette description"/>
+                                                     title="#{msg['dialog.shared.deleteDescription']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -188,8 +188,8 @@
                                     <i class="pi pi-info-circle" />
                                 </div>
                                 <div class="collection-no-names-text">
-                                    <h4 class="collection-no-names-title">Aucune description ajoutée</h4>
-                                    <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    <h4 class="collection-no-names-title">#{msg['dialog.shared.noDescriptionAdded']}</h4>
+                                    <p class="collection-no-names-message">#{msg['dialog.shared.noDescriptionAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -202,7 +202,7 @@
                 <h:panelGroup id="imageSection" class="reference-image-card">
                     <div class="reference-section-label">
                         <i class="pi pi-image reference-section-icon"/>
-                        <span>Image principale</span>
+                        <span>#{msg['dialog.reference.imageSection']}</span>
                     </div>
                     <div class="reference-image-sources">
                         <label class="reference-image-file-zone">
@@ -212,21 +212,21 @@
                                          accept="image/jpeg,image/png,image/gif,image/webp"
                                          onchange="previewReferenceLocalImage(this)"/>
                             <i class="pi pi-upload reference-image-file-icon"/>
-                            <span class="reference-image-file-label">Choisir un fichier</span>
-                            <span class="reference-image-file-hint">JPG, PNG, GIF ou WebP</span>
+                            <span class="reference-image-file-label">#{msg['modifier.images.upload.main']}</span>
+                            <span class="reference-image-file-hint">#{msg['modifier.images.upload.formats']}</span>
                         </label>
                         <div class="reference-image-divider">
                             <span class="reference-image-divider-line"/>
-                            <span class="reference-image-divider-text">ou</span>
+                            <span class="reference-image-divider-text">#{msg['modifier.images.divider.or']}</span>
                             <span class="reference-image-divider-line"/>
                         </div>
                         <div class="reference-image-url-group">
                             <p:inputText id="imageUrlInput"
                                          value="#{referenceBean.imageUrlInput}"
                                          styleClass="reference-input reference-image-url-input reference-input"
-                                         placeholder="https://exemple.com/image.jpg"/>
+                                         placeholder="#{msg['dialog.reference.imageUrlExample']}"/>
                             <p:commandButton id="imageUrlApplyBtn"
-                                             value="Utiliser"
+                                             value="#{msg['common.action.use']}"
                                              icon="pi pi-link"
                                              styleClass="reference-btn-add reference-image-url-btn"
                                              actionListener="#{referenceBean.applyImageUrl}"
@@ -242,31 +242,31 @@
                                          actionListener="#{referenceBean.clearImage}"
                                          process="@this"
                                          update=":referenceDialogForm:imageSection growl"
-                                         title="Supprimer l'image"/>
+                                         title="#{msg['modifier.images.delete.title']}"/>
                     </h:panelGroup>
                     <div class="reference-image-legende-group" style="margin-top: 10px;" rendered="#{not empty referenceBean.uploadedImageUrl}">
                         <p:inputText id="imageLegendeInput"
                                      value="#{referenceBean.uploadedImageLegende}"
                                      styleClass="reference-input"
-                                     placeholder="Légende de l'image (optionnel)"
+                                     placeholder="#{msg['dialog.reference.imageCaptionOptional']}"
                                      maxlength="1000"/>
                     </div>
                     <div class="reference-image-preview-container">
                         <img id="referenceImagePreview"
                              src="#{referenceBean.uploadedImageUrl}"
                              class="reference-dialog-image-preview"
-                             alt="Aperçu"
+                             alt="#{msg['modifier.images.preview.alt']}"
                              style="display:#{not empty referenceBean.uploadedImageUrl ? 'block' : 'none'};"/>
                         <img id="referenceImagePreviewLocal"
                              class="reference-dialog-image-preview"
-                             alt="Aperçu local"
+                             alt="#{msg['dialog.reference.imagePreviewLocal']}"
                              style="display:none;"/>
                         <h:panelGroup id="imagePlaceholder"
                                       layout="block"
                                       styleClass="reference-dialog-image-placeholder"
                                       style="display:#{empty referenceBean.uploadedImageUrl ? 'flex' : 'none'}">
                             <i class="pi pi-image reference-image-placeholder-icon"/>
-                            <span>Aucune image sélectionnée</span>
+                            <span>#{msg['dialog.reference.noImageSelected']}</span>
                         </h:panelGroup>
                     </div>
                 </h:panelGroup>
@@ -304,13 +304,13 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-book reference-section-icon"/>
-                        <span>Référence(s) bibliographique(s)</span>
+                        <span>#{msg['dialog.reference.bibliographySection']}</span>
                     </div>
                     <p:chips id="referenceBibliographique"
                              value="#{referenceBean.referenceBibliographiqueList}"
                              styleClass="reference-chips"
                              style="width: 100%"
-                             placeholder="Ajouter une référence (ex: Auteur, Titre, Éditeur, année)"
+                             placeholder="#{msg['modifier.bibliography.placeholder']}"
                              separator=";"/>
                 </div>
             </div>
@@ -318,13 +318,13 @@
             <!-- Section Visibilité -->
             <div class="collection-form-group" style=" padding-top: 15px">
                 <div class="collection-visibility-section" style="padding: 10px;">
-                    <p:outputLabel value="Visibilité du référentiel" styleClass="collection-visibility-label" />
+                    <p:outputLabel value="#{msg['entity.visibility.reference.label']}" styleClass="collection-visibility-label" />
                     <div class="collection-switch-wrapper">
                         <h:panelGroup id="referenceSwitchLabel" class="collection-switch-label">
-                            <h:outputText value="Publique"
+                            <h:outputText value="#{msg['entity.visibility.publicLabel']}"
                                           styleClass="reference-switch-text-public"
                                           rendered="#{referenceBean.referencePublique}"/>
-                            <h:outputText value="Privé"
+                            <h:outputText value="#{msg['common.visibility.private']}"
                                           styleClass="reference-switch-text-private"
                                           rendered="#{not referenceBean.referencePublique}"/>
                         </h:panelGroup>
@@ -342,7 +342,7 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px;">
                     <div class="reference-section-label">
                         <i class="pi pi-users reference-section-icon"/>
-                        <span>Gestionnaires du référentiel</span>
+                        <span>#{msg['modifier.typologyManagers.label']}</span>
                     </div>
                     <p:pickList id="gestionnairesPickList"
                                 value="#{referenceBean.gestionnairesPickList}"
@@ -359,19 +359,19 @@
                                 responsive="true"
                                 rendered="#{not empty referenceBean.gestionnairesList}"/>
                     <h:panelGroup rendered="#{empty referenceBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                        <span>Aucun utilisateur disponible</span>
+                        <span>#{msg['modifier.noUsersAvailable']}</span>
                     </h:panelGroup>
                 </div>
             </div>
 
             <div class="reference-form-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                  icon="pi pi-times"
                                  styleClass="reference-btn reference-btn-cancel"
                                  onclick="PF('referenceDialog').hide(); return false;"
                                  process="@this"
                                  update="@none"/>
-                <p:commandButton value="#{referenceBean.editModeInDialog ? 'Enregistrer' : 'Valider'}"
+                <p:commandButton value="#{referenceBean.editModeInDialog ? msg['common.action.save'] : msg['common.action.validate']}"
                                  icon="pi pi-check"
                                  styleClass="reference-btn reference-btn-validate"
                                  action="#{referenceBean.createReference}"

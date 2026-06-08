@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmValidateDialog"
               widgetVar="confirmValidateDialog"
-              header="Confirmer la validation"
+              header="#{msg['candidat.dialog.validate.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -20,8 +20,8 @@
                     <i class="pi pi-check-circle candidat-confirm-header-icon" />
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Confirmer la validation</h3>
-                    <p class="candidat-confirm-header-subtitle">Le brouillon sera validé et passera au statut PUBLIQUE</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.validate.header']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.validate.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -30,19 +30,19 @@
                 <i class="pi pi-info-circle" />
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir valider ce brouillon ?<br/>
+                #{msg['candidat.dialog.validate.messageIntro']}<br/>
                 <strong>#{candidatBean.candidatAValider != null ? candidatBean.candidatAValider.label : ''}</strong>
             </p>
         </div>
         <f:facet name="footer">
             <div class="candidat-confirm-footer">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
                                process="@this"
                                update="@none"
                                onclick="PF('confirmValidateDialog').hide(); return false;"/>
-                <p:commandButton value="Oui, valider"
+                <p:commandButton value="#{msg['common.action.yesValidate']}"
                                icon="pi pi-check"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-confirm"
                                action="#{candidatBean.validerCandidatConfirm()}"

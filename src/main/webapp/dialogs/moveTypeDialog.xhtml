@@ -23,7 +23,7 @@
                 <div class="move-type-dialog-header-icon-wrapper">
                     <i class="pi pi-folder-open move-type-dialog-header-icon"/>
                 </div>
-                <h3 class="move-type-dialog-header-title">Déplacer le type</h3>
+                <h3 class="move-type-dialog-header-title">#{msg['dialog.move.header']}</h3>
             </div>
         </f:facet>
 
@@ -32,7 +32,7 @@
                 <div class="move-type-current-section">
                     <div class="move-type-section-label">
                         <i class="pi pi-folder move-type-section-icon"/>
-                        <span>Parent actuel</span>
+                        <span>#{msg['dialog.move.currentParent']}</span>
                     </div>
                     <div class="move-type-current-value">#{typeBean.moveTypeCurrentParentLabel}</div>
                 </div>
@@ -44,16 +44,16 @@
                 <div class="move-type-new-section">
                     <div class="move-type-section-label">
                         <i class="pi pi-arrow-right-arrow-left move-type-section-icon"/>
-                        <span>Nouveau parent</span>
+                        <span>#{msg['dialog.move.newParent']}</span>
                     </div>
                     <p:selectOneMenu id="newParentSelect"
                                      value="#{typeBean.moveTypeSelectedParentId}"
                                      styleClass="move-type-select"
                                      filter="true"
                                      filterMatchMode="contains"
-                                     placeholder="Rechercher un groupe ou une série..."
+                                     placeholder="#{msg['dialog.search.groupOrSeries']}"
                                      required="true"
-                                     requiredMessage="Veuillez sélectionner un nouveau parent.">
+                                     requiredMessage="#{msg['dialog.move.selectParentRequired']}">
                         <f:selectItem itemValue="#{null}" itemLabel="— Choisir —" noSelectionOption="true"/>
                         <f:selectItems value="#{typeBean.moveTypeParentOptions}"/>
                     </p:selectOneMenu>
@@ -62,13 +62,13 @@
             </div>
 
             <div class="move-type-dialog-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-cancel"
                                onclick="PF('moveTypeDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Déplacer"
+                <p:commandButton value="#{msg['common.action.move']}"
                                icon="pi pi-folder-open"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-validate"
                                action="#{typeBean.prepareConfirmMoveFromDialog}"

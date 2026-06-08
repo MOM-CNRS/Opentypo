@@ -14,12 +14,12 @@
                 <div class="history-detail-title-section">
                     <h2 class="history-detail-title">
                         <i class="pi pi-info-circle history-title-icon"></i>
-                        Détails de la révision ##{historyBean.selectedRevision.revisionNumber}
+                        #{historyBean.detailTitle}
                     </h2>
                     <div class="history-detail-meta">
                         <span class="revision-type-badge #{historyBean.selectedRevision.revisionTypeClass}">
                             <i class="#{historyBean.selectedRevision.revisionTypeIcon}"></i>
-                            <span>#{historyBean.selectedRevision.revisionTypeLabel}</span>
+                            <span>#{historyBean.getDisplayRevisionTypeLabel(historyBean.selectedRevision)}</span>
                         </span>
                         <span class="history-meta-item">
                             <i class="pi pi-tag"></i>
@@ -35,12 +35,12 @@
                         </span>
                         <span class="history-meta-item">
                             <i class="pi pi-user"></i>
-                            #{historyBean.selectedRevision.modifiedBy != null ? historyBean.selectedRevision.modifiedBy : 'Système'}
+                            #{historyBean.selectedRevision.modifiedBy != null ? historyBean.selectedRevision.modifiedBy : historyBean.systemUserLabel}
                         </span>
                     </div>
                 </div>
                 <div class="history-detail-actions">
-                    <p:commandButton value="Retour à la liste"
+                    <p:commandButton value="#{msg['common.action.backToList']}"
                                     icon="pi pi-arrow-left"
                                     styleClass="history-btn-back"
                                     action="#{historyBean.backToList()}"
@@ -55,13 +55,13 @@
                 <section class="history-section">
                     <h3 class="history-section-title">
                         <i class="pi pi-pencil"></i>
-                        Changements
+                        #{msg['history.detail.changes']}
                     </h3>
                     <ui:fragment rendered="#{empty historyBean.changedFields}">
                         <div class="history-empty-state">
                             <i class="pi pi-check-circle"></i>
-                            <p>Aucun changement pour cette révision</p>
-                            <span class="history-empty-hint">Les données sont identiques à la révision précédente.</span>
+                            <p>#{msg['history.detail.noChanges']}</p>
+                            <span class="history-empty-hint">#{msg['history.detail.noChangesHint']}</span>
                         </div>
                     </ui:fragment>
                     <ui:fragment rendered="#{not empty historyBean.changedFields}">
@@ -71,13 +71,13 @@
                                     <div class="change-field">#{historyBean.getFieldLabel(change.key)}</div>
                                     <div class="change-diff">
                                         <div class="diff-side diff-side-old">
-                                            <span class="diff-side-label">Avant</span>
+                                            <span class="diff-side-label">#{msg['history.diff.before']}</span>
                                             <h:outputText styleClass="diff-old diff-value-text"
                                                           value="#{historyBean.formatChangeValue(change.value['old'], true)}"/>
                                         </div>
                                         <i class="pi pi-arrow-right diff-arrow" aria-hidden="true"></i>
                                         <div class="diff-side diff-side-new">
-                                            <span class="diff-side-label">Après</span>
+                                            <span class="diff-side-label">#{msg['history.diff.after']}</span>
                                             <h:outputText styleClass="diff-new diff-value-text"
                                                           value="#{historyBean.formatChangeValue(change.value['new'], false)}"/>
                                         </div>
@@ -92,10 +92,10 @@
                 <section class="history-section">
                     <h3 class="history-section-title">
                         <i class="pi pi-list"></i>
-                        Données à cette date
+                        #{msg['history.detail.dataAtDate']}
                     </h3>
                     <ui:fragment rendered="#{empty historyBean.selectedRevision.entityData}">
-                        <p class="history-no-data">Aucune donnée disponible pour cette révision.</p>
+                        <p class="history-no-data">#{msg['history.detail.noData']}</p>
                     </ui:fragment>
                     <ui:fragment rendered="#{not empty historyBean.selectedRevision.entityData}">
                         <div class="history-data-sections">
@@ -107,7 +107,7 @@
                                                 <div class="concept-info-header monnaie-communs-header">
                                                     <div class="concept-info-title-section monnaie-communs-title-wrapper">
                                                         <i class="pi #{section.icon} monnaie-communs-title-icon"/>
-                                                        <h2 class="concept-info-title monnaie-communs-title">#{section.title}</h2>
+                                                        <h2 class="concept-info-title monnaie-communs-title">#{historyBean.getSectionTitle(section)}</h2>
                                                     </div>
                                                 </div>
                                                 <div class="concept-info-grid">
@@ -122,7 +122,7 @@
                                                                     <h:outputText value="#{historyBean.formatValueForField(key, historyBean.selectedRevision.entityData[key])}" escape="false"/>
                                                                 </ui:fragment>
                                                                 <ui:fragment rendered="#{not historyBean.selectedRevision.entityData.containsKey(key) or empty historyBean.selectedRevision.entityData[key]}">
-                                                                    <span class="empty-field-message">Non renseigné</span>
+                                                                    <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                                                 </ui:fragment>
                                                             </div>
                                                         </div>

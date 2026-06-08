@@ -6,8 +6,8 @@
         <div class="wizard-step-content">
             <div class="wizard-step-header">
                 <i class="pi pi-file-edit wizard-step-icon" />
-                <h3 class="wizard-step-title">Détails complémentaires</h3>
-                <p class="wizard-step-description">Complétez les informations spécifiques selon le type sélectionné</p>
+                <h3 class="wizard-step-title">#{msg['candidat.wizard.step3.detailsTitle']}</h3>
+                <p class="wizard-step-description">#{msg['candidat.wizard.step3.description']}</p>
             </div>
 
             <!-- 1ère partie : Récapitulatif des informations des étapes 1 et 2 -->
@@ -16,28 +16,28 @@
                     <div class="summary-section">
                         <div class="summary-grid">
                             <div class="summary-item">
-                                <span class="summary-label">Type d'entité :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.entityType']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-tag summary-value-icon" />
                                     #{candidatBean.getEntityTypeName(candidatBean.selectedEntityType)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Code :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.code']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-code summary-value-icon" />
                                     #{candidatBean.entityCode}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Label :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.label']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-tag summary-value-icon" />
                                     #{candidatBean.entityLabel}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Langue :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.language']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-globe summary-value-icon" />
                                     #{candidatBean.getSelectedLangueName()}
@@ -49,14 +49,14 @@
                     <div class="summary-section">
                         <div class="summary-grid">
                             <div class="summary-item">
-                                <span class="summary-label">Collection :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.collection']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-folder summary-value-icon" />
                                     #{candidatBean.getCollectionLabel(candidatBean.selectedCollection)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Élément parent :</span>
+                                <span class="summary-label">#{msg['candidat.wizard.summary.parent']}</span>
                                 <span class="summary-value">
                                     <i class="pi pi-sitemap summary-value-icon" />
                                     #{candidatBean.selectedParentEntity != null ? candidatBean.selectedParentEntity.code : 'Non sélectionné'}
@@ -74,8 +74,8 @@
                     <h:panelGroup rendered="#{openThesoDialogBean.isOpenThesoParametrageMissing() and candidatBean.canEditCurrentBrouillon()}" layout="block" styleClass="periode-parametrage-info-banner">
                         <i class="pi pi-info-circle periode-parametrage-info-icon" />
                         <div class="periode-parametrage-info-content">
-                            <strong>Connexion OpenTheso non paramétrée</strong>
-                            <p>Le gestionnaire du référentiel doit configurer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus. En attendant, vous pouvez saisir en texte libre.</p>
+                            <strong>#{msg['modifier.opentheso.banner.title']}</strong>
+                            <p>#{msg['opentheso.connection.managerMustConfigureGroup']} #{msg['opentheso.search.failedFreeValue']}</p>
                         </div>
                     </h:panelGroup>
 

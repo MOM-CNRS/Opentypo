@@ -4,12 +4,12 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-15">
-        <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.description.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Droit -->
         <h:panelGroup styleClass="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel for="droitInput" value="Droit" />
+                <p:outputLabel for="droitInput" value="#{msg['modifier.field.obverse']}" />
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -22,7 +22,7 @@
                     <p:inputText value="#{candidatBean.droit}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
@@ -42,7 +42,7 @@
         <!-- Légende du droit -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="legendeDroitInput" value="Légende du droit" />
+                <p:outputLabel for="legendeDroitInput" value="#{msg['modifier.field.obverseLegend']}" />
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -55,13 +55,13 @@
                     <p:inputText value="#{candidatBean.legendeDroit}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la légende du droit"
+                                     title="#{msg['modifier.tooltip.save.obverseLegend']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveLegendeDroit}"
                                      process="@form"
@@ -75,7 +75,7 @@
         <!-- Revers -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="reversInput" value="Revers" />
+                <p:outputLabel for="reversInput" value="#{msg['modifier.field.reverse']}" />
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -88,7 +88,7 @@
                     <p:inputText value="#{candidatBean.revers}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
@@ -108,7 +108,7 @@
         <!-- Légende du revers -->
         <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
             <div class="periode-header-row">
-                <p:outputLabel for="legendeReversInput" value="Légende du revers" />
+                <p:outputLabel for="legendeReversInput" value="#{msg['modifier.field.reverseLegend']}" />
             </div>
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
@@ -121,13 +121,13 @@
                     <p:inputText value="#{candidatBean.legendeRevers}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la légende du revers"
+                                     title="#{msg['modifier.tooltip.save.reverseLegend']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveLegendeRevers}"
                                      process="@form"

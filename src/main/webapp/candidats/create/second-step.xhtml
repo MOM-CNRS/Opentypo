@@ -8,23 +8,23 @@
         <div class="wizard-step-content">
             <div class="wizard-step-header">
                 <i class="pi pi-folder-open wizard-step-icon" />
-                <h3 class="wizard-step-title">Collection et référentiel</h3>
-                <p class="wizard-step-description">Sélectionnez la collection et le référentiel associés à votre brouillon</p>
+                <h3 class="wizard-step-title">#{msg['candidat.wizard.step2.title']}</h3>
+                <p class="wizard-step-description">#{msg['candidat.wizard.step2.description']}</p>
             </div>
 
             <div class="users-form-panel wizard-form-panel">
                 <div class="users-form-grid candidats-p-20">
                     <div class="users-form-group">
-                        <p:outputLabel for="selectedCollection" value="Collection" />
+                        <p:outputLabel for="selectedCollection" value="#{msg['candidat.wizard.collection']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-folder-open input-icon" />
                             <p:selectOneMenu id="selectedCollection"
                                              value="#{candidatBean.selectedCollectionId}"
                                              styleClass="users-select"
                                              required="true"
-                                             requiredMessage="La collection est requise"
-                                             validatorMessage="La collection est requise">
-                                <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                                             requiredMessage="#{msg['candidat.save.collectionRequired']}"
+                                             validatorMessage="#{msg['candidat.save.collectionRequired']}">
+                                <f:selectItem itemLabel="#{msg['candidat.wizard.selectCollection']}" itemValue="" />
                                 <f:selectItems value="#{candidatBean.availableCollections}"
                                                var="collection"
                                                itemLabel="#{candidatBean.getCollectionLabel(collection)}"
@@ -33,7 +33,7 @@
                                         listener="#{candidatBean.loadReferencesForCollection}"
                                         process="@this" ajax="true"
                                         update=":createCandidatForm:referenceTree :createCandidatForm:directEntitySelect"
-                                        onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                        onstart="showLoading('#{msg['candidat.wizard.loadingReferences']}', 'spinner');"
                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                         onerror="forceHideLoading();"/>
                             </p:selectOneMenu>
@@ -42,14 +42,14 @@
                     </div>
 
                     <div class="users-form-group">
-                        <p:outputLabel for="directEntitySelect" value="Collection rattachée" />
+                        <p:outputLabel for="directEntitySelect" value="#{msg['candidat.wizard.attachedCollection']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-sitemap input-icon" />
                             <p:selectOneMenu id="directEntitySelect"
                                              value="#{candidatBean.selectedDirectEntityId}"
                                              styleClass="users-select"
                                              disabled="#{empty candidatBean.availableDirectEntities}">
-                                <f:selectItem itemLabel="Sélectionnez une référence" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['candidat.wizard.selectReference']}" itemValue="" />
                                 <f:selectItems value="#{candidatBean.availableDirectEntities}"
                                                var="entity"
                                                itemLabel="#{candidatBean.getDirectEntityLabel(entity)}"
@@ -58,7 +58,7 @@
                                         listener="#{candidatBean.onDirectEntityChange}"
                                         process="@this" ajax="true"
                                         update=":createCandidatForm:referenceTreeContainer"
-                                        onstart="showLoading('Chargement des référentiels...', 'spinner');"
+                                        onstart="showLoading('#{msg['candidat.wizard.loadingReferences']}', 'spinner');"
                                         oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                         onerror="forceHideLoading();"/>
                             </p:selectOneMenu>
@@ -67,7 +67,7 @@
                     </div>
 
                     <h:panelGroup id="referenceTreeContainer" class="users-form-group users-form-group-full">
-                        <p:outputLabel value="Sélectionner l'entité parent" />
+                        <p:outputLabel value="#{msg['candidat.wizard.selectParentEntity']}" />
                         <p:outputPanel styleClass="reference-tree-container">
                             <p:tree id="referenceTree"
                                     value="#{candidatBean.referenceTreeRoot}"
@@ -89,7 +89,7 @@
                             <p:message for="referenceTree"
                                        rendered="#{candidatBean.isStep2() and empty candidatBean.selectedTreeNode}"
                                        severity="error"
-                                       summary="L'entité parent est requise"/>
+                                       summary="#{msg['candidat.wizard.parentRequired']}"/>
                         </p:outputPanel>
                     </h:panelGroup>
                 </div>

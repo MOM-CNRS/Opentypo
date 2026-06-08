@@ -22,7 +22,7 @@
                 </div>
                 <div class="reference-confirm-header-content">
                     <h3 class="reference-confirm-header-title">#{applicationBean.propositionConfirmTitle}</h3>
-                    <p class="reference-confirm-header-subtitle">Confirmer l'action</p>
+                    <p class="reference-confirm-header-subtitle">#{msg['dialog.proposition.confirm.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -39,7 +39,7 @@
 
             <h:form id="confirmPropositionActionForm" styleClass="reference-confirm-form">
                 <div class="reference-confirm-actions">
-                    <p:commandButton value="Annuler"
+                    <p:commandButton value="#{msg['common.action.cancel']}"
                                      icon="pi pi-times"
                                      type="button"
                                      styleClass="reference-confirm-btn reference-confirm-btn-cancel"
@@ -47,7 +47,7 @@
                                      update="@none"
                                      onclick="PF('confirmPropositionActionDialog').hide(); return false;"/>
 
-                    <p:commandButton value="Confirmer"
+                    <p:commandButton value="#{msg['common.action.confirm']}"
                                      icon="pi pi-check"
                                      action="#{applicationBean.applyPropositionAction(applicationBean)}"
                                      process="@this"

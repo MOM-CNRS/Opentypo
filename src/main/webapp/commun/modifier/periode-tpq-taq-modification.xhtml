@@ -111,7 +111,9 @@
         </h:panelGroup>
 
         <!-- Appellation usuelle -->
-        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}" class="candidats-mt-15">
+        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3 
+            or applicationBean.selectedEntity.entityType.id == 4 
+            or applicationBean.selectedEntity.entityType.id == 5}" class="candidats-mt-15">
             <p:outputLabel value="#{msg['modifier.field.datingComment']}" style="margin-bottom: 13px !important" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group candidats-mt--10">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">

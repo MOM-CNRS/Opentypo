@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.dto.EntityRevisionDTO;
 import fr.cnrs.opentypo.application.service.AuditService;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -123,16 +124,18 @@ public class HistoryBean implements Serializable {
      * Retourne le libellé du type d'entité pour l'affichage.
      */
     public String getEntityTypeLabel() {
-        if (selectedEntity == null || selectedEntity.getEntityType() == null) return "Entité";
+        if (selectedEntity == null || selectedEntity.getEntityType() == null) {
+            return JsfMessages.get("profile.entityType.default");
+        }
         String code = selectedEntity.getEntityType().getCode();
         return switch (code) {
-            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
-            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
-            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
-            default -> "Entité";
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> JsfMessages.get("profile.entityType.reference");
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> JsfMessages.get("profile.entityType.category");
+            case EntityConstants.ENTITY_TYPE_GROUP -> JsfMessages.get("profile.entityType.group");
+            case EntityConstants.ENTITY_TYPE_SERIES -> JsfMessages.get("profile.entityType.series");
+            case EntityConstants.ENTITY_TYPE_TYPE -> JsfMessages.get("profile.entityType.type");
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> JsfMessages.get("profile.entityType.collection");
+            default -> JsfMessages.get("profile.entityType.default");
         };
     }
 
@@ -142,10 +145,10 @@ public class HistoryBean implements Serializable {
     public String getEntityStatusLabel() {
         if (selectedEntity == null || selectedEntity.getStatut() == null) return "—";
         return switch (selectedEntity.getStatut()) {
-            case "PUBLIQUE" -> "Public";
-            case "PRIVEE" -> "Privé";
-            case "PROPOSITION" -> "Proposition";
-            case "REFUSE" -> "Refusé";
+            case "PUBLIQUE" -> JsfMessages.get("common.visibility.public");
+            case "PRIVEE" -> JsfMessages.get("common.visibility.private");
+            case "PROPOSITION" -> JsfMessages.get("tree.indicator.draft");
+            case "REFUSE" -> JsfMessages.get("tree.indicator.refused");
             default -> selectedEntity.getStatut();
         };
     }
@@ -193,8 +196,39 @@ public class HistoryBean implements Serializable {
      * Retourne le libellé du type de révision pour l'affichage (Création pour la 1re révision).
      */
     public String getDisplayRevisionTypeLabel(EntityRevisionDTO revision) {
-        if (revision == null) return "Inconnu";
-        return isCreationRevision(revision) ? "Création" : revision.getRevisionTypeLabel();
+        if (revision == null) return JsfMessages.get("history.revision.unknown");
+        if (isCreationRevision(revision)) {
+            return JsfMessages.get("history.revision.creation");
+        }
+        if (revision.getRevisionType() == null) {
+            return JsfMessages.get("history.revision.unknown");
+        }
+        return switch (revision.getRevisionType()) {
+            case "0" -> JsfMessages.get("history.revision.creation");
+            case "1" -> JsfMessages.get("history.revision.modification");
+            case "2" -> JsfMessages.get("history.revision.deletion");
+            default -> revision.getRevisionType();
+        };
+    }
+
+    public String getSectionTitle(DisplaySection section) {
+        if (section == null) return "";
+        return JsfMessages.get("history.section." + section.id());
+    }
+
+    public String getSystemUserLabel() {
+        return JsfMessages.get("history.systemUser");
+    }
+
+    public String getStatusChangeTitle(String statutValue) {
+        return JsfMessages.format("history.statusChange.title", statutValue != null ? statutValue : "");
+    }
+
+    public String getDetailTitle() {
+        if (selectedRevision == null || selectedRevision.getRevisionNumber() == null) {
+            return JsfMessages.get("history.detail.changes");
+        }
+        return JsfMessages.format("history.detail.title", selectedRevision.getRevisionNumber());
     }
 
     /**
@@ -219,7 +253,7 @@ public class HistoryBean implements Serializable {
      * Formate la date de révision pour l'affichage (ex : 23/03/2026 à 09:18).
      */
     public String formatRevisionDate(LocalDateTime date) {
-        return date != null ? date.format(REVISION_DATE_FORMAT) : "N/A";
+        return date != null ? date.format(REVISION_DATE_FORMAT) : JsfMessages.get("history.date.na");
     }
 
     /** Ordre d'affichage des champs (type.xhtml et tous ses includes), sans ID */
@@ -457,15 +491,14 @@ public class HistoryBean implements Serializable {
      */
     public String getFieldLabel(String fieldName) {
         if (fieldName == null) {
-            return "Champ inconnu";
+            return JsfMessages.get("history.field.unknown");
         }
 
-        // Gérer les champs avec des points (ex: "labels.fr", "descriptions.en")
         if (fieldName.contains(".")) {
             String[] parts = fieldName.split("\\.", 2);
             String baseField = parts[0];
             String languageCode = parts.length > 1 ? parts[1].toUpperCase() : "";
-            
+
             String baseLabel = getBaseFieldLabel(baseField);
             if (!languageCode.isEmpty()) {
                 return baseLabel + " (" + languageCode + ")";
@@ -480,141 +513,22 @@ public class HistoryBean implements Serializable {
      * Retourne le libellé de base d'un champ
      */
     private String getBaseFieldLabel(String fieldName) {
-        switch (fieldName) {
-            case "id":
-                return "ID";
-            case "code":
-                return "Code";
-            case "nom":
-            case "labels":
-                return "Label";
-            case "commentaire":
-            case "descriptions":
-                return "Description";
-            case "bibliographie":
-                return "Bibliographie";
-            case "zoteroItemKeys":
-                return "Références Zotero";
-            case "appellation":
-                return "Appellation usuelle";
-            case "reference":
-                return "Référentiel";
-            case "rereferenceBibliographique":
-                return "Référence bibliographique";
-            case "corpusExterne":
-                return "Corpus externe";
-            case "typologieScientifique":
-                return "Typologie scientifique";
-            case "identifiantPerenne":
-                return "Identifiant pérenne";
-            case "ancienneVersion":
-                return "Ancienne version";
-            case "statut":
-                return "Statut";
-            case "periode":
-                return "Période";
-            case "tpq":
-                return "TPQ";
-            case "taq":
-                return "TAQ";
-            case "commentaireDatation":
-                return "Commentaire datation";
-            case "publique":
-                return "Public";
-            case "interne":
-                return "Alignement interne";
-            case "alignementExterne":
-                return "Alignement externe";
-            case "production":
-                return "Production";
-            case "ateliers":
-                return "Atelier(s)";
-            case "airesCirculation":
-                return "Aire de circulation";
-            case "categorieFonctionnelle":
-                return "Catégorie fonctionnelle";
-            case "denominationInstrumentum":
-                return "Dénomination";
-            case "droit":
-                return "Droit";
-            case "legendeDroit":
-                return "Légende du droit";
-            case "revers":
-                return "Revers";
-            case "legendeRevers":
-                return "Légende du revers";
-            case "materiauxMonnaie":
-                return "Matériau (monnaie)";
-            case "denomination":
-                return "Dénomination";
-            case "metrologieMonnaie":
-                return "Métrologie (monnaie)";
-            case "valeurMonnaie":
-                return "Valeur";
-            case "techniqueMonnaie":
-                return "Technique (monnaie)";
-            case "attestations":
-                return "Attestations";
-            case "corpusLies":
-                return "Corpus lié(s)";
-            case "sitesArcheologiques":
-                return "Sites archéologiques";
-            case "commentaireMetadata":
-                return "Commentaire";
-            case "metrologieDetail":
-                return "Métrologie (détail)";
-            case "idArk":
-                return "Identifiant ARK";
-            case "displayOrder":
-                return "Ordre d'affichage";
-            case "decors":
-                return "Décors";
-            case "marques":
-                return "Marques/estampilles";
-            case "fonctionUsage":
-                return "Fonction/usage";
-            case "materiaux":
-                return "Matériaux";
-            case "forme":
-                return "Forme";
-            case "dimensions":
-                return "Dimensions";
-            case "technique":
-                return "Technique";
-            case "metrologiePhysique":
-                return "Métrologie";
-            case "fabricationPhysique":
-                return "Fabrication/façonnage";
-            case "descriptionPate":
-                return "Description pâte";
-            case "couleurPate":
-                return "Couleur de pâte";
-            case "naturePate":
-                return "Nature de pâte";
-            case "inclusionPate":
-                return "Inclusions";
-            case "cuissonPate":
-                return "Cuisson/post-cuisson";
-            case "images":
-                return "Images";
-            case "createDate":
-                return "Date de création";
-            case "createBy":
-                return "Créé par";
-            case "entityTypeCode":
-                return "Type d'entité";
-            case "referencesOpentheso":
-                return "Références OpenTheso";
-            default:
-                // Capitaliser la première lettre et remplacer les majuscules par des espaces
-                if (fieldName == null || fieldName.isEmpty()) return "Champ inconnu";
-                return fieldName.substring(0, 1).toUpperCase() + 
-                       fieldName.substring(1).replaceAll("([A-Z])", " $1").trim();
+        String key = "history.field." + fieldName;
+        String label = JsfMessages.get(key);
+        if (!key.equals(label)) {
+            return label;
         }
+        if (fieldName == null || fieldName.isEmpty()) {
+            return JsfMessages.get("history.field.unknown");
+        }
+        return fieldName.substring(0, 1).toUpperCase()
+                + fieldName.substring(1).replaceAll("([A-Z])", " $1").trim();
     }
 
     /** Texte affiché lorsqu'une valeur (avant / après) est vide ou absente dans le diff. */
-    private static final String DIFF_EMPTY_PLACEHOLDER = "(vide)";
+    private String getDiffEmptyPlaceholder() {
+        return JsfMessages.get("history.diff.empty");
+    }
 
     /**
      * Formate une valeur pour l'affichage dans le contexte des changements (ancienne/nouvelle valeur).
@@ -622,13 +536,13 @@ public class HistoryBean implements Serializable {
      */
     public String formatChangeValue(Object value, boolean isOldValue) {
         if (isNullOrEmpty(value)) {
-            return DIFF_EMPTY_PLACEHOLDER;
+            return getDiffEmptyPlaceholder();
         }
         if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
-            return DIFF_EMPTY_PLACEHOLDER;
+            return getDiffEmptyPlaceholder();
         }
         if (value instanceof List && ((List<?>) value).isEmpty()) {
-            return DIFF_EMPTY_PLACEHOLDER;
+            return getDiffEmptyPlaceholder();
         }
         return formatValue(value);
     }
@@ -638,7 +552,7 @@ public class HistoryBean implements Serializable {
      */
     public String formatValue(Object value) {
         if (value == null) {
-            return "Aucune valeur";
+            return JsfMessages.get("history.value.none");
         }
 
         // Gérer les Map (pour les labels et descriptions multilingues)
@@ -646,7 +560,7 @@ public class HistoryBean implements Serializable {
             @SuppressWarnings("unchecked")
             Map<String, String> map = (Map<String, String>) value;
             if (map.isEmpty()) {
-                return "Aucune valeur";
+                return JsfMessages.get("history.value.none");
             }
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -665,7 +579,7 @@ public class HistoryBean implements Serializable {
             @SuppressWarnings("unchecked")
             List<?> list = (List<?>) value;
             if (list.isEmpty()) {
-                return "Aucune valeur";
+                return JsfMessages.get("history.value.none");
             }
             // Liste d'images (List<Map<String,String>>)
             if (!list.isEmpty() && list.get(0) instanceof Map) {
@@ -701,7 +615,7 @@ public class HistoryBean implements Serializable {
      */
     public String formatValueForField(String key, Object value) {
         if (isNullOrEmpty(value)) {
-            return "Aucune valeur";
+            return JsfMessages.get("history.value.none");
         }
         if ("corpusLies".equals(key)) {
             return formatCorpusLinksHtml(String.valueOf(value));
@@ -711,7 +625,7 @@ public class HistoryBean implements Serializable {
 
     private String formatCorpusLinksHtml(String raw) {
         if (raw == null || raw.isBlank()) {
-            return "Aucune valeur";
+            return JsfMessages.get("history.value.none");
         }
         String[] entries = raw.split("[;；]");
         StringBuilder sb = new StringBuilder();
@@ -736,7 +650,7 @@ public class HistoryBean implements Serializable {
             // ancien format / libellé seul
             sb.append(stripHtml(t));
         }
-        return sb.length() == 0 ? "Aucune valeur" : sb.toString();
+        return sb.length() == 0 ? JsfMessages.get("history.value.none") : sb.toString();
     }
 
     /**

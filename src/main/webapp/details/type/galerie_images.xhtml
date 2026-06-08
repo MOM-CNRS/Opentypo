@@ -19,11 +19,11 @@
                                    onstart="showLoading('Chargement du type...', 'spinner');"
                                    oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                    onerror="forceHideLoading();"
-                                   title="Voir le type précédent (ordre alphabétique)"
+                                   title="#{msg['gallery.type.previous']}"
                                    rendered="#{applicationBean.previousType != null}">
                         <span class="typologie-card-indicator typologie-card-indicator-prev">
                             <i class="pi pi-chevron-left" aria-hidden="true"/>
-                            <span>Précédent</span>
+                            <span>#{msg['common.action.previous']}</span>
                         </span>
                         <div class="typologie-card-image-wrapper">
                             <p:graphicImage value="#{applicationBean.previousType.image.url}"
@@ -62,7 +62,7 @@
                                         <div class="opentypo-gallery-slide-content">
                                             <img src="#{photo.itemImageSrc}" alt="#{photo.alt}"
                                                  data-image-legende="#{photo.title}"
-                                                 title="Cliquez pour afficher en plein écran"
+                                                 title="#{msg['gallery.fullscreen']}"
                                                  onclick="if(typeof openFullscreenFromGallery==='function'){openFullscreenFromGallery(this);}return false;"/>
                                             <h:outputText value="#{photo.title}" styleClass="opentypo-gallery-slide-legend" rendered="#{not empty photo.title}"/>
                                         </div>
@@ -88,7 +88,7 @@
                         </h:panelGroup>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{not empty applicationBean.galleriaPhotos}">
-                        <button type="button" class="galleria-fullscreen-close" title="Fermer (Échap)"
+                        <button type="button" class="galleria-fullscreen-close" title="#{msg['gallery.closeFullscreen']}"
                                 onclick="var c=document.querySelector('.galleria-main-wrapper');if(c){c.classList.remove('galleria-fullscreen-mode');document.body.style.overflow='';}return false;">
                             <i class="pi pi-times"/>
                         </button>
@@ -106,10 +106,10 @@
                                    onstart="showLoading('Chargement du type...', 'spinner');"
                                    oncomplete="setTimeout(function(){hideLoading(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
                                    onerror="forceHideLoading();"
-                                   title="Voir le type suivant (ordre alphabétique)"
+                                   title="#{msg['gallery.type.next']}"
                                    rendered="#{applicationBean.nextType != null}">
                         <span class="typologie-card-indicator typologie-card-indicator-next">
-                            <span>Suivant</span>
+                            <span>#{msg['common.action.next']}</span>
                             <i class="pi pi-chevron-right" aria-hidden="true"/>
                         </span>
                         <div class="typologie-card-image-wrapper">

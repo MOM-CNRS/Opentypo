@@ -10,6 +10,7 @@ import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryDescriptionIte
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CategoryLabelItem;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.Step3FormData;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.VisualisationPrepareResult;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +42,12 @@ public class CandidatVisualisationService {
      */
     public VisualisationPrepareResult prepareVisualisation(Long candidatId, String defaultLangueCode) {
         if (candidatId == null) {
-            return VisualisationPrepareResult.builder().success(false).errorMessage("ID candidat invalide.").build();
+            return VisualisationPrepareResult.builder().success(false).errorMessage(JsfMessages.get("candidat.visualisation.invalidId")).build();
         }
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
         if (entity == null) {
-            return VisualisationPrepareResult.builder().success(false).errorMessage("L'entité sélectionnée n'existe pas").build();
+            return VisualisationPrepareResult.builder().success(false).errorMessage(JsfMessages.get("candidat.visualisation.entityNotExists")).build();
         }
 
         try {
@@ -124,7 +125,7 @@ public class CandidatVisualisationService {
             log.error("Erreur lors de la préparation de la visualisation", e);
             return VisualisationPrepareResult.builder()
                     .success(false)
-                    .errorMessage("Une erreur est survenue : " + e.getMessage())
+                    .errorMessage(JsfMessages.format("common.error.generic", e.getMessage()))
                     .build();
         }
     }
@@ -133,10 +134,10 @@ public class CandidatVisualisationService {
      * Prépare les données pour prepareValidateCandidat (ouverture du dialogue de validation).
      */
     public PrepareValidateResult prepareValidate(Long candidatId) {
-        if (candidatId == null) return new PrepareValidateResult(false, null, null, null, null, "Candidat null");
+        if (candidatId == null) return new PrepareValidateResult(false, null, null, null, null, JsfMessages.get("candidat.visualisation.candidateNull"));
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
-        if (entity == null) return new PrepareValidateResult(false, null, null, null, null, "Le candidat n'existe pas");
+        if (entity == null) return new PrepareValidateResult(false, null, null, null, null, JsfMessages.get("candidat.visualisation.candidateNotExists"));
 
         List<CategoryLabelItem> labels = CollectionUtils.isEmpty(entity.getLabels()) ? new ArrayList<>()
                 : entity.getLabels().stream()
@@ -160,10 +161,10 @@ public class CandidatVisualisationService {
                                                       List<String> attestations, List<String> sitesArcheologiques,
                                                       String referentiel, String typologieScientifique,
                                                       String identifiantPerenne, String ancienneVersion) {
-        if (entityId == null) return new EnregistrerResult(false, null, "Aucune entité à enregistrer.");
+        if (entityId == null) return new EnregistrerResult(false, null, JsfMessages.get("candidat.error.noEntityToSave"));
 
         Entity entity = entityRepository.findById(entityId).orElse(null);
-        if (entity == null) return new EnregistrerResult(false, null, "Entité introuvable.");
+        if (entity == null) return new EnregistrerResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
 
         try {
             if (selectedAuteurs != null) {
@@ -180,7 +181,7 @@ public class CandidatVisualisationService {
             return new EnregistrerResult(true, "/candidats/candidats.xhtml?faces-redirect=true", null);
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement des modifications", e);
-            return new EnregistrerResult(false, null, "Une erreur est survenue : " + e.getMessage());
+            return new EnregistrerResult(false, null, JsfMessages.format("common.error.generic", e.getMessage()));
         }
     }
 

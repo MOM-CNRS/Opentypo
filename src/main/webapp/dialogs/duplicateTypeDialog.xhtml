@@ -23,7 +23,7 @@
                 <div class="move-type-dialog-header-icon-wrapper">
                     <i class="pi pi-copy move-type-dialog-header-icon"/>
                 </div>
-                <h3 class="move-type-dialog-header-title">Dupliquer le type</h3>
+                <h3 class="move-type-dialog-header-title">#{msg['dialog.duplicate.header']}</h3>
             </div>
         </f:facet>
 
@@ -32,7 +32,7 @@
                 <div class="move-type-new-section">
                     <div class="move-type-section-label">
                         <i class="pi pi-key move-type-section-icon"/>
-                        <span>Nouveau code</span>
+                        <span>#{msg['dialog.duplicate.newCode']}</span>
                     </div>
                     <p:inputText id="duplicateTypeCodeInput"
                                 value="#{typeBean.duplicateTypeCode}"
@@ -46,16 +46,16 @@
                 <div class="move-type-new-section">
                     <div class="move-type-section-label">
                         <i class="pi pi-folder move-type-section-icon"/>
-                        <span>Parent</span>
+                        <span>#{msg['dialog.duplicate.parent']}</span>
                     </div>
                     <p:selectOneMenu id="duplicateParentSelect"
                                     value="#{typeBean.duplicateTypeSelectedParentId}"
                                     styleClass="move-type-select"
                                     filter="true"
                                     filterMatchMode="contains"
-                                    placeholder="Rechercher un groupe ou une série..."
+                                    placeholder="#{msg['dialog.search.groupOrSeries']}"
                                     required="true"
-                                    requiredMessage="Veuillez sélectionner un parent.">
+                                    requiredMessage="#{msg['dialog.duplicate.selectParentRequired']}">
                         <f:selectItem itemValue="#{null}" itemLabel="— Choisir —" noSelectionOption="true"/>
                         <f:selectItems value="#{typeBean.duplicateTypeParentOptions}"/>
                     </p:selectOneMenu>
@@ -63,18 +63,18 @@
                 </div>
 
                 <p class="duplicate-type-hint">
-                    <i class="pi pi-info-circle"/> Les images ne seront pas copiées. Tous les autres champs seront conservés.
+                    <i class="pi pi-info-circle"/> #{msg['dialog.duplicate.hint']}
                 </p>
             </div>
 
             <div class="move-type-dialog-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-cancel"
                                onclick="PF('duplicateTypeDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Dupliquer"
+                <p:commandButton value="#{msg['common.action.duplicate']}"
                                icon="pi pi-copy"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-validate"
                                action="#{typeBean.performDuplicateType}"

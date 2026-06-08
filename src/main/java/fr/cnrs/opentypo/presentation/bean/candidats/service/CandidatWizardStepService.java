@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.service.CandidatValidationService;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.model.TreeNode;
@@ -56,7 +57,8 @@ public class CandidatWizardStepService {
         } catch (Exception e) {
             log.error("Erreur lors de la création de l'entité à l'étape 1", e);
             return new NextStepResult(false, 0, null, null, false,
-                    "Une erreur est survenue lors de la création de l'entité : " + (e.getMessage() != null ? e.getMessage() : ""));
+                    JsfMessages.format("candidat.wizard.entityCreateFailed",
+                            e.getMessage() != null ? e.getMessage() : ""));
         }
     }
 
@@ -87,7 +89,8 @@ public class CandidatWizardStepService {
         } catch (Exception e) {
             log.error("Erreur lors de la création de la relation parent-enfant", e);
             return new NextStepResult(false, 1, null, null, false,
-                    "Une erreur est survenue lors de la création de la relation : " + (e.getMessage() != null ? e.getMessage() : ""));
+                    JsfMessages.format("candidat.wizard.relationCreateFailed",
+                            e.getMessage() != null ? e.getMessage() : ""));
         }
         return new NextStepResult(true, 2, currentEntity, parentEntity, true, null);
     }

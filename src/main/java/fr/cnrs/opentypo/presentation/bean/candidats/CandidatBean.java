@@ -32,6 +32,7 @@ import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.OpenThesoDialogBean;
 import fr.cnrs.opentypo.presentation.bean.SearchBean;
 import fr.cnrs.opentypo.presentation.bean.UserBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CandidatSauvegardeRequest;
 import fr.cnrs.opentypo.presentation.bean.candidats.model.CandidatSauvegardeResult;
@@ -457,7 +458,8 @@ public class CandidatBean implements Serializable {
     public void prepareSendValidateurInvitation() {
         if (validateursPickList == null || validateursPickList.getTarget() == null || validateursPickList.getTarget().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner au moins un validateur à inviter."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                            JsfMessages.get("candidat.validators.inviteRequired")));
             FacesContext.getCurrentInstance().validationFailed();
         }
     }
@@ -466,7 +468,7 @@ public class CandidatBean implements Serializable {
     @org.springframework.transaction.annotation.Transactional
     public void sendValidateurInvitations() {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité à associer.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntityToAssociate"));
             return;
         }
         if (validateursPickList == null || validateursPickList.getTarget() == null) {
@@ -475,7 +477,8 @@ public class CandidatBean implements Serializable {
         syncUserPermissionsFromPickList(validateursPickList, PermissionRoleEnum.VALIDEUR.getLabel());
         validateursPickList = null;
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Validateurs mis à jour."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("candidat.validators.updated")));
         PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
     }
 
@@ -483,7 +486,7 @@ public class CandidatBean implements Serializable {
     @Transactional
     public void assignRedacteurs() {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité à associer.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntityToAssociate"));
             return;
         }
         if (redacteursPickList == null || redacteursPickList.getTarget() == null) {
@@ -492,7 +495,8 @@ public class CandidatBean implements Serializable {
         syncUserPermissionsFromPickList(redacteursPickList, PermissionRoleEnum.REDACTEUR.getLabel());
         redacteursPickList = null;
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Rédacteurs mis à jour."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("candidat.redacteurs.updated")));
         PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
     }
 
@@ -500,7 +504,7 @@ public class CandidatBean implements Serializable {
     @Transactional
     public void assignRelecteurs() {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité à associer.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntityToAssociate"));
             return;
         }
         if (relecteursPickList == null || relecteursPickList.getTarget() == null) {
@@ -509,7 +513,8 @@ public class CandidatBean implements Serializable {
         syncUserPermissionsFromPickList(relecteursPickList, PermissionRoleEnum.RELECTEUR.getLabel());
         relecteursPickList = null;
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Relecteurs mis à jour."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("candidat.relecteurs.updated")));
         PrimeFaces.current().ajax().update(":growl, :intervenantsSection");
     }
 
@@ -628,14 +633,14 @@ public class CandidatBean implements Serializable {
             if ("true".equals(success)) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                        "Succès",
-                        "Le candidat a été créé avec succès. Vous pouvez le voir dans la liste des candidats en cours."));
+                        JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("candidat.create.successList")));
                 PrimeFaces.current().ajax().update(":growl");
             } else if ("true".equals(error)) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Une erreur est survenue lors de la sauvegarde."));
+                        JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("candidat.error.saveFailed")));
                 PrimeFaces.current().ajax().update(":growl");
             }
         }
@@ -715,15 +720,16 @@ public class CandidatBean implements Serializable {
 
     private String getEntityTypeNameFromCandidat(Candidat candidat) {
         if (candidat == null || candidat.getTypeCode() == null) return "";
-        return switch (candidat.getTypeCode()) {
-            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
-            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
-            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
-            default -> candidat.getTypeCode();
+        String key = switch (candidat.getTypeCode()) {
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> "search.entity.collection";
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> "search.entity.reference";
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> "search.entity.category";
+            case EntityConstants.ENTITY_TYPE_GROUP -> "search.entity.group";
+            case EntityConstants.ENTITY_TYPE_SERIES -> "search.entity.series";
+            case EntityConstants.ENTITY_TYPE_TYPE -> "search.entity.type";
+            default -> null;
         };
+        return key != null ? JsfMessages.get(key) : candidat.getTypeCode();
     }
 
     /**
@@ -1186,7 +1192,8 @@ public class CandidatBean implements Serializable {
             // Vérifier que currentEntity existe
             if (currentEntity == null || currentEntity.getId() == null) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "Erreur", "L'entité n'a pas été créée. Veuillez compléter les étapes précédentes."));
+                                JsfMessages.get("common.growl.error"),
+                                JsfMessages.get("candidat.error.entityNotCreated")));
                 PrimeFaces.current().ajax().update(":growl");
                 return null;
             }
@@ -1195,7 +1202,8 @@ public class CandidatBean implements Serializable {
             Entity refreshedEntity = entityRepository.findById(currentEntity.getId()).orElse(null);
             if (refreshedEntity == null) {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        "Erreur", "L'entité n'a pas été trouvée dans la base de données."));
+                        JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("candidat.error.entityNotFoundDb")));
                 PrimeFaces.current().ajax().update(":growl");
                 return null;
             }
@@ -1260,21 +1268,23 @@ public class CandidatBean implements Serializable {
         CandidatSauvegardeResult result = candidatSauvegardeService.executeSauvegarde(req);
         FacesContext fc = FacesContext.getCurrentInstance();
         if (result.isSuccess()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", result.getSuccessMessage()));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    JsfMessages.get("common.growl.success"), result.getSuccessMessage()));
             resetWizardFormCompletely();
             currentStep = 0;
                 PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
             PrimeFaces.current().executeScript("setTimeout(function(){window.location.href='/candidats/candidats.xhtml';}, 1500);");
         } else {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", result.getErrorMessage()));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    JsfMessages.get("common.growl.error"), result.getErrorMessage()));
                 PrimeFaces.current().ajax().update(":growl", ":createCandidatForm");
         }
     }
 
     public void prepareValidateCandidat(Candidat candidat) throws Exception {
-        if (candidat == null) throw new Exception("Candidat null");
+        if (candidat == null) throw new Exception(JsfMessages.get("candidat.visualisation.candidateNull"));
         CandidatVisualisationService.PrepareValidateResult res = candidatVisualisationService.prepareValidate(candidat.getId());
-        if (!res.success()) throw new Exception(res.errorMessage() != null ? res.errorMessage() : "Le candidat n'existe pas");
+        if (!res.success()) throw new Exception(res.errorMessage() != null ? res.errorMessage() : JsfMessages.get("candidat.visualisation.candidateNotExists"));
         candidatAValider = candidat;
         selectedEntityTypeId = res.entityTypeId();
         candidatLabels = res.labels() != null ? new ArrayList<>(res.labels()) : new ArrayList<>();
@@ -1301,7 +1311,8 @@ public class CandidatBean implements Serializable {
         if (!missing.isEmpty()) {
             FacesContext fc = FacesContext.getCurrentInstance();
             for (String m : missing) {
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Champs obligatoires", m));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        JsfMessages.get("common.growl.requiredFields"), m));
             }
             PrimeFaces.current().ajax().update(":growl");
             return;
@@ -1323,7 +1334,8 @@ public class CandidatBean implements Serializable {
         if (!missing.isEmpty()) {
             FacesContext fc = FacesContext.getCurrentInstance();
             for (String m : missing) {
-                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Champs obligatoires", m));
+                fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        JsfMessages.get("common.growl.requiredFields"), m));
             }
             PrimeFaces.current().ajax().update(":growl");
             return;
@@ -1341,7 +1353,7 @@ public class CandidatBean implements Serializable {
         candidatPourDemandeValidation = null;
         if (id == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucune fiche sélectionnée."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("candidat.error.noRecordSelected")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -1351,11 +1363,12 @@ public class CandidatBean implements Serializable {
         chargerCandidats();
         FacesContext fc = FacesContext.getCurrentInstance();
         if (r.success()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", r.message()));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    JsfMessages.get("common.growl.success"), r.message()));
             entityRepository.findById(id).ifPresent(e -> currentEntity = e);
         } else {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                    r.errorMessage() != null ? r.errorMessage() : "Action impossible."));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("common.action.impossible")));
         }
         String viewId = fc.getViewRoot().getViewId();
         if (viewId != null && viewId.contains("/candidats/view.xhtml")) {
@@ -1375,8 +1388,8 @@ public class CandidatBean implements Serializable {
             } else {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun candidat sélectionné pour refus."));
+                    JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("candidat.error.noCandidateForRefusal")));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -1398,8 +1411,8 @@ public class CandidatBean implements Serializable {
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun candidat sélectionné pour remise en brouillon."));
+                    JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("candidat.error.noCandidateForDraft")));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -1421,8 +1434,8 @@ public class CandidatBean implements Serializable {
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun candidat sélectionné pour validation."));
+                    JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("candidat.error.noCandidateForValidation")));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -1437,8 +1450,8 @@ public class CandidatBean implements Serializable {
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur",
-                    "Aucun candidat sélectionné pour suppression."));
+                    JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("candidat.error.noCandidateForDeletion")));
             PrimeFaces.current().ajax().update(":growl");
         }
     }
@@ -1530,7 +1543,7 @@ public class CandidatBean implements Serializable {
     }
 
     public String validerCandidatFromView() {
-        if (currentEntity == null || currentEntity.getId() == null) { addErrorMessage("Aucune entité à valider."); return null; }
+        if (currentEntity == null || currentEntity.getId() == null) { addErrorMessage(JsfMessages.get("candidat.validation.noEntityToValidate")); return null; }
         ActionResult r = candidatValidationActionService.validerCandidatFromView(currentEntity.getId(), selectedAuteurs,
                 attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion, loginBean.getCurrentUser());
         if (r.success()) { candidatsLoaded = false; chargerCandidats(); addInfoMessage(r.message()); return r.redirectUrl(); }
@@ -1538,7 +1551,7 @@ public class CandidatBean implements Serializable {
     }
 
     public String refuserCandidatFromView() {
-        if (currentEntity == null || currentEntity.getId() == null) { addErrorMessage("Aucune entité à refuser."); return null; }
+        if (currentEntity == null || currentEntity.getId() == null) { addErrorMessage(JsfMessages.get("candidat.validation.noEntityToRefuse")); return null; }
         ActionResult r = candidatValidationActionService.refuserCandidatFromView(currentEntity.getId(), selectedAuteurs,
                 attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion, loginBean.getCurrentUser());
         if (r.success()) { candidatsLoaded = false; chargerCandidats(); addInfoMessage(r.message()); return r.redirectUrl(); }
@@ -1548,9 +1561,11 @@ public class CandidatBean implements Serializable {
     private String applyActionResult(ActionResult r, String updateIds) {
         FacesContext fc = FacesContext.getCurrentInstance();
         if (r.success()) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", r.message()));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    JsfMessages.get("common.growl.success"), r.message()));
         } else {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", r.errorMessage() != null ? r.errorMessage() : "Erreur"));
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("common.growl.error")));
         }
         PrimeFaces.current().ajax().update(updateIds);
         return r.redirectUrl();
@@ -1603,13 +1618,13 @@ public class CandidatBean implements Serializable {
     /** Exécute l'enregistrement, retourne true si succès. Utilisé par GroupBean.saveEditingGroupe. */
     public boolean performEnregistrerModifications() {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité à enregistrer.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntityToSave"));
             return false;
         }
         CandidatVisualisationService.EnregistrerResult res = candidatVisualisationService.enregistrerModifications(currentEntity.getId(), selectedAuteurs,
                 attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
         if (res.success()) {
-            addInfoMessage("Les modifications ont été enregistrées avec succès.");
+            addInfoMessage(JsfMessages.get("common.save.success.detail"));
             candidatsLoaded = false;
             chargerCandidats();
             return true;
@@ -1642,25 +1657,25 @@ public class CandidatBean implements Serializable {
         CandidatLabelDescriptionService.AddLabelResult r = candidatLabelDescriptionService.addLabel(
                 currentEntity.getId(), newLabelValue, newLabelLangueCode, selectedLangueCode);
         if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de l'ajout du label.");
+            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("candidat.error.labelAddFailed"));
             return;
         }
         if (candidatLabels == null) candidatLabels = new ArrayList<>();
         candidatLabels.add(r.addedItem());
         newLabelValue = null;
         newLabelLangueCode = null;
-        addInfoMessage("Le label a été ajouté avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelAdded"));
     }
 
     public void removeCandidatLabel(CategoryLabelItem labelItem) {
         CandidatLabelDescriptionService.RemoveLabelResult r = candidatLabelDescriptionService.removeLabel(
                 currentEntity != null ? currentEntity.getId() : null, labelItem);
         if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de la suppression.");
+            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("candidat.error.removeFailed"));
             return;
         }
         if (candidatLabels != null) candidatLabels.remove(labelItem);
-        addInfoMessage("Le label a été supprimé avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelRemoved"));
     }
 
     public void removeTempCandidatLabel(CategoryLabelItem labelItem) {
@@ -1668,7 +1683,7 @@ public class CandidatBean implements Serializable {
         availableTmpLanguagesForLabel = availableLanguages.stream()
                 .filter(langue -> !candidatLabelDescriptionService.isLangueAlreadyUsedInLabels(langue.getCode(), candidatLabels))
                 .collect(Collectors.toList());
-        addInfoMessage("Le label a été supprimé avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelRemoved"));
     }
 
     public boolean isLangueAlreadyUsedIncandidatLabels(String langueCode, CategoryLabelItem currentItem) {
@@ -1697,11 +1712,11 @@ public class CandidatBean implements Serializable {
     public void addTempLabelFromInput() {
 
         if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
-            addErrorMessage("Le label est requis.");
+            addErrorMessage(JsfMessages.get("modifier.msg.labelRequired"));
             return;
         }
         if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) {
-            addErrorMessage("La langue est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.languageRequired"));
             return;
         }
 
@@ -1713,21 +1728,21 @@ public class CandidatBean implements Serializable {
                 .collect(Collectors.toList());
         newLabelValue = null;
         newLabelLangueCode = null;
-        addInfoMessage("Le label a été ajouté avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelAdded"));
     }
 
     public void addCandidatDescriptionFromInput() {
         CandidatLabelDescriptionService.AddDescriptionResult r = candidatLabelDescriptionService.addDescription(
                 currentEntity != null ? currentEntity.getId() : null, newDescriptionValue, newDescriptionLangueCode, descriptions);
         if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de l'ajout de la description.");
+            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("candidat.error.descriptionAddFailed"));
             return;
         }
         if (descriptions == null) descriptions = new ArrayList<>();
         descriptions.add(r.addedItem());
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
-        addInfoMessage("La description a été ajoutée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionAdded"));
     }
 
     public void addTempCandidatDescription() {
@@ -1735,12 +1750,12 @@ public class CandidatBean implements Serializable {
         if (descriptions == null) descriptions = new ArrayList<>();
 
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
-            addErrorMessage("La description est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.descriptionRequired"));
             return;
         }
 
         if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
-            addErrorMessage("La langue est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.languageRequired"));
             return;
         }
 
@@ -1752,18 +1767,18 @@ public class CandidatBean implements Serializable {
                 .toList();
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
-        addInfoMessage("La description a été ajoutée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionAdded"));
     }
 
     public void removeCandidatDescription(CategoryDescriptionItem descriptionItem) {
         CandidatLabelDescriptionService.RemoveDescriptionResult r = candidatLabelDescriptionService.removeDescription(
                 currentEntity != null ? currentEntity.getId() : null, descriptionItem);
         if (!r.success()) {
-            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : "Erreur lors de la suppression.");
+            addErrorMessage(r.errorMessage() != null ? r.errorMessage() : JsfMessages.get("candidat.error.removeFailed"));
             return;
         }
         if (descriptions != null) descriptions.remove(descriptionItem);
-        addInfoMessage("La description a été supprimée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionRemoved"));
     }
 
     public void removeTmpCandidatDescription(CategoryDescriptionItem descriptionItem) {
@@ -1773,7 +1788,7 @@ public class CandidatBean implements Serializable {
         availableTmpLanguagesForDefinition = availableLanguages.stream()
                 .filter(langue ->  !candidatLabelDescriptionService.isLangueAlreadyUsedInDescriptions(langue.getCode(), descriptions))
                 .toList();
-        addInfoMessage("La description a été supprimée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionRemoved"));
     }
 
     public boolean isLangueAlreadyUsedIndescriptions(String langueCode, CategoryDescriptionItem currentItem) {
@@ -1884,15 +1899,15 @@ public class CandidatBean implements Serializable {
 
     public void deleteFonctionUsage() {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité sélectionnée.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntitySelected"));
             return;
         }
         CandidatOpenThesoService.DeleteResult result = candidatOpenThesoService.deleteFonctionUsage(currentEntity.getId());
         if (result == CandidatOpenThesoService.DeleteResult.SUCCESS) {
             fonctionUsage = null;
-            addInfoMessage("La fonction/usage a été supprimée avec succès.");
+            addInfoMessage(JsfMessages.get("candidat.success.functionUsageDeleted"));
         } else {
-            addWarnMessage("Aucune fonction/usage à supprimer.");
+            addWarnMessage(JsfMessages.get("candidat.warn.noFunctionUsageToDelete"));
         }
             PrimeFaces.current().ajax().update(":growl");
     }
@@ -1906,39 +1921,42 @@ public class CandidatBean implements Serializable {
     public void saveDroit() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveDroit(currentEntity.getId(), droit);
-            addInfoMessage("Le droit a été enregistré.");
+            addInfoMessage(JsfMessages.get("candidat.success.obverseSaved"));
         }
     }
 
     public void saveLegendeDroit() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveLegendeDroit(currentEntity.getId(), legendeDroit);
-            addInfoMessage("La légende du droit a été enregistrée.");
+            addInfoMessage(JsfMessages.get("candidat.success.obverseLegendSaved"));
         }
     }
 
     public void saveRevers() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveRevers(currentEntity.getId(), revers);
-            addInfoMessage("Le revers a été enregistré.");
+            addInfoMessage(JsfMessages.get("candidat.success.reverseSaved"));
         }
     }
 
     public void saveLegendeRevers() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveLegendeRevers(currentEntity.getId(), legendeRevers);
-            addInfoMessage("La légende du revers a été enregistrée.");
+            addInfoMessage(JsfMessages.get("candidat.success.reverseLegendSaved"));
         }
     }
 
     private void addErrorMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), msg));
     }
     private void addInfoMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), msg));
     }
     private void addWarnMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), msg));
     }
 
     private boolean hasRef(java.util.function.Supplier<ReferenceOpentheso> getter, java.util.function.Function<Long, ReferenceOpentheso> loader, java.util.function.Consumer<ReferenceOpentheso> setter) {
@@ -2004,7 +2022,7 @@ public class CandidatBean implements Serializable {
     public void saveMetrologieMonnaie() {
         if (currentEntity != null && currentEntity.getId() != null) {
             candidatFormSaveService.saveMetrologieMonnaie(currentEntity.getId(), metrologieMonnaie);
-            addInfoMessage("La métrologie a été enregistrée.");
+            addInfoMessage(JsfMessages.get("candidat.success.metrologySaved"));
         }
     }
 
@@ -2084,11 +2102,11 @@ public class CandidatBean implements Serializable {
      */
     public String getEntityCodeFromCandidat() {
         if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
-            return "Non sélectionné";
+            return JsfMessages.get("common.notSelected");
         }
 
         Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
-        return entityOpt.isPresent() ? entityOpt.get().getCode() : "Non sélectionné";
+        return entityOpt.isPresent() ? entityOpt.get().getCode() : JsfMessages.get("common.notSelected");
     }
     
     /**
@@ -2096,7 +2114,7 @@ public class CandidatBean implements Serializable {
      */
     public String getParentCodeFromCandidat() {
         if (candidatSelectionne == null || candidatSelectionne.getId() == null) {
-            return "Non sélectionné";
+            return JsfMessages.get("common.notSelected");
         }
 
         Optional<Entity> entityOpt = entityRepository.findById(candidatSelectionne.getId());
@@ -2113,7 +2131,7 @@ public class CandidatBean implements Serializable {
                 }
             }
         }
-        return "Non sélectionné";
+        return JsfMessages.get("common.notSelected");
     }
 
     /**
@@ -2137,12 +2155,12 @@ public class CandidatBean implements Serializable {
 
     public void deleteAireCirculation(Long referenceId) {
         if (currentEntity == null || currentEntity.getId() == null) {
-            addErrorMessage("Aucune entité sélectionnée.");
+            addErrorMessage(JsfMessages.get("candidat.error.noEntitySelected"));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (referenceId == null) {
-            addErrorMessage("Aucune référence sélectionnée pour suppression.");
+            addErrorMessage(JsfMessages.get("candidat.error.noReferenceForDeletion"));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -2150,9 +2168,9 @@ public class CandidatBean implements Serializable {
         if (result == CandidatOpenThesoService.DeleteResult.SUCCESS) {
             currentEntity = entityRepository.findById(currentEntity.getId()).orElse(currentEntity);
             airesCirculation = candidatOpenThesoService.loadAiresCirculation(currentEntity.getId());
-            addInfoMessage("L'aire de circulation a été supprimée avec succès.");
+            addInfoMessage(JsfMessages.get("candidat.success.circulationAreaDeleted"));
             } else {
-            addWarnMessage("La référence sélectionnée n'existe pas ou n'appartient pas à cette entité.");
+            addWarnMessage(JsfMessages.get("candidat.warn.referenceNotFoundForEntity"));
         }
             PrimeFaces.current().ajax().update(":growl");
     }
@@ -2239,7 +2257,7 @@ public class CandidatBean implements Serializable {
         Entity entityToDelete = entityRepository.findById(currentEntity.getId()).orElse(null);
         if (entityToDelete != null) {
             candidatEntityService.deleteEntityWithRelations(entityToDelete);
-            addInfoMessage("La proposition a été abandonnée et supprimée.");
+            addInfoMessage(JsfMessages.get("candidat.success.proposalAbandoned"));
         }
         resetWizardFormCompletely();
         currentEntity = null;

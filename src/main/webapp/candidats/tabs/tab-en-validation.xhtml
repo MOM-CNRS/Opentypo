@@ -35,7 +35,7 @@
                         <h:outputText value="#{candidat.label}"/>
                     </div>
                 </p:column>
-                <p:column headerText="Date création" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
+                <p:column headerText="#{msg['candidat.table.createDate']}" sortBy="#{candidat.dateCreation}" styleClass="users-col-date">
                     <div class="date-cell">
                         <i class="pi pi-calendar"/>
                         <h:outputText value="#{candidat.dateCreation}">
@@ -43,7 +43,7 @@
                         </h:outputText>
                     </div>
                 </p:column>
-                <p:column headerText="Créateur" styleClass="users-col-creator">
+                <p:column headerText="#{msg['candidat.table.creator']}" styleClass="users-col-creator">
                     <div class="user-info-cell">
                         <div class="user-name">#{candidat.createur}</div>
                     </div>

@@ -7,7 +7,7 @@
     <!-- Dialog générique de confirmation de sauvegarde (référentiel, catégorie, groupe, série, type) -->
     <p:dialog id="confirmSaveDialog"
               widgetVar="confirmSaveDialog"
-              header="Confirmer la sauvegarde"
+              header="#{msg['confirmSave.dialog.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -23,8 +23,8 @@
                     <i class="pi pi-save reference-confirm-header-icon"/>
                 </div>
                 <div class="reference-confirm-header-content">
-                    <h3 class="reference-confirm-header-title">Confirmer la sauvegarde</h3>
-                    <p class="reference-confirm-header-subtitle">Voulez-vous enregistrer les modifications ?</p>
+                    <h3 class="reference-confirm-header-title">#{msg['confirmSave.dialog.header']}</h3>
+                    <p class="reference-confirm-header-subtitle">#{msg['confirmSave.dialog.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -41,7 +41,7 @@
 
             <h:form id="confirmSaveForm" styleClass="reference-confirm-form">
                 <div class="reference-confirm-actions">
-                    <p:commandButton value="Annuler"
+                    <p:commandButton value="#{msg['confirmSave.dialog.cancel']}"
                                      icon="pi pi-times"
                                      styleClass="reference-confirm-btn reference-confirm-btn-cancel"
                                      action="#{entityUpdateBean.revertPendingFileUploads()}"
@@ -49,7 +49,7 @@
                                      update=":mainContentArea :growl"
                                      oncomplete="PF('confirmSaveDialog').hide();"/>
 
-                    <p:commandButton value="Oui, enregistrer"
+                    <p:commandButton value="#{msg['confirmSave.dialog.confirm']}"
                                      icon="pi pi-check"
                                      action="#{confirmSaveBean.performSaveAndRedirect()}"
                                      process="@this"

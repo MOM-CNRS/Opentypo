@@ -5,6 +5,7 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.CommentaireRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -85,7 +86,7 @@ public class CommentaireBean implements Serializable {
      */
     public String getAuthorDisplayName(Commentaire commentaire) {
         if (commentaire == null || commentaire.getUtilisateur() == null) {
-            return "Anonyme";
+            return JsfMessages.get("comment.anonymous");
         }
         Utilisateur u = commentaire.getUtilisateur();
         return (u.getPrenom() != null ? u.getPrenom() + " " : "") + (u.getNom() != null ? u.getNom() : "");
@@ -97,28 +98,33 @@ public class CommentaireBean implements Serializable {
     @Transactional
     public void addCommentaire() {
         if (!loginBean.isAuthenticated()) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Non autorisé", "Vous devez être connecté pour publier un commentaire.");
+            addMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("comment.error.unauthorized"),
+                    JsfMessages.get("comment.error.mustLogin"));
             return;
         }
         String contenu = newCommentContenu != null ? newCommentContenu.trim() : "";
         if (contenu.isEmpty()) {
-            addMessage(FacesMessage.SEVERITY_WARN, "Champ requis", "Veuillez saisir un commentaire.");
+            addMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.fieldRequired"),
+                    JsfMessages.get("comment.warn.contentRequired"));
             return;
         }
         Entity entity = applicationBean.getSelectedEntity();
         if (entity == null || entity.getId() == null) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune entité sélectionnée.");
+            addMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("comment.error.noEntity"));
             return;
         }
         Entity managedEntity = entityRepository.findById(entity.getId()).orElse(null);
         if (managedEntity == null) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Entité introuvable.");
+            addMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("comment.error.entityNotFound"));
             return;
         }
         managedEntity.addCommentaire(contenu, loginBean.getCurrentUser());
         entityRepository.save(managedEntity);
         newCommentContenu = "";
-        addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire publié.");
+        addMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.get("comment.success.published"));
         PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
@@ -150,7 +156,8 @@ public class CommentaireBean implements Serializable {
         if (editingCommentId == null) return;
         String contenu = editingCommentContenu != null ? editingCommentContenu.trim() : "";
         if (contenu.isEmpty()) {
-            addMessage(FacesMessage.SEVERITY_WARN, "Champ requis", "Le commentaire ne peut pas être vide.");
+            addMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.fieldRequired"),
+                    JsfMessages.get("comment.warn.emptyEdit"));
             return;
         }
         Optional<Commentaire> opt = commentaireRepository.findById(editingCommentId);
@@ -160,14 +167,16 @@ public class CommentaireBean implements Serializable {
         }
         Commentaire c = opt.get();
         if (!isCommentOwner(c)) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Non autorisé", "Vous ne pouvez modifier que vos propres commentaires.");
+            addMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("comment.error.unauthorized"),
+                    JsfMessages.get("comment.error.editOwnOnly"));
             cancelEditComment();
             return;
         }
         c.setContenu(contenu);
         commentaireRepository.save(c);
         cancelEditComment();
-        addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire modifié.");
+        addMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.get("comment.success.edited"));
         PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 
@@ -177,11 +186,13 @@ public class CommentaireBean implements Serializable {
     @Transactional
     public void deleteCommentaire(Commentaire commentaire) {
         if (commentaire == null || !isCommentOwner(commentaire)) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Non autorisé", "Vous ne pouvez supprimer que vos propres commentaires.");
+            addMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("comment.error.unauthorized"),
+                    JsfMessages.get("comment.error.deleteOwnOnly"));
             return;
         }
         commentaireRepository.delete(commentaire);
-        addMessage(FacesMessage.SEVERITY_INFO, "Succès", "Commentaire supprimé.");
+        addMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.get("comment.success.deleted"));
         PrimeFaces.current().ajax().update(":contentPanels :growl");
     }
 

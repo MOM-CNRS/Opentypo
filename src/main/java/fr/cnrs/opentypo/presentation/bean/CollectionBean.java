@@ -20,6 +20,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -309,7 +310,7 @@ public class CollectionBean implements Serializable {
         Entity collection = applicationBean.getSelectedCollection();
         if (collection == null || collection.getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune typologie sélectionnée."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.collection")));
             return;
         }
         try {
@@ -319,13 +320,13 @@ public class CollectionBean implements Serializable {
             Entity saved = entityRepository.save(refreshed);
             applicationBean.setSelectedEntity(saved);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                            targetStatus ? "La typologie est maintenant publique." : "La typologie est maintenant privée."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                            targetStatus ? JsfMessages.get("entity.visibility.collection.nowPublic") : JsfMessages.get("entity.visibility.collection.nowPrivate")));
             log.info("Visibilité de la typologie {} modifiée: {}", saved.getCode(), targetStatus ? "publique" : "privée");
         } catch (Exception e) {
             log.error("Erreur lors du changement de visibilité", e);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Une erreur est survenue : " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.format("common.error.generic", e.getMessage())));
         } finally {
             requestedVisibilityStatus = null;
         }
@@ -335,14 +336,16 @@ public class CollectionBean implements Serializable {
     public String getVisibilityConfirmMessage() {
         if (requestedVisibilityStatus == null) return "";
         return requestedVisibilityStatus
-                ? "Voulez-vous rendre cette typologie publique ? Elle sera visible par tous les utilisateurs."
-                : "Voulez-vous rendre cette typologie privée ? Seuls les utilisateurs autorisés pourront y accéder.";
+                ? JsfMessages.get("entity.visibility.confirm.collection.public")
+                : JsfMessages.get("entity.visibility.confirm.collection.private");
     }
 
     /** Titre du dialog selon le changement demandé */
     public String getVisibilityConfirmTitle() {
-        if (requestedVisibilityStatus == null) return "Changer la visibilité";
-        return requestedVisibilityStatus ? "Rendre la typologie publique" : "Rendre la typologie privée";
+        if (requestedVisibilityStatus == null) return JsfMessages.get("entity.visibility.confirm.collection.title");
+        return requestedVisibilityStatus
+                ? JsfMessages.get("entity.visibility.confirm.collection.makePublic")
+                : JsfMessages.get("entity.visibility.confirm.collection.makePrivate");
     }
 
     /**
@@ -372,8 +375,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Le nom est requis."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.fieldNameRequired")));
             }
             return;
         }
@@ -383,8 +386,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "La langue est requise."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.languageRequired")));
             }
             return;
         }
@@ -395,8 +398,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Cette langue est déjà utilisée pour un autre nom."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.languageAlreadyUsedName")));
             }
             return;
         }
@@ -413,8 +416,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Une typologie existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.format("entity.validation.collectionNameExists", nomTrimmed, langueNom)));
             }
             return;
         }
@@ -474,8 +477,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "La description est requise."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.descriptionRequired")));
             }
             return;
         }
@@ -485,8 +488,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "La langue est requise."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.languageRequired")));
             }
             return;
         }
@@ -497,8 +500,8 @@ public class CollectionBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "Attention",
-                        "Cette langue est déjà utilisée pour une autre description."));
+                        JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("common.validation.languageAlreadyUsedDescription")));
             }
             return;
         }
@@ -613,18 +616,18 @@ public class CollectionBean implements Serializable {
 
         // Validation : au moins un nom doit être défini
         if (collectionNames == null || collectionNames.isEmpty()) {
-            addErrorMessage("Au moins un nom est requis.");
+            addErrorMessage(JsfMessages.get("common.validation.nameRequired"));
             return;
         }
 
         // Validation : tous les noms doivent avoir un nom et une langue
         for (NameItem nameItem : collectionNames) {
             if (nameItem.getNom() == null || nameItem.getNom().trim().isEmpty()) {
-                addErrorMessage("Tous les noms doivent avoir une valeur.");
+                addErrorMessage(JsfMessages.get("common.validation.nameValueRequired"));
                 return;
             }
             if (nameItem.getLangueCode() == null || nameItem.getLangueCode().trim().isEmpty()) {
-                addErrorMessage("Tous les noms doivent avoir une langue sélectionnée.");
+                addErrorMessage(JsfMessages.get("common.validation.nameLanguageRequired"));
                 return;
             }
         }
@@ -633,7 +636,7 @@ public class CollectionBean implements Serializable {
         List<String> languesUtiliseesNames = new ArrayList<>();
         for (NameItem nameItem : collectionNames) {
             if (languesUtiliseesNames.contains(nameItem.getLangueCode())) {
-                addErrorMessage("Chaque langue ne peut être utilisée qu'une seule fois pour les noms.");
+                addErrorMessage(JsfMessages.get("common.validation.languageUnique"));
                 return;
             }
             languesUtiliseesNames.add(nameItem.getLangueCode());
@@ -643,7 +646,7 @@ public class CollectionBean implements Serializable {
         for (DescriptionItem descriptionItem : collectionDescriptions) {
             if (descriptionItem.getValeur() != null && !descriptionItem.getValeur().trim().isEmpty()) {
                 if (descriptionItem.getLangueCode() == null || descriptionItem.getLangueCode().trim().isEmpty()) {
-                    addErrorMessage("Toutes les descriptions doivent avoir une langue sélectionnée.");
+                    addErrorMessage(JsfMessages.get("common.validation.descriptionLanguageRequired"));
                     return;
                 }
             }
@@ -657,8 +660,8 @@ public class CollectionBean implements Serializable {
         applicationBean.loadAllCollections();
         searchBean.loadCollections();
 
-        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                "La typologie '" + collectionNames.getFirst().getNom().trim() + "' a été créée avec succès."));
+        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.format("entity.create.success.collection", collectionNames.getFirst().getNom().trim())));
 
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :collectionForm, "
                 + ViewConstants.COMPONENT_CARDS_CONTAINER + ", :searchForm");
@@ -672,7 +675,7 @@ public class CollectionBean implements Serializable {
         // Utiliser le premier nom comme nom principal et code
         EntityType collectionType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_COLLECTION)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Le type d'entité '" + EntityConstants.ENTITY_TYPE_COLLECTION + "' n'existe pas dans la base de données."));
+                        JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_COLLECTION)));
 
         Entity nouvelleCollection = new Entity();
         nouvelleCollection.setCode(collectionNames.getFirst().getNom().trim().toUpperCase());
@@ -749,7 +752,7 @@ public class CollectionBean implements Serializable {
     private void addErrorMessage(String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
+            new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), message));
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :collectionForm");
     }
 
@@ -760,12 +763,12 @@ public class CollectionBean implements Serializable {
     public void deleteCollection(ApplicationBean applicationBean) {
         if (!canDeleteCollection(applicationBean)) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Vous n'avez pas les droits pour supprimer cette collection."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.permission.delete.collection")));
             return;
         }
         if (applicationBean.getSelectedEntity() == null || applicationBean.getSelectedEntity().getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Aucune typologie sélectionnée."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("entity.none.collection")));
             return;
         }
 
@@ -792,8 +795,8 @@ public class CollectionBean implements Serializable {
         // Afficher un message de succès
         if (FacesContext.getCurrentInstance() != null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "La typologie '" + collectionName + "' et toutes ses entités rattachées ont été supprimées avec succès."));
+                    JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.delete.success.collection", collectionName)));
         }
 
         // Afficher le panel des collections

@@ -23,7 +23,7 @@
                 </div>
                 <div class="reference-delete-header-content">
                     <h3 class="reference-delete-header-title">#{confirmDeleteBean.dialogTitle}</h3>
-                    <p class="reference-delete-header-subtitle">Cette action est irréversible</p>
+                    <p class="reference-delete-header-subtitle">#{msg['dialog.delete.confirm.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -35,13 +35,14 @@
                 </div>
                 <div class="reference-delete-message-content">
                     <p class="reference-delete-message-text">
-                        <strong>Attention !</strong> Vous êtes sur le point de supprimer #{confirmDeleteBean.entityTypeLabel}
+                        <h:outputText value="#{msg['dialog.delete.confirm.warning']} " escape="false"/>
+                        #{msg['dialog.delete.confirm.aboutToDelete']} #{confirmDeleteBean.entityTypeLabel}
                         <strong>"#{confirmDeleteBean.entityLabel}"</strong>
                         <ui:fragment rendered="#{confirmDeleteBean.hasDetailsList}">
-                            ainsi que <strong>toutes les entités</strong> qui lui sont rattachées :
+                            <h:outputText value=" #{msg['dialog.delete.confirm.attachedEntities']}" escape="false"/>
                         </ui:fragment>
                         <ui:fragment rendered="#{not confirmDeleteBean.hasDetailsList}">
-                            ainsi que toutes les entités qui lui sont rattachées.
+                            #{msg['dialog.delete.confirm.attachedEntitiesSimple']}
                         </ui:fragment>
                     </p>
                     <ul class="reference-delete-list" rendered="#{confirmDeleteBean.hasDetailsList}">
@@ -50,13 +51,13 @@
                         </ui:repeat>
                     </ul>
                     <p class="reference-delete-warning-text">
-                        Cette action est <strong>définitive et irréversible</strong>. Êtes-vous sûr de vouloir continuer ?
+                        <h:outputText value="#{msg['dialog.delete.confirm.finalWarning']}" escape="false"/>
                     </p>
                 </div>
             </div>
 
             <div class="reference-delete-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                  icon="pi pi-times"
                                  type="button"
                                  styleClass="reference-delete-btn reference-delete-btn-cancel"
@@ -64,7 +65,7 @@
                                  update="@none"
                                  onclick="PF('confirmDeleteDialog').hide(); return false;"/>
 
-                <p:commandButton value="Oui, supprimer"
+                <p:commandButton value="#{msg['common.action.yesDelete']}"
                                  icon="pi pi-trash"
                                  action="#{confirmDeleteBean.performDelete()}"
                                  process="@this"

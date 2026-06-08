@@ -4,6 +4,7 @@ import fr.cnrs.opentypo.application.dto.GroupEnum;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
 import fr.cnrs.opentypo.infrastructure.security.OpentypoAuthSupport;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -63,13 +64,15 @@ public class LoginBean implements Serializable {
     public void login(ApplicationBean applicationBean) {
         // Validation des champs
         if (username == null || username.trim().isEmpty()) {
-            notificationBean.showErrorWithUpdate("Champ requis", "Veuillez saisir votre email.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.fieldRequired"),
+                    JsfMessages.get("login.error.emailRequired"),
                 ":loginForm:loginMessages");
             return;
         }
         
         if (password == null || password.trim().isEmpty()) {
-            notificationBean.showErrorWithUpdate("Champ requis", "Veuillez saisir votre mot de passe.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.fieldRequired"),
+                    JsfMessages.get("login.error.passwordRequired"),
                 ":loginForm:loginMessages");
             return;
         }
@@ -82,8 +85,8 @@ public class LoginBean implements Serializable {
             
             // Vérifier si le compte est actif AVANT de vérifier le mot de passe
             if (utilisateur.getActive() == null || !utilisateur.getActive()) {
-                notificationBean.showErrorWithUpdate("Compte désactivé",
-                    "Votre compte a été désactivé. Veuillez contacter un administrateur pour plus d'informations.",
+                notificationBean.showErrorWithUpdate(JsfMessages.get("login.error.accountDisabled.summary"),
+                    JsfMessages.get("login.error.accountDisabled.detail"),
                     ":loginForm:loginMessages");
                 password = null;
                 PrimeFaces.current().ajax().update(":loginForm:loginMessages, :loginForm:password");
@@ -121,8 +124,8 @@ public class LoginBean implements Serializable {
                 treeBean.initializeTreeWithCollection();
             }
 
-            notificationBean.showSuccessWithUpdate("Connexion réussie",
-                "Bienvenue dans votre espace de recherche, " + displayName + ".",
+            notificationBean.showSuccessWithUpdate(JsfMessages.get("login.success.title"),
+                JsfMessages.format("login.success.welcome", displayName),
                 ":growl, :headerForm, :sidebarForm, :create-collection-section, :centerContent");
             
             // Réinitialiser les champs
@@ -131,8 +134,8 @@ public class LoginBean implements Serializable {
             // Fermer le dialogue après un court délai pour permettre l'affichage du message de succès
             PrimeFaces.current().executeScript("setTimeout(function(){PF('loginDialog').hide();}, 300);");
         } else {
-            notificationBean.showErrorWithUpdate("Échec de l'authentification",
-                "Les identifiants saisis sont incorrects. Veuillez réessayer.",
+            notificationBean.showErrorWithUpdate(JsfMessages.get("login.error.authFailed.summary"),
+                JsfMessages.get("login.error.authFailed.detail"),
                 ":loginForm:loginMessages");
             
             // Réinitialiser le mot de passe pour sécurité
@@ -162,10 +165,10 @@ public class LoginBean implements Serializable {
         boolean isOnIndexPage = viewId != null && viewId.contains("/index.xhtml");
         
         // Afficher le message de déconnexion
-        notificationBean.showInfo("Déconnexion",
-            previousUser != null 
-                ? "Au revoir, " + previousUser + ". Vous avez été déconnecté avec succès."
-                : "Vous avez été déconnecté avec succès.");
+        notificationBean.showInfo(JsfMessages.get("login.logout.title"),
+            previousUser != null
+                ? JsfMessages.format("login.logout.goodbye", previousUser)
+                : JsfMessages.get("login.logout.success"));
         
         // Si on n'est pas déjà sur index.xhtml, rediriger
         if (!isOnIndexPage) {
@@ -189,7 +192,7 @@ public class LoginBean implements Serializable {
         }
         return authenticated && userBean.getUsername() != null 
             ? userBean.getUsername() 
-            : "Non connecté";
+            : JsfMessages.get("login.notConnected");
     }
 
     /**

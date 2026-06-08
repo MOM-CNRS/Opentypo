@@ -28,7 +28,7 @@
                                  process="@this"
                                  update=":orderListDialog"
                                  oncomplete="PF('orderListDialog').show();"/>
-                <p:commandButton value="Créer une nouvelle référence"
+                <p:commandButton value="#{msg['list.action.createReference']}"
                                  icon="pi pi-plus"
                                  rendered="#{referenceBean.canCreateReference(applicationBean)}"
                                  styleClass="collection-create-btn"

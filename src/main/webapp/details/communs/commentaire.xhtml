@@ -20,7 +20,7 @@
                                 #{applicationBean.selectedEntity.metadataCommentaire}
                             </ui:fragment>
                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.metadataCommentaire}">
-                                <span class="empty-field-message">Non renseigné</span>
+                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                             </ui:fragment>
                         </div>
                     </div>

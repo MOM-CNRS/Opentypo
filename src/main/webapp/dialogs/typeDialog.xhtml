@@ -5,7 +5,7 @@
 
     <!-- Dialog pour créer un nouveau type (code uniquement) -->
     <p:dialog id="typeDialog"
-              header="Créer un nouveau type"
+              header="#{msg['dialog.type.create.header']}"
               widgetVar="typeDialog"
               modal="true"
               draggable="false"
@@ -37,13 +37,13 @@
             </div>
 
             <div class="reference-form-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"
                                onclick="PF('typeDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Valider"
+                <p:commandButton value="#{msg['common.action.validate']}"
                                icon="pi pi-check"
                                styleClass="reference-btn reference-btn-validate"
                                action="#{typeBean.createTypeFromDialog}"

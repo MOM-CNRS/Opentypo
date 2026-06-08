@@ -7,12 +7,12 @@
         <h:panelGroup rendered="#{not candidatBean.getCollectionLabel() == 'MONNAIE' and not candidatBean.getCollectionLabel() == 'CASH'}">
             <!-- Appellation usuelle -->
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Appellation usuelle" />
+                <p:outputLabel value="#{msg['modifier.field.usualNames']}" />
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-align-left input-icon" />
                     <p:inputText value="#{candidatBean.descriptionPate}"
                                  styleClass="users-input"
-                                 placeholder="Saisissez la description de la pâte..."
+                                 placeholder="#{msg['modifier.placeholder.pasteDescription']}"
                                  maxlength="1000"
                                  rendered="#{candidatBean.canEditCurrentBrouillon()}">
                         <p:ajax event="blur" listener="#{candidatBean.saveDescriptionPate}" process="@this" update="@none"/>
@@ -20,7 +20,7 @@
                     <p:inputText value="#{candidatBean.descriptionPate}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <p:message for="@previous" display="icon"/>
@@ -29,7 +29,7 @@
 
         <!-- Commentaire datation -->
         <div class="users-form-group users-form-group-full candidats-mt-15">
-            <p:outputLabel value="Commentaire datation" />
+            <p:outputLabel value="#{msg['modifier.field.datingComment']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-align-left input-icon" />
@@ -41,7 +41,7 @@
                     <p:inputText value="#{candidatBean.candidatCommentaireDatation}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Non renseigné"
+                                 placeholder="#{msg['common.empty.notProvided']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">

@@ -31,7 +31,7 @@
                     </span>
                 </ui:fragment>
                 <ui:fragment rendered="#{treeBean.isKnownToHaveNoChildren(node) or treeBean.isLeafEntityType(node)}">
-                    <span class="simple-tree-leaf-placeholder" aria-hidden="true" title="Aucun sous-élément">
+                    <span class="simple-tree-leaf-placeholder" aria-hidden="true" title="#{msg['tree.noChildren']}">
                         <i class="pi pi-circle simple-tree-leaf-placeholder-icon"/>
                     </span>
                 </ui:fragment>

@@ -10,7 +10,7 @@
         <!-- Rédacteurs -->
         <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Assigner des rédacteurs" />
+                <p:outputLabel value="#{msg['candidat.form.assignRedacteurs']}" />
                 <div class="candidats-validateurs-picklist-row">
                     <p:pickList id="redacteursPickList"
                                 value="#{candidatBean.redacteursPickList}"
@@ -26,7 +26,7 @@
                                 targetFilterPlaceholder="Rechercher..."
                                 responsive="true"
                                 rendered="#{not empty candidatBean.redacteursList}"/>
-                    <p:commandButton value="Assigner"
+                    <p:commandButton value="#{msg['common.action.assign']}"
                                      icon="pi pi-user-plus"
                                      styleClass="candidat-btn-add candidats-ml-10"
                                      action="#{candidatBean.assignRedacteurs}"
@@ -34,7 +34,7 @@
                                      update=":growl, :intervenantsSection"/>
                 </div>
                 <h:panelGroup rendered="#{empty candidatBean.redacteursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun rédacteur disponible</span>
+                    <span>#{msg['modifier.role.editors.none']}</span>
                 </h:panelGroup>
             </div>
         </div>
@@ -42,7 +42,7 @@
         <!-- Relecteurs -->
         <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Assigner des relecteurs" />
+                <p:outputLabel value="#{msg['candidat.form.assignRelecteurs']}" />
                 <div class="candidats-validateurs-picklist-row">
                     <p:pickList id="relecteursPickList"
                                 value="#{candidatBean.relecteursPickList}"
@@ -58,7 +58,7 @@
                                 targetFilterPlaceholder="Rechercher..."
                                 responsive="true"
                                 rendered="#{not empty candidatBean.relecteursList}"/>
-                    <p:commandButton value="Assigner"
+                    <p:commandButton value="#{msg['common.action.assign']}"
                                      icon="pi pi-user-plus"
                                      styleClass="candidat-btn-add candidats-ml-10"
                                      action="#{candidatBean.assignRelecteurs}"
@@ -66,7 +66,7 @@
                                      update=":growl, :intervenantsSection"/>
                 </div>
                 <h:panelGroup rendered="#{empty candidatBean.relecteursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun relecteur disponible</span>
+                    <span>#{msg['modifier.role.proofreaders.none']}</span>
                 </h:panelGroup>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <!-- Validateurs -->
         <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
             <div class="users-form-group users-form-group-full">
-                <p:outputLabel value="Inviter des validateurs" />
+                <p:outputLabel value="#{msg['candidat.form.inviteValidators']}" />
                 <div class="candidats-validateurs-picklist-row">
                     <p:pickList id="validateursPickList"
                                 value="#{candidatBean.validateursPickList}"
@@ -90,7 +90,7 @@
                                 targetFilterPlaceholder="Rechercher..."
                                 responsive="true"
                                 rendered="#{not empty candidatBean.validateursList}"/>
-                    <p:commandButton value="Envoyer invitation"
+                    <p:commandButton value="#{msg['common.action.sendInvitation']}"
                                      icon="pi pi-send"
                                      styleClass="candidat-btn-add candidats-ml-10"
                                      action="#{candidatBean.prepareSendValidateurInvitation}"
@@ -99,7 +99,7 @@
                                      oncomplete="if (!args.validationFailed) { PF('confirmValidateurInvitationDialog').show(); }"/>
                 </div>
                 <h:panelGroup rendered="#{empty candidatBean.validateursList}" class="group-dialog-no-relecteurs">
-                    <span>Aucun validateur disponible</span>
+                    <span>#{msg['modifier.role.validators.none']}</span>
                 </h:panelGroup>
             </div>
         </div>

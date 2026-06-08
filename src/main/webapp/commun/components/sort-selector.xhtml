@@ -10,39 +10,39 @@
         - sizeGt1 : condition d'affichage (ex: applicationBean.childsReferencesSize gt 1)
         Paramètres optionnels :
         - styleClass : classe CSS du wrapper (défaut: references-sort-selector)
-        - label : libellé affiché (défaut: Ordre)
+        - label : libellé affiché (défaut: clé sort.label)
         - optionClassPrefix : préfixe des classes des boutons (défaut: references-sort, ou collections-sort pour la page collections)
     -->
     <ui:param name="styleClass" value="references-sort-selector"/>
-    <ui:param name="label" value="Ordre"/>
+    <ui:param name="label" value=""/>
     <ui:param name="optionClassPrefix" value="references-sort"/>
     <h:panelGroup layout="block" styleClass="#{styleClass}" rendered="#{sizeGt1}">
         <span class="#{optionClassPrefix}-selector-label">
             <i class="pi pi-sort-amount-down-alt"/>
-            <span>#{label}</span>
+            <span>#{empty label ? msg['sort.label'] : label}</span>
         </span>
         <div class="#{optionClassPrefix}-segmented">
-            <p:commandButton value="Personnalisé"
+            <p:commandButton value="#{msg['sort.custom']}"
                              icon="pi pi-bars"
                              styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'MANUAL') ? optionClassPrefix.concat('-option-active') : ''}"
-                             title="Ordre personnalisé (réorganisable)"
+                             title="#{msg['sort.custom.title']}"
                              action="#{applicationBean.setSortMode(listType, 'MANUAL')}"
                              process="@this"
                              ajax="true"
                              update="#{updateId}"
                              rendered="#{applicationBean.hasCustomOrder(listType)}"/>
-            <p:commandButton value="A → Z"
+            <p:commandButton value="#{msg['sort.asc']}"
                              icon="pi pi-sort-alpha-down"
                              styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'ALPHA_ASC') ? optionClassPrefix.concat('-option-active') : ''}"
-                             title="Alphabétique croissant"
+                             title="#{msg['sort.asc.title']}"
                              action="#{applicationBean.setSortMode(listType, 'ALPHA_ASC')}"
                              process="@this"
                              ajax="true"
                              update="#{updateId}"/>
-            <p:commandButton value="Z → A"
+            <p:commandButton value="#{msg['sort.desc']}"
                              icon="pi pi-sort-alpha-up"
                              styleClass="#{optionClassPrefix}-option #{applicationBean.isSortMode(listType, 'ALPHA_DESC') ? optionClassPrefix.concat('-option-active') : ''}"
-                             title="Alphabétique décroissant"
+                             title="#{msg['sort.desc.title']}"
                              action="#{applicationBean.setSortMode(listType, 'ALPHA_DESC')}"
                              process="@this"
                              ajax="true"

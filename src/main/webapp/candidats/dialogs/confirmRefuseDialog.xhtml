@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmRefuseDialog"
               widgetVar="confirmRefuseDialog"
-              header="Confirmer le refus"
+              header="#{msg['candidat.dialog.refuse.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -20,8 +20,8 @@
                     <i class="pi pi-times-circle candidat-confirm-header-icon"/>
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Confirmer le refus</h3>
-                    <p class="candidat-confirm-header-subtitle">Le brouillon sera classé comme refusé (statut REFUSED)</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.refuse.header']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.refuse.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -30,19 +30,19 @@
                 <i class="pi pi-info-circle"/>
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir refuser ce brouillon ?<br/>
+                #{msg['candidat.dialog.refuse.messageIntro']}<br/>
                 <strong>#{candidatBean.candidatARefuser != null ? candidatBean.candidatARefuser.label : ''}</strong>
             </p>
         </div>
         <f:facet name="footer">
             <div class="candidat-confirm-footer">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
                                process="@this"
                                update="@none"
                                onclick="PF('confirmRefuseDialog').hide(); return false;"/>
-                <p:commandButton value="Oui, refuser"
+                <p:commandButton value="#{msg['common.action.yesRefuse']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-refuse"
                                action="#{candidatBean.refuserCandidatConfirm()}"

@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmRemettreBrouillonDialog"
               widgetVar="confirmRemettreBrouillonDialog"
-              header="Remettre en brouillon"
+              header="#{msg['candidat.dialog.remettreBrouillon.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -20,8 +20,8 @@
                     <i class="pi pi-replay candidat-confirm-header-icon"/>
                 </div>
                 <div class="candidat-confirm-header-content">
-                    <h3 class="candidat-confirm-header-title">Remettre en brouillon</h3>
-                    <p class="candidat-confirm-header-subtitle">L'entité repassera au statut PROPOSITION (brouillon en cours de validation)</p>
+                    <h3 class="candidat-confirm-header-title">#{msg['candidat.dialog.remettreBrouillon.header']}</h3>
+                    <p class="candidat-confirm-header-subtitle">#{msg['candidat.dialog.remettreBrouillon.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -30,19 +30,19 @@
                 <i class="pi pi-info-circle"/>
             </div>
             <p class="candidat-confirm-message-text">
-                Êtes-vous sûr de vouloir remettre ce brouillon en statut « en cours » ?<br/>
+                #{msg['candidat.dialog.remettreBrouillon.messageIntro']}<br/>
                 <strong>#{candidatBean.candidatARemettreEnBrouillon != null ? candidatBean.candidatARemettreEnBrouillon.label : ''}</strong>
             </p>
         </div>
         <f:facet name="footer">
             <div class="candidat-confirm-footer">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"
                                process="@this"
                                update="@none"
                                onclick="PF('confirmRemettreBrouillonDialog').hide(); return false;"/>
-                <p:commandButton value="Oui, remettre en brouillon"
+                <p:commandButton value="#{msg['common.action.yesRemettreBrouillon']}"
                                icon="pi pi-replay"
                                styleClass="candidat-confirm-btn candidat-confirm-btn-remettre"
                                action="#{candidatBean.remettreEnBrouillonConfirm()}"

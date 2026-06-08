@@ -90,7 +90,7 @@
                                         </ui:repeat>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntityCorpusLinks}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>

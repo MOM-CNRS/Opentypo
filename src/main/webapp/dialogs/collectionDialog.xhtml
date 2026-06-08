@@ -7,7 +7,7 @@
     <!-- Dialog pour créer une nouvelle collection -->
     <p:dialog id="addCollectionDialog"
               widgetVar="addCollectionDialog"
-              header="Créer une nouvelle typologie"
+              header="#{msg['dialog.collection.create.header']}"
               modal="true"
               draggable="false"
               resizable="false"
@@ -34,21 +34,21 @@
                     <div class="collection-name-input-row">
                         <div class="collection-form-group collection-form-group-flex collection-select collection-select">
                             <p:inputText value="#{collectionBean.newNameValue}"
-                                         placeholder="Nom"
+                                         placeholder="#{msg['candidat.wizard.label']}"
                                          styleClass="collection-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
                                              value="#{collectionBean.newNameLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewName()}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="collection-btn-add"
                                          actionListener="#{collectionBean.addNameFromInput()}"
@@ -96,8 +96,8 @@
                                     <i class="pi pi-info-circle" />
                                 </div>
                                 <div class="collection-no-names-text">
-                                    <h4 class="collection-no-names-title">Aucun label ajouté</h4>
-                                    <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un label dans une langue spécifique.</p>
+                                    <h4 class="collection-no-names-title">#{msg['dialog.shared.noLabelAdded']}</h4>
+                                    <p class="collection-no-names-message">#{msg['dialog.shared.noLabelAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -116,7 +116,7 @@
                         <div class="collection-form-group collection-form-group-flex collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                              value="#{collectionBean.newDescriptionValue}"
-                                             placeholder="Description"
+                                             placeholder="#{msg['modifier.description.section.title']}"
                                              rows="3"
                                              styleClass="collection-textarea"/>
                         </div>
@@ -127,14 +127,14 @@
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{collectionBean.newDescriptionLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{collectionBean.getAvailableLanguagesForNewDescription()}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="collection-btn-add"
                                          actionListener="#{collectionBean.addDescriptionFromInput()}"
@@ -171,7 +171,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update="@form :growl"
-                                                     title="Supprimer cette description"/>
+                                                     title="#{msg['dialog.shared.deleteDescription']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -183,8 +183,8 @@
                                     <i class="pi pi-info-circle" />
                                 </div>
                                 <div class="collection-no-names-text">
-                                    <h4 class="collection-no-names-title">Aucune description ajoutée</h4>
-                                    <p class="collection-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    <h4 class="collection-no-names-title">#{msg['dialog.shared.noDescriptionAdded']}</h4>
+                                    <p class="collection-no-names-message">#{msg['dialog.shared.noDescriptionAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -216,7 +216,7 @@
                                                        process="@this"
                                                        update="collectionVisibilityCard"
                                                        action="#{collectionBean.toggleCollectionPublique()}"
-                                                       title="Cliquez pour changer la visibilité">
+                                                       title="#{msg['common.visibility.toggle.tooltip']}">
                                             <i class="pi pi-sync"/>
                                         </p:commandLink>
                                     </div>
@@ -249,13 +249,13 @@
                                 responsive="true"
                                 rendered="#{not empty collectionBean.gestionnairesList}"/>
                     <h:panelGroup rendered="#{empty collectionBean.gestionnairesList}" class="group-dialog-no-relecteurs">
-                        <span>Aucun utilisateur disponible</span>
+                        <span>#{msg['modifier.noUsersAvailable']}</span>
                     </h:panelGroup>
                 </div>
             </div>
 
             <div class="collection-form-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                  icon="pi pi-times"
                                  styleClass="collection-btn collection-btn-cancel"
                                  type="button"
@@ -263,7 +263,7 @@
                                  process="@none"
                                  update="@none"/>
 
-                <p:commandButton value="Valider"
+                <p:commandButton value="#{msg['common.action.validate']}"
                                  icon="pi pi-check"
                                  styleClass="collection-btn collection-btn-validate"
                                  action="#{collectionBean.createCollection(applicationBean)}"

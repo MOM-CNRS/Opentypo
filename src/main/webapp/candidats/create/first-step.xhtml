@@ -8,23 +8,23 @@
         <div class="wizard-step-content">
             <div class="wizard-step-header">
                 <i class="pi pi-tag wizard-step-icon" />
-                <h3 class="wizard-step-title">Type et identification</h3>
-                <p class="wizard-step-description">Remplissez les informations de base pour identifier votre brouillon</p>
+                <h3 class="wizard-step-title">#{msg['candidat.wizard.step1.title']}</h3>
+                <p class="wizard-step-description">#{msg['candidat.wizard.step1.description']}</p>
             </div>
 
             <div class="users-form-panel wizard-form-panel">
                 <div class="users-form-grid candidats-p-20">
                     <div class="users-form-group users-form-group-full">
-                        <p:outputLabel for="entityType" value="Type d'entité" />
+                        <p:outputLabel for="entityType" value="#{msg['candidat.wizard.entityType']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-sitemap input-icon" />
                             <p:selectOneMenu id="entityType"
                                              value="#{candidatBean.selectedEntityTypeId}"
                                              styleClass="users-select"
                                              required="true"
-                                             requiredMessage="Le type d'entité est requis"
-                                             validatorMessage="Le type d'entité est requis">
-                                <f:selectItem itemLabel="Sélectionnez un type" itemValue="" />
+                                             requiredMessage="#{msg['candidat.save.entityTypeRequired']}"
+                                             validatorMessage="#{msg['candidat.save.entityTypeRequired']}">
+                                <f:selectItem itemLabel="#{msg['candidat.wizard.selectEntityType']}" itemValue="" />
                                 <f:selectItems value="#{candidatBean.availableEntityTypes}"
                                                var="entityType"
                                                itemLabel="#{candidatBean.getEntityTypeName(entityType)}"
@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="users-form-group">
-                        <p:outputLabel for="selectedLangue" value="Langue pour le label" />
+                        <p:outputLabel for="selectedLangue" value="#{msg['candidat.wizard.labelLanguage']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-globe input-icon" />
                             <p:selectOneMenu id="selectedLangue"
@@ -44,9 +44,9 @@
                                              styleClass="users-select"
                                              disabled="#{candidatBean.isSelectedEntityTypeType()}"
                                              required="#{not candidatBean.isSelectedEntityTypeType()}"
-                                             requiredMessage="La langue est requise"
-                                             validatorMessage="La langue est requise">
-                                <f:selectItem itemLabel="Sélectionnez une langue" itemValue="" />
+                                             requiredMessage="#{msg['modifier.msg.languageRequired']}"
+                                             validatorMessage="#{msg['modifier.msg.languageRequired']}">
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{candidatBean.availableLanguages}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
@@ -57,33 +57,33 @@
                     </div>
 
                     <div class="users-form-group">
-                        <p:outputLabel for="entityLabel" value="Label" />
+                        <p:outputLabel for="entityLabel" value="#{msg['candidat.wizard.label']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-pencil input-icon" />
                             <p:inputText id="entityLabel"
                                          value="#{candidatBean.entityLabel}"
                                          disabled="#{candidatBean.isSelectedEntityTypeType()}"
                                          required="#{not candidatBean.isSelectedEntityTypeType()}"
-                                         requiredMessage="Le label est requis"
-                                         validatorMessage="Le label est requis"
+                                         requiredMessage="#{msg['modifier.msg.labelRequired']}"
+                                         validatorMessage="#{msg['modifier.msg.labelRequired']}"
                                          styleClass="users-input"
-                                         placeholder="Nom de l'entité"
+                                         placeholder="#{msg['candidat.wizard.entityNamePlaceholder']}"
                                          maxlength="1000"/>
                         </div>
                         <p:message for="entityLabel" display="icon"/>
                     </div>
 
                     <div class="users-form-group">
-                        <p:outputLabel for="entityCode" value="Code" />
+                        <p:outputLabel for="entityCode" value="#{msg['modifier.field.code']}" />
                         <div class="input-wrapper">
                             <i class="pi pi-hashtag input-icon" />
                             <p:inputText id="entityCode"
                                          value="#{candidatBean.entityCode}"
                                          required="true"
-                                         requiredMessage="Le code est requis"
-                                         validatorMessage="Le code est requis"
+                                         requiredMessage="#{msg['candidat.save.codeRequired']}"
+                                         validatorMessage="#{msg['candidat.save.codeRequired']}"
                                          styleClass="users-input"
-                                         placeholder="Ex: TYPE-001"
+                                         placeholder="#{msg['candidat.wizard.codePlaceholder']}"
                                          maxlength="1000"/>
                         </div>
                         <p:message for="entityCode" display="icon"/>

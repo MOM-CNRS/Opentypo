@@ -16,7 +16,7 @@
                             </h1>
                         </div>
                         <h:form>
-                            <p:commandButton value="Retour"
+                            <p:commandButton value="#{msg['common.action.back']}"
                                              icon="pi pi-arrow-left"
                                              styleClass="users-create-button"
                                              action="#{candidatBean.returnFromViewPage()}"
@@ -117,8 +117,8 @@
                                 <h:panelGroup rendered="#{openThesoDialogBean.isOpenThesoParametrageMissing() and candidatBean.canEditCurrentBrouillon()}" layout="block" styleClass="periode-parametrage-info-banner">
                                     <i class="pi pi-info-circle periode-parametrage-info-icon" />
                                     <div class="periode-parametrage-info-content">
-                                        <strong>Connexion OpenTheso non paramétrée</strong>
-                                        <p>Le gestionnaire du référentiel doit configurer la connexion du groupe avec OpenTheso pour permettre la recherche dans le thésaurus. En attendant, vous pouvez saisir en texte libre.</p>
+                                        <strong>#{msg['modifier.opentheso.banner.title']}</strong>
+                                        <p>#{msg['opentheso.connection.managerMustConfigureGroup']} #{msg['opentheso.search.failedFreeValue']}</p>
                                     </div>
                                 </h:panelGroup>
 
@@ -159,7 +159,7 @@
                                 <!-- Champ Auteurs -->
                                 <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
                                     <div class="users-form-group users-form-group-full candidats-m-10">
-                                        <p:outputLabel value="Auteurs" class="auteurs-section-label" />
+                                        <p:outputLabel value="#{msg['candidat.form.authors']}" class="auteurs-section-label" />
                                         <div class="auteurs-list">
                                             <ui:repeat value="#{candidatBean.selectedAuteurs}" var="auteur">
                                                 <div class="auteur-item">
@@ -186,14 +186,14 @@
                         <!-- Rédacteur / relecteur : enregistrement et demande de validation -->
                         <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canEditCurrentBrouillon()}">
                             <div class="wizard-navigation candidats-gap-30">
-                                <p:commandButton value="Enregistrer"
+                                <p:commandButton value="#{msg['common.action.save']}"
                                                  icon="pi pi-save"
                                                  styleClass="candidat-btn-add"
                                                  action="#{candidatBean.enregistrerModifications}"
                                                  process="@form"
                                                  update="@none"/>
 
-                                <p:commandButton value="Demande de validation"
+                                <p:commandButton value="#{msg['common.action.requestValidation']}"
                                                  icon="pi pi-send"
                                                  styleClass="candidat-btn-add candidats-btn-validate"
                                                  rendered="#{candidatBean.canRequestValidationOnCurrentView()}"
@@ -206,14 +206,14 @@
                         <!-- Valideur : décision sur une fiche « en validation » -->
                         <h:panelGroup class="users-form-panel wizard-form-panel candidats-mt-20" rendered="#{candidatBean.canShowValidatorActionsOnCurrentView()}">
                             <div class="wizard-navigation candidats-gap-30">
-                                <p:commandButton value="Refuser"
+                                <p:commandButton value="#{msg['common.action.refuse']}"
                                                  icon="pi pi-times"
                                                  styleClass="candidat-btn-add candidats-btn-refuse"
                                                  action="#{candidatBean.refuserCandidatFromView}"
                                                  process="@form"
                                                  update="@none"/>
 
-                                <p:commandButton value="Valider"
+                                <p:commandButton value="#{msg['common.action.validate']}"
                                                  icon="pi pi-check"
                                                  styleClass="candidat-btn-add candidats-btn-validate"
                                                  action="#{candidatBean.validerCandidatFromView}"

@@ -13,6 +13,7 @@ import fr.cnrs.opentypo.domain.entity.Parametrage;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ParametrageRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -177,7 +178,9 @@ public class CollectionParametrageBean implements Serializable {
         selectedLanguageId = null;
         selectedCollectionId = null;
         FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO, "Liste actualisée", "Les thésaurus ont été rechargés."));
+            new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    JsfMessages.get("parametrage.thesaurus.listRefreshed.summary"),
+                    JsfMessages.get("parametrage.thesaurus.listRefreshed.detail")));
         PrimeFaces.current().ajax().update(":collectionParametrageForm :growl");
     }
 
@@ -215,31 +218,36 @@ public class CollectionParametrageBean implements Serializable {
     public void saveParametrage() {
         if (currentCollectionEntity == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune collection sélectionnée."));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("parametrage.error.noCollection")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (selectedThesaurusId == null || selectedThesaurusId.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner un thésaurus."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("parametrage.warn.selectThesaurus")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (selectedLanguageId == null || selectedLanguageId.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une langue."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("parametrage.warn.selectLanguage")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (selectedCollectionId == null || selectedCollectionId.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez sélectionner une collection."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("parametrage.warn.selectCollection")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (baseUrl == null || baseUrl.isBlank()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir l'URL du serveur."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                        JsfMessages.get("parametrage.warn.serverUrlRequired")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -261,7 +269,8 @@ public class CollectionParametrageBean implements Serializable {
         parametrageRepository.save(p);
 
         FacesContext.getCurrentInstance().addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Paramétrage enregistré."));
+            new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                    JsfMessages.get("parametrage.success.saved")));
         PrimeFaces.current().executeScript("PF('collectionParametrageDialog').hide();");
         PrimeFaces.current().ajax().update(":growl");
     }
@@ -310,8 +319,8 @@ public class CollectionParametrageBean implements Serializable {
                 : Optional.empty();
         if (groupIdOpt.isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
-                            "URL du groupe Zotero invalide. Format attendu : https://www.zotero.org/groups/{id}/..."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("parametrage.biblio.title"),
+                            JsfMessages.get("parametrage.biblio.invalidGroupUrl")));
             PrimeFaces.current().ajax().update(":collectionBibliographieParametrageForm :growl");
             return;
         }
@@ -319,12 +328,13 @@ public class CollectionParametrageBean implements Serializable {
         availableBibliographieCollections = zoteroApiService.listTopCollections(bibliographieGroupId, 100);
         if (availableBibliographieCollections.isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
-                            "Aucune collection Zotero trouvée pour ce groupe."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("parametrage.biblio.title"),
+                            JsfMessages.get("parametrage.biblio.noCollections")));
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Bibliographie",
-                            availableBibliographieCollections.size() + " collection(s) Zotero trouvée(s)."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("parametrage.biblio.title"),
+                            JsfMessages.format("parametrage.biblio.collectionsFound",
+                                    availableBibliographieCollections.size())));
         }
         PrimeFaces.current().ajax().update(":collectionBibliographieParametrageForm :growl");
     }
@@ -333,14 +343,15 @@ public class CollectionParametrageBean implements Serializable {
     public void saveBibliographieParametrage() {
         if (currentCollectionEntity == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucune collection sélectionnée."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("parametrage.error.noCollection")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (bibliographieGroupId == null || !StringUtils.hasText(selectedBibliographieCollectionKey)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Bibliographie",
-                            "Veuillez d'abord saisir l'URL du groupe puis sélectionner une collection Zotero."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("parametrage.biblio.title"),
+                            JsfMessages.get("parametrage.biblio.selectFirst")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -360,10 +371,10 @@ public class CollectionParametrageBean implements Serializable {
         int propagated = propagateBibliographieToGroupsWithoutConfig(referenceForPropagation, bibUrl);
 
         String detail = propagated > 0
-                ? "Paramétrage bibliographie enregistré. " + propagated + " groupe(s) sans configuration bibliographique ont reçu cette URL."
-                : "Paramétrage bibliographie enregistré.";
+                ? JsfMessages.format("parametrage.biblio.saved.propagated", propagated)
+                : JsfMessages.get("parametrage.biblio.saved");
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", detail));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), detail));
         PrimeFaces.current().executeScript("PF('collectionBibliographieParametrageDialog').hide();");
         PrimeFaces.current().ajax().update(":growl");
     }
@@ -387,8 +398,8 @@ public class CollectionParametrageBean implements Serializable {
         if (resolved.getEntityType() == null
                 || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(resolved.getEntityType().getCode())) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "ARK",
-                            "Le paramétrage ARK du serveur ne s'applique qu'à un référentiel."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("parametrage.ark.title"),
+                            JsfMessages.get("parametrage.ark.referentialOnly")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -405,15 +416,16 @@ public class CollectionParametrageBean implements Serializable {
     public void saveArkParametrage() {
         if (currentCollectionEntity == null || currentCollectionEntity.getId() == null) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Aucun référentiel sélectionné."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("parametrage.error.noReferential")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
         if (currentCollectionEntity.getEntityType() == null
                 || !EntityConstants.ENTITY_TYPE_REFERENCE.equals(currentCollectionEntity.getEntityType().getCode())) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                            "Le paramétrage ARK ne peut être enregistré que pour un référentiel."));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                            JsfMessages.get("parametrage.ark.referentialOnlySave")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -421,8 +433,8 @@ public class CollectionParametrageBean implements Serializable {
         String naanTrim = trimToNull(arkNaanEdit);
         if (naanTrim != null && !Pattern.compile("\\d{5,}").matcher(naanTrim).matches()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "ARK",
-                            "Le NAAN doit être numérique (au moins 5 chiffres), ou laisser vide pour utiliser la valeur de l'application."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("parametrage.ark.title"),
+                            JsfMessages.get("parametrage.ark.naanInvalid")));
             PrimeFaces.current().ajax().update(":growl");
             return;
         }
@@ -443,14 +455,15 @@ public class CollectionParametrageBean implements Serializable {
         parametrageRepository.save(p);
 
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Paramétrage ARK enregistré."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("parametrage.ark.saved")));
         PrimeFaces.current().executeScript("PF('collectionArkParametrageDialog').hide();");
         PrimeFaces.current().ajax().update(":growl");
     }
 
     /**
-     * Lorsque le paramétrage est enregistré sur un référentiel, recopie l’URL bibliographie Zotero
-     * vers chaque groupe du sous-arbre n’ayant pas encore d’URL bibliographique ({@code bibliographie_url} vide ou absente).
+     * Lorsque le paramétrage est enregistré sur un référentiel, recopie l'URL bibliographie Zotero
+     * vers chaque groupe du sous-arbre n'ayant pas encore d'URL bibliographique ({@code bibliographie_url} vide ou absente).
      */
     private int propagateBibliographieToGroupsWithoutConfig(Entity referenceEntity, String bibliographieUrl) {
         if (referenceEntity == null

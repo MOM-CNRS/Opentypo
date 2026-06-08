@@ -110,14 +110,14 @@
                                 <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
                                     <a href="#type-section-production" class="type-page-nav__pill">#{msg['common.section.production']}</a>
                                 </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
+                                    <a href="#type-section-attestations" class="type-page-nav__pill">#{msg['common.section.attestations']}</a>
+                                </ui:fragment>
                                 <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()) or ((applicationBean.isCeramiqueTypo() or applicationBean.isInstrumentumTypo()) and applicationBean.showDescriptionBlock())}">
                                     <a href="#type-section-description" class="type-page-nav__pill">#{msg['common.description']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()) or (applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()) or (applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock())}">
                                     <a href="#type-section-caracteristiques-physiques" class="type-page-nav__pill">#{msg['common.section.physicalCharacteristics']}</a>
-                                </ui:fragment>
-                                <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
-                                    <a href="#type-section-attestations" class="type-page-nav__pill">#{msg['common.section.attestations']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
                                     <a href="#type-section-references" class="type-page-nav__pill">#{msg['common.section.references']}</a>

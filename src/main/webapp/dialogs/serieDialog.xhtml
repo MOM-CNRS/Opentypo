@@ -6,7 +6,7 @@
 
     <!-- Dialog pour créer une nouvelle série (sans bibliographique ni visibilité) -->
     <p:dialog id="serieDialog"
-              header="Créer une nouvelle série"
+              header="#{msg['dialog.series.create.header']}"
               widgetVar="serieDialog"
               modal="true"
               draggable="false"
@@ -36,7 +36,7 @@
                         <p:inputText id="serieCode"
                                    value="#{serieBean.serieDialogCode}"
                                    required="true"
-                                   requiredMessage="Le code de la série est requis"
+                                   requiredMessage="#{msg['dialog.series.codeRequired']}"
                                    styleClass="reference-input"
                                    placeholder="Ex: SER001"/>
                     </div>
@@ -48,27 +48,27 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-tag reference-section-icon"/>
-                        <span>Labels</span>
+                        <span>#{msg['dialog.shared.labels']}</span>
                     </div>
                     <div class="reference-name-input-row">
                         <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputText id="newNameInput"
                                        value="#{serieBean.newNameValue}"
-                                       placeholder="Nom"
+                                       placeholder="#{msg['candidat.wizard.label']}"
                                        styleClass="reference-input"/>
                         </div>
                         <div class="collection-form-group collection-form-group-flex">
                             <p:selectOneMenu id="newNameLangue"
                                              value="#{serieBean.newNameLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{serieBean.availableLanguagesForNewSerieName}"
                                              var="langue"
                                              itemLabel="#{langue.nom}"
                                              itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                        icon="pi pi-plus"
                                        styleClass="reference-btn-add"
                                        actionListener="#{serieBean.addSerieNameFromInput()}"
@@ -101,7 +101,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":serieDialogForm:serieNamesTable :serieDialogForm:newNameLangue"
-                                                     title="Supprimer ce nom"/>
+                                                     title="#{msg['dialog.shared.deleteName']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -110,8 +110,8 @@
                             <div class="reference-no-names-content">
                                 <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
                                 <div class="reference-no-names-text">
-                                    <h4 class="reference-no-names-title">Aucun nom ajouté</h4>
-                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter un nom dans une langue spécifique.</p>
+                                    <h4 class="reference-no-names-title">#{msg['dialog.shared.noLabelAdded']}</h4>
+                                    <p class="reference-no-names-message">#{msg['dialog.shared.noLabelAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -124,13 +124,13 @@
                 <div class="collection-visibility-section" style="display: block; padding: 10px">
                     <div class="reference-section-label">
                         <i class="pi pi-align-left reference-section-icon"/>
-                        <span>Descriptions</span>
+                        <span>#{msg['dialog.shared.descriptions']}</span>
                     </div>
                     <div class="reference-name-input-row">
                         <div class="input-wrapper periode-input-wrapper collection-select">
                             <p:inputTextarea id="newDescriptionInput"
                                            value="#{serieBean.newDescriptionValue}"
-                                           placeholder="Description"
+                                           placeholder="#{msg['modifier.description.section.title']}"
                                            rows="3"
                                            styleClass="reference-textarea"/>
                         </div>
@@ -140,14 +140,14 @@
                             <p:selectOneMenu id="newDescriptionLangue"
                                              value="#{serieBean.newDescriptionLangueCode}"
                                              styleClass="collection-select">
-                                <f:selectItem itemLabel="Sélectionner une langue" itemValue="" />
+                                <f:selectItem itemLabel="#{msg['common.selectLanguage']}" itemValue="" />
                                 <f:selectItems value="#{serieBean.availableLanguagesForNewSerieDescription}"
                                                var="langue"
                                                itemLabel="#{langue.nom}"
                                                itemValue="#{langue.code}" />
                             </p:selectOneMenu>
                         </div>
-                        <p:commandButton value="Ajouter"
+                        <p:commandButton value="#{msg['common.action.add']}"
                                          icon="pi pi-plus"
                                          styleClass="reference-btn-add"
                                          actionListener="#{serieBean.addSerieDescriptionFromInput()}"
@@ -181,7 +181,7 @@
                                                      process="@form"
                                                      ajax="true"
                                                      update=":serieDialogForm:serieDescriptionsTable :serieDialogForm:newDescriptionLangue"
-                                                     title="Supprimer cette description"/>
+                                                     title="#{msg['dialog.shared.deleteDescription']}"/>
                                 </div>
                             </p:column>
                         </p:dataTable>
@@ -190,8 +190,8 @@
                             <div class="reference-no-names-content">
                                 <div class="reference-no-names-icon"><i class="pi pi-info-circle" /></div>
                                 <div class="reference-no-names-text">
-                                    <h4 class="reference-no-names-title">Aucune description ajoutée</h4>
-                                    <p class="reference-no-names-message">Utilisez le formulaire ci-dessus pour ajouter une description dans une langue spécifique.</p>
+                                    <h4 class="reference-no-names-title">#{msg['dialog.shared.noDescriptionAdded']}</h4>
+                                    <p class="reference-no-names-message">#{msg['dialog.shared.noDescriptionAddedHint']}</p>
                                 </div>
                             </div>
                         </h:panelGroup>
@@ -200,13 +200,13 @@
             </div>
 
             <div class="reference-form-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                icon="pi pi-times"
                                styleClass="reference-btn reference-btn-cancel"
                                onclick="PF('serieDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="Valider"
+                <p:commandButton value="#{msg['common.action.validate']}"
                                icon="pi pi-check"
                                styleClass="reference-btn reference-btn-validate"
                                action="#{serieBean.createSerieFromDialog}"

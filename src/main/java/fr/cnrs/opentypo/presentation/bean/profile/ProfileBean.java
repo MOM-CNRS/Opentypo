@@ -11,6 +11,7 @@ import fr.cnrs.opentypo.application.service.UtilisateurService;
 import fr.cnrs.opentypo.presentation.bean.ApplicationBean;
 import fr.cnrs.opentypo.presentation.bean.LoginBean;
 import fr.cnrs.opentypo.presentation.bean.NotificationBean;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -86,13 +87,15 @@ public class ProfileBean implements Serializable {
     public void sauvegarder() {
         Utilisateur current = loginBean.getCurrentUser();
         if (current == null) {
-            notificationBean.showErrorWithUpdate("Erreur", "Vous devez être connecté pour modifier votre profil.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("profile.error.mustLogin"), ":growl, :profileForm");
             return;
         }
 
         Optional<Utilisateur> opt = utilisateurRepository.findById(current.getId());
         if (opt.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur", "Utilisateur introuvable.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("profile.error.userNotFound"), ":growl, :profileForm");
             return;
         }
 
@@ -101,57 +104,68 @@ public class ProfileBean implements Serializable {
         String emailTrim = email != null ? email.trim() : "";
 
         if (prenomTrim.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le prénom est obligatoire.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.firstName"), ":growl, :profileForm");
             return;
         }
         if (prenomTrim.length() < 2) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le prénom doit contenir au moins 2 caractères.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.firstNameMin"), ":growl, :profileForm");
             return;
         }
         if (prenomTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
-            notificationBean.showErrorWithUpdate("Erreur de validation",
-                    "Le prénom ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.format("profile.validation.firstNameMax", EntityConstants.VARCHAR_COLUMN_MAX_LENGTH),
+                    ":growl, :profileForm");
             return;
         }
 
         if (nomTrim.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom est obligatoire.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.lastName"), ":growl, :profileForm");
             return;
         }
         if (nomTrim.length() < 2) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le nom doit contenir au moins 2 caractères.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.lastNameMin"), ":growl, :profileForm");
             return;
         }
         if (nomTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
-            notificationBean.showErrorWithUpdate("Erreur de validation",
-                    "Le nom ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.format("profile.validation.lastNameMax", EntityConstants.VARCHAR_COLUMN_MAX_LENGTH),
+                    ":growl, :profileForm");
             return;
         }
 
         if (emailTrim.isEmpty()) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "L'email est obligatoire.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.email"), ":growl, :profileForm");
             return;
         }
         String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         if (!emailTrim.matches(emailPattern)) {
-            notificationBean.showErrorWithUpdate("Erreur de validation", "Le format de l'email est invalide.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.get("profile.validation.emailFormat"), ":growl, :profileForm");
             return;
         }
         if (emailTrim.length() > EntityConstants.VARCHAR_COLUMN_MAX_LENGTH) {
-            notificationBean.showErrorWithUpdate("Erreur de validation",
-                    "L'email ne peut pas dépasser " + EntityConstants.VARCHAR_COLUMN_MAX_LENGTH + " caractères.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                    JsfMessages.format("profile.validation.emailMax", EntityConstants.VARCHAR_COLUMN_MAX_LENGTH),
+                    ":growl, :profileForm");
             return;
         }
 
         if (nouveauMotDePasse != null && !nouveauMotDePasse.trim().isEmpty()) {
             if (nouveauMotDePasse.trim().length() < 6) {
-                notificationBean.showErrorWithUpdate("Erreur de validation", "Le mot de passe doit contenir au moins 6 caractères.", ":growl, :profileForm");
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                        JsfMessages.get("profile.validation.passwordMin"), ":growl, :profileForm");
                 return;
             }
         }
 
         if (utilisateurRepository.existsByEmailExcludingUserId(emailTrim, current.getId())) {
-            notificationBean.showErrorWithUpdate("Erreur", "Un utilisateur avec cet email existe déjà.", ":growl, :profileForm");
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("profile.error.emailExists"), ":growl, :profileForm");
             return;
         }
 
@@ -169,7 +183,8 @@ public class ProfileBean implements Serializable {
         loginBean.setCurrentUser(utilisateur);
         nouveauMotDePasse = null;
 
-        notificationBean.showSuccessWithUpdate("Succès", "Votre profil a été mis à jour.", ":growl, :profileForm");
+        notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"),
+                JsfMessages.get("profile.success.updated"), ":growl, :profileForm");
         PrimeFaces.current().ajax().update(":profileForm");
     }
 
@@ -202,14 +217,14 @@ public class ProfileBean implements Serializable {
     }
 
     private static String getEntityTypeLabel(String typeCode) {
-        if (typeCode == null) return "Entité";
+        if (typeCode == null) return JsfMessages.get("profile.entityType.default");
         return switch (typeCode) {
-            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
-            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
-            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> JsfMessages.get("profile.entityType.collection");
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> JsfMessages.get("profile.entityType.reference");
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> JsfMessages.get("profile.entityType.category");
+            case EntityConstants.ENTITY_TYPE_GROUP -> JsfMessages.get("profile.entityType.group");
+            case EntityConstants.ENTITY_TYPE_SERIES -> JsfMessages.get("profile.entityType.series");
+            case EntityConstants.ENTITY_TYPE_TYPE -> JsfMessages.get("profile.entityType.type");
             default -> typeCode;
         };
     }

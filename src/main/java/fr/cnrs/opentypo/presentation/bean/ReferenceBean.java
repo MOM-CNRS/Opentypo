@@ -25,6 +25,7 @@ import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.LangueRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import fr.cnrs.opentypo.presentation.bean.util.EntityValidator;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -356,20 +357,20 @@ public class ReferenceBean implements Serializable {
     public void applyImageUrl() {
         if (imageUrlInput == null || imageUrlInput.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Veuillez saisir une URL."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.urlRequired")));
             return;
         }
         String url = imageUrlInput.trim();
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "L'URL doit commencer par http:// ou https://"));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.urlHttpRequired")));
             return;
         }
         uploadedImageUrl = url;
         uploadedImageName = "URL externe";
         imageUrlInput = null;
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "URL de l'image enregistrée."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), JsfMessages.get("entity.image.urlSaved")));
         PrimeFaces.current().ajax().update(":referenceDialogForm:imageSection growl");
     }
 
@@ -388,17 +389,17 @@ public class ReferenceBean implements Serializable {
     public void addNameFromInput() {
         if (newNameValue == null || newNameValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Le nom est requis."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.fieldNameRequired")));
             return;
         }
         if (newNameLangueCode == null || newNameLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInNames(newNameLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour un autre nom."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedName")));
             return;
         }
 
@@ -411,8 +412,8 @@ public class ReferenceBean implements Serializable {
                     .map(Langue::getNom)
                     .orElse(langueCode);
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention",
-                    "Un référentiel existe déjà avec le nom « " + nomTrimmed + " » en " + langueNom + "."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"),
+                    JsfMessages.format("entity.validation.referenceNameExists", nomTrimmed, langueNom)));
             return;
         }
 
@@ -446,17 +447,17 @@ public class ReferenceBean implements Serializable {
     public void addDescriptionFromInput() {
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La description est requise."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.descriptionRequired")));
             return;
         }
         if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "La langue est requise."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageRequired")));
             return;
         }
         if (isLangueAlreadyUsedInDescriptions(newDescriptionLangueCode, null)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", "Cette langue est déjà utilisée pour une autre description."));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), JsfMessages.get("common.validation.languageAlreadyUsedDescription")));
             return;
         }
         if (referenceDescriptions == null) referenceDescriptions = new ArrayList<>();
@@ -490,7 +491,7 @@ public class ReferenceBean implements Serializable {
         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         if (!canCreateReference(applicationBean)) {
-            addErrorMessage("Vous n'avez pas les droits pour créer un référentiel.");
+            addErrorMessage(JsfMessages.get("entity.permission.create.reference"));
             return;
         }
 
@@ -506,8 +507,9 @@ public class ReferenceBean implements Serializable {
                 uploadedFilePart = null;
             } catch (Exception e) {
                 log.error("Erreur lors de l'enregistrement de l'image", e);
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur",
-                        "Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue")));
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                        JsfMessages.format("modifier.msg.imageSaveFailed",
+                                e.getMessage() != null ? e.getMessage() : JsfMessages.get("common.error.unknown"))));
                 return;
             }
         }
@@ -523,13 +525,13 @@ public class ReferenceBean implements Serializable {
         }
 
         if (referenceNames == null || referenceNames.isEmpty()) {
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Au moins un nom est requis."));
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameRequired")));
             return;
         }
 
         for (NameItem item : referenceNames) {
             if (item.getNom() == null || item.getNom().trim().isEmpty()) {
-                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Tous les noms doivent avoir une valeur."));
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), JsfMessages.get("common.validation.nameValueRequired")));
                 return;
             }
         }
@@ -537,7 +539,7 @@ public class ReferenceBean implements Serializable {
         String codeTrimmed = referenceCode.trim();
         EntityType referenceType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_REFERENCE)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Le type d'entité '" + EntityConstants.ENTITY_TYPE_REFERENCE + "' n'existe pas dans la base de données."));
+                        JsfMessages.format("entity.type.missing", EntityConstants.ENTITY_TYPE_REFERENCE)));
 
         Entity newReference = createNewReference(codeTrimmed, referenceType);
         entityRepository.save(newReference);
@@ -559,8 +561,8 @@ public class ReferenceBean implements Serializable {
         treeBean.addReferenceToTree(newReference);
 
         String labelPrincipal = referenceNames.get(0).getNom();
-        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès",
-                "Le référentiel '" + labelPrincipal + "' a été créé avec succès."));
+        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
+                JsfMessages.format("entity.create.success.reference", labelPrincipal)));
 
         prepareCreateReference();
 
@@ -714,8 +716,8 @@ public class ReferenceBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null, new FacesMessage(
                         FacesMessage.SEVERITY_INFO,
-                        "Succès",
-                        "Les modifications ont été enregistrées avec succès."));
+                        JsfMessages.get("common.growl.success"),
+                        JsfMessages.get("common.save.success.detail")));
             }
 
             log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
@@ -725,8 +727,8 @@ public class ReferenceBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null, new FacesMessage(
                         FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Une erreur est survenue lors de la sauvegarde : " + e.getMessage()));
+                        JsfMessages.get("common.growl.error"),
+                        JsfMessages.format("common.error.save", e.getMessage())));
             }
         }
     }
@@ -738,12 +740,12 @@ public class ReferenceBean implements Serializable {
     @Transactional
     public void deleteReferenceById(ApplicationBean applicationBean, Long referenceId) {
         if (referenceId == null) {
-            addErrorMessage("Aucun référentiel sélectionné.");
+            addErrorMessage(JsfMessages.get("entity.none.reference"));
             return;
         }
         Entity reference = entityRepository.findById(referenceId).orElse(null);
         if (reference == null) {
-            addErrorMessage("Référentiel introuvable.");
+            addErrorMessage(JsfMessages.get("entity.notFound.reference"));
             return;
         }
         doDeleteReference(applicationBean, reference);
@@ -759,8 +761,8 @@ public class ReferenceBean implements Serializable {
             if (facesContext != null) {
                 facesContext.addMessage(null, new FacesMessage(
                         FacesMessage.SEVERITY_ERROR,
-                        "Erreur",
-                        "Aucun référentiel sélectionné."));
+                        JsfMessages.get("common.growl.error"),
+                        JsfMessages.get("entity.none.reference")));
             }
             return;
         }
@@ -769,7 +771,7 @@ public class ReferenceBean implements Serializable {
 
     private void doDeleteReference(ApplicationBean applicationBean, Entity reference) {
         if (loginBean.getCurrentUser() == null || !entityAuthorityService.canDelete(loginBean.getCurrentUser(), reference)) {
-            addErrorMessage("Vous n'avez pas les droits pour supprimer ce référentiel.");
+            addErrorMessage(JsfMessages.get("entity.permission.delete.reference"));
             return;
         }
 
@@ -789,8 +791,8 @@ public class ReferenceBean implements Serializable {
         if (facesContext != null) {
             facesContext.addMessage(null, new FacesMessage(
                     FacesMessage.SEVERITY_INFO,
-                    "Succès",
-                    "Le référentiel '" + reference.getNom() + "' et toutes ses entités rattachées ont été supprimés avec succès."));
+                    JsfMessages.get("common.growl.success"),
+                    JsfMessages.format("entity.delete.success.reference", reference.getNom())));
         }
 
         collectionBean.showCollectionDetail(applicationBean, applicationBean.getSelectedEntity());
@@ -892,7 +894,7 @@ public class ReferenceBean implements Serializable {
     private void addErrorMessage(String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         facesContext.addMessage(null,
-            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", message));
+            new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), message));
         PrimeFaces.current().ajax().update(ViewConstants.COMPONENT_GROWL + ", :referenceDialogForm");
     }
 

@@ -7,7 +7,7 @@
     <!-- Dialog de confirmation de déplacement de type (depuis le dialog ou le drag-and-drop) -->
     <p:dialog id="confirmMoveTypeDialog"
               widgetVar="confirmMoveTypeDialog"
-              header="Confirmer le déplacement"
+              header="#{msg['dialog.move.confirm.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -23,8 +23,8 @@
                     <i class="pi pi-arrow-right-arrow-left reference-confirm-header-icon"/>
                 </div>
                 <div class="reference-confirm-header-content">
-                    <h3 class="reference-confirm-header-title">Confirmer le déplacement</h3>
-                    <p class="reference-confirm-header-subtitle">Voulez-vous déplacer ce type ?</p>
+                    <h3 class="reference-confirm-header-title">#{msg['dialog.move.confirm.header']}</h3>
+                    <p class="reference-confirm-header-subtitle">#{msg['dialog.move.confirm.subtitle']}</p>
                 </div>
             </div>
         </f:facet>
@@ -41,21 +41,21 @@
 
             <h:form id="confirmMoveTypeForm" styleClass="reference-confirm-form">
                 <div class="reference-confirm-actions">
-                    <p:commandButton value="Annuler"
+                    <p:commandButton value="#{msg['common.action.cancel']}"
                                      icon="pi pi-times"
                                      styleClass="reference-confirm-btn reference-confirm-btn-cancel"
                                      process="@this"
                                      update="@none"
                                      onclick="PF('confirmMoveTypeDialog').hide(); return false;"/>
 
-                    <p:commandButton value="Oui, déplacer"
+                    <p:commandButton value="#{msg['common.action.yesMove']}"
                                      icon="pi pi-folder-open"
                                      action="#{typeBean.performConfirmMove}"
                                      process="@this"
                                      ajax="true"
                                      update=":growl :mainContentArea :leftTreePanel :contentPanels :selectedEntityLabel"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
-                                     onstart="if(typeof showLoading==='function') showLoading('Déplacement...', 'spinner');"
+                                     onstart="if(typeof showLoading==='function') showLoading('#{msg['common.action.moving']}', 'spinner');"
                                      oncomplete="PF('confirmMoveTypeDialog').hide(); PF('moveTypeDialog').hide(); if(typeof hideLoading==='function') hideLoading(); if(typeof initTreeDragAndDrop==='function') initTreeDragAndDrop(); if(typeof applyTreeSelectionHighlight==='function') applyTreeSelectionHighlight();"
                                      onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
                 </div>

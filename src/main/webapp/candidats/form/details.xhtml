@@ -6,12 +6,12 @@
 
     <div class="users-form-group users-form-group-full periode-group candidats-mt-20">
         <!-- Caractéristiques physiques -->
-        <b><p:outputLabel value="Description" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
+        <b><p:outputLabel value="#{msg['modifier.description.section.title']}" styleClass="caracteristiques-physiques-title candidats-label-pl"/></b>
 
         <!-- Décors -->
         <div class="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel value="Décors" />
+                <p:outputLabel value="#{msg['modifier.field.decors']}" />
             </div>
             <div class="periode-field-row">
                 <div class="candidat-description-input-row periode-input-wrapper candidats-input-wrapper-border">
@@ -19,13 +19,13 @@
                         <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                             <i class="pi pi-palette input-icon" />
                             <p:inputTextarea value="#{candidatBean.decors}"
-                                             placeholder="Saisissez le décors du groupe..."
+                                             placeholder="#{msg['modifier.placeholder.decors']}"
                                              rows="4"
                                              styleClass="users-textarea"
                                              maxlength="2000"
                                              rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                             <p:inputTextarea value="#{candidatBean.decors}"
-                                             placeholder="Non renseigné"
+                                             placeholder="#{msg['common.empty.notProvided']}"
                                              rows="4"
                                              styleClass="users-textarea"
                                              readonly="true"
@@ -41,7 +41,7 @@
                                  process="@this"
                                  ajax="true"
                                  update=":growl"
-                                 title="Enregistrer le décors"/>
+                                 title="#{msg['modifier.tooltip.save.decors']}"/>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
         <!-- Marques/estampilles -->
         <div class="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel for="groupMarquesEstampilles" value="Marques/estampilles" />
+                <p:outputLabel for="groupMarquesEstampilles" value="#{msg['modifier.field.marks']}" />
             </div>
             <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                 <i class="pi pi-tag input-icon" />
@@ -57,7 +57,7 @@
                          rendered="#{candidatBean.canEditCurrentBrouillon()}"
                          value="#{candidatBean.marquesEstampilles}"
                          styleClass="users-chips"
-                         placeholder="Saisissez une marque/estampille et appuyez sur Entrée..."
+                         placeholder="#{msg['modifier.placeholder.marks']}"
                          maxlength="1000"
                          addOnBlur="true">
                     <p:ajax event="itemSelect" listener="#{candidatBean.saveMarquesEstampilles}" process="@this" update="@none"/>
@@ -67,7 +67,7 @@
                 <p:inputText value="#{fn:join(candidatBean.marquesEstampilles, ', ')}"
                              styleClass="users-input"
                              readonly="true"
-                             placeholder="Aucune marque/estampille"
+                             placeholder="#{msg['modifier.placeholder.noMarks']}"
                              rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
             </div>
             <ui:fragment rendered="#{candidatBean.canEditCurrentBrouillon()}">
@@ -82,7 +82,7 @@
         <!-- Fonction/usage -->
         <h:panelGroup id="fonctionUsageGroup" styleClass="users-form-group users-form-group-full">
             <div class="periode-header-row">
-                <p:outputLabel value="Fonction/usage" />
+                <p:outputLabel value="#{msg['modifier.field.functionUsage']}" />
             </div>
             <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
                 <div id="fonctionUsageAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
@@ -102,20 +102,20 @@
                                    panelStyleClass="periode-autocomplete-panel"
                                    scrollHeight="280"
                                    emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('FONCTION_USAGE')}"
-                                   placeholder="Ex. Contenant, Luminaire..."
+                                   placeholder="#{msg['modifier.placeholder.functionUsage.enter']}"
                                    styleClass="users-input periode-autocomplete-input"
                                    forceSelection="false"
                                    rendered="#{candidatBean.canEditCurrentBrouillon()}"/>
                     <p:inputText value="#{candidatBean.fonctionUsage != null ? candidatBean.fonctionUsage.valeur : ''}"
                                  styleClass="users-input"
                                  readonly="true"
-                                 placeholder="Aucune fonction/usage sélectionnée"
+                                 placeholder="#{msg['modifier.placeholder.noFunctionUsage']}"
                                  rendered="#{candidatBean.isCurrentBrouillonReadOnly()}"/>
                 </div>
                 <div class="periode-action-buttons">
                     <p:commandButton icon="pi pi-check"
                                      styleClass="candidat-btn-save periode-save-btn"
-                                     title="Enregistrer la fonction/usage"
+                                     title="#{msg['modifier.tooltip.save.functionUsage']}"
                                      rendered="#{candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.saveFonctionUsageFromAutocomplete}"
                                      process="@form"
@@ -123,7 +123,7 @@
                                      update="@form :growl"/>
                     <p:commandButton icon="pi pi-trash"
                                      styleClass="candidat-btn-remove"
-                                     title="Supprimer la fonction/usage"
+                                     title="#{msg['modifier.tooltip.delete.functionUsage']}"
                                      rendered="#{candidatBean.hasFonctionUsage() and candidatBean.canEditCurrentBrouillon()}"
                                      actionListener="#{candidatBean.prepareConfirmDeleteFonctionUsage()}"
                                      process="@this"

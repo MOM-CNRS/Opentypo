@@ -6,7 +6,7 @@
 
     <p:dialog id="collectionParametrageDialog"
               widgetVar="collectionParametrageDialog"
-              header="Paramétrage de connexion à OpenTheso"
+              header="#{msg['dialog.parametrage.opentheso.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -21,7 +21,7 @@
         <h:form id="collectionParametrageForm" styleClass="parametrage-form">
             <div class="opentheso-dialog-row opentheso-dialog-row-url">
                 <div class="opentheso-dialog-field opentheso-dialog-field-url">
-                    <p:outputLabel for="paramBaseUrl" value="Url Serveur" />
+                    <p:outputLabel for="paramBaseUrl" value="#{msg['dialog.parametrage.serverUrl']}" />
                     <div class="input-wrapper">
                         <i class="pi pi-link input-icon" />
                         <p:inputText id="paramBaseUrl"
@@ -31,22 +31,22 @@
                     </div>
                 </div>
                 <div class="opentheso-dialog-button opentheso-dialog-button-url">
-                    <p:commandButton value="Actualiser"
+                    <p:commandButton value="#{msg['common.action.refresh']}"
                                      icon="pi pi-refresh"
                                      action="#{collectionParametrageBean.loadThesaurusFromUrl}"
                                      process="@this paramBaseUrl"
                                      ajax="true"
                                      update=":collectionParametrageForm :growl"
                                      styleClass="parametrage-btn-refresh"
-                                     title="Charger les thésaurus avec cette URL"
-                                     onstart="showLoading('Chargement...', 'spinner');"
+                                     title="#{msg['dialog.parametrage.refreshThesaurus']}"
+                                     onstart="showLoading('#{msg['common.loading']}', 'spinner');"
                                      oncomplete="setTimeout(function(){hideLoading();}, 200);"/>
                 </div>
             </div>
 
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field">
-                    <p:outputLabel for="paramThesaurusSelect" value="Liste des thésaurus" />
+                    <p:outputLabel for="paramThesaurusSelect" value="#{msg['dialog.parametrage.thesaurusList']}" />
                     <div class="input-wrapper">
                         <i class="pi pi-book input-icon" />
                         <p:selectOneMenu id="paramThesaurusSelect"
@@ -54,14 +54,14 @@
                                          styleClass="users-select"
                                          filter="true"
                                          filterMatchMode="contains">
-                            <f:selectItem itemLabel="Sélectionnez un thésaurus" itemValue="#{null}" />
+                            <f:selectItem itemLabel="#{msg['dialog.parametrage.selectThesaurus']}" itemValue="#{null}" />
                             <f:selectItems value="#{collectionParametrageBean.availableThesaurus}" var="thesaurus"
                                            itemLabel="#{thesaurus.selectedLabel}" itemValue="#{thesaurus.idTheso}"/>
                             <p:ajax event="valueChange"
                                     listener="#{collectionParametrageBean.onThesaurusSearch}"
                                     process="paramThesaurusSelect"
                                     update=":collectionParametrageForm :growl"
-                                    onstart="showLoading('Chargement...', 'spinner');"
+                                    onstart="showLoading('#{msg['common.loading']}', 'spinner');"
                                     oncomplete="setTimeout(function(){hideLoading();}, 300);"/>
                         </p:selectOneMenu>
                     </div>
@@ -70,13 +70,13 @@
 
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field">
-                    <p:outputLabel for="paramLanguageSelect" value="Liste des langues" />
+                    <p:outputLabel for="paramLanguageSelect" value="#{msg['dialog.parametrage.languageList']}" />
                     <div class="input-wrapper">
                         <i class="pi pi-globe input-icon" />
                         <p:selectOneMenu id="paramLanguageSelect"
                                          value="#{collectionParametrageBean.selectedLanguageId}"
                                          styleClass="users-select">
-                            <f:selectItem itemLabel="Sélectionnez une langue" itemValue="#{null}" />
+                            <f:selectItem itemLabel="#{msg['dialog.parametrage.selectLanguage']}" itemValue="#{null}" />
                             <f:selectItems value="#{collectionParametrageBean.availableLanguages}" var="langue"
                                            itemLabel="#{langue.nom}" itemValue="#{langue.idLang}"/>
                         </p:selectOneMenu>
@@ -86,7 +86,7 @@
 
             <div class="opentheso-dialog-row">
                 <div class="opentheso-dialog-field-full">
-                    <p:outputLabel for="paramCollectionSelect" value="Liste des collections" />
+                    <p:outputLabel for="paramCollectionSelect" value="#{msg['dialog.parametrage.collectionList']}" />
                     <div class="input-wrapper">
                         <i class="pi pi-sitemap input-icon" />
                         <p:selectOneMenu id="paramCollectionSelect"
@@ -94,7 +94,7 @@
                                          styleClass="users-select"
                                          filter="true"
                                          filterMatchMode="contains">
-                            <f:selectItem itemLabel="Sélectionnez une collection" itemValue="" />
+                            <f:selectItem itemLabel="#{msg['dialog.parametrage.selectCollection']}" itemValue="" />
                             <f:selectItems value="#{collectionParametrageBean.availableCollections}" var="collection"
                                            itemLabel="#{collection.selectedLabel}" itemValue="#{collection.idGroup}"/>
                         </p:selectOneMenu>
@@ -104,17 +104,17 @@
 
             <div class="opentheso-dialog-row opentheso-dialog-actions parametrage-dialog-footer" style="text-align: right">
                 <div class="opentheso-dialog-actions-buttons category-form-actions parametrage-form-actions">
-                    <p:button value="Annuler"
+                    <p:button value="#{msg['common.action.cancel']}"
                               icon="pi pi-times"
                               onclick="PF('collectionParametrageDialog').hide(); return false;"
                               styleClass="category-btn category-btn-cancel"/>
-                    <p:commandButton value="Valider"
+                    <p:commandButton value="#{msg['common.action.validate']}"
                                     icon="pi pi-check"
                                     action="#{collectionParametrageBean.saveParametrage}"
                                     process="@form"
                                     update=":growl"
                                     styleClass="category-btn category-btn-validate"
-                                    onstart="showLoading('Enregistrement...', 'spinner');"
+                                    onstart="showLoading('#{msg['common.action.registering']}', 'spinner');"
                                     oncomplete="setTimeout(function(){hideLoading();}, 300);"
                                     onerror="forceHideLoading();"/>
                 </div>

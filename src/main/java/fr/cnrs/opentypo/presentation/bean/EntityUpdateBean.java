@@ -756,11 +756,11 @@ public class EntityUpdateBean implements Serializable {
     public void addTempLabel() {
 
         if (newLabelValue == null || newLabelValue.trim().isEmpty()) {
-            addErrorMessage("Le label est requis.");
+            addErrorMessage(JsfMessages.get("modifier.msg.labelRequired"));
             return;
         }
         if (newLabelLangueCode == null || newLabelLangueCode.trim().isEmpty()) {
-            addErrorMessage("La langue est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.languageRequired"));
             return;
         }
 
@@ -770,7 +770,7 @@ public class EntityUpdateBean implements Serializable {
         updateAvailableTmpLanguagesForLabel();
         newLabelValue = null;
         newLabelLangueCode = null;
-        addInfoMessage("Le label a été ajouté avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelAdded"));
     }
 
     public boolean isLangueAlreadyUsedInLabels(String langueCode, List<NameItem> candidatLabels) {
@@ -785,12 +785,12 @@ public class EntityUpdateBean implements Serializable {
         if (descriptions == null) descriptions = new ArrayList<>();
 
         if (newDescriptionValue == null || newDescriptionValue.trim().isEmpty()) {
-            addErrorMessage("La description est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.descriptionRequired"));
             return;
         }
 
         if (newDescriptionLangueCode == null || newDescriptionLangueCode.trim().isEmpty()) {
-            addErrorMessage("La langue est requise.");
+            addErrorMessage(JsfMessages.get("modifier.msg.languageRequired"));
             return;
         }
 
@@ -800,7 +800,7 @@ public class EntityUpdateBean implements Serializable {
         updateAvailableTmpLanguagesForDefinition();
         newDescriptionValue = null;
         newDescriptionLangueCode = null;
-        addInfoMessage("La description a été ajoutée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionAdded"));
     }
 
     public boolean isLangueAlreadyUsedInDescriptions(String langueCode, List<DescriptionItem> descriptions) {
@@ -816,7 +816,7 @@ public class EntityUpdateBean implements Serializable {
             descriptions.remove(descriptionItem);
         }
         updateAvailableTmpLanguagesForDefinition();
-        addInfoMessage("La description a été supprimée avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.descriptionRemoved"));
         PrimeFaces.current().ajax().update("@form:modifierDefinitionsPanel", ":growl");
     }
 
@@ -824,7 +824,7 @@ public class EntityUpdateBean implements Serializable {
 
         if (noms != null) noms.remove(labelItem);
         updateAvailableTmpLanguagesForLabel();
-        addInfoMessage("Le label a été supprimé avec succès.");
+        addInfoMessage(JsfMessages.get("modifier.msg.labelRemoved"));
         PrimeFaces.current().ajax().update("@form:modifierLabelsPanel", ":growl");
     }
 
@@ -834,15 +834,18 @@ public class EntityUpdateBean implements Serializable {
     }
 
     private void addErrorMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"), msg));
     }
 
     private void addInfoMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"), msg));
     }
 
     private void addWarnMessage(String msg) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Attention", msg));
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("common.growl.warn"), msg));
     }
 
     /**
@@ -851,7 +854,7 @@ public class EntityUpdateBean implements Serializable {
      */
     public void handleFileUpload(FileUploadEvent event) {
         if (event == null || event.getFile() == null || entityImageService == null) {
-            addErrorMessage("Impossible d'ajouter l'image.");
+            addErrorMessage(JsfMessages.get("modifier.msg.imageAddFailed"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -860,16 +863,17 @@ public class EntityUpdateBean implements Serializable {
             String url = entityImageService.saveUploadedImage(event.getFile(), contextPath);
             if (editingImages == null) editingImages = new ArrayList<>();
             if (editingImages.stream().anyMatch(i -> i != null && i.getUrl() != null && i.getUrl().trim().equalsIgnoreCase(url))) {
-                addWarnMessage("Cette image a déjà été ajoutée.");
+                addWarnMessage(JsfMessages.get("modifier.msg.imageAlreadyAdded"));
             } else {
                 editingImages.add(new EditingImageItem(url, null));
                 if (uploadedUrlsToRevertOnCancel == null) uploadedUrlsToRevertOnCancel = new ArrayList<>();
                 uploadedUrlsToRevertOnCancel.add(url);
-                addInfoMessage("Image ajoutée.");
+                addInfoMessage(JsfMessages.get("modifier.msg.imageAdded"));
             }
         } catch (Exception e) {
             log.error("Erreur lors de l'upload d'une image", e);
-            addErrorMessage("Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+            addErrorMessage(JsfMessages.format("modifier.msg.imageSaveFailed",
+                    e.getMessage() != null ? e.getMessage() : JsfMessages.get("common.error.unknown")));
         }
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
@@ -877,12 +881,12 @@ public class EntityUpdateBean implements Serializable {
     /** Ajoute une image par URL. */
     public void addImageFromUrl() {
         if (newImageUrlInput == null || newImageUrlInput.trim().isEmpty()) {
-            addErrorMessage("Veuillez saisir une URL.");
+            addErrorMessage(JsfMessages.get("modifier.msg.urlRequired"));
             return;
         }
         String url = newImageUrlInput.trim();
         if (!isValidRemoteImageUrl(url)) {
-            addErrorMessage("L'URL n'est pas valide ou l'image n'est pas accessible.");
+            addErrorMessage(JsfMessages.get("modifier.msg.urlInvalid"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -890,13 +894,13 @@ public class EntityUpdateBean implements Serializable {
             editingImages = new ArrayList<>();
         }
         if (editingImages.stream().anyMatch(i -> i != null && i.getUrl() != null && i.getUrl().trim().equalsIgnoreCase(url))) {
-            addErrorMessage("Cette URL a déjà été ajoutée.");
+            addErrorMessage(JsfMessages.get("modifier.msg.urlAlreadyAdded"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
         editingImages.add(new EditingImageItem(url, null));
         newImageUrlInput = null;
-        addInfoMessage("Image ajoutée.");
+        addInfoMessage(JsfMessages.get("modifier.msg.imageAdded"));
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
 
@@ -1003,13 +1007,13 @@ public class EntityUpdateBean implements Serializable {
      */
     public void addImageFromFileAndAddSlot() {
         if (pendingFileSlots == null || pendingFileSlots.isEmpty() || entityImageService == null) {
-            addErrorMessage("Impossible d'ajouter l'image.");
+            addErrorMessage(JsfMessages.get("modifier.msg.imageAddFailed"));
             PrimeFaces.current().ajax().update(":centerContent", ":growl");
             return;
         }
         PendingFileSlot slot = pendingFileSlots.get(0);
         if (slot.getPart() == null || slot.getPart().getSize() == 0) {
-            addErrorMessage("Veuillez sélectionner un fichier.");
+            addErrorMessage(JsfMessages.get("modifier.msg.fileRequired"));
             PrimeFaces.current().ajax().update(":centerContent", ":growl");
             return;
         }
@@ -1017,7 +1021,7 @@ public class EntityUpdateBean implements Serializable {
             byte[] content = slot.getPart().getInputStream().readAllBytes();
             String hash = computeSha256Hex(content);
             if (uploadedFileUrlToHash != null && uploadedFileUrlToHash.containsValue(hash)) {
-                addErrorMessage("Ce fichier a déjà été ajouté.");
+                addErrorMessage(JsfMessages.get("modifier.msg.fileAlreadyAdded"));
                 pendingFileSlots.set(0, new PendingFileSlot());
                 PrimeFaces.current().ajax().update(":centerContent", ":growl");
                 return;
@@ -1032,13 +1036,14 @@ public class EntityUpdateBean implements Serializable {
             uploadedUrlsToRevertOnCancel.add(url);
             if (uploadedFileUrlToHash == null) uploadedFileUrlToHash = new HashMap<>();
             uploadedFileUrlToHash.put(url, hash);
-            addInfoMessage("Image ajoutée.");
+            addInfoMessage(JsfMessages.get("modifier.msg.imageAdded"));
         } catch (IOException e) {
             log.error("Erreur lors de la lecture du fichier", e);
-            addErrorMessage("Impossible de lire le fichier.");
+            addErrorMessage(JsfMessages.get("modifier.msg.fileReadFailed"));
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement de l'image", e);
-            addErrorMessage("Impossible d'enregistrer l'image : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+            addErrorMessage(JsfMessages.format("modifier.msg.imageSaveFailed",
+                    e.getMessage() != null ? e.getMessage() : JsfMessages.get("common.error.unknown")));
         }
         pendingFileSlots.set(0, new PendingFileSlot());
         PrimeFaces.current().ajax().update(":centerContent", ":growl");
@@ -1093,7 +1098,8 @@ public class EntityUpdateBean implements Serializable {
                 if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.put(url, hash);
             } catch (Exception e) {
                 log.error("Erreur lors de l'upload d'une image en attente", e);
-                addErrorMessage("Impossible d'enregistrer un fichier : " + (e.getMessage() != null ? e.getMessage() : "erreur inconnue"));
+                addErrorMessage(JsfMessages.format("modifier.msg.fileSaveFailed",
+                        e.getMessage() != null ? e.getMessage() : JsfMessages.get("common.error.unknown")));
             }
         }
         if (pendingFilePartsHolder != null) pendingFilePartsHolder.setParts(new ArrayList<>());
@@ -1121,7 +1127,7 @@ public class EntityUpdateBean implements Serializable {
     public void removeImageAtIndex(int index) {
         if (editingImages != null && index >= 0 && index < editingImages.size()) {
             editingImages.remove(index);
-            addInfoMessage("Image supprimée.");
+            addInfoMessage(JsfMessages.get("modifier.msg.imageRemoved"));
         }
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
@@ -1134,7 +1140,7 @@ public class EntityUpdateBean implements Serializable {
             }
             if (uploadedUrlsToRevertOnCancel != null) uploadedUrlsToRevertOnCancel.remove(url);
             if (uploadedFileUrlToHash != null) uploadedFileUrlToHash.remove(url);
-            addInfoMessage("Image retirée (suppression effective à l'enregistrement).");
+            addInfoMessage(JsfMessages.get("modifier.msg.imageRemovedPending"));
         }
         PrimeFaces.current().ajax().update(":contentPanels", ":growl");
     }
@@ -1198,7 +1204,7 @@ public class EntityUpdateBean implements Serializable {
 
     public void addInternalAlignment() {
         if (selectedInternalAlignmentTypeId == null) {
-            addWarnMessage("Veuillez sélectionner un type à aligner.");
+            addWarnMessage(JsfMessages.get("modifier.msg.alignmentTypeRequired"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -1206,7 +1212,7 @@ public class EntityUpdateBean implements Serializable {
         Long currentId = applicationBean != null && applicationBean.getSelectedEntity() != null
                 ? applicationBean.getSelectedEntity().getId() : null;
         if (currentId != null && currentId.equals(targetId)) {
-            addWarnMessage("Vous ne pouvez pas aligner un type avec lui-même.");
+            addWarnMessage(JsfMessages.get("modifier.msg.alignmentSelf"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -1215,7 +1221,7 @@ public class EntityUpdateBean implements Serializable {
         }
         boolean exists = internalAlignments.stream().anyMatch(item -> item != null && targetId.equals(item.getTargetTypeId()));
         if (exists) {
-            addWarnMessage("Ce type est déjà dans la liste des alignements internes.");
+            addWarnMessage(JsfMessages.get("modifier.msg.alignmentDuplicate"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -1243,12 +1249,12 @@ public class EntityUpdateBean implements Serializable {
         String label = normalizeExternalAlignmentLabel(selectedExternalAlignmentLabel);
         String url = normalizeExternalAlignmentUrl(selectedExternalAlignmentUrl);
         if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) {
-            addWarnMessage("Veuillez renseigner le libellé et l'URL pour l'alignement externe.");
+            addWarnMessage(JsfMessages.get("modifier.msg.externalAlignmentRequired"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
         if (!isValidHttpUrl(url)) {
-            addWarnMessage("Veuillez saisir une URL valide (http/https) pour l'alignement externe.");
+            addWarnMessage(JsfMessages.get("modifier.msg.externalAlignmentUrlInvalid"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -1259,7 +1265,7 @@ public class EntityUpdateBean implements Serializable {
         boolean exists = externalAlignments.stream().anyMatch(item -> item != null
                 && normalizedUrlKey.equals(normalizeExternalAlignmentUrlForComparison(item.getUrl())));
         if (exists) {
-            addWarnMessage("Un alignement externe avec cette URL existe déjà.");
+            addWarnMessage(JsfMessages.get("modifier.msg.externalAlignmentDuplicate"));
             PrimeFaces.current().ajax().update(":contentPanels", ":growl");
             return;
         }
@@ -1407,7 +1413,7 @@ public class EntityUpdateBean implements Serializable {
         if (loginBean == null || loginBean.getCurrentUser() == null
                 || !entityAuthorityService.canUpdate(loginBean.getCurrentUser(), entityToUpdate)) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Erreur", "Vous n'avez pas les droits pour modifier cette entité."));
+                    JsfMessages.get("common.growl.error"), JsfMessages.get("modifier.msg.noEditRights")));
             return;
         }
 
@@ -1641,7 +1647,7 @@ public class EntityUpdateBean implements Serializable {
         resetCategoryDialogForm();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
-                "Succès", "Les modifications ont été enregistrées avec succès."));
+                JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
 
         log.info("Groupe mis à jour avec succès: {}", applicationBean.getSelectedEntity().getCode());
     }
@@ -1892,8 +1898,9 @@ public class EntityUpdateBean implements Serializable {
                 .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
         if (dejaPresent) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
-                            "« " + valeur + " » est déjà dans la liste des aires de circulation."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            JsfMessages.get("modifier.msg.valueAlreadyPresent.summary"),
+                            JsfMessages.format("modifier.msg.valueAlreadyPresent.areasCirculation", valeur)));
             return;
         }
         airesCirculation.add(ReferenceOpentheso.builder()
@@ -1926,8 +1933,9 @@ public class EntityUpdateBean implements Serializable {
                 .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
         if (dejaPresent) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
-                            "« " + valeur + " » est déjà dans la liste des périodes."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            JsfMessages.get("modifier.msg.valueAlreadyPresent.summary"),
+                            JsfMessages.format("modifier.msg.valueAlreadyPresent.periods", valeur)));
             return;
         }
         periodes.add(ReferenceOpentheso.builder()
@@ -1953,7 +1961,7 @@ public class EntityUpdateBean implements Serializable {
     public void addFonctionUsageFromAutocomplete() {
         if (fonctionsUsage == null) fonctionsUsage = new ArrayList<>();
         addOpenthesoFromAutocompleteList(fonctionsUsage, fonctionUsageAutocompleteSelection,
-                ReferenceOpenthesoEnum.FONCTION_USAGE, "des fonctions / usages");
+                ReferenceOpenthesoEnum.FONCTION_USAGE, "modifier.opentheso.list.fonctionsUsages");
         fonctionUsageAutocompleteSelection = new PactolsConcept();
     }
 
@@ -1964,7 +1972,7 @@ public class EntityUpdateBean implements Serializable {
     public void addFabricationFaconnageFromAutocomplete() {
         if (fabricationsFaconnage == null) fabricationsFaconnage = new ArrayList<>();
         addOpenthesoFromAutocompleteList(fabricationsFaconnage, fabricationFaconnageAutocompleteSelection,
-                ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, "des fabrications / façonnages");
+                ReferenceOpenthesoEnum.FABRICATION_FACONNAGE, "modifier.opentheso.list.fabrications");
         fabricationFaconnageAutocompleteSelection = new PactolsConcept();
     }
 
@@ -1975,7 +1983,7 @@ public class EntityUpdateBean implements Serializable {
     public void addCouleurPateFromAutocomplete() {
         if (couleursPate == null) couleursPate = new ArrayList<>();
         addOpenthesoFromAutocompleteList(couleursPate, couleurPateAutocompleteSelection,
-                ReferenceOpenthesoEnum.COULEUR_PATE, "des couleurs de pâte");
+                ReferenceOpenthesoEnum.COULEUR_PATE, "modifier.opentheso.list.couleursPate");
         couleurPateAutocompleteSelection = new PactolsConcept();
     }
 
@@ -1986,7 +1994,7 @@ public class EntityUpdateBean implements Serializable {
     public void addNaturePateFromAutocomplete() {
         if (naturesPate == null) naturesPate = new ArrayList<>();
         addOpenthesoFromAutocompleteList(naturesPate, naturePateAutocompleteSelection,
-                ReferenceOpenthesoEnum.NATURE_PATE, "des natures de pâte");
+                ReferenceOpenthesoEnum.NATURE_PATE, "modifier.opentheso.list.naturesPate");
         naturePateAutocompleteSelection = new PactolsConcept();
     }
 
@@ -1997,7 +2005,7 @@ public class EntityUpdateBean implements Serializable {
     public void addInclusionsPateFromAutocomplete() {
         if (inclusionsPate == null) inclusionsPate = new ArrayList<>();
         addOpenthesoFromAutocompleteList(inclusionsPate, inclusionsAutocompleteSelection,
-                ReferenceOpenthesoEnum.INCLUSIONS, "des inclusions");
+                ReferenceOpenthesoEnum.INCLUSIONS, "modifier.opentheso.list.inclusions");
         inclusionsAutocompleteSelection = new PactolsConcept();
     }
 
@@ -2008,7 +2016,7 @@ public class EntityUpdateBean implements Serializable {
     public void addCuissonPostCuissonFromAutocomplete() {
         if (cuissonsPostCuisson == null) cuissonsPostCuisson = new ArrayList<>();
         addOpenthesoFromAutocompleteList(cuissonsPostCuisson, cuissonPostCuissonAutocompleteSelection,
-                ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, "des cuissons / post-cuissons");
+                ReferenceOpenthesoEnum.CUISSON_POST_CUISSON, "modifier.opentheso.list.cuissons");
         cuissonPostCuissonAutocompleteSelection = new PactolsConcept();
     }
 
@@ -2025,8 +2033,9 @@ public class EntityUpdateBean implements Serializable {
                 .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
         if (dejaPresent) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
-                            "« " + valeur + " » est déjà dans la liste des aires de production."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            JsfMessages.get("modifier.msg.valueAlreadyPresent.summary"),
+                            JsfMessages.format("modifier.msg.valueAlreadyPresent.productionAreas", valeur)));
             return;
         }
         productions.add(ReferenceOpentheso.builder()
@@ -2058,8 +2067,9 @@ public class EntityUpdateBean implements Serializable {
                 .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
         if (dejaPresent) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
-                            "« " + valeur + " » est déjà dans la liste des appellations usuelles."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            JsfMessages.get("modifier.msg.valueAlreadyPresent.summary"),
+                            JsfMessages.format("modifier.msg.valueAlreadyPresent.usualNames", valeur)));
             return;
         }
         appellationsUsuelles.add(ReferenceOpentheso.builder()
@@ -2120,7 +2130,8 @@ public class EntityUpdateBean implements Serializable {
         String url = corpusLieUrl != null ? corpusLieUrl.trim() : "";
         if (!StringUtils.hasText(label) || !StringUtils.hasText(url)) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "Veuillez saisir un libellé et une URL."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("modifier.corpus.title"),
+                            JsfMessages.get("modifier.corpus.labelUrlRequired")));
             return;
         }
         String normalizedUrl = url;
@@ -2129,7 +2140,8 @@ public class EntityUpdateBean implements Serializable {
         }
         if (!(normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://"))) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "L’URL doit commencer par http://, https:// ou www."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("modifier.corpus.title"),
+                            JsfMessages.get("modifier.corpus.urlInvalid")));
             return;
         }
         final String normalizedUrlFinal = normalizedUrl;
@@ -2142,7 +2154,8 @@ public class EntityUpdateBean implements Serializable {
                         && it.getUrl().trim().equalsIgnoreCase(normalizedUrlFinal));
         if (duplicate) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Corpus lié(s)", "Cette entrée est déjà présente."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, JsfMessages.get("modifier.corpus.title"),
+                            JsfMessages.get("modifier.corpus.duplicate")));
             return;
         }
         corpusLies.add(new CorpusLinkItem(label, normalizedUrlFinal));
@@ -2303,7 +2316,7 @@ public class EntityUpdateBean implements Serializable {
     }
 
     private void addOpenthesoFromAutocompleteList(List<ReferenceOpentheso> list, PactolsConcept selection,
-                                                  ReferenceOpenthesoEnum code, String messageListe) {
+                                                  ReferenceOpenthesoEnum code, String listMessageKey) {
         if (selection == null || selection.getSelectedTerm() == null) return;
         String valeur = selection.getSelectedTerm().trim();
         if (valeur.isEmpty()) return;
@@ -2311,8 +2324,10 @@ public class EntityUpdateBean implements Serializable {
                 .anyMatch(ref -> ref.getValeur() != null && ref.getValeur().equalsIgnoreCase(valeur));
         if (dejaPresent) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Valeur déjà présente",
-                            "« " + valeur + " » est déjà dans la liste " + messageListe + "."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            JsfMessages.get("modifier.msg.valueAlreadyPresent.summary"),
+                            JsfMessages.format("modifier.msg.valueAlreadyPresent.inList",
+                                    valeur, JsfMessages.get(listMessageKey))));
             return;
         }
         list.add(ReferenceOpentheso.builder()

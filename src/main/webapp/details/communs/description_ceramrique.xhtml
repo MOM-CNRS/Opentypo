@@ -36,13 +36,13 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme.url}">
-                                                    <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                    <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                         #{applicationBean.selectedEntity.caracteristiquePhysique.forme.valeur}
                                                     </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.caracteristiquePhysique.forme}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -58,7 +58,7 @@
                                                 #{applicationBean.selectedEntity.descriptionDetail.decors}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.decors}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -80,7 +80,7 @@
                                                 #{applicationBean.selectedEntity.descriptionDetail.marques}
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.descriptionDetail.marques}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -104,7 +104,7 @@
                                                             </h:outputLink>
                                                         </ui:fragment>
                                                         <ui:fragment rendered="#{empty fu.url}">
-                                                            <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                            <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                                 #{fu.valeur}
                                                             </span>
                                                         </ui:fragment>
@@ -112,7 +112,7 @@
                                                 </ui:repeat>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{empty applicationBean.selectedEntity.fonctionsUsage}">
-                                                <span class="empty-field-message">Non renseigné</span>
+                                                <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                             </ui:fragment>
                                         </div>
                                     </h:panelGroup>
@@ -137,13 +137,13 @@
                                         </h:outputLink>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle.url}">
-                                        <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                        <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                             #{applicationBean.selectedEntity.categorieFonctionnelle.valeur}
                                         </span>
                                     </ui:fragment>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty applicationBean.selectedEntity.categorieFonctionnelle}">
-                                    <span class="empty-field-message">Non renseigné</span>
+                                    <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                 </ui:fragment>
                             </div>
                         </h:panelGroup>

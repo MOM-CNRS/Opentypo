@@ -60,7 +60,7 @@
                                 </ui:fragment>
 
                                 <ui:fragment rendered="#{!applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
-                                    <span class="empty-field-message">Non renseigné</span>
+                                    <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                 </ui:fragment>
                             </div>
                         </div>

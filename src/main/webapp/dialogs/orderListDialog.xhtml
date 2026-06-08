@@ -38,13 +38,13 @@
                          responsive="true"
                          styleClass="order-list-items"/>
             <div class="order-list-dialog-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                  icon="pi pi-times"
                                  styleClass="order-list-dialog-btn order-list-dialog-btn-cancel"
                                  process="@this"
                                  update="@none"
                                  oncomplete="PF('orderListDialog').hide();"/>
-                <p:commandButton value="Enregistrer l'ordre"
+                <p:commandButton value="#{msg['dialog.order.save']}"
                                  icon="pi pi-check"
                                  styleClass="order-list-dialog-btn order-list-dialog-btn-validate"
                                  action="#{applicationBean.saveOrderFromDialog()}"

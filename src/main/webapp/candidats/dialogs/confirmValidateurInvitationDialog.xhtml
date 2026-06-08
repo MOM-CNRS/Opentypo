@@ -6,7 +6,7 @@
 
     <p:dialog id="confirmValidateurInvitationDialog"
               widgetVar="confirmValidateurInvitationDialog"
-              header="Confirmer l'envoi des invitations"
+              header="#{msg['candidat.dialog.validateurInvitation.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -21,18 +21,17 @@
                     <i class="pi pi-info-circle" />
                 </div>
                 <p class="candidat-confirm-message-text">
-                    Voulez-vous enregistrer les validateurs sélectionnés ?
-                    La liste sera mise à jour dans la base de données.
+                    #{msg['candidat.dialog.validateurInvitation.message']}
                 </p>
             </div>
 
             <div class="candidat-confirm-actions">
-                <p:commandButton value="Annuler"
+                <p:commandButton value="#{msg['common.action.cancel']}"
                                  icon="pi pi-times"
                                  onclick="PF('confirmValidateurInvitationDialog').hide(); return false;"
                                  type="button"
                                  styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
-                <p:commandButton value="Oui, envoyer"
+                <p:commandButton value="#{msg['common.action.yesSend']}"
                                  icon="pi pi-send"
                                  action="#{candidatBean.sendValidateurInvitations}"
                                  process="@form"

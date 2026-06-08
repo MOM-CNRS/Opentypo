@@ -7,6 +7,7 @@ import fr.cnrs.opentypo.domain.entity.EntityType;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.primefaces.model.DefaultTreeNode;
@@ -161,12 +162,12 @@ public class CandidatReferenceTreeService {
     public String getEntityTypeName(EntityType entityType) {
         if (entityType == null) return "";
         return switch (entityType.getCode()) {
-            case EntityConstants.ENTITY_TYPE_COLLECTION -> "Collection";
-            case EntityConstants.ENTITY_TYPE_CATEGORY -> "Catégorie";
-            case EntityConstants.ENTITY_TYPE_GROUP -> "Groupe";
-            case EntityConstants.ENTITY_TYPE_SERIES -> "Série";
-            case EntityConstants.ENTITY_TYPE_TYPE -> "Type";
-            case EntityConstants.ENTITY_TYPE_REFERENCE -> "Référentiel";
+            case EntityConstants.ENTITY_TYPE_COLLECTION -> JsfMessages.get("search.entity.collection");
+            case EntityConstants.ENTITY_TYPE_CATEGORY -> JsfMessages.get("search.entity.category");
+            case EntityConstants.ENTITY_TYPE_GROUP -> JsfMessages.get("search.entity.group");
+            case EntityConstants.ENTITY_TYPE_SERIES -> JsfMessages.get("search.entity.series");
+            case EntityConstants.ENTITY_TYPE_TYPE -> JsfMessages.get("search.entity.type");
+            case EntityConstants.ENTITY_TYPE_REFERENCE -> JsfMessages.get("search.entity.reference");
             default -> entityType.getCode();
         };
     }
@@ -229,7 +230,7 @@ public class CandidatReferenceTreeService {
      * Retourne le label d'une collection pour la langue donnée.
      */
     public String getCollectionLabel(Entity collection, String langCode) {
-        if (collection == null) return "Aucune collection";
+        if (collection == null) return JsfMessages.get("candidat.error.noCollection");
         if (langCode != null && collection.getLabels() != null) {
             Optional<Label> opt = collection.getLabels().stream()
                     .filter(l -> l.getLangue() != null && langCode.equalsIgnoreCase(l.getLangue().getCode()))

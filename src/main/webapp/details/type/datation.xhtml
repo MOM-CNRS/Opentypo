@@ -10,7 +10,7 @@
                 <header class="concept-info-header monnaie-communs-header description-typo-header">
                     <div class="concept-info-title-section monnaie-communs-title-wrapper">
                         <i class="pi pi-calendar monnaie-communs-title-icon" aria-hidden="true"/>
-                        <h2 id="type-datation-heading" class="concept-info-title monnaie-communs-title">Datation</h2>
+                        <h2 id="type-datation-heading" class="concept-info-title monnaie-communs-title">#{msg['modifier.dating.section.title']}</h2>
                     </div>
                 </header>
 
@@ -20,7 +20,7 @@
                             <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
                                 <div class="concept-info-label">
                                     <i class="pi pi-calendar monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Période</span>
+                                    <span>#{msg['modifier.field.period']}</span>
                                 </div>
                                 <div class="concept-info-value">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.periodes}">
@@ -36,14 +36,14 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty per.url}">
-                                                    <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                    <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                         #{per.valeur}
                                                     </span>
                                                 </ui:fragment>
                                             </ui:fragment>
                                         </ui:repeat>
                                     </ui:fragment>
-                                    <h:outputText value="Non renseigné"
+                                    <h:outputText value="#{msg['common.empty.notProvided']}"
                                                   rendered="#{empty applicationBean.selectedEntity.periodes}"
                                                   styleClass="empty-field-message"/>
                                 </div>
@@ -59,7 +59,7 @@
                                         #{applicationBean.selectedEntity.tpq}
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.tpq}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -74,7 +74,7 @@
                                         #{applicationBean.selectedEntity.taq}
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.taq}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
@@ -86,14 +86,14 @@
                             <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
                                 <div class="concept-info-label">
                                     <i class="pi pi-comment monnaie-communs-icon" aria-hidden="true"/>
-                                    <span>Commentaire datation</span>
+                                    <span>#{msg['modifier.field.datingComment']}</span>
                                 </div>
                                 <div class="concept-info-value concept-info-description">
                                     <ui:fragment rendered="#{not empty applicationBean.selectedEntity.commentaireDatation}">
                                         #{applicationBean.selectedEntity.commentaireDatation}
                                     </ui:fragment>
                                     <ui:fragment rendered="#{empty applicationBean.selectedEntity.commentaireDatation}">
-                                        <span class="empty-field-message">Non renseigné</span>
+                                        <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>

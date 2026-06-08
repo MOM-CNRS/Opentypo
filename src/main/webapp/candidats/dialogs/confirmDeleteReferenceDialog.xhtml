@@ -4,7 +4,7 @@
 
     <p:dialog id="confirmDeleteReferenceDialog"
               widgetVar="confirmDeleteReferenceDialog"
-              header="Confirmer la suppression"
+              header="#{msg['candidat.dialog.deleteReference.header']}"
               modal="true"
               closable="true"
               resizable="false"
@@ -23,12 +23,12 @@
         </div>
 
         <div class="candidat-confirm-actions">
-            <p:commandButton value="Annuler"
+            <p:commandButton value="#{msg['common.action.cancel']}"
                              icon="pi pi-times"
                              onclick="PF('confirmDeleteReferenceDialog').hide(); return false;"
                              type="button"
                              styleClass="candidat-confirm-btn candidat-confirm-btn-cancel"/>
-            <p:commandButton value="Oui, supprimer"
+            <p:commandButton value="#{msg['common.action.yesDelete']}"
                              icon="pi pi-trash"
                              action="#{candidatBean.executeConfirmDelete}"
                              process="@this"

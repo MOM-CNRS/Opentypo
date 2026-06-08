@@ -7,6 +7,7 @@ import fr.cnrs.opentypo.application.service.TypeValidationAuthorityService;
 import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
+import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,25 +37,23 @@ public class CandidatValidationActionService {
 
     @Transactional
     public ActionResult validerCandidat(Long candidatId, Utilisateur currentUser) {
-        if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");
+        if (candidatId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.invalidCandidate"));
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
 
         if (!typeValidationAuthorityService.canUserValidateOrRefuseType(candidatId, currentUser)) {
-            return new ActionResult(false, null,
-                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.noPermission"));
         }
 
         if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
-            return new ActionResult(false, null,
-                    "Seuls les éléments en attente de validation peuvent être publiés.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.onlyPendingCanPublish"));
         }
 
         List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(candidatId);
         if (!missing.isEmpty()) {
             return new ActionResult(false, null,
-                    "Champs obligatoires incomplets : " + String.join("; ", missing));
+                    JsfMessages.format("candidat.validation.missingRequiredFields", String.join("; ", missing)));
         }
 
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
@@ -64,25 +63,23 @@ public class CandidatValidationActionService {
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
-        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
-        return new ActionResult(true, "Le candidat a été validé par " + userName + ".", null);
+        String userName = formatUserName(currentUser);
+        return new ActionResult(true, JsfMessages.format("candidat.validation.validatedBy", userName), null);
     }
 
     @Transactional
     public ActionResult refuserCandidat(Long candidatId, Utilisateur currentUser) {
-        if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");
+        if (candidatId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.invalidCandidate"));
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
 
         if (!typeValidationAuthorityService.canUserValidateOrRefuseType(candidatId, currentUser)) {
-            return new ActionResult(false, null,
-                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.noPermission"));
         }
 
         if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
-            return new ActionResult(false, null,
-                    "Seuls les éléments en attente de validation peuvent être refusés.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.onlyPendingCanRefuse"));
         }
 
         if (entity.getAuteurs() != null) entity.getAuteurs().size();
@@ -90,32 +87,32 @@ public class CandidatValidationActionService {
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
-        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
-        return new ActionResult(true, "Le candidat a été refusé par " + userName + ".", null);
+        String userName = formatUserName(currentUser);
+        return new ActionResult(true, JsfMessages.format("candidat.validation.refusedBy", userName), null);
     }
 
     /** Transition PROPOSITION vers IN_VALIDATION si les champs obligatoires sont complets. */
     @Transactional
     public ActionResult demanderValidation(Long entityId, Utilisateur currentUser) {
         if (entityId == null) {
-            return new ActionResult(false, null, "Entité invalide.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.invalidEntity"));
         }
         Entity entity = entityRepository.findById(entityId).orElse(null);
         if (entity == null) {
-            return new ActionResult(false, null, "Entité introuvable.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
         }
         if (!EntityStatusEnum.PROPOSITION.name().equals(entity.getStatut())) {
-            return new ActionResult(false, null, "Seul un brouillon peut être envoyé en validation.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.onlyDraftCanSubmit"));
         }
         List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(entityId);
         if (!missing.isEmpty()) {
             return new ActionResult(false, null,
-                    "Champs obligatoires incomplets : " + String.join("; ", missing));
+                    JsfMessages.format("candidat.validation.missingRequiredFields", String.join("; ", missing)));
         }
         entity.setStatut(EntityStatusEnum.IN_VALIDATION.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
-        return new ActionResult(true, "La demande de validation a été enregistrée.", null);
+        return new ActionResult(true, JsfMessages.get("candidat.validation.requestRecorded"), null);
     }
 
     /**
@@ -123,32 +120,32 @@ public class CandidatValidationActionService {
      */
     @Transactional
     public ActionResult remettreEnBrouillon(Long candidatId, Utilisateur currentUser) {
-        if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");
+        if (candidatId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.invalidCandidate"));
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
 
         entity.setStatut(EntityStatusEnum.PROPOSITION.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
 
-        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
-        return new ActionResult(true, "Le brouillon a été remis en cours par " + userName + ".", null);
+        String userName = formatUserName(currentUser);
+        return new ActionResult(true, JsfMessages.format("candidat.validation.draftRestoredBy", userName), null);
     }
 
     @Transactional
     public ActionResult supprimerCandidat(Long candidatId) {
-        if (candidatId == null) return new ActionResult(false, null, "Candidat invalide.");
+        if (candidatId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.invalidCandidate"));
 
         Entity entity = entityRepository.findById(candidatId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
 
         try {
             candidatEntityService.deleteEntityWithRelations(entity);
-            return new ActionResult(true, "Le candidat a été supprimé avec succès.", null);
+            return new ActionResult(true, JsfMessages.get("candidat.validation.deleted"), null);
         } catch (Exception e) {
             log.error("Erreur lors de la suppression du candidat", e);
-            return new ActionResult(false, null, "Une erreur est survenue lors de la suppression : " + e.getMessage());
+            return new ActionResult(false, null, JsfMessages.format("common.error.delete", e.getMessage()));
         }
     }
 
@@ -158,29 +155,27 @@ public class CandidatValidationActionService {
                                                 String referentiel, String typologieScientifique,
                                                 String identifiantPerenne, String ancienneVersion,
                                                 Utilisateur currentUser) {
-        if (entityId == null) return new ActionResult(false, null, "Aucune entité à valider.");
+        if (entityId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.noEntityToValidate"));
         Entity entity = entityRepository.findById(entityId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
         if (!typeValidationAuthorityService.canUserValidateOrRefuseType(entityId, currentUser)) {
-            return new ActionResult(false, null,
-                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.noPermission"));
         }
         applyModifications(entity, selectedAuteurs, attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
         if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
-            return new ActionResult(false, null,
-                    "Seuls les éléments en attente de validation peuvent être publiés.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.onlyPendingCanPublish"));
         }
         List<String> missing = demandeValidationRequirementsService.computeMissingRequiredLabels(entityId);
         if (!missing.isEmpty()) {
             return new ActionResult(false, null,
-                    "Champs obligatoires incomplets : " + String.join("; ", missing));
+                    JsfMessages.format("candidat.validation.missingRequiredFields", String.join("; ", missing)));
         }
         entity.setStatut(EntityStatusEnum.PUBLIQUE.name());
         arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
-        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
-        return new ActionResult(true, "Le candidat a été validé par " + userName + ".", null);
+        String userName = formatUserName(currentUser);
+        return new ActionResult(true, JsfMessages.format("candidat.validation.validatedBy", userName), null);
     }
 
     @Transactional
@@ -189,23 +184,26 @@ public class CandidatValidationActionService {
                                                String referentiel, String typologieScientifique,
                                                String identifiantPerenne, String ancienneVersion,
                                                Utilisateur currentUser) {
-        if (entityId == null) return new ActionResult(false, null, "Aucune entité à refuser.");
+        if (entityId == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.noEntityToRefuse"));
         Entity entity = entityRepository.findById(entityId).orElse(null);
-        if (entity == null) return new ActionResult(false, null, "Entité introuvable.");
+        if (entity == null) return new ActionResult(false, null, JsfMessages.get("candidat.validation.entityNotFound"));
         if (!typeValidationAuthorityService.canUserValidateOrRefuseType(entityId, currentUser)) {
-            return new ActionResult(false, null,
-                    "Vous n’avez pas les droits pour valider ou refuser cette fiche.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.noPermission"));
         }
         applyModifications(entity, selectedAuteurs, attestations, sitesArcheologiques, referentiel, typologieScientifique, identifiantPerenne, ancienneVersion);
         if (!EntityStatusEnum.IN_VALIDATION.name().equals(entity.getStatut())) {
-            return new ActionResult(false, null,
-                    "Seuls les éléments en attente de validation peuvent être refusés.");
+            return new ActionResult(false, null, JsfMessages.get("candidat.validation.onlyPendingCanRefuse"));
         }
         entity.setStatut(EntityStatusEnum.REFUSE.name());
         addUserAsAuthor(entity, currentUser);
         entityRepository.save(entity);
-        String userName = currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom() : "Utilisateur";
-        return new ActionResult(true, "Le candidat a été refusé par " + userName + ".", null);
+        String userName = formatUserName(currentUser);
+        return new ActionResult(true, JsfMessages.format("candidat.validation.refusedBy", userName), null);
+    }
+
+    private static String formatUserName(Utilisateur currentUser) {
+        return currentUser != null ? currentUser.getPrenom() + " " + currentUser.getNom()
+                : JsfMessages.get("candidat.validation.defaultUser");
     }
 
     private void applyModifications(Entity entity, List<Utilisateur> auteurs, List<String> attestations,

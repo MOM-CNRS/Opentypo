@@ -38,7 +38,7 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty prod.url}">
-                                                    <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                    <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                         #{prod.valeur}
                                                     </span>
                                                 </ui:fragment>
@@ -93,7 +93,7 @@
                                                     </h:outputLink>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{empty ref.url}">
-                                                    <span class="concept-value-external-link" title="Aucun lien OpenTheso">
+                                                    <span class="concept-value-external-link" title="#{msg['opentheso.empty.notConfigured']}">
                                                         #{ref.valeur}
                                                     </span>
                                                 </ui:fragment>
