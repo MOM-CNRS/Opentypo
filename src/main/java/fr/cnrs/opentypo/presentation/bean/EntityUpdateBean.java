@@ -375,7 +375,7 @@ public class EntityUpdateBean implements Serializable {
                         .collect(Collectors.toCollection(ArrayList::new));
             }
         }
-        commentaire = entity.getCommentaire();
+        commentaire = entity.getMetadataCommentaire() == null ? "" : entity.getMetadataCommentaire();
 
         List<ReferenceOpentheso> airesSrc = entity.getAiresCirculation();
         if (airesSrc == null) airesSrc = new ArrayList<>();
