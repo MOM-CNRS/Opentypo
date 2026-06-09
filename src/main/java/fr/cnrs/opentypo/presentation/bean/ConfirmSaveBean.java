@@ -127,7 +127,18 @@ public class ConfirmSaveBean implements Serializable {
             case TARGET_TYPE -> "confirmSave.message.type";
             default -> "confirmSave.message.default";
         };
-        return JsfMessages.format(key, label);
+        return JsfMessages.format(key, escapeHtml(label));
+    }
+
+    /** Échappe le label entité avant insertion dans un message rendu avec escape="false". */
+    private static String escapeHtml(String value) {
+        if (value == null || value.isEmpty()) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 
     /**

@@ -42,7 +42,7 @@
                                     value="#{entityUpdateBean.zoteroPendingKey}"
                                     completeMethod="#{entityUpdateBean.completeZoteroBibliographie}"
                                     var="hit"
-                                    itemLabel="#{hit.label}"
+                                    itemLabel="#{entityUpdateBean.zoteroBibliographieHitLabel(hit)}"
                                     itemValue="#{hit.key}"
                                     dropdown="false"
                                     minQueryLength="2"

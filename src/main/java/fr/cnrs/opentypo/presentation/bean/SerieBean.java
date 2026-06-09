@@ -267,7 +267,7 @@ public class SerieBean implements Serializable {
             EntityType serieType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_SERIES)
                     .orElse(entityTypeRepository.findByCode("SERIE")
                             .orElseThrow(() -> new IllegalStateException(
-                                    JsfMessages.get("entity.type.missing.series")));
+                                    JsfMessages.get("entity.type.missing.series"))));
 
             Entity newSerie = new Entity();
             newSerie.setCode(serieDialogCode.trim());
@@ -350,7 +350,7 @@ public class SerieBean implements Serializable {
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création de la série", e);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
-                    JsfMessages.format("common.error.create.series", e.getMessage()));
+                    JsfMessages.format("common.error.create.series", e.getMessage())));
             PrimeFaces.current().ajax().update(":serieDialogForm, :growl");
         }
     }
@@ -389,7 +389,7 @@ public class SerieBean implements Serializable {
             EntityType serieType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_SERIES)
                     .orElse(entityTypeRepository.findByCode("SERIE")
                             .orElseThrow(() -> new IllegalStateException(
-                                    JsfMessages.get("entity.type.missing.series")));
+                                    JsfMessages.get("entity.type.missing.series"))));
 
             // Créer la nouvelle entité série
             Entity newSerie = new Entity();
@@ -445,7 +445,7 @@ public class SerieBean implements Serializable {
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             JsfMessages.get("common.growl.error"),
-                            JsfMessages.format("common.error.create.series", e.getMessage()));
+                            JsfMessages.format("common.error.create.series", e.getMessage())));
             PrimeFaces.current().ajax().update(":growl, :serieForm");
         }
     }
@@ -497,7 +497,7 @@ public class SerieBean implements Serializable {
             log.error("Erreur lors de la suppression de la série", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
-                            JsfMessages.format("common.error.delete", e.getMessage()));
+                            JsfMessages.format("common.error.delete", e.getMessage())));
         }
     }
 

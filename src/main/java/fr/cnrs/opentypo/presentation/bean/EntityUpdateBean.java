@@ -2415,6 +2415,20 @@ public class EntityUpdateBean implements Serializable {
         return hits;
     }
 
+    /**
+     * Libellé affiché dans la liste de suggestions Zotero.
+     * Avec itemValue sur la clé, PrimeFaces peut exposer {@code hit} comme String dans itemLabel.
+     */
+    public String zoteroBibliographieHitLabel(Object hit) {
+        if (hit instanceof ZoteroSearchHit zsh) {
+            return StringUtils.hasText(zsh.getLabel()) ? zsh.getLabel() : zsh.getKey();
+        }
+        if (hit instanceof String key && StringUtils.hasText(key)) {
+            return zoteroAutocompleteLabelCache.getOrDefault(key.trim(), key.trim());
+        }
+        return hit != null ? hit.toString() : "";
+    }
+
     public void onZoteroBibliographieSelect(SelectEvent<?> event) {
         Object o = event.getObject();
         if (!(o instanceof String key) || !StringUtils.hasText(key)) {

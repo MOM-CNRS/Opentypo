@@ -238,7 +238,7 @@ public class TypeBean implements Serializable {
         } catch (Exception e) {
             log.error("Erreur inattendue lors de la création du type", e);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
-                    JsfMessages.format("common.error.create.type", e.getMessage()));
+                    JsfMessages.format("common.error.create.type", e.getMessage())));
             PrimeFaces.current().ajax().update(":typeDialogForm, :growl");
         }
     }
@@ -697,7 +697,7 @@ public class TypeBean implements Serializable {
             facesContext.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             JsfMessages.get("common.growl.error"),
-                            JsfMessages.format("common.error.create.type", e.getMessage()));
+                            JsfMessages.format("common.error.create.type", e.getMessage())));
             PrimeFaces.current().ajax().update(":growl, :typeForm");
         }
     }
@@ -872,7 +872,7 @@ public class TypeBean implements Serializable {
             log.error("Erreur lors de la suppression du type", e);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
-                            JsfMessages.format("common.error.delete", e.getMessage()));
+                            JsfMessages.format("common.error.delete", e.getMessage())));
         }
     }
 
