@@ -13,12 +13,7 @@
                             <div class="concept-info-header #{entityUpdateBean.editingEntity ? 'collection-edit-header' : ''}">
                                 <div class="concept-info-title-section">
                                     <span class="reference-entity-type-badge">#{msg['collection.badge']}</span>
-                                    <div class="concept-info-language-flag">
-                                        <h:graphicImage library="img" name="flag/fr.png"
-                                                        styleClass="language-flag"
-                                                        alt="#{msg['lang.french']}"
-                                                        title="#{msg['lang.french']}"/>
-                                    </div>
+                                    <ui:include src="../communs/typology-language-flag.xhtml"/>
                                     <div class="collection-panel-title-wrapper collection-detail-title-row">
                                         <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
                                                       escape="false"
@@ -38,7 +33,7 @@
                                                   title="#{msg['common.actions']}"
                                                   appendTo="@(body)"
                                                   rendered="#{loginBean.currentUser != null or collectionBean.canEditCollection(applicationBean) or collectionBean.canDeleteCollection(applicationBean)}">
-                                        <p:menuitem value="#{msg['common.history.tooltip']}"
+                                        <p:menuitem value="#{msg['common.history.title']}"
                                                     icon="pi pi-history"
                                                     action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                     process="@this"

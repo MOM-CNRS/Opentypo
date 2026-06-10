@@ -7,14 +7,30 @@
 (function() {
     'use strict';
 
-    /** @type {{ mode: 'single'|'gallery', singleUrl: string, singleLegend: string, items: Array<{url:string,legend:string}>, index: number }} */
+    /** @type {{ mode: 'single'|'gallery', singleUrl: string, singleLegend: string, singleLegendPlain: string, items: Array<{url:string,legend:string,legendPlain?:string}>, index: number }} */
     var state = {
         mode: 'single',
         singleUrl: '',
         singleLegend: '',
+        singleLegendPlain: '',
         items: [],
         index: 0
     };
+
+    function getGalleryLegendFromImg(img) {
+        var slide = img.closest('.opentypo-gallery-slide-content');
+        if (slide) {
+            var legendEl = slide.querySelector('.opentypo-gallery-slide-legend');
+            if (legendEl) {
+                return {
+                    html: legendEl.innerHTML.trim(),
+                    plain: legendEl.textContent.trim()
+                };
+            }
+        }
+        var attr = (img.getAttribute('data-image-legende') || '').trim();
+        return { html: attr, plain: attr };
+    }
 
     function getOverlay() {
         return document.getElementById('fullscreenImageOverlay');
@@ -33,24 +49,27 @@
         var counterEl = document.getElementById('fullscreenImageCounter');
 
         var url = '';
-        var legend = '';
+        var legendHtml = '';
+        var legendPlain = '';
         if (state.mode === 'gallery' && state.items.length > 0) {
             var item = state.items[state.index];
             url = item.url;
-            legend = item.legend || '';
+            legendHtml = item.legend || '';
+            legendPlain = item.legendPlain || legendHtml || '';
         } else {
             url = state.singleUrl;
-            legend = state.singleLegend || '';
+            legendHtml = state.singleLegend || '';
+            legendPlain = state.singleLegendPlain || legendHtml || '';
         }
 
         if (imageElement) {
             imageElement.src = url;
-            imageElement.alt = legend ? legend : 'Image en plein écran';
+            imageElement.alt = legendPlain ? legendPlain : 'Image en plein écran';
         }
         if (legendElement) {
-            var leg = legend != null ? String(legend).trim() : '';
-            legendElement.textContent = leg;
-            legendElement.style.display = leg.length > 0 ? 'block' : 'none';
+            var legHtml = legendHtml != null ? String(legendHtml).trim() : '';
+            legendElement.innerHTML = legHtml;
+            legendElement.style.display = legHtml.length > 0 ? 'block' : 'none';
         }
 
         var showNav = state.mode === 'gallery' && state.items.length > 1;
@@ -118,7 +137,8 @@
             state.items = galleryOptions.items.map(function(it) {
                 return {
                     url: it.url || '',
-                    legend: it.legend != null ? String(it.legend).trim() : ''
+                    legend: it.legend != null ? String(it.legend).trim() : '',
+                    legendPlain: it.legendPlain != null ? String(it.legendPlain).trim() : ''
                 };
             });
             state.index = Math.max(0, Math.min(galleryOptions.index != null ? galleryOptions.index : 0, state.items.length - 1));
@@ -126,6 +146,7 @@
             state.mode = 'single';
             state.singleUrl = imageUrl || '';
             state.singleLegend = legend != null ? String(legend).trim() : '';
+            state.singleLegendPlain = legend != null ? String(legend).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
             state.items = [];
             state.index = 0;
         }
@@ -146,7 +167,7 @@
             document.body.style.overflow = '';
         }
         if (legendElement) {
-            legendElement.textContent = '';
+            legendElement.innerHTML = '';
             legendElement.style.display = 'none';
         }
         var prevBtn = document.getElementById('fullscreenImagePrev');
@@ -192,7 +213,8 @@
         if (!img || !img.src) return;
         var gallery = img.closest('.opentypo-gallery');
         if (!gallery) {
-            showFullscreenImage(img.src, (img.getAttribute('data-image-legende') || ''));
+            var soloLegend = getGalleryLegendFromImg(img);
+            showFullscreenImage(img.src, soloLegend.html);
             return;
         }
         var imgs = gallery.querySelectorAll('.opentypo-gallery-slide img');
@@ -200,9 +222,11 @@
         var idx = 0;
         imgs.forEach(function(im, i) {
             if (!im || !im.src) return;
+            var leg = getGalleryLegendFromImg(im);
             items.push({
                 url: im.src,
-                legend: (im.getAttribute('data-image-legende') || '').trim()
+                legend: leg.html,
+                legendPlain: leg.plain
             });
             if (im === img) idx = i;
         });

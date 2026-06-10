@@ -1422,7 +1422,8 @@ public class ApplicationBean implements Serializable {
                 String fallbackTitle = entityLabel != null ? entityLabel + " - " + index : "Image " + index;
                 String legende = (img.getLegende() != null && !img.getLegende().trim().isEmpty())
                         ? img.getLegende().trim() : fallbackTitle;
-                photos.add(new Photo(img.getUrl(), img.getUrl(), legende, legende));
+                String legendePlain = legende.replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ").trim();
+                photos.add(new Photo(img.getUrl(), img.getUrl(), legendePlain, legende));
                 index++;
             }
         }
@@ -1527,6 +1528,13 @@ public class ApplicationBean implements Serializable {
                 .findFirst()
                 .map(Language::getValue)
                 .orElse("Français");
+    }
+
+    /**
+     * Chemin ressource JSF du drapeau pour la langue des typologies (ex. flags/fr.svg, flags/gb.svg).
+     */
+    public String getTypologyLanguageFlagResourceName(String langCode) {
+        return "flags/" + Language.resolveFlagResourceCode(langCode) + ".svg";
     }
 
     /**
@@ -2497,13 +2505,21 @@ public class ApplicationBean implements Serializable {
         if (selectedEntity == null) {
             return false;
         }
+        if (EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
+            return hasRegisteredBibliographyContent();
+        }
         if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
             return true;
         }
-        if (hasAnyValue(selectedEntity.getBibliographie())) {
-            return true;
+        return hasRegisteredBibliographyContent();
+    }
+
+    /** Notes bibliographiques libres et/ou clés Zotero liées à la fiche. */
+    public boolean hasRegisteredBibliographyContent() {
+        if (selectedEntity == null) {
+            return false;
         }
-        return hasZoteroBibliographyKeys();
+        return hasAnyValue(selectedEntity.getBibliographie()) || hasZoteroBibliographyKeys();
     }
 
     public boolean hasZoteroBibliographyKeys() {

@@ -44,14 +44,18 @@ public class ConfirmSaveBean implements Serializable {
     private TypeBean typeBean;
     @Autowired
     private EntityUpdateBean entityUpdateBean;
+    @Inject
+    private EntityEditModeBean entityEditModeBean;
 
     private String saveTarget;
+    private String dialogMessage;
 
     /**
      * À appeler avant d'ouvrir le dialog (ex. action du bouton Valider).
      */
     public void prepareSave(String target) {
         this.saveTarget = target;
+        refreshDialogMessage();
     }
 
     /**
@@ -62,7 +66,9 @@ public class ConfirmSaveBean implements Serializable {
     public String saveWithImagesImmediately() {
         entityUpdateBean.uploadPendingFilesAndMergeToEditingUrls();
         prepareSaveForSelectedEntity();
-        performSave();
+        if (!performSave()) {
+            return null;
+        }
         return "/index.xhtml?faces-redirect=true";
     }
 
@@ -96,27 +102,59 @@ public class ConfirmSaveBean implements Serializable {
     }
 
     /**
+     * Composants à traiter lors de la confirmation : le formulaire d'édition actif + le bouton.
+     * Sans le formulaire, performSave() persiste l'état du bean avant les modifications saisies.
+     */
+    public String getModifierFormProcessIds() {
+        String formId = switch (saveTarget != null ? saveTarget : "") {
+            case TARGET_REFERENCE -> ":referenceEditForm";
+            case TARGET_COLLECTION -> ":collectionEditForm";
+            case TARGET_CATEGORY -> ":categoryEditForm";
+            case TARGET_GROUP -> ":groupeEditForm";
+            case TARGET_SERIE -> ":serieEditForm";
+            case TARGET_TYPE -> ":typeEditForm";
+            default -> null;
+        };
+        return formId != null ? formId + " @this" : "@this";
+    }
+
+    /**
      * Cibles d'update pour le dialog (formulaire, growl, panels, arbre).
      * Inclut :leftTreePanel pour les entités affichées dans l'arbre afin de rafraîchir
      * le code après sauvegarde.
      */
     public String getUpdateIds() {
-        String base = ":growl, :contentPanels";
+        String base = ":growl :contentPanels :searchSectionWrapper";
         if (TARGET_REFERENCE.equals(saveTarget) || TARGET_COLLECTION.equals(saveTarget) || TARGET_CATEGORY.equals(saveTarget)
                 || TARGET_GROUP.equals(saveTarget) || TARGET_SERIE.equals(saveTarget) || TARGET_TYPE.equals(saveTarget)) {
-            return base + ", :leftTreePanel";
+            return base + " :leftTreePanel";
         }
         return base;
+    }
+
+    /**
+     * IDs à rafraîchir avant d'afficher le dialog de confirmation.
+     */
+    public String getDialogContentUpdateId() {
+        return ":confirmSaveDialogContent";
     }
 
     /**
      * Message explicatif affiché dans le dialog (entité concernée).
      */
     public String getMessageText() {
+        if (dialogMessage == null) {
+            refreshDialogMessage();
+        }
+        return dialogMessage;
+    }
+
+    private void refreshDialogMessage() {
         Entity e = applicationBean != null ? applicationBean.getSelectedEntity() : null;
-        String label = (e != null && applicationBean != null) ? applicationBean.getEntityLabel(e) : "";
+        String label = (e != null && applicationBean != null) ? applicationBean.getEntityLabelHtml(e) : "";
         if (saveTarget == null) {
-            return JsfMessages.get("confirmSave.message.default");
+            dialogMessage = JsfMessages.get("confirmSave.message.default");
+            return;
         }
         String key = switch (saveTarget) {
             case TARGET_REFERENCE -> "confirmSave.message.reference";
@@ -127,47 +165,36 @@ public class ConfirmSaveBean implements Serializable {
             case TARGET_TYPE -> "confirmSave.message.type";
             default -> "confirmSave.message.default";
         };
-        return JsfMessages.format(key, escapeHtml(label));
-    }
-
-    /** Échappe le label entité avant insertion dans un message rendu avec escape="false". */
-    private static String escapeHtml(String value) {
-        if (value == null || value.isEmpty()) {
-            return "";
-        }
-        return value.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;");
+        dialogMessage = JsfMessages.format(key, label);
     }
 
     /**
      * Exécute la sauvegarde selon le type préparé (appelé par le bouton "Oui, enregistrer" du dialog).
+     * @return true si la sauvegarde a réussi
      */
-    public void performSave() {
-        if (saveTarget == null) return;
-        switch (saveTarget) {
-            case TARGET_REFERENCE:
-            case TARGET_COLLECTION:
-            case TARGET_GROUP:
-            case TARGET_SERIE:
-                entityUpdateBean.saveModification();
-                break;
-            case TARGET_CATEGORY:
-                categoryBean.saveCategory(applicationBean);
-                break;
-            case TARGET_TYPE:
-                typeBean.saveEditingType(applicationBean);
-                break;
+    public boolean performSave() {
+        if (saveTarget == null) {
+            return false;
         }
+        entityUpdateBean.uploadPendingFilesAndMergeToEditingUrls();
+        boolean saved = switch (saveTarget) {
+            case TARGET_REFERENCE, TARGET_COLLECTION, TARGET_CATEGORY, TARGET_GROUP, TARGET_SERIE, TARGET_TYPE ->
+                    entityUpdateBean.saveModification();
+            default -> false;
+        };
+        if (saved) {
+            exitEditMode();
+        }
+        return saved;
     }
 
-    /**
-     * Exécute la sauvegarde puis redirige (PRG) pour éviter la resoumission au rafraîchissement.
-     * Le paramètre scrollTop permet de déclencher le scroll en haut avec effet au chargement.
-     */
-    public String performSaveAndRedirect() {
-        performSave();
-        return "/index.xhtml?faces-redirect=true&scrollTop=1";
+    /** Quitte le mode édition catalogue (formulaire modifier). */
+    private void exitEditMode() {
+        if (entityUpdateBean != null) {
+            entityUpdateBean.setEditingEntity(false);
+        }
+        if (entityEditModeBean != null) {
+            entityEditModeBean.cancelEditing();
+        }
     }
 }

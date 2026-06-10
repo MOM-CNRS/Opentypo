@@ -84,8 +84,8 @@
         <p:remoteCommand name="modifierPrepareSaveCommand"
                         action="#{confirmSaveBean.prepareSaveForSelectedEntity()}"
                         process="@form"
-                        update=":growl"
-                        oncomplete="PF('confirmSaveDialog').show();"/>
+                        update=":growl :confirmSaveDialogContent"
+                        oncomplete="if(!args.validationFailed){ PF('confirmSaveDialog').show(); }"/>
 
         <div class="modifier-actions-wrapper modifier-actions-sticky candidats-mt-20" id="modifierActionsWrapper">
             <div class="collection-edit-actions collection-modifier-actions modifier-actions-sticky" id="modifierActionsBar">

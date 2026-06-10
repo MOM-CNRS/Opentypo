@@ -16,6 +16,8 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import org.primefaces.PrimeFaces;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -146,6 +148,7 @@ public class ScientificAuthorManagementBean implements Serializable {
         notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"), JsfMessages.get("authors.msg.save.success"), ":growl, :authorsForm");
     }
 
+    @Transactional
     public void deleteAuthor(AuteurScientifique author) {
         if (!canManageScientificAuthors()) {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.accessDenied"), JsfMessages.get("authors.msg.accessDenied.action"), ":growl, :authorsForm");
@@ -155,8 +158,23 @@ public class ScientificAuthorManagementBean implements Serializable {
             notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.notFound"), ":growl, :authorsForm");
             return;
         }
+        if (auteurScientifiqueRepository.findById(author.getId()).isEmpty()) {
+            notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.error"), JsfMessages.get("authors.msg.stale"), ":growl, :authorsForm");
+            reloadAuthors();
+            return;
+        }
 
-        auteurScientifiqueRepository.deleteById(author.getId());
+        try {
+            auteurScientifiqueRepository.deleteEntityLinksByAuthorId(author.getId());
+            auteurScientifiqueRepository.deleteById(author.getId());
+        } catch (DataIntegrityViolationException ex) {
+            notificationBean.showErrorWithUpdate(
+                    JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("authors.msg.delete.error"),
+                    ":growl, :authorsForm");
+            return;
+        }
+
         reloadAuthors();
         if (editMode && editingAuthor != null && author.getId().equals(editingAuthor.getId())) {
             resetForm();

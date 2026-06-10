@@ -9488,7 +9488,17 @@ body .ui-datatable .ui-datatable-data>tr>td {
     margin: 0 !important;
 }
 
-/* Formulaire du dialog (évite les marges par défaut) */
+/* HTML riche dans le message de confirmation (libellé entité, balises i18n) */
+.reference-confirm-message-text .entity-label-html {
+    font-weight: 600;
+    color: var(--color-action-main, #47624D);
+}
+
+.reference-confirm-message-text .entity-label-html p {
+    display: inline;
+    margin: 0;
+}
+
 .reference-confirm-form {
     margin: 0;
     padding: 0;

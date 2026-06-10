@@ -30,8 +30,8 @@ public class Language {
      * Retourne le chemin du drapeau pour cette langue
      */
     public String getFlagPath() {
-        String flagCode = codeFlag != null ? codeFlag : code;
-        return "/resources/img/flag/" + flagCode + ".png";
+        String flagCode = resolveFlagResourceCode(codeFlag != null ? codeFlag : code);
+        return "/resources/img/flags/" + flagCode + ".svg";
     }
 
     /** Codes langue → code pays pour l'emoji drapeau (en → gb pour 🇬🇧). */
@@ -40,11 +40,21 @@ public class Language {
     );
 
     /**
+     * Code ressource drapeau (fr, gb, …) pour un code langue typologie (fr, en, …).
+     */
+    public static String resolveFlagResourceCode(String langCode) {
+        if (langCode == null || langCode.isBlank()) {
+            return "fr";
+        }
+        return LANG_TO_COUNTRY.getOrDefault(langCode.toLowerCase(), langCode.toLowerCase());
+    }
+
+    /**
      * Retourne l'emoji drapeau du pays pour le code langue (ex. fr → 🇫🇷, en → 🇬🇧).
      * Même principe que les icônes 📁 📖 du select Collection.
      */
     public String getFlagEmoji() {
-        String countryCode = (code == null) ? null : LANG_TO_COUNTRY.getOrDefault(code.toLowerCase(), code);
+        String countryCode = resolveFlagResourceCode(code);
         if (countryCode == null || countryCode.length() != 2) {
             return "";
         }

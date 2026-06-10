@@ -67,9 +67,10 @@
                                     dismissable="true"
                                     styleClass="header-locale-overlay-panel">
                         <div class="header-locale-overlay-body">
-                            <p:commandLink action="#{localeBean.switchToFrench}"
-                                           ajax="false"
-                                           onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                            <p:commandLink actionListener="#{localeBean.prepareSwitchToFrench}"
+                                           process="@this"
+                                           update="@none"
+                                           oncomplete="if(PF('wvLocalePanel')){PF('wvLocalePanel').hide();} PF('confirmLocaleSwitchDialog').show();"
                                            styleClass="header-locale-option"
                                            rendered="#{!localeBean.french}">
                                 <h:graphicImage library="img"
@@ -91,9 +92,10 @@
                                                 styleClass="header-locale-flag-img"/>
                                 <span>#{msg['locale.labelFr']}</span>
                             </h:panelGroup>
-                            <p:commandLink action="#{localeBean.switchToEnglish}"
-                                           ajax="false"
-                                           onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                            <p:commandLink actionListener="#{localeBean.prepareSwitchToEnglish}"
+                                           process="@this"
+                                           update="@none"
+                                           oncomplete="if(PF('wvLocalePanel')){PF('wvLocalePanel').hide();} PF('confirmLocaleSwitchDialog').show();"
                                            styleClass="header-locale-option"
                                            rendered="#{!localeBean.english}">
                                 <h:graphicImage library="img"

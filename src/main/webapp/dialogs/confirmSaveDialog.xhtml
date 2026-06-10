@@ -34,9 +34,9 @@
                 <div class="reference-confirm-icon-info">
                     <i class="pi pi-info-circle"/>
                 </div>
-                <p class="reference-confirm-message-text">
+                <div class="reference-confirm-message-text">
                     <h:outputText value="#{confirmSaveBean.messageText}" escape="false"/>
-                </p>
+                </div>
             </div>
 
             <h:form id="confirmSaveForm" styleClass="reference-confirm-form">
@@ -51,11 +51,13 @@
 
                     <p:commandButton value="#{msg['confirmSave.dialog.confirm']}"
                                      icon="pi pi-check"
-                                     action="#{confirmSaveBean.performSaveAndRedirect()}"
-                                     process="@this"
-                                     ajax="false"
+                                     action="#{confirmSaveBean.performSave()}"
+                                     process="#{confirmSaveBean.modifierFormProcessIds}"
+                                     ajax="true"
+                                     update="#{confirmSaveBean.updateIds}"
                                      styleClass="reference-confirm-btn reference-confirm-btn-validate"
-                                     oncomplete="if(typeof forceHideLoading==='function') forceHideLoading();"/>
+                                     oncomplete="if(!args.validationFailed){ PF('confirmSaveDialog').hide(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); } if(typeof forceHideLoading==='function') forceHideLoading();"
+                                     onerror="if(typeof forceHideLoading==='function') forceHideLoading();"/>
                 </div>
             </h:form>
         </h:panelGroup>

@@ -31,6 +31,20 @@
                                           title="#{msg['common.actions']}"
                                           appendTo="@(body)"
                                           rendered="#{loginBean.currentUser != null or typeBean.canEditType(applicationBean) or typeBean.canDeleteType(applicationBean)}">
+                                <p:menuitem value="#{msg['type.action.move.title']}"
+                                            icon="pi pi-arrow-right-arrow-left"
+                                            action="#{typeBean.prepareMoveTypeDialog()}"
+                                            process="@this"
+                                            update=":moveTypeDialog"
+                                            oncomplete="PF('moveTypeDialog').show();"
+                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
+                                <p:menuitem value="#{msg['type.action.duplicate.title']}"
+                                            icon="pi pi-copy"
+                                            action="#{typeBean.prepareDuplicateTypeDialog()}"
+                                            process="@this"
+                                            update=":duplicateTypeDialog :duplicateTypeDialogForm"
+                                            oncomplete="PF('duplicateTypeDialog').show();"
+                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
                                 <p:menuitem value="#{msg['common.history.title']}"
                                             icon="pi pi-history"
                                             action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
@@ -47,21 +61,7 @@
                                             onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
                                             oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
                                             onerror="if(typeof hideLoading==='function') hideLoading();"/>
-                                <p:menuitem value="#{msg['type.action.move.title']}"
-                                            icon="pi pi-arrow-right-arrow-left"
-                                            action="#{typeBean.prepareMoveTypeDialog()}"
-                                            process="@this"
-                                            update=":moveTypeDialog"
-                                            oncomplete="PF('moveTypeDialog').show();"
-                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
-                                <p:menuitem value="#{msg['type.action.duplicate.title']}"
-                                            icon="pi pi-copy"
-                                            action="#{typeBean.prepareDuplicateTypeDialog()}"
-                                            process="@this"
-                                            update=":duplicateTypeDialog :duplicateTypeDialogForm"
-                                            oncomplete="PF('duplicateTypeDialog').show();"
-                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
-                                <p:separator rendered="#{typeBean.canDeleteType(applicationBean) and (loginBean.currentUser != null or typeBean.canEditType(applicationBean))}"/>
+                                <p:separator />
                                 <p:menuitem value="#{msg['type.action.delete.title']}"
                                             icon="pi pi-trash"
                                             styleClass="type-action-menu-delete"

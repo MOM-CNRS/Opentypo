@@ -4,14 +4,15 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.Resource;
 import jakarta.faces.application.ResourceHandler;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * Gestion de la langue d’interface (session utilisateur). Utilisé par {@code f:view locale}
- * et par le sélecteur de langue du bandeau (actions {@link #switchToFrench} / {@link #switchToEnglish}).
+ * Gestion de la langue d'interface (session utilisateur). Utilisé par {@code f:view locale}
+ * et par le sélecteur de langue du bandeau.
  */
 @Named("localeBean")
 @SessionScoped
@@ -22,6 +23,14 @@ public class LocaleBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final String IMG_LIBRARY = "img";
+
+    @Inject
+    private ApplicationBean applicationBean;
+
+    @Inject
+    private SearchBean searchBean;
+
+    private Locale pendingLocale;
 
     /** URL résolvable du SVG (drapeau langue active), pour fond du bouton. */
     public String getActiveFlagUrl() {
@@ -71,18 +80,46 @@ public class LocaleBean implements Serializable {
         return Locale.ENGLISH.getLanguage().equals(getLocale().getLanguage());
     }
 
-    public String switchToFrench() {
-        return applyLocale(Locale.FRENCH);
+    public void prepareSwitchToFrench() {
+        pendingLocale = Locale.FRENCH;
     }
 
-    public String switchToEnglish() {
-        return applyLocale(Locale.ENGLISH);
+    public void prepareSwitchToEnglish() {
+        pendingLocale = Locale.ENGLISH;
+    }
+
+    public void cancelSwitch() {
+        pendingLocale = null;
     }
 
     /**
-     * Bascule la langue puis recharge la page courante (évite les incohérences AJAX / bundles).
+     * Change la langue d'interface et aligne aussi la langue des noms / descriptions des typologies.
      */
-    private String applyLocale(Locale locale) {
+    public String confirmSwitchWithTypologyLanguage() {
+        if (pendingLocale == null) {
+            return null;
+        }
+        if (searchBean != null) {
+            searchBean.setLangSelected(toTypologyLanguageCode(pendingLocale));
+        }
+        if (applicationBean != null) {
+            applicationBean.onLanguageChange();
+        }
+        return applyLocaleAndRedirect(pendingLocale);
+    }
+
+    /**
+     * Change uniquement la langue d'interface (comportement historique du bandeau).
+     */
+    public String confirmSwitchInterfaceOnly() {
+        if (pendingLocale == null) {
+            return null;
+        }
+        return applyLocaleAndRedirect(pendingLocale);
+    }
+
+    private String applyLocaleAndRedirect(Locale locale) {
+        pendingLocale = null;
         FacesContext fc = FacesContext.getCurrentInstance();
         fc.getExternalContext().getSessionMap().put(SESSION_LOCALE_KEY, locale);
         if (fc.getViewRoot() != null) {
@@ -91,5 +128,12 @@ public class LocaleBean implements Serializable {
             return viewId + "?faces-redirect=true";
         }
         return "/index.xhtml?faces-redirect=true";
+    }
+
+    private static String toTypologyLanguageCode(Locale locale) {
+        if (locale != null && Locale.ENGLISH.getLanguage().equals(locale.getLanguage())) {
+            return "en";
+        }
+        return "fr";
     }
 }

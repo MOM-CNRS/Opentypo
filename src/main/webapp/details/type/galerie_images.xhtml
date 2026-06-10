@@ -61,10 +61,13 @@
                                          aria-hidden="#{status.first ? 'false' : 'true'}">
                                         <div class="opentypo-gallery-slide-content">
                                             <img src="#{photo.itemImageSrc}" alt="#{photo.alt}"
-                                                 data-image-legende="#{photo.title}"
+                                                 data-image-legende="#{photo.alt}"
                                                  title="#{msg['gallery.fullscreen']}"
                                                  onclick="if(typeof openFullscreenFromGallery==='function'){openFullscreenFromGallery(this);}return false;"/>
-                                            <h:outputText value="#{photo.title}" styleClass="opentypo-gallery-slide-legend" rendered="#{not empty photo.title}"/>
+                                            <h:outputText value="#{photo.title}"
+                                                          styleClass="opentypo-gallery-slide-legend entity-label-html"
+                                                          escape="false"
+                                                          rendered="#{not empty photo.title}"/>
                                         </div>
                                     </div>
                                 </ui:repeat>

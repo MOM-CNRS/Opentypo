@@ -91,4 +91,34 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <!-- Technique / Fabrication -->
+    <h:panelGroup styleClass="users-form-group users-form-group-full candidats-mt-10">
+        <div class="periode-header-row">
+            <p:outputLabel value="#{msg['modifier.instrumentum.techniqueFabrication']}" />
+        </div>
+        <div class="periode-field-row periode-autocomplete-row candidat-production-wrapper candidat-production-group">
+            <div id="techniqueInstrumentumAutocompleteWrapper" class="input-wrapper periode-input-wrapper candidats-input-wrapper-border periode-autocomplete-wrapper candidat-production-input-wrapper">
+                <i class="pi pi-wallet input-icon periode-autocomplete-icon" />
+                <p:autoComplete value="#{entityUpdateBean.techniqueAutocompleteSelection}"
+                                completeMethod="#{openThesoDialogBean.searchInOpenTheso}"
+                                converter="pactolsConceptConverter"
+                                var="concept"
+                                itemLabel="#{concept.selectedTerm}"
+                                itemValue="#{concept}"
+                                dropdown="false"
+                                minQueryLength="2"
+                                appendTo="#techniqueInstrumentumAutocompleteWrapper"
+                                my="left top"
+                                at="left bottom"
+                                panelStyleClass="periode-autocomplete-panel"
+                                scrollHeight="280"
+                                emptyMessage="#{openThesoDialogBean.getEmptyMessageFor('TECHNIQUE')}"
+                                placeholder="#{msg['modifier.placeholder.fabrication.enter']}"
+                                styleClass="users-input periode-autocomplete-input"
+                                forceSelection="false"
+                                rendered="#{entityUpdateBean.canEditCurrentBrouillon()}"/>
+            </div>
+        </div>
+    </h:panelGroup>
 </ui:composition>

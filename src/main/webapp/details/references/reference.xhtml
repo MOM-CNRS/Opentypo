@@ -36,12 +36,7 @@
                             <div class="concept-info-header #{entityEditModeBean.editingEntityInCatalog ? 'collection-edit-header' : ''}">
                                 <div class="concept-info-title-section">
                                     <span class="reference-entity-type-badge">#{msg['reference.badge']}</span>
-                                    <div class="concept-info-language-flag">
-                                        <h:graphicImage library="img" name="flag/#{searchBean.langSelected != null and searchBean.langSelected != '' ? searchBean.langSelected : 'fr'}.png"
-                                                        styleClass="language-flag"
-                                                        alt="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"
-                                                        title="#{applicationBean.getLanguageLabel(searchBean.langSelected)}"/>
-                                    </div>
+                                    <ui:include src="../communs/typology-language-flag.xhtml"/>
                                     <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                                   styleClass="collection-not-published-icon"
                                                   title="#{msg['reference.tooltip.notPublished']}">
@@ -89,7 +84,7 @@
                                                     action="#{referenceBean.openTypologyImport}"
                                                     ajax="false"
                                                     rendered="#{referenceBean.canImportTypology(applicationBean)}"/>
-                                        <p:menuitem value="#{msg['common.history.tooltip']}"
+                                        <p:menuitem value="#{msg['common.history.title']}"
                                                     icon="pi pi-history"
                                                     action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                     process="@this"

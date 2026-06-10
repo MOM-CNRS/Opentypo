@@ -492,6 +492,7 @@ public class EntityUpdateBean implements Serializable {
         dimensionsAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getDimensions() : null);
         formeAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getForme() : null);
         materiauxAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getMateriaux() : null);
+        techniqueAutocompleteSelection = refToConcept(entity.getCaracteristiquePhysique() != null ? entity.getCaracteristiquePhysique().getTechnique() : null);
 
         noms = entity.getLabels().stream()
                 .map(element -> NameItem.builder()
@@ -661,6 +662,7 @@ public class EntityUpdateBean implements Serializable {
         dimensionsAutocompleteSelection = new PactolsConcept();
         formeAutocompleteSelection = new PactolsConcept();
         materiauxAutocompleteSelection = new PactolsConcept();
+        techniqueAutocompleteSelection = new PactolsConcept();
         tpq = null;
         taq = null;
         corpusExterne = null;
@@ -1406,7 +1408,7 @@ public class EntityUpdateBean implements Serializable {
      * référence bibliographique ; ajoute l'utilisateur courant aux auteurs s'il n'y figure pas.
      */
     @Transactional
-    public void saveModification() {
+    public boolean saveModification() {
 
         Entity entityToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
 
@@ -1414,7 +1416,7 @@ public class EntityUpdateBean implements Serializable {
                 || !entityAuthorityService.canUpdate(loginBean.getCurrentUser(), entityToUpdate)) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     JsfMessages.get("common.growl.error"), JsfMessages.get("modifier.msg.noEditRights")));
-            return;
+            return false;
         }
 
         // Corpus externe (metadata)
@@ -1638,18 +1640,19 @@ public class EntityUpdateBean implements Serializable {
 
         applicationBean.setSelectedEntity(entitySaved);
 
+        editingEntity = false;
+        resetCategoryDialogForm();
+
         treeBean.updateEntityInTree(entitySaved);
         treeBean.expandPathAndSelectEntity(entitySaved);
 
         applicationBean.getBreadCrumbElements().set(applicationBean.getBreadCrumbElements().size() - 1, entitySaved);
 
-        editingEntity = false;
-        resetCategoryDialogForm();
-
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                 JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
 
         log.info("Groupe mis à jour avec succès: {}", applicationBean.getSelectedEntity().getCode());
+        return true;
     }
 
     private CaracteristiquePhysiqueMonnaie saveCaracteristiquePhysiqueMonnaie(Entity entityToUpdate) {

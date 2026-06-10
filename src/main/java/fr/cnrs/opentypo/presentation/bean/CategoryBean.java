@@ -87,6 +87,9 @@ public class CategoryBean implements Serializable {
     @Autowired
     private EntityCodeUniquenessService entityCodeUniquenessService;
 
+    @Autowired
+    private EntityUpdateBean entityUpdateBean;
+
     private List<NameItem> categoryNames = new ArrayList<>();
     private List<DescriptionItem> categoryDescriptions = new ArrayList<>();
 
@@ -395,9 +398,9 @@ public class CategoryBean implements Serializable {
      * référence bibliographique ; ajoute l'utilisateur courant aux auteurs s'il n'y figure pas.
      */
     @Transactional
-    public void saveCategory(ApplicationBean applicationBean) {
+    public boolean saveCategory(ApplicationBean applicationBean) {
         if (applicationBean.getSelectedEntity() == null) {
-            return;
+            return false;
         }
 
         Entity categoryToUpdate = entityRepository.findById(applicationBean.getSelectedEntity().getId()).get();
@@ -477,12 +480,16 @@ public class CategoryBean implements Serializable {
 
         applicationBean.getBreadCrumbElements().set(applicationBean.getBreadCrumbElements().size() - 1, categorySaved);
 
+        if (entityUpdateBean != null) {
+            entityUpdateBean.setEditingEntity(false);
+        }
         resetCategoryDialogForm();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,
                 JsfMessages.get("common.growl.success"), JsfMessages.get("common.save.success.detail")));
 
         log.info("Référentiel mis à jour avec succès: {}", applicationBean.getSelectedReference().getCode());
+        return true;
     }
 
     public boolean canEditCategory() {
