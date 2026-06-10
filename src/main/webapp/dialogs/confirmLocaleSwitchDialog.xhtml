@@ -1,0 +1,68 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <p:dialog id="confirmLocaleSwitchDialog"
+              widgetVar="confirmLocaleSwitchDialog"
+              header="#{msg['localeSwitch.dialog.header']}"
+              modal="true"
+              closable="true"
+              resizable="false"
+              draggable="false"
+              width="520"
+              height="auto"
+              appendTo="@(body)"
+              styleClass="reference-confirm-dialog">
+
+        <p:ajax event="close" listener="#{localeBean.cancelSwitch}" process="@this"/>
+
+        <f:facet name="header">
+            <div class="reference-confirm-header">
+                <div class="reference-confirm-header-icon-wrapper">
+                    <i class="pi pi-globe reference-confirm-header-icon"/>
+                </div>
+                <div class="reference-confirm-header-content">
+                    <h3 class="reference-confirm-header-title">#{msg['localeSwitch.dialog.header']}</h3>
+                    <p class="reference-confirm-header-subtitle">#{msg['localeSwitch.dialog.subtitle']}</p>
+                </div>
+            </div>
+        </f:facet>
+
+        <div class="reference-confirm-message-wrapper">
+            <div class="reference-confirm-icon-info">
+                <i class="pi pi-info-circle"/>
+            </div>
+            <div class="reference-confirm-message-text">
+                <p>#{msg['localeSwitch.dialog.message']}</p>
+            </div>
+        </div>
+
+        <h:form id="confirmLocaleSwitchForm" styleClass="reference-confirm-form">
+            <div class="reference-confirm-actions">
+                <p:commandButton value="#{msg['localeSwitch.dialog.cancel']}"
+                                 icon="pi pi-times"
+                                 type="button"
+                                 actionListener="#{localeBean.cancelSwitch}"
+                                 process="@this"
+                                 onclick="PF('confirmLocaleSwitchDialog').hide();"
+                                 styleClass="reference-confirm-btn reference-confirm-btn-cancel"/>
+
+                <p:commandButton value="#{msg['localeSwitch.dialog.no']}"
+                                 icon="pi pi-minus"
+                                 action="#{localeBean.confirmSwitchInterfaceOnly}"
+                                 ajax="false"
+                                 onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                                 styleClass="reference-confirm-btn reference-confirm-btn-cancel"/>
+
+                <p:commandButton value="#{msg['localeSwitch.dialog.yes']}"
+                                 icon="pi pi-check"
+                                 action="#{localeBean.confirmSwitchWithTypologyLanguage}"
+                                 ajax="false"
+                                 onclick="if(typeof showLoading==='function') showLoading('#{msg['header.locale.switching']}', 'bars');"
+                                 styleClass="reference-confirm-btn reference-confirm-btn-validate"/>
+            </div>
+        </h:form>
+    </p:dialog>
+</ui:composition>
