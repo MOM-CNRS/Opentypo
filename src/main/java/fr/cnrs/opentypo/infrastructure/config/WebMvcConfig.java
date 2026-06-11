@@ -24,6 +24,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("forward:/index.xhtml");
+        registry.addViewController("/pages/contact").setViewName("forward:/pages/contact.xhtml");
+        registry.addViewController("/pages/contact/").setViewName("forward:/pages/contact.xhtml");
+        registry.addViewController("/pages/legal").setViewName("forward:/pages/legal.xhtml");
+        registry.addViewController("/pages/mentions-legales").setViewName("forward:/pages/legal.xhtml");
+        registry.addViewController("/pages/accessibilite").setViewName("forward:/pages/accessibility.xhtml");
+        registry.addViewController("/pages/accessibility").setViewName("forward:/pages/accessibility.xhtml");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 

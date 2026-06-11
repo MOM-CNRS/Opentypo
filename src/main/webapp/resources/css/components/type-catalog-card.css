@@ -153,3 +153,24 @@
     color: var(--tc-text);
     font-variant-numeric: tabular-nums;
 }
+
+.type-catalog-cards-scope .type-catalog-card__code.entity-label-html {
+    white-space: normal;
+    text-overflow: unset;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-weight: inherit;
+    letter-spacing: normal;
+    font-variant-numeric: normal;
+}
+
+.type-catalog-cards-scope .type-catalog-card__code.entity-label-html p {
+    margin: 0;
+    display: inline;
+}
+
+.type-catalog-cards-scope .type-catalog-card__code.entity-label-html p:not(:last-child)::after {
+    content: " ";
+}

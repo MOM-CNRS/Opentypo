@@ -2108,6 +2108,21 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Code d'entité en texte brut (sans balises), pour attributs title, alt, URL, etc.
+     */
+    public String getEntityCodePlainText(Entity entitySelected) {
+        if (entitySelected == null || entitySelected.getCode() == null) {
+            return "";
+        }
+        String html = entitySelected.getCode();
+        if (html.isBlank()) {
+            return "";
+        }
+        String withoutTags = html.replaceAll("<[^>]+>", " ");
+        return withoutTags.replaceAll("\\s+", " ").trim();
+    }
+
+    /**
      * Libellé en texte brut (sans balises), pour attributs title, tooltips, tris, etc.
      */
     public String getEntityLabelPlainText(Entity entitySelected) {

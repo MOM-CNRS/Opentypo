@@ -1,5 +1,6 @@
-<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
-             xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:panelGroup id="appFooter" layout="block"
+              xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:h="http://xmlns.jcp.org/jsf/html">
 
     <footer class="app-footer">
         <!-- Section basse : Copyright et liens rapides -->
@@ -11,13 +12,13 @@
                     <span class="footer-rights">#{msg['footer.rights']}</span>
                 </div>
                 <div class="footer-quick-links">
-                    <a href="/pages/contact/" class="footer-quick-link">#{msg['footer.contact']}</a>
+                    <h:link outcome="/pages/contact" value="#{sitePageFooterBean.contactLabel}" styleClass="footer-quick-link"/>
                     <span class="footer-separator">•</span>
-                    <a href="http://www.culture.gouv.fr/Mentions-legales" target="_blank" class="footer-quick-link">#{msg['footer.legal']}</a>
+                    <h:link outcome="/pages/legal" value="#{sitePageFooterBean.legalLabel}" styleClass="footer-quick-link"/>
                     <span class="footer-separator">•</span>
-                    <a href="/pages/accessibilite" target="_blank" class="footer-quick-link">#{msg['footer.accessibility']}</a>
+                    <h:link outcome="/pages/accessibility" value="#{sitePageFooterBean.accessibilityLabel}" styleClass="footer-quick-link"/>
                 </div>
             </div>
         </div>
     </footer>
-</ui:fragment>
+</h:panelGroup>

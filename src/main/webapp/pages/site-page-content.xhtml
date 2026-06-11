@@ -1,0 +1,111 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:panelGroup id="sitePagePanel" layout="block" styleClass="site-page">
+        <h:form id="sitePageForm">
+            <!-- Mode affichage -->
+            <h:panelGroup layout="block" styleClass="site-page-shell" rendered="#{not sitePageBean.editing}">
+                <header class="site-page-banner">
+                    <div class="site-page-banner__heading">
+                        <p:commandLink action="#{sitePageBean.goHome()}"
+                                       styleClass="site-page-back-btn"
+                                       ajax="false"
+                                       title="#{msg['sitePage.backHome']}">
+                            <i class="pi pi-arrow-left" aria-hidden="true"/>
+                        </p:commandLink>
+                        <span class="site-page-banner__divider" aria-hidden="true"/>
+                        <span class="site-page-banner__icon" aria-hidden="true">
+                            <i class="#{sitePageBean.pageIconClass}"/>
+                        </span>
+                        <h1 class="site-page-banner__title">#{sitePageBean.currentPage.titre}</h1>
+                        <p:commandButton icon="pi pi-pencil"
+                                         styleClass="site-page-banner__edit"
+                                         title="#{msg['sitePage.btn.edit']}"
+                                         rendered="#{sitePageBean.canEditPage()}"
+                                         action="#{sitePageBean.startEdit()}"
+                                         process="@this"
+                                         update=":sitePagePanel"
+                                         ajax="true"/>
+                    </div>
+                </header>
+
+                <article class="site-page-card">
+                    <div class="site-page-body entity-label-html">
+                        <h:outputText value="#{sitePageBean.currentPage.contenu}" escape="false"/>
+                    </div>
+                </article>
+            </h:panelGroup>
+
+            <!-- Mode édition -->
+            <h:panelGroup layout="block" styleClass="site-page-shell site-page-shell--edit" rendered="#{sitePageBean.editing}">
+                <header class="site-page-banner site-page-banner--edit">
+                    <div class="site-page-banner__heading site-page-banner__heading--edit">
+                        <span class="site-page-banner__icon" aria-hidden="true">
+                            <i class="pi pi-pencil"/>
+                        </span>
+                        <div class="site-page-banner__edit-labels">
+                            <p class="site-page-banner__kicker">#{msg['sitePage.editMode.title']}</p>
+                            <p class="site-page-banner__subtitle">#{msg['sitePage.editMode.subtitle']}</p>
+                        </div>
+                    </div>
+                </header>
+
+                <article class="site-page-card site-page-card--edit">
+                    <div class="site-page-edit-grid">
+                        <div class="site-page-edit-field">
+                            <p:outputLabel for="sitePageEditLangue" value="#{msg['sitePage.lang']}" styleClass="site-page-edit-label"/>
+                            <p:selectOneMenu id="sitePageEditLangue"
+                                             value="#{sitePageBean.editLangueCode}"
+                                             styleClass="site-page-lang-select collection-select">
+                                <f:selectItem itemLabel="#{msg['sitePage.selectLanguage']}" itemValue=""/>
+                                <f:selectItems value="#{sitePageBean.availableLanguages}"
+                                               var="langue"
+                                               itemLabel="#{langue.nom}"
+                                               itemValue="#{langue.code}"/>
+                                <p:ajax event="change"
+                                        listener="#{sitePageBean.onEditLangueChange()}"
+                                        process="@this"
+                                        update="@form"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="site-page-edit-field">
+                            <p:outputLabel for="sitePageEditTitre" value="#{msg['sitePage.field.title']}" styleClass="site-page-edit-label"/>
+                            <p:inputText id="sitePageEditTitre"
+                                         value="#{sitePageBean.editTitre}"
+                                         styleClass="site-page-edit-input"
+                                         maxlength="1000"/>
+                        </div>
+                        <div class="site-page-edit-field site-page-edit-field--full">
+                            <p:outputLabel for="sitePageEditContenu" value="#{msg['sitePage.field.content']}" styleClass="site-page-edit-label"/>
+                            <p:textEditor id="sitePageEditContenu"
+                                          value="#{sitePageBean.editContenu}"
+                                          height="320"
+                                          secure="false"
+                                          styleClass="site-page-texteditor"
+                                          placeholder="#{msg['sitePage.placeholder.content']}"/>
+                        </div>
+                    </div>
+                    <div class="site-page-edit-actions">
+                        <p:commandButton value="#{msg['sitePage.cancel']}"
+                                         icon="pi pi-times"
+                                         styleClass="site-page-action-btn site-page-action-btn--secondary"
+                                         action="#{sitePageBean.cancelEdit()}"
+                                         process="@this"
+                                         update=":sitePagePanel"
+                                         ajax="true"/>
+                        <p:commandButton value="#{msg['sitePage.save']}"
+                                         icon="pi pi-check"
+                                         styleClass="site-page-action-btn site-page-action-btn--primary"
+                                         action="#{sitePageBean.savePage()}"
+                                         process="@form"
+                                         update=":growl :sitePagePanel :appFooter"
+                                         ajax="true"/>
+                    </div>
+                </article>
+            </h:panelGroup>
+        </h:form>
+    </h:panelGroup>
+</ui:composition>

@@ -97,6 +97,9 @@ public class SecurityConfig {
                     "/*.svg"
                 ).permitAll()
 
+                // Pages statiques (contact, mentions légales, accessibilité)
+                .requestMatchers("/pages/**").permitAll()
+
                 // Permettre l'accès à la racine et index.xhtml pour tous
                 .requestMatchers("/", "/index.xhtml").permitAll()
 
@@ -112,7 +115,7 @@ public class SecurityConfig {
                         return false;
                     }
                     return !Set.of("error", "candidats", "profile", "search", "login", "users",
-                            "details", "dialogs", "tree", "commun").contains(lower);
+                            "details", "dialogs", "tree", "commun", "pages").contains(lower);
                 }).permitAll()
 
                 // Permettre l'accès à la page d'erreur pour tous

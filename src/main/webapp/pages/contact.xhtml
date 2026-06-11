@@ -1,0 +1,15 @@
+<ui:composition template="../commun/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{sitePageBean.initPage('contact')}"/>
+    </f:metadata>
+
+    <ui:define name="mainContent">
+        <h:outputStylesheet library="css" name="pages/site-page.css"/>
+        <ui:include src="site-page-content.xhtml"/>
+    </ui:define>
+</ui:composition>
