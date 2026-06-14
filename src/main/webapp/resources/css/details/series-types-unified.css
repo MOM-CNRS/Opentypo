@@ -489,6 +489,20 @@
     transition: color var(--st-transition);
 }
 
+.series-types-type-label.entity-label-html {
+    white-space: normal;
+    font-weight: inherit;
+}
+
+.series-types-type-label.entity-label-html p {
+    margin: 0;
+    display: inline;
+}
+
+.series-types-type-label.entity-label-html p:not(:last-child)::after {
+    content: " ";
+}
+
 .series-types-empty-types {
     padding: 1rem 1.25rem;
     margin: 0;

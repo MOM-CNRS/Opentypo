@@ -139,7 +139,9 @@
                                                                 </div>
                                                             </ui:fragment>
                                                         </div>
-                                                        <span class="series-types-type-label">#{type.nom}</span>
+                                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(type)}"
+                                                                      escape="false"
+                                                                      styleClass="series-types-type-label entity-label-html"/>
                                                     </p:commandLink>
                                                 </ui:repeat>
                                             </div>

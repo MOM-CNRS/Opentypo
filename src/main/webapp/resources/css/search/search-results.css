@@ -184,6 +184,24 @@
     text-decoration: none;
 }
 
+.search-results-item-label.entity-label-html {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-weight: inherit;
+}
+
+.search-results-item-label.entity-label-html p {
+    margin: 0;
+    display: inline;
+}
+
+.search-results-item-label.entity-label-html p:not(:last-child)::after {
+    content: " ";
+}
+
 .search-results-item-link:hover .search-results-item-label,
 .search-results-item-link:focus .search-results-item-label {
     text-decoration: none;

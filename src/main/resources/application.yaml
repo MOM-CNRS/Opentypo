@@ -49,3 +49,14 @@ joinfaces:
     state-saving-method: server
   mojarra:
     numberOfViewsInSession: 100
+
+# OpenAPI / Swagger UI (springdoc) — scan explicite des contrôleurs REST
+springdoc:
+  packages-to-scan: fr.cnrs.opentypo.presentation.rest
+  paths-to-match: /api/**
+  show-actuator: false
+  swagger-ui:
+    disable-swagger-default-url: true
+    url: /v3/api-docs/opentypo
+    operations-sorter: alpha
+    tags-sorter: alpha

@@ -24,7 +24,7 @@
                                        pt:data-entity-code="#{result.code}"
                                        onclick="window.__pendingUrlCode = this.getAttribute('data-entity-code') || '';"
                                        styleClass="search-results-item-link"
-                                       title="#{result.nom}"
+                                       title="#{applicationBean.getEntityLabelPlainText(result)}"
                                        role="listitem"
                                        onstart="showLoading('#{msg['common.loading']}', 'spinner');"
                                        oncomplete="setTimeout(function(){hideLoading(); if(typeof window.scrollToTopAll==='function') window.scrollToTopAll(); if(typeof updateBrowserUrlAfterNavigation==='function') updateBrowserUrlAfterNavigation(window.__pendingUrlCode||''); window.__pendingUrlCode=undefined;}, 500);"
@@ -35,9 +35,9 @@
                                 <span class="search-results-meta-sep" aria-hidden="true">·</span>
                                 <code class="search-results-code">#{result.code}</code>
                             </span>
-                            <span class="search-results-item-label">
-                                <h:outputText value="#{result.nom}"/>
-                            </span>
+                            <h:outputText value="#{applicationBean.getEntityLabelHtml(result)}"
+                                          escape="false"
+                                          styleClass="search-results-item-label entity-label-html"/>
                         </p:commandLink>
                     </ui:repeat>
                 </div>
