@@ -4,24 +4,34 @@
 -- description_pate.couleur_id, nature_id, inclusion_id, cuisson_id.
 
 -- ========== 1) fonction_id (description_detail) → FONCTION_USAGE ==========
-UPDATE "reference-opentheso" ro
-SET entity_id = dd.entity_id
-FROM description_detail dd
-WHERE dd.fonction_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM dd.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'description_detail'
+          AND column_name = 'fonction_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = dd.entity_id
+        FROM description_detail dd
+        WHERE dd.fonction_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM dd.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'FONCTION_USAGE'
-FROM description_detail dd
-WHERE dd.fonction_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'FONCTION_USAGE');
+        UPDATE "reference-opentheso" ro
+        SET code = 'FONCTION_USAGE'
+        FROM description_detail dd
+        WHERE dd.fonction_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'FONCTION_USAGE');
 
-DELETE FROM "reference-opentheso" ro
-USING description_detail dd
-WHERE dd.fonction_id IS NOT NULL
-  AND ro.entity_id = dd.entity_id
-  AND ro.code = 'FONCTION_USAGE'
-  AND ro.id <> dd.fonction_id;
+        DELETE FROM "reference-opentheso" ro
+        USING description_detail dd
+        WHERE dd.fonction_id IS NOT NULL
+          AND ro.entity_id = dd.entity_id
+          AND ro.code = 'FONCTION_USAGE'
+          AND ro.id <> dd.fonction_id;
+    END IF;
+END $$;
 
 DO $$
 DECLARE r record;
@@ -42,24 +52,34 @@ ALTER TABLE description_detail DROP COLUMN IF EXISTS fonction_id;
 ALTER TABLE description_detail_aud DROP COLUMN IF EXISTS fonction_id;
 
 -- ========== 2) fabrication_id (caracteristique_physique) → FABRICATION_FACONNAGE ==========
-UPDATE "reference-opentheso" ro
-SET entity_id = cp.entity_id
-FROM caracteristique_physique cp
-WHERE cp.fabrication_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM cp.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'caracteristique_physique'
+          AND column_name = 'fabrication_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = cp.entity_id
+        FROM caracteristique_physique cp
+        WHERE cp.fabrication_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM cp.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'FABRICATION_FACONNAGE'
-FROM caracteristique_physique cp
-WHERE cp.fabrication_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'FABRICATION_FACONNAGE');
+        UPDATE "reference-opentheso" ro
+        SET code = 'FABRICATION_FACONNAGE'
+        FROM caracteristique_physique cp
+        WHERE cp.fabrication_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'FABRICATION_FACONNAGE');
 
-DELETE FROM "reference-opentheso" ro
-USING caracteristique_physique cp
-WHERE cp.fabrication_id IS NOT NULL
-  AND ro.entity_id = cp.entity_id
-  AND ro.code = 'FABRICATION_FACONNAGE'
-  AND ro.id <> cp.fabrication_id;
+        DELETE FROM "reference-opentheso" ro
+        USING caracteristique_physique cp
+        WHERE cp.fabrication_id IS NOT NULL
+          AND ro.entity_id = cp.entity_id
+          AND ro.code = 'FABRICATION_FACONNAGE'
+          AND ro.id <> cp.fabrication_id;
+    END IF;
+END $$;
 
 DO $$
 DECLARE r record;
@@ -80,81 +100,121 @@ ALTER TABLE caracteristique_physique DROP COLUMN IF EXISTS fabrication_id;
 ALTER TABLE caracteristique_physique_aud DROP COLUMN IF EXISTS fabrication_id;
 
 -- ========== 3) description_pate : couleur, nature, inclusion, cuisson ==========
-UPDATE "reference-opentheso" ro
-SET entity_id = dp.entity_id
-FROM description_pate dp
-WHERE dp.couleur_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'description_pate'
+          AND column_name = 'couleur_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = dp.entity_id
+        FROM description_pate dp
+        WHERE dp.couleur_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'COULEUR_PATE'
-FROM description_pate dp
-WHERE dp.couleur_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'COULEUR_PATE');
+        UPDATE "reference-opentheso" ro
+        SET code = 'COULEUR_PATE'
+        FROM description_pate dp
+        WHERE dp.couleur_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'COULEUR_PATE');
 
-DELETE FROM "reference-opentheso" ro
-USING description_pate dp
-WHERE dp.couleur_id IS NOT NULL
-  AND ro.entity_id = dp.entity_id
-  AND ro.code = 'COULEUR_PATE'
-  AND ro.id <> dp.couleur_id;
+        DELETE FROM "reference-opentheso" ro
+        USING description_pate dp
+        WHERE dp.couleur_id IS NOT NULL
+          AND ro.entity_id = dp.entity_id
+          AND ro.code = 'COULEUR_PATE'
+          AND ro.id <> dp.couleur_id;
+    END IF;
+END $$;
 
-UPDATE "reference-opentheso" ro
-SET entity_id = dp.entity_id
-FROM description_pate dp
-WHERE dp.nature_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'description_pate'
+          AND column_name = 'nature_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = dp.entity_id
+        FROM description_pate dp
+        WHERE dp.nature_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'NATURE_PATE'
-FROM description_pate dp
-WHERE dp.nature_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'NATURE_PATE');
+        UPDATE "reference-opentheso" ro
+        SET code = 'NATURE_PATE'
+        FROM description_pate dp
+        WHERE dp.nature_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'NATURE_PATE');
 
-DELETE FROM "reference-opentheso" ro
-USING description_pate dp
-WHERE dp.nature_id IS NOT NULL
-  AND ro.entity_id = dp.entity_id
-  AND ro.code = 'NATURE_PATE'
-  AND ro.id <> dp.nature_id;
+        DELETE FROM "reference-opentheso" ro
+        USING description_pate dp
+        WHERE dp.nature_id IS NOT NULL
+          AND ro.entity_id = dp.entity_id
+          AND ro.code = 'NATURE_PATE'
+          AND ro.id <> dp.nature_id;
+    END IF;
+END $$;
 
-UPDATE "reference-opentheso" ro
-SET entity_id = dp.entity_id
-FROM description_pate dp
-WHERE dp.inclusion_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'description_pate'
+          AND column_name = 'inclusion_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = dp.entity_id
+        FROM description_pate dp
+        WHERE dp.inclusion_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'INCLUSIONS'
-FROM description_pate dp
-WHERE dp.inclusion_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'INCLUSIONS');
+        UPDATE "reference-opentheso" ro
+        SET code = 'INCLUSIONS'
+        FROM description_pate dp
+        WHERE dp.inclusion_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'INCLUSIONS');
 
-DELETE FROM "reference-opentheso" ro
-USING description_pate dp
-WHERE dp.inclusion_id IS NOT NULL
-  AND ro.entity_id = dp.entity_id
-  AND ro.code = 'INCLUSIONS'
-  AND ro.id <> dp.inclusion_id;
+        DELETE FROM "reference-opentheso" ro
+        USING description_pate dp
+        WHERE dp.inclusion_id IS NOT NULL
+          AND ro.entity_id = dp.entity_id
+          AND ro.code = 'INCLUSIONS'
+          AND ro.id <> dp.inclusion_id;
+    END IF;
+END $$;
 
-UPDATE "reference-opentheso" ro
-SET entity_id = dp.entity_id
-FROM description_pate dp
-WHERE dp.cuisson_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'description_pate'
+          AND column_name = 'cuisson_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = dp.entity_id
+        FROM description_pate dp
+        WHERE dp.cuisson_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM dp.entity_id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'CUISSON_POST_CUISSON'
-FROM description_pate dp
-WHERE dp.cuisson_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'CUISSON_POST_CUISSON');
+        UPDATE "reference-opentheso" ro
+        SET code = 'CUISSON_POST_CUISSON'
+        FROM description_pate dp
+        WHERE dp.cuisson_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'CUISSON_POST_CUISSON');
 
-DELETE FROM "reference-opentheso" ro
-USING description_pate dp
-WHERE dp.cuisson_id IS NOT NULL
-  AND ro.entity_id = dp.entity_id
-  AND ro.code = 'CUISSON_POST_CUISSON'
-  AND ro.id <> dp.cuisson_id;
+        DELETE FROM "reference-opentheso" ro
+        USING description_pate dp
+        WHERE dp.cuisson_id IS NOT NULL
+          AND ro.entity_id = dp.entity_id
+          AND ro.code = 'CUISSON_POST_CUISSON'
+          AND ro.id <> dp.cuisson_id;
+    END IF;
+END $$;
 
 DO $$
 DECLARE r record;

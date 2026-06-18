@@ -1,29 +1,35 @@
 -- Production : passage de entity.production_id (1–1) à une liste reference-opentheso (code PRODUCTION, entity_id),
 -- comme pour les aires de circulation.
 
--- 1) Associer la ligne référencée par production_id à l’entité si besoin
-UPDATE "reference-opentheso" ro
-SET entity_id = e.id
-FROM entity e
-WHERE e.production_id = ro.id
-  AND (ro.entity_id IS DISTINCT FROM e.id);
+-- 1) et 1bis) Migration legacy production_id → reference-opentheso (seulement si la colonne existe)
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = 'entity'
+          AND column_name = 'production_id'
+    ) THEN
+        UPDATE "reference-opentheso" ro
+        SET entity_id = e.id
+        FROM entity e
+        WHERE e.production_id = ro.id
+          AND (ro.entity_id IS DISTINCT FROM e.id);
 
-UPDATE "reference-opentheso" ro
-SET code = 'PRODUCTION'
-FROM entity e
-WHERE e.production_id = ro.id
-  AND (ro.code IS DISTINCT FROM 'PRODUCTION');
+        UPDATE "reference-opentheso" ro
+        SET code = 'PRODUCTION'
+        FROM entity e
+        WHERE e.production_id = ro.id
+          AND (ro.code IS DISTINCT FROM 'PRODUCTION');
 
--- 1bis) Éviter les doublons : la migration ne crée pas de lignes, mais la base peut déjà contenir
--- plusieurs lignes PRODUCTION pour la même entité (ex. entity_id renseigné + ancienne FK production_id).
--- On conserve uniquement la ligne officielle entity.production_id ; les autres PRODUCTION liées à la même
--- entité sont supprimées.
-DELETE FROM "reference-opentheso" ro
-USING entity e
-WHERE e.production_id IS NOT NULL
-  AND ro.entity_id = e.id
-  AND ro.id <> e.production_id
-  AND ro.code = 'PRODUCTION';
+        DELETE FROM "reference-opentheso" ro
+        USING entity e
+        WHERE e.production_id IS NOT NULL
+          AND ro.entity_id = e.id
+          AND ro.id <> e.production_id
+          AND ro.code = 'PRODUCTION';
+    END IF;
+END $$;
 
 -- 2) Supprimer la FK entity.production_id puis la colonne
 DO $$

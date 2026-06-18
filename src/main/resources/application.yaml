@@ -56,7 +56,5 @@ springdoc:
   paths-to-match: /api/**
   show-actuator: false
   swagger-ui:
-    disable-swagger-default-url: true
-    url: /v3/api-docs/opentypo
     operations-sorter: alpha
     tags-sorter: alpha

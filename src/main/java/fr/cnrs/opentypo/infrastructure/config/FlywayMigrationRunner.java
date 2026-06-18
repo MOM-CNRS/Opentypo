@@ -10,6 +10,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
 
 /**
@@ -19,9 +21,6 @@ import javax.sql.DataSource;
 @Order(1)
 @Slf4j
 public class FlywayMigrationRunner implements ApplicationRunner {
-
-    @Autowired(required = false)
-    private Flyway flyway;
 
     @Autowired(required = false)
     private DataSource dataSource;
@@ -37,6 +36,9 @@ public class FlywayMigrationRunner implements ApplicationRunner {
 
     @Value("${spring.flyway.schemas:public}")
     private String schemas;
+
+    @Value("${spring.flyway.out-of-order:true}")
+    private boolean outOfOrder;
 
     @Value("${spring.jpa.hibernate.ddl-auto:validate}")
     private String ddlAuto;
@@ -60,20 +62,41 @@ public class FlywayMigrationRunner implements ApplicationRunner {
         int applied = runner.info().applied().length;
         log.info("Flyway — migrations appliquées: {}, en attente: {}", applied, pending);
 
+        releasePoolConnectionsBeforeMigrate(dataSource);
         migrateWithRepairOnValidateError(runner);
 
+        var finalInfo = resolveFlyway().info();
         log.info("Flyway — état final : {} appliquée(s), {} en attente",
-                runner.info().applied().length, runner.info().pending().length);
+                finalInfo.applied().length, finalInfo.pending().length);
+    }
+
+    /**
+     * Libère les connexions du pool ouvertes par Hibernate avant les migrations DDL,
+     * afin d'éviter les blocages (ex. V61) sur ALTER TABLE.
+     */
+    private static void releasePoolConnectionsBeforeMigrate(DataSource dataSource) {
+        if (!(dataSource instanceof HikariDataSource hikari)) {
+            return;
+        }
+        try {
+            if (hikari.getHikariPoolMXBean() != null) {
+                hikari.getHikariPoolMXBean().softEvictConnections();
+                log.debug("Pool Hikari : connexions évincées avant migration Flyway");
+            }
+        } catch (Exception e) {
+            log.warn("Impossible d'évincer le pool Hikari avant Flyway : {}", e.getMessage());
+        }
     }
 
     private Flyway resolveFlyway() {
         if (dataSource == null) {
             return null;
         }
-        if (flyway != null) {
-            return flyway;
-        }
-        log.debug("Création manuelle de Flyway (spring.flyway.enabled=false)");
+        log.debug("Configuration Flyway manuelle (migrations post-JPA)");
+        return buildFlyway(outOfOrder);
+    }
+
+    private Flyway buildFlyway(boolean allowOutOfOrder) {
         return Flyway.configure()
                 .dataSource(dataSource)
                 .locations(flywayLocations)
@@ -81,17 +104,28 @@ public class FlywayMigrationRunner implements ApplicationRunner {
                 .baselineVersion(baselineVersion)
                 .schemas(schemas.split(","))
                 .validateOnMigrate(true)
-                .outOfOrder(false)
+                .outOfOrder(allowOutOfOrder)
                 .load();
     }
 
-    private static void migrateWithRepairOnValidateError(Flyway runner) {
+    private void migrateWithRepairOnValidateError(Flyway runner) {
         try {
             runner.migrate();
         } catch (FlywayValidateException e) {
             log.warn("Validation Flyway : {} — repair puis nouvelle migration", e.getMessage());
             runner.repair();
-            runner.migrate();
+            try {
+                runner.migrate();
+            } catch (FlywayValidateException retryError) {
+                if (!outOfOrder) {
+                    log.warn(
+                            "Nouvelle tentative avec out-of-order=true (migration manquante dans l'historique ?)");
+                    buildFlyway(true).repair();
+                    buildFlyway(true).migrate();
+                } else {
+                    throw retryError;
+                }
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,20 +17,6 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     public static final String BEARER_SCHEME = "bearerAuth";
-    public static final String API_GROUP = "opentypo";
-
-    /**
-     * Groupe OpenAPI unique regroupant tous les contrôleurs REST ({@code /api/**}).
-     */
-    @Bean
-    public GroupedOpenApi openTypoRestApi() {
-        return GroupedOpenApi.builder()
-                .group(API_GROUP)
-                .displayName("OpenTypo — API REST")
-                .packagesToScan("fr.cnrs.opentypo.presentation.rest")
-                .pathsToMatch("/api/**")
-                .build();
-    }
 
     @Bean
     public OpenAPI openAPI() {
