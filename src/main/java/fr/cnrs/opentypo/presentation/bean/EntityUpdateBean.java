@@ -219,9 +219,9 @@ public class EntityUpdateBean implements Serializable {
     /** Hash SHA-256 des fichiers uploadés (pour détecter les doublons) */
     private Map<String, String> uploadedFileUrlToHash = new HashMap<>();
 
-    private DualListModel<Long> redacteursPickList;
-    private DualListModel<Long> validateursPickList;
-    private DualListModel<Long> relecteursPickList;
+    private List<Long> assignedRedacteurIds = new ArrayList<>();
+    private List<Long> assignedValidateurIds = new ArrayList<>();
+    private List<Long> assignedRelecteurIds = new ArrayList<>();
     private DualListModel<Long> gestionnairesPickList;
 
     private List<NameItem> noms = new ArrayList<>();
@@ -556,7 +556,7 @@ public class EntityUpdateBean implements Serializable {
         uploadedFileUrlToHash = new HashMap<>();
         removedImageUrlsToDeleteOnSave = new ArrayList<>();
 
-        initHabilitationsPickLists(entity.getId());
+        initHabilitationsAssignedIds(entity.getId());
         updateAvailableTmpLanguagesForLabel();
         updateAvailableTmpLanguagesForDefinition();
 
@@ -674,9 +674,9 @@ public class EntityUpdateBean implements Serializable {
         legendeDroit = null;
         revers = null;
         legendeRevers = null;
-        redacteursPickList = null;
-        validateursPickList = null;
-        relecteursPickList = null;
+        assignedRedacteurIds = new ArrayList<>();
+        assignedValidateurIds = new ArrayList<>();
+        assignedRelecteurIds = new ArrayList<>();
         referenceBibliographiqueList = new ArrayList<>();
         editingImages = new ArrayList<>();
         initialEditingImageUrlKeys = new HashSet<>();
@@ -690,55 +690,63 @@ public class EntityUpdateBean implements Serializable {
         removedImageUrlsToDeleteOnSave = new ArrayList<>();
     }
 
+    /**
+     * Habilitations (rédacteurs, validateurs, relecteurs) : administrateurs technique/fonctionnel
+     * ou gestionnaire du référentiel parent.
+     */
+    public boolean canManageGroupHabilitations() {
+        if (loginBean == null || !loginBean.isAuthenticated() || loginBean.getCurrentUser() == null) {
+            return false;
+        }
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        Entity reference = applicationBean != null ? applicationBean.getSelectedReference() : null;
+        if (reference == null || reference.getId() == null || userPermissionRepository == null) {
+            return false;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                loginBean.getCurrentUser().getId(),
+                reference.getId(),
+                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+    }
+
+    private void initHabilitationsAssignedIds(Long entityId) {
+        if (userPermissionRepository == null) {
+            assignedRedacteurIds = new ArrayList<>();
+            assignedValidateurIds = new ArrayList<>();
+            assignedRelecteurIds = new ArrayList<>();
+            return;
+        }
+        assignedRedacteurIds = entityId != null
+                ? new ArrayList<>(userPermissionRepository.findUserIdsByEntityIdAndRole(
+                        entityId, PermissionRoleEnum.REDACTEUR.getLabel()))
+                : new ArrayList<>();
+        assignedValidateurIds = entityId != null
+                ? new ArrayList<>(userPermissionRepository.findUserIdsByEntityIdAndRole(
+                        entityId, PermissionRoleEnum.VALIDEUR.getLabel()))
+                : new ArrayList<>();
+        assignedRelecteurIds = entityId != null
+                ? new ArrayList<>(userPermissionRepository.findUserIdsByEntityIdAndRole(
+                        entityId, PermissionRoleEnum.RELECTEUR.getLabel()))
+                : new ArrayList<>();
+    }
+
     private void initHabilitationsPickLists(Long entityId) {
-        if (userPermissionRepository == null || utilisateurRepository == null) return;
-        List<Utilisateur> source = utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel());
-        List<Long> sourceIds = (source != null) ? source.stream().map(Utilisateur::getId).filter(Objects::nonNull).toList() : List.of();
-        List<Long> redTarget = entityId != null ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.REDACTEUR.getLabel()) : List.of();
-        List<Long> valTarget = entityId != null ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.VALIDEUR.getLabel()) : List.of();
-        List<Long> relTarget = entityId != null ? userPermissionRepository.findUserIdsByEntityIdAndRole(entityId, PermissionRoleEnum.RELECTEUR.getLabel()) : List.of();
-        List<Long> redSource = new ArrayList<>(sourceIds);
-        redSource.removeAll(redTarget != null ? redTarget : List.of());
-        List<Long> valSource = new ArrayList<>(sourceIds);
-        valSource.removeAll(valTarget != null ? valTarget : List.of());
-        List<Long> relSource = new ArrayList<>(sourceIds);
-        relSource.removeAll(relTarget != null ? relTarget : List.of());
-        redacteursPickList = new DualListModel<>(redSource != null ? redSource : new ArrayList<>(), redTarget != null ? new ArrayList<>(redTarget) : new ArrayList<>());
-        validateursPickList = new DualListModel<>(valSource != null ? valSource : new ArrayList<>(), valTarget != null ? new ArrayList<>(valTarget) : new ArrayList<>());
-        relecteursPickList = new DualListModel<>(relSource != null ? relSource : new ArrayList<>(), relTarget != null ? new ArrayList<>(relTarget) : new ArrayList<>());
+        initHabilitationsAssignedIds(entityId);
     }
 
-    public DualListModel<Long> getRedacteursPickList() {
-        if (redacteursPickList == null && applicationBean != null && applicationBean.getSelectedEntity() != null) {
-            initHabilitationsPickLists(applicationBean.getSelectedEntity().getId());
+    public List<Utilisateur> getEligibleHabilitationsUsers() {
+        return utilisateurRepository != null
+                ? utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel())
+                : new ArrayList<>();
+    }
+
+    public String getHabilitationSelectionLabel(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return JsfMessages.get("modifier.habilitations.selectUsers");
         }
-        return redacteursPickList != null ? redacteursPickList : new DualListModel<>(new ArrayList<>(), new ArrayList<>());
-    }
-
-    public DualListModel<Long> getValidateursPickList() {
-        if (validateursPickList == null && applicationBean != null && applicationBean.getSelectedEntity() != null) {
-            initHabilitationsPickLists(applicationBean.getSelectedEntity().getId());
-        }
-        return validateursPickList != null ? validateursPickList : new DualListModel<>(new ArrayList<>(), new ArrayList<>());
-    }
-
-    public DualListModel<Long> getRelecteursPickList() {
-        if (relecteursPickList == null && applicationBean != null && applicationBean.getSelectedEntity() != null) {
-            initHabilitationsPickLists(applicationBean.getSelectedEntity().getId());
-        }
-        return relecteursPickList != null ? relecteursPickList : new DualListModel<>(new ArrayList<>(), new ArrayList<>());
-    }
-
-    public List<Utilisateur> getRedacteursList() {
-        return utilisateurRepository != null ? utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel()) : new ArrayList<>();
-    }
-
-    public List<Utilisateur> getValidateursList() {
-        return utilisateurRepository != null ? utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel()) : new ArrayList<>();
-    }
-
-    public List<Utilisateur> getRelecteursList() {
-        return utilisateurRepository != null ? utilisateurRepository.findByGroupeNom(GroupEnum.UTILISATEUR.getLabel()) : new ArrayList<>();
+        return JsfMessages.format("modifier.habilitations.selectedCount", userIds.size());
     }
 
     public String getUtilisateurDisplayName(Long userId) {
@@ -1633,7 +1641,7 @@ public class EntityUpdateBean implements Serializable {
                 collectionBean.saveCollectionGestionnaires(entitySaved);
             } else if (typeId == 1) {
                 referenceBean.saveReferenceGestionnaires(entitySaved);
-            } else if (typeId == 3) {
+            } else if (typeId == 3 && canManageGroupHabilitations()) {
                 saveUserPermissionsForGroup(entitySaved);
             }
         }
@@ -2248,25 +2256,28 @@ public class EntityUpdateBean implements Serializable {
         userPermissionRepository.deleteByEntityIdAndRole(savedGroup.getId(), PermissionRoleEnum.VALIDEUR.getLabel());
         userPermissionRepository.deleteByEntityIdAndRole(savedGroup.getId(), PermissionRoleEnum.RELECTEUR.getLabel());
         Set<Long> alreadyAssigned = new HashSet<>();
-        List<?> redTarget = (redacteursPickList != null && redacteursPickList.getTarget() != null) ? redacteursPickList.getTarget() : List.of();
-        for (Object raw : redTarget) {
-            Utilisateur u = resolveUtilisateur(raw);
-            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
-                saveUserPermission(savedGroup, u, PermissionRoleEnum.REDACTEUR.getLabel());
+        if (assignedRedacteurIds != null) {
+            for (Long userId : assignedRedacteurIds) {
+                Utilisateur u = resolveUtilisateur(userId);
+                if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
+                    saveUserPermission(savedGroup, u, PermissionRoleEnum.REDACTEUR.getLabel());
+                }
             }
         }
-        List<?> valTarget = (validateursPickList != null && validateursPickList.getTarget() != null) ? validateursPickList.getTarget() : List.of();
-        for (Object raw : valTarget) {
-            Utilisateur u = resolveUtilisateur(raw);
-            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
-                saveUserPermission(savedGroup, u, PermissionRoleEnum.VALIDEUR.getLabel());
+        if (assignedValidateurIds != null) {
+            for (Long userId : assignedValidateurIds) {
+                Utilisateur u = resolveUtilisateur(userId);
+                if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
+                    saveUserPermission(savedGroup, u, PermissionRoleEnum.VALIDEUR.getLabel());
+                }
             }
         }
-        List<?> relTarget = (relecteursPickList != null && relecteursPickList.getTarget() != null) ? relecteursPickList.getTarget() : List.of();
-        for (Object raw : relTarget) {
-            Utilisateur u = resolveUtilisateur(raw);
-            if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
-                saveUserPermission(savedGroup, u, PermissionRoleEnum.RELECTEUR.getLabel());
+        if (assignedRelecteurIds != null) {
+            for (Long userId : assignedRelecteurIds) {
+                Utilisateur u = resolveUtilisateur(userId);
+                if (u != null && u.getId() != null && alreadyAssigned.add(u.getId())) {
+                    saveUserPermission(savedGroup, u, PermissionRoleEnum.RELECTEUR.getLabel());
+                }
             }
         }
     }

@@ -4,95 +4,162 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="reference-form-group reference-form-section group-dialog-permissions-section" style="padding-top: 15px">
-        <div class="group-dialog-permissions-row">
-            <div class="group-dialog-permission-card group-dialog-permission-redacteur">
-                <div class="group-dialog-permission-card-header">
-                    <div class="group-dialog-permission-icon">
+    <h:outputStylesheet library="css" name="modifier/habilitations-modification.css"/>
+
+    <section class="reference-form-group reference-form-section habilitations-section">
+        <header class="habilitations-section__header">
+            <div class="habilitations-section__header-icon" aria-hidden="true">
+                <i class="pi pi-shield"/>
+            </div>
+            <div>
+                <h4 class="habilitations-section__title">#{msg['modifier.habilitations.sectionTitle']}</h4>
+                <p class="habilitations-section__hint">#{msg['modifier.habilitations.sectionHint']}</p>
+            </div>
+        </header>
+
+        <h:panelGroup rendered="#{empty entityUpdateBean.eligibleHabilitationsUsers}" layout="block" styleClass="habilitations-empty habilitations-empty--global">
+            <i class="pi pi-users"/>
+            <span>#{msg['modifier.role.editors.none']}</span>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" styleClass="habilitations-grid" rendered="#{not empty entityUpdateBean.eligibleHabilitationsUsers}">
+            <!-- Rédacteurs -->
+            <article class="habilitation-card habilitation-card--redacteur">
+                <div class="habilitation-card__accent" aria-hidden="true"/>
+                <div class="habilitation-card__head">
+                    <div class="habilitation-card__icon" aria-hidden="true">
                         <i class="pi pi-pencil"/>
                     </div>
-                    <div class="group-dialog-permission-card-label">
-                        <label>#{msg['modifier.role.editors']}</label>
+                    <div class="habilitation-card__meta">
+                        <span class="habilitation-card__title">#{msg['modifier.role.editors']}</span>
+                        <span class="habilitation-card__desc">#{msg['modifier.role.editors.hint']}</span>
                     </div>
                 </div>
-                <p:pickList id="redacteursPickList"
-                            value="#{entityUpdateBean.redacteursPickList}"
-                            var="userId"
-                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
-                            itemValue="#{userId}"
-                            converter="pickListLongConverter"
-                            styleClass="group-dialog-picklist"
-                            showSourceFilter="true"
-                            showTargetFilter="true"
-                            filterMatchMode="contains"
-                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            responsive="true"
-                            rendered="#{not empty entityUpdateBean.redacteursList}"/>
-                <h:panelGroup rendered="#{empty entityUpdateBean.redacteursList}" class="group-dialog-no-relecteurs">
-                    <span>#{msg['modifier.role.editors.none']}</span>
-                </h:panelGroup>
-            </div>
-        </div>
+                <div class="habilitation-card__body">
+                    <p:selectCheckboxMenu id="redacteursSelect"
+                                          value="#{entityUpdateBean.assignedRedacteurIds}"
+                                          converter="pickListLongConverter"
+                                          label="#{entityUpdateBean.getHabilitationSelectionLabel(entityUpdateBean.assignedRedacteurIds)}"
+                                          styleClass="habilitations-select-menu habilitations-select-menu--redacteur"
+                                          panelStyleClass="habilitations-select-panel habilitations-select-panel--redacteur"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          filterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                                          panelStyle="width: min(100%, 320px);"
+                                          appendTo="@(body)">
+                        <p:ajax event="itemSelect" process="@this" update="redacteursTags redacteursSelect"/>
+                        <p:ajax event="itemUnselect" process="@this" update="redacteursTags redacteursSelect"/>
+                        <p:ajax event="toggleSelect" process="@this" update="redacteursTags redacteursSelect"/>
+                        <f:selectItems value="#{entityUpdateBean.eligibleHabilitationsUsers}"
+                                       var="user"
+                                       itemValue="#{user.id}"
+                                       itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(user.id)}"/>
+                    </p:selectCheckboxMenu>
+                    <h:panelGroup id="redacteursTags" layout="block" styleClass="habilitations-assigned-tags">
+                        <ui:repeat value="#{entityUpdateBean.assignedRedacteurIds}" var="userId">
+                            <span class="habilitations-user-tag">
+                                <i class="pi pi-user habilitations-user-tag__icon" aria-hidden="true"/>
+                                <span class="habilitations-user-tag__text">#{entityUpdateBean.getUtilisateurDisplayName(userId)}</span>
+                            </span>
+                        </ui:repeat>
+                        <h:outputText value="#{msg['modifier.habilitations.noneAssigned']}"
+                                      styleClass="habilitations-assigned-empty"
+                                      rendered="#{empty entityUpdateBean.assignedRedacteurIds}"/>
+                    </h:panelGroup>
+                </div>
+            </article>
 
-        <div class="group-dialog-permissions-row">
-            <div class="group-dialog-permission-card group-dialog-permission-validateurs">
-                <div class="group-dialog-permission-card-header">
-                    <div class="group-dialog-permission-icon">
+            <!-- Validateurs -->
+            <article class="habilitation-card habilitation-card--validateur">
+                <div class="habilitation-card__accent" aria-hidden="true"/>
+                <div class="habilitation-card__head">
+                    <div class="habilitation-card__icon" aria-hidden="true">
                         <i class="pi pi-check-circle"/>
                     </div>
-                    <div class="group-dialog-permission-card-label">
-                        <label>#{msg['modifier.role.validators']}</label>
+                    <div class="habilitation-card__meta">
+                        <span class="habilitation-card__title">#{msg['modifier.role.validators']}</span>
+                        <span class="habilitation-card__desc">#{msg['modifier.role.validators.hint']}</span>
                     </div>
                 </div>
-                <p:pickList id="validateursPickList"
-                            value="#{entityUpdateBean.validateursPickList}"
-                            var="userId"
-                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
-                            itemValue="#{userId}"
-                            converter="pickListLongConverter"
-                            styleClass="group-dialog-picklist"
-                            showSourceFilter="true"
-                            showTargetFilter="true"
-                            filterMatchMode="contains"
-                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            responsive="true"
-                            rendered="#{not empty entityUpdateBean.validateursList}"/>
-                <h:panelGroup rendered="#{empty entityUpdateBean.validateursList}" class="group-dialog-no-relecteurs">
-                    <span>#{msg['modifier.role.validators.none']}</span>
-                </h:panelGroup>
-            </div>
-        </div>
-        <div class="group-dialog-permissions-row">
-            <div class="group-dialog-permission-card group-dialog-permission-relecteurs">
-                <div class="group-dialog-permission-card-header">
-                    <div class="group-dialog-permission-icon">
-                        <i class="pi pi-pencil"/>
-                    </div>
-                    <div class="group-dialog-permission-card-label">
-                        <label>#{msg['modifier.role.proofreaders']}</label>
-                    </div>
+                <div class="habilitation-card__body">
+                    <p:selectCheckboxMenu id="validateursSelect"
+                                          value="#{entityUpdateBean.assignedValidateurIds}"
+                                          converter="pickListLongConverter"
+                                          label="#{entityUpdateBean.getHabilitationSelectionLabel(entityUpdateBean.assignedValidateurIds)}"
+                                          styleClass="habilitations-select-menu habilitations-select-menu--validateur"
+                                          panelStyleClass="habilitations-select-panel habilitations-select-panel--validateur"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          filterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                                          panelStyle="width: min(100%, 320px);"
+                                          appendTo="@(body)">
+                        <p:ajax event="itemSelect" process="@this" update="validateursTags validateursSelect"/>
+                        <p:ajax event="itemUnselect" process="@this" update="validateursTags validateursSelect"/>
+                        <p:ajax event="toggleSelect" process="@this" update="validateursTags validateursSelect"/>
+                        <f:selectItems value="#{entityUpdateBean.eligibleHabilitationsUsers}"
+                                       var="user"
+                                       itemValue="#{user.id}"
+                                       itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(user.id)}"/>
+                    </p:selectCheckboxMenu>
+                    <h:panelGroup id="validateursTags" layout="block" styleClass="habilitations-assigned-tags">
+                        <ui:repeat value="#{entityUpdateBean.assignedValidateurIds}" var="userId">
+                            <span class="habilitations-user-tag">
+                                <i class="pi pi-check habilitations-user-tag__icon" aria-hidden="true"/>
+                                <span class="habilitations-user-tag__text">#{entityUpdateBean.getUtilisateurDisplayName(userId)}</span>
+                            </span>
+                        </ui:repeat>
+                        <h:outputText value="#{msg['modifier.habilitations.noneAssigned']}"
+                                      styleClass="habilitations-assigned-empty"
+                                      rendered="#{empty entityUpdateBean.assignedValidateurIds}"/>
+                    </h:panelGroup>
                 </div>
-                <p:pickList id="relecteursPickList"
-                            value="#{entityUpdateBean.relecteursPickList}"
-                            var="userId"
-                            itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(userId)}"
-                            itemValue="#{userId}"
-                            converter="pickListLongConverter"
-                            styleClass="group-dialog-picklist"
-                            showSourceFilter="true"
-                            showTargetFilter="true"
-                            filterMatchMode="contains"
-                            sourceFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            targetFilterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
-                            responsive="true"
-                            rendered="#{not empty entityUpdateBean.relecteursList}"/>
-                <h:panelGroup rendered="#{empty entityUpdateBean.relecteursList}" class="group-dialog-no-relecteurs">
-                    <span>#{msg['modifier.role.proofreaders.none']}</span>
-                </h:panelGroup>
-            </div>
-        </div>
-    </div>
-</ui:composition>
+            </article>
 
+            <!-- Relecteurs -->
+            <article class="habilitation-card habilitation-card--relecteur">
+                <div class="habilitation-card__accent" aria-hidden="true"/>
+                <div class="habilitation-card__head">
+                    <div class="habilitation-card__icon" aria-hidden="true">
+                        <i class="pi pi-eye"/>
+                    </div>
+                    <div class="habilitation-card__meta">
+                        <span class="habilitation-card__title">#{msg['modifier.role.proofreaders']}</span>
+                        <span class="habilitation-card__desc">#{msg['modifier.role.proofreaders.hint']}</span>
+                    </div>
+                </div>
+                <div class="habilitation-card__body">
+                    <p:selectCheckboxMenu id="relecteursSelect"
+                                          value="#{entityUpdateBean.assignedRelecteurIds}"
+                                          converter="pickListLongConverter"
+                                          label="#{entityUpdateBean.getHabilitationSelectionLabel(entityUpdateBean.assignedRelecteurIds)}"
+                                          styleClass="habilitations-select-menu habilitations-select-menu--relecteur"
+                                          panelStyleClass="habilitations-select-panel habilitations-select-panel--relecteur"
+                                          filter="true"
+                                          filterMatchMode="contains"
+                                          filterPlaceholder="#{msg['modifier.picklist.searchPlaceholder']}"
+                                          panelStyle="width: min(100%, 320px);"
+                                          appendTo="@(body)">
+                        <p:ajax event="itemSelect" process="@this" update="relecteursTags relecteursSelect"/>
+                        <p:ajax event="itemUnselect" process="@this" update="relecteursTags relecteursSelect"/>
+                        <p:ajax event="toggleSelect" process="@this" update="relecteursTags relecteursSelect"/>
+                        <f:selectItems value="#{entityUpdateBean.eligibleHabilitationsUsers}"
+                                       var="user"
+                                       itemValue="#{user.id}"
+                                       itemLabel="#{entityUpdateBean.getUtilisateurDisplayName(user.id)}"/>
+                    </p:selectCheckboxMenu>
+                    <h:panelGroup id="relecteursTags" layout="block" styleClass="habilitations-assigned-tags">
+                        <ui:repeat value="#{entityUpdateBean.assignedRelecteurIds}" var="userId">
+                            <span class="habilitations-user-tag">
+                                <i class="pi pi-eye habilitations-user-tag__icon" aria-hidden="true"/>
+                                <span class="habilitations-user-tag__text">#{entityUpdateBean.getUtilisateurDisplayName(userId)}</span>
+                            </span>
+                        </ui:repeat>
+                        <h:outputText value="#{msg['modifier.habilitations.noneAssigned']}"
+                                      styleClass="habilitations-assigned-empty"
+                                      rendered="#{empty entityUpdateBean.assignedRelecteurIds}"/>
+                    </h:panelGroup>
+                </div>
+            </article>
+        </h:panelGroup>
+    </section>
+</ui:composition>

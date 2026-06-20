@@ -94,7 +94,7 @@
                                         <ui:fragment rendered="#{not empty group.tpq or not empty group.taq}">
                                                     <span class="reference-category-card-period">
                                                         <ui:fragment rendered="#{not empty group.tpq and not empty group.taq}">
-                                                            #{msg['list.groups.period']} #{group.tpq} - #{group.taq}
+                                                            #{msg['list.groups.period']} #{group.tpq} / #{group.taq}
                                                         </ui:fragment>
                                                         <ui:fragment rendered="#{not empty group.tpq and empty group.taq}">
                                                             #{msg['list.groups.tpq']} #{group.tpq}

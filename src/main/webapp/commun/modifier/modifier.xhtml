@@ -41,7 +41,7 @@
                 </h:panelGroup>
 
                 <!-- Section Permissions -->
-                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3}">
+                <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3 and entityUpdateBean.canManageGroupHabilitations()}">
                     <ui:include src="habilitations-modification.xhtml"/>
                 </h:panelGroup>
             </h:panelGroup>
