@@ -13,7 +13,6 @@
                         <div class="concept-info-header">
                             <div class="concept-info-title-section">
                                 <span class="reference-entity-type-badge">#{msg['group.badge']}</span>
-                                <ui:include src="../communs/typology-language-flag.xhtml"/>
                                 <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
                                               styleClass="collection-not-published-icon"
                                               title="#{msg['group.tooltip.notPublished']}">
