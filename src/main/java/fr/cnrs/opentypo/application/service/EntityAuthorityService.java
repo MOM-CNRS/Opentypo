@@ -57,7 +57,14 @@ public class EntityAuthorityService {
             return false;
         }
         Long referentialId = resolveReferentialIdFromParent(parentEntityId);
-        return referentialId != null && isGestionnaireReferentiel(user, referentialId);
+        if (referentialId != null && isGestionnaireReferentiel(user, referentialId)) {
+            return true;
+        }
+        if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)
+                || EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
+            return isRedacteurOnGroupForParent(user, parentEntityId);
+        }
+        return false;
     }
 
     // --- Suppression ---
@@ -239,6 +246,17 @@ public class EntityAuthorityService {
                 user.getId(),
                 referentialId,
                 PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
+    }
+
+    /**
+     * Rédacteur rattaché au groupe contenant l'entité parente (groupe direct ou série).
+     */
+    private boolean isRedacteurOnGroupForParent(Utilisateur user, Long parentEntityId) {
+        return groupService.findGroupByEntityId(parentEntityId)
+                .filter(group -> group.getId() != null)
+                .map(group -> userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        user.getId(), group.getId(), PermissionRoleEnum.REDACTEUR.getLabel()))
+                .orElse(false);
     }
 
     private static boolean isAdminTechniqueOrFonctionnel(Utilisateur user) {

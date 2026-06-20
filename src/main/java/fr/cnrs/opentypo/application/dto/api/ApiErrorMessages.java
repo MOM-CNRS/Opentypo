@@ -14,7 +14,8 @@ public final class ApiErrorMessages {
     public static final String CREATE_REFERENTIEL_ADMIN_ONLY =
             "Seuls les administrateurs technique et fonctionnel peuvent créer un référentiel ou une collection";
     public static final String CREATE_ENTITY_FORBIDDEN =
-            "Droits insuffisants pour créer cette entité : administrateur ou gestionnaire du référentiel requis";
+            "Droits insuffisants pour créer cette entité : administrateur, gestionnaire du référentiel "
+                    + "ou rédacteur du groupe requis";
     public static final String CREATE_PARENT_REQUIRED =
             "L'identifiant du parent est obligatoire pour créer ce type d'entité";
     public static final String DELETE_REFERENTIEL_ADMIN_ONLY =
