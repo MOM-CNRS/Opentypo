@@ -3,6 +3,7 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <div id="type-section-description" class="type-section-shell type-section-anchor candidats-mt-20">
+        <h:panelGroup rendered="#{applicationBean.showDescriptionBlock()}" layout="block">
         <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
                  aria-label="Description du type">
 
@@ -66,6 +67,7 @@
                         </div>
                     </ui:fragment>
 
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.marques : null) or applicationBean.showFieldWithValue(applicationBean.selectedEntity.categorieFonctionnelle)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.descriptionDetail != null ? applicationBean.selectedEntity.descriptionDetail.marques : null)}"
@@ -83,7 +85,8 @@
                                     </ui:fragment>
                                 </div>
                             </h:panelGroup>
-                            <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.categorieFonctionnelle)}"
+                                          styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
                                     <i class="pi pi-sitemap monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Catégorie fonctionnelle</span>
@@ -111,10 +114,13 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
 
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.denominationInstrumentum : null)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup styleClass="concept-info-item description-typo-field" layout="block">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.denominationInstrumentum : null)}"
+                                          styleClass="concept-info-item description-typo-field" layout="block">
                                 <div class="concept-info-label">
                                     <i class="pi pi-tag concept-info-icon" aria-hidden="true"/>
                                     <span>Dénomination</span>
@@ -130,8 +136,10 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
                 </div>
             </div>
         </section>
+        </h:panelGroup>
     </div>
 </ui:composition>

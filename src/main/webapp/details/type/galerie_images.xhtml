@@ -85,7 +85,7 @@
                         <script>if(window.OpentypoGallery&amp;&amp;window.OpentypoGallery.init){window.OpentypoGallery.init();}</script>
                     </h:panelGroup>
                     <h:panelGroup layout="block" class="image-container galleria-placeholder"
-                                  rendered="#{empty applicationBean.galleriaPhotos}">
+                                  rendered="#{empty applicationBean.galleriaPhotos and applicationBean.showEmptyBlocksInDetailView()}">
                         <h:panelGroup class="reference-image-placeholder">
                             <span class="reference-placeholder-text">OpenTypo</span>
                         </h:panelGroup>

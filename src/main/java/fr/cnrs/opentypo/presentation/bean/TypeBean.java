@@ -3,6 +3,7 @@ package fr.cnrs.opentypo.presentation.bean;
 import fr.cnrs.opentypo.application.dto.EntityStatusEnum;
 import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.service.CollectionService;
+import fr.cnrs.opentypo.application.service.GroupService;
 import fr.cnrs.opentypo.application.service.ReferenceService;
 import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
@@ -75,6 +76,9 @@ public class TypeBean implements Serializable {
 
     @Autowired
     private TypeService typeService;
+
+    @Autowired
+    private GroupService groupService;
 
     @Autowired
     private LangueRepository langueRepository;
@@ -492,7 +496,19 @@ public class TypeBean implements Serializable {
     public void changeTypeParentFromDialog() {
 
         Entity type = applicationBeanProvider.get().getSelectedEntity();
-        if (type == null || moveTypeSelectedParentId == null) {
+        if (type == null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.none.type")));
+            PrimeFaces.current().ajax().update(":moveTypeDialogForm :growl");
+            return;
+        }
+        if (!canMoveType(type)) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
+                    JsfMessages.get("entity.move.noRights")));
+            PrimeFaces.current().ajax().update(":moveTypeDialogForm :growl");
+            return;
+        }
+        if (moveTypeSelectedParentId == null) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, JsfMessages.get("common.growl.error"),
                     JsfMessages.get("entity.move.selectParent")));
             PrimeFaces.current().ajax().update(":moveTypeDialogForm :growl");
@@ -900,48 +916,65 @@ public class TypeBean implements Serializable {
     }
 
     public boolean canDeleteType(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
-            return false;
-        }
-        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageTypeActions(applicationBean);
     }
 
     /**
-     * Indique si l'utilisateur connecté peut déplacer un type (drag-and-drop dans l'arbre).
-     * Restreint à : administrateur technique, gestionnaire de la collection, ou gestionnaire du référentiel.
+     * Indique si l'utilisateur connecté peut déplacer un type (menu, dialog ou drag-and-drop).
      */
     public boolean canMoveType(Entity type) {
-        if (type == null || type.getId() == null) return false;
-        if (type.getEntityType() == null || !EntityConstants.ENTITY_TYPE_TYPE.equals(type.getEntityType().getCode())) {
-            return false;
-        }
-        if (!loginBean.isAuthenticated()) return false;
-        if (loginBean.isAdminTechniqueOrFonctionnel()) return true;
-        Long userId = loginBean.getCurrentUser() != null ? loginBean.getCurrentUser().getId() : null;
-        if (userId == null) return false;
-
-        Entity collection = collectionService.findCollectionIdByEntityId(type.getId());
-        if (collection != null && collection.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, collection.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_COLLECTION.getLabel())) {
-            return true;
-        }
-        Entity reference = typeService.findReferenceAncestor(type);
-        if (reference != null && reference.getId() != null
-                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(userId, reference.getId(),
-                PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
-            return true;
-        }
-        return false;
+        return canManageTypeEntity(type);
     }
 
     public boolean canEditType(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
+        return canManageTypeActions(applicationBean);
+    }
+
+    /**
+     * Actions de gestion sur un type (déplacer, dupliquer, modifier, supprimer, historique) :
+     * administrateur technique/fonctionnel, gestionnaire du référentiel d'ancrage,
+     * ou rédacteur du groupe contenant le type.
+     */
+    public boolean canManageTypeActions(ApplicationBean applicationBean) {
+        if (applicationBean == null) {
             return false;
         }
-        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageTypeEntity(applicationBean.getSelectedEntity());
+    }
+
+    private boolean canManageTypeEntity(Entity type) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null || type == null || type.getId() == null) {
+            return false;
+        }
+        if (!isTypeEntity(type)) {
+            return false;
+        }
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity reference = typeService.findReferenceAncestor(type);
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        userId, reference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return groupService.findGroupByEntityId(type.getId())
+                .filter(group -> group.getId() != null)
+                .map(group -> userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel()))
+                .orElse(false);
+    }
+
+    private boolean isTypeEntity(Entity entity) {
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_TYPE.equals(entity.getEntityType().getCode())) {
+            return true;
+        }
+        return entityRepository.findById(entity.getId())
+                .map(e -> e.getEntityType() != null
+                        && EntityConstants.ENTITY_TYPE_TYPE.equals(e.getEntityType().getCode()))
+                .orElse(false);
     }
 
 

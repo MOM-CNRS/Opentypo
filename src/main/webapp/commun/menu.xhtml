@@ -45,22 +45,8 @@
                             </div>
                         </p:commandLink>
 
-                        <!-- Candidats item - Visible uniquement si connecté -->
-                        <!--<p:commandLink action="#{applicationBean.goToBrouillons(entityUpdateBean)}"
-                                       styleClass="sidebar-menu-item"
-                                       pt:data-menu-item="candidats"
-                                       ajax="false">
-                            <div class="sidebar-menu-item-content">
-                                <div class="sidebar-menu-item-icon">
-                                    <i class="pi pi-users" />
-                                </div>
-                                <span class="sidebar-menu-item-text">Brouillons</span>
-                                <span class="sidebar-menu-item-tooltip">Brouillons</span>
-                            </div>
-                        </p:commandLink>-->
-
-                        <!-- Gestion des utilisateurs item - Visible uniquement si connecté ET administrateur -->
-                        <h:panelGroup rendered="#{loginBean.isAdminTechniqueOrFonctionnel()}">
+                        <!-- Gestion des utilisateurs : admins (technique/fonctionnel) et gestionnaires de référentiel -->
+                        <h:panelGroup rendered="#{loginBean.canAccessUserManagement()}">
                             <p:commandLink action="#{applicationBean.goToUtilisateurs(entityUpdateBean)}"
                                            styleClass="sidebar-menu-item"
                                            pt:data-menu-item="users"

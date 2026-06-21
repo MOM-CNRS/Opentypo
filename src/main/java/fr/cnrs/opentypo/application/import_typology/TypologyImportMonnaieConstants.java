@@ -40,6 +40,7 @@ public final class TypologyImportMonnaieConstants {
             TypologyImportConstants.COL_PRODUCTION_ATELIERS,
             TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION,
             TypologyImportConstants.COL_ATTESTATIONS_VALEUR,
+            TypologyImportConstants.COL_ATTESTATIONS_SITES_ARCHEOLOGIQUES,
             TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE,
             COL_DESCRIPTION_DROIT,
             COL_DESCRIPTION_LEGENDE_DROIT,

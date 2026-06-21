@@ -302,6 +302,20 @@ public class GroupBean implements Serializable {
                 .toList();
     }
 
+    /** Bloc intervenants : masqué hors brouillon si aucun rôle/auteur renseigné. */
+    public boolean showIntervenantsBlock(Entity group) {
+        if (group == null) {
+            return false;
+        }
+        if (EntityStatusEnum.PROPOSITION.name().equals(group.getStatut())) {
+            return true;
+        }
+        return !getGroupRedacteursDisplayNames(group).isEmpty()
+                || !getGroupRelecteursDisplayNames(group).isEmpty()
+                || !getGroupValidateursDisplayNames(group).isEmpty()
+                || (group.getAuteurs() != null && !group.getAuteurs().isEmpty());
+    }
+
     /**
      * Retourne la liste des noms affichables des relecteurs du groupe (rôle "Relecteur" dans user_permission).
      */
@@ -636,19 +650,13 @@ public class GroupBean implements Serializable {
     }
 
     /**
-     * Copie le paramétrage OpenTheso de la référence à laquelle la catégorie est rattachée vers le nouveau groupe,
-     * si un paramétrage existe pour cette référence.
+     * Copie le paramétrage OpenTheso et/ou la bibliographie Zotero du référentiel parent vers le nouveau groupe.
      */
     private void copyParametrageFromReferenceToGroup(Entity category, Entity newGroup) {
-        if (category == null || newGroup == null || parametrageRepository == null) {
+        if (category == null || newGroup == null || newGroup.getId() == null || parametrageRepository == null) {
             return;
         }
-        List<Entity> parents = entityRelationRepository.findParentsByChild(category);
-        Entity reference = parents.stream()
-                .filter(p -> p != null && p.getEntityType() != null
-                        && EntityConstants.ENTITY_TYPE_REFERENCE.equals(p.getEntityType().getCode()))
-                .findFirst()
-                .orElse(null);
+        Entity reference = typeService != null ? typeService.findReferenceAncestor(category) : null;
         if (reference == null || reference.getId() == null) {
             return;
         }
@@ -657,19 +665,28 @@ public class GroupBean implements Serializable {
             return;
         }
         Parametrage refParam = refParamOpt.get();
-        if (refParam.getBaseUrl() == null || refParam.getBaseUrl().isBlank()
-                || refParam.getIdTheso() == null || refParam.getIdTheso().isBlank()) {
+
+        boolean hasOpenTheso = StringUtils.hasText(refParam.getBaseUrl())
+                && StringUtils.hasText(refParam.getIdTheso());
+        boolean hasBibliographie = StringUtils.hasText(refParam.getBibliographieUrl());
+
+        if (!hasOpenTheso && !hasBibliographie) {
             return;
         }
+
         Parametrage groupParam = new Parametrage();
         groupParam.setEntity(entityRepository.findById(newGroup.getId()).orElse(newGroup));
-        groupParam.setBaseUrl(refParam.getBaseUrl());
-        groupParam.setIdTheso(refParam.getIdTheso());
-        groupParam.setIdLangue(refParam.getIdLangue());
-        groupParam.setIdGroupe(refParam.getIdGroupe());
-        groupParam.setBibliographieUrl(refParam.getBibliographieUrl());
+        if (hasOpenTheso) {
+            groupParam.setBaseUrl(refParam.getBaseUrl());
+            groupParam.setIdTheso(refParam.getIdTheso());
+            groupParam.setIdLangue(refParam.getIdLangue());
+            groupParam.setIdGroupe(refParam.getIdGroupe());
+        }
+        if (hasBibliographie) {
+            groupParam.setBibliographieUrl(refParam.getBibliographieUrl());
+        }
         parametrageRepository.save(groupParam);
-        log.debug("Paramétrage OpenTheso copié de la référence {} vers le nouveau groupe {}", reference.getCode(), newGroup.getCode());
+        log.debug("Paramétrage hérité du référentiel {} vers le nouveau groupe {}", reference.getCode(), newGroup.getCode());
     }
 
     /**
@@ -739,19 +756,55 @@ public class GroupBean implements Serializable {
     }
 
     public boolean canDeleteOrChangeVisibilityGroup(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
-            return false;
-        }
-        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageGroupActions(applicationBean);
     }
 
     public boolean canEditGroup(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
+        return canManageGroupActions(applicationBean);
+    }
+
+    /**
+     * Actions de gestion sur un groupe (paramétrage, historique, modifier, supprimer, visibilité) :
+     * administrateur technique/fonctionnel, gestionnaire du référentiel d'ancrage,
+     * ou rédacteur du groupe.
+     */
+    public boolean canManageGroupActions(ApplicationBean applicationBean) {
+        if (applicationBean == null) {
             return false;
         }
-        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageGroupEntity(applicationBean.getSelectedEntity());
+    }
+
+    private boolean canManageGroupEntity(Entity group) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null || group == null || group.getId() == null) {
+            return false;
+        }
+        if (!isGroupEntity(group)) {
+            return false;
+        }
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity reference = typeService.findReferenceAncestor(group);
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        userId, reference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel());
+    }
+
+    private boolean isGroupEntity(Entity entity) {
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_GROUP.equals(entity.getEntityType().getCode())) {
+            return true;
+        }
+        return entityRepository.findById(entity.getId())
+                .map(e -> e.getEntityType() != null
+                        && EntityConstants.ENTITY_TYPE_GROUP.equals(e.getEntityType().getCode()))
+                .orElse(false);
     }
 
 

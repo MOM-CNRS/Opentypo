@@ -21,7 +21,8 @@ public final class ApiErrorMessages {
     public static final String DELETE_REFERENTIEL_ADMIN_ONLY =
             "Seuls les administrateurs technique et fonctionnel peuvent supprimer un référentiel ou une collection";
     public static final String DELETE_ENTITY_FORBIDDEN =
-            "Droits insuffisants pour supprimer cette entité : administrateur ou gestionnaire du référentiel requis";
+            "Droits insuffisants pour supprimer cette entité : administrateur, gestionnaire du référentiel "
+                    + "ou rédacteur du groupe requis";
     public static final String UPDATE_REFERENCE_FORBIDDEN =
             "Droits insuffisants pour modifier ce référentiel";
     public static final String UPDATE_COLLECTION_FORBIDDEN =

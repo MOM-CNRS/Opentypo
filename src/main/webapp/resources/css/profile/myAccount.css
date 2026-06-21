@@ -362,6 +362,34 @@
     font-weight: 500;
 }
 
+.profile-assoc-entity-label.entity-label-html {
+    white-space: normal;
+    font-weight: inherit;
+}
+
+.profile-assoc-entity-label.entity-label-html p {
+    margin: 0;
+    display: inline;
+}
+
+.profile-assoc-entity-label.entity-label-html p:not(:last-child)::after {
+    content: " ";
+}
+
+.profile-assoc-entity-label.entity-label-html strong,
+.profile-assoc-entity-label.entity-label-html b {
+    font-weight: 600;
+}
+
+.profile-assoc-entity-label.entity-label-html em,
+.profile-assoc-entity-label.entity-label-html i {
+    font-style: italic;
+}
+
+.profile-assoc-entity-label.entity-label-html u {
+    text-decoration: underline;
+}
+
 .profile-assoc-entity-code {
     color: var(--profile-text-muted);
     font-size: 0.875rem;

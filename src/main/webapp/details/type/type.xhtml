@@ -10,11 +10,6 @@
                     <div class="concept-info-header type-identity-header">
                         <div class="concept-info-title-section">
                             <span class="reference-entity-type-badge">#{msg['type.badge']}</span>
-                            <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                          styleClass="collection-not-published-icon"
-                                          title="#{msg['type.tooltip.notPublished']}">
-                                <i class="pi pi-clock"/>
-                            </h:panelGroup>
                             <div class="collection-panel-title-wrapper">
                                 <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                 <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
@@ -30,34 +25,34 @@
                                           menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
                                           title="#{msg['common.actions']}"
                                           appendTo="@(body)"
-                                          rendered="#{loginBean.currentUser != null or typeBean.canEditType(applicationBean) or typeBean.canDeleteType(applicationBean)}">
+                                          rendered="#{typeBean.canManageTypeActions(applicationBean)}">
                                 <p:menuitem value="#{msg['type.action.move.title']}"
                                             icon="pi pi-arrow-right-arrow-left"
                                             action="#{typeBean.prepareMoveTypeDialog()}"
                                             process="@this"
                                             update=":moveTypeDialog"
                                             oncomplete="PF('moveTypeDialog').show();"
-                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
+                                            rendered="#{typeBean.canManageTypeActions(applicationBean)}"/>
                                 <p:menuitem value="#{msg['type.action.duplicate.title']}"
                                             icon="pi pi-copy"
                                             action="#{typeBean.prepareDuplicateTypeDialog()}"
                                             process="@this"
                                             update=":duplicateTypeDialog :duplicateTypeDialogForm"
                                             oncomplete="PF('duplicateTypeDialog').show();"
-                                            rendered="#{typeBean.canEditType(applicationBean)}"/>
+                                            rendered="#{typeBean.canManageTypeActions(applicationBean)}"/>
                                 <p:menuitem value="#{msg['common.history.title']}"
                                             icon="pi pi-history"
                                             action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                             process="@this"
                                             update="@none"
                                             immediate="true"
-                                            rendered="#{loginBean.currentUser != null}"/>
+                                            rendered="#{typeBean.canManageTypeActions(applicationBean)}"/>
                                 <p:menuitem value="#{msg['type.action.edit.title']}"
                                             icon="pi pi-file-edit"
                                             action="#{entityUpdateBean.startEditing()}"
                                             process="@this"
                                             update=":contentPanels :leftTreePanel :searchSectionWrapper"
-                                            rendered="#{typeBean.canEditType(applicationBean)}"
+                                            rendered="#{typeBean.canManageTypeActions(applicationBean)}"
                                             onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
                                             oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
                                             onerror="if(typeof hideLoading==='function') hideLoading();"/>
@@ -69,10 +64,24 @@
                                             process="@this"
                                             update=":confirmDeleteDialogContent"
                                             oncomplete="PF('confirmDeleteDialog').show();"
-                                            rendered="#{typeBean.canDeleteType(applicationBean)}"/>
+                                            rendered="#{typeBean.canManageTypeActions(applicationBean)}"/>
                             </p:menuButton>
 
-                            <h:panelGroup rendered="#{loginBean.currentUser != null}">
+                            <h:panelGroup rendered="#{loginBean.currentUser != null and applicationBean.selectedEntity.statut == 'PROPOSITION'}">
+                                <div class="collection-visibility-card" title="#{msg['common.status.draft.tooltip']}">
+                                    <div class="collection-visibility-card-content">
+                                        <div class="collection-visibility-indicator collection-visibility-draft">
+                                            <div class="collection-visibility-icon">
+                                                <i class="pi pi-pencil" />
+                                            </div>
+                                            <div class="collection-visibility-info">
+                                                <span class="collection-visibility-label">#{msg['common.status.draft']}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{loginBean.currentUser != null and applicationBean.selectedEntity.statut != 'PROPOSITION'}">
                                 <div class="collection-visibility-card">
                                     <div class="collection-visibility-card-content">
                                         <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -83,7 +92,7 @@
                                                 <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? msg['common.visibility.public'] : msg['common.visibility.private']}</span>
                                             </div>
                                         </div>
-                                        <h:panelGroup rendered="#{typeBean.canEditType(applicationBean)}"
+                                        <h:panelGroup rendered="#{typeBean.canManageTypeActions(applicationBean)}"
                                                       styleClass="collection-visibility-toggle-wrapper">
                                             <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                            process="@this"
@@ -103,7 +112,9 @@
                         <nav class="type-page-nav" aria-label="#{msg['type.nav.aria']}">
                             <div class="type-page-nav__scroller">
                                 <span class="type-page-nav__label">#{msg['type.nav.quickAccess']}</span>
-                                <a href="#type-section-presentation" class="type-page-nav__pill">#{msg['type.nav.presentation']}</a>
+                                <ui:fragment rendered="#{applicationBean.showPresentationBlock()}">
+                                    <a href="#type-section-presentation" class="type-page-nav__pill">#{msg['type.nav.presentation']}</a>
+                                </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showDatationBlock()}">
                                     <a href="#type-section-datation" class="type-page-nav__pill">#{msg['common.section.datation']}</a>
                                 </ui:fragment>
@@ -119,8 +130,11 @@
                                 <ui:fragment rendered="#{(applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()) or (applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()) or (applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock())}">
                                     <a href="#type-section-caracteristiques-physiques" class="type-page-nav__pill">#{msg['common.section.physicalCharacteristics']}</a>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{applicationBean.showAlignementsBlock()}">
+                                <ui:fragment rendered="#{applicationBean.showReferencesSectionBlock()}">
                                     <a href="#type-section-references" class="type-page-nav__pill">#{msg['common.section.references']}</a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{applicationBean.showGestionBlock()}">
+                                    <a href="#type-section-gestion" class="type-page-nav__pill">#{msg['history.section.gestion']}</a>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
                                     <a href="#type-section-commentaire" class="type-page-nav__pill">#{msg['common.section.comment']}</a>
@@ -139,13 +153,15 @@
 
                 <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
-                    <div class="concept-info-panel type-identity-panel collection-edit-mode" style="margin-top: 10px;">
+                    <div class="concept-info-panel type-identity-panel collection-edit-mode" style="margin-top: 10px;"
+                         rendered="#{applicationBean.showGalleryBlock()}">
                         <ui:include src="galerie_images.xhtml"/>
                     </div>
 
                     <section id="type-section-presentation"
                              class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line type-section-shell type-section-anchor"
-                             aria-label="#{msg['type.presentation.region']}">
+                             aria-label="#{msg['type.presentation.region']}"
+                             rendered="#{applicationBean.showPresentationBlock()}">
                         <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="type-identity-texte-heading">
                             <header class="concept-info-header monnaie-communs-header description-typo-header">
                                 <div class="concept-info-title-section monnaie-communs-title-wrapper">
@@ -273,20 +289,28 @@
 
                     <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()}">
                         <ui:include src="../communs/description_monnaie.xhtml"/>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()}">
                         <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showDescriptionBlock()}">
                         <ui:include src="../communs/description_ceramrique.xhtml"/>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()}">
                         <ui:include src="../communs/caracteristiques_physique.xhtml"/>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showDescriptionBlock()}">
                         <ui:include src="../communs/description_instrumentum.xhtml"/>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock()}">
                         <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                     </ui:fragment>
 
                     <ui:include src="references.xhtml"/>
+
+                    <ui:include src="gestion.xhtml"/>
 
                     <ui:include src="../communs/commentaire.xhtml"/>
 

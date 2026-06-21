@@ -59,6 +59,7 @@ public class ProfileBean implements Serializable {
     private String nom;
     private String email;
     private String nouveauMotDePasse;
+    private String confirmationMotDePasse;
 
     @PostConstruct
     public void init() {
@@ -79,6 +80,7 @@ public class ProfileBean implements Serializable {
             }
         }
         nouveauMotDePasse = null;
+        confirmationMotDePasse = null;
     }
 
     /**
@@ -161,6 +163,17 @@ public class ProfileBean implements Serializable {
                         JsfMessages.get("profile.validation.passwordMin"), ":growl, :profileForm");
                 return;
             }
+            String confirm = confirmationMotDePasse != null ? confirmationMotDePasse.trim() : "";
+            if (confirm.isEmpty()) {
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                        JsfMessages.get("profile.validation.passwordConfirmRequired"), ":growl, :profileForm");
+                return;
+            }
+            if (!nouveauMotDePasse.trim().equals(confirm)) {
+                notificationBean.showErrorWithUpdate(JsfMessages.get("common.growl.validation"),
+                        JsfMessages.get("profile.validation.passwordMismatch"), ":growl, :profileForm");
+                return;
+            }
         }
 
         if (utilisateurRepository.existsByEmailExcludingUserId(emailTrim, current.getId())) {
@@ -182,6 +195,7 @@ public class ProfileBean implements Serializable {
 
         loginBean.setCurrentUser(utilisateur);
         nouveauMotDePasse = null;
+        confirmationMotDePasse = null;
 
         notificationBean.showSuccessWithUpdate(JsfMessages.get("common.growl.success"),
                 JsfMessages.get("profile.success.updated"), ":growl, :profileForm");
@@ -206,13 +220,14 @@ public class ProfileBean implements Serializable {
             if (entity == null) continue;
             String entityTypeLabel = getEntityTypeLabel(entity.getEntityType() != null ? entity.getEntityType().getCode() : null);
             String entityLabel = applicationBean.getEntityLabel(entity);
+            String entityLabelPlainText = applicationBean.getEntityLabelPlainText(entity);
             String entityCode = entity.getCode() != null ? entity.getCode() : "";
             String role = up.getRole() != null ? up.getRole() : "";
-            items.add(new UserPermissionItem(entityTypeLabel, entityLabel, entityCode, role, entity.getId()));
+            items.add(new UserPermissionItem(entityTypeLabel, entityLabel, entityLabelPlainText, entityCode, role, entity.getId()));
         }
         items.sort(Comparator
                 .comparing(UserPermissionItem::getEntityTypeLabel)
-                .thenComparing(UserPermissionItem::getEntityLabel, Comparator.nullsFirst(String::compareToIgnoreCase)));
+                .thenComparing(UserPermissionItem::getEntityLabelPlainText, Comparator.nullsFirst(String::compareToIgnoreCase)));
         return items;
     }
 

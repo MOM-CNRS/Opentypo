@@ -8,6 +8,8 @@ import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.EntityCodeUniquenessService;
+import fr.cnrs.opentypo.application.service.GroupService;
+import fr.cnrs.opentypo.application.service.TypeService;
 import fr.cnrs.opentypo.presentation.bean.candidats.Candidat;
 import fr.cnrs.opentypo.presentation.bean.candidats.CandidatBean;
 import fr.cnrs.opentypo.presentation.bean.candidats.converter.CandidatConverter;
@@ -91,6 +93,12 @@ public class SerieBean implements Serializable {
 
     @Autowired
     private EntityCodeUniquenessService entityCodeUniquenessService;
+
+    @Autowired
+    private TypeService typeService;
+
+    @Autowired
+    private GroupService groupService;
 
     private String serieCode;
     private String serieLabel;
@@ -502,11 +510,7 @@ public class SerieBean implements Serializable {
     }
 
     public boolean canEditSerie(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
-            return false;
-        }
-        return entityAuthorityService.canUpdate(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageSerieActions(applicationBean);
     }
 
     /**
@@ -526,11 +530,54 @@ public class SerieBean implements Serializable {
     }
 
     public boolean canDeleteSerie(ApplicationBean applicationBean) {
-        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null
-                || applicationBean.getSelectedEntity() == null) {
+        return canManageSerieActions(applicationBean);
+    }
+
+    /**
+     * Actions de gestion sur une série (historique, modifier, supprimer, visibilité) :
+     * administrateur technique/fonctionnel, gestionnaire du référentiel d'ancrage,
+     * ou rédacteur du groupe contenant la série.
+     */
+    public boolean canManageSerieActions(ApplicationBean applicationBean) {
+        if (applicationBean == null) {
             return false;
         }
-        return entityAuthorityService.canDelete(loginBean.getCurrentUser(), applicationBean.getSelectedEntity());
+        return canManageSerieEntity(applicationBean.getSelectedEntity());
+    }
+
+    private boolean canManageSerieEntity(Entity serie) {
+        if (!loginBean.isAuthenticated() || loginBean.getCurrentUser() == null || serie == null || serie.getId() == null) {
+            return false;
+        }
+        if (!isSerieEntity(serie)) {
+            return false;
+        }
+        if (loginBean.isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        Long userId = loginBean.getCurrentUser().getId();
+        Entity reference = typeService.findReferenceAncestor(serie);
+        if (reference != null && reference.getId() != null
+                && userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        userId, reference.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel())) {
+            return true;
+        }
+        return groupService.findGroupByEntityId(serie.getId())
+                .filter(group -> group.getId() != null)
+                .map(group -> userPermissionRepository.existsByUserIdAndEntityIdAndRole(
+                        userId, group.getId(), PermissionRoleEnum.REDACTEUR.getLabel()))
+                .orElse(false);
+    }
+
+    private boolean isSerieEntity(Entity entity) {
+        if (entity.getEntityType() != null
+                && EntityConstants.ENTITY_TYPE_SERIES.equals(entity.getEntityType().getCode())) {
+            return true;
+        }
+        return entityRepository.findById(entity.getId())
+                .map(e -> e.getEntityType() != null
+                        && EntityConstants.ENTITY_TYPE_SERIES.equals(e.getEntityType().getCode()))
+                .orElse(false);
     }
 
     /**

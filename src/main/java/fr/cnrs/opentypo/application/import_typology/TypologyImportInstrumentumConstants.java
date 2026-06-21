@@ -42,6 +42,7 @@ public final class TypologyImportInstrumentumConstants {
             TypologyImportConstants.COL_PRODUCTION_ATELIERS,
             TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION,
             TypologyImportConstants.COL_ATTESTATIONS_VALEUR,
+            TypologyImportConstants.COL_ATTESTATIONS_SITES_ARCHEOLOGIQUES,
             TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE,
             TypologyImportCeramiqueConstants.COL_DESCRIPTION_DECORS,
             TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES,

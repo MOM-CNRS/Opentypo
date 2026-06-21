@@ -1,8 +1,10 @@
 package fr.cnrs.opentypo.presentation.bean;
 
 import fr.cnrs.opentypo.application.dto.GroupEnum;
+import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.application.service.UtilisateurService;
+import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
 import fr.cnrs.opentypo.infrastructure.security.OpentypoAuthSupport;
 import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import jakarta.enterprise.context.SessionScoped;
@@ -41,6 +43,9 @@ public class LoginBean implements Serializable {
 
     @Inject
     private OpentypoAuthSupport opentypoAuthSupport;
+
+    @Inject
+    private UserPermissionRepository userPermissionRepository;
 
     private String username; // Email de l'utilisateur
     private String password;
@@ -219,6 +224,24 @@ public class LoginBean implements Serializable {
      */
     public boolean isAdminTechniqueOrFonctionnel() {
         return isAdminTechnique() || isAdminFonctionnel();
+    }
+
+    /**
+     * Accès au module utilisateurs : administrateurs (technique ou fonctionnel)
+     * ou gestionnaire de référentiel sur au moins une entité.
+     */
+    public boolean canAccessUserManagement() {
+        if (!authenticated) {
+            return false;
+        }
+        if (isAdminTechniqueOrFonctionnel()) {
+            return true;
+        }
+        if (currentUser == null || currentUser.getId() == null || userPermissionRepository == null) {
+            return false;
+        }
+        return userPermissionRepository.existsByUserIdAndRole(
+                currentUser.getId(), PermissionRoleEnum.GESTIONNAIRE_REFERENTIEL.getLabel());
     }
 
     /**

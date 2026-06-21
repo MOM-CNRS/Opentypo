@@ -15,9 +15,13 @@
                 </header>
 
                 <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periodes)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.tpq)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.taq)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.periodes)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-calendar monnaie-communs-icon" aria-hidden="true"/>
                                     <span>#{msg['modifier.field.period']}</span>
@@ -49,7 +53,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.tpq)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-calendar-minus monnaie-communs-icon" aria-hidden="true"/>
                                     <span>TPQ</span>
@@ -64,7 +69,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.taq)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-calendar-plus monnaie-communs-icon" aria-hidden="true"/>
                                     <span>TAQ</span>
@@ -80,10 +86,13 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
 
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.commentaireDatation)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.commentaireDatation)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-comment monnaie-communs-icon" aria-hidden="true"/>
                                     <span>#{msg['modifier.field.datingComment']}</span>
@@ -99,6 +108,7 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
                 </div>
             </div>
         </section>

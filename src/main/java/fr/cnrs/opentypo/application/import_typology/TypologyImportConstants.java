@@ -37,6 +37,7 @@ public final class TypologyImportConstants {
     public static final String COL_PRODUCTION_ATELIERS = "production_ateliers";
     public static final String COL_PRODUCTION_AIRE_CIRCULATION = "production_aire_circulation";
     public static final String COL_ATTESTATIONS_VALEUR = "attestations_valeur";
+    public static final String COL_ATTESTATIONS_SITES_ARCHEOLOGIQUES = "attestations_sites_archeologiques";
     public static final String COL_ATTESTATIONS_CORPUS_LIE = "attestations_corpus_lie";
     public static final String COL_CARACT_PHYS_METROLOGIE = "caract_phys_metrologie";
     public static final String COL_CARACT_PHYS_FABRICATION = "caract_phys_fabrication";
@@ -106,6 +107,7 @@ public final class TypologyImportConstants {
             COL_PRODUCTION_ATELIERS,
             COL_PRODUCTION_AIRE_CIRCULATION,
             COL_ATTESTATIONS_VALEUR,
+            COL_ATTESTATIONS_SITES_ARCHEOLOGIQUES,
             COL_ATTESTATIONS_CORPUS_LIE,
             COL_CARACT_PHYS_METROLOGIE,
             COL_CARACT_PHYS_FABRICATION,

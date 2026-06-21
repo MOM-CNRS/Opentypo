@@ -1634,6 +1634,11 @@
     color: var(--color-danger, #B84A3C);
 }
 
+.collection-visibility-draft .collection-visibility-icon {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+    color: #d97706;
+}
+
 .collection-visibility-info {
     display: flex;
     flex-direction: column;
@@ -1648,6 +1653,12 @@
 
 .collection-visibility-private .collection-visibility-label {
     color: var(--color-danger, #B84A3C);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.collection-visibility-draft .collection-visibility-label {
+    color: #d97706;
     font-weight: 600;
     font-size: 0.8125rem;
 }

@@ -16,6 +16,7 @@
                     <div class="concept-info-grid">
                         <div class="concept-info-item concept-info-item-full type-detail-prose-block">
                             <div class="concept-info-value concept-info-description">
+                                <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.zoteroBibliographyKeyList)}">
                                 <p class="zotero-library-intro">
                                     <h:outputLink value="#{applicationBean.zoteroGroupLibraryUrl}"
                                                   target="_blank"
@@ -51,6 +52,7 @@
                                         </ui:fragment>
                                     </div>
                                 </ui:fragment>
+                                </ui:fragment>
 
                                 <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.bibliographie)}">
                                     <h3 class="zotero-notes-heading">Notes complémentaires</h3>
@@ -59,7 +61,7 @@
                                     </div>
                                 </ui:fragment>
 
-                                <ui:fragment rendered="#{!applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
+                                <ui:fragment rendered="#{applicationBean.showEmptyBlocksInDetailView() and !applicationBean.hasZoteroBibliographyKeys() and empty applicationBean.selectedEntity.bibliographie}">
                                     <span class="empty-field-message">#{msg['common.empty.notProvided']}</span>
                                 </ui:fragment>
                             </div>

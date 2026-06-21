@@ -7,6 +7,7 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{userManagementBean.onCreatePageEnter}"/>
         <!-- Page création/édition utilisateur : en-tête + formulaire + groupes -->
         <div class="users-container">
             <!-- En-tête (titre + bouton Retour) -->
@@ -87,6 +88,20 @@
                             </div>
 
                             <div class="users-form-group">
+                                <p:outputLabel for="passwordConfirm" value="#{msg['users.form.passwordConfirm']} #{userManagementBean.editMode ? msg['users.form.password.optional'] : '*'}" />
+                                <p:password id="passwordConfirm"
+                                         value="#{userManagementBean.passwordConfirmation}"
+                                         requiredMessage="#{msg['users.form.passwordConfirm.required']}"
+                                         feedback="false"
+                                         styleClass="users-input"
+                                         placeholder="#{msg['users.form.passwordConfirm.placeholder']}"
+                                         maxlength="1000"
+                                         pt:data-tooltip="#{msg['users.form.password.tooltip']}"
+                                         pt:data-tooltip-position="right"/>
+                                <p:message for="passwordConfirm" display="icon"/>
+                            </div>
+
+                            <div class="users-form-group">
                                 <p:outputLabel for="groupe" value="#{msg['users.form.group']}" />
                                 <p:selectOneMenu id="groupe"
                                                  value="#{userManagementBean.selectedGroupeId}"
@@ -94,7 +109,7 @@
                                                  requiredMessage="#{msg['users.form.group.required']}"
                                                  styleClass="users-select">
                                     <f:selectItem itemLabel="#{msg['users.form.group.select']}" itemValue=""/>
-                                    <f:selectItems value="#{userManagementBean.availableGroups}" var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
+                                    <f:selectItems value="#{userManagementBean.formGroups}" var="groupe" itemLabel="#{groupe.nom}" itemValue="#{groupe.id}"/>
                                     <p:ajax event="change"
                                             process="@this"
                                             listener="#{userManagementBean.onGroupeChange}" />

@@ -17,8 +17,11 @@ public class UserPermissionItem {
     /** Type d'entité (ex. Collection, Référentiel, Groupe). */
     private String entityTypeLabel;
 
-    /** Label de l'entité (nom selon la langue). */
+    /** Label de l'entité (nom selon la langue, peut contenir du HTML). */
     private String entityLabel;
+
+    /** Libellé en texte brut (sans balises), pour attributs title et tris. */
+    private String entityLabelPlainText;
 
     /** Code de l'entité. */
     private String entityCode;

@@ -119,5 +119,17 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
      * @return L'utilisateur trouvé ou Optional.empty() si aucun utilisateur n'est trouvé
      */
     Optional<Utilisateur> findByEmailAndPasswordHash(String email, String passwordHash);
+
+    /**
+     * Charge tous les utilisateurs avec leur groupe (évite LazyInitializationException en vue JSF).
+     */
+    @Query("SELECT DISTINCT u FROM Utilisateur u JOIN FETCH u.groupe")
+    List<Utilisateur> findAllWithGroupe();
+
+    /**
+     * Charge un utilisateur avec son groupe pour l'édition.
+     */
+    @Query("SELECT u FROM Utilisateur u JOIN FETCH u.groupe WHERE u.id = :id")
+    Optional<Utilisateur> findByIdWithGroupe(@Param("id") Long id);
 }
 

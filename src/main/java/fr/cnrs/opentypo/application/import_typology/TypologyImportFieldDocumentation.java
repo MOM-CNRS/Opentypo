@@ -101,13 +101,15 @@ public final class TypologyImportFieldDocumentation {
 
         // Production & attestations
         m.put(TypologyImportConstants.COL_PRODUCTION_VALUE,
-                "Lieu ou mode de production OpenTheso : libellé:url ou libellé seul.");
+                "Lieu ou mode de production OpenTheso : liste ; entrées séparées par || (ou ##) ; chaque entrée au format libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_PRODUCTION_ATELIERS,
                 "Ateliers ou lieux de production : liste ; entrées séparées par || ou selon les « : » définis dans le mapping import.");
         m.put(TypologyImportConstants.COL_PRODUCTION_AIRE_CIRCULATION,
                 "Aires de circulation : plusieurs entrées || ; chaque entrée au format libellé:url OpenTheso ou libellé seul.");
         m.put(TypologyImportConstants.COL_ATTESTATIONS_VALEUR,
                 "Attestations / contextes : liste (séparateur || ou règles de liste du formulaire).");
+        m.put(TypologyImportConstants.COL_ATTESTATIONS_SITES_ARCHEOLOGIQUES,
+                "Sites archéologiques : liste (séparateur || ou règles de liste du formulaire, comme les ateliers / attestations).");
         m.put(TypologyImportConstants.COL_ATTESTATIONS_CORPUS_LIE,
                 "Corpus liés : liste d'entrées libellé|url séparées par || (ex. \"Corpus A|https://exemple.fr||Corpus B|https://exemple.fr/b\").");
 
@@ -119,7 +121,7 @@ public final class TypologyImportFieldDocumentation {
         m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_MARQUES,
                 "Marques : valeurs séparées par || puis converties pour stockage.");
         m.put(TypologyImportCeramiqueConstants.COL_DESCRIPTION_FONCTION,
-                "Fonction / usage OpenTheso : libellé:url ou libellé seul.");
+                "Fonction / usage OpenTheso : liste ; entrées séparées par || (ou ##) ; chaque entrée au format libellé:url ou libellé seul.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_METROLOGIE,
                 "Métrologie (céramique ou monnaie selon profil) : libellé:url lorsque stocké comme référence.");
         m.put(TypologyImportConstants.COL_CARACT_PHYS_FABRICATION,

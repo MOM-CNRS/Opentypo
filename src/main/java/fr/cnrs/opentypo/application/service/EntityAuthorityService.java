@@ -5,9 +5,11 @@ import fr.cnrs.opentypo.application.dto.PermissionRoleEnum;
 import fr.cnrs.opentypo.application.dto.api.ApiErrorMessages;
 import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.domain.entity.Entity;
+import fr.cnrs.opentypo.domain.entity.Groupe;
 import fr.cnrs.opentypo.domain.entity.Utilisateur;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.UserPermissionRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class EntityAuthorityService {
 
     private final EntityRepository entityRepository;
     private final UserPermissionRepository userPermissionRepository;
+    private final UtilisateurRepository utilisateurRepository;
     private final TypeService typeService;
     private final GroupService groupService;
     private final CollectionService collectionService;
@@ -62,7 +65,7 @@ public class EntityAuthorityService {
         }
         if (EntityConstants.ENTITY_TYPE_SERIES.equals(entityTypeCode)
                 || EntityConstants.ENTITY_TYPE_TYPE.equals(entityTypeCode)) {
-            return isRedacteurOnGroupForParent(user, parentEntityId);
+            return isRedacteurOnGroupContaining(user, parentEntityId);
         }
         return false;
     }
@@ -94,7 +97,15 @@ public class EntityAuthorityService {
             return false;
         }
         Long referentialId = resolveReferentialIdFromEntity(entity);
-        return referentialId != null && isGestionnaireReferentiel(user, referentialId);
+        if (referentialId != null && isGestionnaireReferentiel(user, referentialId)) {
+            return true;
+        }
+        if (EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)
+                || EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode)
+                || EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode)) {
+            return isRedacteurOnGroupContaining(user, entity.getId());
+        }
+        return false;
     }
 
     // --- Modification ---
@@ -170,11 +181,7 @@ public class EntityAuthorityService {
         if (referentialId != null && isGestionnaireReferentiel(user, referentialId)) {
             return true;
         }
-        return groupService.findGroupByEntityId(entity.getId())
-                .filter(group -> group.getId() != null)
-                .map(group -> userPermissionRepository.existsByUserIdAndEntityIdAndRole(
-                        user.getId(), group.getId(), PermissionRoleEnum.REDACTEUR.getLabel()))
-                .orElse(false);
+        return isRedacteurOnGroupContaining(user, entity.getId());
     }
 
     // --- Visibilité (public / privé) ---
@@ -249,21 +256,40 @@ public class EntityAuthorityService {
     }
 
     /**
-     * Rédacteur rattaché au groupe contenant l'entité parente (groupe direct ou série).
+     * Rédacteur rattaché au groupe contenant l'entité (groupe direct, série ou type).
      */
-    private boolean isRedacteurOnGroupForParent(Utilisateur user, Long parentEntityId) {
-        return groupService.findGroupByEntityId(parentEntityId)
+    private boolean isRedacteurOnGroupContaining(Utilisateur user, Long entityId) {
+        if (entityId == null) {
+            return false;
+        }
+        return groupService.findGroupByEntityId(entityId)
                 .filter(group -> group.getId() != null)
                 .map(group -> userPermissionRepository.existsByUserIdAndEntityIdAndRole(
                         user.getId(), group.getId(), PermissionRoleEnum.REDACTEUR.getLabel()))
                 .orElse(false);
     }
 
-    private static boolean isAdminTechniqueOrFonctionnel(Utilisateur user) {
-        if (user.getGroupe() == null || user.getGroupe().getNom() == null) {
+    private boolean isAdminTechniqueOrFonctionnel(Utilisateur user) {
+        if (user == null) {
             return false;
         }
-        String groupeNom = user.getGroupe().getNom();
+        if (isAdminGroup(user.getGroupe())) {
+            return true;
+        }
+        if (user.getId() != null && utilisateurRepository != null) {
+            return utilisateurRepository.findByIdWithGroupe(user.getId())
+                    .map(Utilisateur::getGroupe)
+                    .filter(this::isAdminGroup)
+                    .isPresent();
+        }
+        return false;
+    }
+
+    private boolean isAdminGroup(Groupe groupe) {
+        if (groupe == null || groupe.getNom() == null) {
+            return false;
+        }
+        String groupeNom = groupe.getNom();
         return GroupEnum.ADMINISTRATEUR_TECHNIQUE.getLabel().equalsIgnoreCase(groupeNom)
                 || GroupEnum.ADMINISTRATEUR_FONCTIONNEL.getLabel().equalsIgnoreCase(groupeNom);
     }

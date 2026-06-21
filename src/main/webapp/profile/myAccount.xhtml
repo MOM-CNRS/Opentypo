@@ -69,7 +69,7 @@
                             <p:message for="nom" display="icon"/>
                         </div>
 
-                        <div class="profile-form-group profile-form-group-full">
+                        <div class="profile-form-group">
                             <p:outputLabel for="nouveauMotDePasse" value="#{msg['profile.panel.password']}"/>
                             <p:password id="nouveauMotDePasse"
                                        value="#{profileBean.nouveauMotDePasse}"
@@ -80,6 +80,19 @@
                                        pt:data-tooltip="#{msg['profile.panel.passwordTooltip']}"
                                        pt:data-tooltip-position="right"/>
                             <p:message for="nouveauMotDePasse" display="icon"/>
+                        </div>
+
+                        <div class="profile-form-group">
+                            <p:outputLabel for="confirmationMotDePasse" value="#{msg['profile.panel.passwordConfirm']}"/>
+                            <p:password id="confirmationMotDePasse"
+                                       value="#{profileBean.confirmationMotDePasse}"
+                                       feedback="false"
+                                       styleClass="users-input"
+                                       placeholder="#{msg['profile.panel.passwordConfirmPlaceholder']}"
+                                       maxlength="1000"
+                                       pt:data-tooltip="#{msg['profile.panel.passwordTooltip']}"
+                                       pt:data-tooltip-position="right"/>
+                            <p:message for="confirmationMotDePasse" display="icon"/>
                         </div>
                     </div>
                 </p:panel>
@@ -118,15 +131,19 @@
                                 <ui:fragment rendered="#{not empty perm.entityCode}">
                                     <h:outputLink value="#{request.contextPath}/#{perm.entityCode}"
                                                  styleClass="profile-assoc-entity-link"
-                                                 title="#{msg['profile.panel.viewEntityPrefix']} #{perm.entityLabel}">
-                                        #{perm.entityTypeLabel} : 
-                                        <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
+                                                 title="#{msg['profile.panel.viewEntityPrefix']} #{perm.entityLabelPlainText}">
+                                        #{perm.entityTypeLabel} :
+                                        <h:outputText value="#{perm.entityLabel}"
+                                                      escape="false"
+                                                      styleClass="profile-assoc-entity-label entity-label-html"/>
                                         <span class="profile-assoc-entity-code">(#{perm.entityCode})</span>
                                         <i class="pi pi-arrow-right profile-assoc-entity-link-icon" aria-hidden="true"/>
                                     </h:outputLink>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{empty perm.entityCode}">
-                                    <span class="profile-assoc-entity-label">#{perm.entityLabel}</span>
+                                    <h:outputText value="#{perm.entityLabel}"
+                                                  escape="false"
+                                                  styleClass="profile-assoc-entity-label entity-label-html"/>
                                 </ui:fragment>
                             </p:column>
                             <p:column headerText="#{msg['profile.panel.roleColumn']}" styleClass="profile-assoc-col-role" width="10%" headerStyleClass="profile-assoc-col-role">

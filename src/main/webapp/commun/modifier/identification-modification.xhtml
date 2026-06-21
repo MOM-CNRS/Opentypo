@@ -10,7 +10,7 @@
 
         <!-- Code -->
         <h:panelGroup class="users-form-group users-form-group-full periode-group" rendered="#{applicationBean.selectedEntity.entityType.id != 6}">
-            <p:outputLabel value="#{msg['modifier.field.code']}" />
+            <p:outputLabel value="#{applicationBean.selectedEntity.entityType.id == 1 ? msg['modifier.field.shortName'] : msg['modifier.field.code']}" />
             <div class="periode-field-row candidat-production-wrapper candidat-production-group">
                 <div class="input-wrapper periode-input-wrapper candidats-input-wrapper-border">
                     <i class="pi pi-align-left input-icon" />

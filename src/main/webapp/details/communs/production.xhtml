@@ -16,6 +16,9 @@
                 </header>
 
                 <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.productions)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.ateliers : null)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.airesCirculation)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.productions)}"
@@ -107,6 +110,7 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
                 </div>
             </div>
         </section>

@@ -2501,18 +2501,97 @@ public class ApplicationBean implements Serializable {
         return selectedEntity != null && EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut());
     }
 
+    /** Fiche publiée ({@code PUBLIQUE}) : masquer les champs vides en consultation. */
+    public boolean isPublishedDetailView() {
+        return selectedEntity != null && EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut());
+    }
+
+    /**
+     * Brouillon ({@code PROPOSITION}) : afficher les blocs/champs même vides en consultation.
+     * Tous les autres statuts : masquer les sections sans données.
+     */
+    public boolean showEmptyBlocksInDetailView() {
+        return isSelectedEntityProposition();
+    }
+
     /**
      * Indique si un champ doit être affiché.
-     * Si statut = PROPOSITION : toujours afficher (même vide).
-     * Sinon : afficher uniquement si le champ a une valeur.
+     * Brouillon : toujours afficher (même vide).
+     * Autres statuts : uniquement si le champ a une valeur.
      */
     public boolean showFieldWithValue(Object value) {
-        if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
-        if (value == null) return false;
-        if (value instanceof String s) return !s.trim().isEmpty();
-        if (value instanceof java.util.Collection<?> c) return !c.isEmpty();
-        return true;
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (showEmptyBlocksInDetailView()) {
+            return true;
+        }
+        return hasAnyValue(value);
+    }
+
+    /** Statut {@code PUBLIQUE} ou {@code PRIVEE}. */
+    public boolean isPrivateOrPublicEntityStatus() {
+        if (selectedEntity == null || selectedEntity.getStatut() == null) {
+            return false;
+        }
+        String statut = selectedEntity.getStatut();
+        return EntityStatusEnum.PUBLIQUE.name().equals(statut)
+                || EntityStatusEnum.PRIVEE.name().equals(statut);
+    }
+
+    /** Description réellement renseignée (texte brut, hors balises HTML vides). */
+    public boolean hasEntityDescriptionContent(Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+        return hasAnyValue(getEntityDescriptionPlainText(entity));
+    }
+
+    /**
+     * Champ « Description » en consultation :
+     * brouillon ({@code PROPOSITION}) toujours affiché ;
+     * publié/privé uniquement si la description contient du texte ;
+     * autres statuts masqués.
+     */
+    public boolean showEntityDescriptionField() {
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (showEmptyBlocksInDetailView()) {
+            return true;
+        }
+        if (!isPrivateOrPublicEntityStatus()) {
+            return false;
+        }
+        return hasEntityDescriptionContent(selectedEntity);
+    }
+
+    /** Galerie images du type. */
+    public boolean showGalleryBlock() {
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (showEmptyBlocksInDetailView()) {
+            return true;
+        }
+        return hasAnyValue(getGalleriaPhotos());
+    }
+
+    /** Section Présentation (description, appellations, auteurs scientifiques). */
+    public boolean showPresentationBlock() {
+        if (selectedEntity == null) {
+            return false;
+        }
+        if (showEmptyBlocksInDetailView()) {
+            return true;
+        }
+        if (hasEntityDescriptionContent(selectedEntity)) {
+            return true;
+        }
+        if (hasAnyValue(selectedEntity.getAuteursScientifiques())) {
+            return true;
+        }
+        return !isInstrumentumTypo() && hasAnyValue(selectedEntity.getAppellationsUsuelles());
     }
 
     /** Bibliographie : notes libres et/ou références Zotero liées à la fiche. */
@@ -2520,10 +2599,7 @@ public class ApplicationBean implements Serializable {
         if (selectedEntity == null) {
             return false;
         }
-        if (EntityStatusEnum.PUBLIQUE.name().equals(selectedEntity.getStatut())) {
-            return hasRegisteredBibliographyContent();
-        }
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+        if (showEmptyBlocksInDetailView()) {
             return true;
         }
         return hasRegisteredBibliographyContent();
@@ -2681,9 +2757,7 @@ public class ApplicationBean implements Serializable {
         return unique;
     }
 
-    /**
-     * Indique si un bloc doit être affiché (au moins un champ avec valeur, ou statut PROPOSITION).
-     */
+    /** Indique si un bloc doit être affiché (au moins un champ avec valeur, ou fiche non publiée). */
     private boolean hasAnyValue(Object v) {
         if (v == null) return false;
         if (v instanceof String s) return !s.trim().isEmpty();
@@ -2691,19 +2765,29 @@ public class ApplicationBean implements Serializable {
         return true;
     }
 
-    /** Bloc Gestion : référence, typologique, identifiant, ancienne version */
+    /** Bloc Gestion : identifiant pérenne, ancienne version. */
     public boolean showGestionBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
+        return hasAnyValue(selectedEntity.getIdentifiantPerenne())
+                || hasAnyValue(selectedEntity.getAncienneVersion());
+    }
+
+    /** Section Références et alignements (typologie, référentiels, alignements internes/externes). */
+    public boolean showReferencesSectionBlock() {
+        if (selectedEntity == null) return false;
+        if (showEmptyBlocksInDetailView()) return true;
         var m = selectedEntity.getMetadata();
-        return hasAnyValue(m != null ? m.getReference() : null) || hasAnyValue(selectedEntity.getTypologieScientifique())
-                || hasAnyValue(selectedEntity.getIdentifiantPerenne()) || hasAnyValue(selectedEntity.getAncienneVersion());
+        return hasAnyValue(selectedEntity.getTypologieScientifique())
+                || hasAnyValue(m != null ? m.getReference() : null)
+                || hasAnyValue(getSelectedTypeInternalAlignments())
+                || hasAnyValue(getSelectedTypeExternalAlignments());
     }
 
     /** Bloc Caractéristiques physiques (céramique) */
     public boolean showCaracteristiquesPhysiqueBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var cp = selectedEntity.getCaracteristiquePhysique();
         var dp = selectedEntity.getDescriptionPate();
         return hasAnyValue(cp != null ? cp.getMetrologie() : null) || hasAnyValue(selectedEntity.getFabricationsFaconnage())
@@ -2715,7 +2799,7 @@ public class ApplicationBean implements Serializable {
     /** Bloc Caractéristiques physiques monnaie */
     public boolean showCaracteristiquesPhysiqueMonnaieBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var cpm = selectedEntity.getCaracteristiquePhysiqueMonnaie();
         if (cpm == null) return false;
         return hasAnyValue(cpm.getMateriaux()) || hasAnyValue(cpm.getDenomination()) || hasAnyValue(cpm.getMetrologie())
@@ -2725,7 +2809,7 @@ public class ApplicationBean implements Serializable {
     /** Bloc Caractéristiques physiques instrumentum */
     public boolean showCaracteristiquesPhysiqueInstrumentumBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var cp = selectedEntity.getCaracteristiquePhysique();
         if (cp == null) return false;
         return hasAnyValue(cp.getMateriaux()) || hasAnyValue(cp.getForme()) || hasAnyValue(cp.getDimensions())
@@ -2735,16 +2819,20 @@ public class ApplicationBean implements Serializable {
     /** Bloc Description (décors, marques, fonction, catégorie fonctionnelle) */
     public boolean showDescriptionBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var dd = selectedEntity.getDescriptionDetail();
+        var m = selectedEntity.getMetadata();
         return hasAnyValue(dd != null ? dd.getDecors() : null) || hasAnyValue(dd != null ? dd.getMarques() : null)
-                || hasAnyValue(selectedEntity.getFonctionsUsage()) || hasAnyValue(selectedEntity.getCategorieFonctionnelle());
+                || hasAnyValue(selectedEntity.getFonctionsUsage()) || hasAnyValue(selectedEntity.getCategorieFonctionnelle())
+                || hasAnyValue(m != null ? m.getDenominationInstrumentum() : null)
+                || hasAnyValue(selectedEntity.getCaracteristiquePhysique() != null
+                        ? selectedEntity.getCaracteristiquePhysique().getForme() : null);
     }
 
     /** Bloc Production */
     public boolean showProductionBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var m = selectedEntity.getMetadata();
         return hasAnyValue(selectedEntity.getProductions()) || hasAnyValue(m != null ? m.getAteliers() : null)
                 || hasAnyValue(selectedEntity.getAiresCirculation());
@@ -2755,7 +2843,7 @@ public class ApplicationBean implements Serializable {
         if (selectedEntity == null) {
             return false;
         }
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) {
+        if (showEmptyBlocksInDetailView()) {
             return true;
         }
         var m = selectedEntity.getMetadata();
@@ -2767,7 +2855,7 @@ public class ApplicationBean implements Serializable {
     /** Bloc Description monnaie */
     public boolean showDescriptionMonnaieBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         var dm = selectedEntity.getDescriptionMonnaie();
         if (dm == null) return false;
         return hasAnyValue(dm.getDroit()) || hasAnyValue(dm.getLegendeDroit())
@@ -2777,7 +2865,7 @@ public class ApplicationBean implements Serializable {
     /** Bloc Datation (période, TPQ, TAQ, commentaire datation) */
     public boolean showDatationBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         return hasAnyValue(selectedEntity.getPeriodes()) || hasAnyValue(selectedEntity.getTpq())
                 || hasAnyValue(selectedEntity.getTaq()) || hasAnyValue(selectedEntity.getCommentaireDatation())
                 || hasAnyValue(selectedEntity.getMetadata() != null ? selectedEntity.getMetadata().getCorpusLies() : null);
@@ -2876,7 +2964,7 @@ public class ApplicationBean implements Serializable {
     /** Bloc Alignements (internes + externes) */
     public boolean showAlignementsBlock() {
         if (selectedEntity == null) return false;
-        if (EntityStatusEnum.PROPOSITION.name().equals(selectedEntity.getStatut())) return true;
+        if (showEmptyBlocksInDetailView()) return true;
         return hasAnyValue(getSelectedTypeInternalAlignments())
                 || hasAnyValue(getSelectedTypeExternalAlignments());
     }

@@ -356,8 +356,14 @@ public class EntityUpdateBean implements Serializable {
 
     /** Active le mode édition in-place pour le groupe sélectionné (comme ReferenceBean.startEditingReference). */
     public void startEditing() {
+        Entity entity = applicationBean != null ? applicationBean.getSelectedEntity() : null;
+        if (entity == null || loginBean == null || loginBean.getCurrentUser() == null
+                || !entityAuthorityService.canUpdate(loginBean.getCurrentUser(), entity)) {
+            addErrorMessage(JsfMessages.get("modifier.msg.noEditRights"));
+            PrimeFaces.current().ajax().update(":growl");
+            return;
+        }
         editingEntity = true;
-        Entity entity = applicationBean.getSelectedEntity();
         code = entity.getCode() != null ? entity.getCode() : "";
 
         newLabelValue = "";

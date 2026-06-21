@@ -13,11 +13,6 @@
                         <div class="concept-info-header">
                             <div class="concept-info-title-section">
                                 <span class="reference-entity-type-badge">#{msg['group.badge']}</span>
-                                <h:panelGroup rendered="#{loginBean.authenticated and applicationBean.selectedEntity.statut != 'PUBLIQUE'}"
-                                              styleClass="collection-not-published-icon"
-                                              title="#{msg['group.tooltip.notPublished']}">
-                                    <i class="pi pi-clock"/>
-                                </h:panelGroup>
                                 <div class="collection-panel-title-wrapper">
                                     <h3 class="collection-panel-title">#{applicationBean.selectedEntity.code}</h3>
                                     <h:outputText value="#{applicationBean.getEntityLabelHtml(applicationBean.selectedEntity)}"
@@ -33,38 +28,38 @@
                                               menuStyleClass="type-actions-menu-overlay reference-actions-menu-overlay"
                                               title="#{msg['common.actions']}"
                                               appendTo="@(body)"
-                                              rendered="#{loginBean.currentUser != null or groupBean.canEditGroup(applicationBean) or groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}">
+                                              rendered="#{groupBean.canManageGroupActions(applicationBean)}">
                                     <p:menuitem value="#{msg['reference.action.settings.opentheso.title']}"
                                                 icon="pi pi-cog"
                                                 action="#{collectionParametrageBean.prepareAndShowParametrageDialog(applicationBean.selectedEntity)}"
                                                 process="@this"
                                                 update=":collectionParametrageForm"
                                                 oncomplete="PF('collectionParametrageDialog').show();"
-                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                                rendered="#{groupBean.canManageGroupActions(applicationBean)}"/>
                                     <p:menuitem value="#{msg['reference.action.settings.bibliography.title']}"
                                                 icon="pi pi-book"
                                                 action="#{collectionParametrageBean.prepareAndShowBibliographieParametrageDialog(applicationBean.selectedEntity)}"
                                                 process="@this"
                                                 update=":collectionBibliographieParametrageForm"
                                                 oncomplete="PF('collectionBibliographieParametrageDialog').show();"
-                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                                rendered="#{groupBean.canManageGroupActions(applicationBean)}"/>
                                     <p:menuitem value="#{msg['common.history.title']}"
                                                 icon="pi pi-history"
                                                 action="#{historyBean.loadHistory(applicationBean.selectedEntity)}"
                                                 process="@this"
                                                 update="@none"
                                                 immediate="true"
-                                                rendered="#{loginBean.currentUser != null}"/>
+                                                rendered="#{groupBean.canManageGroupActions(applicationBean)}"/>
                                     <p:menuitem value="#{msg['common.edit']}"
                                                 icon="pi pi-file-edit"
                                                 action="#{entityUpdateBean.startEditing()}"
                                                 process="@this"
                                                 update=":centerContent :searchSectionWrapper"
-                                                rendered="#{groupBean.canEditGroup(applicationBean)}"
+                                                rendered="#{groupBean.canManageGroupActions(applicationBean)}"
                                                 onstart="if(typeof showLoading==='function') showLoading('#{msg['group.edit.loadingForm']}', 'spinner');"
                                                 oncomplete="setTimeout(function(){ if(typeof hideLoading==='function') hideLoading(); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 300);"
                                                 onerror="if(typeof hideLoading==='function') hideLoading();"/>
-                                    <p:separator rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean) and (loginBean.currentUser != null or groupBean.canEditGroup(applicationBean))}"/>
+                                    <p:separator rendered="#{groupBean.canManageGroupActions(applicationBean)}"/>
                                     <p:menuitem value="#{msg['common.delete']}"
                                                 icon="pi pi-trash"
                                                 styleClass="type-action-menu-delete"
@@ -72,10 +67,24 @@
                                                 process="@this"
                                                 update=":confirmDeleteDialogContent"
                                                 oncomplete="PF('confirmDeleteDialog').show();"
-                                                rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}"/>
+                                                rendered="#{groupBean.canManageGroupActions(applicationBean)}"/>
                                 </p:menuButton>
 
-                                <h:panelGroup rendered="#{loginBean.currentUser != null}">
+                                <h:panelGroup rendered="#{loginBean.currentUser != null and applicationBean.selectedEntity.statut == 'PROPOSITION'}">
+                                    <div class="collection-visibility-card" title="#{msg['common.status.draft.tooltip']}">
+                                        <div class="collection-visibility-card-content">
+                                            <div class="collection-visibility-indicator collection-visibility-draft">
+                                                <div class="collection-visibility-icon">
+                                                    <i class="pi pi-pencil" />
+                                                </div>
+                                                <div class="collection-visibility-info">
+                                                    <span class="collection-visibility-label">#{msg['common.status.draft']}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{loginBean.currentUser != null and applicationBean.selectedEntity.statut != 'PROPOSITION'}">
                                     <div class="collection-visibility-card">
                                         <div class="collection-visibility-card-content">
                                             <div class="collection-visibility-indicator #{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? 'collection-visibility-public' : 'collection-visibility-private'}">
@@ -86,7 +95,7 @@
                                                     <span class="collection-visibility-label">#{applicationBean.selectedEntity.statut == 'PUBLIQUE' ? msg['common.visibility.public'] : msg['common.visibility.private']}</span>
                                                 </div>
                                             </div>
-                                            <h:panelGroup rendered="#{groupBean.canDeleteOrChangeVisibilityGroup(applicationBean)}" styleClass="collection-visibility-toggle-wrapper">
+                                            <h:panelGroup rendered="#{groupBean.canManageGroupActions(applicationBean)}" styleClass="collection-visibility-toggle-wrapper">
                                                 <p:commandLink styleClass="collection-visibility-toggle-btn"
                                                             process="@this"
                                                             update=":confirmReferenceVisibilityChangeDialog :growl"
@@ -109,7 +118,8 @@
                     <ui:fragment rendered="#{!entityUpdateBean.editingEntity}">
 
                         <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
-                                 aria-label="#{msg['group.presentation.region']}">
+                                 aria-label="#{msg['group.presentation.region']}"
+                                 rendered="#{applicationBean.showPresentationBlock()}">
                             <div class="concept-info-panel description-typo-panel" role="region" aria-labelledby="groupe-presentation-heading">
                                 <header class="concept-info-header monnaie-communs-header description-typo-header">
                                     <div class="concept-info-title-section monnaie-communs-title-wrapper">
@@ -119,7 +129,7 @@
                                 </header>
 
                                 <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
-                                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.getEntityDescription(applicationBean.selectedEntity))}">
+                                    <ui:fragment rendered="#{applicationBean.showEntityDescriptionField()}">
                                         <div class="concept-info-grid-band description-typo-band">
                                             <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
                                                 <h:panelGroup styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
@@ -172,26 +182,38 @@
                             <ui:param name="lazyAutoRun" value="#{applicationBean.isShowGroupePanel() and applicationBean.entityChildrenPendingLoad}"/>
                         </ui:include>
 
-                        <ui:include src="../communs/production.xhtml"/>
+                        <ui:fragment rendered="#{applicationBean.showProductionBlock()}">
+                            <ui:include src="../communs/production.xhtml"/>
+                        </ui:fragment>
 
-                        <ui:include src="../type/attestations.xhtml"/>
+                        <ui:fragment rendered="#{applicationBean.showAttestationsSectionBlock()}">
+                            <ui:include src="../type/attestations.xhtml"/>
+                        </ui:fragment>
 
-                        <h:panelGroup rendered="#{applicationBean.isCashTypo()}">
+                        <h:panelGroup rendered="#{applicationBean.isCashTypo() and applicationBean.showDescriptionMonnaieBlock()}">
                             <ui:include src="../communs/description_monnaie.xhtml"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{applicationBean.isCashTypo() and applicationBean.showCaracteristiquesPhysiqueMonnaieBlock()}">
                             <ui:include src="../communs/caracteristiques_physique_monnaie.xhtml"/>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo()}">
+                        <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showDescriptionBlock()}">
                             <ui:include src="../communs/description_ceramrique.xhtml"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{applicationBean.isCeramiqueTypo() and applicationBean.showCaracteristiquesPhysiqueBlock()}">
                             <ui:include src="../communs/caracteristiques_physique.xhtml"/>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo()}">
+                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showDescriptionBlock()}">
                             <ui:include src="../communs/description_instrumentum.xhtml"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{applicationBean.isInstrumentumTypo() and applicationBean.showCaracteristiquesPhysiqueInstrumentumBlock()}">
                             <ui:include src="../communs/caracteristiques_physique_instrumentum.xhtml"/>
                         </h:panelGroup>
 
-                        <ui:include src="../communs/commentaire.xhtml"/>
+                        <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadataCommentaire)}">
+                            <ui:include src="../communs/commentaire.xhtml"/>
+                        </ui:fragment>
 
                         <ui:include src="../communs/bibliographie.xhtml"/>
 

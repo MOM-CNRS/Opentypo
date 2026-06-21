@@ -3,7 +3,7 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
-    <h:panelGroup id="type-section-references" rendered="#{applicationBean.showAlignementsBlock()}" layout="block"
+    <h:panelGroup id="type-section-references" rendered="#{applicationBean.showReferencesSectionBlock()}" layout="block"
                   class="type-section-shell type-section-anchor candidats-mt-20">
         <section class="details-row-mt-15 description-typo-root monnaie-communs-section monnaie-communs-new-line"
                  aria-label="Références et alignements du type">
@@ -63,10 +63,13 @@
                         </div>
                     </ui:fragment>
 
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedTypeInternalAlignments)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedTypeExternalAlignments)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--two-columns-max concept-info-grid--nested description-typo-band-grid">
 
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedTypeInternalAlignments)}"
+                                          layout="block" styleClass="concept-info-item description-typo-field">
                                 <div class="concept-info-label">
                                     <i class="pi pi-users monnaie-communs-icon" aria-hidden="true"/>
                                     <span>#{msg['modifier.field.internalAlignment']}</span>
@@ -99,7 +102,8 @@
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedTypeExternalAlignments)}"
+                                          layout="block" styleClass="concept-info-item description-typo-field">
                                 <div class="concept-info-label">
                                     <i class="pi pi-globe monnaie-communs-icon" aria-hidden="true"/>
                                     <span>#{msg['modifier.field.alignementExterne']}</span>
@@ -133,6 +137,7 @@
 
                         </div>
                     </div>
+                    </ui:fragment>
                 </div>
             </div>
         </section>

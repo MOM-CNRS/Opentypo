@@ -16,6 +16,8 @@
                 </header>
 
                 <div class="concept-info-grid concept-info-grid--two-columns-max description-typo-grid">
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)
+                            or applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.sitesArcheologiques : null)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--three-columns-max concept-info-grid--nested description-typo-band-grid">
                             <h:panelGroup rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.metadata != null ? applicationBean.selectedEntity.metadata.attestations : null)}"
@@ -63,10 +65,13 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
 
+                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntityCorpusLinks)}">
                     <div class="concept-info-grid-band description-typo-band">
                         <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                            <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field"
+                                          rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntityCorpusLinks)}">
                                 <div class="concept-info-label">
                                     <i class="pi pi-book monnaie-communs-icon" aria-hidden="true"/>
                                     <span>Corpus lié(s)</span>
@@ -96,6 +101,7 @@
                             </h:panelGroup>
                         </div>
                     </div>
+                    </ui:fragment>
                 </div>
             </div>
         </section>

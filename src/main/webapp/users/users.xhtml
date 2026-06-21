@@ -6,6 +6,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="mainContent">
+        <f:event type="preRenderView" listener="#{userManagementBean.onUsersPageEnter}"/>
         <h:outputStylesheet library="css" name="pages/users/users.css"/>
         <!-- En-tête -->
         <div class="users-container">
@@ -21,6 +22,7 @@
                     <p:commandButton value="#{msg['users.new']}"
                                      icon="pi pi-plus"
                                      styleClass="users-create-button"
+                                     rendered="#{userManagementBean.canCreateUsers()}"
                                      actionListener="#{userManagementBean.initNouveauUser()}"
                                      process="@this"
                                      update="@none"/>
@@ -78,7 +80,9 @@
                                 </div>
                             </p:column>
                             
-                            <p:column headerText="#{msg['users.col.actions']}" styleClass="users-col-actions">
+                            <p:column headerText="#{msg['users.col.actions']}"
+                                      rendered="#{userManagementBean.canEditOrDeleteUsers()}"
+                                      styleClass="users-col-actions">
                                 <div class="users-actions-modern">
                                     <p:commandButton icon="pi pi-pencil"
                                                      styleClass="action-btn action-edit"
