@@ -388,6 +388,18 @@
     color: var(--history-text);
     font-size: 1.5rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.history-title .history-title-label.entity-label-html {
+    display: inline;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
 }
 
 .history-title-icon {

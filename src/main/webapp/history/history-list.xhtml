@@ -14,8 +14,10 @@
             <div class="history-header">
                 <div class="history-title-section">
                     <h2 class="history-title">
-                        <i class="pi pi-history history-title-icon"/>
-                        #{msg['history.title']}
+                        <i class="pi pi-history history-title-icon" aria-hidden="true"/>
+                        <h:outputText value="#{msg['history.title']}"
+                                      escape="false"
+                                      styleClass="entity-label-html history-title-label"/>
                     </h2>
                     <p class="history-subtitle">
                         #{historyBean.selectedEntity != null ? historyBean.selectedEntity.code : msg['profile.entityType.default']} -

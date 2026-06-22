@@ -50,6 +50,9 @@ public class HistoryBean implements Serializable {
     // Champs modifiés dans la révision sélectionnée (pour l'affichage des différences)
     private Map<String, Map<String, Object>> changedFields = new HashMap<>();
 
+    /** Entrée de diff pour l'affichage (évite les ambiguïtés EL sur Map.Entry / clés « old » / « new »). */
+    public record FieldChange(String fieldKey, Object oldValue, Object newValue) implements Serializable {}
+
     /**
      * Charge l'historique d'une entité
      */
@@ -229,6 +232,24 @@ public class HistoryBean implements Serializable {
             return JsfMessages.get("history.detail.changes");
         }
         return JsfMessages.format("history.detail.title", selectedRevision.getRevisionNumber());
+    }
+
+    /**
+     * Liste ordonnée des champs modifiés pour l'affichage du diff.
+     */
+    public List<FieldChange> getChangedFieldsList() {
+        if (changedFields == null || changedFields.isEmpty()) {
+            return List.of();
+        }
+        return changedFields.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    Map<String, Object> values = entry.getValue();
+                    Object oldValue = values != null ? values.get("old") : null;
+                    Object newValue = values != null ? values.get("new") : null;
+                    return new FieldChange(entry.getKey(), oldValue, newValue);
+                })
+                .toList();
     }
 
     /**

@@ -66,20 +66,20 @@
                     </ui:fragment>
                     <ui:fragment rendered="#{not empty historyBean.changedFields}">
                         <div class="history-changes-list">
-                            <ui:repeat value="#{historyBean.changedFields}" var="change">
+                            <ui:repeat value="#{historyBean.changedFieldsList}" var="change">
                                 <div class="history-change-card">
-                                    <div class="change-field">#{historyBean.getFieldLabel(change.key)}</div>
+                                    <div class="change-field">#{historyBean.getFieldLabel(change.fieldKey)}</div>
                                     <div class="change-diff">
                                         <div class="diff-side diff-side-old">
                                             <span class="diff-side-label">#{msg['history.diff.before']}</span>
                                             <h:outputText styleClass="diff-old diff-value-text"
-                                                          value="#{historyBean.formatChangeValue(change.value['old'], true)}"/>
+                                                          value="#{historyBean.formatChangeValue(change.oldValue, true)}"/>
                                         </div>
                                         <i class="pi pi-arrow-right diff-arrow" aria-hidden="true"></i>
                                         <div class="diff-side diff-side-new">
                                             <span class="diff-side-label">#{msg['history.diff.after']}</span>
                                             <h:outputText styleClass="diff-new diff-value-text"
-                                                          value="#{historyBean.formatChangeValue(change.value['new'], false)}"/>
+                                                          value="#{historyBean.formatChangeValue(change.newValue, false)}"/>
                                         </div>
                                     </div>
                                 </div>

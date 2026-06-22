@@ -340,6 +340,89 @@ public class AuditService {
     }
 
     /**
+     * État cumulé des labels à la révision donnée (dernière version connue par langue, hors suppressions).
+     */
+    private Map<String, String> loadLabelsAtRevision(Long entityId, Long revisionNumber) {
+        return loadMultilingualFieldAtRevision(
+                "label_aud", "nom",
+                """
+                SELECT nom, code_langue FROM (
+                    SELECT DISTINCT ON (code_langue) nom, code_langue, revtype
+                    FROM label_aud
+                    WHERE entity_id = :entityId AND rev <= :revisionNumber
+                    ORDER BY code_langue, rev DESC
+                ) latest WHERE revtype <> 2
+                """,
+                entityId, revisionNumber);
+    }
+
+    /**
+     * État cumulé des descriptions à la révision donnée (dernière version connue par langue, hors suppressions).
+     */
+    private Map<String, String> loadDescriptionsAtRevision(Long entityId, Long revisionNumber) {
+        return loadMultilingualFieldAtRevision(
+                "description_aud", "valeur",
+                """
+                SELECT valeur, code_langue FROM (
+                    SELECT DISTINCT ON (code_langue) valeur, code_langue, revtype
+                    FROM description_aud
+                    WHERE entity_id = :entityId AND rev <= :revisionNumber
+                    ORDER BY code_langue, rev DESC
+                ) latest WHERE revtype <> 2
+                """,
+                entityId, revisionNumber);
+    }
+
+    private Map<String, String> loadMultilingualFieldAtRevision(String tableLabel, String valueColumn,
+                                                                 String sql, Long entityId, Long revisionNumber) {
+        Map<String, String> result = new HashMap<>();
+        if (entityId == null || revisionNumber == null) {
+            return result;
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = entityManager.createNativeQuery(sql)
+                    .setParameter("entityId", entityId)
+                    .setParameter("revisionNumber", revisionNumber)
+                    .getResultList();
+            for (Object[] row : rows) {
+                if (row == null || row.length < 2) {
+                    continue;
+                }
+                String value = row[0] != null ? row[0].toString() : "";
+                String langueCode = row[1] != null ? row[1].toString() : "unknown";
+                result.put(langueCode, value);
+            }
+        } catch (Exception e) {
+            log.debug("Erreur lors de la récupération {} à la révision {}: {}", tableLabel, revisionNumber, e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * Dernière ligne d'audit d'une table liée à entity_id (état cumulé à la révision, hors suppressions).
+     */
+    @SuppressWarnings("unchecked")
+    private List<Object[]> queryLatestAuditRowByEntityId(String table, String selectClause,
+                                                         Long entityId, Long revisionNumber) {
+        if (entityId == null || revisionNumber == null) {
+            return List.of();
+        }
+        try {
+            return entityManager.createNativeQuery(
+                            "SELECT " + selectClause + " FROM " + table
+                                    + " WHERE entity_id = :entityId AND rev <= :revisionNumber AND revtype <> 2"
+                                    + " ORDER BY rev DESC LIMIT 1")
+                    .setParameter("entityId", entityId)
+                    .setParameter("revisionNumber", revisionNumber)
+                    .getResultList();
+        } catch (Exception e) {
+            log.debug("Erreur requête cumulée {} à la révision {}: {}", table, revisionNumber, e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
      * Extrait les données principales d'une entité ET de ses relations auditées depuis les tables d'audit
      */
     private Map<String, Object> extractEntityData(AuditReader auditReader, Entity entity, Long entityId, Long revisionNumber) {
@@ -367,62 +450,14 @@ public class AuditService {
                 }
             }
             
-            // Récupérer les labels depuis label_aud avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> labelRows = entityManager.createNativeQuery(
-                    "SELECT l.nom, l.code_langue FROM label_aud l WHERE l.entity_id = :entityId AND l.rev = :revisionNumber"
-                )
-                .setParameter("entityId", actualEntityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (labelRows != null && !labelRows.isEmpty()) {
-                    Map<String, String> labelsMap = new HashMap<>();
-                    for (Object[] row : labelRows) {
-                        try {
-                            String nom = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            labelsMap.put(langueCode, nom);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement du label: {}", e.getMessage());
-                        }
-                    }
-                    if (!labelsMap.isEmpty()) {
-                        data.put("labels", labelsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des labels: {}", e.getMessage());
+            // Labels et descriptions : état cumulé à la révision (pas seulement le delta de cette révision)
+            Map<String, String> labelsMap = loadLabelsAtRevision(actualEntityId, revisionNumber);
+            if (!labelsMap.isEmpty()) {
+                data.put("labels", labelsMap);
             }
-            
-            // Récupérer les descriptions depuis description_aud avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> descriptionRows = entityManager.createNativeQuery(
-                    "SELECT d.valeur, d.code_langue FROM description_aud d WHERE d.entity_id = :entityId AND d.rev = :revisionNumber"
-                )
-                .setParameter("entityId", actualEntityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (descriptionRows != null && !descriptionRows.isEmpty()) {
-                    Map<String, String> descriptionsMap = new HashMap<>();
-                    for (Object[] row : descriptionRows) {
-                        try {
-                            String valeur = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            descriptionsMap.put(langueCode, valeur);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement de la description: {}", e.getMessage());
-                        }
-                    }
-                    if (!descriptionsMap.isEmpty()) {
-                        data.put("descriptions", descriptionsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
+            Map<String, String> descriptionsMap = loadDescriptionsAtRevision(actualEntityId, revisionNumber);
+            if (!descriptionsMap.isEmpty()) {
+                data.put("descriptions", descriptionsMap);
             }
             
             // Données complémentaires : entity_aud, entity_metadata_aud, entités liées, images
@@ -445,62 +480,13 @@ public class AuditService {
         }
         
         try {
-            // Labels avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> labelRows = entityManager.createNativeQuery(
-                    "SELECT l.nom, l.code_langue FROM label_aud l WHERE l.entity_id = :entityId AND l.rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (labelRows != null && !labelRows.isEmpty()) {
-                    Map<String, String> labelsMap = new HashMap<>();
-                    for (Object[] row : labelRows) {
-                        try {
-                            String nom = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            labelsMap.put(langueCode, nom);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement du label: {}", e.getMessage());
-                        }
-                    }
-                    if (!labelsMap.isEmpty()) {
-                        data.put("labels", labelsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des labels: {}", e.getMessage());
+            Map<String, String> labelsMap = loadLabelsAtRevision(entityId, revisionNumber);
+            if (!labelsMap.isEmpty()) {
+                data.put("labels", labelsMap);
             }
-            
-            // Descriptions avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> descriptionRows = entityManager.createNativeQuery(
-                    "SELECT d.valeur, d.code_langue FROM description_aud d WHERE d.entity_id = :entityId AND d.rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (descriptionRows != null && !descriptionRows.isEmpty()) {
-                    Map<String, String> descriptionsMap = new HashMap<>();
-                    for (Object[] row : descriptionRows) {
-                        try {
-                            String valeur = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            descriptionsMap.put(langueCode, valeur);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement de la description: {}", e.getMessage());
-                        }
-                    }
-                    if (!descriptionsMap.isEmpty()) {
-                        data.put("descriptions", descriptionsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
+            Map<String, String> descriptionsMap = loadDescriptionsAtRevision(entityId, revisionNumber);
+            if (!descriptionsMap.isEmpty()) {
+                data.put("descriptions", descriptionsMap);
             }
             
             extractEnrichedData(data, entityId, revisionNumber);
@@ -521,7 +507,9 @@ public class AuditService {
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> entityRows = entityManager.createNativeQuery(
-                    "SELECT statut, id_ark, display_order, categorie_fonctionnelle FROM entity_aud WHERE id = :entityId AND rev = :revisionNumber"
+                    "SELECT statut, id_ark, display_order, categorie_fonctionnelle FROM entity_aud "
+                    + "WHERE id = :entityId AND rev <= :revisionNumber AND revtype <> 2 "
+                    + "ORDER BY rev DESC LIMIT 1"
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -539,16 +527,13 @@ public class AuditService {
             
             // entity_metadata_aud : code, commentaire, bibliographie, tpq, taq, commentaire_datation, alignement_externe, etc.
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> metaRows = entityManager.createNativeQuery(
-                    "SELECT code, commentaire, bibliographie, typologie_scientifique, identifiant_perenne, " +
-                    "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, " +
-                    "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe, denomination_instrumentum, corpus_lies, zotero_item_keys " +
-                    "FROM entity_metadata_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> metaRows = queryLatestAuditRowByEntityId(
+                        "entity_metadata_aud",
+                        "code, commentaire, bibliographie, typologie_scientifique, identifiant_perenne, "
+                                + "ancienne_version, tpq, taq, ateliers, attestations, sites_archeologiques, reference, interne, "
+                                + "commentaire_datation, alignement_externe, rereference_bibliographique, corpus_externe, "
+                                + "denomination_instrumentum, corpus_lies, zotero_item_keys",
+                        entityId, revisionNumber);
                 if (!metaRows.isEmpty() && metaRows.get(0) != null) {
                     Object[] row = metaRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("code", row[0].toString());
@@ -578,13 +563,8 @@ public class AuditService {
             
             // description_detail_aud : decors, marques, metrologie (fonction → liste sur entity / reference-opentheso)
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> ddRows = entityManager.createNativeQuery(
-                    "SELECT decors, marques, metrologie FROM description_detail_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> ddRows = queryLatestAuditRowByEntityId(
+                        "description_detail_aud", "decors, marques, metrologie", entityId, revisionNumber);
                 if (!ddRows.isEmpty() && ddRows.get(0) != null) {
                     Object[] row = ddRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("decors", row[0].toString());
@@ -597,13 +577,8 @@ public class AuditService {
             
             // description_pate_aud : description (couleur/nature/inclusion/cuisson → listes sur entity)
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> dpRows = entityManager.createNativeQuery(
-                    "SELECT description FROM description_pate_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> dpRows = queryLatestAuditRowByEntityId(
+                        "description_pate_aud", "description", entityId, revisionNumber);
                 if (!dpRows.isEmpty() && dpRows.get(0) != null) {
                     Object[] row = dpRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("descriptionPate", row[0].toString());
@@ -612,11 +587,18 @@ public class AuditService {
                 log.debug("Erreur description_pate_aud: {}", e.getMessage());
             }
             
-            // image_aud : url, legende (liste d'images)
+            // image_aud : url, legende (liste d'images, état cumulé par image)
             try {
                 @SuppressWarnings("unchecked")
                 List<Object[]> imgRows = entityManager.createNativeQuery(
-                    "SELECT url, legende FROM image_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
+                    """
+                    SELECT url, legende FROM (
+                        SELECT DISTINCT ON (id) url, legende, revtype
+                        FROM image_aud
+                        WHERE entity_id = :entityId AND rev <= :revisionNumber
+                        ORDER BY id, rev DESC
+                    ) latest WHERE revtype <> 2
+                    """
                 )
                 .setParameter("entityId", entityId)
                 .setParameter("revisionNumber", revisionNumber)
@@ -637,14 +619,10 @@ public class AuditService {
 
             // description_monnaie_aud : droit, legende_droit, revers, legende_revers
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> dmRows = entityManager.createNativeQuery(
-                    "SELECT droit, legende_droit, revers, legende_revers " +
-                    "FROM description_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> dmRows = queryLatestAuditRowByEntityId(
+                        "description_monnaie_aud",
+                        "droit, legende_droit, revers, legende_revers",
+                        entityId, revisionNumber);
                 if (!dmRows.isEmpty() && dmRows.get(0) != null) {
                     Object[] row = dmRows.get(0);
                     if (row.length > 0 && row[0] != null) data.put("droit", row[0].toString());
@@ -658,14 +636,10 @@ public class AuditService {
 
             // caracteristique_physique_aud : metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id (fabrication → liste entity)
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> cpRows = entityManager.createNativeQuery(
-                    "SELECT metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id " +
-                    "FROM caracteristique_physique_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> cpRows = queryLatestAuditRowByEntityId(
+                        "caracteristique_physique_aud",
+                        "metrologie_id, materiaux_id, forme_id, dimensions_id, technique_id",
+                        entityId, revisionNumber);
                 if (!cpRows.isEmpty() && cpRows.get(0) != null) {
                     Object[] row = cpRows.get(0);
                     if (row.length > 0 && row[0] != null) resolveAndPutRefValeur(data, "metrologiePhysique", (Number) row[0], revisionNumber);
@@ -680,14 +654,10 @@ public class AuditService {
 
             // caracteristique_physique_monnaie_aud : materiau_id, denomination_id, metrologie, valeur_id, technique_id
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> cpmRows = entityManager.createNativeQuery(
-                    "SELECT materiau_id, denomination_id, metrologie, valeur_id, technique_id " +
-                    "FROM caracteristique_physique_monnaie_aud WHERE entity_id = :entityId AND rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> cpmRows = queryLatestAuditRowByEntityId(
+                        "caracteristique_physique_monnaie_aud",
+                        "materiau_id, denomination_id, metrologie, valeur_id, technique_id",
+                        entityId, revisionNumber);
                 if (!cpmRows.isEmpty() && cpmRows.get(0) != null) {
                     Object[] row = cpmRows.get(0);
                     if (row.length > 0 && row[0] != null) resolveAndPutRefValeur(data, "materiauxMonnaie", (Number) row[0], revisionNumber);
@@ -702,14 +672,7 @@ public class AuditService {
 
             // reference-opentheso_aud : aires de circulation (entity_id + code = 'AIRE_CIRCULATION')
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> roRows = entityManager.createNativeQuery(
-                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
-                    + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'AIRE_CIRCULATION'"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> roRows = loadReferenceOpenthesoRowsAtRevision(entityId, revisionNumber, "AIRE_CIRCULATION");
                 if (!roRows.isEmpty()) {
                     List<String> aires = new ArrayList<>();
                     for (Object[] row : roRows) {
@@ -724,14 +687,7 @@ public class AuditService {
             }
 
             try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> appRows = entityManager.createNativeQuery(
-                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
-                    + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = 'APPELLATION_USUELLE'"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
+                List<Object[]> appRows = loadReferenceOpenthesoRowsAtRevision(entityId, revisionNumber, "APPELLATION_USUELLE");
                 if (!appRows.isEmpty()) {
                     List<String> apps = new ArrayList<>();
                     for (Object[] row : appRows) {
@@ -756,22 +712,14 @@ public class AuditService {
         }
     }
 
-    /** Liste des valeurs {@code reference-opentheso_aud} pour un code (révisions multiples par entité). */
+    /** Liste des valeurs {@code reference-opentheso_aud} pour un code (état cumulé à la révision). */
     private void putReferenceOpenthesoAudList(Map<String, Object> data, Long entityId, Long revisionNumber,
                                               String code, String mapKey) {
         if (entityId == null || revisionNumber == null || code == null || mapKey == null) {
             return;
         }
         try {
-            @SuppressWarnings("unchecked")
-            List<Object[]> roRows = entityManager.createNativeQuery(
-                    "SELECT r.valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " r "
-                            + "WHERE r.entity_id = :entityId AND r.rev = :revisionNumber AND r.code = :code"
-            )
-                    .setParameter("entityId", entityId)
-                    .setParameter("revisionNumber", revisionNumber)
-                    .setParameter("code", code)
-                    .getResultList();
+            List<Object[]> roRows = loadReferenceOpenthesoRowsAtRevision(entityId, revisionNumber, code);
             if (roRows.isEmpty()) {
                 return;
             }
@@ -789,6 +737,28 @@ public class AuditService {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private List<Object[]> loadReferenceOpenthesoRowsAtRevision(Long entityId, Long revisionNumber, String code) {
+        if (entityId == null || revisionNumber == null || code == null) {
+            return List.of();
+        }
+        try {
+            return entityManager.createNativeQuery(
+                            "SELECT valeur FROM ("
+                                    + "SELECT DISTINCT ON (id) valeur, revtype FROM " + REFERENCE_OPENTHESO_AUD_TABLE
+                                    + " WHERE entity_id = :entityId AND rev <= :revisionNumber AND code = :code"
+                                    + " ORDER BY id, rev DESC"
+                                    + ") latest WHERE revtype <> 2")
+                    .setParameter("entityId", entityId)
+                    .setParameter("revisionNumber", revisionNumber)
+                    .setParameter("code", code)
+                    .getResultList();
+        } catch (Exception e) {
+            log.debug("Erreur reference_opentheso_aud {} à la révision {}: {}", code, revisionNumber, e.getMessage());
+            return List.of();
+        }
+    }
+
     /**
      * Résout un ID de ReferenceOpentheso vers sa valeur à la révision donnée et l'ajoute à la map.
      */
@@ -796,16 +766,19 @@ public class AuditService {
         if (refId == null || revisionNumber == null) return;
         try {
             @SuppressWarnings("unchecked")
-            List<Object> results = entityManager.createNativeQuery(
-                "SELECT valeur FROM " + REFERENCE_OPENTHESO_AUD_TABLE + " WHERE id = :refId "
-                + "AND rev = (SELECT MAX(rev) FROM " + REFERENCE_OPENTHESO_AUD_TABLE
-                + " WHERE id = :refId AND rev <= :revisionNumber)"
+            List<Object[]> results = entityManager.createNativeQuery(
+                "SELECT valeur FROM ("
+                + "SELECT valeur, revtype FROM " + REFERENCE_OPENTHESO_AUD_TABLE
+                + " WHERE id = :refId AND rev <= :revisionNumber"
+                + " ORDER BY rev DESC LIMIT 1"
+                + ") latest WHERE revtype <> 2"
             )
             .setParameter("refId", refId.longValue())
             .setParameter("revisionNumber", revisionNumber)
             .getResultList();
-            if (!results.isEmpty() && results.get(0) != null && !results.get(0).toString().trim().isEmpty()) {
-                data.put(key, results.get(0).toString().trim());
+            if (!results.isEmpty() && results.get(0) != null && results.get(0)[0] != null
+                    && !results.get(0)[0].toString().trim().isEmpty()) {
+                data.put(key, results.get(0)[0].toString().trim());
             }
         } catch (Exception e) {
             log.debug("Erreur resolve ref {} pour {}: {}", refId, key, e.getMessage());
@@ -830,62 +803,13 @@ public class AuditService {
                 }
             }
             
-            // Récupérer les labels depuis label_aud avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> labelRows = entityManager.createNativeQuery(
-                    "SELECT l.nom, l.code_langue FROM label_aud l WHERE l.entity_id = :entityId AND l.rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (labelRows != null && !labelRows.isEmpty()) {
-                    Map<String, String> labelsMap = new HashMap<>();
-                    for (Object[] row : labelRows) {
-                        try {
-                            String nom = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            labelsMap.put(langueCode, nom);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement du label: {}", e.getMessage());
-                        }
-                    }
-                    if (!labelsMap.isEmpty()) {
-                        data.put("labels", labelsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des labels: {}", e.getMessage());
+            Map<String, String> labelsMap = loadLabelsAtRevision(entityId, revisionNumber);
+            if (!labelsMap.isEmpty()) {
+                data.put("labels", labelsMap);
             }
-            
-            // Récupérer les descriptions depuis description_aud avec requête native
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object[]> descriptionRows = entityManager.createNativeQuery(
-                    "SELECT d.valeur, d.code_langue FROM description_aud d WHERE d.entity_id = :entityId AND d.rev = :revisionNumber"
-                )
-                .setParameter("entityId", entityId)
-                .setParameter("revisionNumber", revisionNumber)
-                .getResultList();
-                
-                if (descriptionRows != null && !descriptionRows.isEmpty()) {
-                    Map<String, String> descriptionsMap = new HashMap<>();
-                    for (Object[] row : descriptionRows) {
-                        try {
-                            String valeur = row[0] != null ? row[0].toString() : "";
-                            String langueCode = row.length > 1 && row[1] != null ? row[1].toString() : "unknown";
-                            descriptionsMap.put(langueCode, valeur);
-                        } catch (Exception e) {
-                            log.debug("Erreur lors du traitement de la description: {}", e.getMessage());
-                        }
-                    }
-                    if (!descriptionsMap.isEmpty()) {
-                        data.put("descriptions", descriptionsMap);
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Erreur lors de la récupération des descriptions: {}", e.getMessage());
+            Map<String, String> descriptionsMap = loadDescriptionsAtRevision(entityId, revisionNumber);
+            if (!descriptionsMap.isEmpty()) {
+                data.put("descriptions", descriptionsMap);
             }
             
             extractEnrichedData(data, entityId, revisionNumber);
