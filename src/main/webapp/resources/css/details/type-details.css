@@ -745,6 +745,32 @@
     width: 100%;
 }
 
+.type-detail-page .description-typo-band.concept-info-grid-band {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.type-detail-page .description-typo-band .description-typo-band-grid,
+.type-detail-page .description-typo-band .description-typo-prose--full-width.concept-info-item {
+    width: 100%;
+    max-width: 100%;
+}
+
+.type-detail-page .description-typo-prose--full-width .concept-info-description-wrapper,
+.type-detail-page .description-typo-prose--full-width .concept-info-description-content,
+.type-detail-page .description-typo-prose--full-width .concept-info-description-truncated,
+.type-detail-page .description-typo-prose--full-width .concept-info-description-full {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.type-detail-page .description-typo-prose--full-width .description-typo-prose-body.concept-info-description p,
+.type-detail-page .description-typo-prose--full-width .description-typo-prose-body.concept-info-description div {
+    max-width: 100%;
+}
+
 .type-detail-page .description-typo-prose.concept-info-item-full:hover {
     box-shadow: none;
     background: #f4f7f5;
@@ -1102,6 +1128,55 @@
 
 .type-detail-page .galleria-side-card .typologie-card {
     position: relative;
+    transition: none !important;
+    transform: none !important;
+}
+
+.type-detail-page .galleria-side-card .typologie-card::before {
+    display: none !important;
+}
+
+.type-detail-page .galleria-side-card .typologie-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.type-detail-page .galleria-side-card .typologie-card-image-wrapper {
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.type-detail-page .galleria-side-card .typologie-card-image-wrapper img,
+.type-detail-page .galleria-side-card img.typologie-card-image,
+.type-detail-page .galleria-side-card .typologie-card-image {
+    display: block;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    object-position: center;
+    transform: none !important;
+    transition: none !important;
+}
+
+.type-detail-page .galleria-side-card .typologie-card:hover .typologie-card-image,
+.type-detail-page .galleria-side-card .typologie-card:hover .typologie-card-image-wrapper img {
+    transform: none !important;
+    transition: none !important;
+}
+
+.type-detail-page .galleria-side-card .typologie-card-overlay {
+    transition: none !important;
+    pointer-events: none;
+}
+
+.type-detail-page .galleria-side-card .typologie-card:hover .typologie-card-overlay {
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.type-detail-page .galleria-side-card .typologie-card-indicator {
+    transition: none;
 }
 
 /* Indicateur (carré gris) quand aucun type précédent/suivant */

@@ -131,7 +131,7 @@
                                                         <div class="series-types-type-thumb-image">
                                                             <p:graphicImage value="#{type.image.url}"
                                                                             styleClass="series-types-type-img"
-                                                                            alt="#{type.code}"
+                                                                            alt="#{applicationBean.getEntityCodePlainText(type)}"
                                                                             rendered="#{not empty type.image and not empty type.image.url}"/>
                                                             <ui:fragment rendered="#{empty type.image or empty type.image.url}">
                                                                 <div class="series-types-type-placeholder">
@@ -139,7 +139,7 @@
                                                                 </div>
                                                             </ui:fragment>
                                                         </div>
-                                                        <h:outputText value="#{applicationBean.getEntityLabelHtml(type)}"
+                                                        <h:outputText value="#{type.code}"
                                                                       escape="false"
                                                                       styleClass="series-types-type-label entity-label-html"/>
                                                     </p:commandLink>

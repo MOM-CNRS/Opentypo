@@ -261,6 +261,29 @@ public class TreeBean implements Serializable {
     }
 
     /**
+     * Retire un nœud de l'arbre sans réinitialiser l'arbre (conserve les nœuds dépliés).
+     */
+    public TreeNode removeEntityFromTree(Long entityId) {
+        if (root == null || entityId == null) {
+            return null;
+        }
+        TreeNode node = findNodeByEntityId(root, entityId);
+        if (node == null) {
+            return null;
+        }
+        TreeNode parentNode = node.getParent();
+        if (parentNode != null && parentNode.getChildren() != null) {
+            parentNode.getChildren().remove(node);
+            parentNode.setExpanded(true);
+        }
+        if (selectedNode == node) {
+            selectedNode = (parentNode != null && parentNode.getData() instanceof Entity) ? parentNode : null;
+        }
+        log.debug("Nœud retiré de l'arbre pour l'entité id={}", entityId);
+        return parentNode;
+    }
+
+    /**
      * Met à jour les données (Entity) d'un nœud de l'arbre pour refléter les modifications
      * après sauvegarde. Appelé après saveReference, saveCategory, saveGroup, etc.
      *

@@ -124,7 +124,9 @@
 
         <ui:include src="definition-modification.xhtml"/>
 
-        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 5}"
+        <h:panelGroup rendered="#{applicationBean.selectedEntity.entityType.id == 3
+                                  or applicationBean.selectedEntity.entityType.id == 4
+                                  or applicationBean.selectedEntity.entityType.id == 5}"
                       class="users-form-group users-form-group-full periode-group candidats-mt-20">
             <p:outputLabel value="#{msg['modifier.field.scientificAuthors']}" style="margin-bottom: 13px !important" />
             <p:selectCheckboxMenu value="#{entityUpdateBean.selectedScientificAuthorIds}"

@@ -8,6 +8,7 @@ import fr.cnrs.opentypo.application.dto.ReferenceOpenthesoEnum;
 import fr.cnrs.opentypo.application.dto.pactols.PactolsConcept;
 import fr.cnrs.opentypo.application.dto.zotero.ZoteroSearchHit;
 import fr.cnrs.opentypo.application.service.ZoteroApiService;
+import fr.cnrs.opentypo.common.constant.EntityConstants;
 import fr.cnrs.opentypo.presentation.i18n.JsfMessages;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysique;
 import fr.cnrs.opentypo.domain.entity.CaracteristiquePhysiqueMonnaie;
@@ -36,6 +37,7 @@ import fr.cnrs.opentypo.application.service.EntityAuthorityService;
 import fr.cnrs.opentypo.application.service.EntityImageService;
 import fr.cnrs.opentypo.infrastructure.persistence.DescriptionPateRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityMetadataRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ImageRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.ExternalAlignmentRepository;
@@ -105,6 +107,9 @@ public class EntityUpdateBean implements Serializable {
 
     @Autowired
     private EntityRepository entityRepository;
+
+    @Autowired
+    private EntityRelationRepository entityRelationRepository;
 
     @Autowired
     private ReferenceOpenthesoRepository referenceOpenthesoRepository;
@@ -190,9 +195,9 @@ public class EntityUpdateBean implements Serializable {
     }
     /** URL saisie pour ajouter une nouvelle image */
     private String newImageUrlInput;
-    /** Auteurs scientifiques disponibles (pour TYPE uniquement). */
+    /** Auteurs scientifiques disponibles (groupe, série, type). */
     private List<AuteurScientifique> availableScientificAuthors = new ArrayList<>();
-    /** Auteurs scientifiques sélectionnés (IDs, pour TYPE uniquement). */
+    /** Auteurs scientifiques sélectionnés (IDs, groupe, série, type). */
     private List<Long> selectedScientificAuthorIds = new ArrayList<>();
     /** Emplacements pour fichiers en attente (stockage serveur à la validation uniquement) */
     private List<PendingFileSlot> pendingFileSlots = new ArrayList<>();
@@ -592,13 +597,17 @@ public class EntityUpdateBean implements Serializable {
         } else {
             availableScientificAuthors = new ArrayList<>();
         }
-        if (entity.getEntityType() != null && "TYPE".equals(entity.getEntityType().getCode())
-                && entity.getAuteursScientifiques() != null) {
-            selectedScientificAuthorIds = entity.getAuteursScientifiques().stream()
-                    .filter(Objects::nonNull)
-                    .map(AuteurScientifique::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toCollection(ArrayList::new));
+        if (entity.getEntityType() != null && supportsScientificAuthors(entity.getEntityType().getCode())) {
+            Entity loaded = entityRepository.findById(entity.getId()).orElse(entity);
+            if (loaded.getAuteursScientifiques() != null) {
+                selectedScientificAuthorIds = loaded.getAuteursScientifiques().stream()
+                        .filter(Objects::nonNull)
+                        .map(AuteurScientifique::getId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(ArrayList::new));
+            } else {
+                selectedScientificAuthorIds = new ArrayList<>();
+            }
         } else {
             selectedScientificAuthorIds = new ArrayList<>();
         }
@@ -1602,26 +1611,24 @@ public class EntityUpdateBean implements Serializable {
             }
         }
 
-        // Mise à jour des auteurs scientifiques (rattachement uniquement pour TYPE)
-        if (entityToUpdate.getAuteursScientifiques() == null) {
-            entityToUpdate.setAuteursScientifiques(new ArrayList<>());
-        } else {
-            entityToUpdate.getAuteursScientifiques().clear();
-        }
-        if (entityToUpdate.getEntityType() != null
-                && "TYPE".equals(entityToUpdate.getEntityType().getCode())
-                && auteurScientifiqueRepository != null
-                && selectedScientificAuthorIds != null) {
-            for (Long authorId : selectedScientificAuthorIds) {
-                if (authorId == null) {
-                    continue;
-                }
-                auteurScientifiqueRepository.findById(authorId)
-                        .ifPresent(author -> entityToUpdate.getAuteursScientifiques().add(author));
-            }
+        // Mise à jour des auteurs scientifiques (groupe, série, type)
+        List<AuteurScientifique> selectedScientificAuthors = resolveSelectedScientificAuthors();
+        String savedEntityTypeCode = entityToUpdate.getEntityType() != null
+                ? entityToUpdate.getEntityType().getCode() : null;
+        if (supportsScientificAuthors(savedEntityTypeCode)) {
+            applyScientificAuthorsToEntity(entityToUpdate, selectedScientificAuthors);
         }
 
         Entity entitySaved = entityRepository.save(entityToUpdate);
+
+        if (EntityConstants.ENTITY_TYPE_GROUP.equals(savedEntityTypeCode)) {
+            propagateScientificAuthors(entitySaved.getId(), selectedScientificAuthors, Set.of(
+                    EntityConstants.ENTITY_TYPE_SERIES,
+                    EntityConstants.ENTITY_TYPE_TYPE));
+        } else if (EntityConstants.ENTITY_TYPE_SERIES.equals(savedEntityTypeCode)) {
+            propagateScientificAuthors(entitySaved.getId(), selectedScientificAuthors, Set.of(
+                    EntityConstants.ENTITY_TYPE_TYPE));
+        }
 
         if (entitySaved.getEntityType() != null
                 && "TYPE".equals(entitySaved.getEntityType().getCode())
@@ -2254,6 +2261,79 @@ public class EntityUpdateBean implements Serializable {
 
     private static PactolsConcept refToConcept(ReferenceOpentheso ref) {
         return ref != null ? new PactolsConcept(ref.getConceptId(), ref.getUrl(), ref.getValeur()) : new PactolsConcept();
+    }
+
+    private boolean supportsScientificAuthors(String typeCode) {
+        return EntityConstants.ENTITY_TYPE_GROUP.equals(typeCode)
+                || EntityConstants.ENTITY_TYPE_SERIES.equals(typeCode)
+                || EntityConstants.ENTITY_TYPE_TYPE.equals(typeCode);
+    }
+
+    private List<AuteurScientifique> resolveSelectedScientificAuthors() {
+        if (auteurScientifiqueRepository == null || selectedScientificAuthorIds == null) {
+            return new ArrayList<>();
+        }
+        List<AuteurScientifique> authors = new ArrayList<>();
+        for (Long authorId : selectedScientificAuthorIds) {
+            if (authorId == null) {
+                continue;
+            }
+            auteurScientifiqueRepository.findById(authorId).ifPresent(authors::add);
+        }
+        return authors;
+    }
+
+    private void applyScientificAuthorsToEntity(Entity entity, List<AuteurScientifique> authors) {
+        if (entity == null) {
+            return;
+        }
+        if (entity.getAuteursScientifiques() == null) {
+            entity.setAuteursScientifiques(new ArrayList<>());
+        } else {
+            entity.getAuteursScientifiques().clear();
+        }
+        if (authors != null && !authors.isEmpty()) {
+            entity.getAuteursScientifiques().addAll(authors);
+        }
+    }
+
+    private void propagateScientificAuthors(Long rootId, List<AuteurScientifique> authors, Set<String> targetTypeCodes) {
+        if (rootId == null || entityRelationRepository == null || targetTypeCodes == null || targetTypeCodes.isEmpty()) {
+            return;
+        }
+        List<Object[]> relations = entityRelationRepository.findAllDescendantRelations(rootId);
+        if (relations == null || relations.isEmpty()) {
+            return;
+        }
+        Set<Long> descendantIds = new HashSet<>();
+        for (Object[] row : relations) {
+            if (row != null && row.length > 1 && row[1] != null) {
+                descendantIds.add(((Number) row[1]).longValue());
+            }
+        }
+        if (descendantIds.isEmpty()) {
+            return;
+        }
+        List<Entity> descendants = entityRepository.findByIdInWithEntityType(descendantIds);
+        int updated = 0;
+        for (Entity descendant : descendants) {
+            if (descendant == null || descendant.getEntityType() == null) {
+                continue;
+            }
+            if (!targetTypeCodes.contains(descendant.getEntityType().getCode())) {
+                continue;
+            }
+            Entity managed = entityRepository.findById(descendant.getId()).orElse(null);
+            if (managed == null) {
+                continue;
+            }
+            applyScientificAuthorsToEntity(managed, authors);
+            entityRepository.save(managed);
+            updated++;
+        }
+        if (updated > 0) {
+            log.info("{} entité(s) ont hérité des auteurs scientifiques de l'entité id={}", updated, rootId);
+        }
     }
 
     private void saveUserPermissionsForGroup(Entity savedGroup) {

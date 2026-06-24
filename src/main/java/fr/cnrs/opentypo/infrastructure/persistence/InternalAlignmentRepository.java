@@ -20,6 +20,12 @@ public interface InternalAlignmentRepository extends JpaRepository<InternalAlign
             "WHERE ia.sourceType.id = :sourceTypeId")
     List<InternalAlignment> findBySourceTypeIdWithTarget(@Param("sourceTypeId") Long sourceTypeId);
 
+    @Query("SELECT ia FROM InternalAlignment ia " +
+            "JOIN FETCH ia.sourceType s " +
+            "LEFT JOIN FETCH s.metadata " +
+            "WHERE ia.targetType.id = :targetTypeId")
+    List<InternalAlignment> findByTargetTypeIdWithSource(@Param("targetTypeId") Long targetTypeId);
+
     @Query("SELECT ia.id.targetTypeId FROM InternalAlignment ia WHERE ia.sourceType.id = :sourceTypeId")
     List<Long> findTargetIdsBySourceTypeId(@Param("sourceTypeId") Long sourceTypeId);
 

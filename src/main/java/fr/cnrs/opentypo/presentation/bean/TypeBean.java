@@ -42,6 +42,7 @@ import org.primefaces.PrimeFaces;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.tree.TreeNode;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -861,25 +862,32 @@ public class TypeBean implements Serializable {
             String typeCode = type.getCode();
             Long typeId = type.getId();
             Entity parentSerie = applicationBean.getSelectedSerie();
+            Entity parentGroup = applicationBean.getSelectedGroup();
+            Entity parent = parentSerie != null ? parentSerie : parentGroup;
 
             applicationBean.deleteEntityRecursively(type);
 
-            applicationBean.setSelectedEntity(parentSerie);
-            applicationBean.setChilds(new ArrayList<>());
-            if (!applicationBean.getBreadCrumbElements().isEmpty()) {
-                applicationBean.getBreadCrumbElements().removeLast();
-            }
-            if (parentSerie != null) {
-                applicationBean.refreshChilds();
-                applicationBean.getPanelState().showSerie();
-            } else {
-                applicationBean.getPanelState().showCollections();
-            }
             TreeBean tb = treeBeanProvider != null ? treeBeanProvider.get() : null;
             if (tb != null) {
-                tb.initializeTreeWithCollection();
+                var removedFrom = tb.removeEntityFromTree(typeId);
+                if (removedFrom == null && parent != null) {
+                    tb.reloadChildrenForEntity(parent);
+                }
             }
             cancelEditingType();
+
+            if (parentSerie != null) {
+                applicationBean.showSerie(parentSerie);
+            } else if (parentGroup != null) {
+                applicationBean.showGroupe(parentGroup);
+            } else {
+                applicationBean.setSelectedEntity(null);
+                applicationBean.getPanelState().showCollections();
+                if (tb != null) {
+                    tb.initializeTreeWithCollection();
+                }
+            }
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, JsfMessages.get("common.growl.success"),
                             JsfMessages.format("entity.delete.success.type", typeCode)));

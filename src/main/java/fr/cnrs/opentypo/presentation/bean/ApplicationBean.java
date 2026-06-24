@@ -70,14 +70,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -273,6 +276,13 @@ public class ApplicationBean implements Serializable {
     /** Afficher tous les types en une seule page. */
     private boolean typesViewAll = false;
     private static final int TYPES_PAGE_SIZE = 6;
+
+    /** Tri alphabétique français (casse ignorée, accents pris en compte). */
+    private static final Collator FRENCH_ALPHA_COLLATOR;
+    static {
+        FRENCH_ALPHA_COLLATOR = Collator.getInstance(Locale.FRENCH);
+        FRENCH_ALPHA_COLLATOR.setStrength(Collator.SECONDARY);
+    }
 
     /** Mode de tri unifié pour collections, référentiels, catégories, groupes, séries et types. */
     public enum ListSortMode {
@@ -1020,6 +1030,11 @@ public class ApplicationBean implements Serializable {
 
     /** Tri une liste filtrée selon le mode (manuel = ordre des childs, alpha asc/desc). */
     private List<Entity> sortFilteredList(List<Entity> filtered, List<Entity> orderedChilds, ListSortMode mode) {
+        return sortFilteredListByKey(filtered, orderedChilds, mode, this::getEntityLabelPlainText);
+    }
+
+    private List<Entity> sortFilteredListByKey(List<Entity> filtered, List<Entity> orderedChilds,
+                                               ListSortMode mode, Function<Entity, String> sortKey) {
         if (filtered == null || filtered.isEmpty()) return new ArrayList<>();
         if (mode == ListSortMode.MANUAL && orderedChilds != null && !orderedChilds.isEmpty()) {
             java.util.Map<Long, Integer> orderMap = new java.util.HashMap<>();
@@ -1032,12 +1047,31 @@ public class ApplicationBean implements Serializable {
                     .collect(Collectors.toList());
         }
         return filtered.stream()
-                .sorted((r1, r2) -> {
-                    String n1 = getEntityLabel(r1) != null ? getEntityLabel(r1) : "";
-                    String n2 = getEntityLabel(r2) != null ? getEntityLabel(r2) : "";
-                    return mode == ListSortMode.ALPHA_ASC ? n1.compareToIgnoreCase(n2) : n2.compareToIgnoreCase(n1);
-                })
+                .sorted((r1, r2) -> compareAlphaSortKeys(
+                        sortKey.apply(r1),
+                        sortKey.apply(r2),
+                        mode))
                 .collect(Collectors.toList());
+    }
+
+    /** Clé de tri alphabétique pour les types (code affiché dans le catalogue). */
+    private String getTypeAlphaSortKey(Entity entity) {
+        if (entity == null) {
+            return "";
+        }
+        String code = getEntityCodePlainText(entity);
+        if (code != null && !code.isBlank()) {
+            return code;
+        }
+        String label = getEntityLabelPlainText(entity);
+        return label != null ? label : "";
+    }
+
+    private int compareAlphaSortKeys(String left, String right, ListSortMode mode) {
+        String n1 = left != null ? left.trim() : "";
+        String n2 = right != null ? right.trim() : "";
+        int cmp = FRENCH_ALPHA_COLLATOR.compare(n1, n2);
+        return mode == ListSortMode.ALPHA_ASC ? cmp : -cmp;
     }
 
     /** Catégories filtrées par la recherche. */
@@ -1280,13 +1314,10 @@ public class ApplicationBean implements Serializable {
             return new ArrayList<>(types); // loadSerieTypes/loadGroupTypes déjà ordonné par display_order
         }
         return types.stream()
-                .sorted((t1, t2) -> {
-                    String n1 = getEntityLabel(t1) != null ? getEntityLabel(t1) : (t1.getCode() != null ? t1.getCode() : "");
-                    String n2 = getEntityLabel(t2) != null ? getEntityLabel(t2) : (t2.getCode() != null ? t2.getCode() : "");
-                    return typesSortMode == ListSortMode.ALPHA_ASC
-                            ? n1.compareToIgnoreCase(n2)
-                            : n2.compareToIgnoreCase(n1);
-                })
+                .sorted((t1, t2) -> compareAlphaSortKeys(
+                        getTypeAlphaSortKey(t1),
+                        getTypeAlphaSortKey(t2),
+                        typesSortMode))
                 .collect(Collectors.toList());
     }
 
@@ -1354,7 +1385,7 @@ public class ApplicationBean implements Serializable {
     }
 
     public List<Entity> getSortedFilteredTypes() {
-        return sortFilteredList(getFilteredTypes(), getChildsTypes(), typesSortMode);
+        return sortFilteredListByKey(getFilteredTypes(), getChildsTypes(), typesSortMode, this::getTypeAlphaSortKey);
     }
 
     /** Types pour la page courante ou tous si typesViewAll. */
@@ -1444,8 +1475,10 @@ public class ApplicationBean implements Serializable {
         List<Entity> siblings = typeService.loadSerieTypes(selectedSerie);
         if (siblings == null || siblings.isEmpty()) return null;
         List<Entity> sorted = siblings.stream()
-                .sorted(Comparator.comparing(e -> e.getNom() != null ? e.getNom().toLowerCase() : "",
-                        Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER)))
+                .sorted((t1, t2) -> compareAlphaSortKeys(
+                        getTypeAlphaSortKey(t1),
+                        getTypeAlphaSortKey(t2),
+                        ListSortMode.ALPHA_ASC))
                 .collect(Collectors.toList());
         int idx = -1;
         for (int i = 0; i < sorted.size(); i++) {
@@ -1471,8 +1504,10 @@ public class ApplicationBean implements Serializable {
         List<Entity> siblings = typeService.loadSerieTypes(selectedSerie);
         if (siblings == null || siblings.isEmpty()) return null;
         List<Entity> sorted = siblings.stream()
-                .sorted(Comparator.comparing(e -> e.getNom() != null ? e.getNom().toLowerCase() : "",
-                        Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER)))
+                .sorted((t1, t2) -> compareAlphaSortKeys(
+                        getTypeAlphaSortKey(t1),
+                        getTypeAlphaSortKey(t2),
+                        ListSortMode.ALPHA_ASC))
                 .collect(Collectors.toList());
         int idx = -1;
         for (int i = 0; i < sorted.size(); i++) {

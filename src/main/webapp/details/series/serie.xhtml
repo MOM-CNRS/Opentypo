@@ -117,7 +117,7 @@
                                     <ui:fragment rendered="#{applicationBean.showEntityDescriptionField()}">
                                         <div class="concept-info-grid-band description-typo-band">
                                             <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
-                                                <h:panelGroup id="serieDescUpdatePanel" styleClass="concept-info-item description-typo-prose" layout="block">
+                                                <h:panelGroup id="serieDescUpdatePanel" styleClass="concept-info-item concept-info-item-full description-typo-prose description-typo-prose--full-width" layout="block">
                                                     <div class="concept-info-label">
                                                         <i class="pi pi-file monnaie-communs-icon" aria-hidden="true"/>
                                                         <span>#{msg['common.description']}</span>
@@ -185,6 +185,33 @@
                                                         <h:outputText value="#{msg['common.empty.notProvided']}"
                                                                       rendered="#{empty applicationBean.selectedEntity.appellationsUsuelles}"
                                                                       styleClass="empty-field-message"/>
+                                                    </div>
+                                                </h:panelGroup>
+                                            </div>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <ui:fragment rendered="#{applicationBean.showFieldWithValue(applicationBean.selectedEntity.auteursScientifiques)}">
+                                        <div class="concept-info-grid-band description-typo-band">
+                                            <div class="concept-info-grid concept-info-grid--one-column concept-info-grid--nested description-typo-band-grid">
+                                                <h:panelGroup layout="block" styleClass="concept-info-item description-typo-field">
+                                                    <div class="concept-info-label">
+                                                        <i class="pi pi-users monnaie-communs-icon" aria-hidden="true"/>
+                                                        <span>#{msg['type.authors.label']}</span>
+                                                    </div>
+
+                                                    <div class="concept-info-value bibliographie-container">
+                                                        <ui:fragment rendered="#{not empty applicationBean.selectedEntity.auteursScientifiques}">
+                                                            <ui:repeat value="#{applicationBean.selectedEntity.auteursScientifiques}" var="auteurScientifique">
+                                                                <span class="bibliographie-badge">
+                                                                    <i class="pi pi-star bibliographie-badge-icon" aria-hidden="true"/>
+                                                                    <span class="bibliographie-badge-text">#{auteurScientifique.prenom} #{auteurScientifique.nom}</span>
+                                                                </span>
+                                                            </ui:repeat>
+                                                        </ui:fragment>
+
+                                                        <h:outputText value="#{msg['type.authors.empty']}" styleClass="bibliographie-empty"
+                                                                      rendered="#{empty applicationBean.selectedEntity.auteursScientifiques}" />
                                                     </div>
                                                 </h:panelGroup>
                                             </div>

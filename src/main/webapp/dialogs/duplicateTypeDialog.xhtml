@@ -28,6 +28,7 @@
         </f:facet>
 
         <h:form id="duplicateTypeDialogForm">
+            <p:defaultCommand target="duplicateTypeSubmitBtn"/>
             <div class="move-type-dialog-body">
                 <div class="move-type-new-section">
                     <div class="move-type-section-label">
@@ -74,7 +75,8 @@
                                onclick="PF('duplicateTypeDialog').hide(); return false;"
                                process="@this"
                                update="@none"/>
-                <p:commandButton value="#{msg['common.action.duplicate']}"
+                <p:commandButton id="duplicateTypeSubmitBtn"
+                               value="#{msg['common.action.duplicate']}"
                                icon="pi pi-copy"
                                styleClass="move-type-dialog-btn move-type-dialog-btn-validate"
                                action="#{typeBean.performDuplicateType}"

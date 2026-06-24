@@ -13,11 +13,15 @@ import fr.cnrs.opentypo.domain.entity.Entity;
 import fr.cnrs.opentypo.domain.entity.EntityMetadata;
 import fr.cnrs.opentypo.domain.entity.EntityRelation;
 import fr.cnrs.opentypo.domain.entity.EntityType;
+import fr.cnrs.opentypo.domain.entity.ExternalAlignment;
+import fr.cnrs.opentypo.domain.entity.InternalAlignment;
 import fr.cnrs.opentypo.domain.entity.Label;
 import fr.cnrs.opentypo.domain.entity.ReferenceOpentheso;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRelationRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityRepository;
 import fr.cnrs.opentypo.infrastructure.persistence.EntityTypeRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.ExternalAlignmentRepository;
+import fr.cnrs.opentypo.infrastructure.persistence.InternalAlignmentRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +57,12 @@ public class TypeService implements Serializable {
 
     @Autowired
     private SerieService serieService;
+
+    @Autowired
+    private InternalAlignmentRepository internalAlignmentRepository;
+
+    @Autowired
+    private ExternalAlignmentRepository externalAlignmentRepository;
 
 
     /**
@@ -160,6 +170,11 @@ public class TypeService implements Serializable {
             throw new IllegalArgumentException("Seuls les types peuvent être dupliqués");
         }
 
+        Entity sourceLoaded = entityRepository.findById(source.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Type source introuvable"));
+        initializeSourceForDuplication(sourceLoaded);
+        source = sourceLoaded;
+
         EntityType typeEntityType = entityTypeRepository.findByCode(EntityConstants.ENTITY_TYPE_TYPE)
                 .orElseThrow(() -> new IllegalStateException("Le type d'entité 'TYPE' n'existe pas."));
 
@@ -195,8 +210,25 @@ public class TypeService implements Serializable {
                         .build());
             }
         }
+        if (source.getAiresCirculation() != null) {
+            for (ReferenceOpentheso srcAire : source.getAiresCirculation()) {
+                duplicate.getAiresCirculation().add(ReferenceOpentheso.builder()
+                        .code(ReferenceOpenthesoEnum.AIRE_CIRCULATION.name())
+                        .valeur(srcAire.getValeur())
+                        .url(srcAire.getUrl())
+                        .conceptId(srcAire.getConceptId())
+                        .thesaurusId(srcAire.getThesaurusId())
+                        .collectionId(srcAire.getCollectionId())
+                        .entity(duplicate)
+                        .build());
+            }
+        }
         duplicate.setCategorieFonctionnelle(source.getCategorieFonctionnelle());
         duplicate.setAuteurs(source.getAuteurs() != null ? new ArrayList<>(source.getAuteurs()) : new ArrayList<>());
+        duplicate.setAuteursScientifiques(
+                source.getAuteursScientifiques() != null
+                        ? new ArrayList<>(source.getAuteursScientifiques())
+                        : new ArrayList<>());
         duplicate.setImages(new ArrayList<>()); // Pas d'images
 
         // Métadonnées (sauf code déjà défini)
@@ -391,10 +423,13 @@ public class TypeService implements Serializable {
             newCPM.setDenomination(srcCPM.getDenomination());
             newCPM.setMetrologie(srcCPM.getMetrologie());
             newCPM.setValeur(srcCPM.getValeur());
+            newCPM.setTechnique(srcCPM.getTechnique());
             duplicate.setCaracteristiquePhysiqueMonnaie(newCPM);
         }
 
         Entity saved = entityRepository.save(duplicate);
+
+        copyAlignmentsFromSource(source, saved);
 
         if (!entityRelationRepository.existsByParentAndChild(parent.getId(), saved.getId())) {
             EntityRelation relation = new EntityRelation();
@@ -404,6 +439,126 @@ public class TypeService implements Serializable {
         }
 
         return saved;
+    }
+
+    private void initializeSourceForDuplication(Entity source) {
+        if (source.getPeriodes() != null) {
+            source.getPeriodes().size();
+        }
+        if (source.getProductions() != null) {
+            source.getProductions().size();
+        }
+        if (source.getAiresCirculation() != null) {
+            source.getAiresCirculation().size();
+        }
+        if (source.getAppellationsUsuelles() != null) {
+            source.getAppellationsUsuelles().size();
+        }
+        if (source.getFonctionsUsage() != null) {
+            source.getFonctionsUsage().size();
+        }
+        if (source.getFabricationsFaconnage() != null) {
+            source.getFabricationsFaconnage().size();
+        }
+        if (source.getCouleursPate() != null) {
+            source.getCouleursPate().size();
+        }
+        if (source.getNaturesPate() != null) {
+            source.getNaturesPate().size();
+        }
+        if (source.getInclusionsPate() != null) {
+            source.getInclusionsPate().size();
+        }
+        if (source.getCuissonsPostCuisson() != null) {
+            source.getCuissonsPostCuisson().size();
+        }
+        if (source.getLabels() != null) {
+            source.getLabels().size();
+        }
+        if (source.getDescriptions() != null) {
+            source.getDescriptions().size();
+        }
+        if (source.getCommentaires() != null) {
+            source.getCommentaires().size();
+        }
+        if (source.getAuteurs() != null) {
+            source.getAuteurs().size();
+        }
+        if (source.getAuteursScientifiques() != null) {
+            source.getAuteursScientifiques().size();
+        }
+        if (source.getMetadata() != null) {
+            source.getMetadata().getCode();
+        }
+    }
+
+    private void copyAlignmentsFromSource(Entity source, Entity duplicate) {
+        if (source == null || duplicate == null || source.getId() == null || duplicate.getId() == null) {
+            return;
+        }
+        if (externalAlignmentRepository != null) {
+            List<ExternalAlignment> externalAlignments =
+                    externalAlignmentRepository.findBySourceType_IdOrderByIdAsc(source.getId());
+            for (ExternalAlignment src : externalAlignments) {
+                if (src == null) {
+                    continue;
+                }
+                ExternalAlignment copy = new ExternalAlignment();
+                copy.setSourceType(duplicate);
+                copy.setLabel(src.getLabel());
+                copy.setUrl(src.getUrl());
+                copy.setMatchType(src.getMatchType());
+                externalAlignmentRepository.save(copy);
+            }
+        }
+        if (internalAlignmentRepository == null) {
+            return;
+        }
+        List<InternalAlignment> asSource =
+                internalAlignmentRepository.findBySourceTypeIdWithTarget(source.getId());
+        for (InternalAlignment src : asSource) {
+            if (src == null || src.getTargetType() == null || src.getTargetType().getId() == null) {
+                continue;
+            }
+            saveInternalAlignmentPair(duplicate, src.getTargetType(), src.getMatchType());
+        }
+        List<InternalAlignment> asTarget =
+                internalAlignmentRepository.findByTargetTypeIdWithSource(source.getId());
+        for (InternalAlignment src : asTarget) {
+            if (src == null || src.getSourceType() == null || src.getSourceType().getId() == null) {
+                continue;
+            }
+            saveInternalAlignmentPair(src.getSourceType(), duplicate, src.getMatchType());
+        }
+    }
+
+    private void saveInternalAlignmentPair(Entity sourceType, Entity targetType, String matchType) {
+        if (sourceType == null || targetType == null
+                || sourceType.getId() == null || targetType.getId() == null
+                || sourceType.getId().equals(targetType.getId())) {
+            return;
+        }
+        String normalizedMatchType = "CloseMatch".equals(matchType) ? "CloseMatch" : "ExactMatch";
+        InternalAlignment.InternalAlignmentId directId =
+                new InternalAlignment.InternalAlignmentId(sourceType.getId(), targetType.getId());
+        if (!internalAlignmentRepository.existsById(directId)) {
+            InternalAlignment direct = new InternalAlignment();
+            direct.setId(directId);
+            direct.setSourceType(sourceType);
+            direct.setTargetType(targetType);
+            direct.setMatchType(normalizedMatchType);
+            internalAlignmentRepository.save(direct);
+        }
+        InternalAlignment.InternalAlignmentId reverseId =
+                new InternalAlignment.InternalAlignmentId(targetType.getId(), sourceType.getId());
+        if (!internalAlignmentRepository.existsById(reverseId)) {
+            InternalAlignment reverse = new InternalAlignment();
+            reverse.setId(reverseId);
+            reverse.setSourceType(targetType);
+            reverse.setTargetType(sourceType);
+            reverse.setMatchType(normalizedMatchType);
+            internalAlignmentRepository.save(reverse);
+        }
     }
 
     /**
