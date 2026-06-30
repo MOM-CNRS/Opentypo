@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Parseur CSV minimal (RFC 4180 simplifié : guillemets ; séparateur {@code ,} ou {@code ;} détecté sur la ligne d'en-tête).
+ * Parseur CSV minimal (RFC 4180 : guillemets, retours à la ligne dans les champs quotés,
+ * séparateur {@code ,} ou {@code ;} détecté sur la ligne d'en-tête).
  */
 @Slf4j
 public final class TypologyCsvParser {
@@ -27,19 +28,19 @@ public final class TypologyCsvParser {
         }
         String bomStripped = content.startsWith("\uFEFF") ? content.substring(1) : content;
         String normalized = bomStripped.replace("\r\n", "\n").replace('\r', '\n');
-        String[] lines = normalized.split("\n", -1);
-        if (lines.length < 2) {
+        List<String> records = splitCsvRecords(normalized);
+        if (records.size() < 2) {
             throw new IllegalArgumentException("Le fichier doit contenir un en-tête et au moins une ligne de données.");
         }
-        char delimiter = detectDelimiter(lines[0]);
-        List<String> headers = splitCsvLine(lines[0], delimiter);
+        char delimiter = detectDelimiter(records.get(0));
+        List<String> headers = splitCsvLine(records.get(0), delimiter);
         List<Map<String, String>> rows = new ArrayList<>();
-        for (int i = 1; i < lines.length; i++) {
-            String line = lines[i];
-            if (line.isBlank()) {
+        for (int i = 1; i < records.size(); i++) {
+            String record = records.get(i);
+            if (record.isBlank()) {
                 continue;
             }
-            List<String> cells = splitCsvLine(line, delimiter);
+            List<String> cells = splitCsvLine(record, delimiter);
             Map<String, String> row = new LinkedHashMap<>();
             for (int c = 0; c < headers.size(); c++) {
                 String key = normalizeHeader(headers.get(c));
@@ -52,6 +53,46 @@ public final class TypologyCsvParser {
             rows.add(row);
         }
         return new ParsedCsv(headers.stream().map(TypologyCsvParser::normalizeHeader).filter(s -> !s.isEmpty()).toList(), rows);
+    }
+
+    /**
+     * Découpe le fichier en enregistrements logiques : les retours à la ligne à l'intérieur
+     * d'un champ quoté font partie du champ, pas d'un nouvel enregistrement.
+     */
+    static List<String> splitCsvRecords(String content) {
+        List<String> records = new ArrayList<>();
+        if (content == null || content.isEmpty()) {
+            return records;
+        }
+        StringBuilder record = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < content.length(); i++) {
+            char ch = content.charAt(i);
+            if (ch == '"') {
+                record.append(ch);
+                if (inQuotes) {
+                    if (i + 1 < content.length() && content.charAt(i + 1) == '"') {
+                        record.append('"');
+                        i++;
+                    } else {
+                        inQuotes = false;
+                    }
+                } else {
+                    inQuotes = true;
+                }
+                continue;
+            }
+            if (ch == '\n' && !inQuotes) {
+                records.add(record.toString());
+                record.setLength(0);
+                continue;
+            }
+            record.append(ch);
+        }
+        if (!record.isEmpty()) {
+            records.add(record.toString());
+        }
+        return records;
     }
 
     /**

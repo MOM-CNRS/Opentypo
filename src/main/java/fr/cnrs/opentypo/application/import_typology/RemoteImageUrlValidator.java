@@ -17,19 +17,22 @@ public final class RemoteImageUrlValidator {
     private RemoteImageUrlValidator() {
     }
 
+    /**
+     * Validation sans accès réseau (schéma, hôte, extension plausible).
+     * Utilisée à l'import lorsque l'URL a déjà été validée à l'analyse ou est nouvelle.
+     */
+    public static boolean isSyntaxValidUrl(String rawUrl) {
+        URI uri = parseHttpUri(rawUrl);
+        if (uri == null) {
+            return false;
+        }
+        String path = uri.getPath();
+        return isLikelyImagePath(path) || !StringUtils.hasText(path) || "/".equals(path);
+    }
+
     public static boolean isValidRemoteImageUrl(String rawUrl) {
-        URI uri;
-        try {
-            uri = URI.create(rawUrl.trim());
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-        String scheme = uri.getScheme();
-        if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
-            return false;
-        }
-        String host = uri.getHost();
-        if (!StringUtils.hasText(host)) {
+        URI uri = parseHttpUri(rawUrl);
+        if (uri == null) {
             return false;
         }
 
@@ -99,6 +102,26 @@ public final class RemoteImageUrlValidator {
         }
         String normalized = contentType.toLowerCase(Locale.ROOT).split(";", 2)[0].trim();
         return normalized.startsWith("image/");
+    }
+
+    private static URI parseHttpUri(String rawUrl) {
+        if (!StringUtils.hasText(rawUrl)) {
+            return null;
+        }
+        URI uri;
+        try {
+            uri = URI.create(rawUrl.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        String scheme = uri.getScheme();
+        if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
+            return null;
+        }
+        if (!StringUtils.hasText(uri.getHost())) {
+            return null;
+        }
+        return uri;
     }
 
     private static boolean isLikelyImagePath(String path) {

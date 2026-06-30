@@ -154,6 +154,10 @@ public class TypologyImportService {
             return new TypologyImportAnalyzeResult(false, blocking, List.of(), parsed);
         }
 
+        TypologyImportImageUrlCache imageUrlCache = new TypologyImportImageUrlCache();
+        TypologyImportLookupCache lookupCache = TypologyImportLookupCache.warm(
+                reference, categoryService, groupService, serieService, typeService, entityRepository);
+
         List<Map<String, String>> rows = parsed.rows();
         int n = rows.size();
         if (progress != null) {
@@ -200,10 +204,10 @@ public class TypologyImportService {
                 err.get(first).add("Code « " + targets[rowIndex] + " » dupliqué dans le fichier (ligne " + csvRowNumber + ").");
             }
 
-            validateImportScopedCode(reference, kinds[rowIndex], targets[rowIndex], ccArr[rowIndex], cgArr[rowIndex],
+            validateImportScopedCode(lookupCache, kinds[rowIndex], targets[rowIndex], ccArr[rowIndex], cgArr[rowIndex],
                     csArr[rowIndex], err.get(rowIndex));
 
-            previewImages(row, warn.get(rowIndex));
+            previewImages(row, warn.get(rowIndex), imageUrlCache);
             if (collectionProfile == TypologyImportCollectionProfile.MONNAIE) {
                 previewOpenThesoMonnaie(row, err.get(rowIndex));
             } else if (collectionProfile == TypologyImportCollectionProfile.INSTRUMENTUM) {
@@ -238,7 +242,7 @@ public class TypologyImportService {
                 case CATEGORIE -> virtualCats.add(cc);
                 case GROUPE -> {
                     boolean catOk = virtualCats.contains(cc)
-                            || findCategory(reference, cc).isPresent();
+                            || lookupCache.findCategory(cc).isPresent();
                     if (!catOk) {
                         e.add("Catégorie « " + cc + " » introuvable sous ce référentiel et non créée dans les lignes précédentes.");
                     }
@@ -246,7 +250,7 @@ public class TypologyImportService {
                 }
                 case SERIE -> {
                     boolean gOk = virtualGroups.contains(gKey(cc, cg))
-                            || findGroup(reference, cc, cg).isPresent();
+                            || lookupCache.findGroup(cc, cg).isPresent();
                     if (!gOk) {
                         e.add("Groupe « " + cg + " » (catégorie « " + cc + " ») introuvable.");
                     }
@@ -254,14 +258,14 @@ public class TypologyImportService {
                 }
                 case TYPE_SOUS_SERIE -> {
                     boolean sOk = virtualSeries.contains(sKey(cc, cg, cs))
-                            || findSerie(reference, cc, cg, cs).isPresent();
+                            || lookupCache.findSerie(cc, cg, cs).isPresent();
                     if (!sOk) {
                         e.add("Série « " + cs + " » introuvable pour ce groupe / catégorie.");
                     }
                 }
                 case TYPE_SOUS_GROUPE -> {
                     boolean gOk = virtualGroups.contains(gKey(cc, cg))
-                            || findGroup(reference, cc, cg).isPresent();
+                            || lookupCache.findGroup(cc, cg).isPresent();
                     if (!gOk) {
                         e.add("Groupe « " + cg + " » introuvable pour cette catégorie.");
                     }
@@ -279,7 +283,7 @@ public class TypologyImportService {
             String tgt = targets[i];
             boolean hasErr = !err.get(i).isEmpty();
             boolean create = k != null && k != TypologyImportKind.NON_CLASSIFIE && tgt != null && !hasErr
-                    && !importEntityExistsInScope(reference, k, tgt, ccArr[i], cgArr[i], csArr[i]);
+                    && !importEntityExistsInScope(lookupCache, k, tgt, ccArr[i], cgArr[i], csArr[i]);
             boolean okLine = k != null && k != TypologyImportKind.NON_CLASSIFIE && tgt != null && !hasErr;
             if (!okLine) {
                 allOk = false;
@@ -294,7 +298,7 @@ public class TypologyImportService {
                     warn.get(i)));
         }
 
-        return new TypologyImportAnalyzeResult(allOk && blocking.isEmpty(), blocking, previews, parsed);
+        return new TypologyImportAnalyzeResult(allOk && blocking.isEmpty(), blocking, previews, parsed, imageUrlCache);
     }
 
     /**
@@ -324,6 +328,7 @@ public class TypologyImportService {
 
     private static final int IMPORT_BATCH_SIZE = 250;
     private static final int IMPORT_PROGRESS_LOG_EVERY = 250;
+    private static final int IMPORT_PROGRESS_PUBLISH_EVERY = 50;
     private static final int IMPORT_FLUSH_EVERY = 50;
 
     /**
@@ -343,11 +348,14 @@ public class TypologyImportService {
             throw new IllegalArgumentException("Typologie de collection non prise en charge pour l'import CSV.");
         }
 
+        TypologyImportImageUrlCache imageUrlCache = resolveImageUrlCache(skipPriorAnalysis, priorAnalysis);
+
         if (!skipPriorAnalysis) {
             TypologyImportAnalyzeResult analysis = analyze(ref, parsed, collectionProfile);
             if (!analysis.successful()) {
                 throw new IllegalStateException("L'analyse signale des erreurs bloquantes ; import annulé.");
             }
+            imageUrlCache = analysis.imageUrlCache() != null ? analysis.imageUrlCache() : imageUrlCache;
         } else if (progress != null) {
             progress.setPreparingImport("Préparation de l'import…");
             publishProgress(httpSession, progress);
@@ -414,7 +422,8 @@ public class TypologyImportService {
         }
 
         TypologyImportLookupCache lookupCache = TypologyImportLookupCache.warm(
-                ref, categoryService, groupService, serieService, entityRepository);
+                ref, categoryService, groupService, serieService, typeService, entityRepository);
+        TypologyImportAuthorCache authorCache = new TypologyImportAuthorCache(auteurScientifiqueRepository);
         Langue langLabel = resolveLangCode("fr", "fr");
         Langue langDesc = langLabel;
         ImportExecutionContext ctx = new ImportExecutionContext(
@@ -425,9 +434,11 @@ public class TypologyImportService {
         int importDone = 0;
         for (List<Integer> batch : batches) {
             final int batchSize = batch.size();
+            final TypologyImportImageUrlCache batchImageCache = imageUrlCache;
             try {
                 importTransactionTemplate.executeWithoutResult(status ->
-                        processImportBatch(ctx, batch, lookupCache, user, langLabel, langDesc));
+                        processImportBatch(ctx, batch, lookupCache, authorCache, batchImageCache,
+                                user, langLabel, langDesc));
             } catch (Exception ex) {
                 String rootMessage = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
                 if (importDone > 0) {
@@ -445,9 +456,10 @@ public class TypologyImportService {
                 return TypologyImportExecutionResult.failure(rootMessage);
             }
             entityManager.clear();
+            lookupCache.clearEntityInstances();
             for (int idx : batch) {
                 importDone++;
-                if (progress != null) {
+                if (progress != null && (importDone % IMPORT_PROGRESS_PUBLISH_EVERY == 0 || importDone == importTotal)) {
                     progress.tickImporting(importDone, importTotal, idx + 2);
                     publishProgress(httpSession, progress);
                 }
@@ -501,15 +513,26 @@ public class TypologyImportService {
         return batches;
     }
 
+    private static TypologyImportImageUrlCache resolveImageUrlCache(
+            boolean skipPriorAnalysis, TypologyImportAnalyzeResult priorAnalysis) {
+        if (skipPriorAnalysis && priorAnalysis != null && priorAnalysis.imageUrlCache() != null) {
+            return priorAnalysis.imageUrlCache();
+        }
+        return new TypologyImportImageUrlCache();
+    }
+
     private void processImportBatch(
             ImportExecutionContext ctx,
             List<Integer> batchIndices,
             TypologyImportLookupCache lookupCache,
+            TypologyImportAuthorCache authorCache,
+            TypologyImportImageUrlCache imageUrlCache,
             Utilisateur user,
             Langue langLabel,
             Langue langDesc) {
         Entity ref = entityRepository.findById(Objects.requireNonNull(ctx.referenceId()))
                 .orElseThrow(() -> new IllegalArgumentException("Référentiel introuvable."));
+        lookupCache.registerLoadedEntity(ref);
         int flushed = 0;
         for (int idx : batchIndices) {
             Map<String, String> row = ctx.rows().get(idx);
@@ -517,7 +540,8 @@ public class TypologyImportService {
             applyRow(ref, row, ctx.kinds()[idx], ctx.targets()[idx],
                     codes.categorie(), codes.groupe(), codes.serie(),
                     ctx.catType(), ctx.grpType(), ctx.serType(), ctx.typType(),
-                    user, ctx.csvHeaders(), ctx.collectionProfile(), lookupCache, langLabel, langDesc);
+                    user, ctx.csvHeaders(), ctx.collectionProfile(), lookupCache, authorCache, imageUrlCache,
+                    langLabel, langDesc);
             flushed++;
             if (flushed % IMPORT_FLUSH_EVERY == 0) {
                 entityRepository.flush();
@@ -560,37 +584,47 @@ public class TypologyImportService {
                           EntityType catType, EntityType grpType, EntityType serType, EntityType typType,
                           Utilisateur user, Set<String> csvHeaders,
                           TypologyImportCollectionProfile collectionProfile,
-                          TypologyImportLookupCache lookupCache, Langue langLabel, Langue langDesc) {
+                          TypologyImportLookupCache lookupCache,
+                          TypologyImportAuthorCache authorCache,
+                          TypologyImportImageUrlCache imageUrlCache,
+                          Langue langLabel, Langue langDesc) {
 
         String statutStr = null;
 
         switch (kind) {
             case CATEGORIE -> {
                 Entity saved = upsertCategory(reference, targetCode, langLabel, langDesc,
-                        statutStr, row, catType, user, csvHeaders, collectionProfile);
+                        statutStr, row, catType, user, csvHeaders, collectionProfile,
+                        lookupCache, authorCache, imageUrlCache);
                 lookupCache.registerCategory(saved);
             }
             case GROUPE -> {
                 Entity cat = lookupCache.findCategory(cc).orElseThrow();
                 Entity saved = upsertChild(cat, targetCode, EntityConstants.ENTITY_TYPE_GROUP, grpType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile,
+                        lookupCache, authorCache, imageUrlCache);
                 lookupCache.registerGroup(cc, saved);
             }
             case SERIE -> {
                 Entity grp = lookupCache.findGroup(cc, cg).orElseThrow();
                 Entity saved = upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_SERIES, serType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile,
+                        lookupCache, authorCache, imageUrlCache);
                 lookupCache.registerSerie(cc, cg, saved);
             }
             case TYPE_SOUS_SERIE -> {
                 Entity serie = lookupCache.findSerie(cc, cg, cs).orElseThrow();
-                upsertChild(serie, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                Entity saved = upsertChild(serie, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile,
+                        lookupCache, authorCache, imageUrlCache);
+                lookupCache.registerType(cc, cg, saved);
             }
             case TYPE_SOUS_GROUPE -> {
                 Entity grp = lookupCache.findGroup(cc, cg).orElseThrow();
-                upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
-                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile);
+                Entity saved = upsertChild(grp, targetCode, EntityConstants.ENTITY_TYPE_TYPE, typType,
+                        langLabel, langDesc, statutStr, row, user, csvHeaders, collectionProfile,
+                        lookupCache, authorCache, imageUrlCache);
+                lookupCache.registerType(cc, cg, saved);
             }
             case NON_CLASSIFIE ->
                     throw new IllegalStateException("Ligne non classifiable : ne doit pas être importée.");
@@ -600,9 +634,11 @@ public class TypologyImportService {
     private Entity upsertCategory(Entity reference, String code,
                                 Langue langLabel, Langue langDesc, String statutStr,
                                 Map<String, String> row, EntityType catType, Utilisateur user,
-                                Set<String> csvHeaders, TypologyImportCollectionProfile collectionProfile) {
-        Optional<Long> existingId = entityCodeUniquenessService.findEntityIdInReference(
-                reference, EntityConstants.ENTITY_TYPE_CATEGORY, code);
+                                Set<String> csvHeaders, TypologyImportCollectionProfile collectionProfile,
+                                TypologyImportLookupCache lookupCache,
+                                TypologyImportAuthorCache authorCache,
+                                TypologyImportImageUrlCache imageUrlCache) {
+        Optional<Long> existingId = lookupCache.findEntityIdByCategoryCode(code);
         boolean isCreate = existingId.isEmpty();
         Entity entity;
         if (existingId.isEmpty()) {
@@ -613,33 +649,46 @@ public class TypologyImportService {
             attachAuthor(entity, user);
             entity.setStatut(statutStr != null ? statutStr : EntityStatusEnum.PROPOSITION.name());
             entity = entityRepository.save(entity);
-            linkParentChild(reference, entity);
+            linkParentChild(reference, entity, lookupCache);
         } else {
-            entity = loadEntityForImport(existingId.get());
+            entity = loadEntityForImport(existingId.get(), lookupCache);
             entity.setStatut(statutStr != null ? statutStr : entity.getStatut());
-            if (!entityRelationRepository.existsByParentAndChild(reference.getId(), entity.getId())) {
-                linkParentChild(reference, entity);
+            if (!lookupCache.isKnownLinked(reference.getId(), entity.getId())
+                    && !entityRelationRepository.existsByParentAndChild(reference.getId(), entity.getId())) {
+                linkParentChild(reference, entity, lookupCache);
             }
         }
         applyFrenchPrimaryLabelsDescriptions(entity, code, langLabel, langDesc, row, csvHeaders, isCreate);
         replaceLocalizedTexts(entity, row, csvHeaders, isCreate);
         replaceMetadata(entity, row, csvHeaders, isCreate);
-        replaceImages(entity, row, csvHeaders, isCreate);
+        replaceImages(entity, row, csvHeaders, isCreate, imageUrlCache);
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
         applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
-        replaceAuteursScientifiques(entity, row, csvHeaders);
+        replaceAuteursScientifiques(entity, row, csvHeaders, authorCache);
         return entityRepository.save(entity);
+    }
+
+    private Entity resolveLookupParent(Entity parent, String expectedTypeCode) {
+        if (EntityConstants.ENTITY_TYPE_TYPE.equals(expectedTypeCode)) {
+            return entityCodeUniquenessService.resolveGroup(parent).orElse(parent);
+        }
+        return parent;
     }
 
     private Entity upsertChild(Entity parent, String code, String expectedTypeCode, EntityType concreteType,
                              Langue langLabel, Langue langDesc, String statutStr,
                              Map<String, String> row, Utilisateur user, Set<String> csvHeaders,
-                             TypologyImportCollectionProfile collectionProfile) {
-        Optional<Long> existingId = findExistingEntityIdInImportScope(parent, expectedTypeCode, code);
+                             TypologyImportCollectionProfile collectionProfile,
+                             TypologyImportLookupCache lookupCache,
+                             TypologyImportAuthorCache authorCache,
+                             TypologyImportImageUrlCache imageUrlCache) {
+        Optional<Long> existingId = lookupCache.findExistingChildEntityId(
+                resolveLookupParent(parent, expectedTypeCode), expectedTypeCode, code);
         boolean isCreate = existingId.isEmpty();
         Entity entity;
         if (existingId.isEmpty()) {
-            assertImportCodeAvailableOnCreate(parent, expectedTypeCode, code);
+            assertImportCodeAvailableOnCreate(
+                    resolveLookupParent(parent, expectedTypeCode), expectedTypeCode, code, lookupCache);
             entity = new Entity();
             entity.setEntityType(concreteType);
             entity.setCode(code);
@@ -647,27 +696,36 @@ public class TypologyImportService {
             attachAuthor(entity, user);
             entity.setStatut(statutStr != null ? statutStr : EntityStatusEnum.PROPOSITION.name());
             entity = entityRepository.save(entity);
-            linkParentChild(parent, entity);
+            linkParentChild(parent, entity, lookupCache);
         } else {
-            entity = loadEntityForImport(existingId.get());
+            entity = loadEntityForImport(existingId.get(), lookupCache);
             if (entity.getEntityType() == null || !expectedTypeCode.equals(entity.getEntityType().getCode())) {
                 throw new IllegalStateException("Le code « " + code + " » existe avec un autre type d'entité.");
             }
-            Entity currentParent = entityRelationRepository.findParentsByChild(entity).stream()
-                    .findFirst().orElse(null);
-            if (currentParent == null || !Objects.equals(currentParent.getId(), parent.getId())) {
-                typeService.changeTypeParent(entity, parent);
-                entity = loadEntityForImport(entity.getId());
+            Optional<Long> knownParentId = lookupCache.getKnownParentId(entity.getId());
+            if (knownParentId.isPresent()) {
+                if (!Objects.equals(knownParentId.get(), parent.getId())) {
+                    typeService.changeTypeParent(entity, parent);
+                    entity = loadEntityForImport(entity.getId(), lookupCache);
+                }
+            } else {
+                Entity currentParent = entityRelationRepository.findParentsByChild(entity).stream()
+                        .findFirst().orElse(null);
+                if (currentParent == null || !Objects.equals(currentParent.getId(), parent.getId())) {
+                    typeService.changeTypeParent(entity, parent);
+                    entity = loadEntityForImport(entity.getId(), lookupCache);
+                }
+                lookupCache.registerParentChild(parent.getId(), entity.getId());
             }
             entity.setStatut(statutStr != null ? statutStr : entity.getStatut());
         }
         applyFrenchPrimaryLabelsDescriptions(entity, code, langLabel, langDesc, row, csvHeaders, isCreate);
         replaceLocalizedTexts(entity, row, csvHeaders, isCreate);
         replaceMetadata(entity, row, csvHeaders, isCreate);
-        replaceImages(entity, row, csvHeaders, isCreate);
+        replaceImages(entity, row, csvHeaders, isCreate, imageUrlCache);
         replaceOpenTheso(entity, row, csvHeaders, isCreate);
         applyTypologySpecificDetails(entity, row, csvHeaders, isCreate, collectionProfile);
-        replaceAuteursScientifiques(entity, row, csvHeaders);
+        replaceAuteursScientifiques(entity, row, csvHeaders, authorCache);
         arkIdentifierService.ensureArkIfAbsentForPublishedTypologyEntity(entity);
         return entityRepository.save(entity);
     }
@@ -907,13 +965,17 @@ public class TypologyImportService {
         }
     }
 
-    private void linkParentChild(Entity parent, Entity child) {
+    private void linkParentChild(Entity parent, Entity child, TypologyImportLookupCache lookupCache) {
+        if (lookupCache.isKnownLinked(parent.getId(), child.getId())) {
+            return;
+        }
         if (!entityRelationRepository.existsByParentAndChild(parent.getId(), child.getId())) {
             EntityRelation rel = new EntityRelation();
             rel.setParent(parent);
             rel.setChild(child);
             entityRelationRepository.save(rel);
         }
+        lookupCache.registerParentChild(parent.getId(), child.getId());
     }
 
     private void replaceLabels(Entity entity, Langue lang, String nom) {
@@ -1065,7 +1127,8 @@ public class TypologyImportService {
         return Integer.parseInt(t.trim());
     }
 
-    private void replaceImages(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate) {
+    private void replaceImages(Entity entity, Map<String, String> row, Set<String> csvHeaders, boolean isCreate,
+                               TypologyImportImageUrlCache imageUrlCache) {
         if (!columnInCsv(csvHeaders, TypologyImportConstants.COL_ILLUSTRATIONS)) {
             return;
         }
@@ -1093,7 +1156,7 @@ public class TypologyImportService {
             if (!StringUtils.hasText(url)) {
                 continue;
             }
-            if (!RemoteImageUrlValidator.isValidRemoteImageUrl(url)) {
+            if (!imageUrlCache.isValidForImport(url)) {
                 continue;
             }
             Image img = new Image();
@@ -1371,7 +1434,8 @@ public class TypologyImportService {
         }
     }
 
-    private void replaceAuteursScientifiques(Entity entity, Map<String, String> row, Set<String> csvHeaders) {
+    private void replaceAuteursScientifiques(Entity entity, Map<String, String> row, Set<String> csvHeaders,
+                                             TypologyImportAuthorCache authorCache) {
         if (!columnInCsvScientificAuthors(csvHeaders)) {
             return;
         }
@@ -1390,15 +1454,7 @@ public class TypologyImportService {
                 continue;
             }
             ParsedScientificAuthor pn = parsed.get();
-            AuteurScientifique author = auteurScientifiqueRepository
-                    .findFirstByNomIgnoreCaseAndPrenomIgnoreCaseOrderByIdAsc(pn.nom(), pn.prenom())
-                    .orElseGet(() -> {
-                        AuteurScientifique created = new AuteurScientifique();
-                        created.setNom(pn.nom());
-                        created.setPrenom(pn.prenom());
-                        created.setActive(true);
-                        return auteurScientifiqueRepository.save(created);
-                    });
+            AuteurScientifique author = authorCache.resolve(pn.nom(), pn.prenom());
             entity.getAuteursScientifiques().add(author);
         }
     }
@@ -1494,22 +1550,22 @@ public class TypologyImportService {
             if (current != null && current.getEntity() != null
                     && Objects.equals(current.getEntity().getId(), entity.getId())) {
                 setter.accept(null);
-                entityRepository.saveAndFlush(entity);
+                entityRepository.save(entity);
                 referenceOpenthesoRepository.deleteById(current.getId());
             } else if (current != null) {
                 setter.accept(null);
-                entityRepository.saveAndFlush(entity);
+                entityRepository.save(entity);
             }
             return;
         }
         if (current != null && current.getEntity() != null
                 && Objects.equals(current.getEntity().getId(), entity.getId())) {
             setter.accept(null);
-            entityRepository.saveAndFlush(entity);
+            entityRepository.save(entity);
             referenceOpenthesoRepository.deleteById(current.getId());
         } else if (current != null) {
             setter.accept(null);
-            entityRepository.saveAndFlush(entity);
+            entityRepository.save(entity);
         }
         String valeur = hasLabel ? libelle.trim() : url.trim();
         String cleanedUrl = hasUrl ? url.trim() : null;
@@ -1528,8 +1584,9 @@ public class TypologyImportService {
     /**
      * Charge l'entité et initialise les collections modifiables (évite fetch multi-bags).
      */
-    private Entity loadEntityForImport(Long id) {
-        Entity e = entityRepository.findById(id).orElseThrow();
+    private Entity loadEntityForImport(Long id, TypologyImportLookupCache lookupCache) {
+        Optional<Entity> cached = lookupCache.findEntity(id);
+        Entity e = cached.orElseGet(() -> entityRepository.findById(id).orElseThrow());
         if (e.getLabels() != null) {
             e.getLabels().size();
         }
@@ -1557,6 +1614,7 @@ public class TypologyImportService {
         if (e.getAppellationsUsuelles() != null) {
             e.getAppellationsUsuelles().size();
         }
+        lookupCache.registerLoadedEntity(e);
         return e;
     }
 
@@ -1571,7 +1629,8 @@ public class TypologyImportService {
         return l;
     }
 
-    private static void previewImages(Map<String, String> row, List<String> warnings) {
+    private static void previewImages(Map<String, String> row, List<String> warnings,
+                                      TypologyImportImageUrlCache imageUrlCache) {
         String raw = getCell(row, TypologyImportConstants.COL_ILLUSTRATIONS);
         if (!StringUtils.hasText(raw)) {
             return;
@@ -1583,7 +1642,7 @@ public class TypologyImportService {
             if (!StringUtils.hasText(url)) {
                 continue;
             }
-            if (!RemoteImageUrlValidator.isValidRemoteImageUrl(url)) {
+            if (!imageUrlCache.validateWithNetwork(url)) {
                 warnings.add("Image ignorée (URL invalide ou inaccessible) : " + url);
             }
         }
@@ -1699,26 +1758,6 @@ public class TypologyImportService {
         }
     }
 
-    private Optional<Entity> findCategory(Entity reference, String catCode) {
-        return categoryService.loadCategoriesByReference(reference).stream()
-                .filter(e -> catCode.equals(e.getCode()))
-                .findFirst();
-    }
-
-    private Optional<Entity> findGroup(Entity reference, String catCode, String groupCode) {
-        Optional<Entity> cat = findCategory(reference, catCode);
-        return cat.flatMap(c -> groupService.loadCategoryGroups(c).stream()
-                .filter(g -> groupCode.equals(g.getCode()))
-                .findFirst());
-    }
-
-    private Optional<Entity> findSerie(Entity reference, String catCode, String groupCode, String serieCode) {
-        Optional<Entity> grp = findGroup(reference, catCode, groupCode);
-        return grp.flatMap(g -> serieService.loadGroupSeries(g).stream()
-                .filter(s -> serieCode.equals(s.getCode()))
-                .findFirst());
-    }
-
     private static String importDuplicateKey(
             TypologyImportKind kind, String catCode, String groupCode, String serieCode, String targetCode) {
         if (kind == null || targetCode == null) {
@@ -1734,7 +1773,7 @@ public class TypologyImportService {
     }
 
     private void validateImportScopedCode(
-            Entity reference,
+            TypologyImportLookupCache lookupCache,
             TypologyImportKind kind,
             String targetCode,
             String catCode,
@@ -1744,7 +1783,7 @@ public class TypologyImportService {
         if (kind == null || targetCode == null || kind == TypologyImportKind.NON_CLASSIFIE) {
             return;
         }
-        if (importEntityExistsInScope(reference, kind, targetCode, catCode, groupCode, serieCode)) {
+        if (importEntityExistsInScope(lookupCache, kind, targetCode, catCode, groupCode, serieCode)) {
             return;
         }
         String message = switch (kind) {
@@ -1754,80 +1793,60 @@ public class TypologyImportService {
             case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> EntityConstants.ERROR_TYPE_CODE_EXISTS_IN_GROUP;
             default -> EntityConstants.ERROR_CODE_ALREADY_EXISTS;
         };
-        if (isImportCodeTakenOnCreate(reference, kind, targetCode, catCode, groupCode, serieCode)) {
+        if (isImportCodeTakenOnCreate(lookupCache, kind, targetCode, catCode, groupCode, serieCode)) {
             errors.add("Le code « " + targetCode + " » : " + message);
         }
     }
 
     private boolean isImportCodeTakenOnCreate(
-            Entity reference,
+            TypologyImportLookupCache lookupCache,
             TypologyImportKind kind,
             String targetCode,
             String catCode,
             String groupCode,
             String serieCode) {
         return switch (kind) {
-            case CATEGORIE -> entityCodeUniquenessService.isCategoryCodeTakenInReference(reference, targetCode, null);
-            case GROUPE -> entityCodeUniquenessService.isGroupCodeTakenInReference(reference, targetCode, null);
-            case SERIE -> findGroup(reference, catCode, groupCode)
-                    .map(grp -> entityCodeUniquenessService.isSerieCodeTakenInGroup(grp, targetCode, null))
-                    .orElse(false);
-            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> findGroup(reference, catCode, groupCode)
-                    .map(grp -> entityCodeUniquenessService.isTypeCodeTakenInGroup(grp, targetCode, null))
-                    .orElse(false);
+            case CATEGORIE -> lookupCache.findEntityIdByCategoryCode(targetCode).isPresent();
+            case GROUPE -> lookupCache.findEntityIdByGroupInReference(targetCode).isPresent();
+            case SERIE -> lookupCache.findEntityIdByGroupKey(catCode, groupCode)
+                    .flatMap(groupId -> lookupCache.findExistingChildEntityId(
+                            entityStub(groupId), EntityConstants.ENTITY_TYPE_SERIES, targetCode))
+                    .isPresent();
+            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> lookupCache.findEntityIdByGroupKey(catCode, groupCode)
+                    .flatMap(groupId -> lookupCache.findExistingChildEntityId(
+                            entityStub(groupId), EntityConstants.ENTITY_TYPE_TYPE, targetCode))
+                    .isPresent();
             default -> false;
         };
     }
 
+    private static Entity entityStub(Long id) {
+        Entity entity = new Entity();
+        entity.setId(id);
+        return entity;
+    }
+
     private boolean importEntityExistsInScope(
-            Entity reference,
+            TypologyImportLookupCache lookupCache,
             TypologyImportKind kind,
             String targetCode,
             String catCode,
             String groupCode,
             String serieCode) {
-        return findExistingEntityIdInImportScope(reference, kind, targetCode, catCode, groupCode, serieCode).isPresent();
+        return lookupCache.findExistingEntityId(kind, targetCode, catCode, groupCode).isPresent();
     }
 
-    private Optional<Long> findExistingEntityIdInImportScope(
-            Entity parent,
-            String expectedTypeCode,
-            String code) {
-        Entity reference = typeService.findReferenceAncestor(parent);
-        return switch (expectedTypeCode) {
-            case EntityConstants.ENTITY_TYPE_GROUP -> reference == null
-                    ? Optional.empty()
-                    : entityCodeUniquenessService.findEntityIdInReference(
-                            reference, EntityConstants.ENTITY_TYPE_GROUP, code);
-            case EntityConstants.ENTITY_TYPE_SERIES -> entityCodeUniquenessService.resolveGroup(parent)
-                    .flatMap(grp -> entityCodeUniquenessService.findSerieIdInGroup(grp, code));
-            case EntityConstants.ENTITY_TYPE_TYPE -> entityCodeUniquenessService.resolveGroup(parent)
-                    .flatMap(grp -> entityCodeUniquenessService.findTypeIdInGroup(grp, code));
-            default -> Optional.empty();
-        };
-    }
-
-    private Optional<Long> findExistingEntityIdInImportScope(
-            Entity reference,
-            TypologyImportKind kind,
-            String targetCode,
-            String catCode,
-            String groupCode,
-            String serieCode) {
-        return switch (kind) {
-            case CATEGORIE -> entityCodeUniquenessService.findEntityIdInReference(
-                    reference, EntityConstants.ENTITY_TYPE_CATEGORY, targetCode);
-            case GROUPE -> entityCodeUniquenessService.findEntityIdInReference(
-                    reference, EntityConstants.ENTITY_TYPE_GROUP, targetCode);
-            case SERIE -> findGroup(reference, catCode, groupCode)
-                    .flatMap(grp -> entityCodeUniquenessService.findSerieIdInGroup(grp, targetCode));
-            case TYPE_SOUS_SERIE, TYPE_SOUS_GROUPE -> findGroup(reference, catCode, groupCode)
-                    .flatMap(grp -> entityCodeUniquenessService.findTypeIdInGroup(grp, targetCode));
-            default -> Optional.empty();
-        };
-    }
-
-    private void assertImportCodeAvailableOnCreate(Entity parent, String expectedTypeCode, String code) {
+    private void assertImportCodeAvailableOnCreate(
+            Entity parent, String expectedTypeCode, String code, TypologyImportLookupCache lookupCache) {
+        if (lookupCache.isCodeRegisteredInScope(parent, expectedTypeCode, code)) {
+            String message = switch (expectedTypeCode) {
+                case EntityConstants.ENTITY_TYPE_GROUP -> EntityConstants.ERROR_GROUP_CODE_EXISTS_IN_REFERENCE;
+                case EntityConstants.ENTITY_TYPE_SERIES -> EntityConstants.ERROR_SERIE_CODE_EXISTS_IN_GROUP;
+                case EntityConstants.ENTITY_TYPE_TYPE -> EntityConstants.ERROR_TYPE_CODE_EXISTS_IN_GROUP;
+                default -> EntityConstants.ERROR_CODE_ALREADY_EXISTS;
+            };
+            throw new IllegalStateException(message);
+        }
         if (entityCodeUniquenessService.isCodeTakenForCreate(expectedTypeCode, parent, code, null)) {
             String message = switch (expectedTypeCode) {
                 case EntityConstants.ENTITY_TYPE_GROUP -> EntityConstants.ERROR_GROUP_CODE_EXISTS_IN_REFERENCE;

@@ -9,6 +9,14 @@ public record TypologyImportAnalyzeResult(
         boolean successful,
         List<String> blockingErrors,
         List<TypologyImportPreviewLine> previewLines,
-        TypologyCsvParser.ParsedCsv parsedCsv
+        TypologyCsvParser.ParsedCsv parsedCsv,
+        TypologyImportImageUrlCache imageUrlCache
 ) {
+    public TypologyImportAnalyzeResult(
+            boolean successful,
+            List<String> blockingErrors,
+            List<TypologyImportPreviewLine> previewLines,
+            TypologyCsvParser.ParsedCsv parsedCsv) {
+        this(successful, blockingErrors, previewLines, parsedCsv, new TypologyImportImageUrlCache());
+    }
 }

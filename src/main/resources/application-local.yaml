@@ -48,6 +48,11 @@ spring:
           store_data_at_delete: true
           default_schema: public
         enable_lazy_load_no_trans: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
 
 logging:
   level:
